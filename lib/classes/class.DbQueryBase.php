@@ -94,7 +94,7 @@ abstract class DbQueryBase
 	/**
 	 * @ignore
 	 */
-	public function __get($key)
+	public function __get(string $key)
 	{
 		$this->execute();
 		switch( $key ) {

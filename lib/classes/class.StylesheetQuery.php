@@ -231,7 +231,7 @@ class StylesheetQuery extends DbQueryBase
 	/**
 	 * Return all the matches for this query
 	 *
-	 * @return mixed array Stylesheet objects | null
+	 * @return array Stylesheet object(s) | empty
 	 * @throws RuntimeException
 	 */
 	public function GetMatches()

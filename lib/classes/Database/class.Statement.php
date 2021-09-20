@@ -90,7 +90,7 @@ final class Statement
     /**
      * @ignore
      */
-    public function __get($key)
+    public function __get(string $key)
     {
         switch ($key) {
          case 'db':

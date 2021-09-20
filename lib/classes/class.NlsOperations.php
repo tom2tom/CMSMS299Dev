@@ -116,7 +116,7 @@ final class NlsOperations
 	 * Get an array of all languages that are known (installed).
 	 * Uses the NLS files to handle this
 	 *
-	 * @return mixed Array of language names, or null
+	 * @return array language name(s) | empty
 	 */
 	public static function get_installed_languages()
 	{
@@ -124,13 +124,14 @@ final class NlsOperations
 		if( is_array(self::$_nls) ) {
 			return array_keys(self::$_nls);
 		}
+		return [];
 	}
 
 	/**
 	 * Get language info about a particular language.
 	 *
 	 * @param string $lang language name.
-	 * @return mixed Nls object representing the named language, or null.
+	 * @return mixed Nls object representing the named language | null
 	 */
 	public static function get_language_info(string $lang)
 	{
@@ -341,7 +342,7 @@ final class NlsOperations
 	/**
 	 * Return a priority-sorted list of languages (if any) understood by the browser.
 	 *
-	 * @return mixed array of strings representing the languages the browser supports, or null
+	 * @return array string(s) representing the languages the browser supports | empty
 	 */
 	public static function get_browser_languages()
 	{
@@ -373,6 +374,7 @@ final class NlsOperations
 			arsort($langs, SORT_NUMERIC);
 			return $langs;
 		}
+		return [];
 	}
 
 	/**

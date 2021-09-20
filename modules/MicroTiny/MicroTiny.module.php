@@ -39,8 +39,8 @@ class MicroTiny extends CMSModule
   public function GetVersion(){ return '2.3'; }
   public function HasAdmin() { return true; }
   public function IsPluginModule() { return true; } //deprecated
-//  public function LazyLoadAdmin() { return true; }
-//  public function LazyLoadFrontend() { return true; }
+//public function LazyLoadAdmin() { return true; }
+//public function LazyLoadFrontend() { return true; }
   public function MinimumCMSVersion() { return '2.99'; }
   public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 

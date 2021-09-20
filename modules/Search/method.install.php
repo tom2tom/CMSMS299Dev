@@ -25,7 +25,7 @@ use CMSMS\Template;
 use CMSMS\TemplatesGroup;
 use CMSMS\TemplateType;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 
 $newsite = AppState::test(AppState::INSTALL);
 if ($newsite) {
@@ -105,7 +105,7 @@ try {
     $tpl->set_owner($userid);
     $tpl->set_content($this->GetSearchHtmlTemplate());
     $tpl->set_type($form_type);
-    $tpl->set_type_dflt(TRUE);
+    $tpl->set_type_default(TRUE);
     $tpl->save();
 
     $results_type = new TemplateType();
@@ -123,7 +123,7 @@ try {
     $tpl->set_owner($userid);
     $tpl->set_content($this->GetResultsHtmlTemplate());
     $tpl->set_type($results_type);
-    $tpl->set_type_dflt(TRUE);
+    $tpl->set_type_default(TRUE);
     $tpl->save();
 } catch( Throwable $t) {
     if ($newsite) {

@@ -20,7 +20,7 @@ final class request implements ArrayAccess
     {
     }
 
-    public function __call($fn, $args)
+    public function __call(string $fn, array $args)
     {
         $key = strtoupper($fn);
         if (isset($_SERVER[$key])) {

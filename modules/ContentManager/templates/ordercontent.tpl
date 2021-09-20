@@ -3,7 +3,7 @@
     {$obj=$node->getContent()}{$desc=$node->has_children()}
     <li id="page_{$obj->Id()}" {if !$obj->WantsChildren()}class="no-nest"{/if}>
       <div class="label{if !$obj->Active()} red{/if}">
-        <span>&nbsp;</span>{$obj->Hierarchy()}:&nbsp;{$obj->Name()|cms_escape}{if !$obj->Active()}&nbsp;({$mod->Lang('prompt_inactive')}){/if} <em>({$obj->MenuText()|cms_escape})</em>
+        <span>&nbsp;</span>{$obj->Hierarchy()}:&nbsp;{$obj->Name()|cms_escape}{if !$obj->Active()}&nbsp;({_ld($_module,'prompt_inactive')}){/if} <em>({$obj->MenuText()|cms_escape})</em>
         {if $desc}
           <span class="haschildren expanded">-</span>
         {/if}
@@ -18,14 +18,14 @@
   {/foreach}
 {/function}
 
-<h3>{$mod->Lang('prompt_ordercontent')}</h3>
+<h3>{_ld($_module,'prompt_ordercontent')}</h3>
 {form_start action='admin_ordercontent' id="theform"}
 <input type="hidden" id="orderlist" name="{$actionid}orderlist" value="" />
-<div class="pageinfo">{$mod->Lang('info_ordercontent')}</div>
+<div class="pageinfo">{_ld($_module,'info_ordercontent')}</div>
 <div class="pageinput postgap">
-  <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-  <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit icon undo">{$mod->Lang('revert')}</button>
+  <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit icon check">{_ld($_module,'submit')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{_ld($_module,'cancel')}</button>
+  <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit icon undo">{_ld($_module,'revert')}</button>
 </div>
 <div class="pageoverflow">
   {$list = $tree->getChildren(false,true)}
@@ -35,9 +35,9 @@
 </div>
 {if $list|count > 10}
  <div class="pageinput pregap">
-  <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-  <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit icon undo">{$mod->Lang('revert')}</button>
+  <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit icon check">{_ld($_module,'submit')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{_ld($_module,'cancel')}</button>
+  <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit icon undo">{_ld($_module,'revert')}</button>
  </div>
 {/if}
 </form>

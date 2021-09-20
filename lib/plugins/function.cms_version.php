@@ -42,6 +42,6 @@ EOS;
 /*
 D function smarty_cms_help_function_cms_version()
 {
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'cms_version', "<li>none</li>");
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'cms_version', "<li>none</li>");
 }
 */

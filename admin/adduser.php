@@ -44,8 +44,8 @@ if (isset($_POST['cancel'])) {
 
 $userid = get_userid();
 if (!check_permission($userid, 'Manage Users')) {
-    //TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Users')), ...);
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+    //TODO some pushed popup c.f. javascript:cms_notify('error', _la('no_permission') OR _la('needpermissionto', _la('perm_Manage_Users')), ...);
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 //--------- Variables ---------
@@ -69,9 +69,9 @@ if (isset($_POST['submit'])) {
     $tmp = trim($_POST['user']);
     $username = sanitizeVal($tmp, CMSSAN_ACCOUNT);
     if ($username != $tmp) {
-        $errors[] = lang('illegalcharacters', lang('username'));
+        $errors[] = _la('illegalcharacters', _la('username'));
     } elseif (!($username || is_numeric($username))) { // allow username '0' ??
-        $errors[] = lang('nofieldgiven', lang('username'));
+        $errors[] = _la('nofieldgiven', _la('username'));
     }
 
     $firstname = sanitizeVal(trim($_POST['firstname']), CMSSAN_NONPRINT); // OR no-gibberish 2.99 breaking change
@@ -83,11 +83,11 @@ if (isset($_POST['submit'])) {
     $tmp = $_POST['password'] ?? '';
     $password = sanitizeVal($tmp, CMSSAN_NONPRINT);
     if ($password != $tmp) {
-        $errors[] = lang('illegalcharacters', lang('password'));
+        $errors[] = _la('illegalcharacters', _la('password'));
     } elseif (!$password) {
-        $errors[] = lang('nofieldgiven', lang('password'));
+        $errors[] = _la('nofieldgiven', _la('password'));
     } elseif ($password != $passagain) {
-        $errors[] = lang('nopasswordmatch');
+        $errors[] = _la('nopasswordmatch');
     }
 
     //PHP's FILTER_VALIDATE_EMAIL mechanism is not entirely reliable - see notes at https://www.php.net/manual/en/function.filter-var.php
@@ -95,7 +95,7 @@ if (isset($_POST['submit'])) {
     $tmp = trim($_POST['email']);
     $email = sanitizeVal($tmp, CMSSAN_NONPRINT);
     if (($email != $tmp) || ($email && !is_email($email))) {
-        $errors[] = lang('invalidemail') . ': ' . $email;
+        $errors[] = _la('invalidemail') . ': ' . $email;
         $checkmail = null; // prevent use in P/W check
     } else {
         $checkmail = $email;
@@ -171,10 +171,10 @@ if (isset($_POST['submit'])) {
                 audit($userobj->id, 'Admin User ' . $userobj->username, 'Added');
                 redirect('listusers.php'.$urlext);
             } else {
-                $errors[] = lang('errorinsertinguser');
+                $errors[] = _la('errorinsertinguser');
             }
         } else {
-            $errors[] = lang('error_passwordinvalid');
+            $errors[] = _la('error_passwordinvalid');
         }
     }
     $email = specialize($email);
@@ -219,7 +219,7 @@ if ($errors) {
 }
 
 //data for user-selector
-$sel = [-1 => lang('none')];
+$sel = [-1 => _la('none')];
 $userlist = $userops->LoadUsers();
 foreach ($userlist as $one) {
     $sel[$one->id] = $one->username; // no specialize() needed?

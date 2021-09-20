@@ -63,7 +63,7 @@ class wizard_step8 extends wizard_step
      * is already set. But here it aint so!
      *
      * @param array $destconfig parameters for db connection
-     * @return mixed Connection-class object or error message string
+     * @return mixed Connection-class object | error message string
      */
 /*    private function db_connect(array $destconfig)
     {
@@ -75,8 +75,7 @@ class wizard_step8 extends wizard_step
         catch( Throwable $t ) {
             return $t->getMessage();
         }
-        AppState::add(AppState::INSTALL);
-        SingleItem::App()->_setDb($db);
+        SingleItem::insert('Db', $db)
         return $db;
     }
 */

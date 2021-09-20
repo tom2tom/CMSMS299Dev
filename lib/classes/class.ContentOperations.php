@@ -115,7 +115,7 @@ final class ContentOperations
 	 * @since 1.9
 	 * @deprecated since 2.99 instead use ContentTypeOperations::LoadContentType()
 	 * @param mixed $type string type name or ContentType object
-	 * @return mixed ContentType object or null
+	 * @return mixed ContentType object | null
 	 */
 	public function LoadContentType($type)
 	{
@@ -133,7 +133,7 @@ final class ContentOperations
 	 * @param bool $allowed optionally filter the list of content types by the
 	 *  'disallowed_contenttypes' site preference. Default false.
 	 * @param bool $system return only CMSMS-internal content types. Default false.
-	 * @return mixed array List of content types registered in the system | null
+	 * @return array Content type(s) registered in the system | empty
 	 */
 	public function ListContentTypes(bool $byclassname = FALSE, bool $allowed = FALSE, bool $system = FALSE)
 	{
@@ -173,7 +173,7 @@ final class ContentOperations
 	 * Return a content object for the currently requested page.
 	 *
 	 * @since 1.9
-	 * @return mixed A content object derived from ContentBase, or null
+	 * @return mixed A content object derived from ContentBase | null
 	 */
 	public function getContentObject()
 	{
@@ -191,11 +191,11 @@ final class ContentOperations
 	 *
 	 * @see ContentBase::ListContentTypes()
 	 * @param  array $data
-	 * @return mixed A content object derived from ContentBase, or false
+	 * @return mixed A content object derived from ContentBase | null
 	 */
 	public function LoadContentFromSerializedData(array &$data)
 	{
-		if( !isset($data['serialized_content']) ) return FALSE;
+		if( !isset($data['serialized_content']) ) return;
 
 		$contenttype = $data['content_type'] ?? 'content';
 		$this->CreateNewContent($contenttype);
@@ -215,7 +215,7 @@ final class ContentOperations
 	 * @param array since 2.99 initial object properties (replaces subsequent LoadFromData())
 	 * @param bool since 2.99 optional flag whether to create a IContentEditor-compatible class
 	 * object. Default false (hence a shortform object)
-	 * @return mixed  object derived from ContentBase | null
+	 * @return mixed An object derived from ContentBase | null
 	 */
 	public function CreateNewContent($type, array $params=[], bool $editable=false)
 	{
@@ -246,7 +246,7 @@ final class ContentOperations
 	 *
 	 * @param mixed $id int | null The id of the content object to load. If < 1, the default id will be used.
 	 * @param bool $loadprops Optional flag whether to load the properties of that content object. Defaults to false.
-	 * @return mixed The loaded content object. If nothing is found, returns null.
+	 * @return mixed The loaded content object | null if nothing is found.
 	 */
 	public function LoadContentFromId($id, bool $loadprops=false)
 	{
@@ -281,7 +281,6 @@ final class ContentOperations
 			// the tag which intiated the menu specified 'deep' pre-loading
 			// doesn't help anything, ignored
 		}
-
 		return $contentobj;
 	}
 
@@ -320,7 +319,7 @@ final class ContentOperations
 	 * @ignore
 	 * @param integer $content_id The numeric id of the page to update
 	 * @param array $hash A hash of some properties of all content objects
-	 * @return mixed array|null
+	 * @return array maybe empty
 	 */
 	private function _set_hierarchy_position(int $content_id, array $hash)
 	{
@@ -356,6 +355,7 @@ final class ContentOperations
 			$saved_row['hierarchy_path'] = $pathhier;
 			return $saved_row;
 		}
+		return [];
 	}
 
 	/**
@@ -368,7 +368,8 @@ final class ContentOperations
 	{
 		// load some data about all pages into memory... and convert into a hash.
 		$db = SingleItem::Db();
-		$sql = 'SELECT content_id, parent_id, item_order, content_alias AS alias, hierarchy, id_hierarchy, hierarchy_path FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy';
+		// when installer is running, there may be no hierarchy value to order by, so supplement with parent_id etc
+		$sql = 'SELECT content_id, parent_id, item_order, content_alias AS alias, hierarchy, id_hierarchy, hierarchy_path FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy, parent_id, item_order';
 /*
 		$list = $db->getArray($sql);
 		if( !$list ) {
@@ -776,7 +777,7 @@ final class ContentOperations
 	 * Return the content alias corresponding to the specified content id.
 	 *
 	 * @param int $content_id The content id to query
-	 * @return mixed string The resulting content alias.  null if not found.
+	 * @return mixed string content alias | null if not found.
 	 */
 	public function GetPageAliasFromID( int $content_id )
 	{

@@ -43,7 +43,7 @@ class News extends CMSModule
     public function __construct()
     {
         parent::__construct();
-        if (!function_exists('cmsms_spacedloader')) {
+        if( !function_exists('cmsms_spacedloader') ) {
             require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'function.spacedloader.php';
         }
     }
@@ -178,8 +178,8 @@ A new news article has been posted to the website. The details are as follows:
 Title:      {\$title}
 IP Address: {\$ipaddress}
 Summary:    {\$summary|strip_tags}
-Start Date: {\$startdate|cms_date_format}
-End Date:   {\$enddate|cms_date_format}
+Start Date: {\$startdate|cms_date_format:'timed'}
+End Date:   {\$enddate|cms_date_format:'timed'}
 EOS;
     }
 */
@@ -189,12 +189,12 @@ EOS;
     {
         $result = [];
 
-        if ($attr == 'article') {
+        if( $attr == 'article' ) {
             $db = $this->GetDb();
             $q = 'SELECT news_title,news_url FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
             $row = $db->getRow( $q, [ $articleid ] );
 
-            if ($row) {
+            if( $row ) {
                 $gCms = SingleItem::App();
                 //0 position is the prefix displayed in the list results.
                 $result[0] = $this->GetFriendlyName();
@@ -242,7 +242,7 @@ EOS;
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE searchable = 1 AND status = \'published\' OR status = \'final\' ORDER BY start_time';
         $rst = $db->execute($query);
         $nsexp = $this->GetPreference('expired_searchable',0) == 0;
-        while ($rst && !$rst->EOF) {
+        while( $rst && !$rst->EOF() ) {
             $module->AddWords($this->GetName(),
                               $rst->fields['news_id'], 'article',
                               $rst->fields['news_data'] . ' ' . $rst->fields['summary'] . ' ' . $rst->fields['news_title'] . ' ' . $rst->fields['news_title'],
@@ -272,8 +272,12 @@ EOS;
     public function GetDateFormat() : string
     {
         $fmt = $this->GetPreference('date_format');
-        if (!$fmt) {
-            $fmt = AppParams::get('defaultdateformat','%Y-%m-%e %H:%M');
+        if( $fmt ) {
+            $fmt .= ' '.$this->GetPreference('time_format');
+        }
+        else {
+            $fmt = AppParams::get('date_format','Y-m-d');
+            $fmt .= ' H:i';
         }
         return $fmt;
     }
@@ -287,10 +291,10 @@ EOS;
      */
     public function FormatforDisplay($datetime) : string
     {
-        if ($datetime) {
+        if( $datetime ) {
             $fmt = $this->GetDateFormat();
             $t = strtotime($datetime);
-            return strftime($fmt, $t);
+            return date($fmt, $t);
         }
         return ''.$datetime;
     }
@@ -429,14 +433,15 @@ EOS;
 
     public function get_tasks()
     {
-        if (version_compare(CMS_VERSION, '2.2') < 0) {
+        if( version_compare(CMS_VERSION, '2.2') < 0 ) {
             $out = [new AdjustStatusTask()];
-            if ($this->GetPreference('alert_drafts',1)) {
+            if( $this->GetPreference('alert_drafts',1) ) {
                 $out[] = new CreateDraftAlertTask();
             }
-        } else {
+        }
+        else {
             $out = [new AdjustStatusJob()];
-            if ($this->GetPreference('alert_drafts',1)) {
+            if( $this->GetPreference('alert_drafts',1) ) {
                 $out[] = new CreateDraftAlertJob();
             }
         }

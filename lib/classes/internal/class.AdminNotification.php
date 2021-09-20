@@ -57,7 +57,7 @@ class AdminNotification
     /**
      * @ignore
      */
-    public function __get($key)
+    public function __get(string $key)
     {
         switch( $key ) {
         case 'module':
@@ -72,7 +72,7 @@ class AdminNotification
     /**
      * @ignore
      */
-    public function __set($key,$value)
+    public function __set(string $key,$value)
     {
         switch( $key ) {
         case 'module':

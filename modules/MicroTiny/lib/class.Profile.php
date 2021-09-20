@@ -26,6 +26,7 @@ use CMSMS\DataException;
 use CMSMS\Utils;
 use LogicException;
 use MicroTiny;
+use RuntimeException;
 use UnexpectedValueException;
 use function cms_to_bool;
 
@@ -68,16 +69,13 @@ class Profile implements ArrayAccess
 		case 'allowcssoverride':
 		case 'system':
 			if( isset($this->_data[$key]) ) return (bool)$this->_data[$key];
-			break;
 
 		case 'formats':
 			if( isset($this->_data[$key]) ) return $this->_data[$key];
-			break;
 
 		case 'name':
 		case 'dfltstylesheet':
 			if( isset($this->_data[$key]) ) return trim($this->_data[$key]);
-			break;
 
 		case 'label':
 			if( isset($this->_data[$key]) ) return $this->_data[$key];
@@ -151,10 +149,10 @@ class Profile implements ArrayAccess
 	public function save()
 	{
 		if( !isset($this->_data['name']) || $this->_data['name'] == '' ) {
-			throw new DataException('No name provided for microtiny profile');
+			throw new DataException('No name provided for Microtiny profile');
 		}
 
-		$data = serialize($this->_data);
+		$data = json_encode($this->_data,JSON_NUMERIC_CHECK|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
 		self::_get_module()->SetPreference('profile_'.$this->_data['name'],$data);
 	}
 
@@ -167,11 +165,11 @@ class Profile implements ArrayAccess
 
 	private static function _load_from_data($data)
 	{
-		if( !$data || !is_array($data) ) throw new LogicException('Invalid data provided to '.__METHOD__);
+		if( !$data || !is_array($data) ) { throw new LogicException('Invalid data provided to '.__METHOD__); }
 
 		$obj = new self();
 		foreach( $data as $key => $value ) {
-			if( !in_array($key,self::KEYS) ) throw new LogicException("$key is not a valid property of ".__CLASS__.' objects, in '.__FUNCTION__);
+			if( !in_array($key,self::KEYS) ) { throw new LogicException("$key is not a valid property of ".__CLASS__.' objects, in '.__FUNCTION__); }
 			$obj->_data[$key] = trim($value);
 		}
 		return $obj;
@@ -204,10 +202,12 @@ class Profile implements ArrayAccess
 	{
 		if( $name == '' ) return;
 		$data = self::_get_module()->GetPreference('profile_'.$name);
-		if( !$data ) throw new UnexpectedValueException('Unknown microtiny profile '.$name);
+		if( !$data ) throw new UnexpectedValueException('Unknown Microtiny profile '.$name);
+		$props = json_decode($data,true);
+		if( !$props ) throw new RuntimeException('Invalid data for Microtiny profile '.$name);
 
 		$obj = new self();
-		$obj->_data = unserialize($data);
+		$obj->_data = $props;
 		return $obj;
 	}
 

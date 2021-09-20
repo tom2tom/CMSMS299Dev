@@ -46,7 +46,7 @@ EOS;
 function smarty_cms_about_block_add_headcontent()
 {
 	$n = lang('none');
-	echo lang_by_realm('tags', 'about_generic',
+	echo _ld('tags', 'about_generic',
 	'Initial release May 2019',
 	"<li>$n</li>"
 	);

@@ -43,14 +43,14 @@ if (isset($_POST['addbookmark'])) {
     $title = de_specialize(trim($_POST['title']));
     $title = sanitizeVal($title, CMSSAN_NONPRINT); // AND nl2br() ? striptags() ?
     if (!$title) {
-        $errors[] = lang('nofieldgiven', lang('title'));
+        $errors[] = _la('nofieldgiven', _la('title'));
     }
 
     $tmp = de_specialize(trim($_POST['url']));
     if ($tmp) {
         $url = (new Url())->sanitize($tmp);
     } else {
-        $errors[] = lang('nofieldgiven', lang('url'));
+        $errors[] = _la('nofieldgiven', _la('url'));
     }
 
     if (!$errors) {
@@ -62,7 +62,7 @@ if (isset($_POST['addbookmark'])) {
         if ($markobj->save()) {
             redirect('listbookmarks.php'.$urlext);
         } else {
-            $errors[] = lang('errorinsertingbookmark');
+            $errors[] = _la('errorinsertingbookmark');
         }
     }
 

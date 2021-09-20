@@ -5,16 +5,16 @@
   <input type="hidden" name="action" value="upload" />
 </div>
 <fieldset>
-  <legend>{lang('perform_validation')}</legend>
+  <legend>{_ld('admin','perform_validation')}</legend>
   <div class="pageoverflow">
-  <p>{lang('info_validation')}</p>
+  <p>{_ld('admin','info_validation')}</p>
   </div>
   <div class="pageoverflow">
-  <p class="pagetext">{lang('upload_cksum_file')}</p>
+  <p class="pagetext">{_ld('admin','upload_cksum_file')}</p>
   <p class="pageinput"><input type="file" name="cksumdat" size="30" maxlength="255" /></p>
   </div>
   <div class="pageinput pregap">
-    <button type="submit" name="upload" class="adminsubmit icon do">{lang('validate')}</button>
+    <button type="submit" name="upload" class="adminsubmit icon do">{_ld('admin','validate')}</button>
   </div>
 </fieldset>
 </form>
@@ -26,12 +26,12 @@
   <input type="hidden" name="action" value="download" />
 </div>
 <fieldset>
-  <legend>{lang('download_cksum_file')}</legend>
+  <legend>{_ld('admin','download_cksum_file')}</legend>
   <div class="pageoverflow">
-  <p>{lang('info_generate_cksum_file')}</p>
+  <p>{_ld('admin','info_generate_cksum_file')}</p>
   </div>
   <div class="pageinput pregap">
-    <button type="submit" name="download" class="adminsubmit icon add">{lang('create')}</button>
+    <button type="submit" name="download" class="adminsubmit icon add">{_ld('admin','create')}</button>
   </div>
 </fieldset>
 </form>

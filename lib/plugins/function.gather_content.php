@@ -37,7 +37,7 @@ function smarty_function_gather_content($params, $template)
 
 function smarty_cms_help_function_gather_content()
 {
-	echo lang_by_realm('tags', 'help_function_gather_content');
+	echo _ld('tags', 'help_function_gather_content');
 }
 
 function smarty_cms_about_function_gather_content()

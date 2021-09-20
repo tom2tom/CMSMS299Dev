@@ -113,7 +113,7 @@ final class Cookies implements ICookieManager
      * Get the value of a cookie
      *
      * @param string $key The cookie name
-     * @return mixed NULL if the cookie does not exist, otherwise a string containing the cookie value.
+     * @return mixed string containing the cookie value | null if the cookie does not exist
      */
     public static function get(string $key)
     {

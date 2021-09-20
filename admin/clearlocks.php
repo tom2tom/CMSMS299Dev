@@ -71,6 +71,6 @@ if ($is_admin) {
 	cms_notice("Cleared his own $type locks");
 }
 
-SingleItem::Theme()->ParkNotice('info',lang_by_realm('layout','msg_lockscleared'));
+SingleItem::Theme()->ParkNotice('info',_ld('layout','msg_lockscleared'));
 $urlext = get_secure_param();
 redirect($op.'.php'.$urlext);

@@ -1,19 +1,19 @@
 <div class="pageinfo">
-  {lang('info_changegroupperms')}
-  {cms_help key2='help_group_permissions' title=lang('info_changegroupperms')}
+  {_ld('admin','info_changegroupperms')}
+  {cms_help 0='help' key='help_group_permissions' title=_ld('admin','info_changegroupperms')}
 </div>
 
 <div class="pageoverflow">
   <form action="{$selfurl}" enctype="multipart/form-data" method="post">
   {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
 {/foreach}
-    <strong>{lang('selectgroup')}:</strong>&nbsp;
+    <strong>{_ld('admin','selectgroup')}:</strong>&nbsp;
     <select name="groupsel" id="groupsel">
     {foreach $allgroups as $thisgroup}
      <option value="{$thisgroup->id}"{if $thisgroup->id == $disp_group} selected="selected"{/if}>{$thisgroup->name}</option>
     {/foreach}
   </select>&nbsp;
-  <button type="submit" name="filter" class="adminsubmit icon do">{lang('apply')}</button>
+  <button type="submit" name="filter" class="adminsubmit icon do">{_ld('admin','apply')}</button>
   </form>
 </div>
 <br />
@@ -25,14 +25,14 @@
   </div>
 
   <div class="pageinput postgap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
-    <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
+    <button type="submit" name="submit" class="adminsubmit icon check">{_ld('admin','submit')}</button>
+    <button type="submit" name="cancel" class="adminsubmit icon cancel">{_ld('admin','cancel')}</button>
   </div>
 
   <table class="pagetable scrollable" id="permtable">
     <thead>
       <tr>
-        <th>{lang('permission')}</th>
+        <th>{_ld('admin','permission')}</th>
         {foreach $group_list as $thisgroup}{if $thisgroup->id != -1}
         <th class="g{$thisgroup->id}">{$thisgroup->name}</th>
         {/if}{/foreach}
@@ -82,8 +82,8 @@
   </table>
 {if count($perms) > 10}
   <div class="pageinput pregap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
-    <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
+    <button type="submit" name="submit" class="adminsubmit icon check">{_ld('admin','submit')}</button>
+    <button type="submit" name="cancel" class="adminsubmit icon cancel">{_ld('admin','cancel')}</button>
   </div>
 {/if}
 </form>

@@ -31,13 +31,12 @@ foreach ([
  ['assets', 'jobs'],
  ['assets', 'js'],
  ['assets', 'module_custom'],
- ['assets', 'modules'], //CHECKME using temp or distinct non-core-modules place
+ ['assets', 'modules'], //CHECKME iff using temp or distinct non-core-modules place
  ['assets', 'plugins'],
  ['assets', 'styles'],
  ['assets', 'templates'],
  ['assets', 'themes'], // for future use
  ['tags', $plugsdir], //UDTfiles
- ['lib', 'modules'], //CHECKME iff using temp or distinct core-modules place
 ] as $segs) {
     switch ($segs[0]) {
         case 'admin':

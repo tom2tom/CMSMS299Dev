@@ -46,8 +46,8 @@ $userid = get_userid();
 $themeObject = SingleItem::Theme();
 
 if (!check_permission($userid, 'Manage My Settings')) {
-//TODO some pushed popup $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+//TODO some pushed popup $themeObject->RecordNotice('error', _la('needpermissionto', '"Modify Site Preferences"'));
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 $userobj = SingleItem::UserOperations()->LoadUserByID($userid); // <- Safe : if get_userid() fails, it redirects automatically to login.
@@ -63,9 +63,12 @@ if (isset($_POST['submit'])) {
     $admintheme = sanitizeVal($_POST['admintheme'], CMSSAN_FILE);
     $bookmarks = (isset($_POST['bookmarks'])) ? 1 : 0;
     $ce_navdisplay = sanitizeVal($_POST['ce_navdisplay']); //'title' | 'menutext' | ''
-    $val = $_POST['date_format_string'];
-    // strftime()-only formats 2.99 breaker?
-    $date_format_string = ($val) ? preg_replace('~[^a-zA-Z%, .\-:/ ]~', '', trim($val)) : '';
+    $val = $_POST['date_format'];
+    // date()-only formats 2.99 breaker?
+    $date_format = ($val) ? preg_replace('~[^a-zA-Z0-9,.\-:#\\/ ]~', '', trim($val)) : ''; // no '%' - tho' valid, it confuses smarty
+    $val = $_POST['datetime_format'];
+    // date()-only formats 2.99 breaker?
+    $datetime_format = ($val) ? preg_replace('~[^a-zA-Z0-9,.\-:#\\/ ]~', '', trim($val)) : ''; // no '%' here either
     // see http://www.unicode.org/reports/tr35/#Identifiers
     $default_cms_language = sanitizeVal($_POST['default_cms_language'], CMSSAN_NONPRINT);
     $old_default_cms_lang = sanitizeVal($_POST['old_default_cms_lang'], CMSSAN_NONPRINT);
@@ -92,7 +95,8 @@ if (isset($_POST['submit'])) {
     }
     UserParams::set_for_user($userid, 'bookmarks', $bookmarks);
     UserParams::set_for_user($userid, 'ce_navdisplay', $ce_navdisplay);
-    UserParams::set_for_user($userid, 'date_format_string', $date_format_string);
+    UserParams::set_for_user($userid, 'date_format', $date_format);
+    UserParams::set_for_user($userid, 'datetime_format', $datetime_format);
     UserParams::set_for_user($userid, 'default_cms_language', $default_cms_language);
     UserParams::set_for_user($userid, 'default_parent', $default_parent);
     UserParams::set_for_user($userid, 'hide_help_links', $hide_help_links);
@@ -132,7 +136,7 @@ if (isset($_POST['submit'])) {
 
     // Audit, message, cleanup
     audit($userid, 'Admin User '.$userobj->username, 'Edited');
-    $themeObject->RecordNotice('success', lang('prefsupdated'));
+    $themeObject->RecordNotice('success', _la('prefsupdated'));
 //    AdminUtils::clear_cached_files();
 // TODO  SingleItem::LoadedData()->delete('menu_modules', $userid);
 
@@ -147,7 +151,8 @@ if (isset($_POST['submit'])) {
 $admintheme = UserParams::get_for_user($userid, 'admintheme', AdminTheme::GetDefaultTheme());
 $bookmarks = UserParams::get_for_user($userid, 'bookmarks', 0);
 $ce_navdisplay = UserParams::get_for_user($userid, 'ce_navdisplay');
-$date_format_string = UserParams::get_for_user($userid, 'date_format_string', '%x %X');
+$date_format = UserParams::get_for_user($userid, 'date_format');
+$datetime_format = UserParams::get_for_user($userid, 'datetime_format');
 $default_cms_language = UserParams::get_for_user($userid, 'default_cms_language');
 $default_parent = (int)UserParams::get_for_user($userid, 'default_parent', -1);
 $hide_help_links = UserParams::get_for_user($userid, 'hide_help_links', 0);
@@ -244,7 +249,7 @@ if ($modnames) {
 
     $one = new stdClass();
     $one->value = '';
-    $one->label = lang('default');
+    $one->label = _la('default');
     $one->mainkey = null;
     $one->themekey = null;
     if (!$wysiwyg) { $one->checked = true; }
@@ -296,7 +301,7 @@ if ($modnames) {
 
     $one = new stdClass();
     $one->value = '';
-    $one->label = lang('default');
+    $one->label = _la('default');
     $one->mainkey = null;
     $one->themekey = null;
     if (!$syntaxer) { $one->checked = true; }
@@ -328,9 +333,9 @@ $sel = AdminUtils::CreateHierarchyDropdown(0, $default_parent, 'parent_id', fals
 $tmp = [10 => 10, 20 => 20, 50 => 50, 100 => 100];
 
 $ce_navopts = [
-    '' => lang('default'),
-    'menutext' => lang('menutext'),
-    'title' => lang('title'),
+    '' => _la('default'),
+    'menutext' => _la('menutext'),
+    'title' => _la('title'),
 ];
 
 // Home Pages
@@ -348,9 +353,11 @@ $smarty->assign([
     'bookmarks' => $bookmarks,
     'ce_navdisplay' => $ce_navdisplay,
     'ce_navopts' => $ce_navopts,
-    'date_format_string' => $date_format_string,
+    'date_format' => $date_format,
+    'datetime_format' => $datetime_format,
     'default_cms_language' => $default_cms_language,
     'default_parent' => $sel,
+    'extraparms' => $extras,
     'hide_help_links' => $hide_help_links,
     'home_opts' => array_flip($adminpages),
     'homepage' => $homepage,
@@ -362,19 +369,18 @@ $smarty->assign([
     'pagelimit_opts' => $tmp,
     'paging' => $paging,
     'selfurl' => $selfurl,
-    'extraparms' => $extras,
-    'urlext' => $urlext,
-    'userobj' => $userobj,
     'syntaxer' => $syntaxer,
     //TODO in/by relevant module
     'syntaxtheme' => $syntaxtheme,
+    'urlext' => $urlext,
+    'userobj' => $userobj,
     'wysiwyg' => $wysiwyg,
     //TODO in/by relevant module
     'wysiwygtheme' => $wysiwygtheme,
 ]);
 
 //$nonce = get_csp_token();
-$editortitle = lang('syntax_editor_theme');
+$editortitle = _la('syntax_editor_theme');
 $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[

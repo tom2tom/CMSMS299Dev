@@ -21,33 +21,36 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace {
 
+use CMSMS\App;
 use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\AuditOperations;
 use CMSMS\CoreCapabilities;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
-use CMSMS\Events;
 use CMSMS\FileTypeHelper;
 use CMSMS\FormUtils;
 use CMSMS\IMultiEditor;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\NlsOperations;
-use CMSMS\PageLoader;
 use CMSMS\RequestParameters;
-use CMSMS\RichEditor;
 use CMSMS\RouteOperations;
 use CMSMS\SingleItem;
-use CMSMS\Url;
 use CMSMS\UserParams;
 use CMSMS\Utils;
-use function CMSMS\execSpecialize;
-use function CMSMS\get_entparms;
+use Exception;
+use LogicException;
 use function CMSMS\de_entitize;
 use function CMSMS\entitize;
-use function CMSMS\de_specialize;
+use function CMSMS\execSpecialize;
+use function CMSMS\add_debug_message;
+use function CMSMS\get_debug_messages;
+use function CMSMS\get_site_UUID;
 use function CMSMS\specialize;
 use function CMSMS\urlencode;
+use function endswith;
+use function redirect;
+use function startswith;
 
 /**
  * Miscellaneous support functions which are dependent on this CMSMS
@@ -58,6 +61,31 @@ use function CMSMS\urlencode;
  * @package CMS
  * @license GPL
  */
+
+/**
+ * Return the App singleton object
+ * @see SingleItem::App()
+ * @since 1.7
+ *
+ * @return App
+ */
+function cmsms() : App
+{
+	return SingleItem::App();
+}
+
+/**
+ * Check whether the supplied identifier matches the site UUID
+ * This is a security function e.g. in module actions: <pre>if (!checkuuid($uuid)) exit;</pre>
+ * @since 2.99
+ *
+ * @param mixed $uuid identifier to be checked
+ * @return bool indicating success
+ */
+function checkuuid($uuid) : bool
+{
+	return hash_equals(get_site_UUID(), $uuid.'');
+}
 
 /**
  * @ignore
@@ -193,8 +221,8 @@ function is_sitedown() : bool
  */
 function get_userid(bool $redirect = true)
 {
-//    $config = SingleItem::Config();
-//    if (!$config['app_mode']) { MAYBE IN FUTURE
+//	$config = SingleItem::Config();
+//	if (!$config['app_mode']) { MAYBE IN FUTURE
 /* MAYBE IN FUTURE		if (cmsms()->is_cli()) {
 		$uname = get_cliuser();
 		if ($uname) {
@@ -212,8 +240,8 @@ function get_userid(bool $redirect = true)
 		redirect(SingleItem::Config()['admin_url'].'/login.php');
 	}
 	return $userid;
-//    }
-//    return 1; //CHECKME is the super-admin the only possible user in app mode ? if doing remote admin?
+//	}
+//	return 1; //CHECKME is the super-admin the only possible user in app mode ? if doing remote admin?
 }
 
 /**
@@ -226,8 +254,8 @@ function get_userid(bool $redirect = true)
  */
 function get_username(bool $redirect = true)
 {
-//    $config = SingleItem::Config();
-//    if (!$config['app_mode']) { MAYBE IN FUTURE
+//	$config = SingleItem::Config();
+//	if (!$config['app_mode']) { MAYBE IN FUTURE
 /* MAYBE IN FUTURE		if (cmsms()->is_cli()) {
 			return get_cliuser();
 		}
@@ -238,8 +266,8 @@ function get_username(bool $redirect = true)
 		redirect(SingleItem::Config()['admin_url'].'/login.php');
 	}
 	return $uname;
-//    }
-//    return ''; //no username in app mode
+//	}
+//	return ''; //no username in app mode
 }
 
 /**
@@ -442,8 +470,8 @@ $to2.
 '<br />
 <br />
 <div id="DebugFooter">';
-		foreach ($app->get_errors() as $error) {
-			echo $error;
+		foreach (get_debug_messages() as $msg) {
+			echo $msg;
 		}
 		echo '</div> <!-- end DebugFooter -->';
 	} else {
@@ -636,18 +664,19 @@ function set_site_preference(string $prefname, $value)
 
 /**
  * Gets a specified module-parameter/preference value, without the module
- * being loaded. Intended mainly for classes which interact async with modules.
+ * being loaded, and without involving cached data.
+ * Intended mainly for classes which interact async with modules.
  * @since 2.99
  *
  * @param string $modname The module name
- * @param string $prefname The preference name
+ * @param string $parmname The property name
  * @param mixed  $defaultvalue The default value if the parameter is not recorded
  * @return mixed
  */
-function get_module_param($modname, $prefname, $defaultvalue = '')
+function get_module_param($modname, $parmname, $defaultvalue = '')
 {
-	$key = $modname.AppParams::NAMESPACER.$prefname;
-	return AppParams::get($key, $defaultvalue);
+	$key = $modname.AppParams::NAMESPACER.$parmname;
+	return AppParams::getraw($key, $defaultvalue);
 }
 
 /**
@@ -657,12 +686,12 @@ function get_module_param($modname, $prefname, $defaultvalue = '')
  * @since 2.99
  *
  * @param string $modname The module name
- * @param string $prefname The preference name
+ * @param string $parmname The property name
  * @param mixed  $value The datum to be recorded
  */
-function set_module_param($modname, $prefname, $value)
+function set_module_param($modname, $parmname, $value)
 {
-	$key = $modname.AppParams::NAMESPACER.$prefname;
+	$key = $modname.AppParams::NAMESPACER.$parmname;
 	AppParams::set($key, $value);
 }
 
@@ -772,7 +801,7 @@ function _get_value_with_default($value, $default = '', $session_key = '')
  * @param string $key The wanted member of $parameters
  * @param mixed $default Optional default value to return. Default ''.
  * @param string $session_key Optional key for retrieving the default value from $_SESSION[]. Default ''
- * @return mixed string|strings[]
+ * @return mixed recorded value | $default
  */
 function get_parameter_value(array $parameters, string $key, $default = '', string $session_key = '')
 {
@@ -934,7 +963,7 @@ function cms_htmlentities($val, int $flags = 0, string $charset = 'UTF-8', bool 
  * @param mixed $val     The input variable string | null
  * @param int   $flags   @since 2.99 Optional bit-flag(s) indicating how
  *  html_entity_decode() should handle quotes etc. Default 0, hence
- *  ENT_QUOTES | preferred_lang().
+ *  ENT_QUOTES | ENT_ENT_SUBSTITUTE | preferred_lang().
  * @param string $charset @since 2.99 Optional character set of $val.
  *  Default 'UTF-8'. If empty, the system setting will be used.
  * @return the converted string
@@ -1588,7 +1617,6 @@ function get_syntaxeditor_setup(array $params) : array
  * Outputs a backtrace into the generated log file.
  *
  * @see debug_to_log, debug_bt
- * Rolf: Looks like not used
  */
 function debug_bt_to_log()
 {
@@ -1655,7 +1683,7 @@ function stack_trace(string $title = '')
 /**
  * Generates a backtrace in a readable format.
  *
- * This function does not return but echoes output.
+ * This method uses echo.
  */
 function debug_bt()
 {
@@ -1693,6 +1721,7 @@ function debug_bt()
 function debug_display($var, string $title = '', bool $echo_to_screen = true, bool $use_html = true, bool $showtitle = true) : string
 {
 	global $starttime, $orig_memory;
+
 	if (!$starttime) {
 		$starttime = microtime();
 	}
@@ -1738,7 +1767,7 @@ function debug_display($var, string $title = '', bool $echo_to_screen = true, bo
 			print_r($var);
 		} elseif (is_string($var)) {
 			if ($use_html) {
-				print_r(\htmlentities(str_replace("\t", '  ', $var))); // OR CMSMS\entitize ?
+				print_r(htmlentities(str_replace("\t", '  ', $var))); // OR CMSMS\entitize ?
 			} else {
 				print_r($var);
 			}
@@ -1817,7 +1846,7 @@ function debug_to_log($var, string $title = '', string $filename = '')
 function debug_buffer($var, string $title = '')
 {
 	if (constant('CMS_DEBUG')) {
-		SingleItem::App()->add_error(debug_display($var, $title, false, true));
+		add_debug_message(debug_display($var, $title, false, true));
 	}
 }
 
@@ -1896,10 +1925,85 @@ function cleanValue($val)
 
 namespace CMSMS {
 
+use CMSMS\AppParams;
+use CMSMS\AppState;
+use CMSMS\AutoCookieOperations;
+use CMSMS\Events;
+use CMSMS\PageLoader;
+use CMSMS\ScriptsMerger;
+use CMSMS\SingleItem;
+use CMSMS\StylesMerger;
+use CMSMS\Url;
+use Throwable;
+use const CMS_SCHEMA_VERSION;
+use function CMSMS\de_specialize;
+use function CMSMS\de_specialize_array;
+use function CMSMS\execSpecialize;
+use function CMSMS\get_entparms;
+use function CMSMS\preferred_lang;
+use function CMSMS\specialize_array;
+
 static $deflang = 0;
 static $defenc = '';
-// custom bitflag to trigger CMSMS\execSpecialize() during CMSMS\entitize() and CMSMS\specialize()
+// custom bitflag to trigger execSpecialize() during CMSMS\entitize() and CMSMS\specialize()
 define('ENT_EXEC', 2 << 15); //something compatible with PHP's ENT_* enum values
+
+/**
+ * Add a dump-message
+ * @since 2.99
+ * @internal
+ *
+ * @param string $str The error message
+ */
+function add_debug_message(string $str)
+{
+	SingleItem::add('App.DumpMessages', $str);
+}
+
+/**
+ * Return the accumulated dump-messages
+ * @since 2.99
+ * @internal
+ *
+ * @return array, maybe empty
+ */
+function get_debug_messages() : array
+{
+	return SingleItem::get('App.DumpMessages') ?? [];
+}
+
+/**
+ * A shutdown function: disconnect from the database
+ * @since 2.99
+ *
+ * @internal
+ */
+function dbshutdown()
+{
+	SingleItem::Db()->Close();
+}
+
+/**
+ * Gets PHP enum corresponding to the configured 'content_language' i.e. the
+ * preferred language/syntax for page-content
+ * @since 2.99
+ *
+ * @return PHP enum value
+ */
+function preferred_lang() : int
+{
+	$val = str_toupper(SingleItem::Config()['content_language']);
+	switch ($val) {
+		case 'HTML5':
+			return ENT_HTML5;
+		case 'HTML':
+			return ENT_HTML401; //a.k.a. 0
+		case 'NONE':
+			return 0;
+		default:
+			return ENT_XHTML;
+	}
+}
 
 /**
  * Tailors parameters for entity conversion
@@ -1938,28 +2042,6 @@ function get_entparms(int $flags, string $charset, bool $convert_single_quotes) 
 		$charset = $defenc;
 	}
 	return [$flags, $charset];
-}
-
-/**
- * Gets PHP enum corresponding to the configured 'content_language' i.e. the
- * preferred language/syntax for page-content
- * @since 2.99
- *
- * @return PHP enum value
- */
-function preferred_lang() : int
-{
-	$val = str_toupper(SingleItem::Config()['content_language']);
-	switch ($val) {
-		case 'HTML5':
-			return ENT_HTML5;
-		case 'HTML':
-			return ENT_HTML401; //a.k.a. 0
-		case 'NONE':
-			return 0;
-		default:
-			return ENT_XHTML;
-	}
 }
 
 /**
@@ -2038,7 +2120,7 @@ function de_entitize($val, int $flags = 0, string $charset = 'UTF-8') : string
  *  If empty the system setting will be used.
  * @param bool   $convert_single_quotes Optional flag indicating whether
  *  single quotes should be converted to entities. Default false.
- * @return mixed the converted string|array
+ * @return mixed string | array the converted $val
  */
 function specialize($val, int $flags = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false)
 {
@@ -2100,7 +2182,7 @@ function specialize_array(array &$arr, int $flags = 0, string $charset = 'UTF-8'
  * @param int   $flags Optional bit-flag(s) indicating how
  *  html_entity_decode() should handle quotes etc. Default 0, hence
  *  ENT_QUOTES | preferred_lang().
- * @return mixed the converted string|array
+ * @return mixed string | array the converted $val
  */
 function de_specialize($val, int $flags = 0)
 {
@@ -2193,6 +2275,140 @@ function urlSpecialize(string $url) : string
 		}
 	}
 	return (string)$url_ob;
+}
+
+/**
+ * Disable the processing of the page template.
+ * This function controls whether the page template will be processed at all.
+ * It must be called early enough in the content generation process.
+ *
+ * Ideally this method can be called from within a module action that is
+ * called from within the default content block when content_processing is
+ * set to 2 (the default) in the config.php file
+ *
+ * @since 2.99
+ */
+function disable_template_processing()
+{
+	SingleItem::set('app.showtemplate', false);
+}
+
+/**
+ * [Un]set the flag indicating whether to process the (optional) template
+ * currently pending.
+ * This method can be called from anywhere, to temporarily toggle smarty processing
+ *
+ * @since 2.99
+ * @param bool $state optional default true
+ */
+function do_template_processing(bool $state = true)
+{
+	SingleItem::set('app.showtemplate', $state);
+}
+
+/**
+ * Get the flag indicating whether or not template processing is allowed.
+ *
+ * @return bool
+ * @since 2.99
+ */
+function template_processing_allowed() : bool
+{
+	//TODO reconcile: ($gCms->JOBTYPE < 2) = no template-processing, no $smarty
+	return (bool)SingleItem::get('app.showtemplate');
+}
+
+/**
+ * Get the intra-request shared scripts-combiner object.
+ * @since 2.99
+ *
+ * @return object ScriptsMerger
+ */
+function get_scripts_manager() : ScriptsMerger
+{
+	$sm = SingleItem::get('ScriptsMerger');
+	if( !$sm ) {
+		$sm = new ScriptsMerger();
+		SingleItem::set('ScriptsMerger', $sm);
+	}
+	return $sm;
+}
+
+/**
+ * Get the intra-request shared styles-combiner object.
+ * @since 2.99
+ *
+ * @return object StylesMerger
+ */
+function get_styles_manager() : StylesMerger
+{
+	$sm = SingleItem::get('StylesMerger');
+	if( !$sm ) {
+		$sm = new StylesMerger();
+		SingleItem::set('StylesMerger', $sm);
+	}
+	return $sm;
+}
+
+/**
+ * Get a cookie-manager instance.
+ * @since 2.99
+ *
+ * @return AutoCookieOperations
+ */
+function get_cookie_manager() : AutoCookieOperations
+{
+	return new AutoCookieOperations();
+}
+
+/**
+ * Get this site's unique identifier
+ * @since 2.99
+ *
+ * @return 32-byte english-alphanum string
+ */
+function get_site_UUID() : string
+{
+	return SingleItem::get('site_uuid');
+}
+
+
+/**
+ * Retrieve the installed schema version.
+ * @since 2.99
+ * @since 2.0 as App::get_installed_schema_version()
+ *
+ * @return int, maybe 0
+ */
+function get_installed_schema_version() : int
+{
+	$val = AppParams::get('cms_schema_version');
+	if( AppState::test(AppState::INSTALL) ) {
+		return (int)$val; //most-recently cached value (if any)
+	}
+	if (!$val && defined('CMS_SCHEMA_VERSION')) { //undefined during installation
+		$val = CMS_SCHEMA_VERSION;
+	}
+	if (!$val) {
+		$val = $CMS_SCHEMA_VERSION ?? 0; // no force-load here, might not be installed
+	}
+	return (int)$val; // maybe 0
+}
+
+/**
+ * Report whether the installed tables-schema is up-to-date.
+ * @since 2.99
+ *
+ * @return bool
+ */
+function schema_is_current() : bool
+{
+	global $CMS_SCHEMA_VERSION; // what we're supposed to have
+	if (!isset($CMS_SCHEMA_VERSION)) {
+		require __DIR__.DIRECTORY_SEPARATOR.'version.php'; // get it [again?]
+	}
+	$current = get_installed_schema_version(); // what we think we do have
+	return version_compare($current, $CMS_SCHEMA_VERSION) == 0;
 }
 
 /**

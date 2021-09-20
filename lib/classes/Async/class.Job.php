@@ -75,7 +75,7 @@ abstract class Job
     /**
      * @ignore
      */
-    public function __get($key)
+    public function __get(string $key)
     {
         switch ($key) {
         case 'id':
@@ -99,7 +99,7 @@ abstract class Job
     /**
      * @ignore
      */
-    public function __set($key, $val)
+    public function __set(string $key, $val)
     {
         switch ($key) {
         case 'id':

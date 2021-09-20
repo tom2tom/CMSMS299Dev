@@ -84,7 +84,7 @@ final class SingleItem //extends SplObjectStorage worth doing this subclass? (it
 	 * @return object | not at all
 	 * @throws RuntimeException if the class is not found or its constructor bombs
 	 */
-	public static function __callStatic($name, $args = [])
+	public static function __callStatic(string $name, array $args)
 	{
 		if (!self::$instance) {
 			self::$instance = new self();
@@ -93,10 +93,6 @@ final class SingleItem //extends SplObjectStorage worth doing this subclass? (it
 		if (isset($inst->singles[$name])) {
 			return $inst->singles[$name];
 		} else {
-			if (!is_array($args)) {
-				if ($args !== null) { $args = [$args]; }
-				else { $args = []; }
-			}
 			$obj = null;
 			foreach ([
 				'CMSMS\\'.$name, //most likely namespace
@@ -138,9 +134,9 @@ final class SingleItem //extends SplObjectStorage worth doing this subclass? (it
 	 * Not for singletons. PHP (7 at least) doesn't support syntax like SingleItem->classname
 	 *
 	 * @param string $name Property name, with suitable namespace-differentiation
-	 * @param object $value The data to be cached
+	 * @param mixed $value The data to be cached
 	 */
-	public function __set($name, $value)
+	public function __set(string $name, $value)
 	{
 		if (!self::$instance) {
 			self::$instance = new self();
@@ -155,7 +151,7 @@ final class SingleItem //extends SplObjectStorage worth doing this subclass? (it
 	 * @param string $name Property name, with suitable namespace-differentiation
 	 * @return mixed Cached property value | null if not found
 	 */
-	public function __get($name)
+	public function __get(string $name)
 	{
 		if (!self::$instance || !isset(self::$instance->properties[$name])) {
 			return null;
@@ -166,23 +162,49 @@ final class SingleItem //extends SplObjectStorage worth doing this subclass? (it
 	/**
 	 * Static analog of magic method __set()
 	 */
-	public static function set(string $key, $val)
+	public static function set(string $name, $val)
 	{
 		if (!self::$instance) {
 			self::$instance = new self();
 		}
-		self::$instance->__set($key, $val);
+		self::$instance->__set($name, $val);
 	}
 
 	/**
 	 * Static analog of magic method __get()
 	 */
-	public static function get(string $key)
+	public static function get(string $name)
 	{
 		if (!self::$instance) {
 			return null;
 		}
-		return self::$instance->__get($key);
+		return self::$instance->__get($name);
+	}
+
+	/**
+	 * Append or prepend a member of an array-property.
+	 * If the named property does not exist, an array is created, or
+	 * if it exists but is scalar, it is converted to an array.
+	 *
+	 * @param string $name Property name, with suitable namespace-differentiation
+	 * @param mixed $val The data to be cached
+	 * @param bool $append Whether to append or prepend $val. Default true.
+	 */
+	public static function add(string $name, $val, bool $append = true)
+	{
+		if (!self::$instance) {
+			self::$instance = new self();
+		}
+		if (!isset(self::$instance->properties[$name])) {
+			self::$instance->properties[$name] = [];
+		} elseif (!is_array(self::$instance->properties[$name])) {
+			self::$instance->properties[$name] = [self::$instance->properties[$name]];
+		}
+		if ($append) {
+			self::$instance->properties[$name][] = $val;
+		} else {
+			array_unshift(self::$instance->properties[$name], $val);
+		}
 	}
 
 	/**

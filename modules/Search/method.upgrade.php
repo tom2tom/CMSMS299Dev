@@ -23,10 +23,11 @@ use CMSMS\AppState;
 use CMSMS\Database\DataDictionary;
 use CMSMS\Template;
 use CMSMS\TemplateType;
+use Search\Utils;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 
-if (version_compare($oldversion,'1.50') < 1) {
+if (version_compare($oldversion,'1.50') < 0) {
     $this->RegisterModulePlugin(true);
     $this->RegisterSmartyPlugin('search','function','function_plugin');
 
@@ -59,7 +60,7 @@ if (version_compare($oldversion,'1.50') < 1) {
             $tpl->set_owner($userid);
             $tpl->set_content($content);
             $tpl->set_type($type);
-            $tpl->set_type_dflt(TRUE);
+            $tpl->set_type_default(TRUE);
             $tpl->save();
             $this->DeleteTemplate('displaysearch');
         }
@@ -85,7 +86,7 @@ if (version_compare($oldversion,'1.50') < 1) {
             $tpl->set_owner($userid);
             $tpl->set_content($content);
             $tpl->set_type($type);
-            $tpl->set_type_dflt(TRUE);
+            $tpl->set_type_default(TRUE);
             $tpl->save();
             $this->DeleteTemplate('displayresult');
         }
@@ -119,4 +120,10 @@ if (version_compare($oldversion,'1.53') < 0) {
         $val = cms_to_bool($val);
         $this->SetPreference($key, (($val) ? 1 : 0));
     }
+}
+
+if (version_compare($oldversion,'2.0') < 0) {
+    $val = $this->GetPreference('stopwords');
+    $val = Utils::CleanWords($val);
+    $this->SetPreference('stopwords', $val);
 }

@@ -63,15 +63,15 @@ function smarty_function_cms_admin_user($params, $template)
 /*
 function smarty_cms_about_function_cms_admin_user()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+<li>detail</li> ... OR _la('none')
 EOS
 	);
 }
 */
 function smarty_cms_help_function_cms_admin_user()
 {
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin retrieves information about the current user',
 	'cms_admin_user uid=N mode=fullname',
 	<<<'EOS'

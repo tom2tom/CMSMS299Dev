@@ -47,13 +47,13 @@ if ($allsets) {
                 // default was deleted
                 $dfltid = 0;
                 $themeObject = Utils::get_theme_object();
-                $msg = lang_by_realm('controlsets', 'new_default');
+                $msg = _ld('controlsets', 'new_default');
                 $themeObject->RecordNotice('warn', $msg);
             }
         }
     }
 
-    $msg = lang_by_realm('controlsets', 'confirm_delete');
+    $msg = _ld('controlsets', 'confirm_delete');
     $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
@@ -70,13 +70,13 @@ EOS;
     add_page_foottext($js);
 
     $themeObject = Utils::get_theme_object();
-    $iconyes = $themeObject->DisplayImage('icons/system/true', 'yes', '', '', 'systemicon', ['title' => lang('yes')]);
-    $iconno = $themeObject->DisplayImage('icons/system/false', 'no', '', '', 'systemicon', ['title' => lang('no')]);
-    $t = lang_by_realm('controlsets', 'edit_set');
+    $iconyes = $themeObject->DisplayImage('icons/system/true', 'yes', '', '', 'systemicon', ['title' => _la('yes')]);
+    $iconno = $themeObject->DisplayImage('icons/system/false', 'no', '', '', 'systemicon', ['title' => _la('no')]);
+    $t = _ld('controlsets', 'edit_set');
     $iconedit = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon', ['title' => $t]);
-    $t = lang_by_realm('controlsets', 'add_set');
+    $t = _ld('controlsets', 'add_set');
     $iconadd = $themeObject->DisplayImage('icons/system/newobject', $t, '', '', 'systemicon', ['title' => $t]);
-    $t = lang_by_realm('controlsets', 'delete_set');
+    $t = _ld('controlsets', 'delete_set');
     $icondelete = $themeObject->DisplayImage('icons/system/delete', $t, '', '', 'systemicon', ['title' => $t]);
 
     $selfurl = basename(__FILE__);
@@ -98,7 +98,7 @@ EOS;
     ]);
 } else {
     $themeObject = Utils::get_theme_object();
-    $t = lang_by_realm('controlsets', 'add_set');
+    $t = _ld('controlsets', 'add_set');
     $iconadd = $themeObject->DisplayImage('icons/system/newobject', $t, '', '', 'systemicon', ['title' => $t]);
     $openurl = 'openaxscontrol.php';
     $urlext = get_secure_param();

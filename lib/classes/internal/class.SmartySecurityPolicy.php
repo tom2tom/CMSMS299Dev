@@ -52,6 +52,9 @@ final class SmartySecurityPolicy extends Smarty_Security
                 // modification or formatting ahead of or during display
                 // e.g. string searches, array searches, string comparison, sorting, etc.
                 $this->php_functions = [
+                '_la', //since 2.99
+                '_ld', //since 2.99
+                '_lm', //since 2.99
                 'array_flip',
                 'array_rand',
                 'array_reverse',
@@ -84,6 +87,7 @@ final class SmartySecurityPolicy extends Smarty_Security
                 'json_encode',
                 'ksort',
                 'lang',
+                'lang_by_realm', //since 2.99
                 'mt_jsbool', //Microtiny module method
                 'nl2br',
                 'print_r',
@@ -94,7 +98,6 @@ final class SmartySecurityPolicy extends Smarty_Security
                 'str_replace',
                 'strcasecmp',
                 'strcmp',
-                'strftime',
                 'strlen',
                 'strpos',
                 'strtolower',

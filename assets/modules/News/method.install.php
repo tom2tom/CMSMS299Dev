@@ -19,10 +19,9 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppState;
 //use CMSMS\Database\DataDictionary;
+use CMSMS\AppState;
 use CMSMS\Template;
-use CMSMS\TemplatesGroup;
 use CMSMS\TemplateType;
 use News\AdminOperations;
 
@@ -36,11 +35,11 @@ if( !class_exists('News\AdminOperations') ) {
 
 $installer_working = AppState::test(AppState::INSTALL);
 if( $installer_working && 1 ) { // TODO && this is a new demo-site
-	$newsite = true;
+    $newsite = true;
     $uid = 1; // templates owned by intitial admin
 }
 else {
-	$newsite = false;
+    $newsite = false;
     $uid = get_userid(FALSE);
 }
 
@@ -93,7 +92,7 @@ $flds = '
 news_category_id I UNSIGNED AUTO KEY,
 news_category_name C(255) CHARACTER SET utf8mb4,
 parent_id I,
-hierarchy C(255),
+hierarchy C(255) COLLATE ascii_bin,
 item_order I1 UNSIGNED DEFAULT 0,
 long_name C(1000) CHARACTER SET utf8mb4,
 alias C(255),
@@ -205,7 +204,7 @@ try {
         $tpl->set_owner($uid);
         $tpl->set_content($content);
         $tpl->set_type($type);
-        $tpl->set_type_dflt(TRUE);
+        $tpl->set_type_default(TRUE);
         $tpl->save();
     }
 }
@@ -252,7 +251,7 @@ try {
         $tpl->set_owner($uid);
         $tpl->set_content($content);
         $tpl->set_type($type);
-        $tpl->set_type_dflt(TRUE);
+        $tpl->set_type_default(TRUE);
         $tpl->save();
     }
 }
@@ -299,7 +298,7 @@ try {
         $tpl->set_owner($uid);
         $tpl->set_content($content);
         $tpl->set_type($type);
-        $tpl->set_type_dflt(TRUE);
+        $tpl->set_type_default(TRUE);
         $tpl->save();
     }
 }
@@ -317,8 +316,9 @@ catch( Throwable $t ) {
 // Other preferences
 //$this->SetPreference('allowed_upload_types','gif,png,jpeg,jpg');
 //$this->SetPreference('auto_create_thumbnails','gif,png,jpeg,jpg');
-$this->SetPreference('date_format','%Y-%m-%e %H:%M');
+$this->SetPreference('date_format','Y-m-d');
 $this->SetPreference('default_category',1);
+$this->SetPreference('time_format','H:i');
 $this->SetPreference('timeblock',News::HOURBLOCK);
 
 // Events

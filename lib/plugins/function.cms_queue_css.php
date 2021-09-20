@@ -19,12 +19,12 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use function CMSMS\get_styles_manager;
 // since 2.99
 function smarty_function_cms_queue_css($params, $template)
 {
 	if( !isset($params['file']) ) return '';
-	$combiner = CMSMS\SingleItem::App()->GetStylesManager();
-
+	$combiner = get_styles_manager();
 	$file = trim($params['file']);
 	$priority = (int)($params['priority'] ?? 0);
 	$res = $combiner->queue_file($file, $priority);
@@ -34,7 +34,7 @@ function smarty_function_cms_queue_css($params, $template)
 
 function smarty_cms_help_function_cms_queue_css()
 {
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin records a styles-file for later accumulation into a single link element for a page-head.
 ',
 	'cms_queue_css file=&quot;path/to/whatever.css&quot;',
@@ -48,7 +48,7 @@ EOS
 
 function smarty_cms_about_function_cms_queue_css()
 {
-	echo lang_by_realm('tags', 'about_generic',
+	echo _ld('tags', 'about_generic',
 	<<<EOS
 <p>Author: Robert Campbell</p>
 <p>Version: 1.0</p>

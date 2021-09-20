@@ -430,7 +430,7 @@ class StylesheetsGroup
 		$gid = $this->_data['id'] = $db->Insert_ID();
 		$this->save_members($db,true);
 		$this->_dirty = false;
-		audit($gid,'CMSMS','Stylesheets group created');
+		audit($gid,'CMSMS','Stylesheets-group '.$this->get_name().' Created');
 	}
 
 	/**

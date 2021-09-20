@@ -1,59 +1,57 @@
-{if $user}<h3 class="pagesubtitle">{lang('username')}:&nbsp;{$user}</h3>{/if}
+{if $user}<h3 class="pagesubtitle">{_ld('admin','username')}:&nbsp;{$user}</h3>{/if}
 
 <form action="{$selfurl}" enctype="multipart/form-data" method="post" accept-charset="utf-8">
   {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
 {/foreach}
   <input type="hidden" name="user_id" value="{$user_id}" />
 
-  {tab_header name='profile' label=lang('profile')}
-  {if $groups}{tab_header name='groups' label=lang('groups')}{/if}
-  {if $manage_users}{tab_header name='settings' label=lang('settings')}{/if}
+  {tab_header name='profile' label=_ld('admin','profile')}
+  {if $groups}{tab_header name='groups' label=_ld('admin','groups')}{/if}
+  {if $manage_users}{tab_header name='settings' label=_ld('admin','settings')}{/if}
 
   {tab_start name='profile'}
   <!-- user profile -->
   <div class="pageoverflow">
-  <p class="pagetext">{$t=lang('username')}
-    <label for="username">{$t}:</label>
-    {cms_help key2='user_name' title=$t}
-  </p>
-  <input type="text" class="pageinput" name="user" id="username" maxlength="25" value="{$user}" />
+    {$t=_ld('admin','username')}<label class="pagetext" for="username">{$t}:</label>
+    {cms_help 0='help' key='user_name' title=$t}
+    <div class="pageinput">
+      <input type="text" id="username" name="user" maxlength="25" value="{$user}" />
+    </div>
   </div>
   <div class="pageoverflow">
-  <p class="pagetext">{$t=lang('password')}
-    <label for="password">{$t}:</label>
-    {cms_help key2='user_edit_password' title=$t}
-  </p>
-  <input type="text" class="pageinput" name="password" id="password" autocomplete="off" maxlength="64" />
+    {$t=_ld('admin','password')}<label class="pagetext" for="password">{$t}:</label>
+    {cms_help 0='help' key='user_edit_password' title=$t}
+    <div class="pageinput">
+      <input type="text" id="password" name="password" autocomplete="off" maxlength="64" />
+    </div>
   </div>
   <div class="pageoverflow">
-  <p class="pagetext">{$t=lang('passwordagain')}
-    <label for="passagain">{$t}:</label>
-    {cms_help key2='user_edit_passwordagain' title=$t}
-  </p>
-  <input type="text" class="pageinput" name="passwordagain" id="passagain" autocomplete="off" maxlength="64" />
+    {$t=_ld('admin','passwordagain')}<label class="pagetext" for="passagain">{$t}:</label>
+    {cms_help 0='help' key='user_edit_passwordagain' title=$t}
+    <div class="pageinput">
+      <input type="text" id="passagain" name="passwordagain" autocomplete="off" maxlength="64" />
+    </div>
   </div>
   <div class="pageoverflow">
-  <p class="pagetext">{$t=lang('firstname')}
-    <label for="firstname">{$t}:</label>
-    {cms_help key2='user_firstname' title=$t}
-  </p>
-  <input type="text" class="pageinput" name="firstname" id="firstname" maxlength="50" value="{$firstname}" />
+    {$t=_ld('admin','firstname')}<label class="pagetext" for="firstname">{$t}:</label>
+    {cms_help 0='help' key='user_firstname' title=$t}
+    <div class="pageinput">
+      <input type="text" id="firstname" name="firstname" maxlength="50" value="{$firstname}" />
+    </div>
   </div>
   <div class="pageoverflow">
-  <p class="pagetext">{$t=lang('lastname')}
-    <label for="lastname">{$t}:</label>
-    {cms_help key2='user_lastname' title=$t}
-  </p>
-  <input type="text" class="pageinput" name="lastname" id="lastname" maxlength="50" value="{$lastname}" />
+    {$t=_ld('admin','lastname')}<label class="pagetext" for="lastname">{$t}:</label>
+    {cms_help 0='help' key='user_lastname' title=$t}
+    <div class="pageinput">
+      <input type="text" id="lastname" name="lastname" maxlength="50" value="{$lastname}" />
+    </div>
   </div>
   <div class="pageoverflow">
-  <p class="pagetext">{$t=lang('email')}
-    <label for="email">{$t}:</label>
-    {cms_help key2='user_email' title=$t}
-  </p>
-  <p class="pageinput">
-    <input type="text" name="email" id="email" size="50" maxlength="255" value="{$email}" />
-  </p>
+    {$t=_ld('admin','email')}<label class="pagetext" for="email">{$t}:</label>
+    {cms_help 0='help' key='user_email' title=$t}
+    <div class="pageinput">
+      <input type="text" id="email" name="email" size="50" maxlength="255" value="{$email}" />
+    </div>
   </div>
 
   {if $perm1usr}
@@ -64,21 +62,21 @@
 {* <input type="hidden" name="adminaccess" value="{$adminaccess}" /> *}
   {else}
   <div class="pageoverflow">
-   <p class="pagetext">{$t=lang('active')}
-    <label for="active">{$t}:</label>
-    {cms_help key2='user_active' title=$t}
-   </p>
-   <input type="hidden" name="active" value="0" />
-   <input type="checkbox" name="active" id="active" class="pageinput pagecheckbox" value="1"{if $active} checked="checked"{/if} />
+    {$t=_ld('admin','active')}<label class="pagetext" for="active">{$t}:</label>
+    {cms_help 0='help' key='user_active' title=$t}
+    <input type="hidden" name="active" value="0" />
+    <div class="pageinput">
+      <input type="checkbox" id="active" class="pagecheckbox" name="active" value="1"{if $active} checked="checked"{/if} />
+    </div>
   </div>
 {*
   <div class="pageoverflow">
-   <p class="pagetext">{$t=lang('adminaccess')}
-    <label for="adminaccess">{$t}:</label>
-    {cms_help key2='user_login' title=$t}
-   </p>
-   <input type="hidden" name="adminaccess" value="0" />
-   <input type="checkbox" name="adminaccess" id="adminaccess" class="pageinput pagecheckbox" value="1"{if $adminaccess} checked="checked"{/if} />
+    {$t=_ld('admin','adminaccess')}<label class="pagetext" for="adminaccess">{$t}:</label>
+    {cms_help 0='help' key='user_login' title=$t}
+    <input type="hidden" name="adminaccess" value="0" />
+    <div class="pageinput">
+      <input type="checkbox" id="adminaccess" class="pagecheckbox" name="adminaccess" value="1"{if $adminaccess} checked="checked"{/if} />
+    </div>
   </div>
 *}
   {/if}{*!$access_user*}
@@ -89,11 +87,10 @@
   <input type="hidden" name="groups" value="1" />
   {foreach $groups as $onegroup}<input type="hidden" name="g{$onegroup->id}" value="0" />{/foreach}
   <div class="pageverflow">
-  <div class="pageinfo">{lang('info_membergroups')}</div>
-  <br />
-  <p class="pagetext">
-    {lang('groups')}:
-  </p>
+    <div class="pageinfo">{_ld('admin','info_membergroups')}</div>
+    <br />
+    {_ld('admin','groups')}:
+  </div>
   <br />
   <div class="pageinput">
     <div class="group_memberships clear">
@@ -101,8 +98,8 @@
       <thead>
       <tr>
         <th class="pageicon"></th>
-        <th>{lang('name')}</th>
-        <th>{lang('description')}</th>
+        <th>{_ld('admin','name')}</th>
+        <th>{_ld('admin','description')}</th>
       </tr>
       </thead>
       <tbody>
@@ -115,7 +112,7 @@
 {elseif ($gid == 1 && $my_userid != 1)} disabled
 {/if} />
         </td>
-        <td><label for="g{$gid}">{$onegroup->name}</label></td>
+        <td><label class="pagetext" for="g{$gid}">{$onegroup->name}</label></td>
         <td>{$onegroup->description}</td>
 {/strip}
       </tr>
@@ -132,28 +129,25 @@
   <!-- user settings -->
   <input type="hidden" name="settings" value="1" />
   <div class="pageoverflow">
-  <p class="pagetext">{$t=lang('copyusersettings')}
-    <label for="copyusersettings">{$t}:</label>
-    {cms_help key2='user_copysettings' title=$t}
-  </p>
-  <p class="pageinput">
+    {$t=_ld('admin','copyusersettings')}<label class="pagetext" for="copyusersettings">{$t}:</label>
+    {cms_help 0='help' key='user_copysettings' title=$t}
+    <div class="pageinput">
     <select id="copyusersettings" name="copyusersettings">
-     {html_options options=$users selected=$copyusersettings}
-    </select>
-  </p>
+      {html_options options=$users selected=$copyusersettings}    </select>
+    </div>
   </div>
   <div class="pageoverflow">
-  <p class="pagetext">{$t=lang('clearusersettings')}
-    <label for="clearsettings">{$t}:</label>
-    {cms_help key2='user_clearsettings' title=$t}
-  </p>
-  <input type="hidden" name="clearusersettings" value="0" />
-  <input type="checkbox" name="clearusersettings" id="clearsettings" class="pageinput pagecheckbox" value="1" />
+    {$t=_ld('admin','clearusersettings')}<label class="pagetext" for="clearsettings">{$t}:</label>
+    {cms_help 0='help' key='user_clearsettings' title=$t}
+    <input type="hidden" name="clearusersettings" value="0" />
+    <div class="pageinput">
+      <input type="checkbox" id="clearsettings" class="pagecheckbox" name="clearusersettings" value="1" />
+    </div>
   </div>
   {/if}
   {tab_end}
   <div class="pageinput pregap">
-    <button type="submit" name="submit" id="submit" class="adminsubmit icon check">{lang('submit')}</button>
-    <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
+    <button type="submit" id="submit" class="adminsubmit icon check" name="submit">{_ld('admin','submit')}</button>
+    <button type="submit" class="adminsubmit icon cancel" name="cancel">{_ld('admin','cancel')}</button>
   </div>
 </form>

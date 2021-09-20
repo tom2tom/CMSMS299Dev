@@ -192,7 +192,7 @@ class ModuleInfo implements ArrayAccess
     /**
      * @ignore
      * @param string $modname name of module whose props are wanted
-     * @returns mixed array | null
+     * @returns array maybe empty
      */
     private function _read_from_module_cache(string $modname)
     {
@@ -200,7 +200,7 @@ class ModuleInfo implements ArrayAccess
         if( $data ) {
             if( isset($data[$modname]) ) {
                 if( /*$data[$modname]['status'] != 'installed' ||*/ !$data[$modname]['active'] ) {
-                    return null;
+                    return [];
                 }
                 if( isset($data[$modname][self::MIPROPS[1]]) ) { // anything not in raw table data
                     return $data[$modname];
@@ -229,7 +229,7 @@ class ModuleInfo implements ArrayAccess
                 }
             }
         }
-        return null;
+        return [];
     }
 } // class
 
@@ -239,15 +239,15 @@ class ModuleInfo implements ArrayAccess
         if( is_file($fn) && is_writable($fn) ) unlink($fn);
     }
 */
-    /* return mixed array or null */
+    /* return array maybe empty */
 /*    private function _read_from_module_meta(string $modname)
     {
         $dir = SingleItem::ModuleOperations()->get_module_path($modname);
         $fn = $this->_get_module_meta_file($modname);
-        if( !is_file($fn) ) return;
+        if( !is_file($fn) ) return [];
         $inidata = @parse_ini_file($fn,true);
-        if( !$inidata ) return;
-        if( !isset($inidata['module']) ) return;
+        if( !$inidata ) return [];
+        if( !isset($inidata['module']) ) return [];
 
         $data = $inidata['module'];
         $arr = [];
@@ -301,7 +301,7 @@ class ModuleInfo implements ArrayAccess
         return $arr;
     }
 
-    /* return mixed array or null * /
+    /* return array maybe empty * /
 /*
     private function _read_from_module(string $modname)
     {
@@ -331,6 +331,7 @@ class ModuleInfo implements ArrayAccess
             $arr['changelog'] = $mod->GetChangelog();
             return $arr;
         }
+        return [];
     }
 */
 /*  private function _get_module_meta_file( string $modname ) : string

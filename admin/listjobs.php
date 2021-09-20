@@ -39,8 +39,8 @@ $userid = get_userid();
 
 $pmod = check_permission($userid, 'Manage Jobs'); //?? View Jobs?
 if (!$pmod) {
-//TODO some pushed popup    $themeObject->RecordNotice('error', lang_by_realm('jobs', 'needpermissionto', '"Manage Jobs"'));
-    throw new Error403Exception(lang_by_realm('jobs', 'permissiondenied')); // OR display error.tpl ?
+//TODO some pushed popup    $themeObject->RecordNotice('error', _ld('jobs', 'needpermissionto', '"Manage Jobs"'));
+    throw new Error403Exception(_ld('jobs', 'permissiondenied')); // OR display error.tpl ?
 }
 
 /* DEBUG
@@ -89,17 +89,17 @@ require_once __DIR__.DIRECTORY_SEPARATOR.'method.processjobs.php';
 $job_objs = [];
 if ($jobs) {
     $list = [
-        RecurType::RECUR_15M => lang_by_realm('jobs', 'recur_15m'),
-        RecurType::RECUR_30M => lang_by_realm('jobs', 'recur_30m'),
-        RecurType::RECUR_HOURLY => lang_by_realm('jobs', 'recur_hourly'),
-        RecurType::RECUR_120M => lang_by_realm('jobs', 'recur_120m'),
-        RecurType::RECUR_180M => lang_by_realm('jobs', 'recur_180m'),
-        RecurType::RECUR_DAILY => lang_by_realm('jobs', 'recur_daily'),
-        RecurType::RECUR_WEEKLY => lang_by_realm('jobs', 'recur_weekly'),
-        RecurType::RECUR_MONTHLY => lang_by_realm('jobs', 'recur_monthly'),
+        RecurType::RECUR_15M => _ld('jobs', 'recur_15m'),
+        RecurType::RECUR_30M => _ld('jobs', 'recur_30m'),
+        RecurType::RECUR_HOURLY => _ld('jobs', 'recur_hourly'),
+        RecurType::RECUR_120M => _ld('jobs', 'recur_120m'),
+        RecurType::RECUR_180M => _ld('jobs', 'recur_180m'),
+        RecurType::RECUR_DAILY => _ld('jobs', 'recur_daily'),
+        RecurType::RECUR_WEEKLY => _ld('jobs', 'recur_weekly'),
+        RecurType::RECUR_MONTHLY => _ld('jobs', 'recur_monthly'),
         RecurType::RECUR_NONE => '',
     ];
-    $custom = lang_by_realm('jobs', 'pollgap', '%s');
+    $custom = _ld('jobs', 'pollgap', '%s');
 
     foreach ($jobs as $job) {
         $obj = new stdClass();

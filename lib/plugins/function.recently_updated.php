@@ -31,19 +31,23 @@ function smarty_function_recently_updated($params, $template)
 	else $number = 10;
 
 	if( !empty($params['leadin']) ) $leadin = $params['leadin'];
-	else $leadin = lang_by_realm('layout','modified').': ';
+	else $leadin = _ld('layout','modified').': ';
 
 	$showtitle = cms_to_bool($params['showtitle'] ?? true);
-	$dateformat = trim($params['dateformat'] ?? '');
-	if( !$dateformat ) {
+	$format = trim($params['dateformat'] ?? '');
+	if( !$format ) {
 		if( AppState::test(AppState::ADMIN_PAGE) ) {
 			$userid = get_userid(false);
-			$dateformat = UserParams::get_for_user($userid, 'date_format_string');
+			$format = UserParams::get_for_user($userid, 'date_format');
 		}
 	}
-	if( !$dateformat ) {
-		$dateformat = AppParams::get('defaultdateformat', 'd.m.y h:m');
+	if( !$format ) {
+		$format = AppParams::get('date_format', 'Y-m-d');
 	}
+	elseif( strpos($format, '%') !== false ) {
+		$format = Utils::convert_dt_format($format); // migrate strftime format
+	}
+	// TODO handle 'timed' format
 	$css_class = $params['css_class'] ?? '';
 
 	if( $css_class ) {
@@ -80,10 +84,10 @@ ORDER BY IF(modified_date, modified_date, create_date) DESC LIMIT ".((int)$numbe
 		}
 		$output .= '<br />';
 		$output .= $leadin;
-		$output .= date($dateformat, strtotime($updated_page['modified_date']));
+		$output .= date($format, strtotime($updated_page['modified_date']));
 		$output .= '</li>';
 	}
-    $rst->Close();
+	$rst->Close();
 	$output .= '</ul>';
 	if( $css_class ) $output .= '</div>';
 	if( !empty($params['assign']) ) {
@@ -105,13 +109,15 @@ function smarty_cms_about_function_recently_updated()
   css_class<br />
   dateformat - default is the system setting or d.m.y h:m, use the (PHP date()) format you want
  </li>
+ <li>Sept 2021 generate output using date() instead of deprecated strftime()</li>
+ <li>Sept 2021 Revert to date()-compatible site setting 'date_format' if no 'format' parameter is supplied</li>
 </ul>
 EOS;
 }
 /*
 function smarty_cms_help_function_recently_updated()
 {
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'recently_updated ...', <<<'EOS'
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'recently_updated ...', <<<'EOS'
 <li>number</li>
 <li>leadin</li>
 <li>showtitle</li>

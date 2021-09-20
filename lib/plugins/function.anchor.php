@@ -56,7 +56,7 @@ function smarty_function_anchor($params, $template)
 /*
 function smarty_cms_about_function_anchor()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
 <li>detail</li> ... OR lang('none')
 EOS
 	);
@@ -65,7 +65,7 @@ EOS
 /*
 function smarty_cms_help_function_anchor()
 {
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'anchor ...', <<<'EOS'
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'anchor ...', <<<'EOS'
 <li>class</li>
 <li>title</li>
 <li>tabindex</li>

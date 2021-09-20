@@ -44,8 +44,8 @@ $userid = get_userid();
 $themeObject = SingleItem::Theme();
 
 if (!check_permission($userid, 'Manage My Account')) {
-//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage My Account')), ...);
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+//TODO some pushed popup c.f. javascript:cms_notify('error', _la('no_permission') OR _la('needpermissionto', _la('perm_Manage My Account')), ...);
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 $userobj = SingleItem::UserOperations()->LoadUserByID($userid);
@@ -109,15 +109,15 @@ if (isset($_POST['submit'])) {
     $tmp = trim($_POST['user']);
     $username = sanitizeVal($tmp, CMSSAN_ACCOUNT);
     if ($username != $tmp) {
-        $errors[] = lang('illegalcharacters', lang('username'));
+        $errors[] = _la('illegalcharacters', _la('username'));
         $nmok = false; // no name-policy-check
     } elseif (!($username || is_numeric($username))) { // allow username '0' ???
-        $errors[] = lang('nofieldgiven', lang('username'));
+        $errors[] = _la('nofieldgiven', _la('username'));
         $nmok = false;
     } elseif ($username != $userobj->username) {
         //check for duplication of new name
         if (!$usrops->ReserveUsername($username)) {
-            $errors[] = lang('errorbadname');
+            $errors[] = _la('errorbadname');
             $nmok = false;
         }
     }
@@ -126,12 +126,12 @@ if (isset($_POST['submit'])) {
         //per https://pages.nist.gov/800-63-3/sp800-63b.html : valid = printable ASCII | space | Unicode
         $password = sanitizeVal($tpw, CMSSAN_NONPRINT);
         if (!$password || $password != $tpw) {
-            $errors[] = lang('illegalcharacters', lang('password'));
+            $errors[] = _la('illegalcharacters', _la('password'));
             $pwok = false; // no pw-policy-check
         } else {
             $again = sanitizeVal($tpw2, CMSSAN_NONPRINT);
             if ($password != $again) {
-                $errors[] = lang('nopasswordmatch');
+                $errors[] = _la('nopasswordmatch');
                 $pwok = false;
             }
         }
@@ -145,7 +145,7 @@ if (isset($_POST['submit'])) {
     //$email = filter_var($tmp, FILTER_SANITIZE_EMAIL);
     $email = trim($_POST['email']);
     if ($email && !is_email($email)) {
-        $errors[] = lang('invalidemail').': '.$email;
+        $errors[] = _la('invalidemail').': '.$email;
     }
 
     //if credentials policy(ies) apply, check
@@ -179,13 +179,13 @@ if (isset($_POST['submit'])) {
                 // put mention into the admin log
                 audit($userid, 'Admin User '.$userobj->username, 'Edited');
                 Events::SendEvent('Core', 'EditUserPost', [ 'user'=>$userobj ]);
-                $themeObject->RecordNotice('success', lang('accountupdated'));
+                $themeObject->RecordNotice('success', _la('accountupdated'));
                 $userobj->password = '';
             } else {
-                $errors[] = lang('error_internal');
+                $errors[] = _la('error_internal');
             }
         } elseif ($password) {
-            $errors[] = lang('error_passwordinvalid');
+            $errors[] = _la('error_passwordinvalid');
         }
     }
     if ($errors) {

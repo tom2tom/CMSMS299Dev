@@ -46,7 +46,7 @@
               <div class="container">
 								<div class="row">
 									<div class="col">
-										<h4 class="card-subtitle mt-2 mb-2 text-muted">{lang('subitems')}</h4>
+										<h4 class="card-subtitle mt-2 mb-2 text-muted">{_ld('admin','subitems')}</h4>
                     <ul class="list-unstyled"> {* still testing with looks (JM)*}
 											{foreach from=$node.children item='one'}
                         {if $one.show_in_menu == 1}

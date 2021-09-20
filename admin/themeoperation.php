@@ -175,55 +175,19 @@ function export_theme(string $themename) : bool
 	$xw->setIndentString("\t");
 	$xw->startDocument('1.0', 'UTF-8');
 
+//TODO other resources e.g. verbatim-files ...
+	// no db-stored content
 	$xw->writeDtd('cmsmsadmintheme', null, null, '
  <!ELEMENT dtdversion (#PCDATA)>
  <!ELEMENT name (#PCDATA)>
  <!ELEMENT version (#PCDATA)>
+ <!ELEMENT description (#PCDATA)>
  <!ELEMENT items (item*)>
  <!ELEMENT item (relpath,isdir?,encoded?,content)>
  <!ELEMENT relpath (#PCDATA)>
  <!ELEMENT isdir (#PCDATA)>
  <!ELEMENT encoded (#PCDATA)>
  <!ELEMENT content (#PCDATA)>
- <!ELEMENT description (#PCDATA)>
- <!ELEMENT dflt (#PCDATA)>
- <!ELEMENT stylesheets (stylesheet*)>
- <!ELEMENT stylesheet (id,name,description?,media_type?,content)>
- <!ELEMENT id (#PCDATA)>
- <!ELEMENT media_type (#PCDATA)>
- <!ELEMENT stylesheetgroups (stylesheetgroup*)>
- <!ELEMENT stylesheetgroup (id,name,description?)>
- <!ELEMENT stylesheetgroupmembers (stylesheetgroupmember*)>
- <!ELEMENT stylesheetgroupmember (group_id,css_id,item_order?)>
- <!ELEMENT tpltypes (tpltype*)>
- <!ELEMENT tpltype (id,name,description?,originator,one_only?,has_dflt?,dflt_contents?,requires_contentblocks?,lang_cb?,dflt_content_cb?,help_content_cb?)>
- <!ELEMENT originator (#PCDATA)>
- <!ELEMENT one_only (#PCDATA)>
- <!ELEMENT has_dflt (#PCDATA)>
- <!ELEMENT dflt_contents (#PCDATA)>
- <!ELEMENT requires_contentblocks (#PCDATA)>
- <!ELEMENT lang_cb (#PCDATA)>
- <!ELEMENT dflt_content_cb (#PCDATA)>
- <!ELEMENT help_content_cb (#PCDATA)>
- <!ELEMENT templates (template*)>
- <!ELEMENT template (id,name,description?,type_id,group_id?,type_dflt?,content)>
- <!ELEMENT type_id (#PCDATA)>
- <!ELEMENT group_id (#PCDATA)>
- <!ELEMENT type_dflt (#PCDATA)>
- <!ELEMENT templategroups (templategroup*)>
- <!ELEMENT templategroup (id,name,description?)>
- <!ELEMENT templategroupmembers (templategroupmember*)>
- <!ELEMENT templategroupmember (group_id,tpl_id,item_order?)>
- <!ELEMENT design (id,name,description?)>
- <!ELEMENT designstyles (designcss*)>
- <!ELEMENT designcss (design_id,css_id,css_order)>
- <!ELEMENT design_id (#PCDATA)>
- <!ELEMENT css_id (#PCDATA)>
- <!ELEMENT css_order (#PCDATA)>
- <!ELEMENT designtemplates (designtpl*)>
- <!ELEMENT designtpl (design_id,tpl_id,tpl_order?)>
- <!ELEMENT tpl_id (#PCDATA)>
- <!ELEMENT tpl_order (#PCDATA)>
 ');
 
 	$xw->startElement('cmsmsadmintheme');
@@ -233,6 +197,8 @@ function export_theme(string $themename) : bool
 	$class = $themename.'Theme';
 	$val = $class::THEME_VERSION ?? '0';
 	$xw->writeElement('version', $val);
+//	$val = $TODO;
+//	$xw->writeElement('description', $val);
 
 	$dir = dirname($all[$themename]);
 	$items = get_recursive_file_list($dir);
@@ -321,11 +287,11 @@ if (isset($_FILES['import'])) {
 			$urlext = get_secure_param();
 			redirect('sitesettings.php'.$urlext);
 		} else {
-			//cms_notify('error', lang('invalid theme name'));
+			//cms_notify('error', _la('invalid theme name'));
 			exit;
 		}
 	} else {
-		//cms_notify('error', lang('needpermissionto', '"Modify Site Preferences"'));
+		//cms_notify('error', _la('needpermissionto', '"Modify Site Preferences"'));
 		exit;
 	}
 }

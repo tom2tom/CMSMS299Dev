@@ -11,8 +11,8 @@
 </ul>
 {/strip}{/function}
 
-<h3>{$mod->Lang('reorder_categories')}</h3>
-<div class="pageinfo">{$mod->Lang('info_reorder_categories')}</div>
+<h3>{_ld($_module,'reorder_categories')}</h3>
+<div class="pageinfo">{_ld($_module,'info_reorder_categories')}</div>
 {category_tree}
 <br />
 {form_start id="reorder_form"}
@@ -20,8 +20,8 @@
 <input type="hidden" name="{$actionid}data" id="submit_data" value=""/>
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{lang('submit')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{_ld('admin','submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{_ld('admin','cancel')}</button>
   </p>
 </div>
 </form>

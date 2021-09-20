@@ -49,7 +49,7 @@ $content_id = isset($params['content_id']) ? (int)$params['content_id'] : 0;
 
 try {
     if( $content_id < 1 ) {
-        // adding.
+        // adding
         if( !$this->CheckPermission('Add Pages') ) {
             // no permission to add pages.
             $this->SetError($this->Lang('error_editpage_permission'));
@@ -57,7 +57,7 @@ try {
         }
     }
     elseif( !$this->CanEditContent($content_id) ) {
-        // nope, can't edit this page anyways.
+        // nope, can't edit this page anyways
         $this->SetError($this->Lang('error_editpage_permission'));
         $this->Redirect($id,'defaultadmin',$returnid);
     }
@@ -65,13 +65,12 @@ try {
     $parent_id = $error = null;
     $pagedefaults = Utils::get_pagedefaults();
     $contentops = SingleItem::ContentOperations();
-    $realm = $this->GetName();
+    $domain = $this->GetName(); // translated-strings domain is this module
     // get a list of content types and pick a default if necessary
-    $existingtypes = SingleItem::ContentTypeOperations()->ListContentTypes(false,true,false,$realm);
+    $existingtypes = SingleItem::ContentTypeOperations()->ListContentTypes(false,true,false,$domain);
     // load or create the initial content object
-
     if( $content_id === 0 && isset($_SESSION['__cms_copy_obj__']) ) {
-        // we're copying a content object.
+        // we're copying a content object
         $content_obj = unserialize($_SESSION['__cms_copy_obj__']);
         if( isset($params['content_type']) ) {
             $content_type = trim($params['content_type']);
@@ -150,7 +149,8 @@ try {
         $this->SetError($this->Lang('error_editpage_contenttype'));
         $this->Redirect($id,'defaultadmin',$returnid);
     }
-} catch( Throwable $t ) {
+}
+catch( Throwable $t ) {
     // An error here means we can't display anything
     $this->SetError($t->getMessage());
     $this->Redirect($id,'defaultadmin',$returnid);
@@ -233,7 +233,8 @@ try {
             exit;
         }
     }
-} catch( EditContentException $e ) {
+}
+catch( EditContentException $e ) {
 /*
     if( isset($params['submit']) ) {
         $this->SetError($e->getMessage());
@@ -246,7 +247,8 @@ try {
         echo json_encode($tmp);
         exit;
     }
-} catch( ContentException $e ) {
+}
+catch( ContentException $e ) {
     $error = $e->getMessage();
     if( isset($params['ajax']) ) {
         $tmp = ['response'=>'Error','details'=>$error];
@@ -272,17 +274,18 @@ if( $content_id && Utils::locking_enabled() ) {
             if( !$lock->expired() ) throw new LockException('CMSEX_L010');
             LockOperations::unlock($lock_id,'content',$content_id);
         }
-    } catch( Exception $e ) {
-        $this->SetError($e->getMessage());
+    }
+    catch( Throwable $t ) {
+        $this->SetError($t->getMessage());
         $this->Redirect($id,'defaultadmin',$returnid);
     }
 }
 
 $tab_contents_array = [];
 $tab_message_array = [];
+$maintab = ContentBase::TAB_MAIN;
 
 try {
-    $maintab = ContentBase::TAB_MAIN;
     $tab_names = $content_obj->GetTabNames(); //admin realm cuz wierd lang-keys
     // the content object might not have a main tab, but we require one
     if( !in_array($maintab,$tab_names) ) {
@@ -293,24 +296,27 @@ try {
 
     foreach( $tab_names as $currenttab => $label ) {
         $tmp = $content_obj->GetTabMessage($currenttab);
-        if( $tmp ) $tab_message_array[$currenttab] = $tmp;
+        if( $tmp ) {
+            $tab_message_array[$currenttab] = $tmp;
+        }
 
-        $elements = [];
+        /* Each 'bundle' of content provided to Smarty is an array, with
+         * 3-4 members:
+         * [0] = property-label content
+         * [1] = popup-help content or falsy
+         * [2] = property-input element(s) or text
+         * [3] = optional supplmentary content (advice of some sort)
+         * Any related js is pushed directly into the page bottom
+         */
+        $bundles = [];
         if( $currenttab == $maintab ) {
             // main tab... prepend a content-type selector
             // unless the user is only an additional editor for this page
             if( $this->CheckPermission('Manage All Content')
              || $this->CheckPermission('Modify Any Page')
              || $content_obj->Owner() == $userid )  {
-                $help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_type',$this->Lang('help_title_content_type'));
-                $tmp = ['<label for="content_type">*'.$this->Lang('prompt_editpage_contenttype').':</label>'.$help];
-/*                $tmp2 = '<select id="content_type" name="'.$id.'content_type">';
-                foreach( $existingtypes as $type => $label ) {
-                    $tmp2 .= FormUtils::create_option(['value'=>$type,'label'=>$label],$content_type);
-                }
-                $tmp2 .= '</select>';
-*/
-                $tmp2 = FormUtils::create_select([ // DEBUG
+                // TODO a selector if $adding, or else just text ?
+                $input = FormUtils::create_select([
                     'type' => 'drop',
                     'name' => 'content_type',
                     'htmlid' => 'content_type',
@@ -319,25 +325,32 @@ try {
                     'options' => array_flip($existingtypes),
                     'selectedvalue' => $content_type,
                 ]);
-                $tmp[] = $tmp2;
-                $elements[] = $tmp;
+                $bundles[] = [
+                'for="content_type">* '.$this->Lang('prompt_editpage_contenttype'),
+                AdminUtils::get_help_tag($domain,'help_content_type',$this->Lang('help_title_content_type')),
+                $input
+                ];
+                //TODO js to handle selector-change
             }
         }
 
         foreach( $props as &$one ) {
-            if($one['name'] == 'design_id') {
-                continue;
+            if( $one['name'] == 'design_id' ) {
+                continue; // deprecated property since 2.99, ignored
             }
-            if( !isset($one['tab']) || $one['tab'] === '' ) $one['tab'] = $maintab;
+            if( !isset($one['tab']) || $one['tab'] === '' ) {
+                $one['tab'] = $maintab;
+            }
             if( $one['tab'] == $currenttab ) {
-                $elements[] = $content_obj->ShowElement($one['name'],$adding);
+                $bundles[] = $content_obj->ShowElement($one['name'],$adding);
             }
         }
         unset($one);
 
-        $tab_contents_array[$currenttab] = $elements;
+        $tab_contents_array[$currenttab] = $bundles;
     }
-} catch( Throwable $t ) {
+}
+catch( Throwable $t ) {
     $tab_names = null;
     $error = $t->getMessage();
 }

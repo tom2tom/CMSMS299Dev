@@ -23,7 +23,6 @@ namespace ModuleManager;
 
 use CMSMS\internal\ExtendedModuleInfo;
 use CMSMS\internal\ModuleInfo as TopInfo;
-use CMSMS\ModuleOperations;
 use CMSMS\SingleItem;
 use ModuleManager\ModuleRepClient;
 use Throwable;
@@ -118,7 +117,7 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
             } // foreach
             return $out;
         }
-		return [];
+        return [];
     }
 
     /**
@@ -252,18 +251,20 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
             return ($tmp < 0);
           case 'can_uninstall':
             // can this module be uninstalled
-            if( !$this['installed'] ) return false;
-
-            $name = $this['name'];
-            if( $name == 'ModuleManager' || $name == ModuleOperations::STD_LOGIN_MODULE ) return false;
-
+            if( !$this['installed'] ) {
+                return false;
+            }
+            $modname = $this['name'];
             // check for installed modules that are dependent upon this one
             foreach( self::$minfo as $minfo ) {
-                if( $minfo['dependents'] ) {
-                    if( in_array($name, $minfo['dependents']) ) return false;
+                if( $minfo['depends'] ) {
+                    if( isset($minfo['depends'][$modname]) ) {
+                        return false;
+                    }
                 }
             }
-            return true;
+//            return parent::OffsetGet($key);
+            return !in_array($modname,['AdminLogin','ModuleManager']);
           case 'missing_deps':
             // is any dependency missing
             return $this->_get_missing_dependencies();

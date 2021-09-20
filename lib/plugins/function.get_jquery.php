@@ -55,7 +55,7 @@ EOS;
 
 function smarty_cms_help_function_get_jquery()
 {
-	echo lang_by_realm('tags', 'help_function_get_jquery');
+	echo _ld('tags', 'help_function_get_jquery');
 }
 
 function smarty_cms_about_function_get_jquery()

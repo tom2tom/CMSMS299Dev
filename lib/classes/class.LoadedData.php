@@ -117,7 +117,7 @@ class LoadedData
      * @param string $name method name
      * @param array $args enumerated method argument(s)
      */
-    public static function __callStatic($name, $args)
+    public static function __callStatic(string $name, array $args)
     {
         $obj = SingleItem::LoadedData();
         return $obj->$name(...$args);
@@ -182,7 +182,7 @@ class LoadedData
     /**
      * Get all loaded or loadable data for the specified type
      *
-     * @param string $type Data-identifier 
+     * @param string $type Data-identifier
      * @param bool $force since 2.99 Optional flag signalling
      *  source-data are wanted (i.e. no system-cache). Default false.
      * @param varargs $details since 2.99 Optional extra parameters

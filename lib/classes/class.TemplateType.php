@@ -72,7 +72,6 @@ class TemplateType
 		'id',
 		'originator',
 		'name',
-		'dflt_contents',
 		'description',
 		'lang_cb',
 		'dflt_content_cb',
@@ -80,7 +79,8 @@ class TemplateType
 		'has_dflt',
 		'requires_contentblocks',
 		'one_only',
-		'owner',
+		'owner_id',
+		'dflt_content',
 		'create_date',
 		'modified_date',
 	];
@@ -139,7 +139,6 @@ class TemplateType
 			'id' => 0,
 			'originator' => NULL,
 			'name' => NULL,
-			'dflt_contents' => NULL,
 			'description' => NULL,
 			'lang_cb' => NULL,
 			'dflt_content_cb' => NULL,
@@ -147,7 +146,8 @@ class TemplateType
 			'has_dflt' => 0,
 			'requires_contentblocks' => 0,
 			'one_only' => 0,
-			'owner' => 1,
+			'owner_id' => 1,
+			'dflt_content' => NULL,
 			'create_date' => NULL,
 			'modified_date' => NULL,
 		];
@@ -253,7 +253,7 @@ class TemplateType
 	 */
 	public function get_dflt_contents()
 	{
-		return $this->_data['dflt_contents'] ?? '';
+		return $this->_data['dflt_content'] ?? '';
 	}
 
 	/**
@@ -263,7 +263,7 @@ class TemplateType
 	 */
 	public function set_dflt_contents($str)
 	{
-		$this->_data['dflt_contents'] = $str;
+		$this->_data['dflt_content'] = $str;
 		$this->_dirty = TRUE;
 	}
 
@@ -352,7 +352,7 @@ class TemplateType
 	}
 
 	/**
-	 * Record the callback to be used to retrieve a translated version of the originator and name strings.
+	 * Record the callable to be used to retrieve a translated version of the originator and name strings.
 	 *
 	 * @param callable $callback A static [class::]function name string, or
 	 * an array representing a class name and method name.
@@ -365,7 +365,7 @@ class TemplateType
 	}
 
 	/**
-	 * Get the callback used to translate the originator and name strings.
+	 * Get the callable used to translate the originator and name strings.
 	 *
 	 * @return mixed string or array or null
 	 */
@@ -375,7 +375,7 @@ class TemplateType
 	}
 
 	/**
-	 * Record the callback to be used to display help for this template when editing.
+	 * Record the callable to be used to display help for this template when editing.
 	 *
 	 * @param callable $callback A static [class::]function name string, or
 	 * an array of a class name and member name.
@@ -388,7 +388,7 @@ class TemplateType
 	}
 
 	/**
-	 * Get the callback used to retrieve help for this template-type.
+	 * Get the callable used to retrieve help for this template-type.
 	 *
 	 * @return mixed string or array or null
 	 */
@@ -398,7 +398,7 @@ class TemplateType
 	}
 
 	/**
-	 * Record the callback to be used to reset the template content to factory-default value.
+	 * Record the callable to be used to reset the template content to factory-default value.
 	 *
 	 * @param callable $callback A static [class::]function name string, or
 	 * an array of a class name and member name.
@@ -411,7 +411,7 @@ class TemplateType
 	}
 
 	/**
-	 * Get the callback used to reset a template to its factory default value.
+	 * Get the callable used to reset a template to its factory default value.
 	 *
 	 * @return mixed string or array or null
 	 */
@@ -607,13 +607,13 @@ class TemplateType
 			$this->get_name(),
 			($this->get_dflt_flag() ? 1 : 0),
 			($this->get_oneonly_flag() ? 1 : 0),
-			$this->get_dflt_contents(),
 			$this->get_description(),
 			$cbl,
 			$cbh,
 			$cbc,
 			($this->get_content_block_flag() ? 1 : 0),
 			$this->get_owner(),
+			$this->get_dflt_contents(),
 			$db->DbTimeStamp(time(), false),
 		];
 
@@ -623,13 +623,13 @@ originator,
 name,
 has_dflt,
 one_only,
-dflt_contents,
 description,
 lang_cb,
 help_content_cb,
 dflt_content_cb,
 requires_contentblocks,
-owner,
+owner_id,
+dflt_content,
 create_date
 ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)';
 		$dbr = $db->execute($query,$args);
@@ -638,7 +638,7 @@ create_date
 		$this->_data['id'] = $db->Insert_ID(); // i.e. $dbr, here
 		$this->_dirty = NULL;
 
-		audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Created');
+		audit($this->get_id(),$this->get_originator(),'Template-Type '.$this->get_name().' Created');
 	}
 
 
@@ -689,13 +689,13 @@ create_date
 			$this->get_name(),
 			($this->get_dflt_flag() ? 1 : 0),
 			($this->get_oneonly_flag() ? 1 : 0),
-			$this->get_dflt_contents(),
 			$this->get_description(),
 			$cbl,
 			$cbh,
 			$cbc,
 			($this->get_content_block_flag() ? 1 : 0),
 			$this->get_owner(),
+			$this->get_dflt_contents(),
 			$db->DbTimeStamp(time(), FALSE),
 			$this->get_id(),
 		];
@@ -705,13 +705,13 @@ originator = ?,
 name = ?,
 has_dflt = ?,
 one_only = ?,
-dflt_contents = ?,
 description = ?,
 lang_cb = ?,
 help_content_cb = ?,
 dflt_content_cb = ?,
 requires_contentblocks = ?,
-owner = ?
+owner_id = ?
+dflt_content = ?,
 modified_date = ?
 WHERE id = ?';
 		$db->execute($query,$args);
@@ -742,7 +742,7 @@ WHERE id = ?';
 	/**
 	 * Get a list of templates for the current template-type.
 	 *
-	 * @return mixed array of Template objects | null
+	 * @return array of Template object(s) | empty
 	 */
 	public function get_template_list()
 	{
@@ -785,8 +785,8 @@ WHERE id = ?';
 		$ob = new Template();
 		$ob->set_originator($this->get_originator());
 		if( $name ) $ob->set_name($name);
-		$ob->set_type( $this );
-		$ob->set_content( $this->get_dflt_contents() );
+		$ob->set_type($this);
+		$ob->set_content($this->get_dflt_contents());
 		return $ob;
 	}
 
@@ -994,7 +994,7 @@ WHERE id = ?';
 	 * Load all template-types whose originator is as specified.
 	 *
 	 * @param string $originator The originator name
-	 * @return mixed array of TemplateType objects | null if no match is found.
+	 * @return array TemplateType object(s) | empty if no match is found.
 	 * @throws LogicException
 	 */
 	public static function load_all_by_originator($originator)
@@ -1006,7 +1006,7 @@ WHERE id = ?';
 		if( self::$_cache ) $query .= ' AND id NOT IN ('.implode(',',array_keys(self::$_cache)).')';
 		$query .= ' ORDER BY IF(modified_date, modified_date, create_date) DESC';
 		$list = $db->getArray($query,[$originator]);
-		if( !$list ) return;
+		if( !$list ) return [];
 
 		foreach( $list as $row ) {
 			self::_load_from_data($row);
@@ -1022,7 +1022,7 @@ WHERE id = ?';
 	/**
 	 * Load all template-types
 	 *
-	 * @return mixed array of TemplateType objects | null
+	 * @return array TemplateType object(s) | empty
 	 */
 	public static function get_all()
 	{
@@ -1031,24 +1031,23 @@ WHERE id = ?';
 		if( self::$_cache && count(self::$_cache) ) $query .= ' WHERE id NOT IN ('.implode(',',array_keys(self::$_cache)).')';
 		$query .= '	ORDER BY IF(modified_date, modified_date, create_date)';
 		$list = $db->getArray($query);
-		if( !$list ) return;
+		if( !$list ) return [];
 
 		foreach( $list as $row ) {
 			self::_load_from_data($row);
 		}
-
 		return array_values(self::$_cache);
 	}
 
 	/**
-	 * Load all template-types included in the provided list
+	 * Load the template-types in the provided list and which are not already loaded
 	 *
 	 * @param int[] $list Array of template-type ids
-	 * @return mixed array of TemplateType objects | null
+	 * @return array newly-loaded TemplateType object(s) | empty
 	 */
 	public static function load_bulk($list)
 	{
-		if( !$list ) return;
+		if( !$list ) return [];
 
 		$list2 = [];
 		foreach( $list as $one ) {
@@ -1057,15 +1056,15 @@ WHERE id = ?';
 			if( isset(self::$_cache[$one]) ) continue;
 			$list2[] = $one;
 		}
-		if( !$list2 ) return;
+		if( !$list2 ) return [];
 
 		$db = SingleItem::Db();
-		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.implode(',',$list).')';
-		$list = $db->getArray($query);
-		if( !$list ) return;
+		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.implode(',',$list2).')';
+		$dbr = $db->getArray($query);
+		if( !$dbr ) return [];
 
 		$out = [];
-		foreach( $list as $row ) {
+		foreach( $dbr as $row ) {
 			$out[] = self::_load_from_data($row);
 		}
 		return $out;
@@ -1074,11 +1073,12 @@ WHERE id = ?';
 	/**
 	 * Return the names of all loaded template-types
 	 *
-	 * @return array of the loaded type objects.
+	 * @return array loaded TemplateType name(s) | empty
 	 */
 	public static function get_loaded_types()
 	{
 		if( is_array(self::$_cache) ) return array_keys(self::$_cache);
+		return [];
 	}
 
 	/**

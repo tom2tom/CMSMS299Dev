@@ -123,7 +123,7 @@ abstract class test_base
         }
     }
 
-    public function __unset($key)
+    public function __unset(string $key)
     {
         unset($this->_data[$key]);
     }

@@ -43,7 +43,7 @@ function cms_module_places(string $modname = '', bool $all = false) : array
     } elseif ($all && !$modname) {
         $dirlist[] = null; // deep trouble coming !!
     }
-    $path = cms_join_path(CMS_ROOT_PATH, 'lib', 'modules');
+/*  $path = cms_join_path(CMS_ROOT_PATH, 'lib', 'modules');
     if ($modname) {
         $path .= DIRECTORY_SEPARATOR . $modname;
     }
@@ -52,6 +52,7 @@ function cms_module_places(string $modname = '', bool $all = false) : array
     } elseif ($all && !$modname) {
         $dirlist[] = null; // indicate this place N/A
     }
+*/
     $path = cms_join_path(CMS_ASSETS_PATH, 'modules');
     if ($modname) {
         $path .= DIRECTORY_SEPARATOR . $modname;

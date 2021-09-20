@@ -42,5 +42,5 @@ if (check_permission($userid, 'View UserTag Help')) {
     exit;
 }
 else {
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }

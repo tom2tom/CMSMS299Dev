@@ -19,10 +19,11 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use function CMSMS\get_styles_manager;
 // since 2.99
 function smarty_function_cms_render_css($params, $template)
 {
-	$combiner = CMSMS\SingleItem::App()->GetStylesManager();
+	$combiner = get_styles_manager();
 	$force = cms_to_bool($params['force'] ?? false);
 
 	$out = '';
@@ -45,7 +46,7 @@ function smarty_function_cms_render_css($params, $template)
 
 function smarty_cms_help_function_cms_render_css()
 {
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin generates a link tag for retrieving the result of merging queued css-files',
 	'cms_render_css',
 	'<li>force: optional flag. If true, re-create the package even if its content seems unchanged</li>'
@@ -55,7 +56,7 @@ function smarty_cms_help_function_cms_render_css()
 
 function smarty_cms_about_function_cms_render_css()
 {
-	echo lang_by_realm('tags', 'about_generic',
+	echo _ld('tags', 'about_generic',
 	<<<EOS
 <p>Author: Robert Campbell</p>
 <p>Version: 1.0</p>

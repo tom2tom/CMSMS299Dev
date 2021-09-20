@@ -70,7 +70,7 @@ class ResultSet
     /**
      * @ignore
      */
-    public function __set($key, $val)
+    public function __set(string $key, $val)
     {
         switch ($key) {
          case 'errno':
@@ -86,7 +86,7 @@ class ResultSet
     /**
      * @ignore
      */
-    public function __get($key)
+    public function __get(string $key)
     {
         switch ($key) {
          case 'errno':
@@ -123,7 +123,6 @@ class ResultSet
         if ($this->_native === '') {
             $this->_native = function_exists('mysqli_fetch_all');
         }
-
         return $this->_native;
     }
 
@@ -132,6 +131,7 @@ class ResultSet
      * @internal
      *
      * @param int $idx
+	 * @return bool
      */
     protected function move($idx)
     {
@@ -145,12 +145,12 @@ class ResultSet
         }
         $this->_pos = -1;
         $this->_row = [];
-
         return false;
     }
 
     /**
      * Move to the first row in the ResultSet data.
+	 * @return bool
      */
     public function moveFirst()
     {
@@ -159,26 +159,25 @@ class ResultSet
 
     /**
      * Move to the next row of the ResultSet data, if possible.
+	 * @return bool
      */
     public function moveNext()
     {
         if (($idx = $this->_pos) < $this->_nrows && $idx >= 0) {
             return $this->move($idx + 1);
         }
-
         return false;
     }
 
     /**
-     * Get all data in the ResultSet as an array.
+     * Get all data in the ResultSet.
      *
-     * @return array
+     * @return array, maybe empty
      */
     public function getArray()
     {
         if ($this->isNative()) {
            $this->_result->data_seek(0);
-
            return $this->_result->fetch_all(MYSQLI_ASSOC);
         } else {
             $results = [];
@@ -191,7 +190,6 @@ class ResultSet
                     }
                 }
             }
-
             return $results;
         }
     }
@@ -228,7 +226,7 @@ class ResultSet
      * Get all data in the ResultSet as an array with first-selected values
      *  as keys.
      *
-     * @return array
+     * @return array, maybe empty
      */
     public function getAssoc($force_array = false, $first2cols = false)
     {
@@ -265,14 +263,13 @@ class ResultSet
                 }
             }
         }
-
         return $results;
     }
 
     /**
      *
-     * @param bool $trim Optional flag whether to ... Default false.
-     * @return mixed
+     * @param bool $trim Optional flag whether to trim() each value. Default false.
+     * @return array, maybe empty
      */
     public function getCol($trim = false)
     {
@@ -299,21 +296,19 @@ class ResultSet
                 }
             }
         }
-
         return $results;
     }
 
     /**
      * Return one value of one field
      *
-     * @return mixed
+     * @return mixed value | null
      */
     public function getOne()
     {
         if (!$this->EOF()) {
             return reset($this->_row);
         }
-
         return null;
     }
 
@@ -378,8 +373,7 @@ class ResultSet
      * Return all the fields, or a single field, of the current row of the ResultSet.
      *
      * @param string $key An optional field name, if not specified, the entire row will be returned
-     *
-     * @return mixed|array Either a single value, or an array, or null
+     * @return mixed single value | values-array | null
      */
     public function fields($key = null)
     {
@@ -392,24 +386,21 @@ class ResultSet
                 return $this->_row[$key];
             }
         }
-
         return null;
     }
 
     /**
      * Fetch the current row, and move to the next row.
      *
-     * @return array
+     * @return array, maybe empty
      */
     public function FetchRow()
     {
         $out = $this->fields();
         if ($out !== null) {
             $this->moveNext();
-
             return $out;
         }
-
         return [];
     }
 } //class

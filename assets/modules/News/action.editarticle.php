@@ -179,7 +179,7 @@ WHERE news_id=?';
         $db->execute($query, $args);
 
         if (!$error) {
-            if (($status == 'published' || $status =='final') && $news_url != '') {
+            if (($status == 'published' || $status == 'final') && $news_url !== '') {
                 AdminOperations::delete_static_route($articleid);
                 AdminOperations::register_static_route($news_url, $articleid);
             }

@@ -81,7 +81,7 @@ function smarty_function_cms_selflink($params, $template)
 					if( !is_object($content) ) continue;
 					if( !$content->Active() || !$content->HasUsableLink() || !$content->ShowInMenu() ) continue;
 					$pageid = $content->Id();
-					$label = LangOperations::lang_from_realm('cms_selflink','next_label');
+					$label = LangOperations::domain_string('cms_selflink','next_label');
 					break;
 				}
 			}
@@ -105,7 +105,7 @@ function smarty_function_cms_selflink($params, $template)
 					if( !is_object($content) ) continue;
 					if( !$content->Active() || !$content->HasUsableLink() || !$content->ShowInMenu() ) continue;
 					$pageid = $content->Id();
-					$label = LangOperations::lang_from_realm('cms_selflink','next_label');
+					$label = LangOperations::domain_string('cms_selflink','next_label');
 					break;
 				}
 			}
@@ -123,7 +123,7 @@ function smarty_function_cms_selflink($params, $template)
 					$content = $flatcontent[$k]->getContent();
 					if( !is_object($content) || !$content->Active() || !$content->HasUsableLink() || !$content->ShowInMenu() ) continue;
 					$pageid = $content->Id();
-					$label = LangOperations::lang_from_realm('cms_selflink','prev_label');
+					$label = LangOperations::domain_string('cms_selflink','prev_label');
 					break;
 				}
 			}
@@ -146,7 +146,7 @@ function smarty_function_cms_selflink($params, $template)
 					$content = $children[$j]->getContent();
 					if( !is_object($content) || !$content->Active() || !$content->HasUsableLink() || !$content->ShowInMenu() ) continue;
 					$pageid = $content->Id();
-					$label = LangOperations::lang_from_realm('cms_selflink','prev_label');
+					$label = LangOperations::domain_string('cms_selflink','prev_label');
 					break;
 				}
 			}

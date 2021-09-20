@@ -51,42 +51,42 @@ try {
     $sheetslist = $css_query->GetMatches();
     if( $sheetslist ) {
         $u = 'editstylesheet.php'.$urlext.'&css=XXX';
-        $t = lang_by_realm('layout','title_edit_stylesheet');
+        $t = _ld('layout','title_edit_stylesheet');
         $icon = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
         $linkedit = '<a href="'.$u.'" class="edit_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
 //      $u = ibid
-        $t = lang_by_realm('layout','title_steal_lock');
+        $t = _ld('layout','title_steal_lock');
         $icon = $themeObject->DisplayImage('icons/system/permissions', $t, '', '', 'systemicon');
         $linksteal = '<a href="'.$u.'" class="steal_css_lock" data-css-id="XXX" accesskey="e">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'stylesheetoperations.php'.$urlext.'&op=copy&css=XXX';
-        $t = lang_by_realm('layout','title_copy_stylesheet');
+        $t = _ld('layout','title_copy_stylesheet');
         $icon = $themeObject->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
         $linkcopy = '<a href="'.$u.'" class="copy_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'stylesheetoperations.php'.$urlext.'&op=prepend&css=XXX';
-        $t = lang_by_realm('layout','title_prepend_stylesheet');
+        $t = _ld('layout','title_prepend_stylesheet');
         $icon = $themeObject->DisplayImage('icons/extra/prepend', $t, '', '', 'systemicon');
         $linkprepend = '<a href="'.$u.'" class="prepend_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'stylesheetoperations.php'.$urlext.'&op=append&css=XXX';
-        $t = lang_by_realm('layout','title_append_stylesheet');
+        $t = _ld('layout','title_append_stylesheet');
         $icon = $themeObject->DisplayImage('icons/extra/append', $t, '', '', 'systemicon');
         $linkappend = '<a href="'.$u.'" class="append_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'stylesheetoperations.php'.$urlext.'&op=replace&css=XXX';
-        $t = lang_by_realm('layout','title_replace_stylesheet');
+        $t = _ld('layout','title_replace_stylesheet');
         $icon = $themeObject->DisplayImage('icons/extra/replace', $t, '', '', 'systemicon');
         $linkreplace = '<a href="'.$u.'" class="replace_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'stylesheetoperations.php'.$urlext.'&op=remove&css=XXX';
-        $t = lang_by_realm('layout','title_remove_stylesheet');
+        $t = _ld('layout','title_remove_stylesheet');
         $icon = $themeObject->DisplayImage('icons/extra/removeall', $t, '', '', 'systemicon');
         $linkremove = '<a href="'.$u.'" class="remove_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'stylesheetoperations.php'.$urlext.'&op=delete&css=XXX';
-        $t = lang_by_realm('layout','title_delete_stylesheet');
+        $t = _ld('layout','title_delete_stylesheet');
         $icon = $themeObject->DisplayImage('icons/system/delete', $t, '', '', 'systemicon');
         $linkdel = '<a href="'.$u.'" class="del_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
@@ -127,7 +127,7 @@ try {
             if( $pagerows < $totalrows ) $pagelengths[20] = 20;
             $pagerows += $pagerows;
             if( $pagerows < $totalrows ) $pagelengths[40] = 40;
-            $pagelengths[0] = lang('all');
+            $pagelengths[0] = _la('all');
         } else {
             $pagelengths = null;
         }
@@ -159,19 +159,19 @@ catch( Throwable $t ) {
 
 $securekey = CMS_SECURE_PARAM_NAME;
 $jobkey = CMS_JOB_KEY;
-$s1 = json_encode(lang_by_realm('layout','confirm_delete_bulk'));
-$s2 = json_encode(lang_by_realm('layout','error_nothingselected'));
-$s3 = json_encode(lang_by_realm('layout','confirm_steal_lock'));
-$s4 = json_encode(lang_by_realm('layout','error_contentlocked'));
-//$s5 = json_encode(lang_by_realm('layout','confirm_replacestyle'));
-$s6 = json_encode(lang_by_realm('layout','confirm_deletestyle'));
-$s7 = json_encode(lang_by_realm('layout','confirm_removestyle'));
-$s8 = json_encode(lang_by_realm('layout','confirm_applystyle'));
-$s9 = json_encode(lang_by_realm('layout','confirm_clearlocks'));
-$t1 = lang_by_realm('layout','prompt_replace_typed',lang_by_realm('layout','prompt_stylesheet'));
-$t2 = lang_by_realm('layout','prompt_replace_typed',lang_by_realm('layout','prompt_stylesgroup'));
-$cancel = lang('cancel');
-$submit = lang('submit');
+$s1 = json_encode(_ld('layout','confirm_delete_bulk'));
+$s2 = json_encode(_ld('layout','error_nothingselected'));
+$s3 = json_encode(_ld('layout','confirm_steal_lock'));
+$s4 = json_encode(_ld('layout','error_contentlocked'));
+//$s5 = json_encode(_ld('layout','confirm_replacestyle'));
+$s6 = json_encode(_ld('layout','confirm_deletestyle'));
+$s7 = json_encode(_ld('layout','confirm_removestyle'));
+$s8 = json_encode(_ld('layout','confirm_applystyle'));
+$s9 = json_encode(_ld('layout','confirm_clearlocks'));
+$t1 = _ld('layout','prompt_replace_typed',_ld('layout','prompt_stylesheet'));
+$t2 = _ld('layout','prompt_replace_typed',_ld('layout','prompt_stylesgroup'));
+$cancel = _la('cancel');
+$submit = _la('submit');
 $secs = AppParams::get('lock_refresh', 120);
 $secs = max(30,min(600,$secs));
 
@@ -405,42 +405,42 @@ $jsm->queue_string($js, 3);
 $groups = StylesheetOperations::get_bulk_groups(); //TODO ensure member id's are also displayed
 if( $groups ) {
     $u = 'editcssgroup.php'.$urlext.'&grp=XXX';
-    $t = lang_by_realm('layout','title_edit_group');
+    $t = _ld('layout','title_edit_group');
     $icon = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
     $linkedit = '<a href="'.$u.'" data-css-id="XXX" class="edit_css">'.$icon.'</a>'.PHP_EOL;
 
 /*    $u = 'stylesheetoperations.php'.$urlext.'&op=copy&grp=XXX';
-    $t = lang_by_realm('layout','title_copy_group');
+    $t = _ld('layout','title_copy_group');
     $icon = $themeObject->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
     $linkcopy = '<a href="'.$u.'" class="copy_css">'.$icon.'</a>'.PHP_EOL;
 */
     $u = 'stylesheetoperations.php'.$urlext.'&op=delete&grp=XXX';
-    $t = lang_by_realm('layout','title_delete_shallow');
+    $t = _ld('layout','title_delete_shallow');
     $icon = $themeObject->DisplayImage('icons/system/delete', $t, '', '', 'systemicon');
     $linkdel = '<a href="'.$u.'" class="del_grp">'.$icon.'</a>'.PHP_EOL;
 
     $u = 'stylesheetoperations.php'.$urlext.'&op=deleteall&grp=XXX';
-    $t = lang_by_realm('layout','title_delete_deep');
+    $t = _ld('layout','title_delete_deep');
     $icon = $themeObject->DisplayImage('icons/extra/deletedeep', $t, '', '', 'systemicon');
     $linkdelall = '<a href="'.$u.'" class="del_grpall">'.$icon.'</a>'.PHP_EOL;
 
     $u = 'stylesheetoperations.php'.$urlext.'&op=prepend&grp=XXX';
-    $t = lang_by_realm('layout','title_prepend_stylesheet');
+    $t = _ld('layout','title_prepend_stylesheet');
     $icon = $themeObject->DisplayImage('icons/extra/prepend', $t, '', '', 'systemicon');
     $linkprepend = '<a href="'.$u.'" class="prepend_css">'.$icon.'</a>'.PHP_EOL;
 
     $u = 'stylesheetoperations.php'.$urlext.'&op=append&grp=XXX';
-    $t = lang_by_realm('layout','title_append_stylesheet');
+    $t = _ld('layout','title_append_stylesheet');
     $icon = $themeObject->DisplayImage('icons/extra/append', $t, '', '', 'systemicon');
     $linkappend = '<a href="'.$u.'" class="append_css">'.$icon.'</a>'.PHP_EOL;
 
     $u = 'stylesheetoperations.php'.$urlext.'&op=replace&grp=XXX';
-    $t = lang_by_realm('layout','title_replace_stylesheet');
+    $t = _ld('layout','title_replace_stylesheet');
     $icon = $themeObject->DisplayImage('icons/extra/replace', $t, '', '', 'systemicon');
     $linkreplace = '<a href="'.$u.'" class="replace_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
     $u = 'stylesheetoperations.php'.$urlext.'&op=remove&grp=XXX';
-    $t = lang_by_realm('layout','title_remove_stylesheet');
+    $t = _ld('layout','title_remove_stylesheet');
     $icon = $themeObject->DisplayImage('icons/extra/removeall', $t, '', '', 'systemicon');
     $linkremove = '<a href="'.$u.'" class="remove_css">'.$icon.'</a>'.PHP_EOL;
 
@@ -460,14 +460,14 @@ if( $groups ) {
     }
     unset($group);
 
-//    $title = lang_by_realm('layout','prompt_replace_typed',lang_by_realm('layout','prompt_stylesgroup'));
+//    $title = _ld('layout','prompt_replace_typed',_ld('layout','prompt_stylesgroup'));
 
     $smarty->assign('list_groups', $groups)
      ->assign('grpmenus', $menus);
 //       ->assign('TODO', $title);
 
-    $s1 = json_encode(lang_by_realm('layout','confirm_delete_group'));
-    $s2 = json_encode(lang_by_realm('layout','confirm_delete_groupplus'));
+    $s1 = json_encode(_ld('layout','confirm_delete_group'));
+    $s2 = json_encode(_ld('layout','confirm_delete_groupplus'));
 
     // groups supplementary-script
     $js = <<<EOS
@@ -496,7 +496,7 @@ if( $out ) {
 
 $list = StylesheetOperations::get_all_stylesheets(true);
 if( $groups ) {
-    $tmp = ' ('.lang_by_realm('layout','group').')';
+    $tmp = ' ('._ld('layout','group').')';
     foreach( $groups as $gid => &$group ) {
         $list[-$gid] = $group->get_name().$tmp;
     }
@@ -504,7 +504,7 @@ if( $groups ) {
 }
 if( $list ) {
     asort($list,SORT_STRING);
-    $replacements = [-1 => lang_by_realm('layout','select_one')] + $list;
+    $replacements = [-1 => _ld('layout','select_one')] + $list;
 }
 else {
     $replacements = null;

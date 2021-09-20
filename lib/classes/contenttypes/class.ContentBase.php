@@ -124,7 +124,7 @@ class ContentBase implements Serializable
 	 * This should only be used during construction
 	 * @ignore
 	 */
-	public function __set($key, $value)
+	public function __set(string $key, $value)
 	{
 		$use = strtolower($key);
 		$use = self::PROPALIAS[$use] ?? $use;
@@ -147,7 +147,7 @@ class ContentBase implements Serializable
 	/**
 	 * @ignore
 	 */
-	public function __get($key)
+	public function __get(string $key)
 	{
 		$use = strtolower($key);
 		$use = self::PROPALIAS[$use] ?? $use;
@@ -178,7 +178,7 @@ class ContentBase implements Serializable
 	 * NOTE URL() is distinct from GetURL()
 	 * @ignore
 	 */
-	public function __call($name, $args)
+	public function __call(string $name, array $args)
 	{
 		$chk = strtolower($name);
 		$pre = substr($chk, 0, 3);
@@ -307,7 +307,7 @@ class ContentBase implements Serializable
 	 * Properties will be loaded from the database if necessary.
 	 *
 	 * @param string $propname property key
-	 * @return mixed property value, or null if the property does not exist.
+	 * @return mixed property value | null if the property does not exist
 	 */
 	public function GetPropertyValue(string $propname)
 	{
@@ -772,6 +772,16 @@ class ContentBase implements Serializable
 */
 
 	// ======= SERIALIZABLE INTERFACE METHODS =======
+
+	public function __serialize()
+	{
+		return $this->serialize();
+	}
+
+	public function __unserialize($serialized)
+	{
+		$this->unserialize($serialized);
+	}
 
 	public function serialize()
 	{

@@ -265,14 +265,13 @@ OR
      * handlers in turn. Each handler's non-null return is 'pushed' into
      * an array, which is ultimately returned to the caller.
      *
-     * @return mixed null or array, each member of which is a non-null
-     *  value returned by a handler.
+     * @return array non-null value(s) returned by handler(s) | empty
      */
     public static function do_hook_accumulate(...$args)
     {
         $name = trim(array_shift($args));
 
-        if( $name === '' || !isset(self::$_hooks[$name]) || !self::$_hooks[$name]->handlers ) return; // nothing to do
+        if( $name === '' || !isset(self::$_hooks[$name]) || !self::$_hooks[$name]->handlers ) return []; // nothing to do
 
         self::sort_handlers($name);
 

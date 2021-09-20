@@ -787,7 +787,7 @@ function testUmask( bool $required, string $title, string $umask, string $messag
 /**
  * @param string  $file
  * @param boolean $debug Optional
- * @return mixed array or false
+ * @return mixed 4-member array | false
  */
 function permission_stat( string $file, bool $debug = false )
 {
@@ -798,7 +798,7 @@ function permission_stat( string $file, bool $debug = false )
 
 	clearstatcache();
 	if($debug) $mode = fileperms($file);
-	else       $mode = @fileperms($file);
+	else $mode = @fileperms($file);
 
 	$opt = [];
 	$opt['permsdec'] = substr(sprintf('%o', $mode), -4);
@@ -821,7 +821,6 @@ function permission_stat( string $file, bool $debug = false )
 		$opt['username'] = $lang_fn('unknown');
 		$opt['usergroup'] = $lang_fn('unknown');
 	}
-
 	return $opt;
 }
 
@@ -1552,7 +1551,7 @@ function testGDVersion( bool $required, string $title, $minimum,
 }
 
 /**
- * @return mixed int or null
+ * @return mixed int | null
  */
 function GDVersion()
 {

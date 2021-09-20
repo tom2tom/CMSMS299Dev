@@ -21,7 +21,7 @@ If not, see <http://www.gnu.org/licenses/licenses.html#AGPL>.
 
 use OutMailer\Mailer;
 use OutMailer\PrefCrypter;
-//use OutMailer\Utils;
+use OutMailer\Utils;
 use CMSMS\AppParams;
 use CMSMS\Crypto;
 use CMSMS\FormUtils;
@@ -34,11 +34,10 @@ use function CMSMS\specialize;
 
 $pmod = $this->CheckPermission('Modify Site Preferences') ||
     $this->CheckPermission('Modify Mail Preferences');
-$padmin = $pmod || $this->CheckPermission('AdministerEmailGateways');
-//$pgates = $pmod || $this->CheckPermission('ModifyEmailGateways');
-//$ptpl = $this->CheckPermission('ModifyEmailTemplates');
-//$puse = $this->CheckPermission('UseEmailGateways'); // i.e. see
-if (!($pmod || $padmin/* || $pgates*/)) exit; // || $ptpl || $puse
+$pgates = $pmod || $this->CheckPermission('Modify Email Gateways');
+$psee = $this->CheckPermission('View Email Gateways');
+//$ptpl = $this->CheckPermission('Modify Email Templates');
+if (!($pmod || $pgates || $psee)) exit; // || $ptpl
 
 if (!empty($params['activetab'])) {
     $activetab = $params['activetab'];
@@ -174,7 +173,7 @@ if ($pmod) {
         $activetab = 'settings';
     }
 }
-/* only if supporting mail platforms
+
 if ($pgates) {
     if (isset($params['platform'])) {
         require_once __DIR__.DIRECTORY_SEPARATOR.'method.savegates.php';
@@ -209,7 +208,6 @@ if ($pgates) {
     ]);
     $urlext = get_secure_param();
 }
-*/
 
 //TODO deploy a ScriptsMerger, for easier CSP compliance
 //$jsm = new CMSMS\ScriptsMerger();
@@ -335,9 +333,9 @@ $tpl->assign([
  'startform' => FormUtils::create_form_start($this, ['id' => $id, 'action' => 'defaultadmin']),
  'extraparms' => null, //$extras,
  'tab' => $activetab,
- 'padmin' => $padmin,
  'pmod' => $pmod,
-// 'pgates' => $pgates,
+ 'psee' => $psee,
+ 'pgates' => $pgates,
  'title_charset' => $this->Lang('charset'),
  'value_charset' => $mailprefs['charset'],
  'title_mailer' => $this->Lang('mailer'),
@@ -386,7 +384,6 @@ $tpl->assign([
  'title_testaddress' => $this->Lang('testaddress'),
 ]);
 
-/* only if supporting mail platforms
 if ($pgates) {
     $tpl->assign([
      'gatesnames' => $gatesnames,
@@ -395,7 +392,6 @@ if ($pgates) {
      'addurl' => $addurl,
     ]);
 }
-*/
 
 if ($pmod) {
     $tpl->assign([

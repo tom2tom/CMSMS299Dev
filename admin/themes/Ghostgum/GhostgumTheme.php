@@ -130,7 +130,7 @@ EOS;
 		if ($mod) {
 			$data = $mod->fetch_login_panel();
 		} else {
-			die('System error');
+			exit('System error');
 		}
 
 		$smarty = SingleItem::Smarty();
@@ -254,7 +254,7 @@ EOS;
 				if (!$extra) {
 					$extra = [];
 				}
-				$title = lang($title, $extra);
+				$title = _la($title, $extra);
 			}
 //			$subtitle = TODO
 		} else {

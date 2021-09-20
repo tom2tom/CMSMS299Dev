@@ -1,19 +1,19 @@
 {if $pmod}
 <div class="pageoptions postgap">
   <a href="{$addurl}{$urlext}">{$iconadd}</a>
-  <a href="{$addurl}{$urlext}" class="pageoptions">{lang('addgroup')}</a>
+  <a href="{$addurl}{$urlext}" class="pageoptions">{_ld('admin','addgroup')}</a>
 </div>
 {/if}
 {if $pagination}
-<div class="pagewarn">{lang('show_groups_message')}</div>
+<div class="pagewarn">{_ld('admin','show_groups_message')}</div>
 <br />
 <p class="pageshowrows">{$pagination}</p>
 {/if}
 <table class="pagetable">
   <thead>
     <tr>
-      <th class="pagew60">{lang('name')}</th>
-      <th class="pagepos">{lang('active')}</th>
+      <th class="pagew60">{_ld('admin','name')}</th>
+      <th class="pagepos">{_ld('admin','active')}</th>
       {if $pmod}
       <th class="pageicon">&nbsp;</th>
       <th class="pageicon">&nbsp;</th>
@@ -50,7 +50,7 @@
       <td class="pagepos icons_wide">
         {if $one->id != 1}
 {*TODO replace onclick attribute*}
-        <a href="{$deleteurl}{$urlext}&amp;group_id={$one->id}" onclick="cms_confirm_linkclick(this,'{cms_html_entity_decode(lang('deleteconfirm', $one->name))}');return false;">{$icondel}</a>
+        <a href="{$deleteurl}{$urlext}&amp;group_id={$one->id}" onclick="cms_confirm_linkclick(this,'{cms_html_entity_decode(_ld('admin','deleteconfirm', $one->name))}');return false;">{$icondel}</a>
         {/if}
       </td>
       {/if}
@@ -62,6 +62,6 @@
 {if $pmod && count($grouplist) > 20}
 <div class="pageoptions pregap">
   <a href="{$addurl}{$urlext}">{$iconadd}</a>
-  <a href="{$addurl}{$urlext}" class="pageoptions">{lang('addgroup')}</a>
+  <a href="{$addurl}{$urlext}" class="pageoptions">{_ld('admin','addgroup')}</a>
 </div>
 {/if}

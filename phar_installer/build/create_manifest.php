@@ -19,8 +19,7 @@ $_scriptname = basename(__FILE__);
 $do_md5 = false;
 $mode = 'f';
 $outfile = OUTBASE;
-//$pack_type = 'zlib';
-$pack_type = '';
+$pack_type = ''; // 'zlib';
 $svn_root = SVNROOT;
 $uri_from = 'svn://';
 $uri_to = 'file://';
@@ -38,8 +37,8 @@ $_writecfg = true;
 //$_outfile = OUTBASE.'.gz';
 $_outfile = OUTBASE;
 $_notdeleted = [];
-
-// TODO skip flagging of now-missing module-files if the module needs to be uninstalled before any of its files go away
+// modules to be kept for uninstallation, before any related files go away
+$uninstallmodules = [];
 
 $src_excludes = [
 '/\.git.*/',
@@ -243,6 +242,8 @@ if ($_cli) {
             case 'to':
                 $uri_to = trim($val);
                 break;
+
+            // TODO handle uninstallmodules
         }
     }
 }
@@ -428,8 +429,12 @@ if ($mode == 'd' || $mode == 'f') {
     $out = $obj->get_deleted_files();
     foreach ($out as $fn) {
         $file = $_fromdir.DIRECTORY_SEPARATOR.$fn;
-        $md5 = md5_file($file);
-        $str = "DELETED :: $md5 :: $fn";
+        if ($mode == 'd') {
+            $str = "DELETED :: $fn";
+        } else {
+            $md5 = md5_file($file);
+            $str = "DELETED :: $md5 :: $fn";
+        }
         output($str);
     }
 }
@@ -441,8 +446,12 @@ if ($mode == 'c' || $mode == 'f') {
         if (is_dir($file)) {
             continue;
         }
-        $md5 = md5_file($file);
-        $str = "CHANGED :: $md5 :: $fn";
+        if ($mode == 'c') {
+            $str = "CHANGED :: $fn";
+        } else {
+            $md5 = md5_file($file);
+            $str = "CHANGED :: $md5 :: $fn";
+        }
         output($str);
     }
 }
@@ -451,8 +460,12 @@ if ($mode == 'n' || $mode == 'f') {
     $out = $obj->get_new_files();
     foreach ($out as $fn) {
         $file = $_todir.DIRECTORY_SEPARATOR.$fn;
-        $md5 = md5_file($file);
-        $str = "ADDED :: $md5 :: $fn";
+        if ($mode == 'n') {
+            $str = "ADDED :: $fn";
+        } else {
+            $md5 = md5_file($file);
+            $str = "ADDED :: $md5 :: $fn";
+        }
         output($str);
     }
 }
@@ -560,6 +573,7 @@ if ($_writecfg) {
             'outfile' => $outfile,
             'pack_type' => $pack_type,
             'svn_root' => $svn_root,
+            'uninstallmodules[]' => $uninstallmodules,
             'uri_from' => $uri_from,
             'uri_to' => $uri_to,
         ];
@@ -572,6 +586,9 @@ if ($_writecfg) {
         }
         if ($outfile == OUTBASE) {
             unset($parms['outfile']);
+        }
+        if (!$uninstallmodules) {
+            unset($parms['uninstallmodules[]']);
         }
         if ($pack_type == 'zlib') {
             unset($parms['pack_type']);
@@ -775,7 +792,18 @@ function write_config_file(array $config_data, string $filename)
     $fh = fopen($filename, 'w');
     fwrite($fh, "[config]\n;non-default parameters\n");
     foreach ($config_data as $key => $val) {
-        if (!is_numeric($val)) {
+        if (is_array($val)) {
+            if (!endswith($key, '[]')) {
+                $key = rtrim($key).'[]';
+            }
+            foreach ($val as $one) {
+                if (!is_numeric($one)) {
+                    $one = '"'.$one.'"';
+                }
+                fwrite($fh, "$key = $one\n");
+            }
+            continue;
+        } elseif (!is_numeric($val)) {
             $val = '"'.$val.'"';
         }
         fwrite($fh, "$key = $val\n");
@@ -1056,8 +1084,8 @@ class compare_dirs
         $out = [];
         foreach ($this->_list_a as $path => $rec_a) {
             if (!isset($this->_list_b[$path])) {
-                continue;
-            } // deleted/moved in b.
+                continue; // deleted/moved in b.
+            }
             $rec_b = $this->_list_b[$path];
             if ($rec_a['size'] != $rec_b['size'] || $rec_a['mtime'] != $rec_b['mtime'] ||
             (isset($rec_a['md5']) && isset($rec_b['md5']) && $rec_a['md5'] != $rec_b['md5'])) {
@@ -1089,11 +1117,20 @@ class compare_dirs
 
     private function _read_dir($dir = null)
     {
+        global $uninstallmodules;
+
         if (!$dir) {
             $dir = $this->_base_dir;
         }
         if (!$dir) {
             throw new Exception('No directory specified to _read_dir');
+        }
+
+        if ($uninstallmodules) {
+            $name = basename($dir);
+            if (in_array($name, $uninstallmodules)) {
+                return [];
+            }
         }
 
         $out = [];
@@ -1139,7 +1176,6 @@ class compare_dirs
             }
             $out[$base] = $rec;
         }
-
         return $out;
     }
 } // class

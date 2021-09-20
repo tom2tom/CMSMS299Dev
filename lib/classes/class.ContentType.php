@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -62,51 +62,51 @@ class ContentType implements \ArrayAccess
 	 */
 	public $editorfilename;
 
-    /**
-     * @param mixed $parms Optional parameters assoc. array | null
-     */
-    public function __construct($parms = null)
-    {
-        if ($parms) {
-            extract($parms);
-
-            if (!empty($type)) {
-                $this->type = strtolower($type);
-            } elseif (!empty($name)) {
-                $this->type = strtolower($name);
-            }
-
-            if (!empty($friendlyname)) {
-                $this->friendlyname = $friendlyname;
-            }
-
-            if (!empty($locator)) {
-                if( is_file($locator) ) {
-                    $this->class = substr(basename($locator),6,-4);
-                    $this->filename = $locator;
-                }
-                else {
-                    $this->class = $locator;
-                    $this->filename = null;
-                }
-            }
-
-            if (!empty($editorlocator)) {
-                if( is_file($editorlocator) ) {
-                    $this->editorclass = substr(basename($editorlocator),6,-4);
-                    $this->editorfilename = $editorlocator;
-                }
-                else {
-                    $this->editorclass = $editorlocator;
-                    $this->editorfilename = null;
-                }
-            }
-        }
-    }
-
-	public function __call($method, $args)
+	/**
+	 * @param mixed $parms Optional parameters assoc. array | null
+	 */
+	public function __construct($parms = null)
 	{
-		$chk = strtolower($method);
+		if ($parms) {
+			extract($parms);
+
+			if (!empty($type)) {
+				$this->type = strtolower($type);
+			} elseif (!empty($name)) {
+				$this->type = strtolower($name);
+			}
+
+			if (!empty($friendlyname)) {
+				$this->friendlyname = $friendlyname;
+			}
+
+			if (!empty($locator)) {
+				if( is_file($locator) ) {
+					$this->class = substr(basename($locator),6,-4);
+					$this->filename = $locator;
+				}
+				else {
+					$this->class = $locator;
+					$this->filename = null;
+				}
+			}
+
+			if (!empty($editorlocator)) {
+				if( is_file($editorlocator) ) {
+					$this->editorclass = substr(basename($editorlocator),6,-4);
+					$this->editorfilename = $editorlocator;
+				}
+				else {
+					$this->editorclass = $editorlocator;
+					$this->editorfilename = null;
+				}
+			}
+		}
+	}
+
+	public function __call(string $name, array $args)
+	{
+		$chk = strtolower($name);
 		$pre = substr($chk, 0, 3);
 		switch ($pre) {
 			case 'set':
@@ -121,23 +121,23 @@ class ContentType implements \ArrayAccess
 		}
 	}
 
-    public function offsetExists($key)
-    {
-        return !empty($this->$key);
-    }
+	public function offsetExists($key)
+	{
+		return !empty($this->$key);
+	}
 
-    public function offsetGet($key)
-    {
-        if( isset($this->$key) ) return $this->$key;
-    }
+	public function offsetGet($key)
+	{
+		if( isset($this->$key) ) return $this->$key;
+	}
 
-    public function offsetSet($key,$value)
-    {
+	public function offsetSet($key,$value)
+	{
 		$this->$key = $value;
-    }
+	}
 
-    public function offsetUnset($key)
-    {
+	public function offsetUnset($key)
+	{
 		unset($this->$key);
-    }
+	}
 }

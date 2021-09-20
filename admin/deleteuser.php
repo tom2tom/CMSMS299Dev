@@ -36,7 +36,7 @@ check_login();
 $urlext = get_secure_param();
 $cur_userid = get_userid();
 if( !check_permission($cur_userid, 'Manage Users') ) {
-    SingleItem::Theme()->ParkNotice('error', lang('needpermissionto', '"Manage Users"'));
+    SingleItem::Theme()->ParkNotice('error', _la('needpermissionto', '"Manage Users"'));
     redirect('listusers.php'.$urlext);
 }
 
@@ -69,6 +69,6 @@ if ($userid != $cur_userid) {
 }
 
 if ($key) {
-    SingleItem::Theme()->ParkNotice('error', lang($key));
+    SingleItem::Theme()->ParkNotice('error', _la($key));
 }
 redirect('listusers.php'.$urlext);

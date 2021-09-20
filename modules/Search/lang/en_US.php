@@ -13,7 +13,7 @@ $lang = [
 'count' => 'Count',
 
 // D
-'default_stopwords' => 'i, me, my, myself, we, our, ours, ourselves, you, your, yours, yourself, yourselves, he, him, his, himself, she, her, hers, herself, it, its, itself, they, them, their, theirs, themselves, what, which, who, whom, this, that, these, those, am, is, are, was, were, be, been, being, have, has, had, having, do, does, did, doing, a, an, the, and, but, if, or, because, as, until, while, of, at, by, for, with, about, against, between, into, through, during, before, after, above, below, to, from, up, down, in, out, on, off, over, under, again, further, then, once, here, there, when, where, why, how, all, any, both, each, few, more, most, other, some, such, no, nor, not, only, own, same, so, than, too, very',
+'default_stopwords' => 'i,me,my,myself,we,our,ours,ourselves,you,your,yours,yourself,yourselves,he,him,his,himself,she,her,hers,herself,it,its,itself,they,them,their,theirs,themselves,what,which,who,whom,this,that,these,those,am,is,are,was,were,be,been,being,have,has,had,having,do,does,did,doing,a,an,the,and,but,if,or,because,as,until,while,of,at,by,for,with,about,against,between,into,through,during,before,after,above,below,to,from,up,down,in,out,on,off,over,under,again,further,then,once,here,there,when,where,why,how,all,any,both,each,few,more,most,other,some,such,no,nor,not,only,own,same,so,than,too,very',
 'description' => 'Search across the website for specified words or phrases',
 
 // E
@@ -77,7 +77,7 @@ EOS
 'help_savephrases' => 'Search for specified text as a whole, instead of its individual words',
 'help_searchtext' => 'Default text displayed in the search box',
 'help_stemming' => 'Ignore words which have the more common morphological and inflexional endings of other words',
-'help_stopwords' => 'Words to be ignored when conducting a search',
+'help_stopwords' => 'Words to be ignored when conducting a search, comma-separated, no intervening space(s)',
 'help' => '<h3>What does this do?</h3>
 <p>Search is a module for searching "core" content along with certain registered modules.  You put in a word or two and it gives you back matching, relevant results.</p>
 <h3>How is it used?</h3>

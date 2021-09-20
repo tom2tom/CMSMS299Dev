@@ -12,10 +12,10 @@ This REQUIRES PHP's phar extension, and usually one of the archivers zip, zlib, 
 This benefits from PHP extension fileinfo - probably built by default
 */
 if (!extension_loaded('phar')) {
-    die('PHP\'s phar extension is required for this process');
+    exit('PHP\'s phar extension is required for this process');
 }
 if (ini_get('phar.readonly')) {
-    die('phar.readonly must be turned OFF in your php.ini');
+    exit('phar.readonly must be turned OFF in your php.ini');
 }
 
 // setup

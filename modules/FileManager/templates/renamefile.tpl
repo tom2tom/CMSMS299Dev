@@ -11,8 +11,8 @@
 <br />
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}rename" class="adminsubmit icon do">{$mod->Lang('rename')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}rename" class="adminsubmit icon do">{_ld($_module,'rename')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{_ld($_module,'cancel')}</button>
   </p>
 </div>
 </form>

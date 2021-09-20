@@ -1,9 +1,9 @@
 <?php
-assert(empty(CMS_DEPREC), new CMSMS\DeprecationNotice('class', 'CMSMailer\Mailer'));
-$mod = CMSMS\Utils::get_module('CMSMailer'); // TODO OR 1st-detected EMAIL_MODULE
+assert(empty(CMS_DEPREC), new CMSMS\DeprecationNotice('class', 'OutMailer\Mailer'));
+$mod = CMSMS\Utils::get_module('OutMailer'); // TODO OR 1st-detected EMAIL_MODULE
 if ($mod) {
     //try to autoload this one
-    class_alias('CMSMailer\Mailer', 'cms_mailer', true);
+    class_alias('OutMailer\Mailer', 'cms_mailer', true);
 } else {
-    throw new Exception('The CMSMailer module is needed to substitute for a cms_mailer object');
+    throw new Exception('The OutMailer module is needed to substitute for a cms_mailer object');
 }

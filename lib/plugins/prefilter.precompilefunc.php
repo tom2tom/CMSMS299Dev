@@ -60,7 +60,7 @@ function smarty_prefilter_precompilefunc($tpl_output, $smarty)
 /* NOT published in UI
 function smarty_cms_about_prefilter_precompilefunc()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
 <li>detail</li> ... OR lang('none')
 EOS
 	);
@@ -70,7 +70,7 @@ EOS
 function smarty_cms_help_prefilter_precompilefunc()
 {
 	$n = lang('none');
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This function sends appropriate Events before different types and stages of template compilation, and processes any responses',
 	'precompilefunc',
 	"<li>$n</li>"

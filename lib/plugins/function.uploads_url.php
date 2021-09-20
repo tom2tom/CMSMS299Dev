@@ -44,7 +44,7 @@ EOS;
 function smarty_cms_help_function_uploads_url()
 {
 	$n = lang('none');
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin retrieves the site-URL representing the topmost/base location of uploaded files',
 	'uploads_url',
 	"<li>$n</li>"

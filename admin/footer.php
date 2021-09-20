@@ -23,6 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\Events;
 use CMSMS\HookOperations;
 use CMSMS\SingleItem;
+use function CMSMS\get_debug_messages;
 
 // $USE_THEME inherited from parent scope
 if (!isset($USE_THEME) || $USE_THEME) {
@@ -32,13 +33,15 @@ if (!isset($USE_THEME) || $USE_THEME) {
 
 // $config inherited from parent scope
 if ($config['debug']) {
-	// echo debug output to stdout
-	echo '<div id="DebugFooter">';
-	$arr = SingleItem::App()->get_errors();
-	foreach ($arr as $error) {
-		echo $error;
+	$arr = get_debug_messages();
+	if ($arr) {
+		// echo debug output to stdout
+		echo '<div id="DebugFooter">';
+		foreach ($arr as $msg) {
+			echo $msg;
+		}
+		echo '</div> <!-- end DebugFooter -->';
 	}
-	echo '</div> <!-- end DebugFooter -->';
 }
 
 $aout = HookOperations::do_hook_accumulate('AdminBottomSetup');

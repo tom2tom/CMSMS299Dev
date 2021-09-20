@@ -381,6 +381,11 @@ class wizard_step9 extends wizard_step
         }
         $this->connect_to_cmsms($destdir);
 
+        // TODO installing demo-site content before modules generates errors:
+        // (e.g. the 'design'-related data require presence of DesignManager module)
+        // Failed to install design 'Default' : INSERT INTO cms_layout_cssgroup_members (group_id,css_id,item_order) VALUES (?,?,?) --1 
+        // Unable to process module 'Search': Unrecognized class content used in CMSMS\ContentOperations::LoadContentFromId
+
         // install modules
         $this->message(lang('install_modules'));
         $coremodules = $app->get_config()['coremodules'];

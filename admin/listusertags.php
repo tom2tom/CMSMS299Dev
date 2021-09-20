@@ -44,10 +44,10 @@ foreach ($items as $id=>$name) {
 
 $themeObject = SingleItem::Theme();
 
-$iconadd = $themeObject->DisplayImage('icons/system/newobject.png', lang('add'),'','','systemicon');
-$iconedit = $themeObject->DisplayImage('icons/system/edit.png', lang('edit'),'','','systemicon');
-$icondel = $themeObject->DisplayImage('icons/system/delete.png', lang('delete'),'','','systemicon');
-$iconinfo = $themeObject->DisplayImage('icons/system/help.png', lang('parameters'),'','','systemicon');
+$iconadd = $themeObject->DisplayImage('icons/system/newobject.png', _la('add'),'','','systemicon');
+$iconedit = $themeObject->DisplayImage('icons/system/edit.png', _la('edit'),'','','systemicon');
+$icondel = $themeObject->DisplayImage('icons/system/delete.png', _la('delete'),'','','systemicon');
+$iconinfo = $themeObject->DisplayImage('icons/system/help.png', _la('parameters'),'','','systemicon');
 
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
@@ -76,7 +76,7 @@ if ($access || $pmod) {
 
 EOS;
     if ($access) {
-        $close = lang('close');
+        $close = _la('close');
         $out .= <<<EOS
 function getParms(tagname) {
  var dlg = $('#params_dlg');
@@ -103,7 +103,7 @@ function getParms(tagname) {
 EOS;
     }
     if ($pmod) {
-        $confirm = json_encode(lang('confirm_delete_usrplg'));
+        $confirm = json_encode(_la('confirm_delete_usrplg'));
         $out .= <<<EOS
 function doDelete(tagname) {
  cms_confirm($confirm).done(function() {

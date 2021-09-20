@@ -12,36 +12,34 @@
 
 {$formstart}
 <fieldset>
-<legend>{$mod->Lang('search_input')}:</legend>
+<legend>{_ld($_module,'search_input')}:</legend>
 <div class="pageoverflow">
-  <p class="pagetext">
-    <label for="searchterm">{$mod->Lang('searchterm')}:</label>
-  </p>
-  <p class="pageinput">
-    <input id="searchterm" type="text" name="{$actionid}term" size="50" value="{$term}" title="{$mod->Lang('title_searchterm')}" placeholder="{$mod->Lang('entersearchterm')}" />&nbsp;
+  <label class="pagetext" for="searchterm">{_ld($_module,'searchterm')}:</label>
+  <div class="pageinput">
+    <input id="searchterm" type="text" name="{$actionid}term" size="50" value="{$term}" title="{_ld($_module,'title_searchterm')}" placeholder="{_ld($_module,'entersearchterm')}" />&nbsp;
     <input type="hidden" name="{$actionid}advanced" value="0" />
-    <input type="checkbox" id="advanced" name="{$actionid}advanced" value="1"{if $advanced} checked="checked"{/if} title="{$mod->Lang('title_advancedsearch')}" />&nbsp;<label for="advanced">{$mod->Lang('prompt_advancedsearch')}</label>
-    <span id="advhelp" style="display: none;"><br />{$mod->Lang('advancedsearch_help')}</span>
-  </p>
+    <input type="checkbox" id="advanced" name="{$actionid}advanced" value="1"{if $advanced} checked="checked"{/if} title="{_ld($_module,'title_advancedsearch')}" />&nbsp;<label for="advanced">{_ld($_module,'prompt_advancedsearch')}</label>
+    <span id="advhelp" style="display: none;"><br />{_ld($_module,'advancedsearch_help')}</span>
+  </div>
 </div>
 <div class="pageinput pregap">
-  <button type="submit" name="{$actionid}submit" class="adminsubmit icon search">{$mod->Lang('search')}</button>
+  <button type="submit" name="{$actionid}submit" class="adminsubmit icon search">{_ld($_module,'search')}</button>
 </div>
 </fieldset>
 </form>
 
 {if isset($search_data)}
 <fieldset>
-  <legend>{$mod->Lang('search_results')}:</legend>
+  <legend>{_ld($_module,'search_results')}:</legend>
   <table class="pagetable scrollable">
     <thead>
       <tr>
         <th></th>
-        <th>{$mod->Lang('nametext')}</th>
-        <th><span title="{$mod->Lang('title_modulelastversion')}">{$mod->Lang('version')}</span></th>
-        <th><span title="{$mod->Lang('title_modulelastreleasedate')}">{$mod->Lang('releasedate')}</span></th>
-        <th><span title="{$mod->Lang('title_moduletotaldownloads')}">{$mod->Lang('downloads')}</span></th>
-        <th><span title="{$mod->Lang('title_modulestatus')}">{$mod->Lang('statustext')}</span></th>
+        <th>{_ld($_module,'nametext')}</th>
+        <th><span title="{_ld($_module,'title_modulelastversion')}">{_ld($_module,'version')}</span></th>
+        <th><span title="{_ld($_module,'title_modulelastreleasedate')}">{_ld($_module,'releasedate')}</span></th>
+        <th><span title="{_ld($_module,'title_moduletotaldownloads')}">{_ld($_module,'downloads')}</span></th>
+        <th><span title="{_ld($_module,'title_modulestatus')}">{_ld($_module,'statustext')}</span></th>
         <th>&nbsp;</th>
         <th>&nbsp;</th>
         <th>&nbsp;</th>
@@ -57,14 +55,14 @@
         <td>{$entry->downloads}</td>
         <td>
          {if $entry->candownload}
-          <span title="{$mod->Lang('title_moduleinstallupgrade')}">{$entry->status}</span>
+          <span title="{_ld($_module,'title_moduleinstallupgrade')}">{$entry->status}</span>
          {else}
           {$entry->status}
          {/if}
         </td>
-        <td><a href="{$entry->depends_url}" title="{$mod->Lang('title_moduledepends')}">{$mod->Lang('dependstxt')}</a></td>
-        <td><a href="{$entry->help_url}" title="{$mod->Lang('title_modulehelp')}">{$mod->Lang('helptxt')}</a></td>
-        <td><a href="{$entry->about_url}" title="{$mod->Lang('title_moduleabout')}">{$mod->Lang('abouttxt')}</a></td>
+        <td><a href="{$entry->depends_url}" title="{_ld($_module,'title_moduledepends')}">{_ld($_module,'dependstxt')}</a></td>
+        <td><a href="{$entry->help_url}" title="{_ld($_module,'title_modulehelp')}">{_ld($_module,'helptxt')}</a></td>
+        <td><a href="{$entry->about_url}" title="{_ld($_module,'title_moduleabout')}">{_ld($_module,'abouttxt')}</a></td>
       </tr>
       {/foreach}
     </tbody>

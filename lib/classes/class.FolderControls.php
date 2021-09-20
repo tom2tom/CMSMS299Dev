@@ -183,7 +183,7 @@ class FolderControls
      * @param string $key Property name
      * @param mixed $val Property value
      */
-    public function __set($key, $val)
+    public function __set(string $key, $val)
     {
         // TODO all 2.99 props
         switch( $key ) {
@@ -319,7 +319,7 @@ class FolderControls
      * @param string $key
      * @return mixed
      */
-    public function __get($key)
+    public function __get(string $key)
     {
         // TODO all 2.99 props
         switch( $key ) {

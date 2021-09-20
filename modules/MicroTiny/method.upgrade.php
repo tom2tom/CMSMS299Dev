@@ -34,6 +34,17 @@ if( version_compare($oldversion,'2.0') < 0 ) {
 }
 
 if( version_compare($oldversion,'2.3') < 0 ) {
+	$profiles = $this->ListPreferencesByPrefix('profile_');
+	foreach ($profiles as $name) {
+		$full = 'profile_'.$name;
+		$val = $this->GetPreference($full);
+		if( $val ) {
+			$data = unserialize($val, ['allowed_classes' => false]);
+			$val = json_encode($data, JSON_NUMERIC_CHECK|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+			$this->SetPreference($full, $val);
+		}
+	}
+
 	$me = $this->GetName();
 	$val = AppParams::get('wysiwyg');
 	if (!$val) {

@@ -389,9 +389,9 @@ class design_reader extends reader_base
         {
             $description = $info['description'];
             if( $description ) $description .= "\n----------------------------------------\n";
-            $description .= 'Generated '.strftime('%x %X',$info['generated']).PHP_EOL;
+            $description .= 'Generated '.date(DATE_RFC1036,$info['generated']).PHP_EOL;
             $description .= 'By CMSMS version: '.$info['cmsversion'].PHP_EOL;
-            $description .= 'Imported '.strftime('%x %X');
+            $description .= 'Imported '.date(DATE_RFC1036);
         }
 
         $design->set_description($description);

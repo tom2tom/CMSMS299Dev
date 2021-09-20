@@ -30,15 +30,19 @@ require ".{$dsep}admininit.php";
 //$urlext = get_secure_param();
 
 $key = ( isset($_GET['key']) ) ? sanitizeVal($_GET['key'], CMSSAN_PUNCTX, '_') : 'help';
-if( !$key ) { $key = 'help'; }
+if( !$key ) {
+    $key = 'help';
+}
 if( strpos($key,'__') !== FALSE ) {
-    list($realm,$key) = explode('__',$key,2);
-    if( strcasecmp($realm,'core') == 0 ) $realm = 'admin';
+    list($domain,$key) = explode('__',$key,2);
+    if( strcasecmp($domain,'core') == 0 ) {
+        $domain = LangOperations::CMSMS_ADMIN_REALM;
+    }
 }
 else {
-    $realm = 'admin';
+    $domain = LangOperations::CMSMS_ADMIN_REALM;
 }
-$out = LangOperations::lang_from_realm($realm,$key);
+$out = LangOperations::domain_string($domain,$key);
 
 echo $out; //assume no sent headers need clearing
 exit;

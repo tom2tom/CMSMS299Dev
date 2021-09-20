@@ -47,6 +47,6 @@ if ($link) {
 }
 
 $urlext = get_secure_param();
-$title = lang('erroraddingbookmark');
+$title = _la('erroraddingbookmark');
 $backlink = 'addbookmark.php'.$urlext;
 include ".{$dsep}method.displayerror.php";

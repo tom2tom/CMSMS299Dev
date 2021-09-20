@@ -34,6 +34,7 @@ use UnexpectedValueException;
 use const CMS_DB_PREFIX;
 use const CMS_DEBUG;
 use const CMS_ROOT_PATH;
+use const CMSSAN_FILE;
 use function check_permission;
 use function cms_join_path;
 use function debug_to_log;
@@ -75,7 +76,7 @@ class FolderControlOperations
     /**
      * Support (until further notice) old camel-case method-names
      */
-    public static function __callStatic($oldname, $args)
+    public static function __callStatic(string $oldname, array $args)
     {
          $newname = preg_replace_callback('/[ABDINP]/', function($m) { return '_'.strtolower($m); }, $oldname);
          try {
@@ -501,7 +502,7 @@ class FolderControlOperations
      *
      * @param string $tag Identifier like '~N~' or '-hash-', the latter
      *  for an un-recorded set i.e. no numeric identifier
-     * @return mixed FolderControls | null
+     * @return mixed FolderControls object | null
      */
     public static function get_cached(string $tag)
     {
@@ -626,7 +627,7 @@ class FolderControlOperations
     {
         $filepath = self::absolute_path($rootpath, $filepath);
         $name = basename($filepath);
-        $cleaned = filter_var($name, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_STRIP_LOW);
+        $cleaned = sanitizeVal($name, CMSSAN_FILE);
         if ($cleaned !== $name) {
             return false; // unacceptable name
         }

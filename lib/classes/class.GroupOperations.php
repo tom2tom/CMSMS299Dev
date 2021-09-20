@@ -112,7 +112,7 @@ final class GroupOperations
 	/**
 	 * Get all groups
 	 *
-	 * @return mixed array of Group-objects | null
+	 * @return array Group-object(s) | empty
 	 */
 	public function LoadGroups()
 	{
@@ -129,7 +129,7 @@ final class GroupOperations
 			$obj->active = (int) $row['active'];
 			$out[] = $obj;
 		}
-		if( $out ) return $out;
+		return $out;
 	}
 
 	/**

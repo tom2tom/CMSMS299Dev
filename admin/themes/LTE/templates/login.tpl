@@ -7,7 +7,7 @@
 
 	<title>CMS Made Simple | Log in</title>
 
-	<meta name="generator" content="CMS Made Simple - Copyright (C) 2019-{$smarty.now|date_format:'%Y'} - All rights reserved" />
+	<meta name="generator" content="CMS Made Simple - Copyright (C) 2019-{$smarty.now|date_format:'Y'} - All rights reserved" />
 	<meta name="robots" content="noindex, nofollow" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 

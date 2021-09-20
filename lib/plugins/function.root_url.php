@@ -31,7 +31,7 @@ function smarty_function_root_url($params, $template)
 /*
 function smarty_cms_about_function_root_url()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
 <li>detail</li> ... OR lang('none')
 EOS
 	);
@@ -41,7 +41,7 @@ EOS
 function smarty_cms_help_function_root_url()
 {
 	$n = lang('none');
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin retrieves the base/root URL of the website',
 	'root_url',
 	"<li>$n</li>"

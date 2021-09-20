@@ -33,7 +33,7 @@ use function debug_to_log;
 /**
  * A singleton class to provide simple, generic mechanism for retrieving
  * translated (locale specific) strings, with fallback to english defaults.
- * The (quite-hefty) admin realm is loaded when needed during admin requests
+ * The (quite-hefty) admin domain is loaded when needed during admin requests
  * and not so during frontend requests. In both cases subject to the then-
  * current value of class property $_allow_nonadmin_lang
  *
@@ -44,16 +44,16 @@ use function debug_to_log;
 final class LangOperations
 {
 	/**
-	 * The admin realm name
+	 * The admin domain name
 	 */
 	const CMSMS_ADMIN_REALM = 'admin';
 
 	// static properties here >> SingleItem property|ies ?
 	/**
-	 * In-memory cache of loaded translations, a 2-D array keyed by [locale][realm]
+	 * In-memory cache of loaded translations, a 2-D array keyed by [locale][domain]
 	 * 'locale' is a recorded or inferred frontend|backend locale-identifier e.g. 'fr_FR'.
 	 * It is very unlikely there would be > 1 of those within the current request.
-	 * 'realm' is effectively a namespace for the translated strings.
+	 * 'domain' is effectively a namespace for the translated strings.
 	 * @ignore
 	 */
 	private static $_langdata;
@@ -65,7 +65,7 @@ final class LangOperations
 	private static $_do_conversions;
 
 	/**
-	 * Realm-override flag. Default false.
+	 * Domain-override flag. Default false.
 	 * @ignore
 	 */
 	private static $_allow_nonadmin_lang = false; //false value is irrelevant during admin requests
@@ -73,7 +73,7 @@ final class LangOperations
 	/**
 	 * @ignore
 	 */
-	private static $_default_realm = self::CMSMS_ADMIN_REALM;
+	private static $_default_domain = self::CMSMS_ADMIN_REALM;
 
 	/**
 	 * @ignore
@@ -83,26 +83,26 @@ final class LangOperations
 
 	/**
 	 * NOTE this is a non-trivial contributor to request-duration, hence optimized for speed
-	 * Realm-relevance check(s) are not done here, any such must be performed upstream.
+	 * Domain-relevance check(s) are not done here, any such must be performed upstream.
 	 * @ignore
-	 * @param mixed $realm string|null realm name
+	 * @param mixed $domain string|null domain name
 	 * @param string $locale locale identifier
 	 */
-	private static function _load_realm($realm, $locale)
+	private static function _load_realm($domain, $locale)
 	{
-		if( !$realm ) $realm = self::$_curent_realm;
-		if( isset(self::$_langdata[$locale][$realm]) ) return;
-//		debug_output($realm, 'LangOperations::_load_realm START');
+		if( !$domain ) $domain = self::$_curent_realm;
+		if( isset(self::$_langdata[$locale][$domain]) ) return;
+//		debug_output($domain, 'LangOperations::_load_realm START');
 		if( !is_array(self::$_langdata) ) self::$_langdata = [];
 		if( !isset(self::$_langdata[$locale]) ) self::$_langdata[$locale] = [];
-		self::$_langdata[$locale][$realm] = [];
+		self::$_langdata[$locale][$domain] = [];
 
 		// akin to class autoloading, we figure out what to load from where
 		// we load relevant english translations (default, often more-populated) before another specifed lang
 		$files = [];
 		$is_module = FALSE;
 		$space_dir = '';
-		if( $realm == self::CMSMS_ADMIN_REALM ) {
+		if( $domain == self::CMSMS_ADMIN_REALM ) {
 			$is_admin = TRUE;
 			$files[] = CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'en_US.php';
 			// any custom replacements
@@ -110,23 +110,23 @@ final class LangOperations
 		}
 		else {
 			$is_admin = FALSE;
-			$dir = cms_module_path($realm, TRUE);
+			$dir = cms_module_path($domain, TRUE);
 			if( $dir ) {
 				$is_module = TRUE;
 				$files[] = $dir.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'en_US.php';
 				// then any custom replacements
 				$files[] = $dir.DIRECTORY_SEPARATOR.'custom'.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'en_US.php';
-				$files[] = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'module_custom'.DIRECTORY_SEPARATOR.$realm.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'en_US.php';
+				$files[] = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'module_custom'.DIRECTORY_SEPARATOR.$domain.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'en_US.php';
 			}
-			elseif( strpos($realm, '\\') !== FALSE ) {
-				$o = ($realm[0] != '\\') ? 0 : 1;
-				$p = strpos($realm, '\\', $o + 1);
+			elseif( strpos($domain, '\\') !== FALSE ) {
+				$o = ($domain[0] != '\\') ? 0 : 1;
+				$p = strpos($domain, '\\', $o + 1);
 				if( $p !== FALSE ) {
-					$space = substr($realm, $o, $p - $o);
-					$path = trim(substr($realm, $p), ' \\');
+					$space = substr($domain, $o, $p - $o);
+					$path = trim(substr($domain, $p), ' \\');
 				}
 				else {
-					$space = substr($realm, $o);
+					$space = substr($domain, $o);
 					$path = '';
 				}
 				if( $path ) {
@@ -159,8 +159,8 @@ final class LangOperations
 				}
 			}
 			else {
-				//here be 'functional' realms e.g. 'tags', typically for admin use
-				$files[] = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.$realm.DIRECTORY_SEPARATOR.'en_US.php';
+				//here be 'functional' domains e.g. 'tags', typically for admin use
+				$files[] = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.$domain.DIRECTORY_SEPARATOR.'en_US.php';
 			}
 		}
 
@@ -174,28 +174,28 @@ final class LangOperations
 			elseif( $is_module ) {
 				$files[] = $dir.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'ext'.DIRECTORY_SEPARATOR.$locale.'.php';
 				$files[] = $dir.DIRECTORY_SEPARATOR.'custom'.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'ext'.DIRECTORY_SEPARATOR.$locale.'.php';
-				$files[] = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'module_custom'.DIRECTORY_SEPARATOR.$realm.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'ext'.DIRECTORY_SEPARATOR.$locale.'.php';
+				$files[] = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'module_custom'.DIRECTORY_SEPARATOR.$domain.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'ext'.DIRECTORY_SEPARATOR.$locale.'.php';
 			}
 			elseif( $space_dir ) {
 				$files[] = $space_dir.DIRECTORY_SEPARATOR.'ext'.DIRECTORY_SEPARATOR.$locale.'.php';
 			}
 			else {
-				$files[] = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.$realm.DIRECTORY_SEPARATOR.'ext'.DIRECTORY_SEPARATOR.$locale.'.php';
+				$files[] = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.$domain.DIRECTORY_SEPARATOR.'ext'.DIRECTORY_SEPARATOR.$locale.'.php';
 			}
 		}
 
-		$lang =& self::$_langdata[$locale][$realm]; //inclusions populate $lang[]
+		$lang =& self::$_langdata[$locale][$domain]; //inclusions populate $lang[]
 		foreach( $files as $fn ) {
 			if( is_file($fn) ) {
 				include_once $fn; // set new/different strings
 			}
 		}
 		unset($lang);
-//		debug_output($realm, 'LangOperations::_load_realm END');
+//		debug_output($domain, 'LangOperations::_load_realm END');
 	}
 
-	//TODO consider a method to get only specified 'target' key(s) (if any) for the specified realm
-	// e.g. for supplementary admin strings without the heft of the whole admin realm
+	//TODO consider a method to get only specified 'target' key(s) (if any) for the specified domain
+	// e.g. for supplementary admin strings without the heft of the whole admin domain
 	// array_intersect_key(...)
 
 	/* *
@@ -208,76 +208,76 @@ final class LangOperations
 	}
 */
 	/**
-	 * Determine whether the sepecified key exists in the specified realm.
+	 * Determine whether the sepecified key exists in the specified domain.
 	 * @see also LangOperations::key_exists()
 	 *
 	 * @since 2.2
 	 * @param varargs $args, of which
-	 *  1st = realm name (required non-falsy string) or array comprising all args
+	 *  1st = domain name (required non-falsy string) or array comprising all args
 	 *  2nd = translated-string key (required non-falsy string unless 1st is merged array)
 	 *  further argument(s) if any are unused here
-	 * @since 2.99 the realm may be namespaced e.g. CMSAsset\somespace or Modname\somespace
+	 * @since 2.99 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return bool
 	 */
-	public static function lang_key_exists(...$args)
+	public static function lang_key_exists(...$args) : bool
 	{
 		if( count($args) == 1 && is_array($args[0]) ) $args = $args[0]; //just in case
 		if( count($args) < 2 ) return FALSE;
 
-		$realm  = $args[0];
+		$domain  = $args[0];
 		$key = $args[1];
-		if( !$realm || !$key ) return FALSE;
+		if( !$domain || !$key ) return FALSE;
 
-		if( $realm == self::CMSMS_ADMIN_REALM &&
+		if( $domain == self::CMSMS_ADMIN_REALM &&
 			!(self::$_allow_nonadmin_lang ||
 			  AppState::test_any(AppState::ADMIN_PAGE | AppState::STYLESHEET | AppState::INSTALL) //? LOGIN_PAGE
 			 ) ) {
-			trigger_error("Attempt to check for $key in disabled admin realm");
+			trigger_error("Attempt to check for $key in disabled admin domain");
 			return FALSE;
 		}
 
 		$locale = NlsOperations::get_current_language();
-		self::_load_realm($realm, $locale);
-		return isset(self::$_langdata[$locale][$realm][$key]);
+		self::_load_realm($domain, $locale);
+		return isset(self::$_langdata[$locale][$domain][$key]);
 	}
 
 	/**
-	 * Given a realm name, a string-key, and optional parameters, return
-	 * the translated string if possible. If no realm/key combination is
-	 * found, then a string like -- Missing key -- will be returned,
-	 * indicating that the specified key needs translating.
+	 * Return the translated string for a domain name, key, and optional parameters, if possible.
+	 * If no suitable string is found, then a string like -- Missing key -- will be
+	 * returned, indicating that the specified key needs translating.
 	 * This function uses the currently set locale, and will load the
 	 * translations if necessary.
+	 * @since 2.99 Replaces deprecated lang_from_realm()
 	 *
 	 * @param varargs $args, of which
-	 *  1st = realm name (required non-falsy string) or array comprising all args
+	 *  1st = domain name (required non-falsy string) or array comprising all args
 	 *  2nd = translated-string key (required non-falsy string unless 1st is merged array)
 	 *  further argument(s) (optional string|number, generally, or array of same)
-	 * @since 2.99 the realm may be namespaced e.g. CMSAsset\somespace or Modname\somespace
-	 * @return string, possibly empty (formerly could be null)
+	 * @since 2.99 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
+	 * @return string, possibly empty
 	 */
-	public static function lang_from_realm(...$args)
+	public static function domain_string(...$args) : string
 	{
 		if( count($args) == 1 && is_array($args[0]) ) $args = $args[0];
 		if( count($args) < 2 ) return '';
 
-		$realm  = $args[0];
+		$domain  = $args[0];
 		$key = $args[1];
-		if( !$realm || !$key ) return '';
+		if( !$domain || !$key ) return '';
 
-		if( $realm == self::CMSMS_ADMIN_REALM &&
+		if( $domain == self::CMSMS_ADMIN_REALM &&
 			!(self::$_allow_nonadmin_lang ||
 			  AppState::test_any(AppState::ADMIN_PAGE | AppState::STYLESHEET | AppState::INSTALL) //? LOGIN_PAGE
 			 ) ) {
-			trigger_error("Attempt to get translation for $key from disabled admin realm");
+			trigger_error("Attempt to get translation for $key from disabled admin domain");
 			return '';
 		}
 
 		$locale = NlsOperations::get_current_language();
-		self::_load_realm($realm, $locale);
-		if( !isset(self::$_langdata[$locale][$realm][$key]) ) {
+		self::_load_realm($domain, $locale);
+		if( !isset(self::$_langdata[$locale][$domain][$key]) ) {
 			// put mention into the admin log
-			if( !AppState::test(AppState::LOGIN_PAGE) ) debug_to_log('Languagestring: "' . $key . '"', 'Is missing from the translations file: ' . $realm);
+			if( !AppState::test(AppState::LOGIN_PAGE) ) debug_to_log('Languagestring: "' . $key . '"', 'Is missing from the translations file: ' . $domain);
 			return "-- Missing Language String: $key --";
 		}
 
@@ -291,10 +291,10 @@ final class LangOperations
 			$params = [];
 		}
 		if( $params ) {
-			$result = vsprintf(self::$_langdata[$locale][$realm][$key], $params);
+			$result = vsprintf(self::$_langdata[$locale][$domain][$key], $params);
 		}
 		else {
-			$result = self::$_langdata[$locale][$realm][$key];
+			$result = self::$_langdata[$locale][$domain][$key];
 		}
 
 		// conversion? e.g. to UTF-8
@@ -303,29 +303,70 @@ final class LangOperations
 	}
 
 	/**
-	 * A simple wrapper around the lang_from_realm method that assumes the
-	 * self::CMSMS_ADMIN_REALM realm.
-	 * Note, under normal circumstances this will generate an error if called
-	 * during a frontend request.
-	 * @see LangOperations::lang_from_realm()
+	 * Return translated string if possible
+	 * @deprecated since 2.99 instead use LangOperations::domain_string()
+	 * @param varargs $args
+	 */
+	public static function lang_from_realm(...$args) : string
+	{
+		return self::domain_string(...$args);
+	}
+
+	/**
+	 * A wrapper around the domain_string method that applies the
+	 * self::CMSMS_ADMIN_REALM domain.
+	 * Note, under normal circumstances this will generate an error if
+	 * called during a frontend request.
+	 * @since 2.99
+	 * @see LangOperations::domain_string()
 	 *
 	 * @param varargs $args, of which
 	 *  1st = translated-string key (required non-falsy string) or array comprising all args
 	 *  further argument(s) (optional string|number, generally, or array of same)
-	 * @return string, possibly empty (formerly could be null)
+	 * @return string, possibly empty
 	 */
-	public static function lang(...$args)
+	public static function admin_string(...$args) : string
 	{
-		if( count($args) == 1 && is_array($args[0]) ) $args = $args[0];
-		array_unshift($args, self::$_default_realm);
-		return self::lang_from_realm(...$args);
+		if( count($args) == 1 && is_array($args[0]) ) { $args = $args[0]; }
+		return self::domain_string(self::CMSMS_ADMIN_REALM, ...$args);
 	}
 
 	/**
-	 * [Dis]allow use of admin-realm strings, during the balance of the
+	 * A wrapper around the domain_string method that applies the
+	 * self::$_default_domain (typically self::CMSMS_ADMIN_REALM) domain.
+	 * Note, under normal circumstances this will generate an error if
+	 * called during a frontend request.
+	 * @since 2.99 Replaces deprecated lang()
+	 * @see LangOperations::domain_string()
+	 *
+	 * @param varargs $args, of which
+	 *  1st = translated-string key (required non-falsy string) or array comprising all args
+	 *  further argument(s) (optional string|number, generally, or array of same)
+	 * @return string, possibly empty
+	 */
+	public static function default_string(...$args) : string
+	{
+		if( count($args) == 1 && is_array($args[0]) ) {
+			$args = $args[0];
+		}
+		return self::domain_string(self::$_default_domain, ...$args);
+	}
+
+	/**
+	 * Return translated admin-domain string if possible
+	 * @deprecated since 2.99 instead use LangOperations::default_string()
+	 * @param varargs $args
+	 */
+	public static function lang(...$args) : string
+	{
+		return self::default_string(...$args);
+	}
+
+	/**
+	 * [Dis]allow use of admin-domain strings, during the balance of the
 	 * current request or until this method is called again with a
 	 * different parameter.
-	 * Normally, admin-realm strings are available only during a backend
+	 * Normally, admin-domain strings are available only during a backend
 	 * request. Ditto for the converse. This method may be used to
 	 * disable (and re-enable) the default behavior.
 	 *
@@ -342,35 +383,36 @@ final class LangOperations
 
 	/**
 	 * Report whether a translated-string key exists for the current locale
-	 * and in the specified realm.
+	 * and in the specified domain.
 	 * @see also LangOperations::lang_key_exists()
 	 *
 	 * @param mixed $key string|null The wanted key
-	 * @param string $realm Optional lang realm. Default null, hence the currently-recorded default realm.
-	 * @since 2.99 the realm may be namespaced e.g. CMSAsset\somespace or Modname\somespace
+	 * @param string $domain Optional lang domain. Default null, hence the
+	 *  currently-recorded default domain.
+	 * @since 2.99 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return bool
 	 */
-	public static function key_exists($key, $realm = NULL) //: bool
+	public static function key_exists($key, $domain = NULL) : bool
 	{
-		if( $realm == NULL ) $realm = self::$_default_realm;
+		if( $domain == NULL ) $domain = self::$_default_domain;
 		$locale = NlsOperations::get_current_language();
-		self::_load_realm($realm, $locale);
-		return isset(self::$_langdata[$locale][$realm][''.$key]);
+		self::_load_realm($domain, $locale);
+		return isset(self::$_langdata[$locale][$domain][''.$key]);
 	}
 
 	/**
-	 * Set the default realm for subsequent 'un-realmed' lang calls.
+	 * Set the default domain for subsequent 'un-realmed' default_string() calls.
 	 *
 	 * @since 2.0
-	 * @param string $realm Optional realm name.  Default self::CMSMS_ADMIN_REALM.
-	 * @since 2.99 the realm may be namespaced e.g. CMSAsset\somespace or Modname\somespace
-	 * @return string the previous/replaced realm-name
+	 * @param string $domain Optional domain name.  Default self::CMSMS_ADMIN_REALM.
+	 * @since 2.99 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
+	 * @return string the previous/replaced domain-name
 	 */
-	public static function set_realm($realm = self::CMSMS_ADMIN_REALM) //: string
+	public static function set_realm($domain = self::CMSMS_ADMIN_REALM) : string
 	{
-		$old = self::$_default_realm;
-		if( $realm == '' ) $realm = self::CMSMS_ADMIN_REALM;
-		self::$_default_realm = $realm;
+		$old = self::$_default_domain;
+		if( $domain == '' ) $domain = self::CMSMS_ADMIN_REALM;
+		self::$_default_domain = $domain;
 		return $old;
 	}
 } // class

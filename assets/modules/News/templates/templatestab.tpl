@@ -1,19 +1,19 @@
 <div class="rowbox expand">
   {if $can_mod}
   <div class="pageoptions boxchild">
-    <a href="{cms_action_url action='edittemplate' tpl='-1'}">{admin_icon icon='newobject.gif' alt=$mod->Lang('addtemplate')} {$mod->Lang('addtemplate')}</a>
+    <a href="{cms_action_url action='edittemplate' tpl='-1'}">{admin_icon icon='newobject.gif' alt=_ld($_module,'addtemplate')} {_ld($_module,'addtemplate')}</a>
   </div>{*boxchild*}
   {/if}
 {if $tplcount > 0 && isset($rowchanger2)}
   <div class="boxchild">
-   {$mod->Lang('pageof','<span id="cpage2">1</span>',"<span id='tpage2' style='margin-right:0.5em;'>`$totpg2`</span>")}
-   {$rowchanger2}{$mod->Lang('pagerows')}
-   <a href="javascript:pagefirst(tpltable)">{$mod->Lang('first')}</a>
+   {_ld($_module,'pageof','<span id="cpage2">1</span>',"<span id='tpage2' style='margin-right:0.5em;'>`$totpg2`</span>")}
+   {$rowchanger2}{_ld($_module,'pagerows')}
+   <a href="javascript:pagefirst(tpltable)">{_ld($_module,'first')}</a>
 {if $tplpages > 2}
-   <a href="javascript:pageprev(tpltable)">{$mod->Lang('previous')}</a>
-   <a href="javascript:pagenext(tpltable)">{$mod->Lang('next')}</a>
+   <a href="javascript:pageprev(tpltable)">{_ld($_module,'previous')}</a>
+   <a href="javascript:pagenext(tpltable)">{_ld($_module,'next')}</a>
 {/if}
-   <a href="javascript:pagelast(tpltable)">{$mod->Lang('last')}</a>
+   <a href="javascript:pagelast(tpltable)">{_ld($_module,'last')}</a>
   </div>{*boxchild*}
 {/if}
 </div>{*rowbox*}
@@ -22,9 +22,9 @@
 <table id="tpltable" class="pagetable{if $tplcount > 1} table_sort{/if}" style="width:auto;">
  <thead>
   <tr>
-    <th{if $tplcount > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{lang('name')}</th>
-    <th{if $tplcount > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{lang('type')}</th>
-    <th{if $tplcount > 1} class="{literal}{sss:'icon'}{/literal}"{/if} title="{$mod->Lang('tip_tpl_type')}">{lang('default')}</th>
+    <th{if $tplcount > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{_ld('admin','name')}</th>
+    <th{if $tplcount > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{_ld('admin','type')}</th>
+    <th{if $tplcount > 1} class="{literal}{sss:'icon'}{/literal}"{/if} title="{_ld($_module,'tip_tpl_type')}">{_ld('admin','default')}</th>
     <th class="pageicon{if $tplcount > 1} nosort{/if}"></th>{/strip}
   </tr>
  </thead>
@@ -33,7 +33,7 @@
   <tr class="{$rowclass}" onmouseover="this.className='{$rowclass}hover';" onmouseout="this.className='{$rowclass}';">
     {strip}<td{if $elem->desc} title="{$elem->desc}"{/if}>
        {if $elem->url}
-      <a href="{$elem->url}" class="edit_tpl" title="{$mod->Lang('tip_edit_template')}">{$elem->name}</a>
+      <a href="{$elem->url}" class="edit_tpl" title="{_ld($_module,'tip_edit_template')}">{$elem->name}</a>
        {else}
       {$elem->name}
        {/if}
@@ -50,5 +50,5 @@
  </tbody>
 </table>
 {else}
-<p class="pageinfo">{$mod->Lang('notemplate')}</p>
+<p class="pageinfo">{_ld($_module,'notemplate')}</p>
 {/if}

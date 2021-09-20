@@ -1,4 +1,4 @@
-<h3>{$mod->Lang('currentpath')}
+<h3>{_ld($_module,'currentpath')}
    <span class="pathselector">
    {foreach $path_parts as $part}
      {if !empty($part->url)}

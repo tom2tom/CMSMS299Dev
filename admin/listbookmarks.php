@@ -48,9 +48,9 @@ if ($n > $limit) {
 }
 
 $themeObject = SingleItem::Theme();
-$iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', lang('addbookmark'),'','','systemicon');
-$iconedit = $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'),'','','systemicon');
-$icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'),'','','systemicon');
+$iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', _la('addbookmark'),'','','systemicon');
+$iconedit = $themeObject->DisplayImage('icons/system/edit.gif', _la('edit'),'','','systemicon');
+$icondel = $themeObject->DisplayImage('icons/system/delete.gif', _la('delete'),'','','systemicon');
 
 $extras = get_secure_param_array();
 $urlext = get_secure_param();

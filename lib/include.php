@@ -26,6 +26,7 @@ use CMSMS\App;
 use CMSMS\AppConfig;
 use CMSMS\AppParams;
 use CMSMS\AppState;
+use CMSMS\Database\Connection;
 use CMSMS\Database\DatabaseConnectionException;
 use CMSMS\Events;
 use CMSMS\internal\LoadedMetadata;
@@ -37,6 +38,9 @@ use CMSMS\RequestParameters;
 use CMSMS\RouteOperations;
 use CMSMS\SingleItem;
 use CMSMS\TreeOperations;
+use function CMSMS\add_shutdown;
+use function CMSMS\do_template_processing;
+use function CMSMS\get_installed_schema_version;
 
 /**
  * This file is intended for, and supported for use in, core CMSMS operations only.
@@ -99,9 +103,14 @@ switch (basename($includer, '.php')) {
 }
 
 require_once $dirpath.'page.functions.php'; // system-dependent methods
-$db = $_app->GetDb();
-SingleItem::insert('Db', $db); // easier retrieval
+register_shutdown_function('CMSMS\run_shutters');
+add_shutdown(500, 'CSMS\dbshutdown');
+
+$db = new Connection($config);
+SingleItem::insert('Db', $db);
 require_once $dirpath.'compat.functions.php'; // old function- and/or class-aliases
+//deprecated since 2.99 (at most): make old stuff available
+require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'Database'.DIRECTORY_SEPARATOR.'class.compatibility.php';
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'library.Exception.php'; // bundle of exception-classes in 1 file, not auto-loadable
 
 $params = RequestParameters::get_request_values(
@@ -122,6 +131,7 @@ if ($params[CMS_JOB_KEY] !== null) {
 }
 // since 2.99 value 0|1|2 indicates the type of request, hence appropriate inclusions
 $_app->JOBTYPE = $CMS_JOB_TYPE;
+do_template_processing($CMS_JOB_TYPE < 2);
 
 if ($CMS_JOB_TYPE < 2) {
     require_once $dirpath.'translation.functions.php';
@@ -165,9 +175,9 @@ if ($administering) {
 }
 
 $cache = SingleItem::LoadedData();
-// deprecated since 2.99 useless, saves no time | effort
+// deprecated since 2.99 useless, caching saves minimal time | effort
 $obj = new LoadedDataType('schema_version', function() {
-    return SingleItem::App()->get_installed_schema_version();
+    return get_installed_schema_version();
 });
 $cache->add_type($obj);
 if ($CMS_JOB_TYPE < 2) {

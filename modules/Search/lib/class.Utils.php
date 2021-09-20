@@ -219,8 +219,10 @@ $until,
     public static function RemoveStopWordsFromArray(Search $module, $words)
     {
         $curval = $module->GetPreference('stopwords');
-        if (!$curval) { $curval = $module->DefaultStopWords(); }
-        $stop_words = preg_split("/[\s,]+/", $curval);
+        if (!$curval) {
+            $curval = $module->DefaultStopWords();
+        }
+        $stop_words = preg_split("/\,+/", $curval);
         return array_diff($words, $stop_words);
     }
 
@@ -284,5 +286,18 @@ $until,
     public static function CleanupText(string $text) : string
     {
         return strip_tags($text);
+    }
+
+    /**
+     * Remove unwanted chars from the supplied string
+     * Specifically, inter-word spaces, newline char(s),
+     *  multiple adjacent comma's, leading/trailing comma's
+     * @param string $text ','-separated search-words
+     * @return string
+     */
+    public static function CleanWords(string $text) : string
+    {
+        $flat = strtr($text, [",\r\n"=>',', "\r\n"=>',', ",\r"=>',', ",\n"=>',', ', '=>',', ' ,'=>',', "\n"=>',', "\r"=>',']);
+        return trim(strtr($flat, [',,'=>',']), ' ,');
     }
 } //class

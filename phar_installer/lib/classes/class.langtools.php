@@ -140,7 +140,7 @@ final class langtools
     /**
      * Find the first allowed language that the browser supports
      *
-     * @return mixed lang string, or null
+     * @return mixed string | null
      */
     public function match_browser_lang()
     {

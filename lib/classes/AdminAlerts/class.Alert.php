@@ -119,7 +119,7 @@ abstract class Alert
      * @param string $key
      * @return string;
      */
-    public function __get($key)
+    public function __get(string $key)
     {
         switch( $key ) {
         case 'name':
@@ -149,7 +149,7 @@ abstract class Alert
      * @param string $key
      * @param string $val
      */
-    public function __set($key,$val)
+    public function __set(string $key,$val)
     {
         if( $this->_loaded ) throw new LogicException('Alerts cannot be altered once saved');
         switch( $key ) {
@@ -289,12 +289,12 @@ abstract class Alert
     /**
      * Load all known alerts recorded as site-preferences.
      *
-     * return mixed Alert[] | null
+     * return array, empty | Alert object(s)
      */
     public static function load_all()
     {
         $list = AppParams::list_by_prefix('adminalert_');
-        if( !$list ) return;
+        if( !$list ) return [];
 
         $out = [];
         foreach( $list as $prefname ) {
@@ -304,7 +304,7 @@ abstract class Alert
 
             $out[] = $tmp;
         }
-        if( $out ) return $out;
+        return $out;
     }
 
     /**
@@ -312,16 +312,16 @@ abstract class Alert
 	 * If no uid is specified, the currently logged in admin user id is used.
      *
      * @param mixed int|null $userid The admin userid to test for.
-     * @return mixed Alert[] | null
+     * @return array Alert object(s) | empty
      */
     public static function load_my_alerts($userid = 0)
     {
-        $userid = (int) $userid;
+        $userid = (int)$userid;
         if( $userid < 1 ) $userid = get_userid(false);
-        if( !$userid ) return;
+        if( !$userid ) return [];
 
         $alerts = self::load_all();
-        if( !$alerts ) return;
+        if( !$alerts ) return [];
 
         $out = [];
         foreach( $alerts as $alert ) {
@@ -329,7 +329,7 @@ abstract class Alert
                 $out[] = $alert;
             }
         }
-        if( !$out ) return;
+        if( !$out ) return [];
 
         // now sort these fuggers by priority
         $map = [ self::PRIORITY_HIGH => 0, self::PRIORITY_NORMAL => 1, self::PRIORITY_LOW => 2 ];
@@ -340,7 +340,7 @@ abstract class Alert
                 if( $pa > $pb ) return 1;
                 return strcasecmp($a->module,$b->module);
             });
-        if( $out ) return $out;
+        return $out;
     }
 
     /**

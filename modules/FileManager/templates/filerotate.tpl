@@ -1,58 +1,47 @@
-<h3>{$mod->Lang('rotateimage')}</h3>
+<h3>{_ld($_module,'rotateimage')}</h3>
 
 {$formstart}
-<div class="pageinfo">{$mod->Lang('info_rotate')}</div>
+<div class="pageinfo">{_ld($_module,'info_rotate')}</div>
 <div class="pageoverflow">
-  <p class="pagetext">{$mod->Lang('image')}: {$filename}</p>
-  <p class="pageinput">
+  <p class="pagetext">{_ld($_module,'image')}: {$filename}</p>
+  <div class="pageinput">
     <img id="rotimg" src="{$image}" width="{$width}" height="{$height}" />
-  </p>
+  </div>
 </div>
 <div class="pageoverflow">
-  <p class="pagetext">
-    <label>{$mod->Lang('angle')}:</label>
-  </p>
-  <input type="text" readonly="readonly" id="angletxt" name="{$actionid}angle" value="0" />
-  <p class="pageinput">{$mod->Lang('predefined')}:
-    <button class="autorotate" id="neg180" title="{$mod->Lang('rotate_neg180')}">-180</button>
-    <button class="autorotate" id="neg135" title="{$mod->Lang('rotate_neg135')}">-135</button>
-    <button class="autorotate" id="neg90" title="{$mod->Lang('rotate_neg90')}">-90</button>
-    <button class="autorotate" id="neg45" title="{$mod->Lang('rotate_neg45')}">-45</button>
-    <button class="autorotate" id="neg30" title="{$mod->Lang('rotate_neg30')}">-30</button>
-    <button class="autorotate" id="pos30" title="{$mod->Lang('rotate_pos30')}">+30</button>
-    <button class="autorotate" id="pos45" title="{$mod->Lang('rotate_pos45')}">+45</button>
-    <button class="autorotate" id="pos90" title="{$mod->Lang('rotate_pos90')}">+90</button>
-    <button class="autorotate" id="pos135" title="{$mod->Lang('rotate_pos135')}">+135</button>
-    <button class="autorotate" id="pos180" title="{$mod->Lang('rotate_pos180')}">+180</button>
-  </p>
-  <p class="pageinput" id="rotangle" title="{$mod->Lang('info_rotate_slider')}">
-  </p>
+  <label class="pagetext">{_ld($_module,'angle')}:</label>
+  <input type="text" readonly="readonly" id="angletxt" name="{$actionid}angle" value="0" />{* WHAT ?? *}
+  <div class="pageinput">{_ld($_module,'predefined')}:
+    <button class="autorotate" id="neg180" title="{_ld($_module,'rotate_neg180')}">-180</button>
+    <button class="autorotate" id="neg135" title="{_ld($_module,'rotate_neg135')}">-135</button>
+    <button class="autorotate" id="neg90" title="{_ld($_module,'rotate_neg90')}">-90</button>
+    <button class="autorotate" id="neg45" title="{_ld($_module,'rotate_neg45')}">-45</button>
+    <button class="autorotate" id="neg30" title="{_ld($_module,'rotate_neg30')}">-30</button>
+    <button class="autorotate" id="pos30" title="{_ld($_module,'rotate_pos30')}">+30</button>
+    <button class="autorotate" id="pos45" title="{_ld($_module,'rotate_pos45')}">+45</button>
+    <button class="autorotate" id="pos90" title="{_ld($_module,'rotate_pos90')}">+90</button>
+    <button class="autorotate" id="pos135" title="{_ld($_module,'rotate_pos135')}">+135</button>
+    <button class="autorotate" id="pos180" title="{_ld($_module,'rotate_pos180')}">+180</button>
+  </div>
+  <p class="pageinput" id="rotangle" title="{_ld($_module,'info_rotate_slider')}"></p>{* WHAT ?? *}
 </div>
 <div class="pageoverflow">
-  <p class="pagetext">
-    <label for="postrotate">{$mod->Lang('postrotate')}:</label>
-    {cms_help realm=$_module key2='help_postrotate' title=$mod->Lang('postrotate')}
-  </p>
-  <p class="pageinput">
+  <label class="pagetext" for="postrotate">{_ld($_module,'postrotate')}:</label>
+  {cms_help 0=$_module key='help_postrotate' title=_ld($_module,'postrotate')}
+  <div class="pageinput">
     <select id="postrotate" name="{$actionid}postrotate">
-    {html_options options=$opts selected=$postrotate}
-    </select>
-  </p>
+      {html_options options=$opts selected=$postrotate}    </select>
+  </div>
 </div>
 <div class="pageoverflow">
-  <p class="pagetext">
-    <label for="createthumb">{$mod->Lang('createthumbnail')}:</label>
-  </p>
+  <label class="pagetext" for="createthumb">{_ld($_module,'createthumbnail')}:</label>
   <input type="hidden" name="{$actionid}createthumb" value="0" />
-  <p class="pageinput">
+  <div class="pageinput">
     <input type="checkbox" name="{$actionid}createthumb" id="createthumb" value="1"{if $createthumb} checked="checked"{/if} />
-  </p>
+  </div>
 </div>
-<br />
-<div class="pageoverflow">
-  <p class="pageinput">
-    <button type="submit" name="{$actionid}rotate" class="adminsubmit icon do">{$mod->Lang('save')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-  </p>
+<div class="pregap pageinput">
+  <button type="submit" name="{$actionid}rotate" class="adminsubmit icon do">{_ld($_module,'save')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{_ld($_module,'cancel')}</button>
 </div>
 </form>

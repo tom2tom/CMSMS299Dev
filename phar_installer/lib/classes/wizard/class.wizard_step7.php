@@ -353,9 +353,8 @@ class wizard_step7 extends wizard_step
                 if (version_compare($one_version, $version_info['version']) < 1) {
                     continue;
                 }
-
                 // open the manifest
-                $manifest = new manifest_reader("$upgrade_dir/$one_version");
+                $manifest = new manifest_reader($upgrade_dir.DIRECTORY_SEPARATOR.$one_version);
                 // check the 'to' version info
                 if ($one_version != $manifest->to_version()) {
                     throw new Exception(lang('error_internal', 722));
@@ -363,13 +362,13 @@ class wizard_step7 extends wizard_step
                 // delete all 'deleted' files
                 // tho' any which is supposed to be retained will later
                 // be restored when the sources-archive is processed
-                $deleted = $manifest->get_deleted();
                 $ndeleted = 0;
                 $nfailed = 0;
                 $nmissing = 0;
+                $deleted = $manifest->get_deleted();
                 if ($deleted) {
                     foreach ($deleted as $rec) {
-                        $fn = "{$destdir}{$rec['filename']}";
+                        $fn = $destdir.$rec['filename'];
                         if (!is_file($fn)) {
                             $this->verbose("File '$fn' does not exist, but we planned to delete it anyway");
                             ++$nmissing;
@@ -395,7 +394,6 @@ class wizard_step7 extends wizard_step
                         }
                     }
                 }
-
                 $this->message($ndeleted.' files/folders deleted for version '.$one_version.': '.$nmissing.' missing, '.$nfailed.' failed');
             }
         }

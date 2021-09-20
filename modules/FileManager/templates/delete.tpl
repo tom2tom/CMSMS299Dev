@@ -1,13 +1,13 @@
-<h3>{$mod->Lang('actiondelete')}:</h3>
+<h3>{_ld($_module,'actiondelete')}:</h3>
 {if isset($errors)}
-{$cancellabel=$mod->Lang('return')}
+{$cancellabel=_ld($_module,'return')}
 {else}
-{$cancellabel=$mod->Lang('cancel')}
+{$cancellabel=_ld($_module,'cancel')}
 {/if}
 
 {$formstart}
 <div class="pageoverflow">
-  <p class="pagetext">{$mod->Lang('deleteselected')}:</p>
+  <p class="pagetext">{_ld($_module,'deleteselected')}:</p>
   <p class="pageinput">
     {'<br />'|implode:$sel}
   </p>
@@ -16,7 +16,7 @@
 <div class="pageoverflow">
   <p class="pageinput">
     {if !isset($errors)}
-    <button type="submit" name="{$actionid}delete" class="adminsubmit icon do">{$mod->Lang('delete')}</button>
+    <button type="submit" name="{$actionid}delete" class="adminsubmit icon do">{_ld($_module,'delete')}</button>
     {/if}
     <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$cancellabel}</button>
   </p>

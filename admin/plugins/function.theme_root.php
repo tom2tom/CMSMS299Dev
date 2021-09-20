@@ -35,16 +35,16 @@ function smarty_function_theme_root($params, $template)
 /*
 function smarty_cms_about_function_theme_root()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+<li>detail</li> ... OR _la('none')
 EOS
 	);
 }
 */
 function smarty_cms_help_function_theme_root()
 {
-	$n = lang('none');
-	echo lang_by_realm('tags', 'help_generic',
+	$n = _la('none');
+	echo _ld('tags', 'help_generic',
 	'This plugin retrieves the topmost/base URL of the current admin theme',
 	'theme_root',
 	"<li>$n</li>"

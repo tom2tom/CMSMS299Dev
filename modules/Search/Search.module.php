@@ -94,12 +94,12 @@ class Search extends CMSModule
 
     public function RegisterEvents()
     {
-        $this->AddEventHandler( 'Core', 'ContentEditPost', false );
-        $this->AddEventHandler( 'Core', 'ContentDeletePost', false );
-        $this->AddEventHandler( 'Core', 'AddTemplatePost', false );
-        $this->AddEventHandler( 'Core', 'EditTemplatePost', false );
-        $this->AddEventHandler( 'Core', 'DeleteTemplatePost', false );
-        $this->AddEventHandler( 'Core', 'ModuleUninstalled', false );
+        $this->AddEventHandler('Core','ContentEditPost',false);
+        $this->AddEventHandler('Core','ContentDeletePost',false);
+        $this->AddEventHandler('Core','AddTemplatePost',false);
+        $this->AddEventHandler('Core','EditTemplatePost',false);
+        $this->AddEventHandler('Core','DeleteTemplatePost',false);
+        $this->AddEventHandler('Core','ModuleUninstalled',false);
     }
 
     /**
@@ -175,7 +175,7 @@ class Search extends CMSModule
         return false;
     }
 
-/*    public function get_tasks()
+/*  public function get_tasks()
     {
         return [new PruneJob()];
     }
@@ -224,7 +224,7 @@ class Search extends CMSModule
 
     protected function DefaultStopWords()
     {
-        return $this->Lang('default_stopwords');
+        return Utils::CleanWords($this->Lang('default_stopwords'));
     }
 
     public function RemoveStopWordsFromArray($words)
@@ -265,20 +265,24 @@ class Search extends CMSModule
     public static function page_type_lang_callback($str)
     {
         $mod = AppUtils::get_module('Search');
-        if( is_object($mod) ) return $mod->Lang('type_'.$str);
+        if( is_object($mod) ) {
+            return $mod->Lang('type_'.$str);
+        }
     }
 
     public static function reset_page_type_defaults(TemplateType $type)
     {
-        if( $type->get_originator() != 'Search' ) throw new LogicException('Cannot reset content for template-type '.$type->get_name());
-
+        if( $type->get_originator() != 'Search' ) {
+            throw new LogicException('Cannot reset content for template-type '.$type->get_name());
+        }
         $mod = AppUtils::get_module('Search');
-        if( !is_object($mod) ) return;
-        switch( $type->get_name() ) {
-        case 'searchform':
-            return $mod->GetSearchHtmlTemplate();
-        case 'searchresults':
-            return $mod->GetResultsHtmlTemplate();
+        if( is_object($mod) ) {
+            switch( $type->get_name() ) {
+            case 'searchform':
+                return $mod->GetSearchHtmlTemplate();
+            case 'searchresults':
+                return $mod->GetResultsHtmlTemplate();
+            }
         }
     }
 } // class

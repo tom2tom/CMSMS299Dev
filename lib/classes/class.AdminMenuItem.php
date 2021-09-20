@@ -55,12 +55,12 @@ final class AdminMenuItem
     /**
      * @ignore
      */
-    public function __get($k)
+    public function __get(string $key)
     {
-        if( !in_array($k,self::ITEMKEYS) ) throw new LogicException('Property \''.$k.'\' is not valid in '.__CLASS__.' objects');
-        switch( $k ) {
+        if( !in_array($key,self::ITEMKEYS) ) throw new LogicException('Property \''.$key.'\' is not valid in '.__CLASS__.' objects');
+        switch( $key ) {
         case 'url':
-            if( isset($this->_data[$k]) && $this->_data[$k] ) return $this->_data[$k];
+            if( isset($this->_data[$key]) && $this->_data[$key] ) return $this->_data[$key];
             // url can be dynamically generated... maybe
             if( $this->module && $this->action ) {
                 $mod = Utils::get_module($this->module);
@@ -71,34 +71,34 @@ final class AdminMenuItem
             break;
 
         default:
-            if( isset($this->_data[$k]) ) return $this->_data[$k];
+            if( isset($this->_data[$key]) ) return $this->_data[$key];
         }
     }
 
     /**
      * @ignore
      */
-    public function __set($k,$v)
+    public function __set(string $key,$val)
     {
-        if( !in_array($k,self::ITEMKEYS) ) throw new LogicException('Property \''.$k.'\' is not valid in '.__CLASS__.' objects');
-        $this->_data[$k] = $v;
+        if( !in_array($key,self::ITEMKEYS) ) throw new LogicException('Property \''.$key.'\' is not valid in '.__CLASS__.' objects');
+        $this->_data[$key] = $val;
     }
 
     /**
      * @ignore
      */
-    public function __isset($k)
+    public function __isset(string $key)
     {
-        if( !in_array($k,self::ITEMKEYS) ) throw new LogicException('Property \''.$k.'\' is not valid in '.__CLASS__.' objects');
-        return isset($this->_data[$k]);
+        if( !in_array($key,self::ITEMKEYS) ) throw new LogicException('Property \''.$key.'\' is not valid in '.__CLASS__.' objects');
+        return isset($this->_data[$key]);
     }
 
     /**
      * @ignore
      */
-    public function __unset($k)
+    public function __unset(string $key)
     {
-        if( !in_array($k,self::ITEMKEYS) ) throw new LogicException('Property \''.$k.'\' is not valid in '.__CLASS__.' objects');
+        if( !in_array($key,self::ITEMKEYS) ) throw new LogicException('Property \''.$key.'\' is not valid in '.__CLASS__.' objects');
         throw new LogicException('Cannot unset properties of a '.__CLASS__.' object');
     }
 

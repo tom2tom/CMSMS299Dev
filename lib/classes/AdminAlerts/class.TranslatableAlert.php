@@ -94,7 +94,7 @@ class TranslatableAlert extends Alert
      * @return mixed
      * @throws InvalidArgumentException
      */
-    public function __get($key)
+    public function __get(string $key)
     {
         switch( $key ) {
         case 'perms':
@@ -121,7 +121,7 @@ class TranslatableAlert extends Alert
      * @param mixed $val
      * @throws InvalidArgumentException
      */
-    public function __set($key,$val)
+    public function __set(string $key,$val)
     {
         switch( $key ) {
         case 'icon':

@@ -33,8 +33,7 @@ class ExtendedModuleInfo extends ModuleInfo
 //   'allow_admin_lazyload', //c.f. parent::lazyloadadmin
 //   'allow_fe_lazyload', //c.f. parent::lazyloadfrontend
      'can_deactivate',
-     'can_uninstall',
-     'dependents', //list of modules that need this module c.f. parent::depends i.e. prerequisites
+     'dependents', //names of modules that need this module c.f. parent::depends i.e. prerequisites
      'installed',
      'installed_version',
      'missingdeps',
@@ -47,15 +46,14 @@ class ExtendedModuleInfo extends ModuleInfo
     {
         parent::__construct($module_name,$can_load);
 
-		$ops = SingleItem::ModuleOperations();
+        $ops = SingleItem::ModuleOperations();
         $minfo = $ops->GetInstalledModuleInfo();
-		if( isset($minfo[$module_name]) ) {
+        if( isset($minfo[$module_name]) ) {
             $this->emdata['active'] = (int)$minfo[$module_name]['active'];
             $this->emdata['admin_only'] = (int)($minfo[$module_name]['admin_only'] ?? 0);
 //          $this->emdata['allow_fe_lazyload'] = (int)$minfo[$module_name]['allow_fe_lazyload'];
 //          $this->emdata['allow_admin_lazyload'] = (int)$minfo[$module_name]['allow_admin_lazyload'];
             $this->emdata['can_deactivate'] = !in_array($module_name,['AdminLogin','ModuleManager']); // etc?
-            $this->emdata['can_uninstall'] = !$this['system_module'];
             $this->emdata['dependents'] = $minfo[$module_name]['dependents'] ?? [];
             $this->emdata['installed'] = 1;
             $this->emdata['installed_version'] = $minfo[$module_name]['version'];
@@ -94,7 +92,6 @@ class ExtendedModuleInfo extends ModuleInfo
         }
         switch( $key ) {
             case 'can_deactivate':
-            case 'can_uninstall':
             case 'missingdeps':
                 throw new LogicException('CMSEX_INVALIDMEMBERSET',null,$key);
             default:

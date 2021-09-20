@@ -123,9 +123,9 @@ description C(1500) CHARACTER SET utf8mb4,
 lang_cb C(255),
 dflt_content_cb C(255),
 help_content_cb C(255),
-owner I UNSIGNED DEFAULT 1,
-has_dflt I1 DEFAULT 0,
-dflt_contents X(65535),
+owner_id I UNSIGNED DEFAULT 1,
+has_dflt I1 UNSIGNED DEFAULT 0,
+dflt_content X(65535),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 UNIQUE KEY i_originat_name (originator,name),
@@ -195,14 +195,14 @@ $mod_defns[$tblprefix.'admin_bookmarks'] = [$tabopts, $flds];
 // migrate/defer to non-core props: tpltype_id I UNSIGNED, csstype_id I UNSIGNED,
 $flds = '
 MODIFY accesskey C(8),
-MODIFY active I1 DEFAULT 1,
-MODIFY cachable I1 DEFAULT 1,
+MODIFY active I1 UNSIGNED DEFAULT 1,
+MODIFY cachable I1 UNSIGNED DEFAULT 1,
 DROP collapsed,
 MODIFY content_alias C(255),
 MODIFY content_id I UNSIGNED,
 MODIFY content_name C(255) CHARACTER SET utf8mb4,
 MODIFY create_date DT DEFAULT CURRENT_TIMESTAMP,
-MODIFY default_content I1 DEFAULT 0,
+MODIFY default_content I1 UNSIGNED DEFAULT 0,
 MODIFY hierarchy C(75),
 MODIFY hierarchy_path C(500),
 MODIFY id_hierarchy C(75),
@@ -214,8 +214,8 @@ MODIFY modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 MODIFY owner_id I UNSIGNED DEFAULT 1,
 Modify page_url C(255),
 DROP prop_names,
-MODIFY secure I1 DEFAULT 0,
-MODIFY show_in_menu I1 DEFAULT 1,
+MODIFY secure I1 UNSIGNED DEFAULT 0,
+MODIFY show_in_menu I1 UNSIGNED DEFAULT 1,
 ADD styles C(50),
 MODIFY tabindex I1 UNSIGNED DEFAULT 0,
 MODIFY template_id I UNSIGNED,
@@ -264,7 +264,7 @@ MODIFY handler_id I UNSIGNED AUTO FIRST,
 MODIFY handler_order I1 UNSIGNED DEFAULT 0,
 CHANGE module_name class C(96),
 ADD method C(64) AFTER class,
-MODIFY removable I1 DEFAULT 1,
+MODIFY removable I1 UNSIGNED DEFAULT 1,
 DROP tag_name,
 ADD type C(1) NOTNULL DEFAULT "C" AFTER method,
 ';
@@ -275,7 +275,7 @@ COLLATE ascii_bin,
 $mod_defns[$tblprefix.'event_handlers'] = [$tabopts, $flds];
 
 $flds = '
-MODIFY active I1 DEFAULT 1,
+MODIFY active I1 UNSIGNED DEFAULT 1,
 MODIFY create_date DT DEFAULT CURRENT_TIMESTAMP,
 MODIFY group_desc C(255) CHARACTER SET utf8mb4 AFTER group_name,
 MODIFY group_id I UNSIGNED AUTO,
@@ -361,10 +361,10 @@ MODIFY media_type C(255),
 MODIFY name C(60) CHARACTER SET utf8mb4 NOTNULL,
 ADD originator C(50) AFTER id,
 ADD owner_id I UNSIGNED DEFAULT 1 AFTER media_query,
-ADD type_dflt I1 DEFAULT 0,
 ADD type_id I UNSIGNED,
-ADD listable I1 DEFAULT 1,
-ADD contentfile I1 DEFAULT 0,
+ADD type_dflt I1 UNSIGNED DEFAULT 0,
+ADD listable I1 UNSIGNED DEFAULT 1,
+ADD contentfile I1 UNSIGNED DEFAULT 0,
 ADD create_date DT DEFAULT CURRENT_TIMESTAMP,
 ADD modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 ';
@@ -383,14 +383,14 @@ $mod_defns[$tblprefix.'layout_stylesheets'] = [$tabopts, $flds];
 //// defer DROP category_id, until processed later
 $flds = '
 MODIFY content X(65535) CHARACTER SET utf8mb4,
-ADD contentfile I1 DEFAULT 0,
+ADD contentfile I1 UNSIGNED DEFAULT 0,
 MODIFY description C(1500) CHARACTER SET utf8mb4,
-ADD hierarchy C(100) AFTER description,
+ADD hierarchy C(100) COLLATE ascii_bin AFTER description,
 MODIFY id I UNSIGNED NOTNULL AUTO,
 MODIFY name C(60) CHARACTER SET utf8mb4 NOTNULL,
 ADD originator C(50) AFTER id,
 MODIFY owner_id I UNSIGNED DEFAULT 1 AFTER hierarchy,
-MODIFY type_dflt I1 DEFAULT 0 AFTER owner_id,
+MODIFY type_dflt I1 UNSIGNED DEFAULT 0 AFTER owner_id,
 MODIFY type_id I UNSIGNED,
 ADD create_date DT DEFAULT CURRENT_TIMESTAMP,
 ADD modified_date DT ON UPDATE CURRENT_TIMESTAMP,
@@ -432,22 +432,20 @@ CHARACTER SET utf8mb4,
 ';
 $mod_defns[$tblprefix.'layout_tpl_categories'] = [$tabopts, $flds];
 
-//// migrate layout_tpl_types created,modified expected to produce
-////create_date DT DEFAULT CURRENT_TIMESTAMP,
-////modified_date DT ON UPDATE CURRENT_TIMESTAMP,
+//// migrate layout_tpl_types created,modified stamps to DT's
 $flds = '
 MODIFY description C(1500) CHARACTER SET utf8mb4,
 MODIFY dflt_content_cb C(255),
-MODIFY dflt_contents X(65535) CHARACTER SET utf8mb4,
+CHANGE dflt_contents dflt_content X(65535) CHARACTER SET utf8mb4 AFTER owner_id,
 MODIFY help_content_cb C(255) AFTER dflt_content_cb,
-MODIFY has_dflt I1 DEFAULT 0 AFTER help_content_cb,
+MODIFY has_dflt I1 UNSIGNED DEFAULT 0 AFTER help_content_cb,
 MODIFY id I UNSIGNED AUTO NOTNULL,
 MODIFY lang_cb C(255),
 MODIFY name C(60) CHARACTER SET utf8mb4 NOTNULL,
-MODIFY one_only I1 DEFAULT 0 AFTER requires_contentblocks,
+MODIFY one_only I1 UNSIGNED DEFAULT 0 AFTER requires_contentblocks,
 MODIFY originator C(50),
-MODIFY owner I UNSIGNED DEFAULT 1,
-MODIFY requires_contentblocks I1 DEFAULT 0,
+CHANGE owner owner_id I UNSIGNED DEFAULT 1,
+MODIFY requires_contentblocks I1 UNSIGNED DEFAULT 0,
 ADD create_date DT DEFAULT CURRENT_TIMESTAMP,
 ADD modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 ';
@@ -459,9 +457,7 @@ CHARACTER SET ascii,
 ';
 $mod_defns[$tblprefix.'layout_tpl_type'] = [$tabopts, $flds];
 
-//// migrate locks created,modified expected to produce
-////create_date DT DEFAULT CURRENT_TIMESTAMP,
-////modified_date DT ON UPDATE CURRENT_TIMESTAMP,
+//// migrate locks created,modified stamps to DT's
 $flds = '
 MODIFY expires I UNSIGNED DEFAULT 0,
 MODIFY id I UNSIGNED AUTO,
@@ -479,8 +475,8 @@ COLLATE ascii_bin,
 $mod_defns[$tblprefix.'locks'] = [$tabopts, $flds];
 
 $flds = '
-MODIFY active I1 DEFAULT 1,
-MODIFY admin_only I1 DEFAULT 0,
+MODIFY active I1 UNSIGNED DEFAULT 1,
+MODIFY admin_only I1 UNSIGNED DEFAULT 0,
 DROP allow_admin_lazyload,
 DROP allow_fe_lazyload,
 MODIFY module_name C(50) NOTNULL,
@@ -509,8 +505,8 @@ $mod_defns[$tblprefix.'module_deps'] = [$tabopts, $flds];
 
 // default cachable value (1) is contrary to CMSMS pre-2.99
 $flds = '
-MODIFY available I1 DEFAULT 1,
-MODIFY cachable I1 DEFAULT 1,
+MODIFY available I1 UNSIGNED DEFAULT 1,
+MODIFY cachable I1 UNSIGNED DEFAULT 1,
 CHANGE callback callable C(255) NOTNULL,
 ADD id I UNSIGNED NOTNULL AUTO FIRST APKEY(`id`),
 MODIFY module C(50) NOTNULL,
@@ -571,14 +567,15 @@ CHARACTER SET ascii,
 ';
 $mod_defns[$tblprefix.'siteprefs'] = [$tabopts, $flds];
 
-// contentfile could be used instead of id < or > 0
+// name must support case-insenstive matching, TODO might include UTF8 ?
+// code might include UTF8 for UI ?
 $flds = '
-MODIFY code C(15000),
 MODIFY create_date DT DEFAULT CURRENT_TIMESTAMP,
 MODIFY description C(1500) CHARACTER SET utf8mb4,
 MODIFY modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 ADD parameters C(1000) CHARACTER SET utf8mb4 AFTER description,
-ADD contentfile I1 DEFAULT 0 after parameters,
+ADD contentfile I1 UNSIGNED DEFAULT 0 AFTER parameters,
+MODIFY code C(15000) AFTER contentfile,
 CHANGE userplugin_id id I UNSIGNED AUTO,
 CHANGE userplugin_name name C(50) NOTNULL UNIQUE,
 ';
@@ -603,7 +600,7 @@ CHARACTER SET ascii,
 $mod_defns[$tblprefix.'userprefs'] = [$tabopts, $flds];
 
 $flds = '
-MODIFY active I1 DEFAULT 1,
+MODIFY active I1 UNSIGNED DEFAULT 1,
 DROP admin_access,
 MODIFY create_date DT DEFAULT CURRENT_TIMESTAMP,
 MODIFY email C(255) CHARACTER SET utf8mb4,
@@ -810,7 +807,7 @@ if ($rst) {
     $types = [];
     $gid = 0;
     // aka TemplateType::TABLENAME
-    $stmt = $handle->prepare("INSERT INTO {$tblprefix}layout_tpl_types (originator,name,description,owner) VALUES (?,'moduleactions',?,1)");
+    $stmt = $handle->prepare("INSERT INTO {$tblprefix}layout_tpl_types (originator,name,description,owner_id) VALUES (?,'moduleactions',?,0)");
     $stmt2 = $handle->prepare("INSERT INTO {$tblprefix}layout_tpl_groups (name,description,create_date) VALUES (?,?,?)");
     // category_id used only for transition
     $stmt3 = $handle->prepare("INSERT INTO {$tblprefix}layout_templates (originator,name,content,type_id,category_id,create_date,modified_date)

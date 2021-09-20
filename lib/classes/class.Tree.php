@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -117,7 +117,7 @@ class Tree
 	}
 
 	/**
-	 * Set a tag value into this node
+	 * Set a tag value into this node.
 	 *
 	 * @param string $key Tag name
 	 * @param mixed  $value Tag value
@@ -132,15 +132,12 @@ class Tree
 	 * Retrieve a tag for this node.
 	 *
 	 * @param string $key The tag name
-	 * @return mixed The tag value, or null
+	 * @return mixed The tag value | null
 	 */
 	public function get_tag($key)
 	{
-		$res = null;
-		if( !$this->_tags ) return $res;
-		if( !isset($this->_tags[$key]) ) return $res;
-		$res = $this->_tags[$key];
-		return $res;
+		if( !$this->_tags || !isset($this->_tags[$key]) ) return null;
+		return $this->_tags[$key];
 	}
 
 	/**
@@ -286,12 +283,12 @@ class Tree
 	/**
 	 * Return the children of this node.
 	 *
-	 * @return mixed  array of Tree objects | null if there are no children.
+	 * @return array Tree objects | empty if there are no children.
 	 */
 	public function &get_children()
 	{
 		if( $this->has_children() ) return $this->_children;
-		$res = null;
+		$res = [];
 		return $res;
 	}
 } // class

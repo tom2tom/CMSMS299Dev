@@ -20,10 +20,11 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use function CMSMS\get_scripts_manager;
 // since 2.99
 function smarty_function_cms_render_scripts( $params, $template )
 {
-	$combiner = CMSMS\SingleItem::App()->GetScriptsManager();
+	$combiner = get_scripts_manager();
 	$force = cms_to_bool($params['force'] ?? false);
 
 	$out = '';
@@ -49,7 +50,7 @@ function smarty_function_cms_render_scripts( $params, $template )
 /*
 D function smarty_cms_help_function_cms_render_scripts()
 {
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin generates a script tag for retrieving the result of merging queued script-files',
 	'cms_render_scripts',
 	<<<EOS
@@ -63,7 +64,7 @@ EOS
 */
 function smarty_cms_about_function_cms_render_scripts()
 {
-	echo lang_by_realm('tags', 'about_generic',
+	echo _ld('tags', 'about_generic',
 	<<<EOS
 <p>Author: Robert Campbell</p>
 <p>Version: 1.0</p>

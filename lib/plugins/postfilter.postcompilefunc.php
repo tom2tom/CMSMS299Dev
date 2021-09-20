@@ -58,7 +58,7 @@ function smarty_postfilter_postcompilefunc($tpl_output, $smarty)
 /* Not published in UI
 function smarty_cms_about_postfilter_postcompilefunc()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
 <li>detail</li> ... OR lang('none')
 EOS
 	);
@@ -68,7 +68,7 @@ EOS
 function smarty_cms_help_postfilter_postcompilefunc()
 {
 	$n = lang('none');
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This function sends appropriate Events after different types and stages of template compilation, and processes any responses',
 	'postcompilefunc',
 	"<li>$n</li>"

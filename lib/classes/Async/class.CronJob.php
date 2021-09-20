@@ -57,7 +57,7 @@ abstract class CronJob extends Job
     /**
      * @ignore
      */
-    public function __get($key)
+    public function __get(string $key)
     {
         switch ($key) {
         case 'frequency':
@@ -75,7 +75,7 @@ abstract class CronJob extends Job
     /**
      * @ignore
      */
-    public function __set($key, $val)
+    public function __set(string $key, $val)
     {
         switch ($key) {
         case 'frequency':

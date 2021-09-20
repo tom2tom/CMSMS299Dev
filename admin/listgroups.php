@@ -47,13 +47,13 @@ if ($n > $limit) {
 }
 
 $themeObject = SingleItem::Theme();
-$icontrue = $themeObject->DisplayImage('icons/system/true.gif', lang('true'), '', '', 'systemicon');
-$iconfalse = $themeObject->DisplayImage('icons/system/false.gif', lang('false'), '', '', 'systemicon');
-$iconassign = $themeObject->DisplayImage('icons/system/groupassign.gif', lang('assignments'), '', '', 'systemicon');
-$iconperms = $themeObject->DisplayImage('icons/system/permissions.gif', lang('permissions'), '', '', 'systemicon');
-$iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', lang('add'), '', '', 'systemicon');
-$iconedit = $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'), '', '', 'systemicon');
-$icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'), '', '', 'systemicon');
+$icontrue = $themeObject->DisplayImage('icons/system/true.gif', _la('true'), '', '', 'systemicon');
+$iconfalse = $themeObject->DisplayImage('icons/system/false.gif', _la('false'), '', '', 'systemicon');
+$iconassign = $themeObject->DisplayImage('icons/system/groupassign.gif', _la('assignments'), '', '', 'systemicon');
+$iconperms = $themeObject->DisplayImage('icons/system/permissions.gif', _la('permissions'), '', '', 'systemicon');
+$iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', _la('add'), '', '', 'systemicon');
+$iconedit = $themeObject->DisplayImage('icons/system/edit.gif', _la('edit'), '', '', 'systemicon');
+$icondel = $themeObject->DisplayImage('icons/system/delete.gif', _la('delete'), '', '', 'systemicon');
 
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();

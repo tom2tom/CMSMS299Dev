@@ -44,7 +44,7 @@ namespace CMSMS;
  */
 interface IResource
 {
-    public function __call($name, $args);
+    public function __call(string $name, array $args);
     public function GetAdminDescription(); // subject to HasAdmin(), admin menu-item tooltip etc
     public function GetAdminSection(); // subject to HasAdmin(), admin menu-item section name, or '' if no menu-items
     public function GetChangeLog(); // module-manager: display changelog NOTE GetAbout() in long-module

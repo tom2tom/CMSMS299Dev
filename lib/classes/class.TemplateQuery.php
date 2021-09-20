@@ -345,7 +345,7 @@ AS tmp1';
 	 *
 	 * This method calls the execute method
 	 *
-	 * @return mixed array of Template object(s) | null
+	 * @return array Template object(s) | empty
 	 */
 	public function GetMatches()
 	{

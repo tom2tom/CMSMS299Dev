@@ -60,7 +60,7 @@ switch (trim($op)) {
 				$n = TemplateOperations::operation_copy($tpl_id);
 				$type = ($n > 0) ? 'success' : 'info';
 				// TODO message if group(s) copied $tpl_id includes val(s) < 0
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_template_copied'));
+				$themeObject->ParkNotice($type,_ld('layout','msg_template_copied'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -75,7 +75,7 @@ switch (trim($op)) {
 				$n = TemplateOperations::operation_delete($tpl_id);
 				$type = ($n > 0) ? 'success' : 'info';
 				// TODO message if group(s) deleted
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_template_deleted',$n));
+				$themeObject->ParkNotice($type,_ld('layout','msg_template_deleted',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -89,7 +89,7 @@ switch (trim($op)) {
 				// TODO appropriate '_activetab' value
 				$n = TemplateOperations::operation_deleteall($tpl_id);
 				$type = ($n > 0) ? 'success' : 'info';
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
+				$themeObject->ParkNotice($type,_ld('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -101,7 +101,7 @@ switch (trim($op)) {
 				// TODO appropriate '_activetab' value
 				$n = TemplateOperations::operation_replace($tpl_id);
 				$type = ($n > 0) ? 'success' : 'info';
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
+				$themeObject->ParkNotice($type,_ld('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -113,7 +113,7 @@ switch (trim($op)) {
 				// TODO appropriate '_activetab' value
 				$n = TemplateOperations::operation_applyall($tpl_id);
 				$type = ($n > 0) ? 'success' : 'info';
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
+				$themeObject->ParkNotice($type,_ld('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -132,12 +132,12 @@ switch (trim($op)) {
 				$type = TemplateType::load($id);
 				$type->reset_content_to_factory();
 				$type->save();
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_reset',$type->get_langified_display_value()));
+				$themeObject->ParkNotice('success',_ld('layout','msg_template_reset',$type->get_langified_display_value()));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
 		} else {
-			$themeObject->ParkNotice('error',lang_by_realm('layout','error_missingparam'));
+			$themeObject->ParkNotice('error',_ld('layout','error_missingparam'));
 		}
 		// TODO appropriate '_activetab' value
 		break;
@@ -148,7 +148,7 @@ switch (trim($op)) {
 			try {
 				$n = TemplateOperations::operation_import($tpl_id);
 				$type = ($n > 0) ? 'success' : 'info';
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_template_imported',$n));
+				$themeObject->ParkNotice($type,_ld('layout','msg_template_imported',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -162,7 +162,7 @@ switch (trim($op)) {
 				// TODO appropriate '_activetab' value
 				$n = TemplateOperations::operation_export($tpl_id);
 				$type = ($n > 0) ? 'success' : 'info';
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_template_exported',$n));
+				$themeObject->ParkNotice($type,_ld('layout','msg_template_exported',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}

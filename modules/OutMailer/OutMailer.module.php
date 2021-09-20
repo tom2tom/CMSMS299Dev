@@ -1,7 +1,7 @@
 <?php
 /*
 OutMailer module: send email via intra-site mechanism or external platform.
-Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This module is a component of CMS Made Simple.
@@ -32,16 +32,14 @@ if (!extension_loaded('mbstring'))
 
 /**
  * @since 2.99
- * Formerly OutMailer module & class
+ * Formerly CMSMailer module & class
  */
 class OutMailer extends CMSModule
 {
-    public $platformed = false; // const: whether to support some mass-mailers like MailChimp
-
-    public function GetAuthor() { return 'Robert Campbell'; }
-    public function GetAuthorEmail() { return ''; }
     public function GetAdminDescription() { return $this->Lang('publictip'); }
     public function GetAdminSection() { return 'extensions'; }
+    public function GetAuthor() { return 'Robert Campbell'; }
+    public function GetAuthorEmail() { return ''; }
     public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetFriendlyName() { return $this->Lang('publicname'); }
     public function GetHelp() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'modhelp.htm'); }
@@ -52,21 +50,17 @@ class OutMailer extends CMSModule
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function MinimumCMSVersion() { return '2.99'; }
     public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
+//  public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
 
     public function VisibleToAdminUser()
     {
-        $names = [
-            'Modify Site Preferences',
-            'Modify Mail Preferences',
-        ];
-        if ($this->platformed) {
-            $names += [
-                'ModifyEmailGateways',
-                'ViewEmailGateways',
-//N/A           'ModifyEmailTemplates', maybe for changing 'this is a CC' message ?
-            ];
-        }
-        return $this->CheckPermission($names);
+        return $this->CheckPermission([
+           'Modify Site Preferences',
+           'Modify Mail Preferences',
+           'Modify Email Gateways',
+           'View Email Gateways',
+//         'Modify Email Templates', maybe for changing 'this is a CC' message ?
+         ]);
     }
 
     public function GetAdminMenuItems()
@@ -118,4 +112,4 @@ class OutMailer extends CMSModule
     }
 }
 
-\class_alias(OutMailer::class, 'OutMailer', false);
+\class_alias(OutMailer::class, 'CMSMailer', false);

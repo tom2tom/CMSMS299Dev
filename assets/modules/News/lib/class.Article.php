@@ -145,7 +145,7 @@ class Article
     }
 */
 
-    public function __get($key)
+    public function __get(string $key)
     {
         switch( $key ) {
         case 'id':
@@ -226,7 +226,7 @@ class Article
     }
 
 
-    public function __isset($key)
+    public function __isset(string $key)
     {
         switch( $key )
         {
@@ -273,7 +273,7 @@ class Article
     }
 
 
-    public function __set($key,$value)
+    public function __set(string $key,$value)
     {
         switch( $key ) {
         case 'id':
@@ -327,7 +327,7 @@ class Article
     private function dtform($key, $value)
     {
         if( is_int($value) ) { // timestamp?
-            $this->_rawdata[$key] = strftime('Y-m-d H:i:s', $value); // c.f. $db->DbTimeStamp($value,false) which also escapes content
+            $this->_rawdata[$key] = date('Y-m-d H:i:s', $value); // c.f. $db->DbTimeStamp($value,false) which also escapes content
         }
         else {
             $this->_rawdata[$key] = $value; // just assume it's ok .... BAH!

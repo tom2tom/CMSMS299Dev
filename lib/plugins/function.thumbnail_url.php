@@ -62,7 +62,7 @@ function smarty_function_thumbnail_url($params, $template)
 /*
 function smarty_cms_about_function_thumbnail_url()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
 <li>detail</li> ... OR lang('none')
 EOS
 	);
@@ -71,7 +71,7 @@ EOS
 /*
 D function smarty_cms_help_function_thumbnail_url()
 {
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin retrieves the URL of an uploaded thumbnail file',
 	'thumbnail_url file=whatever',
 	<<<'EOS'

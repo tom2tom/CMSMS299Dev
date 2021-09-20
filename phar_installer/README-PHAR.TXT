@@ -90,8 +90,8 @@ Step 7:
 Step 8:
   This step interacts with the database to ensure that all tables and initial content are created properly.
 
-  During the installation process numerous tables and indexes are created in the database, and necessary initial data is installed.
-  Additionally (by default) sample data is installed.  The sample data provides useful instructions on how to interact with,
+  During the installation process numerous tables and indexes are created in the database, and necessary initial data are installed.
+  Additionally (if so selected) sample site-content is installed. That provides useful instruction on how to interact with,
   and build sites with, CMS Made Simple. It is recommended reading.
 
   During an upgrade session, any necessary database changes are performed to ensure that the database tables, and their contents,
@@ -111,8 +111,10 @@ Step 9:
 -----------
 Afterwards
 -----------
-After successful completion of the installation assistant, you should delete the installation assistant .php file.
-It is important for security purposes that you delete the installation assistant .php file and this text file from your server after verifying that the operation has succeeded.
+
+After confirming that the site is working as expected, confirm that the installer .php file and related folder (with all its contents)
+have been deleted from the server. If not so, delete them manually, using the site's file manager (in cPanel or the like).
+Likewise for any intaller.ini file, in the site-root folder, that was used to facilitate the installer session.
 
 ---------------------
 Additional Features

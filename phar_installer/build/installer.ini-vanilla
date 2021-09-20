@@ -20,7 +20,6 @@ db_prefix=""
 db_username=""
 debug=false
 dest=""
-;NOTE module-order matters here. Dependencies must be processed before their dependents.
 ;extramodules[]=""
 lang="en_US"
 nobase=false
@@ -34,4 +33,5 @@ sitename=""
 supporturl=""
 timezone=""
 tmpdir=""
+;uninstallmodules[]=""
 verbose=false

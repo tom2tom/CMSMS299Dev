@@ -2,16 +2,16 @@
 <div class="drop">
   <div class="drop-inner cf">
     {if isset($dirlist)}
-    <span class="folder-selection open" title="{$mod->Lang('open')}"></span>
-    <div class="dialog invisible" role="dialog" title="{$mod->Lang('change_working_folder')}">
+    <span class="folder-selection open" title="{_ld($_module,'open')}"></span>
+    <div class="dialog invisible" role="dialog" title="{_ld($_module,'change_working_folder')}">
       {$chdir_formstart}
         <fieldset>
-          <legend>{$mod->Lang('change_working_folder')}</legend>
-          <label for="fm_newdir">{$mod->Lang('folder')}:</label>
+          <legend>{_ld($_module,'change_working_folder')}</legend>
+          <label for="fm_newdir">{_ld($_module,'folder')}:</label>
           <select class="cms_dropdown" id="fm_newdir" name="{$actionid}newdir">
             {html_options options=$dirlist selected="/`$cwd`"}
           </select>
-          <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+          <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{_ld($_module,'submit')}</button>
         </fieldset>
       </form>
     </div>
@@ -26,6 +26,6 @@
       </div>
     </div>
   </div>
-  {$s={$mod->Lang('open')}/{$mod->Lang('close')}}<a href="javascript:void()" title="{$s}" class="toggle-dropzone">{$s}</a>
+  {$s={_ld($_module,'open')}/{_ld($_module,'close')}}<a href="javascript:void()" title="{$s}" class="toggle-dropzone">{$s}</a>
 </div>
 {/if}{*!isset($is_ie)*}

@@ -146,8 +146,8 @@ class DataDictionary
      * database.
      *
      * @param string $table The table name
-     * @return mixed false if no such table, or array of privileged
-     *  fieldnames, if not empty then each member like
+     * @return mixed false if no such table, or array of privileged fieldname(s),
+	 *  if not empty then each member like
      *  'FieldName'=>1
      *  or if $full is true, like
      *  'FieldName'=>[

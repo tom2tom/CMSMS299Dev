@@ -40,8 +40,8 @@ if (isset($_POST['cancel'])) {
 $userid = get_userid();
 
 if (!check_permission($userid, 'Manage Groups')) {
-//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+//TODO some pushed popup c.f. javascript:cms_notify('error', _la('no_permission') OR _la('needpermissionto', _la('perm_Manage_Groups')), ...);
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 $superusr = $userid == 1;
@@ -102,7 +102,7 @@ if (isset($_POST['submit'])) {
     $stmt3->close();
     // put mention into the admin log
     audit($userid, 'Permission Group ID: '.$userid, 'Changed');
-    $message = lang('permissionschanged');
+    $message = _la('permissionschanged');
 //    AdminUtils::clear_cached_files();
 //    SingleItem::LoadedData()->refresh('IF ANY');
 }
@@ -114,22 +114,22 @@ if (!empty($message)) {
 // setup to get default values for localized permission-strings from admin realm
 HookOperations::add_hook('localizeperm', function ($perm_source, $perm_name) {
     $key = 'perm_'.str_replace(' ', '_', $perm_name);
-    if (LangOperations::lang_key_exists('admin', $key)) {
-        return LangOperations::lang_from_realm('admin', $key);
+    if (LangOperations::lang_key_exists(LangOperations::CMSMS_ADMIN_REALM, $key)) {
+        return LangOperations::admin_string($key);
     }
     return $perm_name;
 }, HookOperations::PRIORITY_LOW);
 
 HookOperations::add_hook('getperminfo', function ($perm_source, $perm_name) {
     $key = 'permdesc_'.str_replace(' ', '_', $perm_name);
-    if (LangOperations::lang_key_exists('admin', $key)) {
-        return LangOperations::lang_from_realm('admin', $key);
+    if (LangOperations::lang_key_exists(LangOperations::CMSMS_ADMIN_REALM, $key)) {
+        return LangOperations::admin_string($key);
     }
 }, HookOperations::PRIORITY_LOW);
 
 //populate displayed-group(s) selector
 $groupops = SingleItem::GroupOperations();
-$group_list = $groupops->LoadGroups(); //stdClass objects
+$group_list = $groupops->LoadGroups();
 $allgroups = []; //ditto
 $sel_groups = [];
 foreach ($group_list as $onegroup) {
@@ -166,7 +166,7 @@ if ($rst) {
             }
             $thisPerm->id = $row['id'];
             $thisPerm->name = $row['name'];
-			$thisPerm->label = $row['description'];
+            $thisPerm->label = $row['description'];
             $thisPerm->source = $row['originator'];
             $thisPerm->label = HookOperations::do_hook_first_result('localizeperm', $thisPerm->source, $thisPerm->name);
             $thisPerm->description = HookOperations::do_hook_first_result('getperminfo', $thisPerm->source, $thisPerm->name);
@@ -184,7 +184,7 @@ if ($rst) {
 $out = [];
 foreach ($perm_struct as $one) {
     $source = $one->source;
-    if ($source == '__CORE__') { $source = 'Core'; } // public-name TODO lang() for this?
+    if ($source == '__CORE__') { $source = 'Core'; } // public-name TODO _la() for this?
     if (!isset($out[$source])) {
         $out[$source] = [];
     }
@@ -210,7 +210,7 @@ uksort($perm_struct, function ($a, $b) {
 if (count($perm_struct) > 1) {
     $tmp = new stdClass();
     $tmp->id = -1;
-    $tmp->name = lang('all_groups');
+    $tmp->name = _la('all_groups');
     array_unshift($allgroups, $tmp);
 }
 

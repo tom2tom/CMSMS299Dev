@@ -74,14 +74,14 @@ function smarty_function_cms_cookie($params, $template)
 /*
 function smarty_cms_about_function_cms_cookie()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
 <li>detail</li> ... OR lang('none')
 	);
 }
 */
 function smarty_cms_help_function_cms_cookie()
 {
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin performs a specified action on a CMSMS secure-cookie',
 	'cms_cookie action=... name=...',
 	<<<'EOS'

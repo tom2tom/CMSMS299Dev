@@ -36,8 +36,8 @@ check_login();
 $userid = get_userid();
 
 if (!check_permission($userid, 'Manage Groups')) {
-//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+//TODO some pushed popup c.f. javascript:cms_notify('error', _la('no_permission') OR _la('needpermissionto', _la('perm_Manage_Groups')), ...);
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 $themeObject = SingleItem::Theme();
@@ -46,14 +46,14 @@ $urlext = get_secure_param();
 $group_id = (int) $_GET['group_id'];
 if ($group_id == 1) {
     // can't delete superadmins group
-    $themeObject->ParkNotice('error', lang('error_deletespecialgroup'));
+    $themeObject->ParkNotice('error', _la('error_deletespecialgroup'));
     redirect('listgroups.php'.$urlext);
 }
 
 $userops = SingleItem::UserOperations();
 if ($userops->UserInGroup($userid,$group_id)) {
     // can't delete a group to which the current user belongs
-    $themeObject->ParkNotice('error', lang('cantremove')); //TODO
+    $themeObject->ParkNotice('error', _la('cantremove')); //TODO
     redirect('listgroups.php'.$urlext);
 }
 
@@ -71,10 +71,10 @@ if ($groupobj) {
         // put mention into the admin log
         audit($group_id, 'Admin Users Group '.$group_name, 'Deleted');
     } else {
-        $themeObject->ParkNotice('error', lang('failure'));
+        $themeObject->ParkNotice('error', _la('failure'));
     }
 } else {
-    $themeObject->ParkNotice('error', lang('invalid'));
+    $themeObject->ParkNotice('error', _la('invalid'));
 }
 
 redirect('listgroups.php'.$urlext);

@@ -1,33 +1,32 @@
 <div class="postgap">
  {if !empty($results)}
-  <a href="{$selfurl}{$urlext}&download=1&jobtype=1">{admin_icon icon='export.gif'} {lang('download')}</a>
+  <a href="{$selfurl}{$urlext}&download=1&jobtype=1">{admin_icon icon='export.gif'} {_ld('admin','download')}</a>
   {if $pclear}
-    <a id="clearlink" href="{$selfurl}{$urlext}&clear=1">{admin_icon icon='delete.gif'} {lang('clear')}</a>
+    <a id="clearlink" href="{$selfurl}{$urlext}&clear=1">{admin_icon icon='delete.gif'} {_ld('admin','clear')}</a>
   {/if}
-  <a id="filterlink" href="javascript:void()">{admin_icon icon='icons/extra/filter.gif'} {lang('filter')} ...</a>
+  <a id="filterlink" href="javascript:void()">{admin_icon icon='icons/extra/filter.gif'} {_ld('admin','filter')} ...</a>
   {if count($pagelist) > 1}
     <div style="text-align: right; float: right;">
-      {lang('page')}:
+      {_ld('admin','page')}:
       <select id="pagenum">
-        {html_options options=$pagelist selected=$page}
-      </select>
+        {html_options options=$pagelist selected=$page}     </select>
     </div>
   {/if}
  {elseif $filter_applied}
-   <a id="filterlink" href="javascript:void()">{admin_icon icon='icons/extra/filter.gif'} {lang('filter')} ...</a>
+   <a id="filterlink" href="javascript:void()">{admin_icon icon='icons/extra/filter.gif'} {_ld('admin','filter')} ...</a>
  {/if}
 </div>
 {if !empty($results)}
 <table class="pagetable">
   <thead>
     <tr>
-      <th>{lang('severity')}</th>
-      <th>{lang('when')}</th>
-      <th>{lang('subject')}</th>
-      <th>{lang('detail')}</th>
-      <th>{lang('itemid')}</th>
-      <th>{lang('ip_addr')}</th>
-      <th>{lang('username')}</th>
+      <th>{_ld('admin','severity')}</th>
+      <th>{_ld('admin','when')}</th>
+      <th>{_ld('admin','subject')}</th>
+      <th>{_ld('admin','detail')}</th>
+      <th>{_ld('admin','itemid')}</th>
+      <th>{_ld('admin','ip_addr')}</th>
+      <th>{_ld('admin','username')}</th>
     </tr>
   </thead>
   <tbody>
@@ -55,34 +54,33 @@
 </table>
 {/if}{* results *}
 {if !empty($results) || $filter_applied}
-<div id="filter_dlg" title="{lang('filter')}" style="display:none;min-width:35em;">
+<div id="filter_dlg" title="{_ld('admin','filter')}" style="display:none;min-width:35em;">
   {form_start action=$selfurl extraparms=$extras}
   <div class="colbox">
     <div class="rowbox flow">
-      <label class="boxchild" for="f_sev">{lang('f_sev')}:</label>
+      <label class="boxchild" for="f_sev">{_ld('admin','f_sev')}:</label>
       <select class="boxchild" id="f_sev" name="{$actionid}f_sev">
-      {html_options options=$severity_list selected=$filter->severity}
-      </select>
+       {html_options options=$severity_list selected=$filter->severity}      </select>
     </div>
     <div class="rowbox flow">
-    <label class="boxchild" for="f_act">{lang('f_msg')}:</label>
+    <label class="boxchild" for="f_act">{_ld('admin','f_msg')}:</label>
     <input class="boxchild" id="f_act" name="{$actionid}f_msg" value="{$filter->message}" />
   </div>
   <div class="rowbox flow">
-    <label class="boxchild" for="f_item">{lang('f_subj')}:</label>
+    <label class="boxchild" for="f_item">{_ld('admin','f_subj')}:</label>
     <input class="boxchild" id="f_item" name="{$actionid}f_subj" value="{$filter->subject}" />
   </div>
   <div class="rowbox flow">
-    <label class="boxchild" for="f_user">{lang('f_user')}:</label>
+    <label class="boxchild" for="f_user">{_ld('admin','f_user')}:</label>
     <input class="boxchild" id="f_user" name="{$actionid}f_user" value="{$filter->username}" />
   </div>
   </div>
   <div class="pageinput pregap">
-    <button type="submit" name="{$actionid}filter" class="adminsubmit icon do">{lang('filter')}</button>
-    <button type="submit" name="{$actionid}reset" class="adminsubmit icon undo">{lang('reset')}</button>
+    <button type="submit" name="{$actionid}filter" class="adminsubmit icon do">{_ld('admin','filter')}</button>
+    <button type="submit" name="{$actionid}reset" class="adminsubmit icon undo">{_ld('admin','reset')}</button>
   </div>
   </form>
 </div>
 {elseif !$filter_applied}
-<p class="information">{lang('adminlogempty')}</p>
+<p class="information">{_ld('admin','adminlogempty')}</p>
 {/if}

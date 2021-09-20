@@ -28,10 +28,10 @@ use CMSMS\LockOperations;
 use CMSMS\SingleItem;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
-use DesignManager\Design;
 use InvalidArgumentException;
 use LogicException;
 use UnexpectedValueException;
+use const CMS_ASSETS_PATH;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use const CMSSAN_FILE;
@@ -39,12 +39,12 @@ use function cms_join_path;
 use function cms_to_bool;
 use function cms_to_stamp;
 use function CMSMS\sanitizeVal;
+use function endswith;
 
 /**
- * A class of methods for dealing with a Stylesheet object.
- * This class is for stylesheet administration via the admin-console UI,
- * or by DesignManager-module etc.
- * The class is not used for intra-request stylesheet processing.
+ * A class of methods for Stylesheet administration via the admin-console
+ * UI, or by DesignManager-module etc. The class is not used for
+ * stylesheet processing during page-display.
  *
  * @package CMS
  * @license GPL
@@ -55,187 +55,294 @@ class Stylesheet
 {
 	/**
 	 * @ignore
-	 * @deprecated since 2.99 use StylesheetOperations::TABLENAME
+	 * @deprecated since 2.99 use the equivalent StylesheetOperations::TABLENAME
 	 */
 	const TABLENAME = 'layout_stylesheets';
 
-	// static properties here >> SingleItem property|ies ?
 	/**
+	 * @var array stylesheet-file on-save operations, populated on demand
+	 * Each member like [optype,param,...] optype = 'delete' etc
 	 * @ignore
 	 */
-	private static $_operations = null;
+	public $fileoperations = [];
 
 	/**
+	 * @var assoc array of sheet properties, corresponding to a row of
+	 *  StylesheetOperations::TABLENAME. Any that are for internal-use
+	 *  only are ignored in this class.
 	 * @ignore
 	 */
-	private $_dirty = FALSE;
+	private $props = [];
 
-	/**
+	/* *
+	 * @var array id's of authorized editors
 	 * @ignore
 	 */
-	public $_data = [];
-
-	/**
-	 * @var string populated on demand
-	 * @ignore
-	 */
-	private $_filecontent;
+//	private $editors;
 
 	/**
 	 * @var array id's of groups that this stylesheet belongs to
 	 * @ignore
 	 */
-	private $_groups = null; //null triggers check on 1st use
+	private $groups; //unset triggers check on 1st use
 
 	/**
-	 * @var array id's of designs that this stylesheet belongs to
+	 * @var bool whether any member of $props, or $groups, has been
+	 *  changed since last save
 	 * @ignore
 	 */
-//	private $_designs = null; //null triggers check on 1st use
+	private $dirty = FALSE;
 
 	/**
+	 * @var string stylesheet-file content, populated on demand
 	 * @ignore
 	 */
-	private static $_lock_cache = [];
+	private $filecontent;
+
+	// static properties here >> SingleItem properties ?
+	/**
+	 * @var array
+	 * @ignore
+	 */
+	private static $lock_cache = [];
 
 	/**
+	 * @var bool
 	 * @ignore
 	 */
-	private static $_lock_cache_loaded = FALSE;
+	private static $lock_cache_loaded = FALSE;
+
+	/**
+	 * @var StylesheetOperations object populated on demand
+	 * @ignore
+	 */
+	private static $operations = NULL;
 
 	/**
 	 * @ignore
 	 */
 	public function __clone()
 	{
-		if( isset($this->_data['id']) ) unset($this->_data['id']);
-		$this->_dirty = TRUE;
+		unset($this->props['id']);
+		$this->props['type_dflt'] = FALSE;
+		$this->dirty = TRUE;
 	}
 
 	/**
 	 * @ignore
 	 */
-	public function __set($key,$value)
+	public function __set(string $key, $value)
 	{
 		switch( $key ) {
 			case 'id':
-			case 'type_id': // for theming, not yet supported
-				$this->_data[$key] = (int)$value;
-				break;
-			case 'content':
-				$str = trim($value);
-				$this->_data[$key] = ( $str !== '') ? $str : '/* empty stylesheet */';
+				if( !empty($this->props[$key]) ) {
+					throw new LogicException("Stylesheet property '$key' cannot be changed");
+				}
+				if( $value < 1 ) {
+					throw new UnexpectedValueException("Stylesheet property '$key' must be > 0");
+				}
+			// no break here
+			case 'owner_id':
+			case 'type_id': // for theming, not yet used
+				$this->props[$key] = (int)$value;
 				break;
 			case 'name':
-				$str = trim($value);
-				if( !$str || !AdminUtils::is_valid_itemname($str) ) {
-					throw new UnexpectedValueException('Invalid stylesheet name: '.$str);
-				}
-				$this->_data[$key] = $str;
+				$this->set_name($value);
+				break;
+			case 'content':
+				$this->set_content($value);
 				break;
 			case 'description':
 				$str = trim($value);
-				$this->_data[$key] = ( $str !== '') ? $str : null;
+				$this->props[$key] = ( $str !== '' ) ? $str : NULL;
 				break;
 			case 'originator':
+				if( isset($this->props[$key]) ) {
+					throw new LogicException("Stylesheet property '$key' cannot be changed");
+				}
+				$str = trim($value);
+				if( $str === '' || strcasecmp($str, 'core') == 0 ) $str = '__CORE__';
+				$this->props[$key] = $str;
+				break;
 			case 'create_date':
-				if( isset($this->_data[$key]) ) {
+				if( isset($this->props[$key]) ) {
 					throw new LogicException("Stylesheet property '$key' cannot be changed");
 				}
 			// no break here
 			case 'modified_date':
-				$this->_data[$key] = trim($value);
+				$this->props[$key] = trim($value);
 				break;
 			case 'contentfile':
-				$this->_data[$key] = cms_to_bool($value);
+				$this->set_content_file($value);
+				break;
+			case 'listable':
+			case 'type_dflt': // for theming, not yet used
+				$this->props[$key] = cms_to_bool($value);
 				break;
 			case 'media_query':
-				$this->_data[$key] = trim($value);
+				$this->props[$key] = trim($value);
 				break;
 			case 'media_type':
-				$this->_data[$key] = (is_array($value)) ? $value : [$value];
+				$this->props[$key] = (is_array($value)) ? $value : [$value];
 				break;
+			case 'groups':
+				$this->set_groups($value);
+				break;
+//			case 'editors':
+//				$this->set_additional_editors($value);
+//				break;
 			default:
-				throw new UnexpectedValueException("Attempt to set invalid stylesheet property: $key");
+				if( isset($this->props[$key]) ) return;
+				throw new LogicException("Cannot set invalid stylesheet property '$key'");
 		}
+		$this->dirty = TRUE;
 	}
 
 	/**
 	 * @ignore
 	 */
-	public function __get($key)
+	public function __get(string $key)
 	{
 		switch( $key ) {
 			case 'id':
-			case 'type_id': // for theming, not yet supported
-				return $this->_data[$key] ?? null;
+			case 'owner_id':
+			case 'type_id': // for theming, not yet used
+				return $this->props[$key] ?? 0;
 			case 'name':
+			case 'content': // raw, maybe a filename
 			case 'description':
-			case 'content':
-			case 'create_date':
-			case 'modified_date':
 			case 'originator':
 			case 'media_query':
-				return $this->_data[$key] ?? '';
+			case 'create_date':
+			case 'modified_date':
+				return $this->props[$key] ?? '';
 			case 'media_type':
-				return $this->_data[$key] ?? [];
+				return $this->props[$key] ?? [];
 			case 'contentfile':
-				return $this->_data[$key] ?? FALSE;
+			case 'type_dflt': // for theming, not yet used
+				return $this->props[$key] ?? FALSE;
+			case 'listable':
+				return $this->props[$key] ?? TRUE;
+			case 'groups':
+				return $this->groups ?? [];
+//			case 'editors':
+//				return $this->editors ?? [];
 			default:
-				throw new UnexpectedValueException("Attempt to retrieve invalid stylesheet property: $key");
+				throw new LogicException("Cannot retrieve invalid stylesheet property '$key'");
 		}
 	}
 
 	/**
-	 * Get the id of this stylesheet
-	 * Returns null if this stylesheet has not yet been saved to the database.
+	 * Get the recordable properties of this stylesheet
+	 * @since 2.99
+	 * @internal
+	 * @ignore
 	 *
-	 * @return mixed int | null
+	 * @return array
 	 */
-	public function get_id()
+	public function get_properties() : array
 	{
-		return $this->_data['id'] ?? null;
+		$props = $this->props;
+		$props['groups'] = $this->groups ?? [];
+		return $props;
+	}
+
+	/**
+	 * Set the private properties of this stylesheet
+	 * @since 2.99
+	 * @internal
+	 * @ignore
+	 *
+	 * @param array $props
+	 * @throws UnexpectedValueException
+	 */
+	public function set_properties(array $props)
+	{
+		$this->groups = $props['groups'] ?? [];
+		unset($props['groups']);
+		// no support (yet?) for additional editors c.f. Template
+
+		// verbatim, no validate / sanitize
+		$this->props = $props;
+
+		if( !empty($props['contentfile']) ) {
+			if( ($fp = $this->get_content_filename()) ) {
+				$this->filecontent = file_get_contents($fp);
+			}
+			else {
+				$this->filecontent = '/* Missing stylsheet file */';
+			}
+		}
+	}
+
+	/**
+	 * Get the numeric id of this stylesheet
+	 *
+	 * @return int, 0 if this stylesheet has not yet
+	 *  been saved to the database
+	 */
+	public function get_id() : int
+	{
+		return $this->props['id'] ?? 0;
+	}
+
+	/**
+	 * Set the id of this stylesheet, after it is initially-saved.
+	 *
+	 * @param int $id
+	 * @throws LogicException or UnexpectedValueException
+	 */
+	public function set_id(int $id)
+	{
+		if( !empty($this->props['id']) ) {
+			throw new LogicException("Stylesheet 'id' property cannot be changed");
+		}
+		if( $id < 1 ) {
+			throw new UnexpectedValueException("Stylesheet 'id' property must be > 0");
+		}
+		$this->props['id'] = $id;
+		// not dirty - this is set only after 1st save
 	}
 
 	/**
 	 * Get the originator of this stylesheet
-	 * Returns __CORE__ if the originator has not yet been nominated.
 	 * @since 2.99
 	 *
-	 * @return string
+	 * @return string, '' if the originator has not yet been nominated.
 	 */
-	public function get_originator()
+	public function get_originator() : string
 	{
-		return $this->_data['originator'] ?? '__CORE__';
+		return $this->props['originator'] ?? '';
 	}
 
 	/**
 	 * Set the originator of this stylesheet
-	 * Stylesheet originators would normally be __CORE__ or a module name.
-	 * $str is not checked/valided here, other than non-empty.
+	 * The originator would normally be '__CORE__' or a module name or a
+	 * theme name.
+	 * $str is not checked/validated here, other than non-empty.
 	 * Any case-variant of 'core' is converted to '__CORE__'.
 	 * @since 2.99
 	 *
-	 * @param string $str name
-	 * @throws DataException if $name is empty
+	 * @param string $str
+	 * @throws DataException if $str is empty
 	 */
-	public function set_originator($str)
+	public function set_originator(string $str)
 	{
 		$str = trim($str);
 		if( !$str ) throw new DataException('Stylesheet originator cannot be nameless');
 		if( strcasecmp($str, 'core') == 0 ) { $str = '__CORE__'; }
-		$this->_data['originator'] = $str;
-		$this->_dirty = TRUE;
+		$this->props['originator'] = $str;
+		$this->dirty = TRUE;
 	}
 
 	/**
 	 * Get the name of this stylesheet
 	 *
-	 * @return string
+	 * @return string Default ''
 	 */
 	public function get_name()
 	{
-		return $this->_data['name'] ?? '';
+		return $this->props['name'] ?? '';
 	}
 
 	/**
@@ -247,68 +354,105 @@ class Stylesheet
 	 */
 	public function set_name($str)
 	{
-		if( !AdminUtils::is_valid_itemname($str)) {
-			throw new UnexpectedValueException("Invalid characters in name: $str");
-		}
-		$this->_data['name'] = $str;
-		$this->_dirty = TRUE;
-	}
-
-	/**
-	 * Get the content of this stylesheet
-	 *
-	 * @return string
-	 */
-	public function get_content()
-	{
-		if( $this->contentfile ) {
-			if( !isset($this->_filecontent) ) {
-				if( ($fp = $this->get_content_filename()) ) {
-					$this->_filecontent = file_get_contents($fp);
-				}
-				else {
-					$this->_filecontent = 'Missing file';
-				}
-			}
-			return $this->_filecontent;
-		}
-		return $this->_data['content'] ?? '';
-	}
-
-	/**
-	 * Set the content of this stylesheet
-	 *
-	 * @throws LogicException
-	 * @param string $str not empty
-	 */
-	public function set_content($str)
-	{
 		$str = trim($str);
-		if( !$str ) throw new LogicException('stylesheet content cannot be empty');
-		$this->_data['content'] = $str;
-		$this->_dirty = TRUE;
+		if( !$str || !AdminUtils::is_valid_itemname($str) ) { // allows ' /' chars, unacceptable in a filename
+			throw new UnexpectedValueException('Invalid stylesheet name: '.$str);
+		}
+		if( isset($this->props['name']) ) {
+			if( $this->props['name'] == $str ) return;
+		}
+		if( !empty($this->props['contentfile']) ) {
+			$fn = sanitizeVal($str, CMSSAN_FILE); // TODO advise user if $fn != $str
+			$this->props['name'] = $fn;
+			$this->fileoperations[] = ['rename', $this->props['content'], $fn.'.css'];
+			$this->props['content'] = $fn.'.css';
+		}
+		else {
+			$this->props['name'] = $str; // TODO might be unsuitable for future export to file
+		}
+		// TODO duplicate-name check & reject
+		$this->dirty = TRUE;
 	}
 
 	/**
-	 * Get the description of this stylesheet
+	 * Get this stylesheet's description
 	 *
-	 * @return string
+	 * @return string  Default ''
 	 */
-	public function get_description()
+	public function get_description() : string
 	{
-		return $this->_data['description'] ?? '';
+		return $this->props['description'] ?? '';
 	}
 
 	/**
-	 * Set the description of this stylesheet
+	 * Set this stylesheet's description
+	 * No sanitization
 	 *
 	 * @param string $str
 	 */
 	public function set_description($str)
 	{
-		$str = trim($str);
-		$this->_data['description'] = $str;
-		$this->_dirty = TRUE;
+		$this->props['description'] = trim($str);
+		$this->dirty = TRUE;
+	}
+
+	/**
+	 * Get the type-id of this stylesheet, if any
+	 * @since 2.99
+	 *
+	 * @return int, 0 if untyped
+	 */
+	public function get_type() : int
+	{
+		return $this->props['type_id'] ?? 0;
+		//return StylesheetType::load($id);
+	}
+
+	/**
+	 * Set the type of this stylesheet
+	 * @since 2.99
+	 *
+	 * @param mixed $a int | null
+	 */
+	public function set_type($a)
+	{
+		if (is_null($a)) {
+			$this->props['type_id'] = 0;
+		}
+		elseif (is_numeric($a)) {
+			$this->props['type_id'] = (int)$a;
+		}
+/*		elseif (is_string($a) { TODO
+			$this->props['type_id'] = get_idforname($a);
+		}
+		elseif ($a instanceof StylesheetType) {
+			$this->props['type_id'] = $a->id;
+		}
+*/
+		$this->dirty = TRUE;
+	}
+
+	/**
+	 * Get the flag indicating this stylesheet is the default for its type, if any
+	 * @since 2.99
+	 *
+	 * @return bool
+	 */
+	public function get_type_default() : bool
+	{
+		return $this->props['type_dflt'] ?? FALSE;
+	}
+
+	/**
+	 * Set the flag indicating this stylesheet is the default for its type
+	 * @since 2.99
+	 *
+	 * @param mixed $flag bool or interpretable bool-string
+	 */
+	public function set_type_default($flag = TRUE)
+	{
+		$this->props['type_dflt'] = cms_to_bool($flag);
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -321,7 +465,7 @@ class Stylesheet
 	 */
 	public function get_media_types()
 	{
-		return $this->_data['media_type'] ?? [];
+		return $this->props['media_type'] ?? [];
 	}
 
 	/**
@@ -335,8 +479,8 @@ class Stylesheet
 	public function has_media_type($str)
 	{
 		$str = trim($str);
-		if( $str && isset($this->_data['media_type']) ) {
-			if( in_array($str,$this->_data['media_type']) ) return TRUE;
+		if( $str && isset($this->props['media_type']) ) {
+			if( in_array($str, $this->props['media_type']) ) return TRUE;
 		}
 		return FALSE;
 	}
@@ -351,11 +495,11 @@ class Stylesheet
 	 */
 	public function add_media_type($str)
 	{
-		$str = trim((string) $str);
+		$str = trim($str);
 		if( !$str ) return;
-		if( !is_array($this->_data['media_type']) ) $this->_data['media_type'] = [];
-		$this->_data['media_type'][] = $str;
-		$this->_dirty = TRUE;
+		if( !is_array($this->props['media_type']) ) $this->props['media_type'] = [];
+		$this->props['media_type'][] = $str;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -376,8 +520,8 @@ class Stylesheet
 			}
 		}
 
-		$this->_data['media_type'] = $arr;
-		$this->_dirty = TRUE;
+		$this->props['media_type'] = $arr;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -388,7 +532,7 @@ class Stylesheet
 	 */
 	public function get_media_query()
 	{
-		return $this->_data['media_query'] ?? '';
+		return $this->props['media_query'] ?? '';
 	}
 
 	/**
@@ -399,137 +543,10 @@ class Stylesheet
 	 */
 	public function set_media_query($str)
 	{
-		$str = trim($str);
-		$this->_data['media_query'] = $str;
-		$this->_dirty = TRUE;
+		$this->props['media_query'] = trim($str);
+		$this->dirty = TRUE;
 	}
 
-	/**
-	 * Get the timestamp for when this stylesheet was first saved
-	 *
-	 * @return int UNIX UTC timestamp Default 1 (not falsy)
-	 */
-	public function get_created()
-	{
-		$str = $this->_data['create_date'] ?? '';
-		return ($str) ? cms_to_stamp($str) : 1;
-	}
-
-	/**
-	 * Get the timestamp for when this stylesheet was last saved
-	 *
-	 * @return int UNIX UTC timestamp Default 1
-	 */
-	public function get_modified()
-	{
-		$str = $this->_data['modified_date'] ?? '';
-		return ($str) ? cms_to_stamp($str) : $this->get_created();
-	}
-
-	/* *
-	 * Get the list of design id's (if any) that this stylesheet is assigned to
-	 *
-	 * @see DesignManager\Design
-	 * @return array Array of integer design id's
-	 */
-/*	public function get_designs() DISABLED
-	{
-		$sid = $this->get_id();
-		if( !$sid ) return [];
-		if( !is_array($this->_designs) ) {
-			$db = SingleItem::Db();
-			$query = 'SELECT design_id FROM '.CMS_DB_PREFIX.{??DesignManager\Design}::CSSTABLE.' WHERE css_id = ?'; DISABLED
-			$tmp = $db->getCol($query,[$sid]);
-			if( $tmp ) $this->_designs = $tmp;
-			else $this->_designs = [];
-		}
-		return $this->_designs;
-	}
-*/
-	/* *
-	 * Get the numeric id corresponding to $a
-	 * @since 2.99
-	 * @param mixed $a An Instance of a DesignManager\Design object, or an integer design id, or a string design name
-	 * @return int
-	 * @throws UnexpectedValueException
-	 */
-/*	protected function get_designid($a) : int
-	{
-		if( is_numeric($a) && $a > 0 ) {
-			return (int)$a;
-		}
-		elseif( is_string($a) && $a !== '' ) {
-			$ob = DesignManager\Design::load($a);
-			if( $ob ) {
-				return $ob->get_id();
-			}
-		}
-		elseif( $a instanceof DesignManager\Design ) {
-			return $a->get_id();
-		}
-		throw new UnexpectedValueException('Invalid identifier provided to '.__METHOD__);
-	}
-*/
-	/* *
-	 * Set the list of design id's that this stylesheet is assigned to
-	 *
-	 * @see DesignManager\Design
-	 * @throws InvalidArgumentException
-	 * @param array $all Array of integer design id's, maybe empty
-	 */
-/*	public function set_designs($all)
-	{
-		if( !is_array($all) ) return;
-
-		foreach( $all as $id ) {
-			if( !is_numeric($id) ) throw new InvalidArgumentException('Invalid designs data. Expect array of integers');
-		}
-
-		$this->_designs = $all;
-		$this->_dirty = TRUE;
-	}
-*/
-	/**
-	 * Assign this stylesheet to a design
-	 *
-	 * @throws LogicException
-	 * @see Design
-	 * @param mixed $a An Instance of a DesignManager\Design object, or an integer design id, or a string design name
-	 */
-/*	public function add_design($a)
-	{
-		$id = $this->get_designid($a);
-		$this->get_designs(); DISABLED
-		if( !in_array($id, $this->_designs) ) {
-			$this->_designs[] = (int)$id;
-			$this->_dirty = TRUE;
-		}
-	}
-*/
-	/* *
-	 * Remove this stylesheet from a design
-	 *
-	 * @throws LogicException
-	 * @see DesignManager\Design
-	 * @param mixed $a An Instance of a DesignManager\Design object, or an integer design id, or a string design name
-	 */
-/*	public function remove_design($a)
-	{
-		$this->get_designs(); DISABLED
-		if( !$this->_designs ) return;
-
-		$id = $this->get_designid($a);
-		if( in_array($id, $this->_designs) ) {
-			foreach( $this->_designs as $i => $one ) {
-				if( $id == $one ) {
-					unset($this->_designs[$i]);
-					$this->_dirty = TRUE;
-					break;
-				}
-			}
-		}
-	}
-*/
 	/**
 	 * Get the list of group id's (if any) that this stylesheet belongs to
 	 * @since 2.99
@@ -538,67 +555,47 @@ class Stylesheet
 	 */
 	public function get_groups() : array
 	{
-		$sid = $this->get_id();
-		if( !$sid ) return [];
-		if( !is_array($this->_groups) ) {
-			$db = SingleItem::Db();
-			$query = 'SELECT group_id FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE css_id = ?';
-			$tmp = $db->getCol($query,[$sid]);
-			if( $tmp ) $this->_groups = $tmp;
-			else $this->_groups = [];
-		}
-		return $this->_groups;
+		return $this->groups ?? [];
 	}
-/*
-	public function get_groups() : array
-	{
-		return $this->get_groups();
-	}
-*/
 
 	/**
-	 * Set the list of group id's that this stylesheet belongs to
+	 * Set the group id's that this stylesheet belongs to
 	 * @since 2.99
 	 *
-	 * @param array $all Array of integer group id's, maybe empty
+	 * @param mixed $all array | int integer group id(s), maybe empty
 	 * @throws InvalidArgumentException
 	 */
-	public function set_groups(array $all)
+	public function set_groups($all)
 	{
-		if( !is_array($all) ) return;
-
+		if( !is_array($all) ) { $all = [$all]; }
 		foreach( $all as $id ) {
-			if( !is_numeric($id) ) throw new InvalidArgumentException('Invalid groups data. Expect array of integers');
+			if( !is_numeric($id) || (int)$id < 1 ) {
+				throw new InvalidArgumentException('Invalid stylesheet-groups data. Expect array of integers, each > 0');
+			}
 		}
+		$this->groups = $all;
+		$this->dirty = TRUE;
+	}
 
-		$this->_groups = $all;
-		$this->_dirty = TRUE;
-	}
-/*
-	public function set_groups(array $all)
-	{
-		$this->set_groups($all);
-	}
-*/
 	/**
 	 * Add this stylesheet to a group
 	 * @since 2.99
 	 *
 	 * @throws LogicException
-	 * @see Design
 	 * @param mixed $a An integer group id, or a string group name
 	 */
 	public function add_group($a)
 	{
 		$group = StylesheetOperations::get_group($a);
 		if( $group ) {
-			$id = $this->get_id();
+			$id = $this->props['id'] ?? 0;
+			if( $id < 1 ) return; // TODO warning to caller
 			$group->add_members($id); //TODO support member-order other than last
 			$group->save();
 			$this->get_groups();
-			if( !in_array($id, $this->_groups) ) {
-				$this->_groups[] = (int)$id;
-				$this->_dirty = TRUE;
+			if( !in_array($id, $this->groups) ) {
+				$this->groups[] = (int)$id;
+				$this->dirty = TRUE;
 			}
 		}
 	}
@@ -608,24 +605,160 @@ class Stylesheet
 	 * @since 2.99
 	 *
 	 * @throws LogicException
-	 * @see Design
 	 * @param mixed $a An integer group id, or a string group name
 	 */
 	public function remove_group($a)
 	{
 		$group = StylesheetOperations::get_group($a);
 		if( $group ) {
-			$id = $this->get_id();
+			$id = $this->props['id'] ?? 0;
+			if( $id < 1 ) return; // TODO warning to caller
 			$group->remove_members($id);
 			$group->save();
 			$this->get_groups();
-			if( $this->_groups ) {
-				if( ($p = array_search($id, $this->_groups)) !== FALSE ) {
-					 unset($this->_groups[$p]);
+			if( $this->groups ) {
+				if( ($p = array_search($id, $this->groups)) !== FALSE ) {
+					 unset($this->groups[$p]);
+				} // TODO else warn user about failure
+			}
+			$this->dirty = TRUE;
+		}
+	}
+
+	/**
+	 * Set the owner of this stylesheet
+	 * @since 2.99
+	 *
+	 * @param mixed $a int | numeric string | null
+	 */
+	public function set_owner($a)
+	{
+		if (is_null($a)) {
+			$this->props['owner_id'] = NULL;
+		}
+		elseif (is_numeric($a)) {
+			$this->props['owner_id'] = (int)$a;
+		}
+/*		elseif (is_string($a) {
+			$this->props['owner_id'] = get_idforname($a); TODO
+		}
+*/
+		$this->dirty = TRUE;
+	}
+
+	/**
+	 * Get the owner of this stylesheet
+	 * @since 2.99
+	 *
+	 * @return int, 0 if no owner has been specified
+	 */
+	public function get_owner()
+	{
+		return $this->props['owner_id'] ?? 0;
+	}
+
+	/**
+	 * Get a timestamp representing when this stylesheet was first saved
+	 *
+	 * @return int UNIX UTC timestamp Default 1 (not falsy)
+	 */
+	public function get_created()
+	{
+		$str = $this->props['create_date'] ?? '';
+		return ($str) ? cms_to_stamp($str) : 1;
+	}
+
+	/**
+	 * Get a timestamp representing when this stylesheet was last saved
+	 *
+	 * @return int UNIX UTC timestamp Default 1
+	 */
+	public function get_modified()
+	{
+		$str = $this->props['modified_date'] ?? '';
+		return ($str) ? cms_to_stamp($str) : 1;
+	}
+
+	/* *
+	 * Test whether the specified user is authorized to edit this template object
+	 *
+	 * @param mixed $a string username | int user id
+	 * @return bool
+	 */
+/*	public function can_edit($a)
+	{
+		$res = self::_resolve_user($a);
+		if( isset($this->props['owner_id']) && $res == $this->props['owner_id'] ) return true;
+		return !empty($this->editors) && in_array($res,$this->editors);
+	}
+*/
+	/* *
+	 * Set the admin-user account(s) (other than the owner) that are
+	 *  authorized to edit this stylesheet object
+	 *
+	 * @throws UnexpectedValueException
+	 * @param mixed $a string[] (usernames) | int[] (user ids, and negative group ids) | single user identifier
+	 */
+/*	public function set_additional_editors($a)
+	{
+		if( !is_array($a) ) {
+			if( is_string($a) || (is_numeric($a) && $a > 0) ) {
+				// maybe a single value...
+				$res = self::_resolve_user($a);
+				$this->editors = [$res];
+				$this->dirty = true;
+			}
+		}
+		else {
+			$tmp = [];
+			for( $i = 0, $n = count($a); $i < $n; $i++ ) {
+				if( !is_numeric($a[$i]) ) continue;
+				$tmp2 = (int)$a[$i];  // intentional cast to int, may have negative values.
+				if( $tmp2 != 0 ) {
+					$tmp[] = $tmp2;
+				}
+				elseif( is_string($a[$i]) ) {
+					$tmp[] = self::_resolve_user($a[$i]);
 				}
 			}
-			$this->_dirty = TRUE;
+			$this->editors = $tmp;
+			$this->dirty = true;
 		}
+	}
+*/
+	/* *
+	 * Get the userid's (other than the owner) that are authorized to
+	 *  edit this stylesheet
+	 *
+	 * @return array of integer user id's, maybe empty
+	 */
+/*	public function get_additional_editors()
+	{
+		return $this->editors ?? [];
+	}
+*/
+	/**
+	 * Get the flag indicating this sheet may be listed
+	 * @since 2.99
+	 *
+	 * @return bool
+	 */
+	public function get_listable() : bool
+	{
+		return $this->props['listable'] ?? FALSE;
+	}
+
+	/**
+	 * Set the flag indicating this sheet may be listed
+	 * @since 2.99
+	 *
+	 * @param mixed $flag bool or interpretable bool-string
+	 */
+	public function set_listable($flag = TRUE)
+	{
+		$state = cms_to_bool($flag);
+		$this->props['listable'] = $state;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -633,48 +766,50 @@ class Stylesheet
 	 */
 	private static function get_locks() : array
 	{
-		if( !self::$_lock_cache_loaded ) {
-			self::$_lock_cache = [];
+		if( !self::$lock_cache_loaded ) {
+			self::$lock_cache = [];
 			$tmp = LockOperations::get_locks('stylesheet');
 			if( $tmp ) {
 				foreach( $tmp as $one ) {
-					self::$_lock_cache[$one['oid']] = $one;
+					self::$lock_cache[$one['oid']] = $one;
 				}
 			}
-			self::$_lock_cache_loaded = TRUE;
+			self::$lock_cache_loaded = TRUE;
 		}
-		return self::$_lock_cache;
+		return self::$lock_cache;
 	}
 
 	/**
-	 * Get a lock (if any exist) for this object
+	 * Get a lock (if any exists) for this stylesheet
+	 * @see Lock
 	 *
 	 * @return mixed Lock | null
 	 */
 	public function get_lock()
 	{
+		if( empty($this->props['id']) ) return NULL;
 		$locks = self::get_locks();
-		return $locks[$this->get_id()] ?? null;
+		return $locks[$this->props['id']] ?? NULL;
 	}
 
 	/**
-	 * Test whether this stylesheet object is locked
+	 * Test whether this stylesheet is locked
 	 *
 	 * @return bool
 	 */
-	public function locked()
+	public function locked() : bool
 	{
 		$lock = $this->get_lock();
 		return is_object($lock);
 	}
 
 	/**
-	 * Test whether this stylesheet object is locked by an expired lock.
+	 * Test whether this stylesheet is locked by an expired lock.
 	 * If the object is not locked FALSE is returned
 	 *
 	 * @return bool
 	 */
-	public function lock_expired()
+	public function lock_expired() : bool
 	{
 		$lock = $this->get_lock();
 		if( !is_object($lock) ) return FALSE;
@@ -682,61 +817,131 @@ class Stylesheet
 	}
 
 	/**
-	 * Get the filepath of the file which (if relevant) contains this stylesheet's content
+	 * Get the content of this stylesheet
 	 *
-	 * @since 2.2
 	 * @return string
 	 */
-	public function get_content_filename()
+	public function get_content() : string
 	{
-		if( $this->get_content_file() ) {
-			$config = SingleItem::Config();
-			return cms_join_path($config['assets_path'],'styles',$this->get_content());
+		if( !empty($this->props['contentfile']) ) {
+			if( !isset($this->filecontent) ) {
+				if( ($fp = $this->get_content_filename()) ) {
+					$this->filecontent = file_get_contents($fp);
+				}
+				else {
+					$this->filecontent = '/* Missing stylesheet file */';
+				}
+			}
+			return $this->filecontent;
+		}
+		return $this->props['content'] ?? '';
+	}
+
+	/**
+	 * Set the content of this stylesheet
+	 * No sanitization
+	 *
+	 * @param string $str not empty
+	 * @throws LogicException
+	 */
+	public function set_content($str)
+	{
+		$str = trim($str);
+		if( !$str ) throw new LogicException('Stylesheet cannot be empty');
+//		if( !$str ) $str = '/* empty stylesheet */';
+		if( !empty($this->props['contentfile']) ) {
+			$this->filecontent = $str;
+			// park new content for transfer to file when this object is saved
+			$fn = basename($this->get_content_filename());
+			$this->fileoperations[] = ['store', $fn, $str];
+		}
+		else {
+			$this->props['content'] = $str;
+		}
+		$this->dirty = TRUE;
+	}
+
+	/**
+	 * Get the filepath of the file which is supposed to contain this
+	 *  stylesheet's content
+	 * @since 2.2
+	 *
+	 * @return string
+	 */
+	public function get_content_filename() : string
+	{
+		$fn = $this->props['content'] ?? '';
+		if( $fn && strpos($fn, ' ') === FALSE && endswith($fn, '.css') ) {
+			return cms_join_path(CMS_ASSETS_PATH, 'styles', $fn);
 		}
 		return '';
 	}
 
 	/**
-	 * Get whether this stylesheet's content resides in a file (as distinct from the database)
-	 *
+	 * Get whether this stylesheet's content resides in a file
+	 *  (as distinct from the database)
 	 * @since 2.99
+	 *
 	 * @return bool
 	 */
-	public function get_content_file()
+	public function get_content_file() : bool
 	{
-		return $this->_data['contentfile'] ?? FALSE;
+		return $this->props['contentfile'] ?? FALSE;
 	}
 
 	/**
 	 * Get whether this stylesheet's content resides in a file
-	 *
 	 * @since 2.2
 	 * @deprecated since 2.99 this is an alias for get_content_file()
+	 *
 	 * @return bool
 	 */
 	public function has_content_file()
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method','get_content_file'));
-		return $this->get_content_file();
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'Stylesheet::get_content_file'));
+		return $this->props['contentfile'] ?? FALSE;
 	}
 
 	/**
-	 * Set the value of the flag indicating the content of this stylesheet resides in a filesystem file
-	 *
+	 * Set the value of the flag indicating the content of this stylesheet
+	 *  resides in a filesystem file
 	 * @since 2.99
-	 * @param mixed $flag recognized by cms_to_bool(). Default TRUE.
+	 *
+	 * @param mixed $flag recognized by cms_to_bool(). Default true.
 	 */
 	public function set_content_file($flag = TRUE)
 	{
 		$state = cms_to_bool($flag);
-		if( $state ) {
-			$this->_data['content'] = sanitizeVal($this->get_name(), CMSSAN_FILE).'.'.$this->get_id().'.css';
+		$current = !empty($this->props['contentfile']);
+		if( $state === $current ) {
+			if( !$current ) {
+				$this->props['contentfile'] = FALSE; // ensure it's present
+			}
+			return;
 		}
-		elseif( $this->get_content_file() ) {
-			$this->_data['content'] = '{* empty Smarty stylesheet *}';
+		if( !empty($this->props['content']) ) {
+			$fn = $this->get_content_filename();
+			if( $state ) {
+				if( $fn ) return; // already set up
+				$fn = sanitizeVal($this->props['name'], CMSSAN_FILE);
+				// park current content for save-in-file when this object is saved
+				$this->fileoperations[] = ['store', $fn.'.css', ($this->props['content'] ?? '')];
+				$this->props['content'] = $fn.'.css';
+			}
+			elseif( $fn ) {
+				// park current filename for deletion when this object is saved
+				$this->fileoperations[] = ['delete', basename($fn)];
+				$this->props['content'] = file_get_contents($fn);
+			}
+			else {
+				$this->props['content'] = '';
+			}
 		}
-		$this->_data['contentfile'] = $state;
+		$this->props['contentfile'] = $state;
+		$this->dirty = TRUE;
 	}
+
+//======= DEPRECATED METHODS EXPORTED TO StylesheetOperations CLASS =======
 
 	/**
 	 * @ignore
@@ -745,8 +950,8 @@ class Stylesheet
 	 */
 	protected function get_operations()
 	{
-		if( !self::$_operations ) self::$_operations = new StylesheetOperations;
-		return self::$_operations;
+		if( !self::$operations ) self::$operations = new StylesheetOperations;
+		return self::$operations;
 	}
 
 	/**
@@ -759,7 +964,8 @@ class Stylesheet
 	 */
 	protected function validate()
 	{
-		$this->get_operations()::validate_stylesheet(); //TODO bug not public
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'StylesheetOperations::validate_stylesheet()'));
+		$this->get_operations()::validate_stylesheet();
 	}
 
 	/**
@@ -777,9 +983,10 @@ class Stylesheet
 	 */
 	public function save()
 	{
-		if( $this->_dirty ) {
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'StylesheetOperations::save_stylesheet()'));
+		if( $this->dirty ) {
 			$this->get_operations()::save_stylesheet($this);
-			$this->_dirty = FALSE;
+			$this->dirty = FALSE;
 		}
 	}
 
@@ -793,8 +1000,9 @@ class Stylesheet
 	 */
 	public function delete()
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'StylesheetOperations::delete_stylesheet()'));
 		$this->get_operations()::delete_stylesheet($this);
-		$this->_dirty = TRUE;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -807,6 +1015,7 @@ class Stylesheet
 	 */
 	public static function load($a)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'StylesheetOperations::get_stylesheet()'));
 		return $this->get_operations()::get_stylesheet($a);
 	}
 
@@ -818,12 +1027,13 @@ class Stylesheet
 	 *
 	 * @param array $ids Array of integer stylesheet id's or an array of string stylesheet names.
 	 * @param bool $deep whether or not to load associated data
-	 * @return array Array of Stylesheet objects
+	 * @return array Stylesheet object(s) | empty
 	 * @throws UnexpectedValueException
 	 */
-	public static function load_bulk($ids,$deep = TRUE)
+	public static function load_bulk($ids, $deep = TRUE)
 	{
-		return $this->get_operations()::get_bulk_stylesheets($ids,$deep);
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'StylesheetOperations::get_bulk_stylesheets()'));
+		return $this->get_operations()::get_bulk_stylesheets($ids, $deep);
 	}
 
 	/**
@@ -831,11 +1041,12 @@ class Stylesheet
 	 * @deprecated since 2.99 use the corresponding StylesheetOperations method
 	 *
 	 * @param bool $by_name Optional flag indicating the output format. Default FALSE.
-	 * @return mixed If $by_name is TRUE then the output will be an array of rows
-	 *  each with stylesheet id and name. Otherwise, id and Stylesheet object
+	 * @return array If $by_name is TRUE then each value will have
+	 *  stylesheet id and name. Otherwise, id and a Stylesheet object
 	 */
 	public static function get_all($by_name = FALSE)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'StylesheetOperations::get_all_stylesheets()'));
 		return $this->get_operations()::get_all_stylesheets($by_name);
 	}
 
@@ -848,6 +1059,7 @@ class Stylesheet
 	 */
 	public static function is_loaded($id)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method returns false always', ''));
 		return FALSE;
 	}
 
@@ -860,8 +1072,9 @@ class Stylesheet
 	 * @return string
 	 * @throws UnexpectedValueException or LogicException
 	 */
-	public static function generate_unique_name($prototype,$prefix = null)
+	public static function generate_unique_name($prototype, $prefix = NULL)
 	{
-		return $this->get_operations()::get_unique_name($prototype,$prefix);
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'StylesheetOperations::get_unique_name()'));
+		return $this->get_operations()::get_unique_name($prototype, $prefix);
 	}
 } // class

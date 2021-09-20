@@ -20,10 +20,11 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use ContentManager\Utils;
 use CMSMS\DataException;
 use CMSMS\Error403Exception;
 use CMSMS\SingleItem;
+use ContentManager\Utils;
+use function CMSMS\sanitizeVal;
 
 $dsep = DIRECTORY_SEPARATOR;
 require ".{$dsep}admininit.php";
@@ -49,7 +50,7 @@ $allow_all = isset($_REQUEST['allow_all']) && cms_to_bool($_REQUEST['allow_all']
 
 try {
     if( $userid < 1 ) {
-        throw new Error403Exception(lang('permissiondenied'));
+        throw new Error403Exception(_la('permissiondenied'));
     }
 
     $can_edit_any = check_permission($userid,'Manage All Content') || check_permission($userid,'Modify Any Page');
@@ -99,7 +100,7 @@ try {
         // given a page id, get all of the info for all ancestors, and their peers,
         // and the info for children.
         if( !isset($_REQUEST['page']) ) {
-            throw new DataException(lang('missingparams').' (page)');
+            throw new DataException(_la('missingparams').' (page)');
         }
         $current = ( isset($_REQUEST['current']) ) ? (int)$_REQUEST['current'] : 0;
 //UNUSED $for_child = isset($_REQUEST['for_child']) && cms_to_bool($_REQUEST['for_child']);
@@ -143,7 +144,7 @@ try {
 
       case 'childrenof':
         if( !isset($_REQUEST['page']) ) {
-            throw new DataException(lang('missingparams').' (page)');
+            throw new DataException(_la('missingparams').' (page)');
         }
         else {
             $page = (int)$_REQUEST['page'];
@@ -176,7 +177,7 @@ try {
 
       case 'pagepeers':
         if( !isset($_REQUEST['pages']) || !is_array($_REQUEST['pages']) ) {
-            throw new DataException(lang('missingparams'));
+            throw new DataException(_la('missingparams'));
         }
         else {
             // clean up the data a bit
@@ -216,7 +217,7 @@ try {
 
       case 'pageinfo':
         if( !isset($_REQUEST['page']) ) {
-            throw new DataException(lang('missingparams').' (page)');
+            throw new DataException(_la('missingparams').' (page)');
         }
         else {
             $page = (int)$_REQUEST['page'];
@@ -237,7 +238,7 @@ try {
         break;
 
       default:
-        throw new DataException(lang('missingparams')." (operation: $op)");
+        throw new DataException(_la('missingparams')." (operation: $op)");
     }
     $ret = ['status'=>'success','op'=>$op,'data'=>$out];
 }

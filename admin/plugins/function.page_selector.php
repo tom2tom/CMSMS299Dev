@@ -40,8 +40,8 @@ function smarty_function_page_selector($params, $template)
 /*
 function smarty_cms_about_function_page_selector()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+<li>detail</li> ... OR _la('none')
 EOS
 	);
 }
@@ -49,7 +49,7 @@ EOS
 /*
 D function smarty_cms_help_function_page_selector()
 {
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin generates html & js for a website-page-selector',
 	'page_selector params',
 	<<<'EOS'

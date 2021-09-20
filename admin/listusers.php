@@ -35,8 +35,8 @@ check_login();
 
 $userid = get_userid();
 if (!check_permission($userid, 'Manage Users')) {
-//TODO some pushed popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+//TODO some pushed popup    $themeObject->RecordNotice('error', _la('needpermissionto', '"Modify Site Preferences"'));
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 //--------- Variables ---------
@@ -60,20 +60,20 @@ if (isset($_GET['switchuser'])) {
         $to_uid = (int)$_GET['switchuser'];
         $to_user = $userops->LoadUserByID($to_uid);
         if (!$to_user) {
-            $themeObject->RecordNotice('error', lang('usernotfound'));
+            $themeObject->RecordNotice('error', _la('usernotfound'));
         } elseif (!$to_user->active) {
-            $themeObject->RecordNotice('error', lang('userdisabled'));
+            $themeObject->RecordNotice('error', _la('userdisabled'));
         } else {
             SingleItem::LoginOperations()->set_effective_user($to_user);
             redirect('menu.php'.$urlext.'&section=usersgroups'); // TODO bad section hardcode
         }
     } else {
-        $themeObject->RecordNotice('error', lang('permissiondenied'));
+        $themeObject->RecordNotice('error', _la('permissiondenied'));
     }
 } elseif (isset($_GET['toggleactive'])) {
 	$to_uid = (int)$_GET['toggleactive'];
     if ($to_uid == 1) {
-        $themeObject->RecordNotice('error', lang('errorupdatinguser'));
+        $themeObject->RecordNotice('error', _la('errorupdatinguser'));
     } else {
         $thisuser = $userops->LoadUserByID($to_uid);
         if ($thisuser) {
@@ -88,7 +88,7 @@ if (isset($_GET['switchuser'])) {
                 audit($userid, 'Admin User ' . $thisuser->username, 'Edited');
                 Events::SendEvent('Core', 'EditUserPost', ['user' => &$thisuser]);
             } else {
-                $themeObject->RecordNotice('error', lang('errorupdatinguser'));
+                $themeObject->RecordNotice('error', _la('errorupdatinguser'));
             }
         }
     }
@@ -126,7 +126,7 @@ if (isset($_GET['switchuser'])) {
                 $ndeleted++;
             }
             if ($ndeleted > 0) {
-                $message = lang('msg_userdeleted', $ndeleted);
+                $message = _la('msg_userdeleted', $ndeleted);
             }
             break;
 
@@ -150,7 +150,7 @@ if (isset($_GET['switchuser'])) {
                 $nusers++;
             }
             if ($nusers > 0) {
-                $message = lang('msg_usersedited', $nusers);
+                $message = _la('msg_usersedited', $nusers);
             }
             break;
 
@@ -188,7 +188,7 @@ if (isset($_GET['switchuser'])) {
                 }
             }
             if ($nusers > 0) {
-                $message = lang('msg_usersedited', $nusers);
+                $message = _la('msg_usersedited', $nusers);
             }
             break;
 
@@ -219,7 +219,7 @@ if (isset($_GET['switchuser'])) {
                 }
             }
             if ($nusers > 0) {
-                $message = lang('msg_usersedited', $nusers);
+                $message = _la('msg_usersedited', $nusers);
             }
             break;
 
@@ -250,7 +250,7 @@ if (isset($_GET['switchuser'])) {
                 }
             }
             if ($nusers > 0) {
-                $message = lang('msg_usersedited', $nusers);
+                $message = _la('msg_usersedited', $nusers);
             }
             break;
     }
@@ -259,10 +259,10 @@ if (isset($_GET['switchuser'])) {
 //------- Script for page footer -------
 
 //$nonce = get_csp_token();
-$confirm1 = json_encode(lang('confirm_switchuser'));
-$confirm2 = json_encode(lang('confirm_toggleuseractive'));
-$confirm3 = json_encode(lang('confirm_delete_user'));
-$confirm4 = json_encode(lang('confirm_bulkuserop'));
+$confirm1 = json_encode(_la('confirm_switchuser'));
+$confirm2 = json_encode(_la('confirm_toggleuseractive'));
+$confirm3 = json_encode(_la('confirm_delete_user'));
+$confirm4 = json_encode(_la('confirm_bulkuserop'));
 $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
@@ -351,12 +351,12 @@ foreach ($users as &$one) {
 }
 unset($one);
 
-$iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', lang('adduser'), '', '', 'systemicon');
-$iconedit = $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'), '', '', 'systemicon');
-$icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'), '', '', 'systemicon');
-$icontrue = $themeObject->DisplayImage('icons/system/true.gif', lang('yes'), '', '', 'systemicon');
-$iconfalse = $themeObject->DisplayImage('icons/system/false.gif', lang('no'), '', '', 'systemicon');
-$iconrun = $themeObject->DisplayImage('icons/system/run.gif', lang('switchuser'), '', '', 'systemicon');
+$iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', _la('adduser'), '', '', 'systemicon');
+$iconedit = $themeObject->DisplayImage('icons/system/edit.gif', _la('edit'), '', '', 'systemicon');
+$icondel = $themeObject->DisplayImage('icons/system/delete.gif', _la('delete'), '', '', 'systemicon');
+$icontrue = $themeObject->DisplayImage('icons/system/true.gif', _la('yes'), '', '', 'systemicon');
+$iconfalse = $themeObject->DisplayImage('icons/system/false.gif', _la('no'), '', '', 'systemicon');
+$iconrun = $themeObject->DisplayImage('icons/system/run.gif', _la('switchuser'), '', '', 'systemicon');
 
 $smarty = SingleItem::Smarty();
 $smarty->assign([

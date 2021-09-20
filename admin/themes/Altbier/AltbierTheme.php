@@ -291,7 +291,7 @@ EOS;
 				if (isset($data['warnmessage'])) $data['warning'] = $data['warnmessage'];
 				if (isset($data['errmessage'])) $data['error'] = $data['errmessage'];
 			} else {
-				die('System error');
+				exit('System error');
 			}
 
 			$smarty->assign($data);
@@ -382,7 +382,7 @@ EOS;
 				$smarty->assign('pagetitle', $this->title);
 			} else {
 				$nodes = $this->get_navigation_tree($section_name, -1, FALSE);
-				$smarty->assign('pagetitle', lang($section_name)); //CHECKME
+				$smarty->assign('pagetitle', _la($section_name)); //CHECKME
 			}
 		} elseif ($flag) {
 			$nodes = $this->get_navigation_tree(null, 3, 'root:view:dashboard');
@@ -457,7 +457,7 @@ EOS;
 				if (!$extra) {
 					$extra = [];
 				}
-				$title = lang($title, $extra);
+				$title = _la($title, $extra);
 			}
 //			$subtitle = TODO
 		} else {

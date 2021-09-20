@@ -25,14 +25,18 @@ use CMSMS\SingleItem;
 use InvalidArgumentException;
 
 /**
- * The SimpleAlert class is a type of alert that allows the developer to create alerts with pre-defined titles, messages, icons, and permissions.
+ * The SimpleAlert class allows creation of alerts with predefined title,
+ * message, icon, and permissions.
  *
  * @since 2.2
  * @package CMS
  * @license GPL
- * @prop string[] $perms An array of permission names.  The logged in user must have at least one of these permissions to see the alert.
+ * @prop string[] $perms An array of permission names.  The logged in user
+ *  must have at least one of these permissions to see the alert.
  * @prop string $icon The complete URL to an icon to associate with this alert
- * @prop string $msg The message to display.  Note: Since alerts are stored in the database, and can be created asynchronously you cannot rely on language strings for the message or title when using this class.
+ * @prop string $msg The message to display.  Note: Since alerts are stored
+ *  in the database, and can be created asynchronously you cannot rely on
+ *  language strings for the message or title when using this class.
  */
 class SimpleAlert extends Alert
 {
@@ -78,7 +82,7 @@ class SimpleAlert extends Alert
      * @return mixed
      * @throws InvalidArgumentException
      */
-    public function __get($key)
+    public function __get(string $key)
     {
         switch( $key ) {
         case 'perms':
@@ -102,7 +106,7 @@ class SimpleAlert extends Alert
      * @param string $key
      * @param mixed $val
      */
-    public function __set($key,$val)
+    public function __set(string $key,$val)
     {
         switch( $key ) {
         case 'icon':

@@ -111,11 +111,11 @@ $flds = '
 content_id I UNSIGNED KEY XKEY,
 content_name C(255) CHARACTER SET utf8mb4,
 type C(25) NOTNULL,
-default_content I1 DEFAULT 0 INDEX,
-show_in_menu I1 DEFAULT 1,
-active I1 DEFAULT 1,
-cachable I1 DEFAULT 1,
-secure I1 DEFAULT 0,
+default_content I1 UNSIGNED DEFAULT 0 INDEX,
+show_in_menu I1 UNSIGNED DEFAULT 1,
+active I1 UNSIGNED DEFAULT 1,
+cachable I1 UNSIGNED DEFAULT 1,
+secure I1 UNSIGNED DEFAULT 0,
 owner_id I UNSIGNED DEFAULT 1,
 parent_id I INDEX,
 template_id I UNSIGNED,
@@ -212,7 +212,7 @@ event_id I UNSIGNED,
 class C(96),
 method C(64),
 type C(1) NOTNULL DEFAULT "C",
-removable I1 DEFAULT 1,
+removable I1 UNSIGNED DEFAULT 1,
 handler_order I1 UNSIGNED DEFAULT 0
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'event_handlers', $flds, $casedtaboptarray);
@@ -225,7 +225,7 @@ $flds = '
 group_id I UNSIGNED AUTO KEY,
 group_name C(50) CHARACTER SET utf8mb4 NOTNULL UKEY,
 group_desc C(255) CHARACTER SET utf8mb4,
-active I1 DEFAULT 1,
+active I1 UNSIGNED DEFAULT 1,
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
@@ -294,9 +294,9 @@ description C(1500) CHARACTER SET utf8mb4,
 lang_cb C(255),
 dflt_content_cb C(255),
 help_content_cb C(255),
-owner I UNSIGNED DEFAULT 1,
-has_dflt I1 DEFAULT 0,
-dflt_contents X(65535),
+owner_id I UNSIGNED DEFAULT 1,
+has_dflt I1 UNSIGNED DEFAULT 0,
+dflt_content X(65535),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
@@ -315,9 +315,9 @@ media_type C(255),
 media_query C(255),
 owner_id I UNSIGNED DEFAULT 1,
 type_id I UNSIGNED XKEY,
-type_dflt I1 DEFAULT 0 XKEY,
-listable I1 DEFAULT 1,
-contentfile I1 DEFAULT 0,
+type_dflt I1 UNSIGNED DEFAULT 0 XKEY,
+listable I1 UNSIGNED DEFAULT 1,
+contentfile I1 UNSIGNED DEFAULT 0,
 content X(65535),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
@@ -332,14 +332,14 @@ $flds = '
 id I UNSIGNED AUTO KEY,
 originator C(50) UKEY,
 name C(60) CHARACTER SET utf8mb4 NOTNULL UKEY INDEX,
-content X(65535) CHARACTER SET utf8mb4,
 description C(1500) CHARACTER SET utf8mb4,
-hierarchy C(100),
+hierarchy C(100) COLLATE ascii_bin,
 owner_id I UNSIGNED DEFAULT 1,
 type_id I UNSIGNED XKEY,
-type_dflt I1 DEFAULT 0 XKEY,
-listable I1 DEFAULT 1,
-contentfile I1 DEFAULT 0,
+type_dflt I1 UNSIGNED DEFAULT 0 XKEY,
+listable I1 UNSIGNED DEFAULT 1,
+contentfile I1 UNSIGNED DEFAULT 0,
+content X(65535) CHARACTER SET utf8mb4,
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
@@ -390,19 +390,20 @@ verbose_msg(lang('install_created_table', 'layout_tplgroup_members', $msg_ret));
 $tbl = CMS_DB_PREFIX.'layout_tpl_types'; // aka TemplateType::TABLENAME
 // these are used mainly by DesignManager module (but some other modules too, must be present before modules installation)
 //originator sufficient for module-name, name ibid + 10
+//owner_id may be 0, for module-templates
 $flds = '
 id I UNSIGNED AUTO KEY,
 originator C(50) UKEY,
 name C(60) CHARACTER SET utf8mb4 NOTNULL UKEY,
-dflt_contents X(65535) CHARACTER SET utf8mb4,
 description C(1500) CHARACTER SET utf8mb4,
 lang_cb C(255),
 dflt_content_cb C(255),
 help_content_cb C(255),
-has_dflt I1 DEFAULT 0,
-requires_contentblocks I1 DEFAULT 0,
-one_only I1 DEFAULT 0,
-owner I UNSIGNED DEFAULT 1,
+has_dflt I1 UNSIGNED DEFAULT 0,
+requires_contentblocks I1 UNSIGNED DEFAULT 0,
+one_only I1 UNSIGNED DEFAULT 0,
+owner_id I UNSIGNED DEFAULT 1,
+dflt_content X(65535) CHARACTER SET utf8mb4,
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
@@ -432,8 +433,8 @@ $tbl = CMS_DB_PREFIX.'modules';
 $flds = '
 module_name C(50) NOTNULL KEY,
 version C(16),
-admin_only I1 DEFAULT 0,
-active I1 DEFAULT 1
+admin_only I1 UNSIGNED DEFAULT 0,
+active I1 UNSIGNED DEFAULT 1
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $casedtaboptarray); // modules
 $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -461,8 +462,8 @@ name C(50) NOTNULL UKEY,
 module C(50) NOTNULL UKEY,
 type C(25) NOTNULL DEFAULT "function",
 callable C(255) NOTNULL,
-available I1 DEFAULT 1,
-cachable I1 DEFAULT 1
+available I1 UNSIGNED DEFAULT 1,
+cachable I1 UNSIGNED DEFAULT 1
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $casedtaboptarray); //module_smarty_plugins
 $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -525,7 +526,7 @@ password C(128),
 first_name C(64) CHARACTER SET utf8mb4,
 last_name C(64) CHARACTER SET utf8mb4,
 email C(255) CHARACTER SET utf8mb4,
-active I1 DEFAULT 1,
+active I1 UNSIGNED DEFAULT 1,
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 tailor B(16384)
@@ -536,14 +537,15 @@ $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'users', $msg_ret));
 
 $tbl = CMS_DB_PREFIX.'userplugins';
-// code field mostly/entirely ASCII, but might include UTF8 text for UI
+// name must support case-insenstive matching, TODO might include UTF8 ?
+// code field mostly/entirely ASCII TODO but might include UTF8 text for UI ?
 $flds = '
 id I UNSIGNED AUTO KEY,
 name C(50) NOTNULL UKEY,
-code C(15000),
 description C(1500) CHARACTER SET utf8mb4,
 parameters C(1000) CHARACTER SET utf8mb4,
-contentfile I1 DEFAULT 0,
+contentfile I1 UNSIGNED DEFAULT 0,
+code C(15000),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';

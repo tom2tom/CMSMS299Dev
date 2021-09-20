@@ -31,6 +31,8 @@ use CMSMS\internal\content_plugins;
 use CMSMS\NlsOperations;
 use CMSMS\PageLoader;
 use CMSMS\StopProcessingContentException;
+use function CMSMS\get_debug_messages;
+use function CMSMS\template_processing_allowed;
 
 /**
  * Entry point for all non-admin pages
@@ -151,7 +153,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 		Events::SendEvent('Core', 'ContentPreRender', ['content' => &$contentobj]);
 
 		$html = null;
-		$showtemplate = $_app->template_processing_allowed();
+		$showtemplate = template_processing_allowed();
 		if ($showtemplate) {
 			$tpl_rsrc = $contentobj->TemplateResource();
 			if ($tpl_rsrc) {
@@ -322,11 +324,13 @@ if ($debug || isset($config['log_performance_info']) || (isset($config['show_per
 	}
 }
 
-if ($debug || is_sitedown()) $smarty->clear_compiled_tpl();
+if ($debug || is_sitedown()) {
+	$smarty->clear_compiled_tpl();
+}
 if ($debug && !is_sitedown()) {
-	$arr = $_app->get_errors();
-	foreach ($arr as $error) {
-		echo $error;
+	$arr = get_debug_messages();
+	foreach ($arr as $msg) {
+		echo $msg;
 	}
 }
 

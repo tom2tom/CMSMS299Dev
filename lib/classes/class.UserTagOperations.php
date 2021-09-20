@@ -27,6 +27,9 @@ use Throwable;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use const CMS_FILETAGS_PATH;
+use const CMSSAN_FILE;
+use const CMSSAN_NONPRINT;
+use function audit;
 use function CMSMS\de_specialize;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
@@ -51,41 +54,42 @@ final class UserTagOperations
 	 */
 	const PLUGEXT = '.phphp'; //c.f. vanilla 2.3BETA used .cmsplugin, but those probably have different content
 
-	/**
-	 * Maximum fake-id used for identifying user-plugin files
-	 * Any integer < -1 will do
-	 */
-	const MAXFID = -10;
-
 	/* *
 	 * @ignore
 	 */
 //	private static $_instance;
 
 	/**
-	 * @var array Intra-request plugins cache, each member like
-	 *  tagname => [ tagid, callable|null ]
-	 * Populated when, and to the extent, needed. A fake id (self::MAXFID)
-	 * is recorded for file-stored plugins. Null is recorded for the
-	 * callable until that's initialized.
+	 * @var map for keys in $cache, $misses, each member like
+	 *  lowercase tagname => actual tagname
 	 * @ignore
 	 */
-	//TODO consider making this a session-cache (for admin) but for frontend ?
-	private $_cache = [];
+	private $map = [];
+
 	/**
-	 * @var bool whether $_cache[] has been fully-populated (by ListUserTags())
-	 * which is unlikely since checks for individual tags will mostly be from a
-	 * frontend request, but sometimes involve a selection from the list.
+	 * @var array Intra-request plugins cache, each member like
+	 *  tagname => [ tagid, contentfile, callable|null ]
+	 * Populated when, and to the extent, needed.
+	 * Null is recorded for the callable until that's initialized.
 	 * @ignore
 	 */
-	private $_loaded = false;
+	private $cache = [];
+
+	/**
+	 * @var bool Whether $cache[] has been fully-populated (by ListUserTags())
+	 * which is unlikely since checks for individual tags will mostly be
+	 * from a frontend request, but sometimes involve a selection from the list.
+	 * @ignore
+	 */
+	private $cache_full = false;
+
 	/**
 	 * @var array Intra-request failed-UDT-checks cache, each member like
-	 *  name => 0
-	 * Populated when any check for a possible usr-plugin turns out to be invalid.
+	 *  tagname => 0
+	 * Populated when any check for a possible user-plugin turns out to be invalid.
 	 * @ignore
 	 */
-	private $_misses = [];
+	private $misses = [];
 
 	/* *
 	 * @ignore
@@ -105,7 +109,7 @@ final class UserTagOperations
 	 * @param array $args plugin-API variable(s) in some form.
 	 *  $args OR $args[0] should include: [0]=$params[], [1]=$template/smarty object
 	 */
-	public function __call($name, $args)
+	public function __call(string $name, array $args)
 	{
 		if (strpos($name, 'User') !== false) {
 			$sn = str_replace('User', 'Simple', $name);
@@ -134,7 +138,7 @@ final class UserTagOperations
 	 *  [0] if present = array of $params for the plugin
 	 *  [1] if present = template object (Smarty_Internal_Template or wrapper)
 	 */
-	public static function __callStatic($name, $args)
+	public static function __callStatic(string $name, array $args)
 	{
 		$handler = SingleItem::UserTagOperations()->GetHandler($name); // what is self:: here
 		try {
@@ -164,17 +168,6 @@ final class UserTagOperations
 	public function FilePath(string $name) : string
 	{
 		return CMS_FILETAGS_PATH.DIRECTORY_SEPARATOR.$name.self::PLUGEXT;
-	}
-
-	/**
-	 * Determine whether $id represents a file-stored plugin
-	 * @since 2.99
-	 * @param mixed $id int|string identifier
-	 * @return bool
-	 */
-	public function IsFileID($id) : bool
-	{
-		return (int)$id <= self::MAXFID;
 	}
 
 	/**
@@ -216,51 +209,67 @@ final class UserTagOperations
 	}
 
 	/**
-	 * Determine whether $key is a member of $arr, whatever the case of $key is
+	 * Report whether (any-case) $key is a key in $haystack
 	 * @internal
+	 * @ignore
 	 *
 	 * @param string $key
-	 * @param array $arr
-	 * @return bool
+	 * @param array $haystack
+	 * @return bool indicating presence
 	 */
-	private function CacheHas(string $key, array &$arr) : bool
+	private function ArrayHas(string $key, array $haystack) : bool
 	{
-		//TODO better support for caseless $key-matches, incl. possible non-ASCII chars
-		return isset($arr[$key]) ||
-			in_array(strtolower($key), array_map('strtolower', array_keys($arr)));
+		$lkey = strtolower($key); // TODO support non-ASCII
+		return isset($this->map[$lkey]) && isset($haystack[$this->map[$lkey]]);
 	}
 
-	private function CacheSet(string $key, $val, array &$arr)
+	/**
+	 * Get the member of $haystack (if any), whose key matches (any-case) $key
+	 * @internal
+	 * @ignore
+	 *
+	 * @param string $key
+	 * @param array $haystack
+	 * @return mixed recorded value | null
+	 */
+	private function ArrayGet(string $key, array $haystack)
 	{
-		$ik = null; //func($key, $arr);
-		if ($ik) { $arr[$ik] = $val; } else { $arr[$key] = $val; }
+		$lkey = strtolower($key); // TODO support non-ASCII
+		$akey = $this->map[$lkey] ?? '';
+		return ($akey) ? $haystack[$akey] : null;
 	}
 
-	private function CacheGet(string $key, array &$arr)
+	/**
+	 * @internal
+	 * @ignore
+	 *
+	 * @param string $key
+	 * @param mixed $value
+	 * @param array $haystack
+	 */
+	private function ArraySet(string $key, $value, array &$haystack)
 	{
-		$ik = null; //func($key, $arr)
-		return ($ik) ? $arr[$ik] : null;
+		$lkey = strtolower($key); // TODO support non-ASCII
+		$this->map[$lkey] = $key;
+		$haystack[$key] = $value;
 	}
 
 	/**
 	 * Establish local data cache for all user-plugins
-	 *
-	 * @ignore
-	 * @deprecated since 2.99 does nothing. There is no LoadedData-member for user-plugins
+	 * @deprecated since 2.99 does nothing. There are no LoadedData
+	 * for user-plugins
 	 * @internal
 	 */
-	public static function load_setup()
-	{
-	}
+	public static function load_setup() {}
 
 	/**
 	 * Cache all information about all user-plugins (onetime only)
-	 * @deprecated since 2.99 does nothing. Local cache is populated on
-	 * demand, and to the extent needed, by class methods e.g. ListUserTags()
+	 * @deprecated since 2.99 does nothing. Local cache is populated
+	 * on demand, and to the extent needed, by class methods
+	 * e.g. ListUserTags()
+	 * @internal
 	 */
-	public function LoadUserTags()
-	{
-	}
+	public function LoadUserTags() {}
 
 	/* *
 	 * Migrate plugin from database-storage to file-storage.
@@ -270,28 +279,9 @@ final class UserTagOperations
 	 * @param string $name Plugin name
 	 * @return bool indicating success
 	 */
-/*	public function ExportFile(string $name) : bool
-	{
-		if ($this->CacheHas($name, $this->_misses)) return false;
-		if (!$this->CacheHas($name, $this->_cache)) {
-			$this->UserTagExists($name); //populate the relevant cache
-		}
-		if ($this->CacheHas($name, $this->_cache)) {
-			if (!$this->IsFileID($this->_cache[$name][0])) {
-				$params = $this->GetUserTag($name, '*');
-				$params['id'] = self::MAXFID;
-				$res = $this->SetFileTag($name, $params);
-				if ((is_array($res) && $res[0]) || ($res && !is_array($res))) {
-					$db = SingleItem::Db();
-					$query = 'DELETE FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
-					$db->execute($query, [$name]);
-				}
-				return $res;
-			}
-		}
-		return false;
-	}
-*/
+//	public function ExportFile(string $name) : bool {}
+// see e.g. Template 'contentfile' property change
+
 	/* *
 	 * Migrate plugin from file-storage to dB-storage
 	 * Note: there is no operational advantage from such change.
@@ -300,27 +290,9 @@ final class UserTagOperations
 	 * @param string $name Plugin name
 	 * @return bool indicating success
 	 */
-/*	public function ImportFile(string $name) : bool
-	{
-		if ($this->CacheHas($name, $this->_misses)) return false;
-		if (!$this->CacheHas($name, $this->_cache)) {
-			$this->UserTagExists($name); //populate the relevant cache
-		}
-		if ($this->CacheHas($name, $this->_cache)) {
-			if ($this->IsFileID($this->_cache[$name][0])) {
-				$params = $this->GetFileTag($name, '*');
-				$params['id'] = -1;
-				$res = $this->SetUserTag($name, $params);
-				if ((is_array($res) && $res[0]) || ($res && !is_array($res))) {
-					$fp = $this->FilePath($name);
-					@unlink($fp);
-				}
-				return $res;
-			}
-		}
-		return false;
-	}
-*/
+//	public function ImportFile(string $name) : bool {}
+// see e.g. Template 'contentfile' property change
+
 	/**
 	 * Render tag code at least nominally suitable for use (whether as a
 	 * content generator or event-notice handler).
@@ -341,7 +313,7 @@ final class UserTagOperations
 		return preg_replace(
 			['/^[\s\r\n]*<\?(php|=)[\s\r\n]*/i', '/[\s\r\n]*\?>[\s\r\n]*$/'],
 			['', ''],
-		    $code);
+			$code);
 //		return $val;
 	}
 
@@ -349,8 +321,8 @@ final class UserTagOperations
 	 * Retrieve property|ies of the file-stored plugin named $name
 	 *
 	 * @param string $name Plugin name
-	 * @param mixed $props string|strings[] Optional property name(s)
-	 * (comma-separated ok), or '*', or falsy (hence  an existence-flag).
+	 * @param mixed $props string | strings[] Optional property name(s)
+	 * (comma-separated ok), or '*', or falsy (hence an existence-flag).
 	 * '*' gets all available of 'description','parameters','license','code'.
 	 * Default 'code'
 	 * @return mixed assoc array of requested properties | single-prop value | true (exists) | null if N/A
@@ -358,7 +330,7 @@ final class UserTagOperations
 	private function GetFileTag(string $name, $props = 'code') //UDTfiles
 	{
 		$fp = $this->FilePath($name);
-		if (is_file($fp)) {
+		if (is_readable($fp)) {
 			$cont = file_get_contents($fp);
 			if (!$cont) {
 				return null;
@@ -374,7 +346,23 @@ final class UserTagOperations
 				}
 			}
 			$res = array_combine($props, array_fill(0, count($props), ''));
-			if (isset($res['id'])) { $res['id'] = self::MAXFID; }
+			if (isset($res['id'])) {
+				if (!$this->ArrayHas($name, $this->cache)) {
+					$db = SingleItem::Db();
+					//TODO case-insensitive name-match if table|field definition is not *_ci
+					$query = 'SELECT id,contentfile FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
+					$dbr = $db->getRow($query, [$name]);
+					if (!$dbr) {
+						audit('', __METHOD__, "Userplugin '$name' doesn't exist");
+						// TODO warn user
+						return null;
+					}
+					$this->ArraySet($name,
+						[(int)$dbr['id'], (bool)$dbr['contentfile'], null],
+						$this->cache);
+				}
+				$res['id'] = $this->ArrayGet($name, $this->cache)[0];
+			}
 			$ps = strpos($cont, '<metadata>');
 			$pe = strpos($cont, '</metadata>', $ps);
 			if ($ps !== false && $pe !== false) {
@@ -431,7 +419,7 @@ final class UserTagOperations
 			}
 			return (count($res) > 1) ? $res : reset($res);
 		}
-		$this->_misses[$name] = 0;
+		$this->ArraySet($name, 0, $this->misses);
 		return null;
 	}
 
@@ -447,12 +435,22 @@ final class UserTagOperations
 	 */
 	public function GetUserTag(string $name, $props = 'code')
 	{
-		if ($this->CacheHas($name, $this->_cache)) {
-			$filetag = $this->IsFileID($this->_cache[$name][0]); //instead of separate contentfile value in the database??
-		} else {
-			$filetag = null; //i.e. not yet known
+		if (!$this->ArrayHas($name, $this->cache)) {
+			$db = SingleItem::Db();
+			//TODO case-sensitive name-match if table|field definition is *_ci ?
+			$query = 'SELECT id,contentfile FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
+			$dbr = $db->getRow($query, [$name]);
+			if (!$dbr) {
+				audit('', __METHOD__, "Userplugin '$name' doesn't exist");
+				// TODO warn user
+				return null;
+			}
+			$this->ArraySet($name,
+				[(int)$dbr['id'], (bool)$dbr['contentfile'], null],
+				$this->cache);
 		}
-		if ($filetag) {
+		if ($this->ArrayGet($name, $this->cache)[1]) {
+			// a file-stored tag
 			return $this->GetFileTag($name, $props); //UDTfiles
 		} else {
 			//definite dB-storage, or unknown
@@ -464,16 +462,18 @@ final class UserTagOperations
 					array_shift($props, 'id');
 					$scrub = true;
 				}
+				// TODO ditto for 'contentfile'
 				$fields = implode(',', $props);
 			} elseif ($props) {
 				$multi = ($props == '*' || strpos(',', $props) !== false);
-				//always get id
+				//always get id, contentfile
 				if ($props != '*' && strpos($props, 'id') === false) {
 					$fields = 'id,'.$props;
 					$scrub = true;
 				} else {
 					$fields = $props;
 				}
+				// TODO ditto for 'contentfile'
 			} else {
 				$multi = false;
 				$fields = 'id';
@@ -485,21 +485,23 @@ final class UserTagOperations
 			$dbr = $db->getRow($query, [$name]);
 			if ($dbr) {
 				if ($filetag === null) {
-					$this->_cache[$name] = [(int)$dbr['id'],  null]; //remember it
+					$this->ArraySet($name,
+						[(int)$dbr['id'], (bool)$dbr['contentfile'], null],
+						$this->cache);
 				}
 				if ($scrub) {
 					unset($dbr['id']);
 				}
 				return ($props) ? (($multi) ? $dbr : reset($dbr)) : true;
 			}
+			// maybe it's file-stored tho' previously missed as such
 			$res = $this->GetFileTag($name, $props); //UDTfiles
 			if ($res) {
-				if ($filetag === null) {
-					$this->_cache[$name] = [self::MAXFID, null]; //remember it
-				}
+				//remember it TODO dB-data update, apply real id
+				$this->ArraySet($name, [0, true, null], $this->cache);
 				return $res;
 			}
-			$this->_misses[$name] = 0;
+			$this->ArraySet($name, 0, $this->misses);
 			return null;
 		}
 	}
@@ -515,11 +517,11 @@ final class UserTagOperations
 	public function UserTagExists(string $name) : bool
 	{
 		if (!$this->IsValidName($name)) {
-			$this->_misses[$name] = 0;
+			$this->ArraySet($name, 0, $this->misses);
 			return false;
 		}
-		if ($this->CacheHas($name, $this->_cache)) { return true; }
-		if ($this->CacheHas($name, $this->_misses)) { return false; }
+		if ($this->ArrayHas($name, $this->cache)) { return true; }
+		if ($this->ArrayHas($name, $this->misses)) { return false; }
 		return ($this->GetUserTag($name, '') != false);
 	}
 
@@ -542,7 +544,6 @@ final class UserTagOperations
 				return true;
 			}
 		}
-
 		return $this->UserTagExists($name);
 	}
 
@@ -565,7 +566,7 @@ final class UserTagOperations
 	{
 		$bare = empty($params['detail']);
 		if (!$this->IsValidName($name)) {
-			$this->_misses[$name] = 0;
+			$this->ArraySet($name, 0, $this->misses);
 			return ($bare) ? false : [false, 'error_usrplg_name'];
 		}
 
@@ -611,8 +612,10 @@ EOS;
 		$oldname = $params['oldname'] ?? '';
 		if ($oldname && $name != $oldname) {
 			//update cache if renamed
-			unset($this->_cache[$oldname]);
-			$this->_cache[$name] = [self::MAXFID, null]; //remember it
+			$row = $this->ArrayGet($oldname, $this->cache);
+			unset($this->cache[$this->map[$oldname]]);
+// no longer needed? if () { unset($this->map[$oldname]); }
+			$this->ArraySet($name, $row, $this->cache);
 			//remove old tagfile
 			$fp = $this->FilePath($oldname);
 			@unlink($fp);
@@ -628,12 +631,12 @@ EOS;
 	 * @param string $name   plugin name now, perhaps different from $params[oldname]
 	 * @param varargs $args  since 2.99 normally just a single assoc array of
 	 *  additional properties, some/all of
-	 *  'id' -1 for new plugin, > 0 for an existing dB-stored plugin,
-	 *    <= self::MAXFID for an existing file-stored plugin
+	 *  'id' 0 for new plugin, > 0 for an existing plugin
 	 *  'oldname' string user-plugin recorded name, or '' for new plugin
-	 *  'code'
 	 *  'description'
 	 *  'parameters'
+	 *  'contentfile'
+	 *  'code'
 	 *  'license' ignored for a dB-stored plugin
 	 *  'detail' bool indicating caller wants a status message
 	 * @return mixed bool indicating success | 2-member array,
@@ -645,12 +648,12 @@ EOS;
 		if (count($args) == 1 && is_array($args[0])) {
 			$params = $args[0];
 		} else { // pre-2.99 API
-			$params = ['id'=>-1, 'code'=>$args[0], 'description'=>$args[1] ?? ''];
+			$params = ['id'=>0, 'description'=>$args[1] ?? '', 'code'=>$args[0], 'contentfile'=>false];
 		}
 		$bare = empty($params['detail']);
 
 		if (!$this->IsValidName($name)) {
-			$this->_misses[$name] = 0;
+			$this->ArraySet($name, 0, $this->misses);
 			return ($bare) ? false : [false, 'error_usrplg_name'];
 		}
 
@@ -693,7 +696,7 @@ EOS;
 		}
 
 		$id = (int)$params['id'];
-		if ($this->IsFileID($id)) {
+		if (!empty($params['contentfile'])) {
 			$val = $params['license'] ?? '';
 			if ($val && !is_numeric($val)) {
 				// TODO attend to stored newlines? e.g. strip <br/>
@@ -713,33 +716,34 @@ EOS;
 			unset($val);
 			// process file-storage UDTfiles
 			return $this->SetFileTag($name, $params);
-		} elseif ($id == -1 || $id > 0) {
+		} else {
 			//upsert dB
 			$db = SingleItem::Db();
 			$tbl = CMS_DB_PREFIX.'userplugins';
-			if ($id == -1) {
-				$query = "INSERT INTO $tbl (name,code,description,parameters) VALUES (?,?,?,?)";
-				$dbr = $db->execute($query, [$name, $code, $description, $parameters]);
+			if ($id === 0) {
+				$query = "INSERT INTO $tbl (name,description,parameters,code,contentfile) VALUES (?,?,?,?,0)";
+				$dbr = $db->execute($query, [$name, $description, $parameters, $code]);
 				if ($dbr) {
 					$id = (int)$dbr; // CHECKME last-insert works now?
-					$this->_cache[$name] = [$id, null];
+					$this->ArraySet($name, [$id, false, null], $this->cache);
 				}
 				$res = (bool)$dbr;
 				return ($bare) ? $res : [$res, (($res) ? '' : 'error_internal')];
 			} else {
 				//prevent duplicate names
 				$query = <<<EOS
-UPDATE $tbl SET name=?,code=?,description=?,parameters=?
+UPDATE $tbl SET name=?,description=?,parameters=?,contentfile=0,code=?,
 WHERE id=?
 AND NOT id IN (SELECT id FROM $tbl WHERE name=? AND id!=?)
 EOS;
-				$dbr = $db->execute($query, [$name, $code, $description, $parameters, $id, $name, $id]);
+				$dbr = $db->execute($query, [$name, $description, $parameters, $code, $id, $name, $id]);
 				$res = (bool)$dbr;
 				if ($res) {
 					//update cache if renamed
 					if ($oldname && $name != $oldname) {
-						unset($this->_cache[$oldname]);
-						$this->_cache[$name] = [$id, null];
+						unset($this->cache[$this->map[$oldname]]);
+// no longer needed? if () { unset($this->map[$oldname]); }
+						$this->ArraySet($name, [$id, false, null], $this->cache);
 					}
 				}
 				return ($bare) ? $res : [$res, (($res) ? '' : 'error_internal')];
@@ -756,72 +760,63 @@ EOS;
 	 */
 	public function RemoveUserTag(string $name) : bool
 	{
-		if ($this->CacheHas($name, $this->_misses)) return false;
-		if (!$this->CacheHas($name, $this->_cache)) {
+		if ($this->ArrayHas($name, $this->misses)) return false;
+		if (!$this->ArrayHas($name, $this->cache)) {
 			$this->UserTagExists($name); //populate the relevant cache
 		}
-		if ($this->CacheHas($name, $this->_cache)) {
-			//$this->_cache[$name] => dB|fake id, callable|null
-			if (!$this->IsFileID($this->_cache[$name][0])) {
-				//process dB-stored plugin
-				// TODO if case-sensitive name in _ci field
-				$db = SingleItem::Db();
-				$query = 'DELETE FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
-				$dbr = $db->execute($query, [$name]);
-				$res = ($dbr != false);
-				if ($res) {
-					unset($this->_cache[$name]);
-				}
-				return $res;
-			}
-			if ($this->IsFileID($this->_cache[$name][0])) {
-				//process file-stored plugin
-				$fp = $this->FilePath($name);
-				if (is_file($fp)) {
-					$res = @unlink($fp);
-					if ($res) {
-						unset($this->_cache[$name]);
+		if ($this->ArrayHas($name, $this->cache)) {
+			// TODO if case-sensitive name in _ci field
+			$db = SingleItem::Db();
+			$query = 'DELETE FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
+			$dbr = $db->execute($query, [$name]);
+			$res = ($dbr != false);
+			if ($res) {
+				//$this->cache[$name] => int recorded id, bool is-file-stored, callable|null
+				if ($this->ArrayGet($name, $this->cache)[1]) {
+					$fp = $this->FilePath($name);
+					if (is_file($fp)) {
+						@unlink($fp);
 					}
-					return $res;
 				}
+				unset($this->cache[$this->map[$name]]);
+				if (1) { unset($this->map[$name]); } // TODO if not otherwise needed
 			}
+			return $res;
 		}
 		return false;
 	}
 
 	/**
-	 * List all dB-stored or file-stored user-plugins
+	 * List all user-plugins
 	 *
-	 * @return array each member like id => tagname, where id <= self::MAXFID
-	 *  to indicate a file-stored plugin
+	 * @return array each member like id => tagname
 	 */
 	public function ListUserTags() : array
 	{
-		if (!$this->_loaded) {
+		if (!$this->cache_full) {
 			$db = SingleItem::Db();
-			$query = 'SELECT name,id FROM '.CMS_DB_PREFIX.'userplugins ORDER BY name';
-			$out = $db->getAssoc($query);
-
-			$patn = $this->FilePath('*');
-			$files = glob($patn, GLOB_NOESCAPE);
-			if ($files) {
-				$n = self::MAXFID;
-				foreach ($files as $fp) {
-					$name = basename($fp, self::PLUGEXT);
-					if ($this->IsValidName($name)) $out[$name] = $n--;
+			$query = 'SELECT id,name,contentfile FROM '.CMS_DB_PREFIX.'userplugins ORDER BY name';
+			$dbr = $db->getAssoc($query);
+			foreach ($dbr as $id=>$row) {
+				$name = $row['name'];
+				if ($row['contentfile']) {
+					$fp = $this->FilePath($name);
+					if (!is_readable($fp)) {
+						audit($id, __METHOD__, "File-stored userplugin '$name' doesn't exist");
+						// TODO remove from dB and/or warn user
+						continue;
+					}
+				}
+				if (!$this->ArrayHas($name, $this->cache)) {
+					// no callable yet
+					$this->ArraySet($name, [$id, (bool)$row['contentfile'], null], $this->cache);
 				}
 			}
-
-			foreach ($out as $name=>$id) {
-				if (!$this->CacheHas($name, $this->_cache)) {
-					$this->_cache[$name] = [$id, null]; //dB|fake id, no callable yet
-				}
-			}
-			$this->_loaded = true;
+			$this->cache_full = true;
 		}
 
 		$out = [];
-		foreach ($this->_cache as $name => $row) {
+		foreach ($this->cache as $name => $row) {
 			$out[$row[0]] = $name;
 		}
 		return $out;
@@ -834,13 +829,14 @@ EOS;
 	 */
 	private function GetHandler(string $name)
 	{
-		// TODO if case-sensitive $name in _ci field and strtolower()'d local cache
+		// TODO if case-sensitive $name in dB *_ci field and strtolower()'d local cache
 		if ($this->CreateTagFunction($name)) {
-			if (!empty($this->_cache[$name][1])) {
-				return $this->_cache[$name][1];
+			$row = $this->ArrayGet($name, $this->cache);
+			if ($row[2]) {
+				return $row[2]; // handler already populated
 			}
-
-			if ($this->IsFileID($this->_cache[$name][0])) {
+			if ($row[1]) {
+				// $name represents a file-stored tag
 				$strfunc = $this->GetFileTag($name);
 			} else {
 				$strfunc = $this->GetUserTag($name);
@@ -886,13 +882,11 @@ EOS;
 				return $ret;
 			};
 		} else { //bad call
-			$handler = function()
-			{
+			$handler = function() {
 				return '<span style="font-weight:bold;color:red;">Missing plugin: '.$name.'</span>';
 			};
 		}
-		$this->_cache[$name][1] = $handler;
-
+		$this->cache[$name][2] = $handler;
 		return $handler;
 	}
 
@@ -906,16 +900,17 @@ EOS;
 	 * @param mixed object|null $smarty_ob Optional Smarty_Internal_Template
 	 *  (or descendant) for the caller's context
 	 * Compiled smarty provides a Smarty_Internal_Template-object as the
-	 * 2nd argument to tags. CMSMS\internal\Smarty Is not a sub-class of that.
+	 * 2nd argument to tags. CMSMS\internal\Smarty is not a sub-class of that.
 	 *
 	 * @return mixed value returned by tag|false
 	 */
 	public function CallUserTag(string $name, array &$params = [], $smarty_ob = null)
 	{
-		if (!empty($this->_cache[$name][1])) {
-			$fname = $this->_cache[$name][1];
+		$row = $this->ArrayGet($name, $this->cache);
+		if ($row && $row[2]) {
+			$fname = $row[2];
 		} else {
-			$fname = $this->GetHandler($name);
+			$fname = $this->GetHandler($name); // downstream updates stuff for next time
 		}
 		if ($fname) {
 			return $fname($params, $smarty_ob);
@@ -938,11 +933,13 @@ EOS;
 	public function DoEvent(string $name, string $originator, string $eventname, array &$params)
 	{
 		if ($originator && $eventname) {
-			if (empty($this->_cache[$name][1])) {
-				$obj = $this->CreateTagFunction($name);
-				if (!$obj) {
+			$row = $this->ArrayGet($name, $this->cache);
+			if (!$row || !$row[2]) {
+				$handler = $this->CreateTagFunction($name);
+				if (!$handler) {
 					return false;
 				}
+				// TODO $this->ArraySet($name, [,,], $this->cache);
 			}
 			$params['sender'] = $originator;
 			$params['event'] = $eventname;
@@ -954,7 +951,8 @@ EOS;
 	}
 
 	/**
-	 * Return the callable (if any) which smarty can use to process the named plugin.
+	 * Return the callable (if any) which smarty can use to process the
+	 * named plugin.
 	 *
 	 * @param $name plugin identifier (any case)
 	 * @return mixed callable | null
@@ -962,15 +960,17 @@ EOS;
 	public function CreateTagFunction(string $name)
 	{
 		$name = trim($name);
-		if (!$this->CacheHas($name, $this->_cache)) {
-			if ($this->CacheHas($name, $this->_misses)) { return null; }
+		if (!$this->ArrayHas($name, $this->cache)) {
+			if ($this->ArrayHas($name, $this->misses)) {
+				return null;
+			}
 			try {
 				$this->UserTagExists($name); //populate relevant cache
 			} catch (Throwable $t) {
 				return null;
 			}
 		}
-		return ($this->CacheHas($name, $this->_cache)) ?
+		return ($this->ArrayHas($name, $this->cache)) ?
 			__CLASS__.'::'.$name : //fake callable triggers self::__callStatic()
 			null;
 	}

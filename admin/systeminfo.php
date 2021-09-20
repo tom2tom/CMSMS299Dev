@@ -32,8 +32,8 @@ check_login();
 
 $userid = get_userid();
 if (0) { //!check_permission($userid, TODO relevant permission)) {
-//TODO some pushed popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+//TODO some pushed popup    $themeObject->RecordNotice('error', _la('needpermissionto', '"Modify Site Preferences"'));
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 $themeObject = SingleItem::Theme();
@@ -90,7 +90,7 @@ $smarty->registerPlugin('function', 'si_lang', function($params, $smarty)
     if ($params) {
         $str = array_shift($params);
         if ($str) {
-            return lang($str, $params);
+            return _la($str, $params);
         }
     }
 });
@@ -143,29 +143,29 @@ $smarty->assign('count_config_info', count($tmp[0]))
 $tmp = [[],[]];
 
 $res = AppParams::get('allow_browser_cache', 0);
-$tmp[0]['allow_browser_cache'] = testBoolean(0, lang('allow_browser_cache'), $res, lang('test_allow_browser_cache'), false);
+$tmp[0]['allow_browser_cache'] = testBoolean(0, _la('allow_browser_cache'), $res, _la('test_allow_browser_cache'), false);
 $res = AppParams::get('browser_cache_expiry', 60);
-$tmp[0]['browser_cache_expiry'] = testRange(0, lang('browser_cache_expiry'), $res, lang('test_browser_cache_expiry'), 1, 60, false);
+$tmp[0]['browser_cache_expiry'] = testRange(0, _la('browser_cache_expiry'), $res, _la('test_browser_cache_expiry'), 1, 60, false);
 /* N/A for PHP7
 if (version_compare(PHP_VERSION, '5.5') >= 0) {
     $opcache = ini_get('opcache.enable');
-    $tmp[0]['php_opcache'] = testBoolean(0, lang('php_opcache'), $opcache, '', false, false, 'opcache_enabled');
+    $tmp[0]['php_opcache'] = testBoolean(0, _la('php_opcache'), $opcache, '', false, false, 'opcache_enabled');
 } else {
-    $tmp[0]['php_opcache'] = testBoolean(0, lang('php_opcache'), false, '', false, false, 'opcache_notavailable');
+    $tmp[0]['php_opcache'] = testBoolean(0, _la('php_opcache'), false, '', false, false, 'opcache_notavailable');
 }
 */
 $res = AppParams::get('smarty_compilecheck', 1);
-$tmp[0]['smarty_compilecheck'] = testBoolean(0, lang('smarty_compilecheck'), $res, lang('test_smarty_compilecheck'), false, true);
+$tmp[0]['smarty_compilecheck'] = testBoolean(0, _la('smarty_compilecheck'), $res, _la('test_smarty_compilecheck'), false, true);
 $res = AppParams::get('auto_clear_cache_age', 0);
-$tmp[0]['auto_clear_cache_age'] = testRange(0, lang('autoclearcache2'), $res, lang('test_auto_clear_cache_age'), 0, 30, false);
+$tmp[0]['auto_clear_cache_age'] = testRange(0, _la('autoclearcache2'), $res, _la('test_auto_clear_cache_age'), 0, 30, false);
 $cache = SingleItem::SystemCache();
 $type = get_class($cache->get_driver());
 $c = stripos($type, 'Cache');
 $res = ucfirst(substr($type, $c+5));
 if( $res != 'File' ) { $res .= ' (auto)'; } else { $res = 'Saved files'; } //TODO lang
-$tmp[0]['cache_driver'] = testDummy(lang('system_cachetype'),$res,'');
+$tmp[0]['cache_driver'] = testDummy(_la('system_cachetype'),$res,'');
 $res = AppParams::get('cache_lifetime', 0);
-$tmp[0]['cache_lifetime'] = testDummy(lang('system_cachelife'),$res,'');
+$tmp[0]['cache_lifetime'] = testDummy(_la('system_cachelife'),$res,'');
 
 $smarty->assign('performance_info', $tmp);
 
@@ -180,12 +180,12 @@ $tmp[0]['phpversion'] = testVersionRange(0, 'phpversion', PHP_VERSION, '', $mini
 
 $default_charset = ini_get('default_charset');
 $test = new CmsInstallTest();
-$test->title = lang('default_charset');
+$test->title = _la('default_charset');
 $test->value = $default_charset;
 $test->display_value = false;
 $test->res = (strtolower( $default_charset) == 'utf-8' ) ? 'green' : 'yellow';
 if( $test->res == 'yellow' ) {
-    $test->message = lang('msg_default_charset',$default_charset);
+    $test->message = _la('msg_default_charset',$default_charset);
 }
 $tmp[0]['default_charset'] = $test;
 
@@ -197,17 +197,17 @@ $tmp[0]['gd_version'] = testGDVersion(0, 'gd_version', $minimum, '', 'min_GD_ver
 
 $tmp[0]['tempnam_function'] = testBoolean(0, 'tempnam_function', function_exists('tempnam'), '', false, false, 'Function_tempnam_disabled');
 
-//N/A PHP7+ $tmp[0]['magic_quotes_runtime'] = testBoolean(0, 'magic_quotes_runtime', 'magic_quotes_runtime', lang('magic_quotes_runtime_on'), true, true, 'magic_quotes_runtime_On');
-$tmp[0]['E_ALL'] = testIntegerMask(0, lang('test_error_eall'), 'error_reporting', E_ALL, lang('test_eall_failed'));
-$tmp[0]['E_STRICT'] = testIntegerMask(0, lang('test_error_estrict'), 'error_reporting', E_STRICT, '', true, true);
+//N/A PHP7+ $tmp[0]['magic_quotes_runtime'] = testBoolean(0, 'magic_quotes_runtime', 'magic_quotes_runtime', _la('magic_quotes_runtime_on'), true, true, 'magic_quotes_runtime_On');
+$tmp[0]['E_ALL'] = testIntegerMask(0, _la('test_error_eall'), 'error_reporting', E_ALL, _la('test_eall_failed'));
+$tmp[0]['E_STRICT'] = testIntegerMask(0, _la('test_error_estrict'), 'error_reporting', E_STRICT, '', true, true);
 if (defined('E_DEPRECATED')) {
-    $tmp[0]['E_DEPRECATED'] =  testIntegerMask(0, lang('test_error_edeprecated'), 'error_reporting', E_DEPRECATED, '', true, true);
+    $tmp[0]['E_DEPRECATED'] =  testIntegerMask(0, _la('test_error_edeprecated'), 'error_reporting', E_DEPRECATED, '', true, true);
 }
 
 $_tmp = _testTimeSettings1();
-$tmp[0]['test_file_timedifference'] = ($_tmp->value) ? testDummy('test_file_timedifference', lang('msg_notimedifference2'), 'green') : testDummy('test_file_timedifference', lang('error_timedifference2'), 'red');
+$tmp[0]['test_file_timedifference'] = ($_tmp->value) ? testDummy('test_file_timedifference', _la('msg_notimedifference2'), 'green') : testDummy('test_file_timedifference', _la('error_timedifference2'), 'red');
 $_tmp = _testTimeSettings2();
-$tmp[0]['test_db_timedifference'] = ($_tmp->value) ? testDummy('test_db_timedifference', lang('msg_notimedifference2'), 'green') : testDummy('test_file_timedifference', lang('error_timedifference2'), 'red');
+$tmp[0]['test_db_timedifference'] = ($_tmp->value) ? testDummy('test_db_timedifference', _la('msg_notimedifference2'), 'green') : testDummy('test_file_timedifference', _la('error_timedifference2'), 'red');
 
 $tmp[0]['create_dir_and_file'] = testCreateDirAndFile(0, '', '');
 
@@ -217,20 +217,20 @@ $tmp[0]['memory_limit'] = testRange(0, 'memory_limit', 'memory_limit', '', $mini
 list($minimum, $recommended) = getTestValues('max_execution_time');
 $tmp[0]['max_execution_time'] = testRange(0, 'max_execution_time', 'max_execution_time', '', $minimum, $recommended, true, false, 0, 'max_execution_time_range');
 
-$tmp[0]['register_globals'] = testBoolean(0, lang('register_globals'), 'register_globals', '', true, true, 'register_globals_enabled');
+$tmp[0]['register_globals'] = testBoolean(0, _la('register_globals'), 'register_globals', '', true, true, 'register_globals_enabled');
 
 $ob = ini_get('output_buffering');
 if (strtolower($ob) == 'off' || strtolower($ob) == 'on') {
-    $tmp[0]['output_buffering'] = testBoolean(0, lang('output_buffering'), 'output_buffering', '', true, false, 'output_buffering_disabled');
+    $tmp[0]['output_buffering'] = testBoolean(0, _la('output_buffering'), 'output_buffering', '', true, false, 'output_buffering_disabled');
 } else {
-    $tmp[0]['output_buffering'] = testInteger(0, lang('output_buffering'), 'output_buffering', '', true, true, 'output_buffering_disabled');
+    $tmp[0]['output_buffering'] = testInteger(0, _la('output_buffering'), 'output_buffering', '', true, true, 'output_buffering_disabled');
 }
 
-$tmp[0]['disable_functions'] = testString(0, lang('disable_functions'), 'disable_functions', '', true, 'green', 'yellow', 'disable_functions_not_empty');
+$tmp[0]['disable_functions'] = testString(0, _la('disable_functions'), 'disable_functions', '', true, 'green', 'yellow', 'disable_functions_not_empty');
 
-$tmp[0]['open_basedir'] = testString(0, lang('open_basedir'), $open_basedir, '', false, 'green', 'yellow', 'open_basedir_enabled');
+$tmp[0]['open_basedir'] = testString(0, _la('open_basedir'), $open_basedir, '', false, 'green', 'yellow', 'open_basedir_enabled');
 
-$tmp[0]['test_remote_url'] = testRemoteFile(0, 'test_remote_url', '', lang('test_remote_url_failed'));
+$tmp[0]['test_remote_url'] = testRemoteFile(0, 'test_remote_url', '', _la('test_remote_url_failed'));
 
 $tmp[0]['file_uploads'] = testBoolean(0, 'file_uploads', 'file_uploads', '', true, false, 'Function_file_uploads_disabled');
 
@@ -242,11 +242,11 @@ $tmp[0]['upload_max_filesize'] = testRange(0, 'upload_max_filesize', 'upload_max
 
 $session_save_path = testSessionSavePath('');
 if (empty($session_save_path)) {
-    $tmp[0]['session_save_path'] = testDummy('session_save_path', lang('os_session_save_path'), 'yellow', '', 'session_save_path_empty', '');
+    $tmp[0]['session_save_path'] = testDummy('session_save_path', _la('os_session_save_path'), 'yellow', '', 'session_save_path_empty', '');
 } elseif (! empty($open_basedir)) {
-    $tmp[0]['session_save_path'] = testDummy('session_save_path', lang('open_basedir_active'), 'yellow', '', 'No_check_session_save_path_with_open_basedir', '');
+    $tmp[0]['session_save_path'] = testDummy('session_save_path', _la('open_basedir_active'), 'yellow', '', 'No_check_session_save_path_with_open_basedir', '');
 } else {
-    $tmp[0]['session_save_path'] = testDirWrite(0, lang('session_save_path'), $session_save_path, $session_save_path, 1);
+    $tmp[0]['session_save_path'] = testDirWrite(0, _la('session_save_path'), $session_save_path, $session_save_path, 1);
 }
 $tmp[0]['session_use_cookies'] = testBoolean(0, 'session.use_cookies', 'session.use_cookies');
 
@@ -258,7 +258,7 @@ $tmp[0]['xmlreader_class'] = testBoolean(1, 'xmlreader_class', class_exists('XML
 $_log_errors_max_len = (ini_get('log_errors_max_len')) ? ini_get('log_errors_max_len').'0' : '99';
 ini_set('log_errors_max_len', $_log_errors_max_len);
 $result = (ini_get('log_errors_max_len') == $_log_errors_max_len);
-$tmp[0]['check_ini_set'] = testBoolean(0, 'check_ini_set', $result, lang('check_ini_set_off'), false, false, 'ini_set_disabled');
+$tmp[0]['check_ini_set'] = testBoolean(0, 'check_ini_set', $result, _la('check_ini_set_off'), false, false, 'ini_set_disabled');
 
 $hascurl = 0;
 $curlgood = 0;
@@ -277,21 +277,21 @@ if (in_array('curl', get_loaded_extensions())) {
     }
 }
 if (!$hascurl) {
-    $tmp[0]['curl'] = testDummy('curl', lang('no'), 'yellow', '', 'curl_not_available', '');
+    $tmp[0]['curl'] = testDummy('curl', _la('no'), 'yellow', '', 'curl_not_available', '');
 } else {
-    $tmp[0]['curl'] = testDummy('curl', lang('yes'), 'green');
+    $tmp[0]['curl'] = testDummy('curl', _la('yes'), 'green');
     if ($curlgood) {
         $tmp[1]['curlversion'] = testDummy(
             'curlversion',
-            lang('curl_versionstr', $curl_version, $min_curlversion),
+            _la('curl_versionstr', $curl_version, $min_curlversion),
             'green'
         );
     } else {
         $tmp[1]['curlversion'] = testDummy(
             'curlversion',
-            lang('test_curlversion'),
+            _la('test_curlversion'),
             'yellow',
-            lang('curl_versionstr', $curl_version, $min_curlversion)
+            _la('curl_versionstr', $curl_version, $min_curlversion)
         );
     }
 }
@@ -305,7 +305,7 @@ $tmp = [[],[]];
 
 $tmp[0]['server_software'] = testDummy('', $_SERVER['SERVER_SOFTWARE'], '');
 $tmp[0]['server_api'] = testDummy('', PHP_SAPI, '');
-$tmp[0]['server_os'] = testDummy('', PHP_OS . ' ' . php_uname('r') .' '. lang('on') .' '. php_uname('m'), '');
+$tmp[0]['server_os'] = testDummy('', PHP_OS . ' ' . php_uname('r') .' '. _la('on') .' '. php_uname('m'), '');
 
 //switch ($config['dbms']) {
 // case 'mysqli':
@@ -331,12 +331,12 @@ $tmp[0]['server_os'] = testDummy('', PHP_OS . ' ' . php_uname('r') .' '. lang('o
            }
        });
        if (!$found_grantall) {
-           $tmp[0]['server_db_grants'] = testDummy('db_grants', lang('error_nograntall_found'), 'yellow');
+           $tmp[0]['server_db_grants'] = testDummy('db_grants', _la('error_nograntall_found'), 'yellow');
        } else {
-           $tmp[0]['server_db_grants'] = testDummy('db_grants', lang('msg_grantall_found'), 'green');
+           $tmp[0]['server_db_grants'] = testDummy('db_grants', _la('msg_grantall_found'), 'green');
        }
    } else {
-       $tmp[0]['server_db_grants'] = testDummy('db_grants', lang('os_db_grants'), 'yellow', '', 'error_no_grantall_info');
+       $tmp[0]['server_db_grants'] = testDummy('db_grants', _la('os_db_grants'), 'yellow', '', 'error_no_grantall_info');
    }
 //   break;
 //}
@@ -370,11 +370,11 @@ if ($global_umask === '') {
 if ($global_umask[0] !== '0') {
     $global_umask = '0'.$global_umask;
 }
-$tmp[0][lang('global_umask')] = testUmask(0, lang('global_umask'), $global_umask);
+$tmp[0][_la('global_umask')] = testUmask(0, _la('global_umask'), $global_umask);
 
 $result = is_writable(CONFIG_FILE_LOCATION);
-//$tmp[1]['config_file'] = testFileWritable(0, lang('config_writable'), CONFIG_FILE_LOCATION, '');
-$tmp[0]['config_file'] = testDummy('', substr(sprintf('%o', fileperms(CONFIG_FILE_LOCATION)), -4), (($result) ? 'red' : 'green'), (($result) ? lang('config_writable') : ''));
+//$tmp[1]['config_file'] = testFileWritable(0, _la('config_writable'), CONFIG_FILE_LOCATION, '');
+$tmp[0]['config_file'] = testDummy('', substr(sprintf('%o', fileperms(CONFIG_FILE_LOCATION)), -4), (($result) ? 'red' : 'green'), (($result) ? _la('config_writable') : ''));
 
 $smarty->assign([
     'count_permission_info' => count($tmp[0]),

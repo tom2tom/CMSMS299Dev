@@ -30,8 +30,8 @@ check_login();
 
 $userid = get_userid();
 if (!check_permission($userid, 'Manage User Plugins')) {
-//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+//TODO some pushed popup c.f. javascript:cms_notify('error', _la('no_permission') OR _la('needpermissionto', _la('perm_Manage_Groups')), ...);
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 $themeObject = SingleItem::Theme();
@@ -41,13 +41,13 @@ $ops = SingleItem::UserTagOperations();
 if ($ops->UserTagExists($tagname)) {  // UDT-files included
 //if exists $ops->DoEvent( deleteuserpluginpre etc);
     if ($ops->RemoveUserTag($tagname)) {
-        $themeObject->ParkNotice('success', lang('deleted_usrplg'));
+        $themeObject->ParkNotice('success', _la('deleted_usrplg'));
 //     $ops->DoEvent( deleteuserpluginpost etc);
     } else {
-        $themeObject->ParkNotice('error', lang('error_usrplg_del'));
+        $themeObject->ParkNotice('error', _la('error_usrplg_del'));
     }
 } else {
-    $themeObject->ParkNotice('error', lang('error_internal'));
+    $themeObject->ParkNotice('error', _la('error_internal'));
 }
 
 $urlext = get_secure_param();

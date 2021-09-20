@@ -29,8 +29,8 @@ use function get_secure_param;
 use function startswith;
 
 /**
- * Class for doing bookmark related functions.  Many of the Bookmark-object functions
- * are just wrappers around these.
+ * Class for doing bookmark-related functions. Many of the Bookmark-class
+ * functions are just wrappers around these.
  *
  * @final
  * @package CMS
@@ -39,39 +39,18 @@ use function startswith;
 final class BookmarkOperations
 {
 	/**
-	 * Not worth caching centrally with singletons which include 'protected' properties
-	 * @ignore
-	 */
-	private static $_instance = null;
-
-	/* *
-	 * @ignore
-	 * @private to prevent direct creation
-	 */
-//	private function __construct() {} TODO public iff wanted by SingleItem ?
-
-	/**
-	 * @ignore
-	 */
-	private function __clone() {}
-
-	/**
 	 * @ignore
 	 * @param string $name
 	 * @param array $args
 	 * @return mixed
 	 */
-	public static function __callStatic($name, $args)
+	public static function __callStatic(string $name, array $args)
 	{
-		if (!self::$_instance) { self::$_instance = new self(); }
-		if ($name == 'get_instance') {
-			return self::$_instance;
-		}
-		return self::$_instance->$name(...$args); //TODO may bomb with same method-names
+		return (new CMSMS\BookmarkOperations())->$name(...$args); //TODO may bomb with same method-names
 	}
 
 	/**
-	 * Prepares an URL for saving by replacing security tags with a holder
+	 * Prepare an URL for saving by replacing security tags with a holder
 	 * string so it can be replaced when retrieved and not break security.
 	 *
 	 * @param string $url The url to save
@@ -87,8 +66,8 @@ final class BookmarkOperations
 	}
 
 	/**
-	 * Prepares a url for displaying by replacing the holder for the security
-	 * tag with the actual value.
+	 * Prepare an URL for displaying by replacing the holder for the
+	 * security tag with the actual value.
 	 *
 	 * @param string $url The url to display
 	 * @return string The fixed url
@@ -107,7 +86,7 @@ final class BookmarkOperations
 	}
 
 	/**
-	 * Gets a list of all bookmarks for a given user
+	 * Get a list of all bookmarks for a given user
 	 *
 	 * @param int $user_id The desired user id.
 	 * @return array An array of Bookmark objects
@@ -133,7 +112,7 @@ final class BookmarkOperations
 	}
 
 	/**
-	 * Loads a bookmark by bookmark_id.
+	 * Load a bookmark by bookmark_id.
 	 *
 	 * @param int $id bookmark_id to load
 	 * @return mixed Bookmark | null
@@ -161,7 +140,7 @@ final class BookmarkOperations
 	}
 
 	/**
-	 * Saves a new bookmark to the database.
+	 * Save a new bookmark in the database.
 	 *
 	 * @param Bookmark $bookmark Bookmark object to save
 	 * @return int The new bookmark_id.  If it fails, it returns -1.
@@ -176,7 +155,7 @@ final class BookmarkOperations
 	}
 
 	/**
-	 * Updates an existing bookmark in the database.
+	 * Update an existing bookmark in the database.
 	 *
 	 * @param Bookmark $bookmark object to save
 	 * @return bool (unreliable)
@@ -193,7 +172,7 @@ final class BookmarkOperations
 	}
 
 	/**
-	 * Deletes an existing bookmark from the database.
+	 * Delete an existing bookmark from the database.
 	 *
 	 * @param int $id Id of the bookmark to delete
 	 * @return bool

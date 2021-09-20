@@ -18,8 +18,8 @@
 <div class="pageoverflow">
   <p class="pagetext">&nbsp;</p>
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon do">{$mod->Lang('setpermissions')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icon do">{_ld($_module,'setpermissions')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{_ld($_module,'cancel')}</button>
   </p>
 </div>
 

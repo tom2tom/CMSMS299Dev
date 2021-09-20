@@ -6,16 +6,16 @@
   {/if}
   <div class="upload-wrapper">
     <div style="float:left;">
-      <input id="fileupload" type="file" name="{$actionid}files" size="50" title="{$mod->Lang('title_filefield')}" multiple />
+      <input id="fileupload" type="file" name="{$actionid}files" size="50" title="{_ld($_module,'title_filefield')}" multiple />
       <div class="pageinput pregap">
-{*TODO  <button type="submit" name="{$actionid}submit" id="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>*}
-        <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit icon cancel" style="display:none;">{$mod->Lang('cancel')}</button>
+{*TODO  <button type="submit" name="{$actionid}submit" id="{$actionid}submit" class="adminsubmit icon check">{_ld($_module,'submit')}</button>*}
+        <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit icon cancel" style="display:none;">{_ld($_module,'cancel')}</button>
       </div>
     </div>
     <div style="height:4em;width:40%;float:right;display:table;">
       {if !isset($is_ie)}
-      <div id="dropzone" class="vcentered hcentered" title="{$mod->Lang('title_dropzone')}">
-        <p id="dropzonetext">{$mod->Lang('prompt_dropfiles')}</p>
+      <div id="dropzone" class="vcentered hcentered" title="{_ld($_module,'title_dropzone')}">
+        <p id="dropzonetext">{_ld($_module,'prompt_dropfiles')}</p>
       </div>
       {/if}
     </div>

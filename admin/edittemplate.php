@@ -31,6 +31,7 @@ use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplatesGroup;
 use CMSMS\TemplateType;
+use function CMSMS\add_shutdown;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
@@ -44,7 +45,7 @@ $urlext = get_secure_param();
 $themeObject = SingleItem::Theme();
 
 if (isset($_REQUEST['cancel'])) {
-	$themeObject->ParkNotice('info',lang_by_realm('layout','msg_cancelled'));
+	$themeObject->ParkNotice('info',_ld('layout','msg_cancelled'));
 	redirect('listtemplates.php'.$urlext);
 }
 
@@ -121,11 +122,11 @@ try {
 			if (isset($_REQUEST['type'])) {
 				$val = (is_numeric($_REQUEST['type'])) ? (int)$_REQUEST['type'] : sanitizeVal($_REQUEST['type'], CMSSAN_NAME);
 				if (!(is_numeric($val) || AdminUtils::is_valid_itemname($val))) {
-					throw new Exception(lang('errorbadname'));
+					throw new Exception(_la('errorbadname'));
 				}
 				$tpl_obj->set_type($val);
 			}
-			$tpl_obj->set_type_dflt((bool)($_REQUEST['default'] ?? false));
+			$tpl_obj->set_type_default((bool)($_REQUEST['default'] ?? false));
 			if (isset($_REQUEST['owner_id'])) {
 				$val = (is_numeric($_REQUEST['owner_id'])) ? (int)$_REQUEST['owner_id'] : sanitizeVal($_REQUEST['owner_id'], CMSSAN_ACCOUNT);
 				$tpl_obj->set_owner($val);
@@ -179,7 +180,7 @@ try {
 			$tpl_obj->set_content($content);
 			TemplateOperations::save_template($tpl_obj);
 
-			$message = lang_by_realm('layout','msg_template_saved');
+			$message = _ld('layout','msg_template_saved');
 			if ($apply) {
 				$themeObject->RecordNotice('info',$message);
 			}
@@ -191,13 +192,13 @@ try {
 /*		elseif (isset($_REQUEST['export'])) {
 			$outfile = $tpl_obj->get_content_filename();
 			$dn = dirname($outfile);
-			if (!is_dir($dn) || !is_writable($dn)) throw new RuntimeException(lang_by_realm('layout','error_assets_writeperm'));
-			if (is_file($outfile) && !is_writable($outfile)) throw new RuntimeException(lang_by_realm('layout','error_assets_writeperm'));
+			if (!is_dir($dn) || !is_writable($dn)) throw new RuntimeException(_ld('layout','error_assets_writeperm'));
+			if (is_file($outfile) && !is_writable($outfile)) throw new RuntimeException(_ld('layout','error_assets_writeperm'));
 			file_put_contents($outfile,$tpl_obj->get_content());
 		} elseif (isset($_REQUEST['import'])) {
 			$infile = $tpl_obj->get_content_filename();
 			if (!is_file($infile) || !is_readable($infile) || !is_writable($infile)) {
-				throw new RuntimeException(lang_by_realm('layout','error_assets_readwriteperm'));
+				throw new RuntimeException(_ld('layout','error_assets_readwriteperm'));
 			}
 			$data = file_get_contents($infile);
 			unlink($infile);
@@ -277,7 +278,7 @@ try {
 
 	if (($tpl_id = $tpl_obj->get_id()) > 0) {
 		$name = $tpl_obj->get_name();
-		$themeObject->SetSubTitle(lang_by_realm('layout','prompt_edit_template').": $name ($tpl_id)");
+		$themeObject->SetSubTitle(_ld('layout','prompt_edit_template').": $name ($tpl_id)");
 		$desc = specialize($tpl_obj->get_description());
 		$tmp = preg_replace('~<\?(php|=|\s|\n)~i','&lt;&quest;$1',$tpl_obj->get_content());
 //TODO alse entitize embedded smarty tags {php}...{/php} whatever left/right boundaries
@@ -289,7 +290,7 @@ try {
 	} else {
 		$tpl_id = 0;
 		$name = '';
-		$themeObject->SetSubTitle(lang_by_realm('layout','create_template'));
+		$themeObject->SetSubTitle(_ld('layout','create_template'));
 		$desc = '';
 		$content = '';
 	}
@@ -342,7 +343,7 @@ try {
 	}
 */
 	$grps = TemplatesGroup::get_all();
-	$out = ['' => lang_by_realm('layout','prompt_none')];
+	$out = ['' => _ld('layout','prompt_none')];
 	if ($grps) {
 		foreach ($grps as $one) {
 			$out[$one->get_id()] = $one->get_name();
@@ -386,7 +387,7 @@ try {
 		foreach ($allgroups as $one) {
 			if ($one->id == 1) continue;
 			if ($one->active == 0) continue;
-			$tmp[$one->id * -1] = lang_by_realm('layout','prompt_group') . ': ' . $one->name;
+			$tmp[$one->id * -1] = _ld('layout','prompt_group') . ': ' . $one->name;
 			// appends to the tmp array.
 		}
 		if ($tmp) { $smarty->assign('addt_editor_list', $tmp); }
@@ -412,11 +413,11 @@ try {
 //	$nonce = get_csp_token();
 	$do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
 	if ($do_locking) {
-		SingleItem::App()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);
+		add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 	}
-	$s1 = json_encode(lang_by_realm('layout','error_lock'));
-	$s2 = json_encode(lang_by_realm('layout','msg_lostlock'));
-	$cancel = lang('cancel');
+	$s1 = json_encode(_ld('layout', 'error_lock'));
+	$s2 = json_encode(_ld('layout', 'msg_lostlock'));
+	$cancel = _la('cancel');
 
 	$js = $pageincs['foot'] ?? '';
 	$js .= <<<EOS

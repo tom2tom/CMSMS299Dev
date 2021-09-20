@@ -323,7 +323,7 @@ class ArrayTree
      *  to return the whole node
      * @param mixed $default   Optional value to return if no match found, default null
      * @param string $childkey  $data key-identifier default self::CHILDKEY
-     * @return mixed
+     * @return mixed value | false | $default
      */
     public static function node_get_data(array $tree, $path, string $getkey,
         $default = null, string $childkey = self::CHILDKEY)

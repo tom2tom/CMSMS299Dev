@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppParams;
 use CMSMS\SingleItem;
+use CMSMS\Utils;
 
 function smarty_function_created_date($params, $template)
 {
@@ -32,11 +33,15 @@ function smarty_function_created_date($params, $template)
 		if( $time > -1 ) {
 			if( !empty($params['format']) ) {
 				$format = trim($params['format']);
+				if( strpos($format, '%') !== false ) {
+					$format = Utils::convert_dt_format($format); // migrate strftime format
+				}
 			}
 			else {
-				$format = AppParams::get('defaultdateformat', '%x %X');
+				$format = AppParams::get('date_format', 'Y-m-d');
 			}
-			$out = strftime($format, $time);
+			// TODO handled 'timed' format
+			$out = date($format, $time);
 		}
 	}
 
@@ -49,7 +54,7 @@ function smarty_function_created_date($params, $template)
 /*
 function smarty_cms_help_function_created_date()
 {
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'created_date ...', <<<'EOS'
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'created_date ...', <<<'EOS'
 <li>format</li>
 EOS
 	);
@@ -59,9 +64,10 @@ function smarty_cms_about_function_created_date()
 {
 	echo <<<'EOS'
 <p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
-<p>Change History:<br />
+<p>Change History:</p>
 <ul>
-<li>May 2019 Revert to site preference 'defaultdateformat' if no 'format' parameter is supplied</li>
+<li>Sept 2021 generate output using date() instead of deprecated strftime()</li>
+<li>Sept 2021 Revert to date()-compatible site setting 'date_format' if no 'format' parameter is supplied</li>
 </ul>
 EOS;
 }

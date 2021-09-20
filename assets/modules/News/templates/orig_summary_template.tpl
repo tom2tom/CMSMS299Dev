@@ -42,12 +42,12 @@
 {*
 {if $entry->start}
   <div class="NewsSummaryPostdate">
-    {$entry->start|cms_date_format}
+    {$entry->start|cms_date_format:'timed'}
   </div>
 {/if}
 *}
 <div class="NewsSummaryLink">
-<a href="{$entry->moreurl}" title="{$entry->title|cms_escape:'htmlall'}">{$entry->title|cms_escape}</a>
+<a href="{$entry->moreurl}">{$entry->title|cms_escape|default:'&lt;missing title&gt;'}</a>
 </div>
 
 <div class="NewsSummaryCategory">

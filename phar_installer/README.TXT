@@ -104,8 +104,8 @@ Step 7:
 Step 8:
   This step interacts with the database to ensure that all tables and initial content are created properly.
 
-  During the installation process numerous tables and indexes are created in the database, and necessary initial data is installed.
-  Additionally (by default) sample data is installed.  The sample data provides useful instructions on how to interact with,
+  During the installation process numerous tables and indexes are created in the database, and necessary initial data are installed.
+  Additionally (if so selected) sample site-content is installed. That provides useful instruction on how to interact with,
   and build sites with, CMS Made Simple. It is recommended reading.
 
   During an upgrade session, any necessary database changes are performed to ensure that the database tables, and their contents,
@@ -114,20 +114,21 @@ Step 8:
 Step 9:
   This step finishes the installation and performs a clean-up.
 
-  During the installation process all core modules and selected non-core modules (if any) are installed, necessary temporary directories created, and the configuration file
-  is written.
+  During the installation process all core modules and selected non-core modules (if any) are installed, necessary temporary directories
+  created, and the configuration file is written.
 
-  During the upgrade process core modules and selected non-core modules (if any) are upgraded if necessary, and a new version of the configuration file is written.
-  Any existing configuration file is backed up for safety.  Additionally, the CMSMS cache is cleared.
+  During the upgrade process core modules and selected non-core modules (if any) are upgraded if necessary, and a new version of
+  the configuration file is written. Any existing configuration file is backed up for safety.  Additionally, the CMSMS cache is cleared.
 
   After everything is complete you will be presented with links to either visit the CMSMS website, or to log in to its admin console.
 
 -----------
 Afterwards
 -----------
-After successful completion of the installation assistant, you should,
-using either the command line or your web hosts file manager, delete the
-created installer folder (with all its contents).
+
+After confirming that the site is working as expected, confirm that the created installer folder (with all its contents)
+has been deleted from the server. If not so, delete it manually, using the site's file manager (in cPanel or the like).
+Likewise for any intaller.ini file, in the site-root folder, that was used to facilitate the installer session.
 
 ---------------------
 Additional Features

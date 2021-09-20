@@ -28,7 +28,7 @@
   <div id="ggp_header">{*v boxchild and h container*}
 
      <div id="site-logo">{*h boxchild *}
-     <a href="{root_url}/index.php" rel="external" target="_blank" title="{lang('viewsite')}">
+     <a href="{root_url}/index.php" rel="external" target="_blank" title="{_ld('admin','viewsite')}">
      {if isset($sitelogo)}
       <img src="{$sitelogo}" alt="{sitename}" />
      {else}
@@ -36,18 +36,18 @@
      {/if}
      </a>
      {if isset($sitelogo)}
-      <div class="site-text">{lang('adminpaneltitle')}</div>
+      <div class="site-text">{_ld('admin','adminpaneltitle')}</div>
      {else}
-      <span class="site-text">- {lang('adminpaneltitle')}</span>
+      <span class="site-text">- {_ld('admin','adminpaneltitle')}</span>
      {/if}
      </div>
 
      <div>{*h boxchild *}
        <!-- logotext -->
-       <span id="cms-text">{lang('power_by')}</span>
+       <span id="cms-text">{_ld('admin','power_by')}</span>
        <!-- logo -->
        <div id="cms-logo">
-        <a href="http://www.cmsmadesimple.org" rel="external" title="{lang('cms_home')}">
+        <a href="http://www.cmsmadesimple.org" rel="external" title="{_ld('admin','cms_home')}">
         </a>
        </div>
       </div>
@@ -60,11 +60,11 @@
   <div id="ggp_container">{*v boxchild and h container*}
    <div id="ggp_navwrap" class="sidebar-on">
     <div id="ggp_navhead">
-      <a href="#0" id="ggp_headlink" class="icon" title="{lang('open')}/{lang('close')}">
+      <a href="#0" id="ggp_headlink" class="icon" title="{_ld('admin','open')}/{_ld('admin','close')}">
       <svg class="navshut"><use xlink:href="themes/Ebonne/images/navsprite.svg#ltr"/></svg>
       <svg class="navopen"><use xlink:href="themes/Ebonne/images/navsprite.svg#rtl"/></svg>
       </a>
-      <span id="ggp_headzone" title="{lang('close')}">&nbsp;</span>
+      <span id="ggp_headzone" title="{_ld('admin','close')}">&nbsp;</span>
     </div>
     <div id="ggp_nav">
      {include file='navigation.tpl'}{block name=navigation}{/block}
@@ -75,7 +75,7 @@
       {if !empty($pageicon) || !empty($pagetitle)}<h1>
         {if !empty($pageicon)}<span class="headericon">{$pageicon}</span> {/if}{$pagetitle|default:''}
       </h1>{/if}
-      {if !empty($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{lang('module_help')}</a></span>{/if}
+      {if !empty($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{_ld('admin','module_help')}</a></span>{/if}
     {if !empty($pagetitle) && !empty($subtitle)}
       <div class="subheader">
        <h3 class="subtitle">{$subtitle}</h3>

@@ -100,7 +100,7 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	public function __set($key,$value)
+	public function __set(string $key,$value)
 	{
 		if( in_array($key,self::KEYS) ) $this->_data[$key] = $value;
 	}
@@ -108,7 +108,7 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	public function __isset($key)
+	public function __isset(string $key)
 	{
 		return in_array($key,self::KEYS) && isset($this->_data[$key]);
 	}
@@ -116,7 +116,7 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	public function __get($key)
+	public function __get(string $key)
 	{
 		return $this->_data[$key] ?? NULL;
 	}

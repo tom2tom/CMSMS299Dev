@@ -2,10 +2,10 @@
 <table id="allsheets" class="pagetable" style="width:auto;">
  <thead>
   <tr>
-   <th>{$mod->Lang('colhdr_id')}</th>
-   <th>{$mod->Lang('colhdr_name')}</th>
-{if $grouped}   <th>{$mod->Lang('colhdr_provides')}</th>{/if}
-   <th>{$mod->Lang('colhdr_apply')}</th>
+   <th>{_ld($_module,'colhdr_id')}</th>
+   <th>{_ld($_module,'colhdr_name')}</th>
+{if $grouped}   <th>{_ld($_module,'colhdr_provides')}</th>{/if}
+   <th>{_ld($_module,'colhdr_apply')}</th>
   </tr>
  </thead>
  <tbody class="rsortable">

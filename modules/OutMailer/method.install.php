@@ -24,46 +24,55 @@ use OutMailer\PrefCrypter;
 
 //if (some worthy test fails) exit;
 
-if ($this->platformed) {
-    $dict = $db->NewDataDictionary(); //old NewDataDictionary($db);
-    $taboptarray = ['mysqli' => 'ENGINE MyISAM CHARACTER SET utf8mb4'];
+$dict = $db->NewDataDictionary(); //old NewDataDictionary($db);
+$taboptarray = ['mysqli' => 'ENGINE MyISAM CHARACTER SET utf8mb4'];
 
-    $flds = '
+$flds = '
 id I UNSIGNED AUTO KEY,
 alias C(50),
 title C(40) NOTNULL,
-description C(1500),
-enabled I1 NOTNULL DEFAULT 1,
-active I1 NOTNULL DEFAULT 0
+description X(1500),
+enabled I1 UNSIGNED NOTNULL DEFAULT 1,
+active I1 UNSIGNED NOTNULL DEFAULT 0
 ';
-    $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_outmailer_platforms', $flds, $taboptarray);
-    $res = $dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_outmailer_platforms', $flds, $taboptarray);
+$res = $dict->ExecuteSQLArray($sqlarray);
 
-    $flds = '
+$flds = '
 id I UNSIGNED AUTO KEY,
-platform_id I UNSIGNED NOTNULL,
+platform_id I UNSIGNED NOTNULL UKEY,
 title C(40) NOTNULL,
-value C(500),
+plainvalue C(500),
 encvalue B(1000),
-apiname C(100),
+apiname C(100) UKEY,
 signature C(100),
-encrypt I1 NOTNULL DEFAULT 0,
-enabled I1 NOTNULL DEFAULT 1,
+encrypt I1 UNSIGNED NOTNULL DEFAULT 0,
+enabled I1 UNSIGNED NOTNULL DEFAULT 1,
 apiorder I2 NOTNULL DEFAULT -1
 ';
-    $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_outmailer_props', $flds, $taboptarray);
-    $res = $dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_outmailer_props', $flds, $taboptarray);
+$res = $dict->ExecuteSQLArray($sqlarray);
 
-    //TODO unique index on (platform_id,apiname)
-}
 // Permissions
 $this->CreatePermission('Modify Mail Preferences', 'Modify OutMailer Module Settings');
-if ($this->platformed) {
-    $this->CreatePermission('ModifyEmailGateways', 'Modify Email Gateway Settings');
-    $this->CreatePermission('ViewEmailGateways', 'View Email Gateways');
-    //$this->CreatePermission('ModifyEmailTemplates', 'Modify Email Gateway Templates');
-}
+$this->CreatePermission('Modify Email Gateways', 'Modify Email Gateway Settings');
+$this->CreatePermission('View Email Gateways', 'View Email Gateways');
+//$this->CreatePermission('Modify Email Templates', 'Modify Email Gateway Templates');
+
 // Preferences
+$init = new class extends PrefCrypter
+{
+    public function set_seed()
+    {
+        $s = parent::get_muid().parent::SKEY;
+        $sk = hash('fnv1a64', $s);
+        $t = base_convert(random_bytes(256), 16, 36); // 16-or-so random alphanums
+        $raw = Crypto::encrypt_string($t, hash(parent::HASHALGO, $s));
+        $value = rtrim(base64_encode($raw), '=');
+        set_module_param(parent::MODNAME, $sk, $value);
+    }
+};
+$init->set_seed();
 $pw = base64_decode('U29tZSB3b29ob28gdGhpbmd5IGdvZXMgaGVyZSE=').Crypto::random_string(8, true, true);
 PrefCrypter::encrypt_preference(PrefCrypter::MKEY, $pw);
 
@@ -100,9 +109,8 @@ unset($pw); $pw = null;
 foreach ($mailprefs as $key => $val) {
     $this->SetPreference($key, $val);
 }
-if ($this->platformed) {
-    $this->SetPreference('platform', null); //TODO alias
-}
+
+$this->SetPreference('platform', null); //TODO alias
 //$this->SetPreference('hourlimit', 100);
 //$this->SetPreference('daylimit', 1000);
 //$this->SetPreference('logsends', true);

@@ -38,7 +38,7 @@ final class AppParams
 	/**
 	 * @ignore
 	 */
-	const NAMESPACER = '\\\\'; //c.f. PHP namespace separator '\' Formerly '_mapi_pref_'
+	const NAMESPACER = '#]]#'; //c.f. formerly '_mapi_pref_' Note: no sep-chars with particular SQL meaning e.g. '\','_','%'
 
 	/**
 	 * @ignore
@@ -74,14 +74,12 @@ final class AppParams
 	 * Read cached site-preferences, NOT module-preferences
 	 * @ignore
 	 * @internal
-	 * @return mixed array | null The array might be empty
+	 * @return array, maybe empty
 	 */
 	private static function _read()
 	{
 		$db = SingleItem::Db();
-		if( !$db ) {
-			return;
-		}
+
 		// Note: extra '\' follows spacer, to prevent escaping what's next
 		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name NOT LIKE \'%'.self::NAMESPACER.'\%\' ORDER BY sitepref_name';
 		$dbr = $db->getAssoc($query);
@@ -258,15 +256,16 @@ EOS;
 	 * @since 2.0
 	 *
 	 * @param string $prefix Preference-name (not-falsy) prefix
-	 * @return mixed array of preference names that match the prefix, or null
+	 * @return array, maybe empty
 	 */
 	public static function list_by_prefix(string $prefix)
 	{
-		if( !$prefix ) return;
+		if( !$prefix ) return [];
 		$query = 'SELECT sitepref_name FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE ?';
 		$db = SingleItem::Db();
 		$wm = $db->escStr($prefix).'%';
 		$dbr = $db->getCol($query,[$wm]);
 		if( $dbr ) return $dbr;
+		return [];
 	}
 } // class

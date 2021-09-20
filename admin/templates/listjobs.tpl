@@ -1,15 +1,15 @@
-{if $jobs}{$core=lang_by_realm('jobs', 'core')}
-  <div class="pageinfo">{lang_by_realm('jobs', 'info_background_jobs')}</div>
+{if $jobs}{$core=_ld('jobs','core')}
+  <div class="pageinfo">{_ld('jobs','info_background_jobs')}</div>
   <table class="pagetable" style="width:auto;">
     <thead>
       <tr>
-        <th>{lang_by_realm('jobs', 'name')}</th>
-        <th>{lang_by_realm('jobs', 'origin')}</th>
-        <th>{lang_by_realm('jobs', 'created')}</th>
-        <th>{lang_by_realm('jobs', 'start')}</th>
-        <th>{lang_by_realm('jobs', 'frequency')}</th>
-        <th>{lang_by_realm('jobs', 'until')}</th>
-        <th>{lang_by_realm('jobs', 'errors')}</th>
+        <th>{_ld('jobs','name')}</th>
+        <th>{_ld('jobs','origin')}</th>
+        <th>{_ld('jobs','created')}</th>
+        <th>{_ld('jobs','start')}</th>
+        <th>{_ld('jobs','frequency')}</th>
+        <th>{_ld('jobs','until')}</th>
+        <th>{_ld('jobs','errors')}</th>
         <th class="pageicon"></th>
       </tr>
     </thead>
@@ -27,7 +27,7 @@
            {$job->start|relative_time}</span>
         {/if}{/strip}</td>
         <td>{$job->frequency}</td>
-        <td>{if $job->until}{$job->until|date_format:'%x %X'}{/if}</td>
+        <td>{if $job->until}{$job->until|cms_date_format:'timed'}{/if}</td>
         <td>{if $job->errors > 0}<span class="red">{$job->errors}</span>{/if}</td>
         <td></td>
       </tr>
@@ -35,5 +35,5 @@
     </tbody>
   </table>
 {else}
-  <div class="information">{lang_by_realm('jobs', 'info_no_jobs')}</div>
+  <div class="information">{_ld('jobs','info_no_jobs')}</div>
 {/if}

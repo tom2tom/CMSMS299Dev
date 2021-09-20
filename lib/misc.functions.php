@@ -31,6 +31,9 @@ If not, see <https://www.gnu.org/licenses/>.
  */
 namespace {
 
+use function CMSMS\add_page_content;
+use function CMSMS\remove_page_content;
+
 /**
  * Calculate the difference in seconds between two microtime() values.
  *
@@ -121,17 +124,16 @@ function is_directory_writable(string $path)
  * @param bool   $excludedir
  * @param string $fileprefix
  * @param bool   $excludefiles
- * @return mixed bool or array
- * Rolf: only used in this file
+ * @return array maybe empty
  */
 function get_matching_files(string $dir, string $extensions = '', bool $excludedot = true, bool $excludedir = true, string $fileprefix = '', bool $excludefiles = true)
 {
     if (!is_dir($dir)) {
-        return false;
+        return []; // OR throw ...
     }
     $dh = opendir($dir);
     if (!$dh) {
-        return false;
+        return []; // OR throw ...
     }
 
     if (!empty($extensions)) {
@@ -165,9 +167,6 @@ function get_matching_files(string $dir, string $extensions = '', bool $excluded
         $results[] = $file;
     }
     closedir($dh);
-    if (!$results) {
-        return false;
-    }
     return $results;
 }
 
@@ -588,21 +587,6 @@ function get_session_value(string $session_key, $default = '')
 }
 
 /**
- * Cache a callable for use immediately before the current session terminates
- * @ignore
- * @since 2.99
- * @see also CMSMS\internal\Session::register_destroy_function()
- * @todo any recorded data are not processed ATM
- */
-function register_endsession_function(callable $handler)
-{
-    if (!isset($_SESSION['end_handlers'])) {
-        $_SESSION['end_handlers'] = [];
-    }
-    $_SESSION['end_handlers'][] = json_encode($handler);
-}
-
-/**
  * Test whether a string is (potentially) base64-encoded
  *
  * @since 2.2
@@ -623,7 +607,7 @@ function is_base64(string $s) : bool
  */
 function add_page_headtext($content, $after = true)
 {
-    CMSMS\add_page_content($content, true, $after);
+    add_page_content($content, true, $after);
 }
 
 /**
@@ -634,7 +618,7 @@ function add_page_headtext($content, $after = true)
  */
 function remove_page_headtext($content)
 {
-    CMSMS\remove_page_content($content, true);
+    remove_page_content($content, true);
 }
 
 /**
@@ -646,7 +630,7 @@ function remove_page_headtext($content)
  */
 function add_page_foottext($content, $after = true)
 {
-    CMSMS\add_page_content($content, false, $after);
+    add_page_content($content, false, $after);
 }
 
 /**
@@ -657,7 +641,7 @@ function add_page_foottext($content, $after = true)
  */
 function remove_page_foottext($content)
 {
-    CMSMS\remove_page_content($content, false);
+    remove_page_content($content, false);
 }
 
 /**
@@ -670,7 +654,8 @@ const CMSSAN_NAME     = 8;
 const CMSSAN_PUNCTX   = 16;
 const CMSSAN_PURE     = 32;
 const CMSSAN_PURESPC  = 64;
-//const CMSSAN_ = 128;
+const CMSSAN_PHPSTRING = 128;
+//const CMSSAN_ = 256;
 const CMSSAN_FILE     = 512;
 const CMSSAN_PATH     = 1024;
 const CMSSAN_ACCOUNT  = 2048;
@@ -687,24 +672,29 @@ use const CMSSAN_NAME;
 use const CMSSAN_PUNCTX;
 use const CMSSAN_PURE;
 use const CMSSAN_PURESPC;
+use const CMSSAN_PHPSTRING;
 use const CMSSAN_FILE;
 use const CMSSAN_PATH;
 use const CMSSAN_ACCOUNT;
 use function CMSMS\de_entitize;
 use function CMSMS\entitize;
 
+// TODO migrate these vars and their handlers to page.functions script, use SingleItem methods
 /**
- * @var array
- * Accumulator for content to be included in the page header
+ * @var array Accumulator for content to be included in the page header
  */
 $PAGE_HEAD_CONTENT = [];
 
 /**
- * @var array
- * Accumulator for content to be included near page-end
+ * @var array Accumulator for content to be included near page-end
  * (immediately before the </body> tag).
  */
 $PAGE_BOTTOM_CONTENT = [];
+
+/**
+ * @var array Functions to be called during shutdown
+ */
+$SHUT_FUNCS = [];
 
 /**
  * @internal
@@ -723,25 +713,22 @@ function add_page_content($content, bool $top, bool $after = true)
         $holder = &$PAGE_BOTTOM_CONTENT;
     }
 
-    if( is_array($content) ) {
+    if (is_array($content)) {
         $clean = array_map('trim', $content);
         $more = array_diff($holder, $clean);
-        if( $more ) {
-            if( $after ) {
+        if ($more) {
+            if ($after) {
                 $holder = array_merge($holder, $more);
-            }
-            else {
+            } else {
                 $holder = array_merge($more, $holder);
             }
         }
-    }
-    else {
+    } else {
         $txt = trim($content);
-        if( $txt && !in_array($txt, $holder) ) {
-            if( $after ) {
+        if ($txt && !in_array($txt, $holder)) {
+            if ($after) {
                 $holder[] = $txt;
-            }
-            else {
+            } else {
                 array_unshift($holder, $txt);
             }
         }
@@ -764,13 +751,12 @@ function remove_page_content($content, bool $top)
         $holder = &$PAGE_BOTTOM_CONTENT;
     }
 
-    if( is_array($content) ) {
+    if (is_array($content)) {
         $clean = array_map('trim', $content);
         $holder = array_diff($holder, $clean);
-    }
-    else {
+    } else {
         $txt = trim($content);
-        if( $txt && ($p = array_search($txt, $holder) !== false) ) {
+        if ($txt && ($p = array_search($txt, $holder) !== false)) {
             unset($holder[$p]);
         }
     }
@@ -786,7 +772,7 @@ function get_page_content(bool $top)
     global $PAGE_HEAD_CONTENT, $PAGE_BOTTOM_CONTENT;
 
     $holder = ($top) ? $PAGE_HEAD_CONTENT : $PAGE_BOTTOM_CONTENT;
-    if( $holder ) {
+    if ($holder) {
         return implode(PHP_EOL, $holder).PHP_EOL;
     }
     return '';
@@ -796,6 +782,7 @@ function get_page_content(bool $top)
  * Return the accumulated content to be inserted into the head section
  * of the output page
  * @since 2.99
+ * @internal
  *
  * @return string
  */
@@ -808,6 +795,7 @@ function get_page_headtext() : string
  * Return the accumulated content to be inserted toward the bottom of
  * the output page
  * @since 2.99
+ * @internal
  *
  * @return string
  */
@@ -848,6 +836,8 @@ function get_page_foottext() : string
  *    (e.g. for a 'pure' 1-word name).
  * CMSSAN_PURESPC
  *  as for CMSSAN_PURE, but allow space(s) (e.g. for a clean multi-word value)
+ * CMSSAN_PHPSTRING
+ *  replicates the deprecated filter FILTER_SANITIZE_STRING, without any additional filter-flags
  * CMSSAN_FILE
  *  remove non-printable chars plus these: * ? \ / and substitute '_' for each space
  *    (e.g. for file names, modules, plugins, UDTs, templates, stylesheets, admin themes, frontend themes)
@@ -951,6 +941,10 @@ function sanitizeVal(string $str, int $scope = CMSSAN_PURE, string $ex = '') : s
             break;
         case CMSSAN_PURESPC:
             $patn = '/[^\w \-.\x80-\xff]/';
+            break;
+        case CMSSAN_PHPSTRING:
+            $str = strtr(strip_tags($str), ['"'=>'&#34;', "'"=>'&#39;']);
+            $patn = '/[\x00-\x08,\x0b,\x0c,\x0e-\x1f]/';
             break;
         default: // incl. CMSSAN_PURE
             $patn = '/[^\w\-.\x80-\xff]/';
@@ -1063,6 +1057,91 @@ function utf8_sort(array $arr, bool $preserve = false) : array
         $collator->sort($arr);
     }
     return $arr;
+}
+
+/**
+ * Call all registered end-of-request shutdown functions
+ * @since 2.99
+ * @global type $SHUT_FUNCS
+ */
+function run_shutters()
+{
+    global $SHUT_FUNCS;
+
+    usort ($SHUT_FUNCS, function($a,$b) {
+        return $a[0] <=> $b[0];
+    });
+    foreach ($SHUT_FUNCS as $row) {
+        if (is_callable($row[1])) {
+            if ($row[2]) {
+                $row[1](...$row[2]);
+            } else {
+                $row[1]();
+            }
+        }
+    }
+}
+
+/**
+ * Queue a shutdown-function
+ * @since 2.99
+ * @global array $SHUT_FUNCS
+ *
+ * @param int $priority 1(high)..big int(low). Default 1.
+ * @param callable $handler
+ * @param(s) varargs to pass to $handler
+ */
+function add_shutdown(int $priority, $handler, ...$args)
+{
+    global $SHUT_FUNCS;
+
+    $SHUT_FUNCS[] = [$priority, $handler, $args];
+}
+
+/**
+ * Cache a callable for use immediately before the current session terminates
+ * @since 2.99
+ * @internal
+ * @see also CMSMS\internal\Session::register_destroy_function()
+ *
+ * @param int $priority 1(high)..big int(low). Default 1.
+ * @param callable $handler
+ * @param(s) varargs to pass to $handler
+ */
+function register_endsession_function(int $priority, $handler, ...$args)
+{
+    if (!isset($_SESSION['end_handlers'])) {
+        $_SESSION['end_handlers'] = [];
+    }
+    $_SESSION['end_handlers'][] = json_encode([$priority, $handler, $args]);
+}
+
+// TODO this is never used ATM
+/**
+ * End-of-session-function: process all recorded handlers
+ * @since 2.99
+ * @internal
+ */
+function run_session_enders()
+{
+    if (!empty($_SESSION['end_handlers'])) {
+        $plain = [];
+        foreach ($_SESSION['end_handlers'] as $row) {
+            $plain[] = json_decode($row, true);
+        }
+        usort($plain, function($a,$b) {
+            return $a[0] <=> $b[0];
+        });
+        foreach ($plain as $row) {
+            if (is_callable($row[1])) {
+                if ($row[2]) {
+                    $row[1](...$row[2]);
+                } else {
+                    $row[1]();
+                }
+            }
+        }
+    }
 }
 
 } // namespace CMSMS

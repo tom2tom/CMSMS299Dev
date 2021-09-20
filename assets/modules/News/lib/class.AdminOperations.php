@@ -132,7 +132,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
      * @param type $itemid
      * @param type $fieldname
      * @param string-reference $error
-     * @return mixed string|false
+     * @return mixed string | false
      */
 /*
     public static function handle_upload($itemid,$fieldname,&$error)
@@ -261,12 +261,12 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     /**
      *
      * @param string $txt
-     * @return mixed array|null
+     * @return array, maybe empty
      */
     public static function optionstext_to_array($txt)
     {
         $txt = trim($txt);
-        if( !$txt ) return;
+        if( !$txt ) return [];
 
         $arr_options = [];
         $tmp1 = explode("\n",$txt);
@@ -282,7 +282,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
             }
             $arr_options[$tmp2_k] = $tmp2_v;
         }
-        if( $arr_options ) return $arr_options;
+        return $arr_options;
     }
 
     /**

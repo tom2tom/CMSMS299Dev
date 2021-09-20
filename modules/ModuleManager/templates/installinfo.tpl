@@ -1,12 +1,12 @@
 {if $is_upgrade}
-  <h3>{$mod->Lang('upgrade_module')} {$module_name} <em>({$mod->Lang('version')} {$module_version})</em></h3>
+  <h3>{_ld($_module,'upgrade_module')} {$module_name} <em>({_ld($_module,'version')} {$module_version})</em></h3>
 {else}
-  <h3>{$mod->Lang('install_module')} {$module_name} <em>({$mod->Lang('version')} {$module_version})</em></h3>
+  <h3>{_ld($_module,'install_module')} {$module_name} <em>({_ld($_module,'version')} {$module_version})</em></h3>
 {/if}
 
 <div class="pagewarn">
-  <h3>{$mod->Lang('notice')}:</h3>
-  {$mod->Lang('time_warning')}
+  <h3>{_ld($_module,'notice')}:</h3>
+  {_ld($_module,'time_warning')}
 </div>
 <div class="clearb"></div>
 
@@ -17,8 +17,8 @@
   {/foreach}
   {if $has_custom}
     <div class="pagewarn">
-      <h3>{$mod->Lang('warning')}</h3>
-      {$mod->Lang('warn_modulecustom')}
+      <h3>{_ld($_module,'warning')}</h3>
+      {_ld($_module,'warn_modulecustom')}
       <ul>
         {foreach $dependencies as $name => $rec}
           {if $rec.has_custom}<li>{$name}</li>{/if}
@@ -30,16 +30,16 @@
 
   {if count($dependencies) > 1}
     <div class="pagewarn">
-      <h3>{$mod->Lang('warning')}</h3>
-      {$mod->Lang('warn_dependencies')}
+      <h3>{_ld($_module,'warning')}</h3>
+      {_ld($_module,'warn_dependencies')}
     </div>
 
     <ul>
     {foreach $dependencies as $name => $rec}
       <li>
-        {if $rec.action == 'i'}{$mod->Lang('depend_install',$rec.name,$rec.version)}
-        {elseif $rec.action == 'u'}{$mod->Lang('depend_upgrade',$rec.name,$rec.version)}
-        {elseif $rec.action == 'a'}{$mod->Lang('depend_activate',$rec.name)}{/if}
+        {if $rec.action == 'i'}{_ld($_module,'depend_install',$rec.name,$rec.version)}
+        {elseif $rec.action == 'u'}{_ld($_module,'depend_upgrade',$rec.name,$rec.version)}
+        {elseif $rec.action == 'a'}{_ld($_module,'depend_activate',$rec.name)}{/if}
       </li>
     {/foreach}
     </ul>
@@ -50,11 +50,11 @@
 {$form_start}
 <div class="pageinput pregap">
  {if count($dependencies) > 1}
-  <button type="submit" name="{$actionid}submit" class="adminsubmit icon do">{$mod->Lang('install_procede')}</button>
+  <button type="submit" name="{$actionid}submit" class="adminsubmit icon do">{_ld($_module,'install_procede')}</button>
 {else}
- <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('install_submit')}</button>
+ <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{_ld($_module,'install_submit')}</button>
 {/if}
- <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+ <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{_ld($_module,'cancel')}</button>
 </div>
 </form>
 {/if}

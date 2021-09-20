@@ -43,7 +43,7 @@ if ($pclear && isset($_GET['clear'])) {
     SingleItem::AuditOperations()->clear();
     unset($_SESSION['adminlog_filter']);
     audit('','Admin log','Cleared');
-    $themeObject->RecordNotice('success', lang('adminlogcleared'));
+    $themeObject->RecordNotice('success', _la('adminlogcleared'));
 } elseif (isset($_GET['download'])) {
     if (isset($_SESSION['adminlog_filter']) && $_SESSION['adminlog_filter'] instanceof logfilter) {
         $filter = $_SESSION['adminlog_filter'];
@@ -54,14 +54,14 @@ if ($pclear && isset($_GET['clear'])) {
     $filter->limit = 1000000;
     $query = SingleItem::AuditOperations()->query($filter);
     if ($query && !$query->EOF()) {
-        $dateformat = trim(UserParams::get_for_user($userid, 'date_format_string'));
-        if (!$dateformat) $dateformat = trim(AppParams::get('defaultdateformat'));
-        if (!$dateformat) $dateformat = '%x %X';
+        $format = trim(UserParams::get_for_user($userid, 'datetime_format'));
+        if (!$format) $format = trim(AppParams::get('datetime_format'));
+        if (!$format) $format = 'Y-m-d H:i';
         header('Content-type: text/plain');
         header('Content-Disposition: attachment; filename="adminlog.txt"');
         do {
             $row = $query->GetObject(); // timestamp severity user_id username item_id subject message ip_addr
-            echo strftime($dateformat, $row['timestamp']).'|';
+            echo date($format, $row['timestamp']).'|';
             echo $row['username'] . '|';
             echo (((int)$row['item_id'] == -1) ? '' : $row['item_id']) . '|';
             echo $row['subject'] . '|';
@@ -129,11 +129,11 @@ if ($np > 0) {
 
 $results = $query->GetMatches();
 if ($results) {
-    $dateformat = trim(UserParams::get_for_user($userid, 'date_format_string'));
-    if (!$dateformat) $dateformat = trim(AppParams::get('defaultdateformat'));
-    if (!$dateformat) $dateformat = '%x %X';
+    $format = trim(UserParams::get_for_user($userid, 'datetime_format'));
+    if (!$format) $format = trim(AppParams::get('datetime_format'));
+    if (!$format) $format = 'Y-m-d H:i';
     foreach ($results as &$one) {
-        $one['when'] = strftime($dateformat, $one['timestamp']);
+        $one['when'] = date($format, $one['timestamp']);
         unset($one['timestamp']);
     }
     unset($one);
@@ -143,7 +143,7 @@ if ($results) {
 
 $selfurl = basename(__FILE__);
 $pageurl = $selfurl.get_secure_param().'&page=xxx';
-$prompt = json_encode(lang('sysmain_confirmclearlog'));
+$prompt = json_encode(_la('sysmain_confirmclearlog'));
 
 $js = <<<EOS
 <script type="text/javascript">
@@ -176,10 +176,10 @@ EOS;
 add_page_foottext($js);
 
 $severity_list = [
-    lang('message'),
-    lang('notice'),
-    lang('warning'),
-    lang('error'),
+    _la('message'),
+    _la('notice'),
+    _la('warning'),
+    _la('error'),
 ];
 
 //$t = 'filter-title';

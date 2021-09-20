@@ -36,6 +36,7 @@ use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use function audit;
 use function startswith;
+//use function CMSMS\sanitizeVal;
 
 /**
  * A singleton class to manage smarty plugins registered by modules.
@@ -66,6 +67,11 @@ final class ModulePluginOperations
 	 */
 	const AVAIL_ALL = 3;
 
+	/**
+	 * Singleton instance of this class.
+	 * No class properties to 'protect', not worth caching as
+	 *  SingleItem::ModulePluginOperations()
+	 */
 	private static $_instance = null;
 
 //	private function __construct() {} TODO public iff wanted by SingleItem ?
@@ -77,7 +83,7 @@ final class ModulePluginOperations
 	 * @param array $args Method argument(s)
 	 * @return mixed
 	 */
-	public static function __callStatic($name, $args)
+	public static function __callStatic(string $name, array $args)
 	{
 		$obj = self::get_instance();
 		if( $name == 'addStatic' ) {
@@ -95,8 +101,7 @@ final class ModulePluginOperations
 	}
 
 	/**
-	 * Get an instance of this class, for use by class static-methods.
-	 * No properties to 'protect', not worth caching as SingleItem::ModulePluginOperations()
+	 * Get an instance of this class, for use by class static-methods
 	 * @return self
 	 */
 	public static function get_instance() : self
@@ -112,9 +117,9 @@ final class ModulePluginOperations
 	public static function load_setup()
 	{
 		$obj = new LoadedDataType('module_plugins', function(bool $force) {
-			static $scan_depth = 0; // recursion blocker
-			if (++$scan_depth !== 1) {
-				--$scan_depth;
+			static $sema4 = 0; // recursion blocker
+			if( ++$sema4 !== 1 ) {
+				--$sema4;
 				return;
 			}
 			$data = [];
@@ -159,7 +164,7 @@ final class ModulePluginOperations
 					'available'=>(int)$row['available'],
 				];
 			}
-			--$scan_depth; // back to 0 for next time
+			--$sema4; // back to 0 for next time
 			return $data;
 		});
 		SingleItem::LoadedData()->add_type($obj);
@@ -230,7 +235,7 @@ final class ModulePluginOperations
 			// We're handling an action.  Check if it is for this call.
 			// We may be calling module plugins multiple times in the template,
 			// but a POST or GET mact can only be for one of them.
-			$mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
+			$mact = sanitizeVal($mact, CMSSAN_PHPSTRING);
 			$ary = explode(', ', $mact, 4);
 			$mactmodulename = $ary[0] ?? '';
 			if( strcasecmp($mactmodulename, $modname) == 0 ) {
@@ -302,7 +307,7 @@ final class ModulePluginOperations
 	 * @param string $type Optional tag type (commonly Smarty::PLUGIN_FUNCTION, maybe Smarty::PLUGIN_BLOCK,
 	 *  Smarty::PLUGIN_COMPILER, Smarty::PLUGIN_MODIFIER, Smarty::PLUGIN_MODIFIERCOMPILER)
 	 *  Default 'function'
-	 * @return mixed array | null Array members 'callable'=>string, 'cachable'=>bool
+	 * @return array 2 members: 'callable'=>string, 'cachable'=>bool | empty
 	 */
 	public function _load_plugin(string $name, string $type = 'function')
 	{
@@ -330,6 +335,7 @@ final class ModulePluginOperations
 				'cachable' => (bool)$row['cachable']
 			];
 		}
+		return [];
 	}
 
 	/**
@@ -338,8 +344,8 @@ final class ModulePluginOperations
 	 *
 	 * @param string $name tag identifier, usually a module-name (any case)
 	 * @param string $type tag-type 'function' etc
-	 * @return mixed array | null The array has members
-	 *  'name','module','type','callable','cachable','available'
+	 * @return array with members
+	 *  'name','module','type','callable','cachable','available'. Or empty
 	 */
 	public function _find(string $name, string $type)
 	{
@@ -351,6 +357,7 @@ final class ModulePluginOperations
 				}
 			}
 		}
+		return [];
 	}
 
 	/**

@@ -36,8 +36,8 @@ $access = check_permission($userid, 'View Tag Help');
 $pdev = $config['develop_mode'] || check_permission($userid, 'Modify Restricted Files');
 
 if (!($access || $pdev)) {
-//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+//TODO some pushed popup c.f. javascript:cms_notify('error', _la('no_permission') OR _la('needpermissionto', _la('perm_Manage_Groups')), ...);
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 $dirs = [];
@@ -78,22 +78,22 @@ if ($action == 'showpluginhelp') {
         $func_name();
         $content = ob_get_clean();
     } elseif (LangOperations::key_exists("help_{$type}_{$plugin}",'tags')) {
-        $content = LangOperations::lang_from_realm('tags',"help_{$type}_{$plugin}");
+        $content = LangOperations::domain_string('tags',"help_{$type}_{$plugin}");
     } elseif (LangOperations::key_exists("help_{$type}_{$plugin}")) {
-        $content = lang("help_{$type}_{$plugin}");
+        $content = _la("help_{$type}_{$plugin}");
     }
 
     if ($content) {
-        $smarty->assign('subheader',lang('pluginhelp',$plugin))
+        $smarty->assign('subheader',_la('pluginhelp',$plugin))
           ->assign('content',$content);
     } else {
-        $smarty->assign('error',lang('nopluginhelp'));
+        $smarty->assign('error',_la('nopluginhelp'));
     }
 } elseif ($action == 'showpluginabout') {
     $file = $find_file("$type.$plugin.php");
     if (is_file($file)) require_once $file;
 
-    $smarty->assign('subheader',lang('pluginabout',$plugin));
+    $smarty->assign('subheader',_la('pluginabout',$plugin));
     $func_name = 'smarty_cms_about_'.$type.'_'.$plugin;
     if (function_exists($func_name)) {
         ob_start();
@@ -102,7 +102,7 @@ if ($action == 'showpluginhelp') {
         ob_end_clean();
         $smarty->assign('content',$content);
     } else {
-        $smarty->assign('error',lang('nopluginabout'));
+        $smarty->assign('error',_la('nopluginabout'));
     }
 } else {
 
@@ -133,22 +133,22 @@ if ($action == 'showpluginhelp') {
                                 if (cms_move_uploaded_file($_FILES['pluginfile']['tmp_name'], $fn)) {
                                     // CHECKME register plugin with smarty?
                                 } else {
-                                    $error = lang('errorcantcreatefile');
+                                    $error = _la('errorcantcreatefile');
                                 }
                             } else {
-                                $error = lang('errorwrongfile');
+                                $error = _la('errorwrongfile');
                             }
                         } else {
-                            $error = lang('error_internal');
+                            $error = _la('error_internal');
                         }
                         break;
                     }
                 }
                 if (!$checked) {
-                    $error = lang('errorwrongfile');
+                    $error = _la('errorwrongfile');
                 }
             } elseif ($_FILES['pluginfile']['error'] > 0 || $_FILES['pluginfile']['size'] == 0) {
-                $error = lang('error_uploadproblem');
+                $error = _la('error_uploadproblem');
             }
             if ($error) {
                 $themeObject->RecordNotice('error', $error);
@@ -223,12 +223,12 @@ if ($action == 'showpluginhelp') {
     $smarty->assign([
       'pdev' => $pdev,
 	  'plugins' => $file_array,
-      'iconyes' => $themeObject->DisplayImage('icons/system/true.png',lang_by_realm('tags','title_admin'),'','','systemicon'),
-      'iconno' => $themeObject->DisplayImage('icons/system/false.png',lang_by_realm('tags','title_notadmin'),'','','systemicon'),
-      'iconcyes' => $themeObject->DisplayImage('icons/system/true.png',lang_by_realm('tags','title_cachable'),'','','systemicon'),
-      'iconcno' => $themeObject->DisplayImage('icons/system/false.png',lang_by_realm('tags','title_notcachable'),'','','systemicon'),
-      'iconhelp' => $themeObject->DisplayImage('icons/system/info.png',lang_by_realm('tags','viewhelp'),'','','systemicon'),
-      'iconabout' => $themeObject->DisplayImage('icons/extra/info.png',lang_by_realm('tags','viewabout'),'','','systemicon'),
+      'iconyes' => $themeObject->DisplayImage('icons/system/true.png',_ld('tags','title_admin'),'','','systemicon'),
+      'iconno' => $themeObject->DisplayImage('icons/system/false.png',_ld('tags','title_notadmin'),'','','systemicon'),
+      'iconcyes' => $themeObject->DisplayImage('icons/system/true.png',_ld('tags','title_cachable'),'','','systemicon'),
+      'iconcno' => $themeObject->DisplayImage('icons/system/false.png',_ld('tags','title_notcachable'),'','','systemicon'),
+      'iconhelp' => $themeObject->DisplayImage('icons/system/info.png',_ld('tags','viewhelp'),'','','systemicon'),
+      'iconabout' => $themeObject->DisplayImage('icons/extra/info.png',_ld('tags','viewabout'),'','','systemicon'),
 	]);
 }
 

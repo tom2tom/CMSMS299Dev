@@ -43,7 +43,7 @@ $lang['copy'] = 'Clone';
 $lang['created'] = 'Created';
 
 //$lang['dateformat'] = '%s not in a valid yyyy-mm-dd hh:mm:ss format';
-$lang['date_format'] = 'Displayed datetime format';
+$lang['date_format'] = 'Displayed date-value format';
 $lang['default_category'] = 'Item default category';
 $lang['default_templates'] = 'Default Templates';
 $lang['delete_article'] = 'Delete Item';
@@ -116,7 +116,7 @@ $lang['help_articles_pagelimit'] = 'Select the number of items to show in one pa
 $lang['help_bulk'] = 'Perform selected operation on all selected news item(s) at once';
 $lang['help_category_name'] = 'Enter a name for this category. Characters in the name and which are invalid in URL\'s will be removed. It is helpful to avoid characters which need url-endcoding.';
 $lang['help_category_parent'] = 'Optionally specify a parent category to build a hierarchy of categories.';
-$lang['help_date_format'] = 'Enter a format string recognizable by <a href="https://www.php.net/manual/function.strftime.php" class="external" target="_blank"><u>PHP strftime</u></a>. Best if the format suits useful sorting. Or if empty, the site-default setting will be used.';
+$lang['help_date_format'] = 'Enter a format string recognizable by <a href="https://www.php.net/manual/function.date.php" class="external" target="_blank"><u>PHP date</u></a>. Best if the format suits useful sorting. Or if empty, the site-default setting will be used.';
 $lang['help_detail_returnid'] = 'This preference specifies a site page (and therefore a template) to use for displaying news items in detail-format. Custom news-detail URL\'s will not work if this parameter is not set to a valid page. Additionally, if this preference is set, and no detailpage parameter is provided on the news tag, then this value will be used for detail links';
 $lang['help_dflt_category'] = 'This option allows specifying the default category for new news-items.';
 $lang['help_expired_searchable'] = 'If enabled, expired items might continue to be indexed by the search module, and appear in search results';
@@ -276,6 +276,7 @@ $lang['template'] = 'Template';
 $lang['templateadded'] = 'The template was successfully added.';
 $lang['templatedeleted'] = 'The template was successfully deleted.';
 $lang['templateupdated'] = 'The template was successfully updated.';
+$lang['time_format'] = 'Displayed time-value format';
 $lang['tip_addcategory'] = 'Add new category';
 $lang['tip_bulk'] = 'Select this item for bulk processing';
 $lang['tip_copy_template'] = 'Clone this template';

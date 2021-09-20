@@ -1,7 +1,7 @@
 {if empty($upcount)}
 <p>{$nvmessage}</p>
 {else}
-<div class="pageinfo">{if !empty($updatestxt)}{$updatestxt}{else}{$mod->Lang('info_searchtab')}{/if}</div>
+<div class="pageinfo">{if !empty($updatestxt)}{$updatestxt}{else}{_ld($_module,'info_searchtab')}{/if}</div>
 
 {function get_module_status_icon}
 {strip}
@@ -19,13 +19,13 @@
   <thead>
     <tr>
       <th></th>
-      <th>{$mod->Lang('nametext')}</th>
-      <th title="{$mod->Lang('title_newmoduleversion')}">{$mod->Lang('version')}</th>
-      <th title="{$mod->Lang('title_yourmoduledate')}">{$mod->Lang('releasedate')}</th>
-      <th title="{$mod->Lang('title_moduledownloads2')}">{$mod->Lang('downloads')}</th>
-      <th title="{$mod->Lang('title_modulesize2')}">{$mod->Lang('sizetext')}</th>
-      <th title="{$mod->Lang('title_yourmoduleversion')}">{$mod->Lang('yourversion')}</th>
-      <th title="{$mod->Lang('title_modulestatus')}">{$mod->Lang('statustext')}</th>
+      <th>{_ld($_module,'nametext')}</th>
+      <th title="{_ld($_module,'title_newmoduleversion')}">{_ld($_module,'version')}</th>
+      <th title="{_ld($_module,'title_yourmoduledate')}">{_ld($_module,'releasedate')}</th>
+      <th title="{_ld($_module,'title_moduledownloads2')}">{_ld($_module,'downloads')}</th>
+      <th title="{_ld($_module,'title_modulesize2')}">{_ld($_module,'sizetext')}</th>
+      <th title="{_ld($_module,'title_yourmoduleversion')}">{_ld($_module,'yourversion')}</th>
+      <th title="{_ld($_module,'title_modulestatus')}">{_ld($_module,'statustext')}</th>
       <th>&nbsp;</th>
       <th>&nbsp;</th>
       <th>&nbsp;</th>
@@ -45,9 +45,9 @@
     <td>{$entry->size|default:''}</td>
     <td>{if isset($entry->haveversion)}{$entry->haveversion}{/if}</td>
     <td>{$entry->status|default:''}</td>
-    <td><a href="{$entry->depends_url}" title="{$mod->Lang('title_moduledepends')}">{$mod->Lang('dependstxt')}</a></td>
-    <td><a href="{$entry->help_url}" title="{$mod->Lang('title_modulehelp')}">{$mod->Lang('helptxt')}</a></td>
-    <td><a href="{$entry->about_url}" title="{$mod->Lang('title_moduleabout')}">{$mod->Lang('abouttxt')}</a></td>
+    <td><a href="{$entry->depends_url}" title="{_ld($_module,'title_moduledepends')}">{_ld($_module,'dependstxt')}</a></td>
+    <td><a href="{$entry->help_url}" title="{_ld($_module,'title_modulehelp')}">{_ld($_module,'helptxt')}</a></td>
+    <td><a href="{$entry->about_url}" title="{_ld($_module,'title_moduleabout')}">{_ld($_module,'abouttxt')}</a></td>
   </tr>
 {/foreach}
   </tbody>

@@ -9,22 +9,22 @@ namespace OutMailer;
 
 //use OutMailer; module object in global namespace
 //use CMSMS\Utils as AppUtils;
-//use function cms_join_path;
-//use CMSMS\Crypto;
+use CMSMS\Crypto;
 use CMSMS\FormUtils;
-//use const CMS_DB_PREFIX;
+use CMSMS\SingleItem;
+use const CMS_DB_PREFIX;
+use function cms_join_path;
 
 class Utils
 {
-/* only if supporting mail platforms e.g. if($mod->platformed)
-    /* *
+    /**
      *
      * @param mixed $mod optional OutMailer module instance
      * @return array maybe empty
-     * /
+     */
     public static function get_platforms_full($mod = null) : array
     {
-        $db = cmsms()->GetDb();
+        $db = SingleItem::Db();
         $aliases = $db->getCol('SELECT alias FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE enabled>0');
         if (!$aliases) {
             return [];
@@ -47,15 +47,15 @@ class Utils
         return $objs;
     }
 
-    /* *
+    /**
      *
      * @param bool $title optional flag default false
      * @param mixed $mod optional OutMailer module instance
      * @return mixed platform class | null
-     * /
+     */
     public static function get_platform(bool $title = false, $mod = null)
     {
-        $db = cmsms()->GetDb();
+        $db = SingleItem::Db();
         $alias = ($title) ?
             $db->getOne('SELECT alias FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE title=? AND enabled>0', [$title]) :
             $db->getOne('SELECT alias FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE active>0 AND enabled>0');
@@ -77,12 +77,12 @@ class Utils
         return null;
     }
 
-    /* *
+    /**
      *
      * @param $mod OutMailer module instance
      * @param string $classname
      * @return bool
-     * /
+     */
     public static function setgate_full($mod, string $classname) : bool
     {
         $spaced = 'OutMailer\platforms\\'.$classname;
@@ -101,11 +101,11 @@ class Utils
         return false;
     }
 
-    /* *
+    /**
      *
      * @param mixed $obj platform class object
      * @return mixed int gate id | false
-     * /
+     */
     public static function setgate($obj)
     {
         $alias = $obj->get_alias();
@@ -121,7 +121,7 @@ class Utils
             $desc = null;
         }
 
-        $db = cmsms()->GetDb();
+        $db = SingleItem::Db();
         //upsert, sort-of
         $sql = 'SELECT id FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE alias=?';
         $gid = $db->getOne($sql, [$alias]);
@@ -137,10 +137,10 @@ class Utils
         return $gid;
     }
 
-    /* *
+    /**
      *
      * @param $mod OutMailer module instance
-     * /
+     */
     public static function refresh_platforms($mod)
     {
         $bp = cms_join_path(__DIR__, 'platforms', '');
@@ -148,7 +148,7 @@ class Utils
         if (!$files) {
             return;
         }
-        $db = cmsms()->GetDb();
+        $db = SingleItem::Db();
         $sql = 'SELECT id FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE alias=?';
         $found = [];
         foreach ($files as &$one) {
@@ -172,30 +172,30 @@ class Utils
         $db->execute($sql);
     }
 
-    /* *
+    /**
      *
      * @param int $gid TODO for table field: id or platform_id ??
      * @param array $props each member an array, with
      *  [0]=title [1]=apiname [2]=value [3]=encrypt
-     * /
+     */
     public static function setprops(int $gid, array $props)
     {
-        $db = cmsms()->GetDb();
+        $db = SingleItem::Db();
         $pref = CMS_DB_PREFIX;
         //upsert, sort-of
         //NOTE new parameters added with apiname 'todo' & signature NULL
         $sql1 = <<<EOS
-UPDATE {$pref}module_outmailer_props SET title=?,value=?,encvalue=?,
+UPDATE {$pref}module_outmailer_props SET title=?,plainvalue=?,encvalue=?,
 signature = CASE WHEN signature IS NULL THEN ? ELSE signature END,
 encrypt=?,apiorder=? WHERE gate_id=? AND apiname=?
 EOS;
-       	//just in case (platform_id,apiname) is not unique-indexed by the db
+        //just in case (platform_id,apiname) is not unique-indexed by the db
         $sql2 = <<<EOS
-INSERT INTO {$pref}module_outmailer_props (platform_id,title,value,encvalue,apiname,signature,encrypt,apiorder)
+INSERT INTO {$pref}module_outmailer_props (platform_id,title,plainvalue,encvalue,apiname,signature,encrypt,apiorder)
 SELECT ?,?,?,?,?,?,?,? FROM (SELECT 1 AS dmy) Z WHERE NOT EXISTS
 (SELECT 1 FROM {$pref}module_outmailer_props T1 WHERE T1.platform_id=? AND T1.apiname=?)
 EOS;
-10 params needed
+        //10 params needed
         $o = 1;
         foreach ($props as &$data) {
             if ($data[3]) {
@@ -212,32 +212,33 @@ EOS;
         unset($data);
     }
 
-    /* *
+    /**
      *
      * @param $mod OutMailer module instance UNUSED
      * @param int $gid platform enumerator/id
      * @return array each key = signature-field value, each value = array with keys
      *   'apiname' and 'value' (for which the actual value is decrypted if relevant)
-     * /
+     */
     public static function getprops($mod, int $gid) : array
     {
         $pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY);
-        $db = cmsms()->GetDb();
-        $props = $db->getAssoc('SELECT signature,apiname,value,encvalue,encrypt FROM '.CMS_DB_PREFIX.
+        $db = SingleItem::Db();
+        $props = $db->getAssoc('SELECT signature,apiname,plainvalue,encvalue,encrypt FROM '.CMS_DB_PREFIX.
          'module_outmailer_props WHERE gate_id=? AND enabled>0 ORDER BY apiorder',
          [$gid]);
         foreach ($props as &$row) {
             if ($row['encrypt']) {
                 $row['value'] = Crypto::decrypt_string($row['encvalue'], $pw);
+            } else {
+                $row['value'] = $row['plainvalue'];
             }
-            unset($row['encrypt'], $row['encvalue']);
+            unset($row['encrypt'], $row['plainvalue'], $row['encvalue']);
         }
         unset($row, $pw);
         $pw = null;
         return $props;
     }
-// end platforms-only
-*/
+
     /**
      *
      * @param $mod OutMailer module instance
@@ -305,7 +306,7 @@ EOS;
 /*
   public static function log_send($ip_address, $mobile, $msg, $statuOutMailer = '')
     {
-        $db = cmsms()->GetDb();
+        $db = SingleItem::Db();
         $sql = 'INSERT INTO '.CMS_DB_PREFIX.'module_outmailer_sent (mobile,ip,msg,sdate) VALUES (?,?,?,NOW())';
         $db->execute($sql, [$mobile, $ip_address, $msg]);
     }
@@ -323,7 +324,7 @@ EOS;
             $days = 1;
         }
         $time -= $days * 86400;
-        $db = cmsms()->GetDb();
+        $db = SingleItem::Db();
         if ($mod->GetPreference('logsends')) {
             $limit = $db->DbTimeStamp($time);
             $db->execute('DELETE FROM '.CMS_DB_PREFIX.'module_outmailer_sent WHERE sdate<'.$limit);
@@ -334,7 +335,7 @@ EOS;
 
     public static function ip_can_send(&$mod, $ip_address)
     {
-        $db = cmsms()->GetDb();
+        $db = SingleItem::Db();
         $t = time();
         $longnow = $db->DbTimeStamp($t);
 

@@ -102,7 +102,7 @@ EOS;
         if ($mod) {
             $data = $mod->fetch_login_panel();
         } else {
-            die('System error');
+            exit('System error');
         }
 
         $smarty = SingleItem::Smarty();
@@ -152,7 +152,7 @@ EOS;
     public function fetch_menu_page($section_name)
     {
         if ($section_name) {
-            $page_title = lang($section_name);
+            $page_title = _la($section_name);
             $nodes = $this->get_navigation_tree($section_name, -1, FALSE);
         } else {
             $page_title = '';
@@ -204,7 +204,7 @@ EOS;
                 if (!$extra) {
                     $extra = [];
                 }
-                $title = lang($title, $extra);
+                $title = _la($title, $extra);
             }
         } elseif ($this->title) {
             $title = $this->title;

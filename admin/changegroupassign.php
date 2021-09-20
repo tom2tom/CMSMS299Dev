@@ -40,8 +40,8 @@ $userid = get_userid();
 $themeObject = SingleItem::Theme();
 
 if (!check_permission($userid, 'Manage Groups')) {
-//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+//TODO some pushed popup c.f. javascript:cms_notify('error', _la('no_permission') OR _la('needpermissionto', _la('perm_Manage_Groups')), ...);
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 $groupops = SingleItem::GroupOperations();
@@ -61,7 +61,7 @@ $smarty->assign([
     'pmod' => !$supergrp, // current user may 'Manage Groups' but not in Group 1
 ]);
 
-$group_list = $groupops->LoadGroups(); // Group or stdClass objects, used in filter/selector element
+$group_list = $groupops->LoadGroups();
 $groups = []; // displayable Group-object(s)
 
 if (isset($_POST['filter'])) {
@@ -80,7 +80,7 @@ foreach ($group_list as $onegroup) {
 if (count($group_list) > 1) {
     $tmp = new stdClass();
     $tmp->id = -1;
-    $tmp->name = lang('all_groups');
+    $tmp->name = _la('all_groups');
     array_unshift($group_list, $tmp);
 }
 
@@ -141,7 +141,7 @@ VALUES (?,?,NOW())');
     $stmt2->close();
     $stmt3->close();
 
-    $message = lang('assignmentchanged');
+    $message = _la('assignmentchanged');
 //    AdminUtils::clear_cached_files();
 //    SingleItem::LoadedData()->refresh('IF ANY');
 }

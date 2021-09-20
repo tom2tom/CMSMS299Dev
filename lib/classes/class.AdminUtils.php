@@ -68,9 +68,10 @@ final class AdminUtils
 {
 	/**
 	 * A regular expression to use when testing if an item has a valid name.
-	 * @see also CMSMS\sanitizeVal(..., CMSSAN_NAME)
+	 * Valid if the name has initial (regex) 'word' char, then any number of 'word' or '/+-., ' char(s)
+	 * @see also CMSMS\sanitizeVal(..., CMSSAN_NAME) which is similar
 	 */
-	private const ITEMNAME_REGEX = '<^[a-zA-Z0-9_\x80-\xff][a-zA-Z0-9_\ \/\+\-\, \.\x80-\xff]*$>';
+	private const ITEMNAME_REGEX = '<^[a-zA-Z0-9_\x80-\xff][a-zA-Z0-9_/+\-., \x80-\xff]*$>';
 
 	/**
 	 * @ignore
@@ -257,7 +258,7 @@ final class AdminUtils
 			if ($module) {
 				$key1 = $module;
 			} else {
-				$key1 = 'help'; //default realm for lang
+				$key1 = 'help'; //default translation-domain for popup help
 			}
 		}
 

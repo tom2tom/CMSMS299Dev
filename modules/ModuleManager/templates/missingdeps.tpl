@@ -1,15 +1,15 @@
 <div class="pageoptions" style="text-align: right; float: right; margin-right: 3%;">
-  <a href="{$back_url}" class="link_button icon back">{$mod->Lang('back')}</a>
+  <a href="{$back_url}" class="link_button icon back">{_ld($_module,'back')}</a>
 </div>
 
-<p class="pageheader">{$mod->Lang('title_missingdeps2')}:</p>
+<p class="pageheader">{_ld($_module,'title_missingdeps2')}:</p>
 <table class="pagetable">
   <tr>
-    <td>{$mod->Lang('nametext')}:</td>
+    <td>{_ld($_module,'nametext')}:</td>
     <td>{$info.name}</td>
   </tr>
   <tr>
-    <td>{$mod->Lang('version')}:</td>
+    <td>{_ld($_module,'version')}:</td>
     <td>{$info.version}</td>
   </tr>
 </table>
@@ -17,8 +17,8 @@
 <table class="pagetable">
   <thead>
     <tr>
-      <th>{$mod->Lang('nametext')}</th>
-      <th>{$mod->Lang('minversion')}</th>
+      <th>{_ld($_module,'nametext')}</th>
+      <th>{_ld($_module,'minversion')}</th>
     </tr>
   </thead>
   <tbody>

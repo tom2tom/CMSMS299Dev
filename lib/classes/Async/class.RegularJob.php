@@ -60,7 +60,7 @@ class RegularJob extends CronJob
      * @param string $key
      * @return mixed
      */
-/*    public function __get($key)
+/*    public function __get(string $key)
     {
         return parent::__get($key);
     }
@@ -73,7 +73,7 @@ class RegularJob extends CronJob
      * @param mixed $val
      * @throws UnexpectedValueException
      */
-    public function __set($key, $val)
+    public function __set(string $key, $val)
     {
         switch ($key) {
         case 'task':

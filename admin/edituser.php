@@ -52,8 +52,8 @@ if (!empty($_POST['user_id'])) {
 $selfedit = ($userid == $user_id);
 
 if (!($selfedit || check_permission($userid, 'Manage Users'))) {
-    //TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Users')), ...);
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+    //TODO some pushed popup c.f. javascript:cms_notify('error', _la('no_permission') OR _la('needpermissionto', _la('perm_Manage_Users')), ...);
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 $themeObject = SingleItem::Theme();
@@ -92,9 +92,9 @@ if (isset($_POST['submit'])) {
     $tmp = trim($_POST['user']);
     $username = sanitizeVal($tmp, CMSSAN_ACCOUNT);
     if ($username != $tmp) {
-        $errors[] = lang('illegalcharacters', lang('username'));
+        $errors[] = _la('illegalcharacters', _la('username'));
     } elseif (!($username || is_numeric($username))) { // allow username '0' ??
-        $errors[] = lang('nofieldgiven', lang('username'));
+        $errors[] = _la('nofieldgiven', _la('username'));
     }
 
     $firstname = sanitizeVal(trim($_POST['firstname']), CMSSAN_NONPRINT); // OR no-gibberish 2.99 breaking change
@@ -106,11 +106,11 @@ if (isset($_POST['submit'])) {
         //per https://pages.nist.gov/800-63-3/sp800-63b.html : valid = printable ASCII | space | Unicode
         $password = sanitizeVal($tpw, CMSSAN_NONPRINT);
         if (!$password || $password != $tpw) {
-            $errors[] = lang('illegalcharacters', lang('password'));
+            $errors[] = _la('illegalcharacters', _la('password'));
         } else {
             $again = sanitizeVal($tpw2, CMSSAN_NONPRINT);
             if ($password != $again) {
-                $errors[] = lang('nopasswordmatch');
+                $errors[] = _la('nopasswordmatch');
             }
         }
     } else {
@@ -123,7 +123,7 @@ if (isset($_POST['submit'])) {
     $tmp = trim($_POST['email']);
     $email = sanitizeVal($tmp, CMSSAN_NONPRINT);
     if (($email != $tmp) || ($email && !is_email($email))) {
-        $errors[] = lang('invalidemail') . ': ' . $email;
+        $errors[] = _la('invalidemail') . ': ' . $email;
         $mailcheck = null;
     } else {
         $mailcheck = $email;
@@ -140,7 +140,7 @@ if (isset($_POST['submit'])) {
     if (isset($_POST['copyusersettings']) && $_POST['copyusersettings'] > 0) {
         if (isset($_POST['clearusersettings'])) {
             // error: both can't be set
-            $errors[] = lang('error_multiusersettings');
+            $errors[] = _la('error_multiusersettings');
         }
     }
 
@@ -183,17 +183,17 @@ if (isset($_POST['submit'])) {
                     // put mention into the admin log
                     audit($userid, 'Admin User ' . $userobj->username, ' Edited');
                     Events::SendEvent('Core', 'EditUserPost', ['user' => &$userobj]);
-                    $themeObject->RecordNotice('success', lang('accountupdated'));
+                    $themeObject->RecordNotice('success', _la('accountupdated'));
                 } else {
-                    $errors[] = lang('error_internal');
+                    $errors[] = _la('error_internal');
                 }
             } elseif ($password) {
-                $errors[] = lang('error_passwordinvalid');
+                $errors[] = _la('error_passwordinvalid');
             }
         }
 
         if ($result) {
-            $message = [lang('edited_user')];
+            $message = [_la('edited_user')];
             if (isset($_POST['copyusersettings']) && $_POST['copyusersettings'] > 0) {
                 // block supperuser replication unless current user is super
                 if ($userid == 1 || $_POST['copyusersettings'] > 1) {
@@ -205,19 +205,19 @@ if (isset($_POST['submit'])) {
                             UserParams::set_for_user($user_id, $k, $v);
                         }
                         audit($user_id, 'Admin User ' . $userobj->username, 'Settings copied from template user');
-                        $message[] = lang('msg_usersettingscopied');
+                        $message[] = _la('msg_usersettingscopied');
                     }
                 } else {
-                    $errors[] = lang('errorupdatinguser'); // TODO better advice
+                    $errors[] = _la('errorupdatinguser'); // TODO better advice
                 }
             } elseif (isset($_POST['clearusersettings'])) {
                 if ($user_id > 1) {
                     // clear all preferences for this user.
                     audit($user_id, 'Admin User ' . $userobj->username, ' Settings cleared');
                     UserParams::remove_for_user($user_id);
-                    $message[] = lang('msg_usersettingscleared');
+                    $message[] = _la('msg_usersettingscleared');
                 } else {
-                    $errors[] = lang('errorupdatinguser'); // TODO better advice
+                    $errors[] = _la('errorupdatinguser'); // TODO better advice
                 }
             }
 
@@ -229,7 +229,7 @@ if (isset($_POST['submit'])) {
             }
             redirect('listusers.php?'.$urlext);
         } else {
-            $errors[] = lang('errorupdatinguser');
+            $errors[] = _la('errorupdatinguser');
         }
     }
     $email = specialize($userobj->email);
@@ -268,7 +268,7 @@ $jsm = new ScriptsMerger();
 $jsm->queue_matchedfile('jquery-inputCloak.js', 1);
 
 //$nonce = get_csp_token();
-$confirm = json_encode(lang('confirm_edituser'));
+$confirm = json_encode(_la('confirm_edituser'));
 $js = <<<EOS
 $(function() {
  $('#password,#passagain').inputCloak({
@@ -306,7 +306,7 @@ if ($out) {
 }
 
 //data for user-selector
-$sel = [-1 => lang('none')];
+$sel = [-1 => _la('none')];
 $userlist = $userops->LoadUsers();
 foreach ($userlist as $one) {
     if ($one->id != $user_id) {

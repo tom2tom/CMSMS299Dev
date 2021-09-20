@@ -40,6 +40,9 @@ use CMSMS\RouteOperations;
 use CMSMS\SingleItem;
 use CMSMS\Utils;
 use ContentManager\BulkOperations;
+use function CMSMS\get_site_UUID;
+use function CMSMS\sanitizeVal;
+use function CMSMS\template_processing_allowed;
 //use function CMSMS\de_entitize;
 
 /**
@@ -47,9 +50,9 @@ use ContentManager\BulkOperations;
  *
  * All modules should inherit and extend this class with their functionality.
  *
- * @since       0.9
- * @version     2.99
- * @package     CMS
+ * @since   0.9
+ * @version 2.99
+ * @package CMS
  */
 abstract class CMSModule
 {
@@ -142,7 +145,7 @@ abstract class CMSModule
     /**
      * @ignore
      */
-    public function __get($key)
+    public function __get(string $key)
     {
         switch( $key ) {
         case 'cms':
@@ -160,7 +163,7 @@ abstract class CMSModule
      *
      * @ignore
      */
-    public function __call($name, $args)
+    public function __call(string $name, array $args)
     {
         if (strncmp($name, 'Create', 6) == 0) {
             //maybe it's a now-removed form-element call
@@ -672,7 +675,6 @@ abstract class CMSModule
                     // see if one matches via regular expressions
                     foreach( $map as $mk => $mv ) {
                         if(strstr($mk,CLEAN_REGEXP) === false) continue;
-
                         // mk is a regular expression
                         $ss = substr($mk,strlen(CLEAN_REGEXP));
                         if( $ss !== false ) {
@@ -699,7 +701,7 @@ abstract class CMSModule
                         // pass through without cleaning.
                         break;
                     case 'CLEAN_STRING':
-                        $value = filter_var($value, FILTER_SANITIZE_STRING);
+                        $value = sanitizeVal($value, CMSSAN_PHPSTRING); // deprecated FILTER_SANITIZE_STRING-compatible
                         break;
                     case 'CLEAN_FILE':
                         $value = realpath($value);
@@ -710,8 +712,8 @@ abstract class CMSModule
                         break;
                     default:
                         if (is_string($value) && $value !== '') {
-                            $value = filter_var($value, FILTER_SANITIZE_STRING,
-                                    FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+                            $ss = strtr(strip_tags($value), ['`'=>'', '"'=>'&#34;', "'"=>'&#39;']); // deprecated FILTER_SANITIZE_STRING-replacement
+                            $value = filter_var($ss, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_LOW);
                         }
                         break;
                     } // switch
@@ -724,21 +726,21 @@ abstract class CMSModule
                 $mappedcount++;
                 $mapped = true;
                 if (is_string($value) && $value !== '') {
-                    $value = filter_var($val, FILTER_SANITIZE_STRING,
-                            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+                    $ss = strtr(strip_tags($value), ['`'=>'', '"'=>'&#34;', "'"=>'&#39;']);
+                    $value = filter_var($ss, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_LOW);
                 }
             }
 
             if ($clean_keys) {
-                $key = filter_var($key, FILTER_SANITIZE_STRING,
-                        FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+                $ss = strtr(strip_tags($key), ['`'=>'', '"'=>'&#34;', "'"=>'&#39;']);
+                $key = filter_var($ss, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_LOW);
             }
 
             if( !$mapped && !$allow_unknown ) {
-                trigger_error('Parameter '.$key.' is not known by module '.$modulename.' dropped',E_USER_WARNING);
+                trigger_error('Parameter '.$key.' is not known by module '.$modulename.', so dropped', E_USER_WARNING);
                 continue;
             }
-            $result[$key]=$value;
+            $result[$key] = $value;
         }
         return $result;
     }
@@ -1006,7 +1008,7 @@ abstract class CMSModule
      * @param array  $blockParams Content block parameters
      * @param array  $inputParams input parameters
      * @param ContentBase $content_obj The content object being edited.
-     * @return mixed|false The content block value if possible.
+     * @return mixed The content block value if possible | false
      */
     public function GetContentBlockFieldValue($blockName, $blockParams, $inputParams, ContentBase $content_obj)
     {
@@ -1199,9 +1201,9 @@ abstract class CMSModule
 
     /**
      * Function called during module uninstallation, to get an indicator of
-	 * whether to also remove all module events, event handlers, module
-	 * templates, and preferences. In either case, the module must remove
-	 * its own database tables, and permissions.
+     * whether to also remove all module events, event handlers, module
+     * templates, and preferences. In either case, the module must remove
+     * its own database tables, and permissions.
      * @abstract
      * @return bool Whether the uninstaller may remove module ancillary data. Default true.
      */
@@ -1338,19 +1340,20 @@ abstract class CMSModule
     }
 
     /**
-     * Return a array of AdminMenuItem objects representing menu items for the admin nav for this module.
+     * Return AdminMenuItem object(s) representing menu items for the admin nav for this module.
      *
      * This method should do all permissions checking when building the array of objects.
      *
      * @since 2.0
      * @abstract
-     * @return mixed array of AdminMenuItem objects, or NULL
+     * @return array AdminMenuItem object[s] | empty
      */
     public function GetAdminMenuItems()
     {
         if ($this->VisibleToAdminUser()) {
             return [AdminMenuItem::from_module($this)];
         }
+		return [];
     }
 
     /**
@@ -1528,7 +1531,7 @@ abstract class CMSModule
      * @param mixed $id string|null GET|POST-submitted-parameters name-prefix e.g. 'm1_' for admin
      * @param array  $params The parameters targeted for this module
      * @param mixed int|''|null $returnid Identifier of the page being displayed, ''|null for admin
-     * @return mixed callable|null
+     * @return mixed callable | null
      */
 /* action-spoofing : NOT YET, IF EVER
     protected function get_controller(string $name, $id, array $params, $returnid = null)
@@ -1625,10 +1628,10 @@ abstract class CMSModule
                     $gCms = SingleItem::App();
                     $db = SingleItem::Db();
                     $config = SingleItem::Config();
-                    $uuid = $gCms->GetSiteUUID(); //since 2.99
-                    // TODO if $gCms->JOBTYPE aka $CMS_JOB_TYPE? == 2 (etc?), no template-processing, no $smarty
-                    $smarty = (!empty($this->_action_tpl)) ? $this->_action_tpl : SingleItem::Smarty();
-
+                    $uuid = get_site_UUID(); //since 2.99
+                    if( template_processing_allowed() ) {
+                        $smarty = (!empty($this->_action_tpl)) ? $this->_action_tpl : SingleItem::Smarty();
+                    }
                     ob_start();
                     $result = include $filename;
                     $out = ob_get_clean();
@@ -1660,8 +1663,8 @@ abstract class CMSModule
 //output from action 'controller' if relevant, or null, or N/A
     public function DoActionBase($action, $id, $params, $returnid, $smartob)
     {
-        $action = preg_replace('/[^a-zA-Z0-9\-_+]/', '', $action); //simple sanitize
-        $id = filter_var($id, FILTER_SANITIZE_STRING); //only alphanum
+        $action = preg_replace('/[^\w\-+]/', '', $action); //simple sanitize
+        $id = preg_replace('/\W/', '', $id); //only alphanum
 
         if( is_numeric($returnid) ) { // assumes 0 value N/A for admin
             // merge in params from module hints.
@@ -1703,8 +1706,7 @@ abstract class CMSModule
             $returnid = null;
         }
 
-        $gCms = SingleItem::App();
-        if( ($cando = $gCms->template_processing_allowed()) ) { //TODO reconcile: ($gCms->JOBTYPE < 2) = no template-processing, no $smarty
+        if( ($cando = template_processing_allowed()) ) {
             if( $smartob instanceof Smarty ) {
                 $smarty = $smartob;
             } else {
@@ -2300,7 +2302,7 @@ abstract class CMSModule
      *
      * @final
      * @param string $modname The required module's name.
-     * @return mixed CMSModule-derivative module object, or falsy
+     * @return mixed CMSModule-derivative module object | falsy
      */
     final public static function GetModuleInstance(string $modname)
     {
@@ -2342,10 +2344,8 @@ abstract class CMSModule
     public function Lang()
     {
         $args = func_get_args(); //...$args would break the API
-        //push module name onto front of array
-        array_unshift($args,$this->GetName());
-
-        return LangOperations::lang_from_realm(...$args);
+        //prepend module name as the domain
+        return LangOperations::domain_string($this->GetName(), ...$args);
     }
 
     /**
@@ -2458,7 +2458,7 @@ abstract class CMSModule
      * @param string $tpl_name    The template name
      * @param string $modulename  Since 2.99 optional name. Default current-module's name.
      * @return array
-     * @return mixed string|null
+     * @return mixed string | null
      */
     final public function GetTemplateFromFile(string $tpl_name, string $modulename = '')
     {
@@ -2509,7 +2509,7 @@ abstract class CMSModule
      * @param string  $designation Optional cache Designation (ignored)
      * @param bool    $cache       Optional cache flag  (ignored)
      * @param string  $cacheid     Optional unique cache flag (ignored)
-     * @return mixed  string or null
+     * @return mixed  string | null
      */
     final public function ProcessTemplate(string $tpl_name, string $designation = '', bool $cache = false, string $cacheid = '') : string
     {
@@ -2542,7 +2542,7 @@ abstract class CMSModule
      * @param string $designation (optional) Designation (ignored)
      * @param bool $cache (optional) Cacheable flag (ignored)
      * @param string $modulename (ignored)
-     * @return mixed string|null
+     * @return mixed string | null
      */
     final public function ProcessTemplateFromDatabase(string $tpl_name, string $designation = '', bool $cache = false, string $modulename = '')
     {
@@ -3049,16 +3049,16 @@ abstract class CMSModule
 
     /**
      * List all preferences for a specific module by prefix.
-     *
-     * @final
-     * @param string $prefix
-     * @return mixed An array of preference names, or null.
      * @since 2.0
+     * @final
+	 *
+     * @param string $prefix
+     * @return array preference name(s) | empty
      * @throws RuntimeException
      */
     final public function ListPreferencesByPrefix(string $prefix)
     {
-        if( !$prefix ) return;
+        if( !$prefix ) return [];
         $prefix = $this->GetName().AppParams::NAMESPACER.$prefix;
         $tmp = AppParams::list_by_prefix($prefix);
         if( $tmp ) {
@@ -3070,6 +3070,7 @@ abstract class CMSModule
             }
             return $tmp;
         }
+		return [];
     }
 
     /**

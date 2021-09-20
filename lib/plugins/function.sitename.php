@@ -48,7 +48,7 @@ EOS;
 function smarty_cms_help_function_sitename()
 {
 	$n = lang('none');
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin retrieves the name of the website',
 	'sitename',
 	"<li>$n</li>");

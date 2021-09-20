@@ -94,12 +94,14 @@ class Link extends ContentBase
 
 	public function ShowElement($propname, $adding)
 	{
-		$id = 'm1_';
 		switch($propname) {
 		case 'url':
 			$u = urlSpecialize(''.$this->GetPropertyValue('url'));
-			return [$this->mod->Lang('url').':','<input type="text" name="'.$id.'url" size="50" maxlength="255" value="'.$u.'" />'];
-			break;
+			return [
+			'for="pageurl">'.$this->mod->Lang('url'),
+			'',
+			'<input type="text" id="pageurl" name="m1_url" size="50" maxlength="255" value="'.$u.'" />'
+			];
 
 		default:
 			return parent::ShowElement($propname,$adding);

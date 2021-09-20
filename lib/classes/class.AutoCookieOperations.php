@@ -79,7 +79,7 @@ class AutoCookieOperations extends SignedCookieOperations
      * will automatically decode the cookie from a string into a more complex data type.
      *
      * @param string $key
-     * @return mixed
+     * @return mixed value | null
      */
     public function get(string $key)
     {

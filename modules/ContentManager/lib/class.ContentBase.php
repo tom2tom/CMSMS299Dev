@@ -113,10 +113,10 @@ abstract class ContentBase implements IContentEditor, Serializable
 	protected $mod;
 
 	/**
-	 * Module object name, for translation-domain purposes
+	 * Module name, used for translation-domain
 	 * @ignore
 	 */
-	protected $realm;
+	protected $domain;
 
 	/**
 	 * The numeric identifier of this content
@@ -256,6 +256,14 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 */
 	protected $mSecure = 0;
 
+	/* * 
+	 * The content-type of this page ('content','link' etc)
+	 * String
+	 *
+	 * @internal
+	 */
+//	protected $mType = ''; not cached, derived from classname
+
 	/**
 	 * URL
 	 *
@@ -339,9 +347,9 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 */
 	private $_editable_properties;
 
-	/************************************************************************/
-	/* Construction related													*/
-	/************************************************************************/
+	/************************/
+	/* Construction related	*/
+	/************************/
 
 	/**
 	 * @param mixed $params Optional array of property names and values, or null
@@ -349,7 +357,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	public function __construct($params = null)
 	{
 		$this->mod = AppUtils::get_module('ContentManager');
-		$this->realm = $this->mod->GetName();
+		$this->domain = $this->mod->GetName();
 		if( is_array($params) ) {
 			$this->LoadFromData($params);
 		}
@@ -418,6 +426,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 			'tabindex' => $this->mTabIndex,
 			'template_id' => $this->mTemplateId,
 			'titleattribute' => $this->mTitleAttribute,
+//			'type' => $this->mType,
 			'wants_children' => $w, // method, not property
 		];
 		//TODO non-core properties 'tpltype_id','csstype_id' to support typed components for theme switching
@@ -460,6 +469,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 		$this->mTabIndex	 = $data['tabindex'] ?? 0; // since 2.0, default formerly was 1
 		$this->mTemplateId	 = $data['template_id'] ?? 0;
 		$this->mTitleAttribute = $data['titleattribute'] ?? null;
+//		$this->mType		= $data['type'] ?? null;
 
 		$result = true;
 		if( $loadProperties ) {
@@ -624,7 +634,12 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @param string $propname The property name
 	 * @param bool $adding Whether we are in add or edit mode.
-	 * @return mixed 2-member array: [0] = label, [1] = input element | null | false
+	 * @return array 3- or 4-members
+	 * [0] = heart-of-label 'for="someid">text' | text
+	 * [1] = popup-help | ''
+	 * [2] = input element | text
+	 * [3] = optional extra displayable content
+	 * or empty
 	 */
 	public function ShowElement($propname, $adding)
 	{
@@ -632,41 +647,53 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 		switch( $propname ) {
 		case 'title':
-			$help = AdminUtils::get_help_tag($this->realm,'help_content_title',$this->mod->Lang('help_title_content_title'));
-			return ['<label for="in_title">*'.$this->mod->Lang('title').':</label>&nbsp;' .$help,
-					'<input type="text" id="in_title" name="'.$id.'title" required="required" value="'. specialize($this->mName).'" />'];
+			return [
+			'for="in_title">* '.$this->mod->Lang('title'),
+			AdminUtils::get_help_tag($this->domain,'help_content_title',$this->mod->Lang('help_title_content_title')),
+			'<input type="text" id="in_title" name="'.$id.'title" required="required" value="'. specialize($this->mName).'" />'
+			];
 
 		case 'menutext':
-			$help = AdminUtils::get_help_tag($this->realm,'help_content_menutext',$this->mod->Lang('help_title_content_menutext'));
-			return ['<label for="in_menutext">'.$this->mod->Lang('menutext').':</label>&nbsp;'.$help,
-					'<input type="text" id="in_menutext" name="'.$id.'menutext" value="'. specialize($this->mMenuText).'" />'];
+			return [
+			'for="in_menutext">'.$this->mod->Lang('menutext'),
+			AdminUtils::get_help_tag($this->domain,'help_content_menutext',$this->mod->Lang('help_title_content_menutext')),
+			'<input type="text" id="in_menutext" name="'.$id.'menutext" value="'. specialize($this->mMenuText).'" />'
+			];
 
 		case 'parent':
-			$out = AdminUtils::CreateHierarchyDropdown($this->mId, $this->mParentId, 'parent_id', ($this->mId <= 0), true, true, true);
-			if( !($out || check_permission(get_userid(),'Manage All Content')) ) {
-				return ['','<input type="hidden" name="'.$id.'parent_id" value="'.$this->mParentId.'" />'];
+			$input = AdminUtils::CreateHierarchyDropdown($this->mId, $this->mParentId, 'parent_id', ($this->mId <= 0), true, true, true);
+			if( !($input || check_permission(get_userid(),'Manage All Content')) ) {
+				return [
+				'','',
+				'<input type="hidden" name="'.$id.'parent_id" value="'.$this->mParentId.'" />'
+				];
 			}
-			if( $out ) {
-				$help = AdminUtils::get_help_tag($this->realm,'help_content_parent',$this->mod->Lang('help_title_content_parent'));
-				return ['<label for="parent_id">*'.$this->mod->Lang('parent').':</label>&nbsp;'.$help,$out];
+			if( $input ) {
+				return [
+				'for="parent_id">* ' .$this->mod->Lang('parent'),
+				AdminUtils::get_help_tag($this->domain,'help_content_parent',$this->mod->Lang('help_title_content_parent')),
+				$input];
 			}
 			break;
 
 		case 'active':
 			if( !$this->DefaultContent() ) {
-				$help = AdminUtils::get_help_tag($this->realm,'help_content_active',$this->mod->Lang('help_title_content_active'));
-				return ['<label for="id_active">'.$this->mod->Lang('active').':</label>&nbsp;'.$help,
-						'<input type="hidden" name="'.$id.'active" value="0" /><input type="checkbox" id="id_active" class="pagecheckbox" name="'.$id.'active" value="1"'.($this->mActive?' checked="checked"':'').' />'];
+				return [
+				'for="id_active">'.$this->mod->Lang('active'),
+				AdminUtils::get_help_tag($this->domain,'help_content_active',$this->mod->Lang('help_title_content_active')),
+				'<input type="hidden" name="'.$id.'active" value="0" /><input type="checkbox" id="id_active" class="pagecheckbox" name="'.$id.'active" value="1"'.($this->mActive?' checked="checked"':'').' />'
+				];
 			}
 			break;
 
 		case 'showinmenu':
-			$help = AdminUtils::get_help_tag($this->realm,'help_content_showinmenu',$this->mod->Lang('help_title_content_showinmenu'));
-			return ['<label for="showinmenu">'.$this->mod->Lang('showinmenu').':</label>&nbsp;'.$help,
-					'<input type="hidden" name="'.$id.'showinmenu" value="0" /><input type="checkbox" id="showinmenu" class="pagecheckbox" value="1" name="'.$id.'showinmenu"'.($this->mShowInMenu?' checked="checked"':'').' />'];
+			return [
+			'for="showinmenu">'.$this->mod->Lang('showinmenu'),
+			AdminUtils::get_help_tag($this->domain,'help_content_showinmenu',$this->mod->Lang('help_title_content_showinmenu')),
+			'<input type="hidden" name="'.$id.'showinmenu" value="0" /><input type="checkbox" id="showinmenu" class="pagecheckbox" value="1" name="'.$id.'showinmenu"'.($this->mShowInMenu?' checked="checked"':'').' />'
+			];
 
 		case 'target':
-			$help = AdminUtils::get_help_tag($this->realm,'help_content_target',$this->mod->Lang('help_title_content_target'));
 			$arr = [
 				$this->mod->Lang('none') => '---',
 				'blank' => '_blank',
@@ -676,7 +703,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 			];
 			$sel = $this->GetPropertyValue('target');
  			if (!$sel) $sel = '---';
-			$out = FormUtils::create_select([ // DEBUG
+			$input = FormUtils::create_select([ // DEBUG
 				'type' => 'drop',
 				'name' => 'target',
 				'htmlid' => 'target',
@@ -685,33 +712,43 @@ abstract class ContentBase implements IContentEditor, Serializable
 				'options' => $arr,
 				'selectedvalue' => $sel,
 			]);
-			return ['<label for="target">'.$this->mod->Lang('target').':</label>&nbsp;'.$help,
-					$out];
+			return [
+			'for="target">'.$this->mod->Lang('target'),
+			AdminUtils::get_help_tag($this->domain,'help_content_target',$this->mod->Lang('help_title_content_target')),
+			$input
+			];
 
 		case 'alias':
-			$help = AdminUtils::get_help_tag($this->realm,'help_page_alias',$this->mod->Lang('help_title_page_alias'));
-			return ['<label for="alias">'.$this->mod->Lang('pagealias').':</label>&nbsp;'.$help,
-					'<input type="text" id="alias" name="'.$id.'alias" value="'.$this->mAlias.'" />'];
+			return [
+			'for="alias">'.$this->mod->Lang('pagealias'),
+			AdminUtils::get_help_tag($this->domain,'help_page_alias',$this->mod->Lang('help_title_page_alias')),
+			'<input type="text" id="alias" name="'.$id.'alias" value="'.$this->mAlias.'" />'
+			];
 
 		case 'cachable':
-			$help = AdminUtils::get_help_tag($this->realm,'help_content_cachable',$this->mod->Lang('help_title_content_cachable'));
-			return ['<label for="in_cachable">'.$this->mod->Lang('cachable').':</label>&nbsp;'.$help,
-					'<input type="hidden" name="'.$id.'cachable" value="0" /><input type="checkbox" id="in_cachable" class="pagecheckbox" value="1" name="'.$id.'cachable"'.($this->mCachable?' checked="checked"':'').' />'];
+			return [
+			'for="in_cachable">'.$this->mod->Lang('cachable'),
+			AdminUtils::get_help_tag($this->domain,'help_content_cachable',$this->mod->Lang('help_title_content_cachable')),
+			'<input type="hidden" name="'.$id.'cachable" value="0" /><input type="checkbox" id="in_cachable" class="pagecheckbox" value="1" name="'.$id.'cachable"'.($this->mCachable?' checked="checked"':'').' />'
+			];
 
 		case 'secure':
-			$help = AdminUtils::get_help_tag($this->realm,'help_content_secure',$this->mod->Lang('help_title_content_secure'));
-			return ['<label for="secure">'.$this->mod->Lang('secure_page').':</label>&nbsp;'.$help,
-					'<input type="hidden" name="'.$id.'secure" value="0"/><input type="checkbox" id="secure" class="pagecheckbox" value="1" name="'.$id.'secure"'.($this->mSecure?' checked="checked"':'').' />'];
+			return [
+			'for="secure">'.$this->mod->Lang('secure_page'),
+			AdminUtils::get_help_tag($this->domain,'help_content_secure',$this->mod->Lang('help_title_content_secure')),
+			'<input type="hidden" name="'.$id.'secure" value="0"/><input type="checkbox" id="secure" class="pagecheckbox" value="1" name="'.$id.'secure"'.($this->mSecure?' checked="checked"':'').' />'];
 
 		case 'page_url':
 			if( !$this->DefaultContent() ) {
 				$config = SingleItem::Config();
 				$pretty_urls = $config['url_rewriting'] == 'none' ? 0 : 1;
 				if( $pretty_urls != 0) {
-					$help = AdminUtils::get_help_tag($this->realm,'help_page_url',$this->mod->Lang('help_title_page_url'));
 					$marker = ( AppParams::get('content_mandatory_urls',0) ) ? '*' : '';
-					return [$marker.'<label for="page_url">'.$this->mod->Lang('page_url').':</label>&nbsp;'.$help,
-							'<input type="text" id="page_url" name="'.$id.'page_url" size="50" maxlength="255" value="'.$this->mURL.'" />'];
+					return [
+					$marker.'for="page_url">'.$this->mod->Lang('page_url'),
+					AdminUtils::get_help_tag($this->domain,'help_page_url',$this->mod->Lang('help_title_page_url')),
+					'<input type="text" id="page_url" name="'.$id.'page_url" size="50" maxlength="255" value="'.$this->mURL.'" />'
+					];
 				}
 			}
 			break;
@@ -723,18 +760,40 @@ abstract class ContentBase implements IContentEditor, Serializable
 				if( $js ) {
 					add_page_foottext($js);
 				}
-				$help = AdminUtils::get_help_tag($this->realm,'info_styles',$this->mod->Lang('help_title_styles'));
 				$smarty = SingleItem::Smarty();
 				$tpl = $smarty->createTemplate($this->mod->GetTemplateResource('setstyles.tpl')); //,null,null,$smarty);
 				$tpl->assign('mod',$this->mod)
 				 ->assign('actionid',$id)
 				 ->assign('grouped',$grouped)
 				 ->assign('sheets',$sheets);
-				$out = $tpl->fetch();
-				return ['<label for="allsheets">'.$this->mod->Lang('stylesheets').':</label>&nbsp;'.$help,$out];
+				$input = $tpl->fetch();
+				return [
+				'for="allsheets">'.$this->mod->Lang('stylesheets'),
+				AdminUtils::get_help_tag($this->domain,'info_styles',$this->mod->Lang('help_title_styles')),
+				$input
+				];
 			}
 			break;
 
+/* this is handled upstream
+		case 'type':
+			// TODO a selector if $adding, or else just text ?
+			$input = FormUtils::create_select([
+				'type' => 'drop',
+				'name' => 'content_type',
+				'htmlid' => 'content_type',
+				'getid' => $id,
+				'multiple' => false,
+				'options' => array_flip($existingtypes),
+				'selectedvalue' => $content_type,
+			]);
+			//TODO js to handle selector-change
+			return [
+			'for="content_type">* ' .$this->Lang('prompt_editpage_contenttype'),
+			AdminUtils::get_help_tag($domain,'help_content_type',$this->Lang('help_title_content_type')),
+			$input
+			];
+*/
 		case 'image':
 			$config = SingleItem::Config();
 			$dir = cms_join_path($config['image_uploads_path'],AppParams::get('content_imagefield_path'));
@@ -749,8 +808,11 @@ abstract class ContentBase implements IContentEditor, Serializable
 				$input = create_file_dropdown($id.'image',$dir,$data,'jpg,jpeg,png,gif','',true,'','thumb_',0,1);
 			}
 			if( !$input ) return false;
-			$help = AdminUtils::get_help_tag($this->realm,'help_content_image',$this->mod->Lang('help_title_content_image'));
-			return ['<label for="image">'.$this->mod->Lang('image').':</label>&nbsp;'.$help,$input];
+			return [
+			'for="image">'.$this->mod->Lang('image'),
+			AdminUtils::get_help_tag($this->domain,'help_content_image',$this->mod->Lang('help_title_content_image')),
+			$input
+			];
 
 		case 'thumbnail':
 			$config = SingleItem::Config();
@@ -766,46 +828,60 @@ abstract class ContentBase implements IContentEditor, Serializable
 				$input = create_file_dropdown($id.'thumbnail',$dir,$data,'jpg,jpeg,png,gif','',true,'','thumb_',0,1);
 			}
 			if( !$input ) return false;
-			$help = AdminUtils::get_help_tag($this->realm,'help_content_thumbnail',$this->mod->Lang('help_title_content_thumbnail'));
-			return ['<label for="thumbnail">'.$this->mod->Lang('thumbnail').':</label>&nbsp;'.$help,$input];
+			return [
+			'for="thumbnail">'.$this->mod->Lang('thumbnail'),
+			AdminUtils::get_help_tag($this->domain,'help_content_thumbnail',$this->mod->Lang('help_title_content_thumbnail')),
+			$input
+			];
 
 		case 'titleattribute':
-			$help = AdminUtils::get_help_tag($this->realm,'help_content_titleattribute',$this->mod->Lang('help_title_content_titleattribute'));
-			return ['<label for="titleattribute">'.$this->mod->Lang('titleattribute').':</label>&nbsp;'.$help,
-					'<input type="text" id="titleattribute" name="'.$id.'titleattribute" size="80" maxlength="255" value="'.specialize($this->mTitleAttribute).'" />'];
+			return [
+			'for="titleattribute">'.$this->mod->Lang('titleattribute'),
+			AdminUtils::get_help_tag($this->domain,'help_content_titleattribute',$this->mod->Lang('help_title_content_titleattribute')),
+			'<input type="text" id="titleattribute" name="'.$id.'titleattribute" size="80" maxlength="255" value="'.specialize($this->mTitleAttribute).'" />'
+			];
 
 		case 'accesskey':
-			$help = AdminUtils::get_help_tag($this->realm,'help_content_accesskey',$this->mod->Lang('help_title_content_accesskey'));
-			return ['<label for="accesskey">'.$this->mod->Lang('accesskey').':</label>&nbsp;'.$help,
-					'<input type="text" id="accesskey" name="'.$id.'accesskey" maxlength="5" size="3" value="'. specialize($this->mAccessKey).'" />'];
+			return [
+			'for="accesskey">'.$this->mod->Lang('accesskey'),
+			AdminUtils::get_help_tag($this->domain,'help_content_accesskey',$this->mod->Lang('help_title_content_accesskey')),
+			'<input type="text" id="accesskey" name="'.$id.'accesskey" maxlength="5" size="3" value="'. specialize($this->mAccessKey).'" />'
+			];
 
 		case 'tabindex':
-			$help = AdminUtils::get_help_tag($this->realm,'help_content_tabindex',$this->mod->Lang('help_title_content_tabindex'));
-			return ['<label for="tabindex">'.$this->mod->Lang('tabindex').':</label>&nbsp;'.$help,
-					'<input type="text" id="tabindex" name="'.$id.'tabindex" maxlength="3" size="3" value="'.specialize($this->mTabIndex).'" />']; // prob. redundant cleaner
+			return [
+			'for="tabindex">'.$this->mod->Lang('tabindex'),
+			AdminUtils::get_help_tag($this->domain,'help_content_tabindex',$this->mod->Lang('help_title_content_tabindex')),
+			'<input type="text" id="tabindex" name="'.$id.'tabindex" maxlength="3" size="3" value="'.specialize($this->mTabIndex).'" />'
+			]; // prob. redundant cleaner
 
 		case 'extra1':
-			$help = AdminUtils::get_help_tag($this->realm,'help_content_extra1',$this->mod->Lang('help_title_content_extra1'));
-			return ['<label for="extra1">'.$this->mod->Lang('extra1').':</label>&nbsp;'.$help,
-					'<input type="text" id="extra1" name="'.$id.'extra1" size="80" maxlength="255" value="'. specialize($this->GetPropertyValue('extra1')).'" />'];
+			return [
+			'for="extra1">'.$this->mod->Lang('extra1'),
+			AdminUtils::get_help_tag($this->domain,'help_content_extra1',$this->mod->Lang('help_title_content_extra1')),
+			'<input type="text" id="extra1" name="'.$id.'extra1" size="80" maxlength="255" value="'. specialize($this->GetPropertyValue('extra1')).'" />'
+			];
 
 		case 'extra2':
-			$help = AdminUtils::get_help_tag($this->realm,'help_content_extra2',$this->mod->Lang('help_title_content_extra2'));
-			return ['<label for="extra2">'.$this->mod->Lang('extra2').':</label>&nbsp;'.$help,
-					'<input type="text" id="extra2" name="'.$id.'extra2" size="80" maxlength="255" value="'. specialize($this->GetPropertyValue('extra2')).'" />'];
+			return [
+			'for="extra2">'.$this->mod->Lang('extra2'),
+			AdminUtils::get_help_tag($this->domain,'help_content_extra2',$this->mod->Lang('help_title_content_extra2')),
+			'<input type="text" id="extra2" name="'.$id.'extra2" size="80" maxlength="255" value="'. specialize($this->GetPropertyValue('extra2')).'" />'
+			];
 
 		case 'extra3':
-			$help = AdminUtils::get_help_tag($this->realm,'help_content_extra3',$this->mod->Lang('help_title_content_extra3'));
-			return ['<label for="extra3">'.$this->mod->Lang('extra3').':</label>&nbsp;'.$help,
-					'<input type="text" id="extra3" name="'.$id.'extra3" size="80" maxlength="255" value="'. specialize($this->GetPropertyValue('extra3')).'" />'];
+			return [
+			'for="extra3">'.$this->mod->Lang('extra3'),
+			AdminUtils::get_help_tag($this->domain,'help_content_extra3',$this->mod->Lang('help_title_content_extra3')),
+			'<input type="text" id="extra3" name="'.$id.'extra3" size="80" maxlength="255" value="'. specialize($this->GetPropertyValue('extra3')).'" />'
+			];
 
 		case 'owner':
 			$userid = get_userid();
 			$showadmin = SingleItem::ContentOperations()->CheckPageOwnership($userid, $this->Id());
 			if( !$adding && (check_permission($userid,'Manage All Content') || $showadmin) ) {
-				$help = AdminUtils::get_help_tag($this->realm,'help_content_owner',$this->mod->Lang('help_title_content_owner'));
 				$users = SingleItem::UserOperations()->GetList(); // TODO get public names in preference to account-names
-				$out = FormUtils::create_select([
+				$input = FormUtils::create_select([
 					'type' => 'drop',
 					'name' => 'owner_id',
 					'getid' => $id,
@@ -814,8 +890,11 @@ abstract class ContentBase implements IContentEditor, Serializable
 					'options' => array_flip($users),
 					'selectedvalue' => $this->Owner(),
 				]);
-				return ['<label for="owner">'.$this->mod->Lang('owner').':</label>&nbsp;'.$help,
-						$out];
+				return [
+				'for="owner">'.$this->mod->Lang('owner'),
+				AdminUtils::get_help_tag($this->domain,'help_content_owner',$this->mod->Lang('help_title_content_owner')),
+				$input
+				];
 			}
 			break;
 
@@ -827,18 +906,18 @@ abstract class ContentBase implements IContentEditor, Serializable
 				$contentops->CheckPageOwnership($userid,$this->Id()) ) {
 				$addteditors = $this->GetAdditionalEditors();
 				$owner_id = $this->Owner();
-
-				$help = AdminUtils::get_help_tag($this->realm,'help_content_addteditor',$this->mod->Lang('help_title_content_addteditor'));
-
-				$out = '<input type="hidden" name="'.$id.'additional_editors" value="" /><select id="addteditors" name="'.$id.'additional_editors[]" multiple="multiple" size="5">';
+				$input = '<input type="hidden" name="'.$id.'additional_editors" value="" /><select id="addteditors" name="'.$id.'additional_editors[]" multiple="multiple" size="5">';
 				$topts = $contentops->ListAdditionalEditors();
 				foreach( $topts as $k => $v ) {
 					if( $k == $owner_id ) continue;
-					$out .= FormUtils::create_option(['label'=>$v,'value'=>$k],$addteditors);
+					$input .= FormUtils::create_option(['label'=>$v,'value'=>$k],$addteditors);
 				}
-				$out .= '</select>';
-
-				return ['<label for="addteditors">'.$this->mod->Lang('additionaleditors').':</label>&nbsp;'.$help,$out];
+				$input .= '</select>';
+				return [
+				'for="addteditors">'.$this->mod->Lang('additionaleditors'),
+				AdminUtils::get_help_tag($this->domain,'help_content_addteditor',$this->mod->Lang('help_title_content_addteditor')),
+				$input
+				];
 			}
 			break;
 
@@ -933,7 +1012,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	{
 		switch( $key ) {
 		case self::TAB_PERMS:
-			return '<div class="pageinfo">'. $this->mod->Lang('msg_permstab').'</div>';
+			return $this->mod->Lang('msg_permstab');
 		}
 		return '';
 	}
@@ -1006,6 +1085,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 		$defaults = [
 			'title' => [1,self::TAB_MAIN,1],
 			'alias' => [2,self::TAB_MAIN],
+//			'type' => [2,self::TAB_MAIN],
 
 			'styles' => [2,self::TAB_DISPLAY],
 			'image' => [5,self::TAB_DISPLAY],
@@ -1911,7 +1991,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	}
 
 	/**
-	 * Return the page
+	 * Return the content-type
 	 *
 	 * @return string
 	 */

@@ -38,7 +38,7 @@
       <a href="javascript:void()" title="{'open'|lang}/{'close'|lang}" class="toggle-info"><span tabindex="0" role="note" aria-label="{'login_info_title'|lang}" class="fas fa-info-circle"></span><span class="sr-only">{'open'|lang}/{'close'|lang}</span></a>
       {elseif isset($renewpw)}
       <div class="message information">
-       {lang('renewpwprompt')}
+       {_ld('admin','renewpwprompt')}
       </div>
       {/if}
       <header class="col-12 text-center">

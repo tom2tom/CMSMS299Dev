@@ -34,7 +34,7 @@ function smarty_function_cms_get_language($params, $template)
 /*
 function smarty_cms_about_function_cms_get_language()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
 <li>detail</li> ... OR lang('none')
 EOS
 	);
@@ -43,7 +43,7 @@ EOS
 function smarty_cms_help_function_cms_get_language()
 {
 	$n = lang('none');
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin retrieves the identifier of the current language/translation',
 	'cms_get_language',
 	"<li>$n</li>"

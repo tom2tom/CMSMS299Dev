@@ -99,10 +99,8 @@ class ErrorPage extends Content
 
 	public function ShowElement($propname, $adding)
 	{
-		$id = 'm1_';
-
 		switch($propname) {
-		case 'alias':
+		case 'alias': // replacement property
 /*//		$dropdownopts = '<option value="">'.$this->mod->Lang('none').'</option>';
 			$dropdownopts = '';
 			foreach ($this->error_types as $code=>$name) {
@@ -112,6 +110,7 @@ class ErrorPage extends Content
 				}
 				$dropdownopts .= ">{$name} ({$code})</option>";
 			}
+ $id = 'm1_';
 			$outold = '<select name="'.$id.'alias">'.$dropdownopts.'</select>';
 */
 //			$opts = [$this->mod->Lang('none') => ''];
@@ -119,18 +118,22 @@ class ErrorPage extends Content
 			foreach ($this->error_types as $code => $name) {
 				$opts["$name ($code)"] = 'error'.$code;
 			}
-
 			$sel = $this->mAlias;
-			$out = FormUtils::create_select([ // DEBUG
+
+			$input = FormUtils::create_select([
 				'type' => 'drop',
 				'name' => 'alias',
-				'htmlid' => 'alias',
-				'getid' => $id,
+				'getid' => 'm1_',
+				'htmlid' => 'errtype',
 				'multiple' => false,
 				'options' => $opts,
 				'selectedvalue' => $sel,
 			]);
-			return [$this->mod->Lang('error_type').':', $out];
+			return [
+			'for="errtype">'.$this->mod->Lang('error_type'),
+			'',
+			$input
+			];
 
 		default:
 			return parent::ShowElement($propname,$adding);

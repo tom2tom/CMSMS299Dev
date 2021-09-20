@@ -19,16 +19,18 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use function CMSMS\disable_template_processing;
+
 // since 2.99
 function smarty_function_disable_template($params, $template)
 {
-	CMSMS\SingleItem::App()->disable_template_processing();
+	disable_template_processing();
 	return '';
 }
 /*
 function smarty_cms_about_function_disable_template()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
 <li>detail</li> ... OR lang('none')
 EOS
 	);
@@ -37,7 +39,7 @@ EOS
 function smarty_cms_help_function_disable_template()
 {
 	$n = lang('none');
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin disables Smarty-template processing',
 	'disable_template',
     "<li>$n</li>"

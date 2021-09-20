@@ -24,6 +24,7 @@ use CMSMS\AppState;
 use CMSMS\Events;
 use CMSMS\RequestParameters;
 use CMSMS\SingleItem;
+use function CMSMS\get_site_UUID;
 
 //$logfile = dirname(__DIR__).DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR.'cache'.DIRECTORY_SEPARATOR.'debug.log';
 //error_log('moduleinterface.php @start'."\n", 3, $logfile);
@@ -138,7 +139,7 @@ switch ($CMS_JOB_TYPE) {
 				$db = SingleItem::Db();
 				$config = SingleItem::Config();
 				//no $smarty (no template-processing)
-				$uuid = $gCms->GetSiteUUID(); //since 2.99
+				$uuid = get_site_UUID(); //since 2.99
 				include $filepath;
 			}, $mact_mod, $mact_mod);
 			$dojob($fp, $id, $params);

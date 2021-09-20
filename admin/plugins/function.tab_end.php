@@ -32,8 +32,8 @@ function smarty_function_tab_end($params, $template)
 /*
 function smarty_cms_about_function_tab_end()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+<li>detail</li> ... OR _la('none')
 EOS
 	);
 }
@@ -41,8 +41,8 @@ EOS
 /*
 D function smarty_cms_help_function_tab_end()
 {
-	$n = lang('none');
-	echo lang_by_realm('tags', 'help_generic',
+	$n = _la('none');
+	echo _ld('tags', 'help_generic',
 	'This plugin generates page content for the end-of-all-tabs on a page',
 	'tab_end',
 	"<li>$n</li>");

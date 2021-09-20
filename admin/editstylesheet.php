@@ -28,6 +28,7 @@ use CMSMS\ScriptsMerger;
 use CMSMS\SingleItem;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
+use function CMSMS\add_shutdown;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 
@@ -40,15 +41,15 @@ $urlext = get_secure_param();
 $themeObject = SingleItem::Theme();
 
 if (isset($_REQUEST['cancel'])) {
-	$themeObject->ParkNotice('info', lang_by_realm('layout', 'msg_cancelled'));
+	$themeObject->ParkNotice('info', _ld('layout', 'msg_cancelled'));
 	redirect('liststyles.php'.$urlext);
 }
 
 //TODO also support read-only display of sheet
 $userid = get_userid();
 if (!check_permission($userid, 'Manage Stylesheets')) {
-//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
-	throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+//TODO some pushed popup c.f. javascript:cms_notify('error', _la('no_permission') OR _la('needpermissionto', _la('perm_Manage_Groups')), ...);
+	throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 $response = 'success';
@@ -61,7 +62,7 @@ de_specialize_array($_REQUEST);
 $extras = get_secure_param_array();
 
 try {
-	$message = lang_by_realm('layout', 'msg_stylesheet_saved');
+	$message = _ld('layout', 'msg_stylesheet_saved');
 	if( !empty($_REQUEST['css']) ) {
 		$val = sanitizeVal($_REQUEST['css'], CMSSAN_FILE);
 		$extras['css'] = $val;
@@ -130,16 +131,16 @@ try {
 			$outfile = $css_ob->get_content_filename();
 			$dn = dirname($outfile);
 			if (!is_dir($dn) || !is_writable($dn)) {
-				throw new RuntimeException(lang_by_realm('layout', 'error_assets_writeperm'));
+				throw new RuntimeException(_ld('layout', 'error_assets_writeperm'));
 			}
 			if (is_file($outfile) && !is_writable($outfile)) {
-				throw new RuntimeException(lang_by_realm('layout', 'error_assets_writeperm'));
+				throw new RuntimeException(_ld('layout', 'error_assets_writeperm'));
 			}
 			file_put_contents($outfile, $css_ob->get_content());
 		} elseif (isset($_REQUEST['import'])) {
 			$infile = $css_ob->get_content_filename();
 			if (!is_file($infile) || !is_readable($infile) || !is_writable($infile)) {
-				throw new RuntimeException(lang_by_realm('layout', 'error_assets_readwriteperm'));
+				throw new RuntimeException(_ld('layout', 'error_assets_readwriteperm'));
 			}
 			$data = file_get_contents($infile);
 			unlink($infile);
@@ -273,10 +274,10 @@ try {
 	}
 */
 	if (($css_id = $props['id']) > 0) {
-		$themeObject->SetSubTitle(lang_by_realm('layout', 'prompt_edit_stylesheet')." {$props['name']} ($css_id)");
+		$themeObject->SetSubTitle(_ld('layout', 'prompt_edit_stylesheet')." {$props['name']} ($css_id)");
 		$smarty->assign('css_id', $css_id);
 	} else {
-		$themeObject->SetSubTitle(lang_by_realm('layout', 'create_stylesheet'));
+		$themeObject->SetSubTitle(_ld('layout', 'create_stylesheet'));
 	}
 
 	$smarty->assign('has_designs_right', check_permission($userid, 'Manage Designs'))
@@ -302,11 +303,11 @@ try {
 //	$nonce = get_csp_token();
 	$do_locking = ($css_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
 	if ($do_locking) {
-		SingleItem::App()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
+		add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 	}
-	$s1 = json_encode(lang_by_realm('layout', 'error_lock'));
-	$s2 = json_encode(lang_by_realm('layout', 'msg_lostlock'));
-	$cancel = lang('cancel');
+	$s1 = json_encode(_ld('layout', 'error_lock'));
+	$s2 = json_encode(_ld('layout', 'msg_lostlock'));
+	$cancel = _la('cancel');
 
 	$js = $pageincs['foot'] ?? '';
 	$js .= <<<EOS

@@ -32,7 +32,7 @@ function smarty_function_form_end($params, $template)
 /*
 function smarty_cms_about_function_form_end()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
 <li>detail</li> ... OR lang('none')
 EOS
 	);
@@ -42,6 +42,6 @@ EOS
 D function smarty_cms_help_function_form_end()
 {
 	$n = lang('none');
-	echo lang_by_realm('tags', 'help_generic', 'This plugin retrieves a form-end element', 'form_end', "<li>$n</li>");
+	echo _ld('tags', 'help_generic', 'This plugin retrieves a form-end element', 'form_end', "<li>$n</li>");
 }
 */

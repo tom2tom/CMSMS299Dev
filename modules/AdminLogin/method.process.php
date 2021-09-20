@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 //use AdminLogin; global namespace module
-//TODO if no CMSMailer-module is present, revert to mail()
+//TODO if no OutMailer-module is present, revert to mail()
 use CMSMS\AppParams;
 use CMSMS\Events;
 use CMSMS\SingleItem;

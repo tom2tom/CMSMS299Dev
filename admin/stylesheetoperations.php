@@ -57,7 +57,7 @@ switch (trim($op)) {
 				$n = StylesheetOperations::operation_copy($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
 				// TODO message if group(s) copied i.e. $css_id includes val(s) < 0
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_stylesheet_copied'));
+				$themeObject->ParkNotice($type,_ld('layout','msg_stylesheet_copied'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -72,7 +72,7 @@ switch (trim($op)) {
 				$n = StylesheetOperations::operation_delete($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
 				// TODO message if group(s) deleted
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_stylesheet_deleted',$n));
+				$themeObject->ParkNotice($type,_ld('layout','msg_stylesheet_deleted',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -86,7 +86,7 @@ switch (trim($op)) {
 				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_deleteall($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
+				$themeObject->ParkNotice($type,_ld('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -98,7 +98,7 @@ switch (trim($op)) {
 				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_replace($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
+				$themeObject->ParkNotice($type,_ld('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -111,7 +111,7 @@ switch (trim($op)) {
 				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_append($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
+				$themeObject->ParkNotice($type,_ld('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -123,7 +123,7 @@ switch (trim($op)) {
 				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_prepend($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
+				$themeObject->ParkNotice($type,_ld('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -136,7 +136,7 @@ switch (trim($op)) {
 				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_remove($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
+				$themeObject->ParkNotice($type,_ld('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -151,7 +151,7 @@ switch (trim($op)) {
 				$n = StylesheetOperations::operation_import($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
 				// TODO message if group(s) imported
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_stylesheet_imported',$n));
+				$themeObject->ParkNotice($type,_ld('layout','msg_stylesheet_imported',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -166,7 +166,7 @@ switch (trim($op)) {
 				$n = StylesheetOperations::operation_export($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
 				// TODO message if group(s) exported
-				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_stylesheet_exported',$n));
+				$themeObject->ParkNotice($type,_ld('layout','msg_stylesheet_exported',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}

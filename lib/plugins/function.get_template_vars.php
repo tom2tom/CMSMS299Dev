@@ -132,7 +132,7 @@ EOS;
 /*
 function smarty_cms_help_function_get_template_vars()
 {
-	echo lang_by_realm('tags', 'generic_help', 'This plugin does ...', 'get_template_vars', none);
+	echo _ld('tags', 'generic_help', 'This plugin does ...', 'get_template_vars', none);
 }
 */
 

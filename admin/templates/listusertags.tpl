@@ -1,23 +1,23 @@
 <div class="information">
  <p>
- {lang_by_realm('tags','tag_info')}<br />
- {lang_by_realm('tags','tag_info2')}<br />
- {lang_by_realm('tags','udt__scope')}
+ {_ld('tags','tag_info')}<br />
+ {_ld('tags','tag_info2')}<br />
+ {_ld('tags','udt__scope')}
  </p>
 </div>
 <br />
 {if $pmod && count($tags) > 20}
 <div class="pageoptions">
-  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{lang('add_usrplg')}">{$iconadd}</a>
-  <a href="{$addurl}{$urlext}&amp;tagname=-1">{lang('add_usrplg')}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{_ld('admin','add_usrplg')}">{$iconadd}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1">{_ld('admin','add_usrplg')}</a>
 </div>
 <br />
 {/if}
 <table class="pagetable">
   <thead>
     <tr>
-      <th>{lang('name')}</th>
-      <th>{lang('description')}</th>
+      <th>{_ld('admin','name')}</th>
+      <th>{_ld('admin','description')}</th>
       {if $pmod}
       <th class="pageicon"></th>
       <th class="pageicon"></th>
@@ -30,7 +30,7 @@
       {strip}{$n=$tag.name}
       <td>
        {if $pmod}
-        <a href="{$editurl}{$urlext}&amp;tagname={$n}" title="{lang('edit_usrplg', {$n})}">{$n}</a>
+        <a href="{$editurl}{$urlext}&amp;tagname={$n}" title="{_ld('admin','edit_usrplg', {$n})}">{$n}</a>
        {else}
         {$n}
        {/if}
@@ -53,13 +53,13 @@
 {if $pmod}
 <br />
 <div class="pageoptions">
-  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{lang('add_usrplg')}">{$iconadd}</a>
-  <a href="{$addurl}{$urlext}&amp;tagname=-1">{lang('add_usrplg')}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{_ld('admin','add_usrplg')}">{$iconadd}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1">{_ld('admin','add_usrplg')}</a>
 </div>
 {/if}
 
-<div id="params_dlg" title="{lang_by_realm('tags','user_tag')}" style="display:none;">
+<div id="params_dlg" title="{_ld('tags','user_tag')}" style="display:none;">
 <h4 id="namer" style="text-align:center;"></h4>
-<h4>{lang('parameters')}:</h4>
+<h4>{_ld('admin','parameters')}:</h4>
 <p id="params"></p>
 </div>

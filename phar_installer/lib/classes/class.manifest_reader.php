@@ -94,12 +94,11 @@ class manifest_reader
     protected function handle_header($line)
     {
         $cols = explode(':', $line);
-        foreach ($cols as &$col) {
-            $col = trim($col);
-        }
         if (count($cols) != 2) {
             throw new Exception(lang('error_internal', 'mr102'));
         }
+        $cols = array_map(function($s) { return trim($s); }, $cols);
+
         switch ($cols[0]) {
         case 'MANIFEST_GENERATED':
             $this->_generated = (int)$cols[1];
@@ -119,21 +118,6 @@ class manifest_reader
         }
     }
 
-    protected function handle_added($fields)
-    {
-        $this->_added[] = ['filename' => $fields[2], 'checksum' => $fields[1]];
-    }
-
-    protected function handle_changed($fields)
-    {
-        $this->_changed[] = ['filename' => $fields[2], 'checksum' => $fields[1]];
-    }
-
-    protected function handle_deleted($fields)
-    {
-        $this->_deleted[] = ['filename' => $fields[2], 'checksum' => $fields[1]];
-    }
-
     protected function handle_line($line)
     {
         if (!$line) {
@@ -143,19 +127,22 @@ class manifest_reader
             return $this->handle_header($line);
         }
 
-        $fields = explode(' :: ', $line);
-        if (count($fields) != 3) {
+        $cols = explode('::', $line);
+        $n = count($cols);
+        if (!($n == 2 || $n == 3)) {
             throw new Exception(lang('error_internal', 'mr103'));
         }
-        switch ($fields[0]) {
+        $cols = array_map(function($s) { return trim($s); }, $cols);
+
+        switch ($cols[0]) {
         case 'ADDED':
-            return $this->handle_added($fields);
+            $this->_added[] = ($n == 2) ? ['filename' => $cols[1]] : ['filename' => $cols[2], 'checksum' => $cols[1]];
             break;
         case 'CHANGED':
-            return $this->handle_changed($fields);
+            $this->_changed[] = ($n == 2) ? ['filename' => $cols[1]] : ['filename' => $cols[2], 'checksum' => $cols[1]];
             break;
         case 'DELETED':
-            return $this->handle_deleted($fields);
+            $this->_deleted[] = ($n == 2) ? ['filename' => $cols[1]] : ['filename' => $cols[2], 'checksum' => $cols[1]];
             break;
         default:
             throw new Exception(lang('error_internal', 'mr104'));

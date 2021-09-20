@@ -37,6 +37,7 @@ use const CMS_USER_KEY;
 use function check_permission;
 use function cms_path_to_url;
 use function CMSMS\entitize;
+use function CMSMS\get_site_UUID;
 use function endswith;
 use function get_userid;
 use function startswith;
@@ -52,7 +53,7 @@ class ResourceMethods
 		$this->modpath = $modpath;
 	}
 
-	public function __call($name, $args)
+	public function __call(string $name, array $args)
 	{
 		if (method_exists($this->mod, $name)) {
 			return call_user_func([$this->mod, $name], ...$args);
@@ -289,9 +290,9 @@ class ResourceMethods
 
 	public function IsAdminOnly() { return true; }
 
-	public function Lang(...$args) //: string|null
+	public function Lang(...$args) //: string
 	{
-		return LangOperations::lang_from_realm($this->GetName(), ...$args);
+		return LangOperations::domain_string($this->GetName(), ...$args);
 	}
 
 //	public function Redirect();
@@ -317,7 +318,7 @@ class ResourceMethods
 			$db = SingleItem::Db();
 			$config = SingleItem::Config();
 			$smarty = SingleItem::Smarty();
-			$uuid = $gCms->GetSiteUUID(); //since 2.99
+			$uuid = get_site_UUID(); //since 2.99
 			try {
 				ob_start();
 				$result = include $this->modpath.DIRECTORY_SEPARATOR.'action.'.$name.'.php';

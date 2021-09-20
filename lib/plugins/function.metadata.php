@@ -85,7 +85,7 @@ EOS;
 /*
 function smarty_cms_help_function_metadata()
 {
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'metadata ...', <<<'EOS'
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'metadata ...', <<<'EOS'
 <li>showbase</li>
 EOS
 	);

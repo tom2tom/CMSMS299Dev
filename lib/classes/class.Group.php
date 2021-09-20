@@ -67,7 +67,7 @@ use function lang;
 	/**
 	 * @ignore
 	 */
-	public function __get($key)
+	public function __get(string $key)
 	{
 		if( in_array($key,self::PROPS) ) return $this->$key;
 		throw new LogicException($key.' is not a property of '.__CLASS__);
@@ -76,7 +76,7 @@ use function lang;
 	/**
 	 * @ignore
 	 */
-	public function __set($key,$val)
+	public function __set(string $key,$val)
 	{
 		if( !in_array($key,self::PROPS) ) {
 			throw new LogicException($key.' is not a property of '.__CLASS__);
@@ -175,7 +175,7 @@ use function lang;
 	 * Get all groups.
 	 * @see GroupOperations::LoadGroups()
 	 *
-	 * @return mixed array of populated Group-objects, or null.
+	 * @return array Group-object(s) | empty
 	 */
 	public static function load_all()
 	{

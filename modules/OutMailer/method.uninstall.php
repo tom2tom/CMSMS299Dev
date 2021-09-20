@@ -23,23 +23,20 @@ use OutMailer\PrefCrypter;
 
 //if (some worthy test fails) exit;
 
-if ($this->platformed) {
-    $dict = $db->NewDataDictionary(); // old NewDataDictionary($db);
+$dict = $db->NewDataDictionary(); // old NewDataDictionary($db);
 
-    $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_outmailer_platforms');
-    $dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_outmailer_platforms');
+$dict->ExecuteSQLArray($sqlarray);
 
-    $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_outmailer_props');
-    $dict->ExecuteSQLArray($sqlarray);
-}
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_outmailer_props');
+$dict->ExecuteSQLArray($sqlarray);
 
 PrefCrypter::remove_preference($this, PrefCrypter::MKEY);
 $this->RemovePreference();
 
 $this->RemovePermission('Modify Mail Preferences');
-if ($this->platformed) {
-    $this->RemovePermission('ModifyEmailateways');
-    $this->RemovePermission('ViewEmailGateways');
-//  $this->RemovePermission('ModifyEmailTemplates');
-}
+$this->RemovePermission('Modify Email Gateways');
+$this->RemovePermission('View Email Gateways');
+//$this->RemovePermission('Modify Email Templates');
+
 $this->RemoveEvent($this->GetName(), 'EmailDeliveryReported');

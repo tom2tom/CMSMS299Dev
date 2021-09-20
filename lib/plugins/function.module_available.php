@@ -54,7 +54,7 @@ EOS;
 /*
 function smarty_cms_help_function_module_available()
 {
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'module_available module=somename', <<<'EOS'
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'module_available module=somename', <<<'EOS'
 <li>module</li>
 <li>m alias for module</li>
 <li>name alias for module</li>

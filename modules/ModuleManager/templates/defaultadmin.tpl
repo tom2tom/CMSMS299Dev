@@ -1,13 +1,13 @@
 {if $pmod}
-{tab_header name='installed' label=$mod->Lang('installed') active=$tab}
+{tab_header name='installed' label=_ld($_module,'installed') active=$tab}
 {if $connected}
 {tab_header name='newversions' label=$newtext active=$tab}
-{tab_header name='search' label=$mod->Lang('search') active=$tab}
-{tab_header name='modules' label=$mod->Lang('availmodules') active=$tab}
+{tab_header name='search' label=_ld($_module,'search') active=$tab}
+{tab_header name='modules' label=_ld($_module,'availmodules') active=$tab}
 {/if}
 {/if}
 {if $pset}
-{tab_header name='prefs' label=$mod->Lang('prompt_settings') active=$tab}
+{tab_header name='prefs' label=_ld($_module,'prompt_settings') active=$tab}
 {/if}
 
 {if $pmod}

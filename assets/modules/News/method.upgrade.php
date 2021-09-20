@@ -26,6 +26,7 @@ use CMSMS\AppState;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
+use CMSMS\Utils;
 
 if (!isset($gCms)) exit;
 //$db = SingleItem::Db(); upstream
@@ -73,7 +74,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
             $tpl->set_owner($uid);
             $tpl->set_content($contents);
             $tpl->set_type($type);
-            $tpl->set_type_dflt($prototype == $mod->GetPreference($currentdflt));
+            $tpl->set_type_default($prototype == $mod->GetPreference($currentdflt));
             $tpl->save();
 
             $mod->DeleteTemplate($tplname);
@@ -206,16 +207,18 @@ if( version_compare($oldversion,'2.50.8') < 0 ) {
 
 if( version_compare($oldversion,'2.90') < 0 ) {
     $this->CreatePermission('Modify News Preferences', 'Modify News Module Settings');
-/*    if( version_compare(CMS_VERSION,'2.99') >= 0 ) {
-        $fp = cms_join_path(CMS_ROOT_PATH,'lib','modules',$me);
-        if( is_dir($fp) ) recursive_delete($fp);
-        $fp = cms_join_path(CMS_ROOT_PATH,'modules',$me);
-        if( is_dir($fp) ) recursive_delete($fp);
-    }
-*/
+
+	$fmt = $this->GetPreference('date_format');
     $this->RemovePreference();
-    $this->SetPreference('date_format','%Y-%m-%e %H:%M');
+    if ($fmt) {
+        $fmt = Utils::convert_dt_format($fmt);
+    }
+    else {
+        $fmt = 'Y-m-d';
+    }
+    $this->SetPreference('date_format',$fmt);
     $this->SetPreference('default_category',1);
+    $this->SetPreference('time_format','H:i');
     $this->SetPreference('timeblock',News::HOURBLOCK);
 
     $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_fielddefs');
@@ -240,8 +243,7 @@ if( version_compare($oldversion,'2.90') < 0 ) {
     $dict->ExecuteSqlArray($sqlarray);
     $sqlarray = $dict->RenameColumnSQL($tbl,'icon','image_url','C(255)');
     $dict->ExecuteSqlArray($sqlarray);
-    $sqlarray = $dict->ChangeTableSQL($tbl,
-'
+    $sqlarray = $dict->ChangeTableSQL($tbl,'
 news_id I UNSIGNED,
 news_category_id I UNSIGNED,
 status C(25),

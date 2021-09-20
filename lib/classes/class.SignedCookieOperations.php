@@ -22,6 +22,7 @@ namespace CMSMS;
 
 use CMSMS\ICookieManager;
 use CMSMS\SingleItem;
+use function CMSMS\get_site_UUID;
 use const CMS_ROOT_URL;
 use const CMS_VERSION;
 
@@ -67,7 +68,7 @@ final class SignedCookieOperations implements ICookieManager
             $app = SingleItem::App();
         }
         $this->_secure = $app->is_https_request();
-        $this->_uuid = $app->GetSiteUUID();
+        $this->_uuid = get_site_UUID();
     }
 
     /**

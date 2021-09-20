@@ -34,7 +34,7 @@ require ".{$dsep}admininit.php";
 
 $userid = get_userid(false);
 if (!$userid) {
-    throw new Error403Exception(lang('permissiondenied'));
+    throw new Error403Exception(_la('permissiondenied'));
 }
 
 $handlers = ob_list_handlers();
@@ -67,16 +67,16 @@ try {
     switch (trim($op)) {
   case 'setup':
     $out['lang'] = [
-      'error_lock_useridmismatch' => lang('CMSEX_L006'),
-      'error_lock_othererror' => lang('CMSEX_L007'),
-      'error_lock_cmslockexception' => lang('CMSEX_L008'),
-      'error_lock_cmslockownerexception' => lang('CMSEX_L006'),
-      'error_lock_cmsunlockexception' => lang('CMSEX_L009'),
-      'error_lock_cmsnolockexception' => lang('CMSEX_L005'),
+      'error_lock_useridmismatch' => _la('CMSEX_L006'),
+      'error_lock_othererror' => _la('CMSEX_L007'),
+      'error_lock_cmslockexception' => _la('CMSEX_L008'),
+      'error_lock_cmslockownerexception' => _la('CMSEX_L006'),
+      'error_lock_cmsunlockexception' => _la('CMSEX_L009'),
+      'error_lock_cmsnolockexception' => _la('CMSEX_L005'),
     ];
     if ($uid != $userid) {
         $out['status'] = 'error';
-        $out['error'] = ['type' => 'useridmismatch', 'msg' => lang('CMSEX_L006')];
+        $out['error'] = ['type' => 'useridmismatch', 'msg' => _la('CMSEX_L006')];
     }
     $out['uid'] = $userid;
     break;
@@ -85,7 +85,7 @@ try {
   case 'is_locked': // alias for check
   case 'check':
       if (!$type) {
-          throw new DataException(lang('missingparams'));
+          throw new DataException(_la('missingparams'));
       }
       if ($oid) {
           $out['lock_id'] = LockOperations::is_locked($type, $oid);
@@ -119,7 +119,7 @@ try {
           break; // do not lock, basically a noop
       }
       if (!$type || !$oid || !$uid) {
-          throw new DataException(lang('missingparams'));
+          throw new DataException(_la('missingparams'));
       }
       if ($uid != $userid) {
           throw new LockOwnerException('CMSEX_L006');
@@ -143,7 +143,7 @@ try {
 
   case 'touch':
       if (!$type || !$oid || !$uid || $lock_id < 1) {
-          throw new DataException(lang('missingparams'));
+          throw new DataException(_la('missingparams'));
       }
       if ($uid != $userid) {
           throw new LockOwnerException('CMSEX_L006');
@@ -154,7 +154,7 @@ try {
   case 'unlock':
 // TODO some authority-indicator
       if (!$type || !$oid ||/* !$uid ||*/ $lock_id < 1) {
-          throw new DataException(lang('missingparams'));
+          throw new DataException(_la('missingparams'));
       }
 /* any authorised user may steal
       if ($uid != $userid) {

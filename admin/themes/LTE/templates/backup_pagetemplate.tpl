@@ -4,7 +4,7 @@
 		<meta charset="utf-8" />
 		<title>{$page_title} - {$page_subtitle|default:"{sitename}"}</title>
 		<base href="{$admin_url}/" />
-		<meta name="generator" content="CMS Made Simple - Copyright (C) 2019-{$smarty.now|date_format:'%Y'}. All rights reserved." />
+		<meta name="generator" content="CMS Made Simple - Copyright (C) 2019-{$smarty.now|date_format:'Y'}. All rights reserved." />
 		<meta name="robots" content="noindex, nofollow" />
 
 		<link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico"/>

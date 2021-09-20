@@ -21,10 +21,12 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminUtils;
 use CMSMS\FormUtils;
+use Search\Utils;
 
 //if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) exit;
 
+// TODO sanitizeVal(all $params[])
 if (isset($params['reindex'])) {
     $this->Reindex();
     $this->ShowMessage($this->Lang('reindexcomplete'));
@@ -50,7 +52,9 @@ if (isset($params['reindex'])) {
 } elseif (isset($params['resettodefault'])) {
     $this->SetPreference('stopwords',$this->DefaultStopWords());
 } elseif (isset($params['apply'])) {
-    $this->SetPreference('stopwords',$params['stopwords']);
+    $newval = Utils::CleanWords($params['stopwords']);
+    $this->SetPreference('stopwords',$newval);
+
     $this->SetPreference('searchtext',$params['searchtext']);
 
     $curval = (bool)$this->GetPreference('usestemming',0);
@@ -78,23 +82,25 @@ if (!empty($params['activetab'])) {
 } else {
     $tab = '';
 }
-$tpl->assign('tab', $tab);
+$tpl->assign('tab',$tab);
 
 include __DIR__.DIRECTORY_SEPARATOR.'function.admin_statistics_tab.php';
 
 $curval = $this->GetPreference('stopwords');
-if (!$curval) { $curval = $this->DefaultStopWords(); }
+if (!$curval) {
+    $curval = $this->DefaultStopWords();
+}
 
-$tpl->assign('formstart',$this->CreateFormStart($id, 'defaultadmin',$returnid,'post','',false,'',
+$tpl->assign('formstart',$this->CreateFormStart($id,'defaultadmin',$returnid,'post','',false,'',
                                                    ['activetab'=>'options']))
 // ->assign('reindex', '<button type="submit" name="'.$id.'reindex" id="'.$id.'reindex" class="adminsubmit icon do">'.$this->Lang('reindexallcontent').'</button>')
  ->assign('prompt_stopwords',$this->Lang('stopwords'))
- ->assign('input_stopwords', FormUtils::create_textarea([
+ ->assign('input_stopwords',FormUtils::create_textarea([
     'getid' => $id,
     'name' =>'stopwords',
     'rows' => 6,
     'cols' => 50,
-    'value' => strtr($curval,"\r\n",'  '),
+    'value' => $curval,
 ]))
  ->assign('prompt_resetstopwords',$this->Lang('prompt_resetstopwords'))
 // ->assign('input_resetstopwords', '<button type="submit" name="'.$id.'resettodefault" id="'.$id.'resettodefault" class="adminsubmit icon undo">'.$this->Lang('input_resetstopwords').'</button>')

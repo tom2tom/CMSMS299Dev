@@ -261,7 +261,7 @@ abstract class AdminTheme
     /**
      * @ignore
      */
-    public function __get($key)
+    public function __get(string $key)
     {
         switch( $key) {
         case 'themeName':
@@ -401,7 +401,7 @@ abstract class AdminTheme
      * @ignore
      * @since 2.99
      * @param array $strings
-     * @return mixed string or false
+     * @return mixed string | false
      */
     private function merger(array $strings)
     {
@@ -483,7 +483,7 @@ abstract class AdminTheme
     /**
      * @ignore
      * @param mixed $url string or null
-     * @return mixed string or null
+     * @return mixed string | null
      */
     private function _fix_url_userkey($url)
     {
@@ -992,7 +992,7 @@ abstract class AdminTheme
      * @since 2.0
      * @access protected
      * @param string $modname module name
-     * @return mixed url-string or null
+     * @return mixed url-string | null
      */
     protected function get_module_help_url($modname = null)
     {
@@ -1770,7 +1770,7 @@ EOS;
      * Retrieve current alerts (e.g. for display in page shortcuts toolbar)
      * @since 2.99 (pre-2.99, themes handled this individually)
      *
-     * @return mixed array | null
+     * @return array, maybe empty
      */
     public function get_my_alerts()
     {

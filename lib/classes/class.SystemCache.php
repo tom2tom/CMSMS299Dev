@@ -253,14 +253,14 @@ final class SystemCache
 	 *
 	 * @param string $space Optional keys-space name, default ''.
 	 *  If not specified, the default keys-space will be used.
-	 * @return mixed array | null
+	 * @return array maybe empty
 	 */
 	public function getall(string $space = '')
 	{
 		if( self::$driver instanceof CacheDriver ) {
 			return self::$driver->get_all($space);
 		}
-		return NULL;
+		return [];
 	}
 
 	/**
@@ -269,14 +269,14 @@ final class SystemCache
 	 *
 	 * @param string $space Optional keys-space name, default ''.
 	 *  If not specified, the default keys-space will be used.
-	 * @return mixed array | null
+	 * @return array maybe empty
 	 */
 	public function getindex(string $space = '')
 	{
 		if( self::$driver instanceof CacheDriver ) {
 			return self::$driver->get_index($space);
 		}
-		return NULL;
+		return [];
 	}
 
 	/**

@@ -122,13 +122,23 @@ class PageLink extends ContentBase
 		$id = 'm1_';
 		switch($propname) {
 		case 'page':
-			$tmp = AdminUtils::CreateHierarchyDropdown($this->mId, (int)$this->GetPropertyValue('page'), 'page', true);
-			if( $tmp ) return [$this->mod->Lang('destination_page').':',$tmp];
-			break;
+			$input = AdminUtils::CreateHierarchyDropdown($this->mId, (int)$this->GetPropertyValue('page'), 'page', true);
+			if( $input ) {
+				return [
+				'for="cms_hierdropdown1">'.$this->mod->Lang('destination_page'),
+				'',
+				$input
+				];
+			}
+			return [];
 
 		case 'params':
 			$val = specialize($this->GetPropertyValue('params'));
-			return [$this->mod->Lang('additional_params').':','<input type="text" name="'.$id.'params" value="'.$val.'" />'];
+			return [
+			'for="addlparms">'.$this->mod->Lang('additional_params'),
+			'',
+			'<input type="text" id="addlparms" name="'.$id.'params" value="'.$val.'" />'
+			];
 
 		default:
 			return parent::ShowElement($propname,$adding);

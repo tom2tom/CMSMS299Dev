@@ -25,6 +25,7 @@ use CMSMS\SingleItem;
 use Throwable;
 use const CMS_JOB_KEY;
 use const CMS_SECURE_PARAM_NAME;
+use function CMSMS\get_site_UUID;
 use function startswith;
 //use function debug_bt_to_log;
 
@@ -142,7 +143,7 @@ class RequestParameters
         } else {
             $str = 'job';
         }
-        $str .= SingleItem::App()->GetSiteUUID();
+        $str .= get_site_UUID();
         if ($onetime) {
             $db = SingleItem::Db();
             $tmpl = 'INSERT INTO '.CMS_DB_PREFIX."job_records (token,hash) VALUES ('%s','%s')";
@@ -364,7 +365,7 @@ class RequestParameters
     {
         if (isset($parms[self::JOBKEY])) {
             $str = $parms['action'] ?? 'job';
-            $str .= SingleItem::App()->GetSiteUUID();
+            $str .= get_site_UUID();
             return $parms[self::JOBKEY] == hash('tiger128,3', $str);
         }
         if (isset($parms[self::JOBONCEKEY])) {
@@ -379,7 +380,7 @@ class RequestParameters
             if ($key != $key2 && $row['token'] == $key2) { $key = $key2; }
 
             $str = $parms['action'] ?? 'job';
-            $hash = hash('tiger128,3', $key.$str.SingleItem::App()->GetSiteUUID());
+            $hash = hash('tiger128,3', $key.$str.get_site_UUID());
             return $hash == $row['hash'];
         }
         return (!isset($parms[CMS_JOB_KEY]) || $parms[CMS_JOB_KEY] != 2);
@@ -449,7 +450,7 @@ class RequestParameters
      * Return parameters interpreted from parameters in the current request.
      * Non-action parameters are ignored.
      *
-     * @return mixed array | null
+     * @return array maybe empty
      */
     public static function get_action_params()
     {
@@ -492,7 +493,6 @@ class RequestParameters
                 //TODO maybe a job-URL, check/process that
             }
         }
-
         return $parms;
     }
 

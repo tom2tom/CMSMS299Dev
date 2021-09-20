@@ -83,7 +83,7 @@ try {
         $tpl->set_owner($uid);
         $tpl->set_content($content);
         $tpl->set_type($menu_type);
-        $tpl->set_type_dflt(TRUE);
+        $tpl->set_type_default(TRUE);
         $tpl->save();
     }
 
@@ -178,7 +178,7 @@ try {
         $tpl->set_owner($uid);
         $tpl->set_content($content);
         $tpl->set_type($crumb_type);
-        $tpl->set_type_dflt(TRUE);
+        $tpl->set_type_default(TRUE);
         $tpl->save();
     }
 }

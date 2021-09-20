@@ -52,6 +52,6 @@ EOS;
 /*
 function smarty_cms_help_function_menu_text()
 {
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'menu_text', "<li>none</li>");
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'menu_text', "<li>none</li>");
 }
 */

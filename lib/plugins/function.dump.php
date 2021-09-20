@@ -129,7 +129,7 @@ EOS;
 /*
 function smarty_cms_help_function_dump()
 {
-	echo lang_by_realm('tags, 'help_generic', 'This plugin does ...', 'dump', TODO);
+	echo _ld('tags, 'help_generic', 'This plugin does ...', 'dump', TODO);
 <li>item
 <li>see dump_object()
 <li>dump_array()

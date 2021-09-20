@@ -1,0 +1,1 @@
+https://www.a2hosting.com/kb/developer-corner/php/using-the-mailchimp-api-with-php

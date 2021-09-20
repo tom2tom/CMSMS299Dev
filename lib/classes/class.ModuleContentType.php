@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -54,7 +54,7 @@ abstract class ModuleContentType extends ContentBase
   {
     $mod = Utils::get_module($this->ModuleName());
     if( $mod ) return $mod;
-    return 'ModuleName() not defined properly';
+    return 'ModuleName() not defined properly in '.__CLASS__;
   }
 
   /**
@@ -66,11 +66,11 @@ abstract class ModuleContentType extends ContentBase
    */
   public function Lang($key, $params = [])
   {
-    $realm = $this->ModuleName();
+    $domain = $this->ModuleName();
     $args = func_get_args();
     if( count($args) == 2 && $args[1] && is_array($args[1]) ) {
-      return LangOperations::lang_from_realm($realm, $args[0], ...$args[1]);
+      return LangOperations::domain_string($domain, $args[0], ...$args[1]);
     }
-    return LangOperations::lang_from_realm($realm, ...$args);
+    return LangOperations::domain_string($domain, ...$args);
   }
 } // class

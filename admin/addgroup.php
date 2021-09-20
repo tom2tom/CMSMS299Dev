@@ -42,8 +42,8 @@ if (isset($_POST['cancel'])) {
 $userid = get_userid();
 
 if (!check_permission($userid, 'Manage Groups')) {
-//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+//TODO some pushed popup c.f. javascript:cms_notify('error', _la('no_permission') OR _la('needpermissionto', _la('perm_Manage_Groups')), ...);
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 //CMSMS\de_specialize_array($_POST);
@@ -53,11 +53,11 @@ if (isset($_POST['addgroup'])) {
     $tmp = de_specialize(trim($_POST['group']));
     $group = sanitizeVal($tmp, CMSSAN_NAME);
     if ($group !== $tmp) {
-        $errors[] = lang('illegalcharacters', lang('groupname'));
+        $errors[] = _la('illegalcharacters', _la('groupname'));
     } elseif (!$group) {
-        $errors[] = lang('nofieldgiven', lang('groupname'));
+        $errors[] = _la('nofieldgiven', _la('groupname'));
     } elseif (!AdminUtils::is_valid_itemname($group)) {
-        $errors[] = lang('errorbadname');
+        $errors[] = _la('errorbadname');
     }
     // not compulsory
 //    $tmp =
@@ -79,7 +79,7 @@ if (isset($_POST['addgroup'])) {
                 audit($groupobj->id, 'Admin Users Group '.$groupobj->name, 'Added');
                 redirect('listgroups.php'.$urlext);
             } else {
-                $errors[] = lang('errorinsertinggroup');
+                $errors[] = _la('errorinsertinggroup');
             }
         } catch (Throwable $t) {
             $errors[] = $t->GetMessage();

@@ -65,7 +65,7 @@ class ContentTypeOperations
 	/**
 	 * @ignore
 	 */
-	public function __get($key)
+	public function __get(string $key)
 	{
 		if( $key == 'content_types' ) {
 			return $this->_content_types ?? null; //for PageLoader class to access
@@ -112,7 +112,7 @@ class ContentTypeOperations
 //					allow_admin_lang(TRUE);
 					$r = self::EDITORMODULE; //public names are over there
 				}
-				$parms['friendlyname'] = lang_by_realm($r, $row['publicname_key']);
+				$parms['friendlyname'] = _ld($r, $row['publicname_key']);
 			}
 
 			$result[$row['name']] = new ContentType($parms);
@@ -154,7 +154,7 @@ class ContentTypeOperations
 	 * Return a content type corresponding to $name, if any
 	 *
 	 * @param string $name The content type name
-	 * @return mixed ContentType object or null
+	 * @return mixed ContentType object | null
 	 */
 	public function get_content_type(string $name)
 	{
@@ -174,7 +174,7 @@ class ContentTypeOperations
 	 * @param mixed $type string type name or an instance of ContentType
 	 * @param bool since 2.99 optional flag whether to create a IContentEditor-compatible class
 	 * object. Default false (hence a shortform object)
-	 * @return mixed ContentType object or null
+	 * @return mixed ContentType object | null
 	 */
 	public function LoadContentType($type, bool $editable=false)
 	{
@@ -208,9 +208,9 @@ class ContentTypeOperations
 	 *  'disallowed_contenttypes' site preference. Default false.
 	 * @param bool $system return only CMSMS-internal content types. Default false.
 	 * @param string $realm optional lang-strings realm. Default 'admin'.
-	 * @return mixed array of content types registered in the system | null
-	 * Values are respective 'public' names (from the class FriendlyName() method)
-	 * if any, otherwise the raw type-name.
+	 * @return array content type(s) registered in the system | empty
+	 *  Array values are respective 'public' names (from the class FriendlyName() method)
+	 *  if any, otherwise the raw type-name.
 	 */
 	public function ListContentTypes(bool $byclassname = FALSE, bool $allowed = FALSE, bool $system = FALSE, string $realm = 'admin')
 	{
@@ -235,7 +235,7 @@ class ContentTypeOperations
 
 				if( empty($obj->friendlyname) ) {
 					if( !(empty($obj->friendlyname_key) || !AppState::test(AppState::ADMIN_PAGE)) ) {
-						$obj->friendlyname = lang_by_realm($realm,$obj->friendlyname_key);
+						$obj->friendlyname = _ld($realm,$obj->friendlyname_key);
 					}
 					else {
 						$obj->friendlyname = ucfirst($obj->type);
@@ -251,6 +251,7 @@ class ContentTypeOperations
 			}
 			return $result;
 		}
+		return [];
 	}
 
 	/**

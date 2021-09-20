@@ -82,7 +82,7 @@ EOS;
 
 function smarty_cms_help_function_page_image()
 {
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin retrieves an uploaded thumbnail- or image-object associated with the current page',
 	'page_image ...',
 	<<<'EOS'

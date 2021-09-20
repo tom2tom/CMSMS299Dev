@@ -30,7 +30,7 @@ require ".{$dsep}admininit.php";
 
 $userid = get_userid(false);
 if( !$userid ) {
-    throw new Error403Exception(lang('permissiondenied'));
+    throw new Error403Exception(_la('permissiondenied'));
 }
 
 $op = $_POST['op'] ?? 'delete'; // no sanitizeVal() etc cuz only 'delete' accepted

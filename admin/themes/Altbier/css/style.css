@@ -1287,9 +1287,11 @@ nav h3.FilePicker-default a::before, #ac_pagemenu li a.FilePicker-default::befor
 nav h3.files a::before, #ac_pagemenu li a.files::before { content: '\f0c5' }
 nav h3.groupmembers a::before, #ac_pagemenu li a.groupmembers::before { content: '\f500' }
 nav h3.groupperms a::before, #ac_pagemenu li a.groupperms::before { content: '\f09c' }
-nav h3.jobs a::before, #ac_pagemenu li a.jobs::before { content: '\f552' }
+nav h3.jobs a::before, #ac_pagemenu li a.jobs::before { content: '\f807' }
 nav h3.layout a::before, #ac_pagemenu li a.layout::before { content: '\f00a' }
 nav h3.listgroups a::before, #ac_pagemenu li a.listgroups::before { content: '\f509' }
+nav h3.liststyles a::before, #ac_pagemenu li a.liststyles::before { content: '\f5ae' }
+nav h3.listtemplates a::before, #ac_pagemenu li a.listtemplates::before { content: '\f5c3' }
 nav h3.listusers a::before, #ac_pagemenu li a.listusers::before { content: '\f4fe' }
 nav h3.log a::before, #ac_pagemenu li a.log::before { content: '\f518' }
 nav h3.logout a::before, #ac_pagemenu li a.logout::before { content: '\f2f5' }
@@ -1301,7 +1303,8 @@ nav h3.myaccount a::before, #ac_pagemenu li a.myaccount::before { content: '\f4f
 nav h3.mybookmarks a::before, #ac_pagemenu li a.mybookmarks::before { content: '\f02e' }
 nav h3.myprefs a::before, #ac_pagemenu li a.myprefs::before { content: '\f007' }
 nav h3.mysettings a::before, #ac_pagemenu li a.mysettings::before { content: '\f61f' }
-nav h3.News-default a::before, #ac_pagemenu li a.News-default::before { content: '\f1ea' }
+nav h3.News-default a::before, #ac_pagemenu li a.News-default::before { content: '\f519' }
+nav h3.OutMailer-default a::before, #ac_pagemenu li a.OutMailer-default::before { content: '\f199' }
 nav h3.Search-default a::before, #ac_pagemenu li a.Search-default::before { content: '\f689' }
 nav h3.services a::before, #ac_pagemenu li a.services::before { content: '\f085' }
 nav h3.site a::before, #ac_pagemenu li a.site::before { content: '\f108' }
@@ -1311,7 +1314,7 @@ nav h3.systeminfo a::before, #ac_pagemenu li a.systeminfo::before { content: '\f
 nav h3.systemmaintenance a::before, #ac_pagemenu li a.systemmaintenance::before { content: '\f487' }
 nav h3.tags a::before, #ac_pagemenu li a.tags::before { content: '\f02c' }
 nav h3.usersgroups a::before, #ac_pagemenu li a.usersgroups::before { content: '\f0c0' }
-nav h3.usertags a::before, #ac_pagemenu li a.usertags::before { content: '\f4c4' }
+nav h3.usertags a::before, #ac_pagemenu li a.usertags::before { content: '\f507' }
 /* for alternate fontawesome mechanism
 #ac_pagemenu li a .svg-inline--fa {
     margin-right: 0.5em;

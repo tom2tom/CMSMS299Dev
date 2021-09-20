@@ -133,7 +133,7 @@ final class UserParams
 	 * Return all preferences for the specified user.
 	 *
 	 * @param int $userid
-	 * @return mixed array | null Assoc. array of preferences and values.
+	 * @return array Assoc. array of preferences and values | empty
 	 */
 	public static function get_all_for_user(int $userid)
 	{
@@ -149,6 +149,7 @@ final class UserParams
 			}
 			return $ret;
 		}
+		return [];
 	}
 
 	/**
@@ -269,7 +270,7 @@ use CMSMS\UserParams;
  * @param int    $userid The user id
  * @param string $prefname The preference name
  * @param mixed  $default Optional default value.
- * @return mixed
+ * @return array
  */
 function get_preference($userid, $prefname, $default='')
 {

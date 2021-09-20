@@ -32,7 +32,7 @@ function smarty_function_header_includes($params, $template)
 function smarty_cms_about_function_header_includes()
 {
 	$n = lang('none');
-	echo lang_by_realm('tags', 'about_generic',
+	echo _ld('tags', 'about_generic',
 	'Initial release May 2021',
 	"<li>$n</li>"
 	);
@@ -40,7 +40,7 @@ function smarty_cms_about_function_header_includes()
 /*
 function smarty_cms_help_function_header_includes()
 {
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'function_header_hint ...', <<<'EOS'
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'function_header_hint ...', <<<'EOS'
 <li>something</li>
 <li>anything else</li>
 EOS

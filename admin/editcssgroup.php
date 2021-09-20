@@ -26,6 +26,7 @@ use CMSMS\ScriptsMerger;
 use CMSMS\SingleItem;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
+use function CMSMS\add_shutdown;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 
@@ -36,15 +37,15 @@ check_login();
 
 $userid = get_userid();
 if (!check_permission($userid, 'Manage Stylesheets')) {
-	throw new Error403Exception(lang('permissiondenied'));
-//TODO OR some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
+	throw new Error403Exception(_la('permissiondenied'));
+//TODO OR some pushed popup c.f. javascript:cms_notify('error', _la('no_permission') OR _la('needpermissionto', _la('perm_Manage_Groups')), ...);
 // OR display error.tpl ?
 }
 
 $urlext = get_secure_param();
 $themeObject = SingleItem::Theme();
 if (isset($_REQUEST['cancel'])) {
-	$themeObject->ParkNotice('info', lang_by_realm('layout', 'msg_cancelled'));
+	$themeObject->ParkNotice('info', _ld('layout', 'msg_cancelled'));
 	redirect('liststyles.php'.$urlext.'&_activetab=groups');
 }
 
@@ -53,7 +54,7 @@ if (!empty($_REQUEST['grp'])) { //name or numeric id
 	$id = (is_numeric($_REQUEST['grp'])) ? (int)$_REQUEST['grp'] : sanitizeVal($_REQUEST['grp'], CMSSAN_NAME);
 	try {
 		if (!(is_numeric($id) || AdminUtils::is_valid_itemname($id))) {
-			throw new Exception(lang('errorbadname'));
+			throw new Exception(_la('errorbadname'));
 		}
 		$group = StylesheetsGroup::load($id);
 		$gid = $group->get_id();
@@ -72,7 +73,7 @@ try {
 	if (isset($_REQUEST['dosubmit'])) {
 		$name = sanitizeVal(trim($_REQUEST['name']), CMSSAN_NAME);
 		if (!AdminUtils::is_valid_itemname($name)) {
-			throw new Exception(lang('errorbadname'));
+			throw new Exception(_la('errorbadname'));
 		}
 		$group->set_name($name);
 		$desc = sanitizeVal(trim($_REQUEST['description']), CMSSAN_NONPRINT); // AND nl2br() ? striptags() other than links?
@@ -88,7 +89,7 @@ try {
 			$group->set_members($tmp);
 		}
 		$group->save();
-		$themeObject->ParkNotice('success', lang_by_realm('layout', 'group_saved'));
+		$themeObject->ParkNotice('success', _ld('layout', 'group_saved'));
 		redirect('liststyles.php'.$urlext.'&_activetab=groups');
 	}
 } catch (Throwable $t) {
@@ -113,7 +114,7 @@ if ($props['description']) {
 $lock_timeout = AppParams::get('lock_timeout', 60);
 $do_locking = ($gid > 0 && $lock_timeout > 0) ? 1 : 0;
 if ($do_locking) {
-	SingleItem::App()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
+	add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 }
 
 $jsm = new ScriptsMerger();
@@ -128,9 +129,9 @@ if ($js) {
 
 //$nonce = get_csp_token();
 $lock_refresh = AppParams::get('lock_refresh', 120);
-$s1 = json_encode(lang_by_realm('layout', 'error_lock'));
-$s2 = json_encode(lang_by_realm('layout', 'msg_lostlock'));
-$cancel = lang('cancel');
+$s1 = json_encode(_ld('layout', 'error_lock'));
+$s2 = json_encode(_ld('layout', 'msg_lostlock'));
+$cancel = _la('cancel');
 
 $js = <<<EOS
 <script type="text/javascript">
@@ -223,9 +224,9 @@ EOS;
 add_page_foottext($js);
 
 $all_items = StylesheetOperations::get_all_stylesheets(true);
-$legend1 = lang_by_realm('layout', 'prompt_members');
-$legend2 = lang_by_realm('layout', 'prompt_nonmembers');
-$placeholder = lang_by_realm('layout', 'table_droptip');
+$legend1 = _ld('layout', 'prompt_members');
+$legend2 = _ld('layout', 'prompt_nonmembers');
+$placeholder = _ld('layout', 'table_droptip');
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 if ($gid) {

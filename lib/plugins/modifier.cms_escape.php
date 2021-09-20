@@ -174,7 +174,7 @@ function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
 
 function smarty_cms_about_modifier_cms_escape()
 {
-	echo lang_by_realm('tags', 'about_generic',
+	echo _ld('tags', 'about_generic',
 	'Smarty escape-modifier by Monte Ohrt <monte at ohrt dot com><br />supplemented by CMSMS-extensions. 2004',
 	<<<'EOS'
 <li>change default charset to UTF-8</li>
@@ -188,7 +188,7 @@ EOS
 
 function smarty_cms_help_modifier_cms_escape()
 {
-	echo lang_by_realm('tags', 'help_generic2',
+	echo _ld('tags', 'help_generic2',
 	'This plugin converts some or all of the content of a string variable, to tailor it for its context e.g. URL-capable or more secure',
 	'$somevar|cms_escape:\'type\'}<br />{$somevar|cms_escape:\'type\':\'charset\'',
 	<<<'EOS'

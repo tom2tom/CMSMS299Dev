@@ -19,13 +19,11 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-namespace CMSMS {
+namespace CMSMS;
 
 use CMSMS\AdminUtils;
 use CMSMS\AppConfig;
-use CMSMS\AppParams;
 use CMSMS\AppState;
-use CMSMS\AutoCookieOperations;
 use CMSMS\BookmarkOperations;
 use CMSMS\ContentOperations;
 use CMSMS\ContentTree;
@@ -35,15 +33,15 @@ use CMSMS\DeprecationNotice;
 use CMSMS\GroupOperations;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
-use CMSMS\ScriptsMerger;
 use CMSMS\SingleItem;
 use CMSMS\UserOperations;
 use CMSMS\UserTagOperations;
 use RuntimeException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
-use const CMS_SCHEMA_VERSION;
-use function cms_join_path;
+use function CMSMS\add_debug_message;
+use function CMSMS\get_debug_messages;
+use function CMSMS\get_installed_schema_version;
 
 /**
  * Singleton class for accessing intra-request system properties and classes.
@@ -94,73 +92,6 @@ final class App
      */
     private static $_instance = null;
 
-    // TODO cache all of these as SingleItem properties
-    /**
-     * @ignore
-     */
-    private $_current_content;
-
-    /**
-     * @ignore
-     */
-    private $_content_type = '';
-
-    /**
-     * @ignore
-     */
-    private $_showtemplate = true;
-
-    /**
-     * @var singleton Connection object - handle|connection to the site database
-     * @ignore
-     */
-    private $db;
-
-    /**
-     * @var singleton CMSMS\internal\Smarty object
-     * @ignore
-     */
-    private $smarty;
-
-    /* *
-     * @var singleton module-object
-     * @ignore
-     * This cache must be set externally, after autoloading is available
-     */
-//    public $jobmgrinstance = null;
-
-    /**
-     * Cache for other properties
-     * @since 2.99
-     * @ignore
-     */
-    private $data = [];
-
-    /**
-     * @var array Error-messages
-     * So functions/modules can store up debug info and spit it all out at once
-     * @ignore
-     */
-    private $errors = [];
-
-    /**
-     * @var array Callable methods to be called during shutdown
-     * @ignore
-     */
-    private $shutfuncs = [];
-
-    //TODO another batch of callables for end-of-session cleanup, cached in $_SESSION etc
-
-    /**
-     * @ignore
-     * @private to prevent direct creation (even by SingleItem class)
-     */
-    private function __construct()
-    {
-        $this->add_shutdown(500, [$this, 'dbshutdown']);
-        register_shutdown_function([$this, 'run_shutters']);
-    }
-
     /**
      * @ignore
      */
@@ -178,7 +109,7 @@ final class App
         case 'instance':
             return self::get_instance();
         default:
-            return $this->data[$key] ?? null;
+            return SingleItem::get('app.'.$key);
         }
     }
 
@@ -187,27 +118,30 @@ final class App
      */
     public function __set(string $key, $value)
     {
-        $this->data[$key] = $value;
+        SingleItem::set('app.'.$key, $value);
     }
 
     /**
-     * Retrieve the singleton instance of another class.
+     * Convenience method to get the singleton instance of another class.
+     * Normally, get it directly, via a SingleItem::whatever() call.
+     *
      * @ignore
      * @throws RuntimeException if $name is not recognized
      */
-    public function __call(string $name, $args)
+    public function __call(string $name, array $args)
     {
         return SingleItem::$name(...$args);
     }
 
     /**
-     * Retrieve the singleton instance of this class.
+     * Get the singleton instance of this class.
      * This method is used during request-setup, when caching via the
      * SingleItem class might not yet be possible. Later, use
-     * CMSMS\SingleItem::[Cms]App() instead of this method, to get the
+     * CMSMS\SingleItem::App() instead of this method, to get the
      * (same) singleton.
-     *
      * @since 1.10
+     *
+     * @return self
      */
     public static function get_instance() : self
     {
@@ -218,163 +152,68 @@ final class App
     }
 
     /**
-     * Retrieve the value of an internal variable.
-     * @since 1.9
-     *
-     * @param string The variable name to get
-     * @return mixed The value of the internal variable, or null.
-     */
-    public function get_variable(string $key)
-    {
-        return $this->__get($key);
-    }
-
-    /**
-     * Set the value of an internal variable
-     * @since 1.9
-     *
-     * @param string The variable name to set
-     * @param mixed  The value
-     */
-    public function set_variable($key,$value)
-    {
-        $this->data[$key] = $value;
-    }
-
-    /**
-     * Retrieve the installed schema version.
-     *
+     * Get the installed-schema version.
      * @since 2.0
+     * @deprecated since 2.99 instead use CMSMS\get_installed_schema_version()
+     *
+     * @return int maybe 0
      */
     public function get_installed_schema_version() : int
     {
-        $val = AppParams::get('cms_schema_version');
-        if( AppState::test(AppState::INSTALL) ) {
-            return (int)$val; //most-recently cached value (if any)
-        }
-        if (!$val && defined('CMS_SCHEMA_VERSION')) { //undefined during installation
-            $val = CMS_SCHEMA_VERSION;
-        }
-        if (!$val) {
-            $val = $CMS_SCHEMA_VERSION ?? 0; // no force-load here, might not be installed
-        }
-        return (int)$val; // maybe 0
+        return get_installed_schema_version();
     }
 
     /**
-     * Report whether the installed tables-schema is up-to-date.
-     *
-     * @since 2.99
-     *
-     * @return bool;
-     */
-    public function schema_is_current() : bool
-    {
-        global $CMS_SCHEMA_VERSION; // what we're supposed to have
-        if (!isset($CMS_SCHEMA_VERSION)) {
-            require dirname(__DIR__).DIRECTORY_SEPARATOR.'version.php'; // get it [again?]
-        }
-        $current = $this->get_installed_schema_version(); // what we think we do have
-        return version_compare($current, $CMS_SCHEMA_VERSION) == 0;
-    }
-
-    /**
-     * Retrieve the list of errors
-     *
-     * @ignore
+     * Get the dump-messages.
      * @since 1.9
-     * @internal
-     * @access private.
-     * return array
+     * @deprecated since 2.99 instead use CMSMS\get_debug_messages()
+     *
+     * @return array
      */
     public function get_errors() : array
     {
-        return $this->errors;
+        return get_debug_messages();
     }
 
     /**
-     * Add an error to the list
-     *
-     * @ignore
+     * Add a dump-message.
      * @since 1.9
-     * @internal
-     * @access private
-     * @param string The error message.
+     * @deprecated since 2.99 instead use CMSMS\add_debug_message()
+     *
+     * @param string $str The error message
      */
     public function add_error(string $str)
     {
-        if( !is_array($this->errors) ) $this->errors = [];
-        $this->errors[] = $str;
+        add_debug_message($str);
     }
 
     /**
-     * Retrieve the request content type (for frontend requests)
+     * Get the request content type (for frontend requests).
      *
-     * If no content type is explicity set, text/html is assumed.
+     * If no content type is explicitly set, text/html is assumed.
      *
      * @since 2.0
+     * @return string
      */
     public function get_content_type() : string
     {
-        if( $this->_content_type ) return $this->_content_type;
-        return 'text/html';
+        $val = (string)SingleItem::get('app.content_type');
+        return ($val) ? $val : 'text/html';
     }
 
     /**
-     * Set the request content type to a valid mime type.
+     * Set the request content type (a mime type).
      *
      * @param string $mime_type
      * @since 2.0
      */
-    public function set_content_type(string $mime_type = null)
+    public function set_content_type(string $mime_type = '')
     {
-        if( $mime_type ) $this->_content_type = $mime_type;
-        else $this->_content_type = '';
+        SingleItem::set('app.content_type', $mime_type);
     }
 
     /**
-     * Disable the processing of the page template.
-     * This function controls whether the page template will be processed at all.
-     * It must be called early enough in the content generation process.
-     *
-     * Ideally this method can be called from within a module action that is
-     * called from within the default content block when content_processing is
-     * set to 2 (the default) in the config.php file
-     *
-     * @return void
-     * @since 2.99
-     */
-    public function disable_template_processing()
-    {
-        $this->_showtemplate = false;
-    }
-
-    /**
-     * [Un]set the flag indicating whether to process the (optional) template
-     * currently pending.
-     * This method can be called from anywhere, to temporarily toggle smarty processing
-     *
-     * @since 2.99
-     * @param bool $state optional default true
-     */
-    public function do_template_processing(bool $state = true)
-    {
-        $this->_showtemplate = $state;
-    }
-
-    /**
-     * Get the flag indicating whether or not template processing is allowed.
-     *
-     * @return bool
-     * @since 2.99
-     */
-    public function template_processing_allowed() : bool
-    {
-        return $this->_showtemplate;
-    }
-
-    /**
-     * Set the current-page content object, if not already done
+     * Set the current-page content object, if not already done.
      *
      * @since 2.0
      * @internal
@@ -383,59 +222,59 @@ final class App
      */
     public function set_content_object($content)
     {
-        if( !$this->_current_content || $content instanceof ErrorPage ) {
-            $this->_current_content = $content;
+        if( !SingleItem::get('app.current_content') || $content instanceof ErrorPage ) {
+            SingleItem::set('app.current_content', $content);
         }
     }
 
     /**
-     * Get the current-page content object
+     * Get the current-page content object.
      *
      * @since 2.0
      * @return mixed content-object (CMSMS or ContentManager namespace) or null
      */
     public function get_content_object()
     {
-        return $this->_current_content ?? null;
+        return SingleItem::get('app.current_content');
     }
 
     /**
-     * Get the ID of the current page
+     * Get the ID of the current page.
      *
      * @since 2.0
+     * @return int id, possibly 0
      */
     public function get_content_id()
     {
-        $obj = $this->get_content_object();
-        if( is_object($obj) ) return $obj->Id();
+        $obj = SingleItem::get('app.current_content');
+        return ( is_object($obj) )  ? $obj->Id() : 0;
     }
 
     /**
-    * Get a handle to the module operations instance.
-    * @see ModuleOperations
-    * @since 2.99 CMSMS\SingleItem::ModuleOperations() may be used instead
-    *
-    * @return ModuleOperations handle to the ModuleOperations object
-    */
+     * Get the module-operations instance.
+     * @see ModuleOperations
+     * @since 2.99 CMSMS\SingleItem::ModuleOperations() may be used instead
+     *
+     * @return ModuleOperations handle to the ModuleOperations object
+     */
     public function GetModuleOperations() : ModuleOperations
     {
         return SingleItem::ModuleOperations();
     }
 
     /**
-     * Get a list of all installed and available modules
+     * Get the names of installed and available modules.
      *
      * This method will return an array of module names that are installed, loaded and ready for use.
      * Suitable for iteration with GetModuleInstance
      *
      * @see App::GetModuleInstance()
      * @since 1.9
-     * @return string[]
+     * @return array module-name(s)
      */
     public function GetAvailableModules()
     {
-        $obj = $this->GetModuleOperations();
-        return $obj->get_available_modules();
+        return SingleItem::ModuleOperations()->get_available_modules();
     }
 
     /**
@@ -446,50 +285,38 @@ final class App
      * whether the version of the requested module matches the one specified.
      *
      * @since 1.9
-     * @param string $modname The module name.
+     * @deprecated since 2.99 instead use Utils::get_module() or ModuleOperations::get_module_instance()
+     *
+     * @param string $modname The module name
      * @param mixed  $version (optional) string|float version number for a check. Default ''
-     * @return mixed CMSModule sub-class object | null.
-     * @deprecated
+     * @return mixed CMSModule sub-class object | null
      */
     public function GetModuleInstance(string $modname,$version = '')
     {
-        $ops = $this->GetModuleOperations();
-        return $ops->get_module_instance($modname,$version);
+        return SingleItem::ModuleOperations()->get_module_instance($modname,$version);
     }
 
     /**
-     * Set the database connection object.
-     * For use when the installer is running, when the db connection
-     * cannot be created via self::GetDb(). That expects the global
-     * $config to already be populated with connection parameters.
-     *
+     * Record the database connection object.
+     * @deprecated since 2.99 Does nothing
      * @internal
-     * @ignore
-     * @param Connection $conn
+     *
+     * @param Connection $conn UNUSED
      */
     public function _setDb(Connection $conn)
     {
-        if( !AppState::test(AppState::INSTALL) ) {
-            throw new RuntimeException('Invalid use of '.__METHOD__);
-        }
-        $this->db = $conn;
+        assert(empty(CMS_DEPREC), new DeprecationNotice(__METHOD__.' does nothing', ''));
     }
 
     /**
-    * Get a handle to the database.
-    * @see SingleItem::Db()
-    *
-    * @return mixed Connection object or null
-    */
-    public function GetDb()
+     * Get the database-connection instance.
+     * @deprecated since 2.99 Instead, use SingleItem::Db()
+     *
+     * @return Connection object
+     */
+    public function GetDb() : Connection
     {
-        if (isset($this->db)) return $this->db;
-
-        $config = SingleItem::Config();
-        $this->db = new Connection($config);
-        //deprecated since 2.99 (at most): make old stuff available
-        require_once cms_join_path(__DIR__, 'Database', 'class.compatibility.php');
-        return $this->db;
+        return SingleItem::Db();
     }
 
     /**
@@ -505,101 +332,100 @@ final class App
     }
 
     /**
-    * Get a handle to the CMS config instance.
-    * That object contains global paths and settings that do not belong in the database.
-    * @see AppConfig
-    *
-    * @return AppConfig The configuration object
-    */
+     * Get the CMS config instance.
+     * That object contains global paths and settings that do not belong
+     * in the database.
+     * @see AppConfig
+     *
+     * @return AppConfig The configuration object
+     */
     public function GetConfig() : AppConfig
     {
         return SingleItem::Config();
     }
 
     /**
-    * Get a handle to the user operations instance.
-    * @see UserOperations
-    * @since 2.99 CMSMS\SingleItem::UserOperations() may be used instead
-    *
-    * @return UserOperations handle to the UserOperations object
-    */
+     * Get the user-operations instance.
+     * @see UserOperations
+     * @since 2.99 CMSMS\SingleItem::UserOperations() may be used instead
+     *
+     * @return UserOperations handle to the UserOperations object
+     */
     public function GetUserOperations() : UserOperations
     {
         return SingleItem::UserOperations();
     }
 
     /**
-    * Get a handle to the content operations instance.
-    * @see ContentOperations
-    * @since 2.99 CMSMS\SingleItem::ContentOperations() may be used instead
-    *
-    * @return ContentOperations handle to the ContentOperations object
-    */
+     * Get the content-operations instance.
+     * @see ContentOperations
+     * @since 2.99 CMSMS\SingleItem::ContentOperations() may be used instead
+     *
+     * @return ContentOperations handle to the ContentOperations object
+     */
     public function GetContentOperations() : ContentOperations
     {
         return SingleItem::ContentOperations();
     }
 
     /**
-    * Get a bookmark-operations instance.
-    * @see BookmarkOperations
-    *
-    * @return BookmarkOperations
-    */
+     * Get a bookmark-operations object.
+     * @deprecated since 2.99 instead use new CMSMS\BookmarkOperations()
+     * @see BookmarkOperations
+     *
+     * @return BookmarkOperations
+     */
     public function GetBookmarkOperations() : BookmarkOperations
     {
         return new BookmarkOperations();
     }
 
     /**
-    * Get a handle to the group operations instance.
-    * @see GroupOperations
-    * @since 2.99 CMSMS\SingleItem::GroupOperations() may be used instead
-    *
-    * @return GroupOperations handle to the GroupOperations instance
-    */
+     * Get the group-operations instance.
+     * @see GroupOperations
+     * @since 2.99 CMSMS\SingleItem::GroupOperations() may be used instead
+     *
+     * @return GroupOperations handle to the GroupOperations instance
+     */
     public function GetGroupOperations() : GroupOperations
     {
         return SingleItem::GroupOperations();
     }
 
     /**
-    * Get a handle to the user-plugin operations instance, for interacting with UDT's
-    * @see UserTagOperations
-    * @since 2.99 CMSMS\SingleItem::UserTagOperations() may be used instead
-    *
-    * @return the UserTagOperations singleton
-    */
+     * Get the user-plugin-operations instance, for interacting with UDT's
+     * @see UserTagOperations
+     * @since 2.99 CMSMS\SingleItem::UserTagOperations() may be used instead
+     *
+     * @return the UserTagOperations singleton
+     */
     public function GetUserTagOperations() : UserTagOperations
     {
         return SingleItem::UserTagOperations();
     }
 
     /**
-    * Get a handle to the Smarty instance, except during install/upgrade/refresh.
-    * @see Smarty
-    * @see SingleItem::Smarty()
-    * @link http://www.smarty.net/manual/en/
-    *
-    * @return mixed CMSMS\internal\Smarty object | null
-    */
-    public function GetSmarty()
+     * Get the Smarty instance, except during install/upgrade/refresh.
+     * @see Smarty
+     * @see SingleItem::Smarty()
+     * @link http://www.smarty.net/manual/en/
+     *
+     * @return mixed CMSMS\internal\Smarty object | null
+     */
+    public function GetSmarty() : Smarty
     {
         if( !AppState::test(AppState::INSTALL) ) {
             // we don't load the main Smarty class during installation
-            if( empty($this->smarty) ) {
-                $this->smarty = new Smarty();
-            }
-            return $this->smarty;
+            return SingleItem::Smarty();
         }
     }
 
     /**
-    * Get a handle to the cached pages-hierarchy manager.
-    * @see ContentTree
-    *
-    * @return object ContentTree, with nested descendant-objects
-    */
+     * Get the cached pages-hierarchy-manager instance.
+     * @see ContentTree
+     *
+     * @return object ContentTree, with nested descendant-objects
+     */
     public function GetHierarchyManager() : ContentTree
     {
         $hm = SingleItem::get('HierarchyManager');
@@ -611,112 +437,13 @@ final class App
     }
 
     /**
-     * Get the intra-request shared scripts-combiner object.
-     * @since 2.99
-     *
-     * @return object ScriptsMerger
+     * Does nothing
+     * @deprecated since 2.99
      */
-    public function GetScriptsManager() : ScriptsMerger
+    public function get_template_parser()
     {
-        $sm = SingleItem::get('ScriptsMerger');
-        if( !$sm ) {
-            $sm = new ScriptsMerger();
-            SingleItem::set('ScriptsMerger', $sm);
-        }
-        return $sm;
+        assert(empty(CMS_DEPREC), new DeprecationNotice(__METHOD__.' does nothing', ''));
     }
-
-    /**
-     * Get the intra-request shared styles-combiner object.
-     * @since 2.99
-     *
-     * @return object StylesMerger
-     */
-    public function GetStylesManager() : StylesMerger
-    {
-        $sm = SingleItem::get('StylesMerger');
-        if( !$sm ) {
-            $sm = new StylesMerger();
-            SingleItem::set('StylesMerger', $sm);
-        }
-        return $sm;
-    }
-
-    /**
-     * Get a cookie-manager instance.
-     * @since 2.99
-     *
-     * @return AutoCookieOperations
-     */
-    public function GetCookieManager() : AutoCookieOperations
-    {
-        return new AutoCookieOperations($this);
-    }
-
-    /**
-     * Get this site's unique identifier
-     * @since 2.99
-     *
-     * @return 32-byte english-alphanum string
-     */
-    public function GetSiteUUID()
-    {
-        return SingleItem::get('site_uuid');
-    }
-
-    /**
-     * Shutdown-function: process all recorded methods
-     * @ignore
-     * @internal
-     * @since 2.99
-     * @todo export this to elsewhere e.g. populate via hooklist
-     */
-    public function run_shutters()
-    {
-        usort($this->shutfuncs, function($a,$b) {
-            return $a[0] <=> $b[0];
-        });
-        foreach( $this->shutfuncs as $row ) {
-            if( is_callable($row[1]) ) {
-                if( $row[2] ) $row[1](...$row[2]);
-                else $row[1]();
-            }
-        }
-    }
-
-    /**
-     * Queue a shutdown-function
-     * @since 2.99
-     * @param int $priority 1(high)..big int(low). Default 1.
-     * @param callable $shutter
-     * @param(s) variable no. of arguments to supply to $shutter
-     */
-    public function add_shutdown(int $priority = 1, $shutter = null, ...$args)
-    {
-        $this->shutfuncs[] = [$priority, $shutter, $args];
-    }
-
-    /**
-    * A shutdown function: disconnect from the database.
-    *
-    * @internal
-    * @ignore
-    */
-    public function dbshutdown()
-    {
-        if (isset($this->db) && $this->db->IsConnected()) {
-            $this->db->Close();
-        }
-        $this->db = null; //no restarting during shutdown
-    }
-
-    /* TODO
-     * End-of-session-function: process all recorded methods
-     * Maybe elsewhere
-     * @ignore
-     * @internal
-     * @since 2.99
-     */
 
     /**
      * Remove files from the website file-cache directories.
@@ -794,21 +521,23 @@ final class App
         AppState::remove($state);
     }
 
-    /* * MAYBE IN FUTURE
+    /**
      * Report whether the current request was executed via the CLI.
+     * @since 2.2.10
+     * @deprecated since 2.99 CLI operation is not supported
      *
-     * @since 2.99
-     * @return bool
+     * @return bool false always
      */
-/*    public function is_cli() : bool
+    public function is_cli() : bool
     {
-        return PHP_SAPI == 'cli';
+        assert(empty(CMS_DEPREC), new DeprecationNotice(__METHOD__.' always returns false', ''));
+        return false;
     }
-*/
+
     /**
      * Report whether the current request is a frontend request.
-     *
      * @since 1.11.2
+     *
      * @return bool
      */
     public function is_frontend_request() : bool
@@ -817,45 +546,12 @@ final class App
     }
 
     /** Report whether the current request was over HTTPS.
-     *
      * @since 1.11.12
+     *
      * @return bool
      */
     public function is_https_request() : bool
     {
         return !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off';
     }
-}
-
-} //namespace
-
-namespace {
-
-use CMSMS\App;
-use CMSMS\SingleItem;
-
-/**
- * Return the App singleton object.
- *
- * @since 1.7
- * @return App
- * @see App::get_instance()
- */
-function cmsms() : App
-{
-    return SingleItem::App();
-}
-
-/**
- * Check whether the supplied identifier matches the site UUID
- * This is a security function e.g. in module actions: <pre>if (!checkuuid($uuid)) exit;</pre>
- * @since 2.99
- * @param mixed $uuid identifier to be checked
- * @return bool indicating success
- */
-function checkuuid($uuid) : bool
-{
-    return hash_equals(SingleItem::App()->GetSiteUUID(), $uuid.'');
-}
-
-} // global namespace
+} // class

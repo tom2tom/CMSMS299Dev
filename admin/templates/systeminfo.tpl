@@ -71,10 +71,10 @@
   </table>
   <br />
 
-  <table class="pagetable" style="width:100%;" summary="{lang('performance_information')}">
+  <table class="pagetable" style="width:100%;" summary="{_ld('admin','performance_information')}">
     <thead>
       <tr>
-        <th colspan="3">{lang('performance_information')}</th>
+        <th colspan="3">{_ld('admin','performance_information')}</th>
       </tr>
     </thead>
     <tbody>

@@ -26,7 +26,7 @@ if( !isset($params['tpl']) ) exit;
 
 try {
 	$tpl = TemplateOperations::get_template($params['tpl']);
-	$tpl->set_type_dflt();
+	$tpl->set_type_default();
 	TemplateOperations::save_template($tpl);
 }
 catch( Throwable $t ) {

@@ -223,7 +223,7 @@ class ContentTree extends Tree
 	 * @deprecated since 1.9
 	 * @see Tree::get_tag()
 	 * @param  string $key Tag name/key
-	 * @return mixed Node value.
+	 * @return mixed Node tag value | null
 	 */
 /*	public function getTag(string $key = 'id')
 	{

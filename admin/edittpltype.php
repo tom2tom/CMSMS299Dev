@@ -25,6 +25,7 @@ use CMSMS\Error403Exception;
 use CMSMS\ScriptsMerger;
 use CMSMS\SingleItem;
 use CMSMS\TemplateType;
+use function CMSMS\add_shutdown;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 
@@ -35,20 +36,20 @@ check_login();
 
 $userid = get_userid();
 if( !check_permission($userid, 'Modify Templates') ) {
-//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+//TODO some pushed popup c.f. javascript:cms_notify('error', _la('no_permission') OR _la('needpermissionto', _la('perm_Manage_Groups')), ...);
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 $urlext = get_secure_param();
 $themeObject = SingleItem::Theme();
 
 if( isset($_REQUEST['cancel']) ) {
-	$themeObject->ParkNotice('info', lang_by_realm('layout', 'msg_cancelled'));
+	$themeObject->ParkNotice('info', _ld('layout', 'msg_cancelled'));
 	redirect('listtemplates.php'.$urlext.'&_activetab=types');
 }
 
 if( !isset($_REQUEST['type']) ) {
-	$themeObject->ParkNotice('error', lang_by_realm('layout', 'error_missingparam'));
+	$themeObject->ParkNotice('error', _ld('layout', 'error_missingparam'));
 	redirect('listtemplates.php'.$urlext.'&_activetab=types');
 }
 
@@ -68,15 +69,15 @@ try {
 		$type->save();
 	}
 	elseif( isset($_REQUEST['dosubmit']) ) {
-		if( isset($_REQUEST['dflt_contents']) ) {
+		if( isset($_REQUEST['dflt_content']) ) {
 			//TODO how to sanitize template content?
-			$type->set_dflt_contents($_REQUEST['dflt_contents']);
+			$type->set_dflt_contents($_REQUEST['dflt_content']);
 		}
 		$desc = trim($_REQUEST['description']); // AND sanitizeVal(, CMSSAN_NONPRINT) ? nl2br() ? striptags() ?
 		$type->set_description($desc);
 		$type->save();
 
-		$themeObject->ParkNotice('success', lang_by_realm('layout', 'msg_type_saved'));
+		$themeObject->ParkNotice('success', _ld('layout', 'msg_type_saved'));
 		redirect('listtemplates.php'.$urlext.'&_activetab=types');
 	}
 
@@ -85,13 +86,13 @@ try {
 	$lock_timeout = AppParams::get('lock_timeout', 60);
 	$do_locking = ($type_id > 0 && $lock_timeout > 0) ? 1 : 0;
 	if( $do_locking ) {
-		SingleItem::App()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
+		add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 	}
 	$lock_refresh = AppParams::get('lock_refresh', 120);
-	$s1 = json_encode(lang_by_realm('layout', 'error_lock'));
-	$s2 = json_encode(lang_by_realm('layout', 'msg_lostlock'));
-	$s3 = json_encode(lang_by_realm('layout', 'confirm_reset_type'));
-	$cancel = lang('cancel');
+	$s1 = json_encode(_ld('layout', 'error_lock'));
+	$s2 = json_encode(_ld('layout', 'msg_lostlock'));
+	$s3 = json_encode(_ld('layout', 'confirm_reset_type'));
+	$cancel = _la('cancel');
 
 	$jsm = new ScriptsMerger();
 	$jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);

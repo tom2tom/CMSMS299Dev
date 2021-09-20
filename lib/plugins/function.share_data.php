@@ -73,7 +73,7 @@ function smarty_function_share_data($params, $template)
 /*
 function smarty_cms_about_function_share_data()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
 <li>detail</li> ... OR lang('none')
 EOS
 }
@@ -81,7 +81,7 @@ EOS
 /*
 function smarty_cms_help_function_share_data()
 {
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'share_data ...', <<<'EOS'
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'share_data ...', <<<'EOS'
 <li>vars: comma-separated string, or array, of variable names</li>
 <li>data: alias for vars</li>
 <li>scope: parent (default), global</li>

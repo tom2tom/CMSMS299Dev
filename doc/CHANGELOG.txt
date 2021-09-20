@@ -28,13 +28,13 @@ also support installation based on sources in a git repo
 
 INFRASTRUCTURE
 
-Coded for PHP 7.1+, compatible with 7.1.x to 8.0 (at least).
+Coded for PHP 7.1+, compatible with 7.1.x to 8.1 (at least)
 jQuery 2.2.4 (effective upgrades from 1.x to the current 3.x need to be in two stages, with an intermediate 2.x)
 jQuery migrate 1.4.1
 jQuery-UI & jQuery-UI-css 1.12.1
 support-js (cookies, sortable, uploads etc) latest releases as of 1/9/2018
 Smarty 3.1.39
-replacement for CMSMailer module backend phpmailer (due to license incompatibility)
+replacement for the OutMailer (formerly CMSMailer) module backend PHPMailer class (due to license incompatibility)
 TinyMCE (MicroTiny module) 4.9.5
 
 CONFIG PARAMETERS
@@ -100,9 +100,13 @@ syntax_area
 tabs_restart
 theme_root
 
-NOTE: The 'main' function in each function-type plugin takes 2 arguments, like
+NOTE: The 'main' function in each function-type plugin is like
    smarty_function_my_name($params, $smarty-object)
-That 2nd parameter (whatever named) will be a Smarty Internal Template-class object, and (for smarty 3.1.32+) MUST NOT BE A REFERENCE to such obect.
+Smarty will not recognise a plugin whose function is named with an extra 'cms_'
+i.e. the name MUST now be 'smarty_function_my_name', NOT 'smarty_cms_function_my_name'.    
+The 2nd argument (whatever named) will be a Smarty Internal Template-class
+object, and (for Smarty 3.1.32+) MUST NOT be a reference to such obect.
+The installer remedies those breakages as best it can, but might miss some cases.
 
 To access the main Smarty class: $smarty-object->smarty
 
@@ -191,6 +195,7 @@ DETAILS
   - New content-security methods: CMSMS\execSpecialchars(), CMSMS\sanitizeVal(),
          CMSMS\Database\Connection::escStr();
   - New method: AdminUtils::get_module_icon()
+  - New methods: _la(), _ld() are shortform alternates to lang(), lang_by_realm(), to facilitate (possibly automated) source-file scanning for translatable stings c.f. _() and gettext()
   - New classes: TemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum, RequestParameters, Crypto, AppSingle
   - Renamed classes: App, AppConfig, AppParams, UserParams (their old names are still usable)
   - New content-security methods: Crypto::encrypt_string(),decrypt_string(),hash_string(),random_string(),scramble_string()
@@ -206,7 +211,11 @@ DETAILS
   - CHANGE: Database connection reliably reports success (as the no. of affected rows) after an UPDATE command
   - CHANGE: URL-string constructor methods support non-scalar paramter values
   - CHANGE: Page style(s) are applied directly, insead of via a Design. Each design is now just a tool to facilitate site development
-  - CHANGE: Enable use of php functions date(),strftime(),strtotime() in smarty frontend templates.
+  - CHANGE: Enable use of php functions date(),strtotime() in smarty frontend templates
+  - REMOVED: All strftime() usage, per PHP 8.1 deprecation. Instead use date() and related methods and classes
+  - DEPRECATED: strftime()-compatibile site-preference 'defaultdateformat'. Instead use date()-compatible 'date_format' or 'datetime_format'
+  - CHANGE: Smarty modifier-plugin cms_date_format undertands formats which are or include 'timed'
+  - CHANGE: Smarty modifier-plugin cms_date_format sanitizes generated text, so no need to supplement in templates with '|cms_escape'
   - BREAKING: Renamed permission 'Modify User-defined Tags' to 'Manage User Plugins'
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.99 at least, the module is still operational.)
   - CHANGE: Renamed CMSContentManager module to ContentManager (shorter module-names help deal with a Smarty 20-character limit)
@@ -223,8 +232,8 @@ DETAILS
   - FEATURE: added (non-core) module SyntaxMultiEditor allowing (for now) Ace|CodeMirror, to edit templates, stylesheets, UDT's,
       and related (but independent) get_editor_script(), {editorarea}, {edit_template}, and includable method.edittemplate.php
   - DEPRECATED: cleanValue() method. Instead use sanitizeVal() for inputs, cms_specialchars() and/or execSpecialchars() for outputs
-  - DEPRECATED: cms_get_jquery() method. Instead use
-  - DEPRECATED: create_textarea() method. Instead use
+  - DEPRECATED: cms_get_jquery() method. Instead, relevant content can be gathered via functions added to hook 'AdminHeaderSetup' and/or 'AdminBottomSetup', or a corresponding tag e.g. {gather_content list='AdminHeaderSetup'}
+  - DEPRECATED: create_textarea() method. Instead use FormUtils::create_textarea() with suitable parameters
   - DEPRECATED: String values for application-states. Such states are now bit-flags, which can be OR'd, AND'd, compared ordinally
   - DEPRECATED: Module lazy-loading and related methods. Modules are now always loaded on-demand, effectively lazy.
   - DEPRECATED: Content pages' secure option

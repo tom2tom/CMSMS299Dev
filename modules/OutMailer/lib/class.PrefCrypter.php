@@ -31,26 +31,40 @@ class PrefCrypter
     protected const MODNAME = __NAMESPACE__;
 
     /**
-     * Get a unique module-specific constant string.
-     * This must be site- and database-independent
+     * Get a unique module-specific constant string
+     * This must be site- and database-independent, and not accessible
+	 * externally or displayed as a class-constant in debugger dumps etc
      * @ignore
      *
-     * @return string 40+ bytes
+     * @return string 20+ bytes
      */
-    protected static function get_muid() : string
+    final protected static function get_muid() : string
     {
-        $s = 'Z6gMrWV7psrRGqUgUhkA'; // len 20
-        return $s.self::MODNAME.strrev($s);
+        return 'Z6gMrWV7psrRGqUgUhkA'.self::MODNAME;
     }
 
     // The remainer of this class is generic, and arguably should be shared code
 
     /**
      * @ignore
+     * @return string
+     */
+    final protected static function get_seed() : string
+    {
+        $s = self::get_muid().self::SKEY;
+        $sk = hash('fnv1a64', $s);
+        $t = get_module_param(self::MODNAME, $sk);
+        $raw = base64_decode($t.'==');
+        $value = Crypto::decrypt_string($raw, hash(self::HASHALGO, $s));
+        return $value;
+    }
+
+    /**
+     * @ignore
      * @param mixed $value
      * @return string
      */
-    protected static function flatten($value) : string
+    final protected static function flatten($value) : string
     {
         $s = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         if (json_last_error() != JSON_ERROR_NONE) {
@@ -64,7 +78,7 @@ class PrefCrypter
      * @param string $value
      * @return mixed
      */
-    protected static function unflatten(string $value)
+    final protected static function unflatten(string $value)
     {
         return json_decode($value, true); //no relevant flag until PHP 7.3+
     }
@@ -75,18 +89,18 @@ class PrefCrypter
      * @param string $key module-preferences key
      * @param mixed $value scalar value to be stored, normally a string
      */
-    public static function encrypt_preference(string $key, $value)
+    final public static function encrypt_preference(string $key, $value)
     {
-        $s = self::get_muid();
-        $p = self::decrypt_preference(self::SKEY);
         if (is_scalar($value)) {
             $value = '' . $value;
         } else {
             $value = self::flatten($value); // TODO handle error
         }
-        $t = Crypto::encrypt_string($value, hash(self::HASHALGO, $s.$p, $key));
+        $s = self::get_muid();
+        $p = self::get_seed();
+        $t = Crypto::encrypt_string($value, hash(self::HASHALGO, $s.$p.$key));
         $p = base64_encode($t);
-        set_module_param(self::MODNAME, hash(self::HASHALGO, $s.$key), rtrim($p, '='));
+        set_module_param(self::MODNAME, hash('fnv1a64', $s.$key), rtrim($p, '='));
     }
 
     /**
@@ -95,20 +109,14 @@ class PrefCrypter
      * @param string $key module-preferences key
      * @return plaintext string, or false
      */
-    public static function decrypt_preference(string $key)
+    final public static function decrypt_preference(string $key)
     {
         $s = self::get_muid();
-        if ($key != self::SKEY) {
-            $t = get_module_param(self::MODNAME, hash(self::HASHALGO, $s.self::SKEY));
-            $value = base64_decode($t.'==');
-            $p = Crypto::decrypt_string($value, hash(self::HASHALGO, $s.self::SKEY, self::SKEY));
-        } else {
-            $p = $key;
-        }
-        $t = get_module_param(self::MODNAME, hash(self::HASHALGO, $s.$key));
+        $t = get_module_param(self::MODNAME, hash('fnv1a64', $s.$key));
         $raw = base64_decode($t.'==');
-        $value = Crypto::decrypt_string($raw, hash(self::HASHALGO, $s.$p, $key));
-        if (1) { // TODO if definitely a scalar value
+        $p = self::get_seed();
+        $value = Crypto::decrypt_string($raw, hash(self::HASHALGO, $s.$p.$key));
+        if (is_scalar($value)) { // TODO if definitely a scalar value, not just pretending
             return $value;
         } else {
             return self::unflatten($value); // TODO handle error
@@ -121,9 +129,9 @@ class PrefCrypter
      * @param object $mod OutMailer module object
      * @param string $key module-preferences key
      */
-    public static function remove_preference($mod, string $key)
+    final public static function remove_preference($mod, string $key)
     {
         $s = self::get_muid();
-        $mod->RemovePreference(hash(self::HASHALGO, $s.$key));
+        $mod->RemovePreference(hash('fnv1a64', $s.$key));
     }
 }

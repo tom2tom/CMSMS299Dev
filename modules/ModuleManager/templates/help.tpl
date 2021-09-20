@@ -1,5 +1,5 @@
 {if isset($force_english)}
-	<div class="pagewarn">{$mod->Lang('help_forceenglish')}</div>
+	<div class="pagewarn">{_ld($_module,'help_forceenglish')}</div>
 {/if}
 
 <div class="pageheader">
@@ -22,5 +22,5 @@
 {$help_page}
 
 <p class="pageback" style="margin-top:2em;">
-	<a href="{$back_url}" class="link_button icon back">{$mod->Lang('back')}</a>
+	<a href="{$back_url}" class="link_button icon back">{_ld($_module,'back')}</a>
 </p>

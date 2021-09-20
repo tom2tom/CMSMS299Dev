@@ -51,7 +51,7 @@ function smarty_modifier_summarize($string, $numwords = 5, $etc = '&#8230;') // 
 /*
 function smarty_cms_about_modifier_summarize()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
 <li>detail</li> ... OR lang('none')
 EOS
 	);
@@ -59,7 +59,7 @@ EOS
 */
 function smarty_cms_help_modifier_summarize()
 {
-	echo lang_by_realm('tags', 'help_generic2',
+	echo _ld('tags', 'help_generic2',
 	'This plugin reduces a string variable to (at most) the specified number of words',
 	'{$somevar|summarize:3}<br />{$somevar|summarize:3:\'...\'',
 	<<<'EOS'

@@ -54,14 +54,14 @@ if (isset($_POST['editbookmark'])) {
     $tmp = de_specialize(trim($_POST['title']));
     $title = sanitizeVal($tmp, CMSSAN_NONPRINT); // AND nl2br() ? striptags() ?
     if (!$title) {
-        $errors[] = lang('nofieldgiven', lang('title'));
+        $errors[] = _la('nofieldgiven', _la('title'));
     }
 
     $tmp = de_specialize(trim($_POST['url']));
     if ($tmp) {
         $url = (new Url())->sanitize($tmp);
     } else {
-        $errors[] = lang('nofieldgiven', lang('url'));
+        $errors[] = _la('nofieldgiven', _la('url'));
     }
 
     if (!$errors) {
@@ -74,7 +74,7 @@ if (isset($_POST['editbookmark'])) {
         if ($markobj->save()) {
             redirect('listbookmarks.php'.$urlext);
         } else {
-            $errors[] = lang('errorupdatingbookmark');
+            $errors[] = _la('errorupdatingbookmark');
         }
     }
 
@@ -90,13 +90,13 @@ if (isset($_POST['editbookmark'])) {
     $row = $db->getRow($query, [$bookmark_id]);
     if ($row) {
         if (!($row['user_id'] == $userid || check_permission($userid, 'Manage TODO'))) {
-            $themeObject->ParkNotice('error', lang('TODO no perm'));
+            $themeObject->ParkNotice('error', _la('TODO no perm'));
             redirect('listbookmarks.php'.$urlext);
         }
         $title = specialize($row['title']);
         $url = specialize($row['url']);
     } else {
-        $themeObject->ParkNotice('error', lang('error_internal'));
+        $themeObject->ParkNotice('error', _la('error_internal'));
         redirect('listbookmarks.php'.$urlext);
     }
 } else { // id == -1 should never happen when editing ?

@@ -1,5 +1,5 @@
 {if $events}
-<h4>{lang('filterbymodule')}</h4>
+<h4>{_ld('admin','filterbymodule')}</h4>
 <form action="{$selfurl}" enctype="multipart/form-data" method="post">
   {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
 {/foreach}
@@ -9,17 +9,17 @@
     <option value="{$one}"{if $one == $senderfilter} selected="selected"{/if}>{$one}</option>
    {/foreach}
   </select>
-  <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
+  <button type="submit" name="submit" class="adminsubmit icon apply">{_ld('admin','apply')}</button>
   </div>
 </form>
 <br />
 <table class="pagetable">
   <thead>
     <tr>
-      <th title="{lang('title_event_name')}">{lang('event')}</th>
-      <th title="{lang('title_event_originator')}">{lang('originator')}</th>
-      <th title="{lang('title_event_handlers')}">{lang('handlers')}</th>
-      <th title="{lang('title_event_description')}" style="width:50%;">{lang('description')}</th>
+      <th title="{_ld('admin','title_event_name')}">{_ld('admin','event')}</th>
+      <th title="{_ld('admin','title_event_originator')}">{_ld('admin','originator')}</th>
+      <th title="{_ld('admin','title_event_handlers')}">{_ld('admin','handlers')}</th>
+      <th title="{_ld('admin','title_event_description')}" style="width:50%;">{_ld('admin','description')}</th>
       <th class="pageicon">&nbsp;</th>
       {if $access}
       <th class="pageicon">&nbsp;</th>
@@ -32,7 +32,7 @@
       {strip}
       <td>
        {if $access}
-        <a href="{$editurl}{$urlext}&amp;action=edit&amp;originator={$one.originator}&amp;event={$one.event_name}" title="{lang('modifyeventhandlers')}">{$one.event_name}</a>
+        <a href="{$editurl}{$urlext}&amp;action=edit&amp;originator={$one.originator}&amp;event={$one.event_name}" title="{_ld('admin','modifyeventhandlers')}">{$one.event_name}</a>
        {else}
         {$one.event_name}
        {/if}
@@ -40,7 +40,7 @@
       <td>{$one.originator}</td>
       <td>
        {if $one.usage_count > 0}
-        <a href="{$helpurl}{$urlext}&amp;originator={$one.originator}&amp;event={$one.event_name}" title="{lang('help')}">{$one.usage_count}</a>
+        <a href="{$helpurl}{$urlext}&amp;originator={$one.originator}&amp;event={$one.event_name}" title="{_ld('admin','help')}">{$one.usage_count}</a>
        {/if}
       </td>
       <td>{$one.description}</td>
@@ -58,5 +58,5 @@
   </tbody>
 </table>
 {else}
-{lang('none')}
+{_ld('admin','none')}
 {/if}

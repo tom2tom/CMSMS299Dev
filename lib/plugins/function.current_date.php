@@ -21,35 +21,39 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppParams;
+use CMSMS\Utils;
 
 function smarty_function_current_date($params, $template)
 {
 	if( !empty($params['format']) ) {
 		$format = trim($params['format']);
+		if( strpos($format, '%') !== false ) {
+			$format = Utils::convert_dt_format($format); // migrate strftime format
+		}
 	}
 	else {
-		$format = AppParams::get('defaultdateformat', '%x');
+		$format = AppParams::get('date_format', 'Y-m-d');
 	}
+	// TODO handled 'timed' format
 
-	$str = strftime($format, time());
+	$out = date($format, time());
 	if( !empty($params['ucwords']) ) {
-		$str = ucwords($str);
+		$out = ucwords($out);
 	}
 
 	if( !empty($params['assign']) ) {
-		$template->assign(trim($params['assign']), $str);
+		$template->assign(trim($params['assign']), $out);
 		return '';
 	}
-	return $str;
+	return $out;
 }
 /*
 D function smarty_cms_help_function_current_date()
 {
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin retrieves the current date in a specified or site-default format',
 	'current_date ucwords=1',
-	<<<'EOS'
-<li>format: optional formatter recognized by PHP strftime()</li>
+<li>format: optional formatter recognized by PHP date()</li>
 <li>ucwords: optional boolean, trueish to apply PHP ucwords() to the result</li>
 EOS
 	);
@@ -59,9 +63,10 @@ function smarty_cms_about_function_current_date()
 {
 	echo <<<'EOS'
 <p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
-<p>Change History:<br />
+<p>Change History:</p>
 <ul>
-<li>May 2019 Revert to site preference 'defaultdateformat' if no 'format' parameter is supplied</li>
+<li>Sept 2021 generate output using date() instead of deprecated strftime()</li>
+<li>Sept 2021 Revert to date()-compatible site setting 'date_format' if no 'format' parameter is supplied</li>
 </ul>
 EOS;
 }

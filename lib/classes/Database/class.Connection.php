@@ -26,7 +26,6 @@ use CMSMS\Database\DataDictionary;
 use CMSMS\Database\ResultSet;
 use CMSMS\Database\Statement;
 use CMSMS\DeprecationNotice;
-use CMSMS\SingleItem;
 use DateTime;
 use DateTimeZone;
 use Exception;
@@ -36,6 +35,7 @@ use const CMS_DEPREC;
 use function debug_bt_to_log;
 use function debug_display;
 use function debug_to_log;
+use function CMSMS\add_debug_message;
 
 /**
  * A class defining a MySQL (or compatible) database connection, and
@@ -327,7 +327,7 @@ final class Connection
     /**
      * @ignore
      */
-    public function __get($key)
+    public function __get(string $key)
     {
         switch ($key) {
          case 'database':
@@ -349,7 +349,7 @@ final class Connection
     /**
      * @ignore
      */
-    public function __isset($key)
+    public function __isset(string $key)
     {
         switch ($key) {
          case 'database':
@@ -367,7 +367,7 @@ final class Connection
     /**
      * @ignore
      */
-    public function __set($key, $value)
+    public function __set(string $key, $value)
     {
         switch ($key) {
          case '_in_smart_transaction':
@@ -1374,7 +1374,7 @@ final class Connection
      * Convert a date into something that is suitable for writing to a database.
      *
      * @param mixed $date string date | integer timestamp | DateTime object
-     * @return quoted, locale-formatted string representing server/local date, or 'NULL'
+     * @return quoted, date('Y-m-d')-formatted string representing server/local date, or 'NULL'
      */
     public function dbDate($date)
     {
@@ -1394,7 +1394,7 @@ final class Connection
         }
 
         if ($date > 0) {
-             return $this->qStr(strftime('%x', $date));
+             return $this->qStr(date('Y-m-d', $date));
         }
         return 'NULL';
     }
@@ -1509,16 +1509,16 @@ final class Connection
      * A callback that is called when a database error occurs.
      * This method will by default call the error handler if it has been set.
      *
-     * @param string $errtype       The type of error
-     * @param int    $error_number  The error number
-     * @param string $error_message The error message
+     * @param string $errtype      The type of error
+     * @param int    $error_number The error number
+     * @param string $error_msg    The error message
      */
-    public function OnError($errtype, $error_number, $error_message)
+    public function OnError($errtype, $error_number, $error_msg)
     {
         $this->errno = $error_number;
-        $this->error = $error_message;
+        $this->error = $error_msg;
         if ($this->_errorhandler && is_callable($this->_errorhandler)) {
-            call_user_func($this->_errorhandler, $errtype, $error_number, $error_message);
+            call_user_func($this->_errorhandler, $errtype, $error_number, $error_msg);
         }
     }
 
@@ -1526,17 +1526,17 @@ final class Connection
      * Default error handler (except during site-installation)
      * @internal
      *
-     * @param string $errtype       The type of error
-     * @param int    $error_number  The error number
-     * @param string $error_message The error message
+     * @param string $errtype      The type of error
+     * @param int    $error_number The error number
+     * @param string $error_msg    The error message
      */
     protected function on_error($errtype, $error_number, $error_msg)
     {
-        if (function_exists('\\debug_to_log')) {
+        if (function_exists('\debug_to_log')) {
             debug_to_log("Database error: $errtype($error_number) - $error_msg");
             debug_bt_to_log();
             if ($this->_debug) {
-                SingleItem::App()->add_error(debug_display($error_msg, '', false, true));
+                add_debug_message(debug_display($error_msg, '', false, true));
             }
         }
     }

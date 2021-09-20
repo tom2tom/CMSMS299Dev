@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 //use CMSMS\IMultiEditor;
-//use CMSMS\Mailer; CMSMailer\Mailer; //TODO if no CMSMailer present, revert to mail()
+//use CMSMS\Mailer; OutMailer\Mailer; //TODO if no OutMailer present, revert to mail()
 use ContentManager\ContentBase;
 use ContentManager\contenttypes\Content;
 use CMSMS\AdminTheme;
@@ -51,7 +51,7 @@ $access = check_permission($userid, 'Modify Site Preferences');
 $themeObject = SingleItem::Theme();
 
 if (!$access) {
-    //TODO a push-notification $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
+    //TODO a push-notification $themeObject->RecordNotice('error', _la('needpermissionto', '"Modify Site Preferences"'));
     // OR throw a 403
     return;
 }
@@ -69,31 +69,31 @@ function siteprefs_interpret_permissions(int $perms) : array
     $other = [];
 
     if ($perms & 0400) {
-        $owner[] = lang('read');
+        $owner[] = _la('read');
     }
     if ($perms & 0200) {
-        $owner[] = lang('write');
+        $owner[] = _la('write');
     }
     if ($perms & 0100) {
-        $owner[] = lang('execute');
+        $owner[] = _la('execute');
     }
     if ($perms & 0040) {
-        $group[] = lang('read');
+        $group[] = _la('read');
     }
     if ($perms & 0020) {
-        $group[] = lang('write');
+        $group[] = _la('write');
     }
     if ($perms & 0010) {
-        $group[] = lang('execute');
+        $group[] = _la('execute');
     }
     if ($perms & 0004) {
-        $other[] = lang('read');
+        $other[] = _la('read');
     }
     if ($perms & 0002) {
-        $other[] = lang('write');
+        $other[] = _la('write');
     }
     if ($perms & 0001) {
-        $other[] = lang('execute');
+        $other[] = _la('execute');
     }
 
     return [$owner,$group,$other];
@@ -107,9 +107,9 @@ function siteprefs_interpret_permissions(int $perms) : array
  */
 function siteprefs_display_permissions(array $permsarr) : string
 {
-    $tmparr = [lang('owner'),lang('group'),lang('other')];
+    $tmparr = [_la('owner'),_la('group'),_la('other')];
     if (count($permsarr) != 3) {
-        return lang('permissions_parse_error');
+        return _la('permissions_parse_error');
     }
 
     $result = [];
@@ -139,28 +139,28 @@ $seetab = (isset($_POST['active_tab'])) ? sanitizeVal($_POST['active_tab'], CMSS
 /*
 if (isset($_POST['testmail'])) {
     if (!AppParams::get('mail_is_set', 0)) {
-        $errors[] = lang('error_mailnotset_notest');
+        $errors[] = _la('error_mailnotset_notest');
     } elseif (empty($_POST['mailtest_testaddress'])) {
-        $errors[] = lang('error_mailtest_noaddress');
+        $errors[] = _la('error_mailtest_noaddress');
     } else {
 //        $addr = filter_input(INPUT_POST, 'mailtest_testaddress', FILTER_SANITIZE_EMAIL);
          //BUT PHP's FILTER_VALIDATE_EMAIL mechanism is not entirely reliable - see notes at https://www.php.net/manual/en/function.filter-var.php
         $addr = trim($_POST['mailtest_testaddress']);
         if ($addr && !is_email($addr)) {
-            $errors[] = lang('error_mailtest_notemail');
+            $errors[] = _la('error_mailtest_notemail');
         } elseif ($addr) {
             // we got an email, and we have settings.
             try {
                 $mailer = new Mailer(); // TODO
                 $mailer->AddAddress($addr);
                 $mailer->IsHTML(true);
-                $mailer->SetBody(lang('mail_testbody', 'siteprefs'));
-                $mailer->SetSubject(lang('mail_testsubject', 'siteprefs'));
+                $mailer->SetBody(_la('mail_testbody', 'siteprefs'));
+                $mailer->SetSubject(_la('mail_testsubject', 'siteprefs'));
                 $mailer->Send();
                 if ($mailer->IsError()) {
                     $errors[] = $mailer->GetErrorInfo();
                 } else {
-                    $messages[] = lang('testmsg_success');
+                    $messages[] = _la('testmsg_success');
                 }
             } catch (Throwable $t) {
                 $errors[] = $t->GetMessage();
@@ -173,28 +173,28 @@ if (isset($_POST['testumask'])) {
     $testdir = TMP_CACHE_LOCATION;
     $testfile = $testdir.DIRECTORY_SEPARATOR.'dummy.tst';
     if (!is_writable($testdir)) {
-        $errors[] = lang('errordirectorynotwritable');
+        $errors[] = _la('errordirectorynotwritable');
     } else {
         @umask(octdec($global_umask));
 
         $fh = @fopen($testfile, 'w');
         if (!$fh) {
-            $errors[] = lang('errorcantcreatefile').' ('.$testfile.')';
+            $errors[] = _la('errorcantcreatefile').' ('.$testfile.')';
         } else {
             @fclose($fh);
             $filestat = stat($testfile);
             if ($filestat == false) {
-                $errors[] = lang('errorcantcreatefile');
+                $errors[] = _la('errorcantcreatefile');
             }
 
             if (function_exists('posix_getpwuid')) {
                 //function posix_getpwuid not available on WAMP systems
                 $userinfo = @posix_getpwuid($filestat[4]);
-                $username = $userinfo['name'] ?? lang('unknown');
+                $username = $userinfo['name'] ?? _la('unknown');
                 $permsstr = siteprefs_display_permissions(siteprefs_interpret_permissions($filestat[2]));
-                $messages[] = sprintf('%s: %s<br />%s:<br />&nbsp;&nbsp;%s', lang('owner'), $username, lang('permissions'), $permsstr);
+                $messages[] = sprintf('%s: %s<br />%s:<br />&nbsp;&nbsp;%s', _la('owner'), $username, _la('permissions'), $permsstr);
             } else {
-                $errors[] = sprintf('%s: %s<br />%s:<br />&nbsp;&nbsp;%s', lang('owner'), 'N/A', lang('permissions'), 'N/A');
+                $errors[] = sprintf('%s: %s<br />%s:<br />&nbsp;&nbsp;%s', _la('owner'), 'N/A', _la('permissions'), 'N/A');
             }
             @unlink($testfile);
         }
@@ -230,9 +230,12 @@ if (isset($_POST['submit'])) {
                 AppParams::set('metadata', $_POST['metadata']);
                 $val = (!empty($_POST['logintheme'])) ? sanitizeVal($_POST['logintheme'], CMSSAN_FILE) : ''; // consistent with theme folder-name
                 AppParams::set('logintheme', $val);
-                $val = $_POST['defaultdateformat'];
-                if ($val) { $val = preg_replace('~[^a-zA-Z%,.\-:/ ]~', '', trim($val)); } // strftime()-only formats 2.99 breaker?
-                AppParams::set('defaultdateformat', $val);
+                $val = $_POST['date_format'];
+                if ($val) { $val = preg_replace('~[^a-zA-Z0-9,.\-:#\\/ ]~', '', trim($val)); } // date()-only formats 2.99 breaker? no '%' - tho' valid, it confuses smarty
+                AppParams::set('date_format', $val);
+                $val = $_POST['datetime_format'];
+                if ($val) { $val = preg_replace('~[^a-zA-Z0-9,.\-:#\\/ ]~', '', trim($val)); } // no '%' here either
+                AppParams::set('datetime_format', $val);
                 AppParams::set('thumbnail_width', filter_input(INPUT_POST, 'thumbnail_width', FILTER_SANITIZE_NUMBER_INT));
                 AppParams::set('thumbnail_height', filter_input(INPUT_POST, 'thumbnail_height', FILTER_SANITIZE_NUMBER_INT));
                 $val = (!empty($_POST['backendwysiwyg'])) ? sanitizeVal($_POST['backendwysiwyg'], CMSSAN_PUNCTX, ':') : ''; // allow '::'
@@ -322,7 +325,7 @@ if (isset($_POST['submit'])) {
                     AppParams::set('site_downnow', $sitedown);
                     AppParams::set('sitedownmessage', $tmsg);
                 } else {
-                    $errors[] = lang('error_sitedownmessage');
+                    $errors[] = _la('error_sitedownmessage');
                 }
                 break;
 /*            case 'credentials':
@@ -345,38 +348,38 @@ if (isset($_POST['submit'])) {
                 }
                 // validate
                 if ($mailprefs['from'] == '') {
-                    $errors[] = lang('error_fromrequired');
+                    $errors[] = _la('error_fromrequired');
                 } elseif (!is_email($mailprefs['from'])) {
-                    $errors[] = lang('error_frominvalid');
+                    $errors[] = _la('error_frominvalid');
                 }
                 if ($mailprefs['mailer'] == 'smtp') {
                     if ($mailprefs['host'] == '') {
-                        $errors[] = lang('error_hostrequired');
+                        $errors[] = _la('error_hostrequired');
                     }
                     if ($mailprefs['port'] == '') {
                         $mailprefs['port'] = 25;
                     } // convenience.
                     if ($mailprefs['port'] < 1 || $mailprefs['port'] > 10240) {
-                        $errors[] = lang('error_portinvalid');
+                        $errors[] = _la('error_portinvalid');
                     }
                     if ($mailprefs['timeout'] == '') {
                         $mailprefs['timeout'] = 180;
                     }
                     if ($mailprefs['timeout'] < 1 || $mailprefs['timeout'] > 3600) {
-                        $errors[] = lang('error_timeoutinvalid');
+                        $errors[] = _la('error_timeoutinvalid');
                     }
                     if ($mailprefs['smtpauth']) {
                         if ($mailprefs['username'] == '') {
-                            $errors[] = lang('error_usernamerequired');
+                            $errors[] = _la('error_usernamerequired');
                         }
                         if ($tpw == '') {
-                            $errors[] = lang('error_passwordrequired');
+                            $errors[] = _la('error_passwordrequired');
                         } else {
                             $val = CMSMS\sanitizeVal($tpw, CMSSAN_NONPRINT);
                             if ($val == $tpw) {
                                 $mailprefs['password'] = base64_encode(Crypto::encrypt_string(trim($tpw)));
                             } else {
-                                $errors[] = lang('error_passwordinvalid');
+                                $errors[] = _la('error_passwordinvalid');
                             }
                         }
                     }
@@ -454,7 +457,7 @@ if (isset($_POST['submit'])) {
                     if ($tmp) {
                         AppParams::set('joburl', $tmp);
                     } else {
-                        $themeObject->RecordNotice('error', lang_by_realm('jobs', 'err_url'));
+                        $themeObject->RecordNotice('error', _ld('jobs', 'err_url'));
                     }
                 } else {
                     AppParams::set('joburl', '');
@@ -468,10 +471,10 @@ if (isset($_POST['submit'])) {
         if (!$errors) {
             // put mention into the admin log
             audit('', 'Global Settings', 'Edited');
-            $messages[] = lang('siteprefsupdated');
+            $messages[] = _la('siteprefsupdated');
         }
     } else {
-        $errors[] = lang('noaccessto', 'Modify Site Permissions');
+        $errors[] = _la('noaccessto', 'Modify Site Permissions');
     }
 }
 
@@ -498,7 +501,8 @@ $content_imagefield_path = AppParams::get('content_imagefield_path');
 $content_mandatory_urls = AppParams::get('content_mandatory_urls', 0);
 $content_thumbnailfield_path = AppParams::get('content_thumbnailfield_path');
 $contentimage_path = AppParams::get('contentimage_path');
-$defaultdateformat = AppParams::get('defaultdateformat');
+$date_format = AppParams::get('date_format');
+$datetime_format = AppParams::get('datetime_format');
 $disallowed_contenttypes = AppParams::get('disallowed_contenttypes');
 if (Events::ListEventHandlers('Core', 'CheckUserData')) {
     // handler(s) exist for validation
@@ -598,7 +602,7 @@ if ($modnames) {
     // load them, if not already done
     for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
         $modnames[$i] = Utils::get_module($modnames[$i]); // TODO $modops = SingleItem::ModuleOperations() ->get ....
-		if ($modnames[$i]) { $modnames[$i]->InitializeAdmin(); }
+        if ($modnames[$i]) { $modnames[$i]->InitializeAdmin(); }
     }
     $list = HookOperations::do_hook_accumulate('ExtraSiteSettings');
     // assist the garbage-collector
@@ -610,7 +614,7 @@ if ($modnames) {
         foreach ($list as $info) {
             // TODO any adjustments
             if (empty($info['text'])) {
-                $info['text'] = lang('settings_linktext');
+                $info['text'] = _la('settings_linktext');
             }
             $externals[] = $info;
         }
@@ -640,7 +644,7 @@ else {
 
 // Error if cache folders are not writable
 if (!is_writable(TMP_CACHE_LOCATION) || !is_writable(TMP_TEMPLATES_C_LOCATION)) {
-    $errors[] = lang('cachenotwritable');
+    $errors[] = _la('cachenotwritable');
 }
 
 if ($errors) {
@@ -659,12 +663,12 @@ EOS;
 add_page_headtext($js);
 */
 //$nonce = get_csp_token();
-$submit = lang('submit');
-$cancel = lang('cancel');
-$editortitle = lang('syntax_editor_deftheme');
-$nofile = json_encode(lang('nofiles'));
-$badfile = json_encode(lang('errorwrongfile'));
-$confirm = json_encode(lang('siteprefs_confirm'));
+$submit = _la('submit');
+$cancel = _la('cancel');
+$editortitle = _la('syntax_editor_deftheme');
+$nofile = json_encode(_la('nofiles'));
+$badfile = json_encode(_la('errorwrongfile'));
+$confirm = json_encode(_la('siteprefs_confirm'));
 
 $out = <<<EOS
 <script type="text/javascript">
@@ -800,7 +804,7 @@ add_page_foottext($out);
 
 $smarty = SingleItem::Smarty();
 
-$tmp = [-1 => lang('none')];
+$tmp = [-1 => _la('none')];
 $modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::SEARCH_MODULE);
 if ($modnames) {
     for ($i = 0, $n = count($modnames); $i < $n; $i++) {
@@ -808,7 +812,7 @@ if ($modnames) {
     }
     $smarty->assign('search_module', $search_module);
 } else {
-    $smarty->assign('search_module', lang('none'));
+    $smarty->assign('search_module', _la('none'));
 }
 $smarty->assign('search_modules', $tmp);
 
@@ -820,7 +824,7 @@ $modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapa
 if ($modnames && count($modnames) > 1) {
     for ($i = 0, $n = count($modnames); $i < $n; $i++) {
         if ($modnames[$i] == $modops::STD_LOGIN_MODULE) {
-            $tmp[$modnames[$i]] = lang('default');
+            $tmp[$modnames[$i]] = _la('default');
         } else {
             $tmp[$modnames[$i]] = $modnames[$i];
         }
@@ -829,7 +833,7 @@ if ($modnames && count($modnames) > 1) {
      ->assign('login_modules', $tmp);
 }
 
-$tmp = ['' => lang('theme'), 'module' => lang('default')];
+$tmp = ['' => _la('theme'), 'module' => _la('default')];
 $smarty->assign('login_handler', $login_processor)
  ->assign('login_handlers', $tmp);
 
@@ -841,7 +845,7 @@ $maileropts = [
   'smtp' => 'SMTP',
 ];
 $secopts = [
-  '' => lang('none'),
+  '' => _la('none'),
   'ssl' => 'SSL',
   'tls' => 'TLS',
 ];
@@ -918,7 +922,7 @@ if ($modnames) {
 $smarty->assign('wysiwyg_opts', $editors);
 
 //frontend wysiwyg
-$fronts = ['' => lang('none')] + $fronts;
+$fronts = ['' => _la('none')] + $fronts;
 $smarty->assign('wysiwyg', $fronts)
   ->assign('frontendwysiwyg', $frontendwysiwyg);
 
@@ -966,7 +970,7 @@ if ($modnames) {
 
   $one = new stdClass();
   $one->value = '';
-  $one->label = lang('none');
+  $one->label = _la('none');
   $one->mainkey = null;
   $one->themekey = null;
   if (!$syntaxer) { $one->checked = true; }
@@ -992,7 +996,8 @@ $smarty->assign([
   'content_mandatory_urls' => $content_mandatory_urls,
   'content_thumbnailfield_path' => $content_thumbnailfield_path,
   'contentimage_path' => $contentimage_path,
-  'defaultdateformat' => specialize($defaultdateformat),
+  'date_format' => $date_format,
+  'datetime_format' => $datetime_format,
   'disallowed_contenttypes' => explode(',', $disallowed_contenttypes),
   'frontendlang' => $frontendlang,
   'global_umask' => $global_umask,
@@ -1016,7 +1021,7 @@ $smarty->assign([
   'smarty_cacheusertags' => $smarty_cacheusertags,
   'smarty_compilecheck' => $smarty_compilecheck,
   'syntax_theme' => specialize($syntaxtheme),
-  'testresults' => lang('untested'),
+  'testresults' => _la('untested'),
   'thumbnail_height' => $thumbnail_height,
   'thumbnail_width' => $thumbnail_width,
   'usernamelevel' => $username_level,
@@ -1039,14 +1044,14 @@ $smarty->assign([
 
 if ($password_level !== null) {
     $pass_levels = [
-        0 => lang('unrestricted'),
-        1 => lang('guess_medium'),
-        2 => lang('guess_hard'),
-        3 => lang('guess_vhard'),
+        0 => _la('unrestricted'),
+        1 => _la('guess_medium'),
+        2 => _la('guess_hard'),
+        3 => _la('guess_vhard'),
     ];
     // TODO lang
     $uname_levels = [
-        0 => lang('unrestricted'),
+        0 => _la('unrestricted'),
         1 => 'Type 1',
         2 => 'Type 2',
         3 => 'Type 3',
@@ -1061,7 +1066,7 @@ $tmp = [];
 $keys = ['yes','no','module_setting'];
 foreach ([1, 0, 2] as $i => $val) {
     $one = new stdClass();
-    $one->label = lang($keys[$i]);
+    $one->label = _la($keys[$i]);
     $one->value = $val;
     $one->checked = ($val == $smarty_cachemodules);
     $tmp[] = $one;
@@ -1069,13 +1074,13 @@ foreach ([1, 0, 2] as $i => $val) {
 $smarty->assign('smarty_cachemodules', $tmp);
 
 $tmp = [
-  86400 => lang('adminlog_1day'),
-  86400*7 => lang('adminlog_1week'),
-  86400*14 => lang('adminlog_2weeks'),
-  86400*31 => lang('adminlog_1month'),
-  86400*31*3 => lang('adminlog_3months'),
-  86400*30*6 => lang('adminlog_6months'),
-  -1 => lang('adminlog_manual'),
+  86400 => _la('adminlog_1day'),
+  86400*7 => _la('adminlog_1week'),
+  86400*14 => _la('adminlog_2weeks'),
+  86400*31 => _la('adminlog_1month'),
+  86400*31*3 => _la('adminlog_3months'),
+  86400*30*6 => _la('adminlog_6months'),
+  -1 => _la('adminlog_manual'),
 ];
 $smarty->assign('adminlog_options', $tmp);
 
@@ -1093,9 +1098,9 @@ if ($list) {
             continue;
         }
         if (!isset($all_attributes[$tmp])) {
-            $all_attributes[$tmp] = ['label'=>lang_by_realm('ContentManager',$tmp),'value'=>[]];
+            $all_attributes[$tmp] = ['label'=>_ld('ContentManager',$tmp),'value'=>[]];
         }
-        $all_attributes[$tmp]['value'][] = ['value'=>$arr['name'],'label'=>lang_by_realm('ContentManager',$arr['name'])];
+        $all_attributes[$tmp]['value'][] = ['value'=>$arr['name'],'label'=>_ld('ContentManager',$arr['name'])];
     }
 //    $txt = FormUtils::create_option($all_attributes);
 }
@@ -1114,11 +1119,11 @@ $smarty->assign([
   'backurl' => $themeObject->backUrl(),
   'extraparms' => $extras,
   'selfurl' => $selfurl,
-  'smarty_cacheoptions' => ['always'=>lang('always'), 'never'=>lang('never'), 'moduledecides'=>lang('moduledecides')],
-  'smarty_cacheoptions2' => ['always'=>lang('always'), 'never'=>lang('never')],
-  'titlemenu' => [lang('menutext'), lang('title')],
+  'smarty_cacheoptions' => ['always'=>_la('always'), 'never'=>_la('never'), 'moduledecides'=>_la('moduledecides')],
+  'smarty_cacheoptions2' => ['always'=>_la('always'), 'never'=>_la('never')],
+  'titlemenu' => [_la('menutext'), _la('title')],
   'urlext' => $urlext,
-  'yesno' => [0=>lang('no'), 1=>lang('yes')],
+  'yesno' => [0=>_la('no'), 1=>_la('yes')],
 ]);
 
 $content = $smarty->fetch('sitesettings.tpl');

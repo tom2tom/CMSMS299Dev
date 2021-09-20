@@ -36,23 +36,23 @@ $vars['ajax_help_url'] = $config['admin_url'].'/ajax_help.php'.$urlext;
 $vars['job_key'] = CMS_JOB_KEY;
 $vars['secure_param_name'] = CMS_SECURE_PARAM_NAME;
 $vars['user_key'] = $_SESSION[CMS_USER_KEY]; // for some ajax operations at least
-$vars['lang_alert'] = lang('alert');
-$vars['lang_cancel'] = lang('cancel');
-$vars['lang_close'] = lang('close');
-$vars['lang_confirm'] = lang('confirm');
-$vars['lang_confirm_leave'] = lang('confirm_leave');
-$vars['lang_disabled'] = lang('disabled');
-$vars['lang_error'] = lang('error');
-$vars['lang_gotit'] = lang('gotit');
-$vars['lang_no'] = lang('no');
-$vars['lang_none'] = lang('none');
-$vars['lang_ok'] = lang('ok');
-$vars['lang_title_help'] = lang('help');
-$vars['lang_yes'] = lang('yes');
+$vars['lang_alert'] = _la('alert');
+$vars['lang_cancel'] = _la('cancel');
+$vars['lang_close'] = _la('close');
+$vars['lang_confirm'] = _la('confirm');
+$vars['lang_confirm_leave'] = _la('confirm_leave');
+$vars['lang_disabled'] = _la('disabled');
+$vars['lang_error'] = _la('error');
+$vars['lang_gotit'] = _la('gotit');
+$vars['lang_no'] = _la('no');
+$vars['lang_none'] = _la('none');
+$vars['lang_ok'] = _la('ok');
+$vars['lang_title_help'] = _la('help');
+$vars['lang_yes'] = _la('yes');
 
 // is the website down for maintenance?
 if (AppParams::get('site_downnow')) {
-    $vars['lang_maintenance_warning'] = lang('maintenance_warning');
+    $vars['lang_maintenance_warning'] = _la('maintenance_warning');
     $vars['sitedown'] = true;
 } else {
     $vars['sitedown'] = false;

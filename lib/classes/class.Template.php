@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-//use DesignManager\Design;
 use CMSMS\AdminUtils;
+use CMSMS\DataException;
 use CMSMS\DeprecationNotice;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
@@ -43,12 +43,12 @@ use function cms_join_path;
 use function cms_to_bool;
 use function cms_to_stamp;
 use function CMSMS\sanitizeVal;
+use function endswith;
 
 /**
- * A class to administer a layout template.
- * This class is for onetime creation and destruction, and property-modification
- * using the admin-console UI or DesignManager-module etc.
- * The class is not used for intra-request template retrieval.
+ * A class of methods for Template administration via the admin-console
+ * UI, or by DesignManager-module etc. The class is not used for
+ * template processing during page-display.
  *
  * @package CMS
  * @license GPL
@@ -58,13 +58,13 @@ use function CMSMS\sanitizeVal;
 class Template
 {
 	/**
-	 * @deprecated since 2.99 instead use TemplateOperations::TABLENAME
+	 * @deprecated since 2.99 instead use the equivalent TemplateOperations::TABLENAME
 	 * @ignore
 	 */
 	const TABLENAME = 'layout_templates';
 
 	/**
-	 * @deprecated since 2.99 instead use TemplateOperations::ADDUSERSTABLE
+	 * @deprecated since 2.99 instead use the equivalent TemplateOperations::ADDUSERSTABLE
 	 * @ignore
 	 */
 	const ADDUSERSTABLE = 'layout_tpl_addusers';
@@ -77,308 +77,339 @@ class Template
 	const CORE = '__CORE__';
 
 	/**
-	 * @var bool whether any property ($_data|$_editors|$_designs|$_groups)
-	 *  has been changed since last save
+	 * @var array template-file on-save operations, populated on demand
+	 * Each member like [optype,param,...] optype = 'delete' etc
 	 * @ignore
 	 */
-	private $_dirty = false;
+	public $fileoperations = [];
 
 	/**
-	 * @var assoc array of template properties, corresponding to a row of TemplateOperations::TABLENAME
+	 * @var assoc array of template properties, corresponding to a row of
+	 *  TemplateOperations::TABLENAME. Any that are for internal-use only
+	 *  are ignored in this class.
 	 * @ignore
 	 */
-	private $_data;
-
-	/**
-	 * @var string populated on demand
-	 * @ignore
-	 */
-	private $_filecontent;
+	private $props = [];
 
 	/**
 	 * @var array id's of authorized editors
 	 * @ignore
 	 */
-	private $_editors;
-
-	/* *
-	 * @var array id's of designs that this template belongs to
-	 * @ignore
-	 */
-//	private $_designs;
+	private $editors;
 
 	/**
 	 * @var array id's of groups that this template belongs to
 	 * @ignore
 	 */
-	private $_groups;
+	private $groups;  //unset triggers check on 1st use
 
-	// static properties here >> SingleItem property|ies ?
+	/**
+	 * @var bool whether any member of $props, or either $editors or
+	 * $groups, has been changed since last save
+	 * @ignore
+	 */
+	private $dirty = false;
+
+	/**
+	 * @var string template-file content, populated on demand
+	 * @ignore
+	 */
+	private $filecontent;
+
+	// static properties here >> SingleItem properties ?
 	/**
 	 * @var array
 	 * @ignore
 	 */
-	private static $_lock_cache;
+	private static $lock_cache = [];
 
 	/**
 	 * @var bool
 	 * @ignore
 	 */
-	private static $_lock_cache_loaded = false;
+	private static $lock_cache_loaded = false;
+
+	/**
+	 * @var TemplateOperations object populated on demand
+	 * @ignore
+	 */
+	private static $operations = null;
 
 	/**
 	 * @ignore
 	 */
 	public function __clone()
 	{
-		if( isset($this->_data['id']) ) unset($this->_data['id']);
-		$this->_data['type_dflt'] = false;
-		$this->_dirty = true;
+		unset($this->props['id']);
+		$this->props['type_dflt'] = false;
+		$this->dirty = true;
 	}
 
 	/**
- 	* @ignore
- 	*/
- 	public function __get($key)
- 	{
+	* @ignore
+	*/
+	public function __set(string $key,$value)
+	{
 		switch( $key ) {
 			case 'id':
-		  	case 'type_id':
-				return $this->_data[$key] ?? 0;
+				if( !empty($this->props[$key]) ) {
+					throw new LogicException("Template property 'id' cannot be changed");
+				}
+				if( $value < 1 ) {
+					throw new UnexpectedValueException("Template property 'id' must be > 0");
+				}
+			// no break here
 			case 'owner_id':
-				return $this->_data[$key] ?? -1;
-			case 'category_id': // deprecated since 2.99
-				return (!empty($this->_groups)) ? reset($this->_groups) : 0;
-			case 'name':
-			case 'originator':
-			case 'content': // raw, maybe a filename
-			case 'description':
-			case 'hierarchy':
-			case 'id_hierarchy':
-			case 'create_date':
-			case 'modified_date':
-				return $this->_data[$key] ?? '';
-		  	case 'type_dflt':
-		  	case 'contentfile':
-				return $this->_data[$key] ?? false;
-			case 'listable':
-				return $this->_data[$key] ?? true;
-			case 'categories': //deprecated since 2.99
-			case 'groups':
-				return $this->_groups ?? [];
-			case 'designs':
-				return null; //unused since 2.99
-			default:
-				throw new LogicException("Cannot retrieve invalid template property $key");
-		}
-	}
-
-	/**
- 	* @ignore
- 	*/
- 	public function __set($key,$value)
- 	{
-		switch( $key ) {
-			case 'id':
-		  	case 'type_id':
-			case 'owner_id':
-				$this->_data[$key] = (int)$value;
+			case 'type_id':
+				$this->props[$key] = (int)$value;
 				break;
 			case 'category_id': // derecated since 2.99
-				if (!isset($this->_groups)) {
-					$this->_groups = [];
+				if( !isset($this->groups) ) {
+					$this->groups = [];
 				}
-				$this->_groups[] = (int)$value;
+				$this->groups[] = (int)$value;
 				break;
 			case 'name':
-				$str = trim($value);
-				if( !$str || !AdminUtils::is_valid_itemname($str) ) {
-					throw new UnexpectedValueException('Invalid template name: '.$str);
-				}
-				$this->_data[$key] = $str;
+				$this->set_name($value);
 				break;
 			case 'content':
-				$str = trim($value);
-				$this->_data[$key] = ( $str !== '') ? $str : '{* empty Smarty template *}';
+				$this->set_content($value);
 				break;
 			case 'originator':
+				if( isset($this->props[$key]) ) {
+					throw new LogicException("Template property '$key' cannot be changed");
+				}
 				$str = trim($value);
-				$this->_data[$key] = ( $str !== '') ? $str : self::CORE;
+				if( $str === '' || strcasecmp($str,'core') == 0 ) $str = '__CORE__';
+				$this->props[$key] = $str;
 				break;
 			case 'description':
 			case 'hierarchy':
-			case 'id_hierarchy':
 				$str = trim($value);
-				$this->_data[$key] = ( $str !== '') ? $str : null;
+				$this->props[$key] = ( $str !== '' ) ? $str : null;
 				break;
 			case 'create_date':
-				if( isset($this->_data[$key]) ) {
-					throw new LogicException("$key may not be directly set in a ".__CLASS__.' object');
+				if( isset($this->props[$key]) ) {
+					throw new LogicException("Template property '$key' cannot be changed");
 				}
 			// no break here
 			case 'modified_date':
-				$this->_data[$key] = trim($value);
+				$this->props[$key] = trim($value);
 				break;
-			case 'type_dflt':
-			case 'listable':
 			case 'contentfile':
-				$this->_data[$key] = cms_to_bool($value);
+				$this->set_content_file($value);
+				break;
+			case 'listable':
+			case 'type_dflt':
+				$this->props[$key] = cms_to_bool($value);
 				break;
 			case 'categories': //deprecated since 2.99
 			case 'groups':
-				$this->_groups = $value;
+				$this->set_groups($value);
 				break;
 			case 'designs':
-				return; //unused since 2.99
+				return; //deprecated since 2.99, unused
+			case 'editors':
+				$this->set_additional_editors($value);
+				break;
 			default:
-				throw new LogicException("Cannot set invalid template property $key");
+				if( isset($this->props[$key]) ) return;
+				throw new LogicException("Cannot set invalid template property '$key'");
 		}
-		$this->_dirty = true;
+		$this->dirty = true;
 	}
 
 	/**
-	 * Get all the current properties of this template
+	* @ignore
+	*/
+	public function __get(string $key)
+	{
+		switch( $key ) {
+			case 'id':
+			case 'owner_id':
+			case 'type_id':
+				return $this->props[$key] ?? 0;
+			case 'category_id': // deprecated since 2.99
+				return (!empty($this->groups)) ? reset($this->groups) : 0;
+			case 'name':
+			case 'content': // raw, maybe a filename
+			case 'description':
+			case 'hierarchy':
+			case 'create_date':
+			case 'modified_date':
+				return $this->props[$key] ?? '';
+			case 'originator':
+				return $this->props[$key] ?? '__CORE__';
+			case 'type_dflt':
+			case 'contentfile':
+				return $this->props[$key] ?? false;
+			case 'listable':
+				return $this->props[$key] ?? true;
+			case 'categories': //deprecated since 2.99
+			case 'groups':
+				return $this->groups ?? [];
+			case 'designs':
+				return null; //deprecated since 2.99, unused
+			case 'editors':
+				return $this->editors ?? [];
+			default:
+				throw new LogicException("Cannot retrieve invalid template property '$key'");
+		}
+	}
+
+	/**
+	 * Get the recordable properties of this template
 	 * @since 2.99
+	 * @internal
+	 * @ignore
+	 *
+	 * @return array
 	 */
 	public function get_properties() : array
 	{
-		$res = [];
-		foreach( array_keys($this->_data) as $key ) {
-			$res[$key] = $this->__get($key);
-		}
-
-		$res['editors'] = $this->_editors ?? [];
-//		$res['designs'] = $this->_designs ?? [];
-		$res['groups'] = $this->_groups ?? [];
-
-		return $res;
+		$props = $this->props;
+		$props['editors'] = $this->editors ?? [];
+		$props['groups'] = $this->groups ?? [];
+		return $props;
 	}
 
 	/**
-	 * Set all the current properties of this template
+	 * Set the private properties of this template
 	 * @since 2.99
+	 * @internal
+	 * @ignore
+	 *
+	 * @param array $props
 	 * @throws UnexpectedValueException
 	 */
-	public function set_properties(array $params)
+	public function set_properties(array $props)
 	{
-		$this->_editors = $params['editors'] ?? [];
-		unset($params['editors']);
-//		$this->_designs = $params['designs'] ?? [];
-//		unset($params['designs']);
-		$this->_groups = $params['groups'] ?? [];
-		unset($params['groups']);
+		$this->editors = $props['editors'] ?? [];
+		unset($props['editors']);
+		$this->groups = $props['groups'] ?? [];
+		unset($props['groups']);
 
-		foreach( $params as $key=>$value ) {
-			$this->__set($key,$value);
+		// verbatim, no validate / sanitize
+		$this->props = $props;
+
+		if( !empty($props['contentfile'] )) {
+			if( ($fp = $this->get_content_filename()) ) {
+				$this->filecontent = file_get_contents($fp);
+			}
+			else {
+				$this->filecontent = '{* Missing template file *}';
+			}
 		}
-		$this->_dirty = true;
 	}
 
 	/**
-	 * Get the id (number) of this template (default 0)
+	 * Get the numeric id of this template
 	 *
-	 * @return int
+	 * @return int, 0 if this template has not yet
+	 *  been saved to the database
 	 */
-	public function get_id()
+	public function get_id() : int
 	{
-		return $this->id;
+		return $this->props['id'] ?? 0;
+	}
+
+	/**
+	 * Set the id of this template, after it is initially-saved.
+	 * @since 2.99
+	 *
+	 * @param int $id
+	 * @throws LogicException if used afterwards
+	 */
+	public function set_id(int $id)
+	{
+		if( !empty($this->props['id']) ) {
+			throw new LogicException("Template 'id' property cannot be changed");
+		}
+		if( $id < 1 ) {
+			throw new UnexpectedValueException("Template 'id' property must be > 0");
+		}
+		$this->props['id'] = $id;
+		// not dirty - this is set only after 1st save
+	}
+
+	/**
+	 * Get the originator of this template
+	 * @since 2.99
+	 *
+	 * @return string, '' if the originator has not yet been nominated.
+	 */
+	public function get_originator() : string
+	{
+		return $this->props['originator'] ?? '';
+	}
+
+	/**
+	 * Set the originator of this template
+	 * The originator would normally be '__CORE__' or a module name or a
+	 * theme name.
+	 * $str is not checked/validated here, other than non-empty.
+	 * Any case-variant of 'core' is converted to '__CORE__'.
+	 * @since 2.99
+	 *
+	 * @param string $str
+	 * @throws DataException if $str is empty
+	 */
+	public function set_originator(string $str)
+	{
+		$str = trim($str);
+		if( !$str ) throw new DataException('Template originator cannot be nameless');
+		if( strcasecmp($str, 'core') == 0 ) { $str = '__CORE__'; }
+		$this->props['originator'] = $str;
+		$this->dirty = true;
 	}
 
 	/**
 	 * Get the name of this template (default '')
 	 *
-	 * @return string
+	 * @return string Default ''
 	 */
 	public function get_name()
 	{
-		return $this->name;
+		return $this->props['name'] ?? '';
 	}
 
 	/**
 	 * Set the name of this template
+	 * Template names must be unique throughout the system.
 	 *
-	 * The name cannot be empty, can only consist of a few characters
-	 * in the name and must be unique
-	 *
-	 * @param string $str
+	 * @param string $str acceptable name per AdminUtils::is_valid_itemname()
 	 * @throws UnexpectedValueException
 	 */
 	public function set_name($str)
 	{
-		$this->name = $str;
-		$this->_dirty = true;
-	}
-
-	/**
-	 * Get the owner/originator of this template (default '')
-	 * @since 2.99
-	 *
-	 * @return string
-	 */
-	public function get_originator() : string
-	{
-		return $this->originator;
-	}
-
-	/**
-	 * Set the owner/originator of this template
-	 * @since 2.99
-	 *
-	 * @param string $str
-	 */
-	public function set_originator(string $str)
-	{
-		$this->originator = $str;
-		$this->_dirty = true;
-	}
-
-	/**
-	 * Get the content of this template (default '')
-	 *
-	 * @return string
-	 */
-	public function get_content()
-	{
-		if( $this->contentfile ) {
-			//NOTE CMSMS\internal\layout_template_resource replicates this, and must be manually conformed to any change
-			if( !isset($this->_filecontent) ) {
-				if( ($fp = $this->get_content_filename()) ) {
-					$this->_filecontent = file_get_contents($fp);
-				}
-				else {
-					$this->_filecontent = 'Missing file';
-				}
-			}
-			return $this->_filecontent;
+		$str = trim($str);
+		if( !$str || !AdminUtils::is_valid_itemname($str) ) { // allows ' /' chars, unacceptable in a filename
+			throw new UnexpectedValueException('Invalid template name: '.$str);
 		}
-		return $this->content;
-	}
-
-	/**
-	 * Set the content of this template
-	 * No sanitization
-	 *
-	 * @param string $str Smarty template text
-	 */
-	public function set_content($str)
-	{
-		if( $this->contentfile) {
-			$this->_filecontent = $str;
+		if( isset($this->props['name']) ) {
+			if( $this->props['name'] == $str ) return;
+		}
+		if( !empty($this->props['contentfile']) ) {
+			$fn = sanitizeVal($str, CMSSAN_FILE); // TODO advise user if $fn != $str
+			$this->props['name'] = $fn;
+			$this->fileoperations[] = ['rename', $this->props['content'], $fn.'.tpl'];
+			$this->props['content'] = $fn.'.tpl';
 		}
 		else {
-			$this->content = $str;
+			$this->props['name'] = $str; // TODO might be unsuitable for future export to file
 		}
-		$this->_dirty = true;
+		// TODO duplicate-name check & reject
+		$this->dirty = true;
 	}
 
 	/**
-	 * Get this template's description (default '')
+	 * Get this template's description
 	 *
-	 * @return string
+	 * @return string  Default ''
 	 */
-	public function get_description()
+	public function get_description() : string
 	{
-		return $this->description;
+		return $this->props['description'] ?? '';
 	}
 
 	/**
@@ -389,22 +420,24 @@ class Template
 	 */
 	public function set_description($str)
 	{
-		$this->description = $str;
-		$this->_dirty = true;
+		$this->props['description'] = trim($str);
+		$this->dirty = true;
 	}
 
 	/**
-	 * Get the type id of this template (default 0)
+	 * Get the template-type object for this template, if any.
+	 * @since 2.2
 	 *
-	 * @return int
+	 * @return mixed TemplateType object | null
 	 */
-	public function get_type_id()
+	public function get_type()
 	{
-		return $this->type_id;
+		$id = $this->props['type_id'] ?? 0;
+		return ( $id > 0 ) ? TemplateType::load($id) : null;
 	}
 
 	/**
-	 * Set the type id of this template
+	 * Set the type-identifier of this template
 	 *
 	 * @param mixed $a Either an instance of TemplateType object,
 	 *  an integer type id, or a string template type identifier
@@ -427,33 +460,65 @@ class Template
 			throw new UnexpectedValueException('Invalid identifier provided to '.__METHOD__);
 		}
 
-		$this->type_id = $id;
-		$this->_dirty = true;
+		$this->props['type_id'] = $id;
+		$this->dirty = true;
 	}
 
 	/**
-	 * Test whether this template is the default template for its type
+	 * Get the type id of this template (default 0)
+	 *
+	 * @return int Default 0
+	 */
+	public function get_type_id()
+	{
+		return $this->props['type_id'] ?? 0;
+	}
+
+	/**
+	 * Test whether this template is the default template for its type, if any
 	 *
 	 * @return bool
 	 * @see TemplateType
 	 */
-	public function get_type_dflt()
+	public function get_type_default() : bool
 	{
-		return $this->type_dflt;
+		return $this->props['type_dflt'] ?? false;
 	}
 
 	/**
-	 * Set the value of the flag that indicates whether this template is the default template for its type
-	 * If true, then when this template is saved this property will be unset for all other
-	 * templates of the same type.
+	 * @see Template::get_type_default()
+	 * @deprecated since 2.99 instead use Template::get_type_default()
+	 */
+	public function get_type_dflt()
+	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','Template::get_type_default()'));
+		return $this->props['type_dflt'] ?? false;
+	}
+
+	/**
+	 * Set the value of the flag that indicates whether this template is
+	 * the default template for its type, if any
+	 * If true, then when this template is saved this property will be
+	 * unset for all other templates of the same type.
 	 *
 	 * @param mixed $flag recognized by cms_to_bool(). Default true.
 	 * @see TemplateType
 	 */
+	public function set_type_default($flag = true)
+	{
+		$this->props['type_dflt'] = cms_to_bool($flag);
+		$this->dirty = true;
+	}
+
+	/**
+	 * @see Template::set_type_default()
+	 * @deprecated since 2.99 instead use Template::set_type_default()
+	 */
 	public function set_type_dflt($flag = true)
 	{
-		$this->type_dflt = cms_to_bool($flag);
-		$this->_dirty = true;
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','Template::set_type_default()'));
+		$this->props['type_dflt'] = cms_to_bool($flag);
+		$this->dirty = true;
 	}
 
 	/**
@@ -465,8 +530,9 @@ class Template
 	 */
 	public function get_category_id()
 	{
-		if( !empty($this->_groups) ) {
-			return reset($this->_groups); // just grab the 1st
+		assert(empty(CMS_DEPREC), new DeprecationNotice('templates may be in multiple groups',''));
+		if( !empty($this->groups) ) {
+			return reset($this->groups); // just grab the 1st
 		}
 		return 0;
 	}
@@ -481,6 +547,7 @@ class Template
 	 */
 	public function get_category()
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('templates may be in multiple groups',''));
 		$id = $this->get_category_id();
 		if( $id > 0 ) return TemplatesGroup::load($id);
 	}
@@ -488,7 +555,8 @@ class Template
 	/**
 	 * Get the numeric id corresponding to $a
 	 * @since 2.99
-	 * @param mixed $a A TemplatesGroup object, an integer group id, or a string group name.
+	 *
+	 * @param mixed $a int group id (> 0) | string group name | TemplatesGroup object
 	 * @return int
 	 * @throws UnexpectedValueException if nothing matches
 	 */
@@ -510,60 +578,64 @@ class Template
 	}
 
 	/**
-	 * Get a list of the groups (id's) that this template belongs to
-	 *
+	 * Get the group(s) (id's) that this template belongs to
 	 * @since 2.99
+	 *
 	 * @return array of integers, maybe empty
 	 */
 	public function get_groups() : array
 	{
-		return $this->_groups ?? [];
+		return $this->groups ?? [];
 	}
 
 	/**
 	 * Set 'the' group of this template
 	 *
 	 * @deprecated since 2.99 templates may be in multiple groups
-	 * @param mixed $a Either a TemplatesGroup object,
-	 *  a group name (string) or group id (int)
+	 * @param mixed $a a TemplatesGroup object, a group name (string)
+	 *  or group id (int)
 	 * @see TemplatesGroup
 	 * @throws LogicException ?
 	 */
 	public function set_category($a)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('templates may be in multiple groups',''));
 		if( !$a ) return;
 		$id = $this->get_groupid($a);
-		if( empty($this->_groups) ) {
-			$this->_groups = [(int)$id];
-			$this->_dirty = true;
+		if( empty($this->groups) ) {
+			$this->groups = [(int)$id];
+			$this->dirty = true;
 		}
-		elseif( !in_array($id, $this->_groups) ) {
-			$this->_groups[] = (int)$id;
-			$this->_dirty = true;
+		elseif( !in_array($id, $this->groups) ) {
+			$this->groups[] = (int)$id;
+			$this->dirty = true;
 		}
 	}
 
 	/**
-	 * Set the list of groups that this template belongs to
-	 *
+	 * Set the group id's that this template belongs to
 	 * @since 2.99
-	 * @param array $all integers[], may be empty
+	 *
+	 * @param mixed $all array | int integer group id(s), maybe empty
 	 * @throws InvalidArgumentException
 	 */
-	public function set_groups(array $all)
+	public function set_groups($all)
 	{
+		if( !is_array($all) ) { $all = [$all]; }
 		foreach( $all as $id ) {
-			if( !is_numeric($id) || (int)$id < 1 ) throw new InvalidArgumentException('Invalid groups data. Expect array of integers, each > 0');
+			if( !is_numeric($id) || (int)$id < 1 ) {
+				throw new InvalidArgumentException('Invalid template-groups data. Expect array of integers, each > 0');
+			}
 		}
-		$this->_groups = $all;
-		$this->_dirty = true;
+		$this->groups = $all;
+		$this->dirty = true;
 	}
 
 	/**
 	 * Add this template to a group
-	 *
 	 * @since 2.99
-	 * @param mixed $a A Design object, an integer group id, or a string group name.
+	 *
+	 * @param mixed $a int group id | string group name | TemplatesGroup object
 	 * @see TemplatesGroup
 	 * @throws LogicException ?
 	 */
@@ -571,128 +643,52 @@ class Template
 	{
 		$id = $this->get_groupid($a);
 		$this->get_groups();
-		if( !is_array($this->_groups) ) {
-			$this->_groups = [$id];
-			$this->_dirty = true;
-		}
-		elseif( !in_array($id, $this->_groups) ) {
-			$this->_groups[] = (int)$id;
-			$this->_dirty = true;
+		if( !in_array($id, $this->groups) ) {
+			$this->groups[] = (int)$id;
+			$this->dirty = true;
 		}
 	}
 
 	/**
 	 * Remove this template from a group
-	 *
 	 * @since 2.99
-	 * @param mixed $a A Design object, an integer group id, or a string group name.
 	 * @see TemplatesGroup
+	 *
+	 * @param mixed $a integer group id | string group name | TemplatesGroup object
 	 * @throws LogicException ?
 	 */
 	public function remove_group($a)
 	{
 		$this->get_groups();
-		if( empty($this->_groups) ) return;
+		if( !$this->groups ) return; // TODO warning to user
 
 		$id = $this->get_groupid($a);
-		if( ($i = array_search($id, $this->_groups)) !== false ) {
-			unset($this->_groups[$i]);
-			$this->_dirty = true;
+		if( ($i = array_search($id, $this->groups)) !== false ) {
+			unset($this->groups[$i]);
+			$this->dirty = true;
 		}
 	}
 
-	/* *
-	 * Get a list of the designs that this template is associated with
-	 *
-	 * @return array of integers, or maybe empty
-	 */
-/*	public function get_designs() DISABLED
-	{
-		return $this->_designs ?? [];
-	}
-*/
-	/* *
-	 * Set the list of designs that this template is associated with
-	 *
-	 * @param array $all integers[], may be empty
-	 * @throws UnexpectedValueException or InvalidArgumentException
-	 */
-/*	public function set_designs($all)
-	{
-		if( !is_array($all) ) throw new InvalidArgumentException('Invalid designs list. Expect array of integers');
-		foreach( $all as $id ) {
-			if( !is_numeric($id) || (int)$id < 1 ) throw new InvalidArgumentException('Invalid designs data. Expect array of integers, each > 0');
-		}
-
-		$this->_designs = $all;
-		$this->_dirty = true;
-	}
-*/
-	/* *
-	 * Get a numeric id corresponding to $a
-	 * @param mixed $a A Design object, an integer design id, or a string design name.
-	 * @return int
-	 * @throws UnexpectedValueException
-	 */
-/*	protected function get_designid($a)
-	{
-		if( is_numeric($a) && (int)$a > 0 ) {
-			return (int)$a;
-		}
-		elseif( is_string($a) && $a !== '' ) {
-			$ob = Design::load($a); DISABLED
-			if( $ob ) {
-				return $ob->get_id();
-			}
-		}
-		elseif( $a instanceof Design ) {
-			return $a->get_id();
-		}
-		throw new UnexpectedValueException('Invalid identifier provided to '.__METHOD__);
-	}
-*/
 	/**
 	 * Associate another design with this template
 	 * @deprecated since 2.99 does nothing
 	 *
-	 * @param mixed $a A Design object, an integer design id, or a string design name.
-	 * @see Design
+	 * @param mixed $a integer design | string design name | Design object
 	 */
 	public function add_design($a)
 	{
-/*
-		$id = $this->get_designid($a);
-		$this->get_designs(); DISABLED
-		if( !is_array($this->_designs) ) {
-			$this->_designs = [$id];
-			$this->_dirty = true;
-		}
-		elseif( !in_array($id, $this->_designs) ) {
-			$this->_designs[] = (int)$id;
-			$this->_dirty = true;
-		}
-*/
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method does nothing',''));
 	}
 
 	/**
 	 * Remove a design from the ones associated with this template
 	 * @deprecated since 2.99 does nothing
 	 *
-	 * @param mixed $a A Design object, an integer design id, or a string design name.
-	 * @see Design
+	 * @param mixed $a integer design id | string design name | Design object
 	 */
 	public function remove_design($a)
 	{
-/*
-		$this->get_designs(); DISABLED
-		if( empty($this->_designs) ) return;
-
-		$id = $this->get_designid($a);
-		if( ($i = array_search($id, $this->_designs)) !== false ) {
-			unset($this->_designs[$i]);
-			$this->_dirty = true;
-		}
-*/
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method does nothing',''));
 	}
 
 	/**
@@ -701,17 +697,18 @@ class Template
 	 */
 	public function get_owner_id()
 	{
-		return $this->owner_id;
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','Template::get_owner()'));
+		return $this->props['owner_id'] ?? 0;
 	}
 
 	/**
-	 * Get the owner id of this template (default -1)
+	 * Get the owner id of this template
 	 *
-	 * @return int
+	 * @return int Default 0
 	 */
-	public function get_owner()
+	public function get_owner() : int
 	{
-		return $this->owner_id;
+		return $this->props['owner_id'] ?? 0;
 	}
 
 	/**
@@ -738,40 +735,40 @@ class Template
 		}
 
 		if( $id < 1 ) throw new UnexpectedValueException('Owner id must be valid in '.__METHOD__);
-		$this->owner_id = $id;
-		$this->_dirty = true;
+		$this->props['owner_id'] = $id;
+		$this->dirty = true;
 	}
 
 	/**
-	 * Get the timestamp for when this template was first saved.
+	 * Get a timestamp representing when this template was first saved.
 	 *
 	 * @return int UNIX UTC timestamp. Default 1 (i.e. not falsy)
 	 */
 	public function get_created()
 	{
-		$str = $this->create_date ?? '';
+		$str = $this->props['create_date'] ?? '';
 		return ($str) ? cms_to_stamp($str) : 1;
 	}
 
 	/**
-	 * Get the timestamp for when this template was last saved.
+	 * Get a timestamp representing when this template was last saved.
 	 *
 	 * @return int UNIX UTC timestamp. Default 1
 	 */
 	public function get_modified()
 	{
-		$str = $this->modified_date ?? '';
+		$str = $this->props['modified_date'] ?? '';
 		return ($str) ? cms_to_stamp($str) : $this->get_created();
 	}
 
 	/**
-	 * Get a list of userid's (other than the owner) that are authorized to edit this template
+	 * Get the userid's (other than the owner) that are authorized to edit this template
 	 *
 	 * @return array of integer user id's, maybe empty
 	 */
 	public function get_additional_editors()
 	{
-		return $this->_editors ?? [];
+		return $this->editors ?? [];
 	}
 
 	/**
@@ -792,10 +789,23 @@ class Template
 	}
 
 	/**
+	 * Test whether the specified user is authorized to edit this template object
+	 *
+	 * @param mixed $a Either a username (string) or an integer user id.
+	 * @return bool
+	 */
+	public function can_edit($a)
+	{
+		$res = self::_resolve_user($a);
+		if( isset($this->props['owner_id']) && $res == $this->props['owner_id'] ) return true;
+		return !empty($this->editors) && in_array($res,$this->editors);
+	}
+
+	/**
 	 * Set the admin-user account(s) (other than the owner) that are authorized to edit this template object
 	 *
 	 * @throws UnexpectedValueException
-	 * @param mixed $a Accepts an array of strings (usernames) or an array of integers (user ids, and negative group ids)
+	 * @param mixed $a string[] (usernames) | int[] (user ids, and negative group ids) | single user identifier
 	 */
 	public function set_additional_editors($a)
 	{
@@ -803,8 +813,8 @@ class Template
 			if( is_string($a) || (is_numeric($a) && $a > 0) ) {
 				// maybe a single value...
 				$res = self::_resolve_user($a);
-				$this->_editors = [$res];
-				$this->_dirty = true;
+				$this->editors = [$res];
+				$this->dirty = true;
 			}
 		}
 		else {
@@ -819,22 +829,9 @@ class Template
 					$tmp[] = self::_resolve_user($a[$i]);
 				}
 			}
-			$this->_editors = $tmp;
-			$this->_dirty = true;
+			$this->editors = $tmp;
+			$this->dirty = true;
 		}
-	}
-
-	/**
-	 * Test whether the specified user is authorized to edit this template object
-	 *
-	 * @param mixed $a Either a username (string) or an integer user id.
-	 * @return bool
-	 */
-	public function can_edit($a)
-	{
-		$res = self::_resolve_user($a);
-		if( $res == $this->owner_id ) return true;
-		return !empty($this->_editors) && in_array($res,$this->_editors);
 	}
 
 	/**
@@ -843,9 +840,9 @@ class Template
 	 * @since 2.1
 	 * @return bool
 	 */
-	public function get_listable()
+	public function get_listable() : bool
 	{
-		return $this->listable;
+		return $this->props['listable'] ?? true;
 	}
 
 	/**
@@ -858,8 +855,8 @@ class Template
 	 */
 	public function is_listable()
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method','get_listable'));
-		return $this->listable;
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','Template::get_listable()'));
+		return $this->props['listable'] ?? true;
 	}
 
 	/**
@@ -870,8 +867,8 @@ class Template
 	 */
 	public function set_listable($flag = true)
 	{
-		$this->listable = cms_to_bool($flag);
-		$this->_dirty = true;
+		$this->props['listable'] = cms_to_bool($flag);
+		$this->dirty = true;
 	}
 
 	/**
@@ -882,7 +879,7 @@ class Template
 	public function process()
 	{
 		$smarty = SingleItem::Smarty();
-		return $smarty->fetch('cms_template:'.$this->id);
+		return $smarty->fetch('cms_template:'.$this->props['id']);
 	}
 
 	/**
@@ -891,6 +888,7 @@ class Template
 	 */
 	protected function _get_anyowner()
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method always returns null',''));
 		return null;
 	}
 
@@ -899,149 +897,206 @@ class Template
 	 */
 	private static function get_locks() : array
 	{
-		if( !self::$_lock_cache_loaded ) {
-			self::$_lock_cache = [];
+		if( !self::$lock_cache_loaded ) {
+			self::$lock_cache = [];
 			$tmp = LockOperations::get_locks('template');
 			if( $tmp ) {
 				foreach( $tmp as $one ) {
-					self::$_lock_cache[$one['oid']] = $one;
+					self::$lock_cache[$one['oid']] = $one;
 				}
 			}
-			self::$_lock_cache_loaded = true;
+			self::$lock_cache_loaded = true;
 		}
-		return self::$_lock_cache;
+		return self::$lock_cache;
 	}
 
 	/**
-	 * Get any applicable lock for this template object
+	 * Get a lock (if any exists) for this object
+	 * @see Lock
 	 *
 	 * @return mixed Lock | null
-	 * @see Lock
 	 */
 	public function get_lock()
 	{
+		if( !isset($this->props['id']) ) return null;
 		$locks = self::get_locks();
-		return $locks[$this->id] ?? null;
+		return $locks[$this->props['id']] ?? null;
 	}
 
 	/**
-	 * Test whether this template object currently has a lock
+	 * Test whether this template object is locked
 	 *
 	 * @return bool
 	 */
-	public function locked()
+	public function locked() : bool
 	{
 		$lock = $this->get_lock();
 		return is_object($lock);
 	}
 
 	/**
-	 * Test whether any lock associated with this object has expired
+	 * Test whether this template is locked by an expired lock.
+	 * If the object is not locked FALSE is returned
 	 *
 	 * @return bool
 	 */
-	public function lock_expired()
+	public function lock_expired() : bool
 	{
 		$lock = $this->get_lock();
-		if( is_object($lock) ) return $lock->expired();
-		return false;
-	}
-
-	/**
-	 * Get the template-type object for this template.
-	 *
-	 * @since 2.2
-	 * @return mixed TemplateType or null
-	 */
-	public function get_type()
-	{
-		$id = $this->type_id;
-		return ( $id > 0 ) ? TemplateType::load($id) : null;
+		if( !is_object($lock) ) return false;
+		return $lock->expired();
 	}
 
 	/**
 	 * Get a sample usage string (if any) for this template
-	 *
 	 * @since 2.2
+	 *
 	 * @return string
 	 */
-	public function get_usage_string()
+	public function get_usage_string() : string
 	{
+		if( empty($this->props['name']) ) return '';
 		$type = $this->get_type();
-		return ( $type ) ? $type->get_usage_string($this->name) : '';
+		return ( $type ) ? $type->get_usage_string($this->props['name']) : '';
 	}
 
 	/**
-	 * Get the filepath of the file which (if relevant) contains this template's content
+	 * Get the content of this template
 	 *
+	 * @return string
+	 */
+	public function get_content() : string
+	{
+		if( !empty($this->props['contentfile']) ) {
+			//NOTE CMSMS\internal\layout_template_resource replicates this, and must be manually conformed to any change
+			if( !isset($this->filecontent) ) {
+				if( ($fp = $this->get_content_filename()) ) {
+					$this->filecontent = file_get_contents($fp);
+				}
+				else {
+					$this->filecontent = '{* Missing template file *}';
+				}
+			}
+			return $this->filecontent;
+		}
+		return $this->props['content'];
+	}
+
+	/**
+	 * Set the content of this template
+	 * No sanitization
+	 *
+	 * @param string $str not empty
+	 */
+	public function set_content($str)
+	{
+		$str = trim($str);
+		if( !$str ) throw new LogicException('Template cannot be empty');
+//		if( !$str ) $str = '{* empty Smarty template *}';
+		if( !empty($this->props['contentfile']) ) {
+			$this->filecontent = $str;
+			// park new content for transfer to file when this object is saved
+			$fn = basename($this->get_content_filename());
+			$this->fileoperations[] = ['store', $fn, $str];
+		}
+		else {
+			$this->props['content'] = $str;
+		}
+		$this->dirty = true;
+	}
+
+	/**
+	 * Get the filepath of the file which is supposed to contain this
+	 *  template's content
 	 * @since 2.2
+	 *
 	 * @return string
 	 */
 	public function get_content_filename()
 	{
-		if( $this->contentfile ) {
-			//NOTE CMSMS\internal\layout_template_resource replicates this, and must be manually conformed to any change
-			//TODO consider support for absolute path to anywhere
-			return cms_join_path(CMS_ASSETS_PATH,'templates',$this->content);
+		$fn = $this->props['content'] ?? '';
+		if( $fn && strpos($fn, ' ') === false && endswith($fn, '.tpl') ) {
+			//NOTE CMSMS\internal\layout_template_resource replicates this,
+			// and must be manually conformed to any change
+			return cms_join_path(CMS_ASSETS_PATH, 'templates', $fn);
 		}
 		return '';
 	}
 
 	/**
 	 * Get whether this template's content resides in a file (as distinct from the database)
-	 *
 	 * @since 2.99
+	 *
 	 * @return bool
 	 */
 	public function get_content_file()
 	{
-		return $this->contentfile;
+		return $this->props['contentfile'] ?? false;
 	}
 
 	/**
 	 * Get whether this template's content resides in a file
-	 *
 	 * @since 2.2
 	 * @deprecated since 2.99 this is an alias for get_content_file()
+	 *
 	 * @return bool
 	 */
 	public function has_content_file()
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method','get_content_file'));
-		return $this->contentfile;
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TEmplate::get_content_file()'));
+		return $this->props['contentfile'] ?? false;
 	}
 
 	/**
-	 * Set the value of the flag indicating the content of this template resides in a filesystem file
-	 *
+	 * Set the value of the flag indicating the content of this template
+	 *  resides in a filesystem file
 	 * @since 2.99
+	 *
 	 * @param mixed $flag recognized by cms_to_bool(). Default true.
 	 */
 	public function set_content_file($flag = true)
 	{
 		$state = cms_to_bool($flag);
-		if( $state ) {
-			$this->content = sanitizeVal($this->name, CMSSAN_FILE).'.'.$this->id.'.tpl';
+		$current = !empty($this->props['contentfile']);
+		if( $state === $current ) {
+			if( !$current ) {
+				$this->props['contentfile'] = false; // ensure it's present
+			}
+			return;
 		}
-		elseif( $this->contentfile ) {
-			$this->content = '';
+		if( !empty($this->props['content']) ) {
+			$fn = $this->get_content_filename();
+			if( $state ) {
+				if( $fn ) return; // already set up
+				$fn = sanitizeVal($this->props['name'], CMSSAN_FILE);
+				// park current content for save-in-file when this object is saved
+				$this->fileoperations[] = ['store', $fn.'.tpl', ($this->props['content'] ?? '')];
+				$this->props['content'] = $fn.'.tpl';
+			}
+			elseif( $fn ) {
+				$this->props['content'] = file_get_contents($fn);
+				// park current filename for deletion when this object is saved
+				$this->fileoperations[] = ['delete', basename($fn)];
+			}
+			else {
+				$this->props['content'] = '';
+			}
 		}
-		$this->contentfile = $state;
-		$this->_dirty = true;
+		$this->props['contentfile'] = $state;
+		$this->dirty = true;
 	}
 
 //======= DEPRECATED METHODS EXPORTED TO TemplateOperations CLASS =======
 
 	/**
-	 * @var TemplateOperations object populated on demand
 	 * @ignore
+	 * @since 2.99
+	 * @return TemplateOperations
 	 */
-	private static $_operations = null;
-
 	private static function get_operations()
 	{
-		if( !self::$_operations ) self::$_operations = new TemplateOperations();
-		return self::$_operations;
+		if( !self::$operations ) self::$operations = new TemplateOperations();
+		return self::$operations;
 	}
 
 	/**
@@ -1050,9 +1105,10 @@ class Template
 	 */
 	public function save()
 	{
-		if( $this->_dirty ) {
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TemplateOperations::save_template()'));
+		if( $this->dirty ) {
 			self::get_operations()::save_template($this);
-			$this->_dirty = false;
+			$this->dirty = false;
 		}
 	}
 
@@ -1062,6 +1118,7 @@ class Template
 	 */
 	public function delete()
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TemplateOperations::delete_template()'));
 		self::get_operations()::delete_template($this);
 	}
 
@@ -1075,6 +1132,7 @@ class Template
 	 */
 	public static function load_bulk($list,$deep = true)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TemplateOperations::load_bulk_templates()'));
 		return self::get_operations()::load_bulk_templates($list,$deep);
 	}
 
@@ -1082,18 +1140,19 @@ class Template
 	 * Load a specific template, replacing the properties of this one
 	 *
 	 * @param mixed $a Either an integer template id, or a template name (string)
-	 * @return mixed Template | null
+	 * @return mixed Template object | null
 	 * @throws DataException
 	 */
 	public static function load($a)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TemplateOperations::replicate_template()'));
 		self::get_operations()::replicate_template($this,$a);
-		$this->_dirty = false;
+		$this->dirty = false;
 		return $this;
 	}
 
 	/**
-	 * Get a list of the templates owned by a specific user
+	 * Get the templates owned by a specific user
 	 * @deprecated since 2.99 use corresponding TemplateOperations method
 	 *
 	 * @param mixed $a An integer user id, or a string user name
@@ -1102,6 +1161,7 @@ class Template
 	 */
 	public static function get_owned_templates($a)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TemplateOperations::get_owned_templates()'));
 		return self::get_operations()::get_owned_templates($a); //static downsteam (ONLY STATIC NOW?)
 	}
 
@@ -1114,11 +1174,12 @@ class Template
 	 */
 	public static function template_query($params)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TemplateOperations::template_query()'));
 		self::get_operations()::template_query($params);
 	}
 
 	/**
-	 * Get a list of the templates that a specific user can edit
+	 * Get the templates that a specific user can edit
 	 * @deprecated since 2.99 use corresponding TemplateOperations method
 	 *
 	 * @param mixed $a An integer user id or a string user name or null
@@ -1127,6 +1188,7 @@ class Template
 	 */
 	public static function get_editable_templates($a)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TemplateOperations::get_editable_templates()'));
 		return self::get_operations()::get_editable_templates($a);
 	}
 
@@ -1143,6 +1205,7 @@ class Template
 	 */
 	public static function user_can_edit($tpl,$userid = null)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TemplateOperations::user_can_edit_template()'));
 		return self::get_operations()::user_can_edit_template($tpl,$userid);
 	}
 
@@ -1157,6 +1220,7 @@ class Template
 	 */
 	public static function create_by_type($t)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TemplateOperations::get_template_by_type()'));
 		return self::get_operations()::get_template_by_type($t);
 	}
 
@@ -1170,6 +1234,7 @@ class Template
 	 */
 	public static function load_dflt_by_type($t)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TemplateOperations::get_default_template_by_type()'));
 		return self::get_operations()::get_default_template_by_type($t);
 	}
 
@@ -1178,11 +1243,12 @@ class Template
 	 * @deprecated since 2.99 use corresponding TemplateOperations method
 	 *
 	 * @param TemplateType $type
-	 * @return mixed array Template objects or null
+	 * @return array Template object(s) | empty
 	 * @throws DataException
 	 */
 	public static function load_all_by_type(TemplateType $type)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TemplateOperations::get_all_templates_by_type()'));
 		return self::get_operations()::get_all_templates_by_type($type);
 	}
 
@@ -1195,6 +1261,7 @@ class Template
 	 */
 	public static function process_by_name($name)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TemplateOperations::process_named_template()'));
 		return self::get_operations()::process_named_template($name);
 	}
 
@@ -1207,6 +1274,7 @@ class Template
 	 */
 	public static function process_dflt($t)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TemplateOperations::process_default_template()'));
 		return self::get_operations()::process_default_template($t);
 	}
 
@@ -1218,6 +1286,7 @@ class Template
 	 */
 	public static function get_loaded_templates()
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method does nothing',''));
 		return null;
 	}
 
@@ -1232,6 +1301,7 @@ class Template
 	 */
 	public static function generate_unique_name($prototype,$prefix = null)
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TemplateOperations::get_unique_template_name()'));
 		return self::get_operations()::get_unique_template_name($prototype,$prefix);
 	}
 } // class

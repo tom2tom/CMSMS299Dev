@@ -53,6 +53,6 @@ EOS;
 function smarty_cms_help_function_description()
 {
 	$n = lang('none');
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'description', "<li>$n</li>");
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'description', "<li>$n</li>");
 }
 */

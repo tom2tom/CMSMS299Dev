@@ -97,16 +97,16 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
     } else {
         $msg = $res[1] ?? '';
         if ($msg) {
-            if (strpos($msg, ' ') === false) { $msg = lang($msg); }
+            if (strpos($msg, ' ') === false) { $msg = _la($msg); }
         } else {
-            $msg = ($oldname === '') ? lang('error_usrplg_save') : lang('error_usrplg_update');
+            $msg = ($oldname === '') ? _la('error_usrplg_save') : _la('error_usrplg_update');
         }
         $themeObject->RecordNotice('error', $msg);
         $err = true;
     }
 
     if (isset($_POST['submit']) && !$err) {
-        $msg = ($oldname == '-1') ? lang('added_usrplg') : lang('updated_usrplg');
+        $msg = ($oldname == '-1') ? _la('added_usrplg') : _la('updated_usrplg');
         $themeObject->ParkNotice('success', $msg);
         redirect('listusertags.php'.$urlext);
     }
@@ -123,7 +123,7 @@ if ($tagname != '-1') {
     if ($props) {
         $props['oldname'] = $tagname;
     } else {
-        $themeObject->RecordNotice('error', lang('error_internal'));
+        $themeObject->RecordNotice('error', _la('error_internal'));
         redirect('listusertags.php'.$urlext);
     }
 } else {
@@ -161,8 +161,8 @@ $js = $pageincs['foot'] ?? '';
 
 if ($edit) {
 //    $nonce = get_csp_token();
-    $s1 = json_encode(lang('error_usrplg_name'));
-    $s2 = json_encode(lang('error_usrplg_nocode'));
+    $s1 = json_encode(_la('error_usrplg_name'));
+    $s2 = json_encode(_la('error_usrplg_nocode'));
     $js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[

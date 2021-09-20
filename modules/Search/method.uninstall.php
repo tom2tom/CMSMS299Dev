@@ -1,6 +1,6 @@
 <?php
 /*
-Search module uninstall procedure
+Search module uninstallation procedure
 Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\Database\DataDictionary;
 use CMSMS\TemplateType;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 
 $dict = new DataDictionary($db);
 
@@ -46,33 +46,32 @@ $this->RemoveEvent('SearchItemAdded');
 $this->RemoveEvent('SearchItemDeleted');
 $this->RemoveEvent('SearchAllItemsDeleted');
 
-$this->RemoveEventHandler( 'Core', 'ContentEditPost');
-$this->RemoveEventHandler( 'Core', 'ContentDeletePost');
-$this->RemoveEventHandler( 'Core', 'AddTemplatePost');
-$this->RemoveEventHandler( 'Core', 'EditTemplatePost');
-$this->RemoveEventHandler( 'Core', 'DeleteTemplatePost');
-$this->RemoveEventHandler( 'Core', 'ModuleUninstalled');
+$this->RemoveEventHandler('Core', 'ContentEditPost');
+$this->RemoveEventHandler('Core', 'ContentDeletePost');
+$this->RemoveEventHandler('Core', 'AddTemplatePost');
+$this->RemoveEventHandler('Core', 'EditTemplatePost');
+$this->RemoveEventHandler('Core', 'DeleteTemplatePost');
+$this->RemoveEventHandler('Core', 'ModuleUninstalled');
 
 $this->RemoveSmartyPlugin();
 
-// remove templates
-// and template types.
+// remove templates and template-types
 try {
-  $types = TemplateType::load_all_by_originator($this->GetName());
-  if( $types ) {
-    foreach( $types as $type ) {
-      $templates = $type->get_template_list();
-      if( $templates ) {
-        foreach( $templates as $template ) {
-          $template->delete();
+    $types = TemplateType::load_all_by_originator($this->GetName());
+    if( $types ) {
+        foreach( $types as $type ) {
+            $templates = $type->get_template_list();
+            if( $templates ) {
+                foreach( $templates as $template ) {
+                    $template->delete();
+                }
+            }
+            $type->delete();
         }
-      }
-      $type->delete();
     }
-  }
 }
 catch( Throwable $t ) {
-  // log it
-  audit('',$this->GetName(),'Uninstall Error: '.$t->GetMessage());
-  return $t->GetMessage();
+    // log it
+    audit('',$this->GetName(),'Uninstall error: '.$t->GetMessage());
+    return $t->GetMessage();
 }

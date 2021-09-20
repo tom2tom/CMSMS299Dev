@@ -15,9 +15,9 @@ use const TMP_CACHE_LOCATION;
 /**
  * HTTP class
  *
- * This is a wrapper HTTP class that uses either cURL or fsockopen to
- * harvest resources from web. This can be used with scripts that need
- * a way to communicate with various APIs who support REST.
+ * Wrapper HTTP class that uses either cURL or fsockopen to harvest
+ * resources from the web. This class can be used to communicate with
+ * REST API's.
  *
  * Modified by Robert Campbell
  * Renamed the class to cms_http_request

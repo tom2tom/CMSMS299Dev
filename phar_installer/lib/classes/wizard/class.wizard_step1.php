@@ -228,16 +228,16 @@ class wizard_step1 extends wizard_step
      * @internal
      * @param string $start filepath. Before recursion, the site-root.
      * @param int $depth current recursion-depth (internal use only)
-     * @return mixed array | null
+     * @return array maybe empty
      */
     private function _find_dirs(string $start, int $depth = 0)
     {
         if (!is_readable($start)) {
-            return;
+            return [];
         }
         $dh = opendir($start);
         if (!$dh) {
-            return;
+            return [];
         }
         $out = [];
         while (($name = readdir($dh)) !== false) {
@@ -272,9 +272,7 @@ class wizard_step1 extends wizard_step
             }
         }
         closedir($dh);
-        if ($out) {
-            return $out;
-        }
+        return $out;
     }
 
     private function get_valid_install_dirs() : array

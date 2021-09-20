@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin to retrive the date/time when the current page was last modified.
+Plugin to get the date/time when the current page was last modified.
 Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
@@ -20,47 +20,54 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppParams;
 use CMSMS\SingleItem;
+use UtfNormal\Utils;
 
 function smarty_function_modified_date($params, $template)
 {
-	$str = lang('unknown');
+	$out = lang('unknown');
 	$content_obj = SingleItem::App()->get_content_object();
 	if( is_object($content_obj) ) {
 		$time = $content_obj->GetModifiedDate();
-	    if( $time > -1 ) {
+		if( $time > -1 ) {
 			if( !empty($params['format']) ) {
-				$format = $params['format'];
+				$format = trim($params['format']);
+				if( strpos($format, '%') !== false ) {
+					$format = Utils::convert_dt_format($format); // migrate strftime format
+				}
 			}
 			else {
-				$format = '%x %X'; // TODO user- or site-default
+				$format = AppParams::get('date_format', 'Y-m-d');
 			}
-			$str = strftime($format, $time);
+			// TODO handled 'timed' format
+			$out = date($format, $time);
 		}
 	}
+
 	if( !empty($params['assign']) ) {
-		$template->assign(trim($params['assign']), $str);
+		$template->assign(trim($params['assign']), $out);
 		return '';
 	}
-	return $str;
+	return $out;
 }
-
+/*
+function smarty_cms_help_function_modified_date()
+{
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'modified_date ...', <<<'EOS'
+<li>format</li>
+EOS
+	);
+}
+*/
 function smarty_cms_about_function_modified_date()
 {
 	echo <<<'EOS'
 <p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
 <p>Change History:</p>
 <ul>
-<li>None</li>
+<li>Sept 2021 generate output using date() instead of deprecated strftime()</li>
+<li>Sept 2021 Revert to date()-compatible site setting 'date_format' if no 'format' parameter is supplied</li>
 </ul>
 EOS;
 }
-/*
-function smarty_cms_help_function_modified_date()
-{
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'modified_date ...', <<<'EOS'
-<li>format</li>
-EOS
-	);
-}
-*/

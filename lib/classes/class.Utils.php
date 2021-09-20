@@ -27,6 +27,7 @@ use CMSMS\AppConfig;
 use CMSMS\CoreCapabilities;
 use CMSMS\Database\Connection;
 use CMSMS\internal\Smarty;
+//use CMSMS\NlsOperations;
 use CMSMS\SingleItem;
 use Throwable;
 //use const CMS_DEPREC;
@@ -44,49 +45,32 @@ use Throwable;
  */
 final class Utils
 {
-	// static properties here >> SingleItem property|ies ?
 	/**
-	 * @ignore
-	 */
-	private static $_vars;
-
-	/**
-	 * @ignore
-	 */
-	private function __construct() {}
-
-	/**
-	 * @ignore
-	 */
-	private function __clone() {}
-
-	/**
-	 * Get intra-request stored data.
-	 * @since 1.9
-	 *
-	 * @param string $key The key to get.
-	 * @return mixed The stored data, or null
-	 */
-	public static function get_app_data(string $key)
-	{
-		if( is_array( self::$_vars ) && isset(self::$_vars[$key]) ) return self::$_vars[$key];
-	}
-
-	/**
-	 * Cache intra-request data.
-	 * The data only exists during the current request.
+	 * Cache an intra-request value
 	 * This method is typically used to store data for later use by
 	 * another part of the system.
+	 * @see also: set_session_value()
 	 * @since 1.9
 	 *
-	 * @param string $key The name of this data.
-	 * @param mixed  $value The data to store.
+	 * @param string $key The name/identifier of the value
+	 * @param mixed  $value The value to store
 	 */
 	public static function set_app_data(string $key, $value)
 	{
-		if( $key == '' ) return;
-		if( !is_array(self::$_vars) ) self::$_vars = [];
-		self::$_vars[$key] = $value;
+		SingleItem::set($key, $value);
+	}
+
+	/**
+	 * Return an intra-request cached value (if it exists)
+	 * @see also: get_session_value()
+	 * @since 1.9
+	 *
+	 * @param string $key The name/identifier of the value
+	 * @return mixed The stored value | null
+	 */
+	public static function get_app_data(string $key)
+	{
+		return SingleItem::get($key);
 	}
 
 	/**
@@ -98,20 +82,18 @@ final class Utils
 	 */
 	public static function get_db() : Connection
 	{
-//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::Db()'));
 		return SingleItem::Db();
 	}
 
 	/**
 	 * Return the application config singleton.
-	 * @see SingleItem::Config();
+	 * @see SingleItem::Config()
 	 * @since 1.9
 	 *
 	 * @return AppConfig The global configuration object.
 	 */
 	public static function get_config() : AppConfig
 	{
-//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::Config()'));
 		return SingleItem::Config();
 	}
 
@@ -124,16 +106,15 @@ final class Utils
 	 */
 	public static function get_smarty() : Smarty
 	{
-//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::Smarty()'));
 		return SingleItem::Smarty();
 	}
 
 	/**
-	 * Return the current content object.
-	 * This function will return NULL if called from an admin action
+	 * Return the current content object
 	 * @since 1.9
 	 *
 	 * @return mixed Content The current content object | null
+	 *  Always null if called from an admin script/module-action
 	 */
 	public static function get_current_content()
 	{
@@ -141,11 +122,11 @@ final class Utils
 	}
 
 	/**
-	 * Return the alias of the current page.
-	 * This function will return NULL if called from an admin action
+	 * Return the alias of the current page
 	 * @since 1.9
 	 *
-	 * @return mixed string|null
+	 * @return mixed string | null  Always null if called from
+	 *  an admin script/module-action
 	 */
 	public static function get_current_alias()
 	{
@@ -155,10 +136,10 @@ final class Utils
 
 	/**
 	 * Return the id of the current page
-	 * This function will return NULL if called from an admin action
 	 * @since 1.9
 	 *
-	 * @return mixed int|null
+	 * @return mixed int | null Always null if called from
+	 *  an admin script/module-action
 	 */
 	public static function get_current_pageid()
 	{
@@ -180,15 +161,16 @@ final class Utils
 
 	/**
 	 * Return an installed module object.
-	 * If a version string is passed, a matching object will only be returned
-	 * if the installed version is greater than or equal to the specified version.
+	 * If a version string is passed, a matching object will only be
+	 * returned if the installed version is greater than or equal to
+	 * the specified version.
 	 * @see version_compare()
 	 * @see ModuleOperations::get_module_instance()
 	 * @since 1.9
 	 *
 	 * @param string $name The module name
 	 * @param string $version An optional version string
-	 * @return mixed CMSModule The matching module object or null
+	 * @return mixed CMSModule The matching module object | null
 	 */
 	public static function get_module(string $name, string $version = '')
 	{
@@ -196,7 +178,7 @@ final class Utils
 	}
 
 	/**
-	 * Return the appropriate WYSIWYG module.
+	 * Return the appropriate WYSIWYG module
 	 *
 	 * For frontend requests this method will return the currently selected
 	 * frontend WYSIWYG or null if none is selected.
@@ -213,7 +195,7 @@ final class Utils
 	}
 
 	/**
-	 * Return the currently-selected syntax highlight module.
+	 * Return the currently-selected syntax highlight module
 	 * @since 1.10
 	 *
 	 * @return mixed CMSModule | null
@@ -224,7 +206,7 @@ final class Utils
 	}
 
 	/**
-	 * Return the currently selected search module.
+	 * Return the currently selected search module
 	 * @since 1.10
 	 *
 	 * @return mixed CMSModule | null
@@ -246,7 +228,7 @@ final class Utils
 	}
 
 	/**
-	 * Return the first-detected email-sender module (if any).
+	 * Return the first-detected email-sender module (if any)
 	 * @since 2.99
 	 *
 	 * @return mixed CMSModule | null
@@ -257,7 +239,6 @@ final class Utils
 		if ($modnames) {
 			return SingleItem::ModuleOperations()->get_module_instance($modnames[0]);
 		}
-		return null;
 	}
 
 	/**
@@ -294,8 +275,8 @@ final class Utils
 	}
 
 	/**
-	 * Attempt to retrieve the IP address of the connected user.
-	 * This function attempts to compensate for proxy servers.
+	 * Attempt to retrieve the IP address of the connected user
+	 * This method attempts to compensate for proxy servers.
 	 * @since 1.10
 	 *
 	 * @return mixed IP address in dotted notation | null
@@ -309,23 +290,138 @@ final class Utils
 		elseif (empty($ip) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
 			$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
 		}
-
-		if( filter_var($ip, FILTER_VALIDATE_IP) ) return $ip;
-
-		return null;
+		if (filter_var($ip, FILTER_VALIDATE_IP)) {
+			return $ip;
+		}
 	}
 
 	/**
-	 * Return the current admin theme object or a named theme object.
-	 * Only valid during an admin request.
+	 * Return the current admin theme object or a named theme object
+	 * @see also AdminTheme::get_instance()
 	 * @since 1.11
 	 *
 	 * @param mixed $name Since 2.99 Optional theme name. Default ''
-	 * @return mixed AdminTheme derived object, or null
+	 * @return mixed AdminTheme-derived object | null
+	 *  Always null if not called from an admin script/module-action
 	 */
 	public static function get_theme_object($name = '')
 	{
-//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AdminTheme::get_instance($name)'));
 		return AdminTheme::get_instance($name);
+	}
+
+	/**
+	 * Convert a strftime()-compatible display format to a date()-compatible format
+	 * @since 2.99
+	 * @deprecated since 2.99 instead use date()-compatible formats
+	 *
+	 * @param string $fmt
+	 * @return string
+	 */
+	public static function convert_dt_format(string $fmt) : string
+	{
+		if (!$fmt) return $fmt;
+
+		$from = [
+		'%a',
+		'%A',
+		'%d',
+		'%e',
+		'%u',
+		'%w',
+		'%W',
+		'%b',
+		'%h',
+		'%B',
+		'%m',
+		'%y',
+		'%Y',
+		'%D',
+		'%F',
+		'%x',
+		'%H',
+		'%k',
+		'%I',
+		'%l',
+		'%M',
+		'%p',
+		'%P',
+		'%r',
+		'%R',
+		'%S',
+		'%T',
+		'%X',
+		'%z',
+		'%Z',
+		'%c',
+		'%s',
+		'%n',
+		'%t',
+		'%%',
+		'%C',
+		'%g',
+		'%G',
+		'%U',
+		'%V',
+		];
+
+		$to = [
+		'D',
+		'l',
+		'd',
+		'j',
+		'N',
+		'w',
+		'W',
+		'M',
+		'M',
+		'F',
+		'm',
+		'y',
+		'Y',
+		'm/d/y',
+		'Y-m-d',
+		'123', // dummy [15]
+		'H',
+		'G',
+		'h',
+		'g',
+		'i',
+		'A',
+		'a',
+		'h:i:s A',
+		'H:i',
+		's',
+		'H:i:s',
+		'456', // dummy [27]
+		'O',
+		'T',
+		'789', // dummy [30]
+		'U',
+		"\n",
+		"\t",
+		'&#37;', // '%' chars are valid but confuse Smarty date-munger plugin
+		'', // floor(date('Y') / 100)
+		'', // date('y') per ISO
+		'', // date('Y') per ISO
+		'', // full(Sunday-start)-week number W-weeks=Monday-start
+		'', // 4+-day week-number 01..53
+		];
+
+		if (strncasecmp(PHP_OS, 'WIN', 3) !==0) {
+			$localD = nl_langinfo(D_FMT);
+			$localT = nl_langinfo(T_FMT);
+			$localDT = nl_langinfo(D_T_FMT);
+		}
+		else {
+			$to[3] = '#d'; // per php.net: correctly relace %e on Windows
+			// TODO derive $localD etc for Windows OS
+			$localD = 'm/d/Y TODO'; // dummy value pending a proper solution
+			$localT = 'H:i:s TODO';
+			$localDT = 'd M Y H:i TODO';
+		}
+		$to[15] = str_replace($from, $to, $localD); //format date in a locale-specific way
+		$to[27] = str_replace($from, $to, $localT); //format time in a locale-specific way
+		$to[30] = str_replace($from, $to, $localDT); //format date and time in a locale-specific way
+		return str_replace($from, $to, $fmt);
 	}
 } // class

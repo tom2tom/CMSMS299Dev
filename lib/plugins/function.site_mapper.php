@@ -33,7 +33,7 @@ function smarty_function_site_mapper($params, $template)
 /*
 function smarty_cms_about_function_site_mapper()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
 <li>detail</li> ... OR lang('none')
 	);
 }
@@ -41,7 +41,7 @@ function smarty_cms_about_function_site_mapper()
 /*
 D function smarty_cms_help_function_site_mapper()
 {
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin generates a site navigation-menu using the 'Navigator' module and a specified or default template',
 	'site_mapper template=whatever',
 	<<<'EOS'

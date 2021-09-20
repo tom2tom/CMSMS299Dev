@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
+use function CMSMS\get_site_UUID;
 use const CMS_ROOT_URL;
 
 /**
@@ -61,7 +62,7 @@ abstract class CacheDriver
 
     public function __construct(array $params)
     {
-        $uuid = SingleItem::App()->GetSiteUUID();
+        $uuid = get_site_UUID();
         $this->_globlspace = $this->hash($uuid); //might be replaced in $params or subclass
 
         if ($params) {

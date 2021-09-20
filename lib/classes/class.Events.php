@@ -223,7 +223,7 @@ EOS;
 	 * Unlike the cached events-data, here we also report the respective numbers
 	 * of event-handlers
 	 *
-	 * @return mixed array or false
+	 * @return array maybe empty
 	 */
 	public static function ListEvents()
 	{
@@ -237,7 +237,7 @@ ORDER BY originator,event_name
 EOS;
 		$dbr = $db->execute($sql);
 		if (!$dbr) {
-			return false;
+			return [];
 		}
 
 		$result = [];
@@ -258,7 +258,7 @@ EOS;
 	 */
 	public static function GetEventHelp(string $eventname) : string
 	{
-		return lang_by_realm('events', 'help_'.strtolower($eventname));
+		return _ld('events', 'help_'.strtolower($eventname));
 	}
 
 	/**
@@ -269,7 +269,7 @@ EOS;
 	 */
 	public static function GetEventDescription(string $eventname) : string
 	{
-		return lang_by_realm('events', 'desc_'.strtolower($eventname));
+		return _ld('events', 'desc_'.strtolower($eventname));
 	}
 
 	/**
@@ -277,7 +277,7 @@ EOS;
 	 *
 	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
-	 * @return mixed If successful, an array of arrays, each sub-array contains
+	 * @return array If successful, an array of arrays, each sub-array contains
 	 *  at least 'originator' 'event_name' 'class' 'method' 'type', plus others for static events
 	 *  If nothing is found, an empty array is returned.
 	 */

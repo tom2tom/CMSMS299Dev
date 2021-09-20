@@ -118,9 +118,9 @@ final class RouteOperations
 	{
 		$obj = new LoadedDataType('routes',function(bool $force, ...$args) {
 			// in case there's something unexpected in any InitializeFrontend(), block recursion
-			static $scan_depth = 0;
-			if( ++$scan_depth !== 1 ) {
-				--$scan_depth;
+			static $sema4 = 0;
+			if( ++$sema4 !== 1 ) {
+				--$sema4;
 				return;
 			}
 			$data = ( !empty(self::$_dynamic_routes) ) ? self::$_dynamic_routes : [];
@@ -144,7 +144,7 @@ final class RouteOperations
 			$fresh = array_merge($data,self::$_dynamic_routes);
 			SingleItem::LoadedData()->set('routes',$fresh);
 			self::$_dynamic_routes = $fresh;
-			--$scan_depth;
+			--$sema4;
 			return self::$_dynamic_routes; // old and/or new, or maybe nothing
 		});
 		SingleItem::LoadedData()->add_type($obj);
@@ -160,7 +160,7 @@ final class RouteOperations
 	 * @param bool $exact Optional flag whether to include in this search
 	 *  regex-matches against patterns that are flagged non-regex. Default false.
 	 *  (This is only helpful if the regex-flagging process has been ignored.)
-	 * @return mixed route-properties array | null
+	 * @return array route-property/ies | empty
 	 */
 	private static function _find_match(string $needle,array $haystack,bool $exact = FALSE)
 	{
@@ -172,6 +172,7 @@ final class RouteOperations
 		if( $props ) {
 			return $props;
 		}
+		return [];
 	}
 
 	/**
@@ -265,7 +266,7 @@ final class RouteOperations
 	 * @param string $str The string to be checked
 	 * @param bool $exact Optional flag whether to try for an
 	 *  exact string-match regardless of recorded object|array properties.
-	 * @return int <0 | ==0 | >0 suitable for (exact-match) binary search
+	 * @return int <0 | =0 | >0 suitable for (exact-match) binary search
 	 *  or 0 | 1 for regex match (NB valued like strcmp, not like preg_match)
 	 */
 	public static function is_match(&$a,string $str,bool $exact = FALSE)

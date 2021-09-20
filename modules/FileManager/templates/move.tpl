@@ -1,9 +1,9 @@
-<h3>{$mod->Lang('prompt_move')}</h3>
-<p class="pageoverflow">{$mod->Lang('info_move')}:</p>
+<h3>{_ld($_module,'prompt_move')}</h3>
+<p class="pageoverflow">{_ld($_module,'info_move')}:</p>
 
 {$formstart}
 <div class="pageoverflow">
-  <p class="pagetext">{$mod->Lang('itemstomove')}:</p>
+  <p class="pagetext">{_ld($_module,'itemstomove')}:</p>
   <p class="pageinput">
     <ul>
     {foreach $sel as $one}
@@ -14,7 +14,7 @@
 </div>
 <div class="pageoverflow">
   <p class="pagetext">
-    <label for="destdir">{$mod->Lang('move_destdir')}:</label>
+    <label for="destdir">{_ld($_module,'move_destdir')}:</label>
   </p>
   <p class="pageinput">
     <select id="destdir" name="{$actionid}destdir">
@@ -25,8 +25,8 @@
 <br />
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}move" class="adminsubmit icon do">{$mod->Lang('move')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}move" class="adminsubmit icon do">{_ld($_module,'move')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{_ld($_module,'cancel')}</button>
   </p>
 </div>
 </form>

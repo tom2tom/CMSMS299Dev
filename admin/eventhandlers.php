@@ -34,7 +34,7 @@ $userid = get_userid();
 $pmod = check_permission($userid, 'Modify Events');
 
 $tmp = $_POST['senderfilter'] ?? '';
-if (!$tmp || $tmp == lang('all')) {
+if (!$tmp || $tmp == _la('all')) {
     $senderfilter = '';
 } else {
     $senderfilter = sanitizeVal($tmp, CMSSAN_FILE); // for event-originator 'Core' | modulename
@@ -58,17 +58,17 @@ if (is_array($events)) {
     }
     unset($one);
     sort($senders, SORT_NATURAL);
-    $senders = [-1 => lang('all')] + $senders;
+    $senders = [-1 => _la('all')] + $senders;
 }
 
 $themeObject = SingleItem::Theme();
 
 if ($pmod) {
-    $iconedit = $themeObject->DisplayImage('icons/system/edit.gif',lang('modifyeventhandlers'),'','','systemicon');
+    $iconedit = $themeObject->DisplayImage('icons/system/edit.gif',_la('modifyeventhandlers'),'','','systemicon');
 } else {
     $iconedit = null;
 }
-$iconinfo = $themeObject->DisplayImage('icons/system/info.png', lang('help'),'','','systemicon');
+$iconinfo = $themeObject->DisplayImage('icons/system/info.png', _la('help'),'','','systemicon');
 
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();

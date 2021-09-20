@@ -35,8 +35,8 @@ check_login();
 
 $userid = get_userid();
 if (0) { //!check_permission($userid, 'TODO some Site Perm')) {
-//TODO some pushed popup $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+//TODO some pushed popup $themeObject->RecordNotice('error', _la('needpermissionto', '"Modify Site Preferences"'));
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 $urlext = get_secure_param();
@@ -95,7 +95,7 @@ if (isset($_POST['optimizeall'])) {
 
     // put mention into the admin log
     audit('', 'System Maintenance', 'All db-tables optimized');
-    $themeObject->RecordNotice('success', lang('sysmain_tablesoptimized'));
+    $themeObject->RecordNotice('success', _la('sysmain_tablesoptimized'));
 }
 
 if (isset($_POST['repairall'])) {
@@ -112,7 +112,7 @@ if (isset($_POST['repairall'])) {
 
     // put mention into the admin log
     audit('', 'System Maintenance', 'All database tables repaired');
-    $themeObject->RecordNotice('success', lang('sysmain_tablesrepaired'));
+    $themeObject->RecordNotice('success', _la('sysmain_tablesrepaired'));
 }
 
 $query = 'CHECK TABLE ' . MakeCommaList($tables);
@@ -145,14 +145,14 @@ if (isset($_POST['clearcache'])) {
     AdminUtils::clear_cached_files();
     // put mention into the admin log
     audit('', 'System maintenance', 'Caches cleared');
-    $themeObject->ParkNotice('success', lang('cachecleared'));
+    $themeObject->ParkNotice('success', _la('cachecleared'));
     redirect(basename(__FILE__).$urlext); //go refresh the caches
 }
 
 if (isset($_POST['updateroutes'])) {
     RouteOperations::rebuild_static_routes();
     audit('', 'System maintenance', 'Static routes rebuilt');
-    $themeObject->RecordNotice('success', lang('routesrebuilt'));
+    $themeObject->RecordNotice('success', _la('routesrebuilt'));
     $smarty->assign('active_content', 1);
 }
 
@@ -160,7 +160,7 @@ $contentops = SingleItem::ContentOperations();
 if (isset($_POST['updatehierarchy'])) {
     $contentops->SetAllHierarchyPositions();
     audit('', 'System maintenance', 'Page hierarchy positions updated');
-    $themeObject->RecordNotice('success', lang('sysmain_hierarchyupdated'));
+    $themeObject->RecordNotice('success', _la('sysmain_hierarchyupdated'));
     $smarty->assign('active_content', 1);
 }
 
@@ -205,7 +205,7 @@ if (isset($_POST['addaliases'])) {
     }
     $stmt->close();
     audit('', 'System maintenance', 'Fixed pages missing aliases, count:' . $count);
-    $themeObject->RecordNotice('success', $count . ' ' . lang('sysmain_aliasesfixed'));
+    $themeObject->RecordNotice('success', $count . ' ' . _la('sysmain_aliasesfixed'));
     $smarty->assign('active_content', 1);
 }
 
@@ -224,7 +224,7 @@ if (isset($_POST['fixtypes'])) {
 
     $stmt->close();
     audit('', 'System maintenance', 'Converted pages with invalid content types, count:' . $count);
-    $themeObject->RecordNotice('success', $count . ' ' . lang('sysmain_typesfixed'));
+    $themeObject->RecordNotice('success', $count . ' ' . _la('sysmain_typesfixed'));
     $smarty->assign('active_content', 1);
 }
 
@@ -276,6 +276,8 @@ if ($config['develop_mode']) {
             $space = '';
         } elseif ($space !== false) {
             include $fp;
+            $fp = cms_join_path($installer_path, 'lib', 'misc.functions.php');
+            require $fp;
             $arr = installer_base::UPLOADFILESDIR;
             if (is_array($arr)) {
                 $uploadsin = cms_join_path($installer_path, ...$arr);
@@ -300,7 +302,7 @@ if ($config['develop_mode']) {
                 exit;
             }
         }
-        $themeObject->RecordNotice('error', lang('errornofilesexported'));
+        $themeObject->RecordNotice('error', _la('errornofilesexported'));
     } elseif (is_file($fp)) {
         $exportable = true;
     }

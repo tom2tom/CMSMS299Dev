@@ -42,14 +42,14 @@ final class Utils
 	 * @param type $id
 	 * @param array $params
 	 * @param int $returnid Default -1
-	 * @return mixed array | null
+	 * @return array, maybe empty
 	 */
 	public static function get_categories($id,array $params,$returnid=-1)
 	{
 		$tmp = self::get_all_categories();
-		if( !$tmp ) return;
+		if( !$tmp ) return [];
 
-		if( !isset($params['category']) || $params['category'] == '' ) {
+		if( empty($params['category']) ) {
 			$catinfo = $tmp;
 		}
 		else {
@@ -73,7 +73,7 @@ final class Utils
 			}
 		}
 		unset($tmp);
-		if( !$catinfo ) return;
+		if( !$catinfo ) return [];
 
 		$cat_ids = [];
 		for( $i = 0, $n = count($catinfo); $i < $n; $i++ ) {
@@ -104,7 +104,7 @@ final class Utils
 			}
 		}
 
-		$rowcounter=0;
+		$rowcounter = 0;
 		$items = [];
 		$depth = 1;
 		for( $i = 0, $n = count($catinfo); $i < $n; $i++ ) {

@@ -131,7 +131,7 @@ class Smarty_Resource_cms_stylesheet extends Smarty_Resource_Custom
             $mtime = 1; // not falsy
         }
 
-        $text = '/* cmsms stylesheet: '.$name.' modified: '.strftime('%x %X',$mtime).' */'."\n".$data['content'];
+        $text = '/* cmsms stylesheet: '.$name.' modified: '.date(DATE_RFC1036,$mtime).' */'."\n".$data['content'];
         if( !endswith($text,"\n") ) $text .= "\n";
         $source = $text;
     }

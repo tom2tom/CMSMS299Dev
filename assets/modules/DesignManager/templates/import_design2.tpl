@@ -1,30 +1,28 @@
-<h3>{$mod->Lang('import_design_step2')}</h3>
+<h3>{_ld($_module,'import_design_step2')}</h3>
 
 {form_start step=2 tmpfile=$tmpfile}
-<div class="pageinfo">{$mod->Lang('info_import_xml_step2')}</div>
+<div class="pageinfo">{_ld($_module,'info_import_xml_step2')}</div>
 
 <fieldset>
  <div class="rowbox expand">
   <div class="boxchild">
     <div class="pageoverflow">
-      <p class="pagetext">
-      {$lbltxt=$mod->Lang('prompt_name')}<label for="import_newname">{$lbltxt}:</label>
-      {cms_help realm=$_module key2='help_import_newname' title=$lbltxt}
-      </p>
-      <p class="pageinput">
+      {$lbltxt=_ld($_module,'prompt_name')}<label class="pagetext" for="import_newname">{$lbltxt}:</label>
+      {cms_help 0=$_module key='help_import_newname' title=$lbltxt}
+      <div class="pageinput">
         <input id="import_newname" type="text" name="{$actionid}newname" value="{$new_name}" size="50" maxlength="50" />
         <br/>
-        {$mod->Lang('prompt_orig_name')}: {$design_info.name}
-      </p>
+        {_ld($_module,'prompt_orig_name')}: {$design_info.name}
+      </div>
     </div>
 
     <div class="pageoverflow">
       <p class="pagetext">
-      {$lbltxt=$mod->Lang('prompt_created')}{$lbltext}:
-      {cms_help realm=$_module key2='help_import_created' title=$lbltext}
+      {$lbltxt=_ld($_module,'prompt_created')}{$lbltext}:
+      {cms_help 0=$_module key='help_import_created' title=$lbltext}
       </p>
       <p class="pageinput">
-        {$tmp=$design_info.generated|date_format:'%x %X'}{if $tmp == ''}{$tmp=$mod->Lang('unknown')}{/if}
+        {$tmp=$design_info.generated|cms_date_format:'timed'}{if $tmp == ''}{$tmp=_ld($_module,'unknown')}{/if}
         <span class="red">{$tmp}</span>
       </p>
     </div>
@@ -33,8 +31,8 @@
   <div class="boxchild">
     <div class="pageoverflow">
       <p class="pagetext">
-      {$lbltxt=$mod->Lang('prompt_cmsversion')}{$lbltext}:
-      {cms_help realm=$_module key2='help_import_cmsversion' title=$lbltext}
+      {$lbltxt=_ld($_module,'prompt_cmsversion')}{$lbltext}:
+      {cms_help 0=$_module key='help_import_cmsversion' title=$lbltext}
       </p>
       <p class="pageinput">
         {if version_compare($design_info.cmsversion,$cms_version) < 0}
@@ -48,10 +46,10 @@
  </div>{*rowbox*}
 </fieldset>
 
-{tab_header name='description' label=$mod->Lang('prompt_description')}
-{* tab_header name='copyright' label=$mod->Lang('prompt_copyrightlicense') *}
-{tab_header name='templates' label=$mod->Lang('prompt_templates')}
-{tab_header name='stylesheets' label=$mod->Lang('prompt_stylesheets')}
+{tab_header name='description' label=_ld($_module,'prompt_description')}
+{* tab_header name='copyright' label=_ld($_module,'prompt_copyrightlicense') *}
+{tab_header name='templates' label=_ld($_module,'prompt_templates')}
+{tab_header name='stylesheets' label=_ld($_module,'prompt_stylesheets')}
 
 {tab_start name='description'}
 
@@ -63,10 +61,10 @@
 <table class="pagetable">
   <thead>
     <tr>
-      <th>{$mod->Lang('name')}</th>
-      <th>{$mod->Lang('newname')}</th>
-      <th>{$mod->Lang('type')}</th>
-      <th>{$mod->Lang('prompt_description')}</th>
+      <th>{_ld($_module,'name')}</th>
+      <th>{_ld($_module,'newname')}</th>
+      <th>{_ld($_module,'type')}</th>
+      <th>{_ld($_module,'prompt_description')}</th>
       <th class="pageicon"></th>
     </tr>
   </thead>
@@ -80,11 +78,11 @@
     </td>
     <td><h3>{$one.newname}</h3></td>
     <td>{$type_obj->get_langified_display_value()}</td>
-    <td>{$one.desc|default:$mod->Lang('info_nodescription')|summarize:80}
+    <td>{$one.desc|default:_ld($_module,'info_nodescription')|summarize:80}
       <div id="tpl_{$one@index}" class="template_content" title="{$one.name}" style="display:none;"><textarea rows="10" cols="80">{$one.data}</textarea></div>
     </td>
     <td>
-      {admin_icon class="template_view pointer" icon='view.gif' alt=lang('view')}
+      {admin_icon class="template_view pointer" icon='view.gif' alt=_ld('admin','view')}
     </td>
   </tr>
   {/foreach}
@@ -96,10 +94,10 @@
   <table class="pagetable">
     <thead>
       <tr>
-        <th>{$mod->Lang('name')}</th>
-        <th>{$mod->Lang('newname')}</th>
-        <th>{$mod->Lang('prompt_media_type')}</th>
-        <th>{$mod->Lang('prompt_description')}</th>
+        <th>{_ld($_module,'name')}</th>
+        <th>{_ld($_module,'newname')}</th>
+        <th>{_ld($_module,'prompt_media_type')}</th>
+        <th>{_ld($_module,'prompt_description')}</th>
         <th class="pageicon"></th>
       </tr>
     </thead>
@@ -109,13 +107,13 @@
         <td>{$one.name}</td>
         <td><h3>{$one.newname}</h3></td>
         <td>{$one.mediatype}</td>
-        <td>{$one.desc|default:$mod->Lang('info_nodescription')}
+        <td>{$one.desc|default:_ld($_module,'info_nodescription')}
            <div class="stylesheet_content" title="{$one.name}" style="display: none;">
 	       <textarea rows="10" cols="80">{$one.data}</textarea>
 	      </div>
 	    </td>
         <td>
-        {admin_icon class="stylesheet_view pointer" icon='view.gif' alt=lang('view')}
+        {admin_icon class="stylesheet_view pointer" icon='view.gif' alt=_ld('admin','view')}
         </td>
       </tr>
       {/foreach}
@@ -125,13 +123,13 @@
 {tab_end}
 
 <div class="pageoverflow">
-  <p class="pagetext">* {$mod->Lang('confirm_import')}:</p>
-  <p class="pageinput">
-    <input type="checkbox" name="{$actionid}check1" value="1" id="check1">&nbsp;<label for="check1">{$mod->Lang('confirm_import_1')}</label>
-  </p>
+  <p class="pagetext">* {_ld($_module,'confirm_import')}:</p>
+  <div class="pageinput">
+    <input type="checkbox" name="{$actionid}check1" value="1" id="check1">&nbsp;<label class="pagetext" for="check1">{_ld($_module,'confirm_import_1')}</label>
+  </div>
 </div>
 <div class="pageinput pregap">
-  <button type="submit" name="{$actionid}next2" class="adminsubmit icon go">{$mod->Lang('next')}</button>
-  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+  <button type="submit" name="{$actionid}next2" class="adminsubmit icon go">{_ld($_module,'next')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{_ld($_module,'cancel')}</button>
 </div>
 </form>

@@ -36,7 +36,8 @@ $obj = new Profile([
 	'allowimages'=>false,
 	'showstatusbar'=>false,
 	'allowresize'=>false,
-	'system'=>true]);
+	'system'=>true,
+	]);
 $obj->save();
 
 $obj = new Profile([
@@ -46,7 +47,8 @@ $obj = new Profile([
 	'allowimages'=>true,
 	'showstatusbar'=>true,
 	'allowresize'=>true,
-	'system'=>true]);
+	'system'=>true,
+	]);
 $obj->save();
 
 $me = $this->GetName();

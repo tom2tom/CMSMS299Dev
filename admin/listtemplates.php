@@ -83,35 +83,35 @@ try {
     if( $templates ) {
 
         $u = 'edittemplate.php'.$urlext.'&tpl=XXX';
-        $t = lang_by_realm('layout','title_edit_template');
+        $t = _ld('layout','title_edit_template');
         $icon = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
         $linkedit = '<a href="'.$u.'" class="edit_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
 /* see template
 //      $u = ibid
-        $t = lang_by_realm('layout','title_steal_lock');
+        $t = _ld('layout','title_steal_lock');
         $icon = $themeObject->DisplayImage('icons/system/permissions', $t, '', '', 'systemicon edit_tpl steal_tpl_lock');
         $linksteal = '<a href="'.$u.'" class="steal_tpl_lock" data-tpl-id="XXX" accesskey="e">'.$icon.'</a>'.PHP_EOL;
 */
         if( $padd ) {
             $u = 'templateoperations.php'.$urlext.'&op=copy&tpl=XXX';
-            $t = lang_by_realm('layout','title_copy_template');
+            $t = _ld('layout','title_copy_template');
             $icon = $themeObject->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
             $linkcopy = '<a href="'.$u.'" class="copy_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
         }
 
         $u = 'templateoperations.php'.$urlext.'&op=applyall&tpl=XXX';
-        $t = lang_by_realm('layout','title_apply_template');
+        $t = _ld('layout','title_apply_template');
         $icon = $themeObject->DisplayImage('icons/extra/applyall', $t, '', '', 'systemicon');
         $linkapply = '<a href="'.$u.'" class="apply_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'templateoperations.php'.$urlext.'&op=replace&tpl=XXX';
-        $t = lang_by_realm('layout','title_replace_template');
+        $t = _ld('layout','title_replace_template');
         $icon = $themeObject->DisplayImage('icons/extra/replace', $t, '', '', 'systemicon');
         $linkreplace = '<a href="'.$u.'" class="replace_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'templateoperations.php'.$urlext.'&op=delete&tpl=XXX';
-        $t = lang_by_realm('layout','title_delete_template');
+        $t = _ld('layout','title_delete_template');
         $icon = $themeObject->DisplayImage('icons/system/delete', $t, '', '', 'systemicon');
         $linkdel = '<a href="'.$u.'" class="del_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
@@ -142,7 +142,7 @@ try {
                 }
             }
 */
-            if( !$template->get_type_dflt() && !$template->locked() ) {
+            if( !$template->get_type_default() && !$template->locked() ) {
                 if( $pmod || $template->get_owner_id() == $userid ) {
                     $acts[] = ['content'=>str_replace('XXX', $tid, $linkdel)];
                 }
@@ -166,7 +166,7 @@ try {
             if( $pagerows < $totalrows ) $pagelengths[20] = 20;
             $pagerows += $pagerows;
             if( $pagerows < $totalrows ) $pagelengths[40] = 40;
-            $pagelengths[0] = lang('all');
+            $pagelengths[0] = _la('all');
         }
         else {
             $pagelengths = null;
@@ -240,7 +240,7 @@ catch( Throwable $e ) {
 
 $smarty->assign('tpl_filter',$filter);
 // populate items for display in filter selector
-$opts = ['' => lang('all')];
+$opts = ['' => _la('all')];
 // group filters
 $groups = TemplatesGroup::get_all();
 if( $groups ) {
@@ -251,7 +251,7 @@ if( $groups ) {
     uasort($tmp,function($a,$b) {
         return strcasecmp($a->get_name(),$b->get_name());
     });
-    $opts[lang_by_realm('layout','prompt_tpl_groups')] = $tmp;
+    $opts[_ld('layout','prompt_tpl_groups')] = $tmp;
 }
 // type filters
 if( $types ) {
@@ -262,7 +262,7 @@ if( $types ) {
     uasort($tmp,function($a,$b) {
         return strcasecmp($a,$b);
     });
-    $opts[lang_by_realm('layout','prompt_templatetypes')] = $tmp;
+    $opts[_ld('layout','prompt_templatetypes')] = $tmp;
 }
 // originator filters
 $list = TemplateOperations::get_all_originators(true);
@@ -271,33 +271,33 @@ if( $list ) {
     foreach( $list as $val ) {
         $tmp['o:'.$val] = $val;
     }
-    $opts[lang_by_realm('layout','prompt_originators')] = $tmp;
+    $opts[_ld('layout','prompt_originators')] = $tmp;
 }
 $smarty->assign('filter_tpl_options',$opts);
 
 // core templates for display in replacement selector
 $list = TemplateOperations::get_originated_templates(Template::CORE, true);
 asort($list,SORT_STRING);
-$replacements = [-1 => lang_by_realm('layout','select_one')] + $list;
+$replacements = [-1 => _ld('layout','select_one')] + $list;
 $smarty->assign('tpl_choices',$replacements);
 
 // templates script
 
 $securekey = CMS_SECURE_PARAM_NAME;
 $jobkey = CMS_JOB_KEY;
-$s1 = json_encode(lang_by_realm('layout','confirm_delete_bulk'));
-$s2 = json_encode(lang_by_realm('layout','error_nothingselected'));
-$s3 = json_encode(lang_by_realm('layout','confirm_steal_lock'));
-$s4 = json_encode(lang_by_realm('layout','error_contentlocked'));
-//$s5 = json_encode(lang_by_realm('layout','confirm_replace_template'));
-$s6 = json_encode(lang_by_realm('layout','confirm_applytemplate'));
-$s7 = json_encode(lang_by_realm('layout','confirm_deletetemplate'));
-$s8 = json_encode(lang_by_realm('layout','confirm_removetemplate'));
-$s9 = json_encode(lang_by_realm('layout','confirm_clearlocks'));
-$title = lang_by_realm('layout','prompt_replace_typed',lang_by_realm('layout','prompt_template'));
-$cancel = lang('cancel');
-$submit = lang('submit');
-$reset = lang('reset');
+$s1 = json_encode(_ld('layout','confirm_delete_bulk'));
+$s2 = json_encode(_ld('layout','error_nothingselected'));
+$s3 = json_encode(_ld('layout','confirm_steal_lock'));
+$s4 = json_encode(_ld('layout','error_contentlocked'));
+//$s5 = json_encode(_ld('layout','confirm_replace_template'));
+$s6 = json_encode(_ld('layout','confirm_applytemplate'));
+$s7 = json_encode(_ld('layout','confirm_deletetemplate'));
+$s8 = json_encode(_ld('layout','confirm_removetemplate'));
+$s9 = json_encode(_ld('layout','confirm_clearlocks'));
+$title = _ld('layout','prompt_replace_typed',_ld('layout','prompt_template'));
+$cancel = _la('cancel');
+$submit = _la('submit');
+$reset = _la('reset');
 $secs = AppParams::get('lock_refresh',120);
 $secs = max(30,min(600,$secs));
 
@@ -572,22 +572,22 @@ $jsm->queue_string($js, 3);
 $groups = TemplateOperations::get_bulk_groups(); //TODO ensure member id's are also displayed
 if( $groups ) {
     $u = 'edittplgroup.php'.$urlext.'&grp=XXX';
-    $t = lang_by_realm('layout','prompt_edit');
+    $t = _ld('layout','prompt_edit');
     $icon = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
     $linkedit = '<a href="'.$u.'" class="edit_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
 /*    $u = 'templateoperations.php'.$urlext.'&op=copy&grp=XXX';
-    $t = lang_by_realm('layout','title_copy_group');
+    $t = _ld('layout','title_copy_group');
     $icon = $themeObject->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
     $linkcopy = '<a href="'.$u.'" class="copy_tpl">'.$icon.'</a>'.PHP_EOL;
 */
     $u = 'templateoperations.php'.$urlext.'&op=delete&grp=XXX';
-    $t = lang_by_realm('layout','title_delete_shallow');
+    $t = _ld('layout','title_delete_shallow');
     $icon = $themeObject->DisplayImage('icons/system/delete', $t, '', '', 'systemicon del_grp');
     $linkdel = '<a href="'.$u.'" class="del_grp">'.$icon.'</a>'.PHP_EOL;
 
     $u = 'templateoperations.php'.$urlext.'&op=deleteall&grp=XXX';
-    $t = lang_by_realm('layout','title_delete_deep');
+    $t = _ld('layout','title_delete_deep');
     $icon = $themeObject->DisplayImage('icons/extra/deletedeep', $t, '', '', 'systemicon del_grp');
     $linkdelall = '<a href="'.$u.'" class="del_grpall">'.$icon.'</a>'.PHP_EOL;
 
@@ -612,8 +612,8 @@ if( $groups ) {
         'grpmenus' => $menus,
     ]);
 
-    $s1 = json_encode(lang_by_realm('layout','confirm_delete_group'));
-    $s2 = json_encode(lang_by_realm('layout','confirm_delete_groupplus'));
+    $s1 = json_encode(_ld('layout','confirm_delete_group'));
+    $s2 = json_encode(_ld('layout','confirm_delete_groupplus'));
 
     // groups supplementary script
     $js = <<<EOS

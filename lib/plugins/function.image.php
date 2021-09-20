@@ -85,7 +85,7 @@ EOS;
 /*
 D function smarty_cms_help_function_image()
 {
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'image ...', TODO);
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'image ...', TODO);
 <li>addtext</li>
 <li>alt</li>
 <li>class</li>

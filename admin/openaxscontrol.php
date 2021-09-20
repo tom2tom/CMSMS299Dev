@@ -119,9 +119,9 @@ try {
     if ($pmod) {
         // sort on: 'name','size','date' modified?? created ??
         $arr = [
-         'name' => lang('name'),
-         'size' => lang_by_realm('controlsets', 'size'),
-         'date' => lang_by_realm('controlsets', 'modified'),
+         'name' => _la('name'),
+         'size' => _ld('controlsets', 'size'),
+         'date' => _ld('controlsets', 'modified'),
         ];
         $sel = ($cset->sort_by) ? $cset->sort_by : 'name';
         $sortsel = FormUtils::create_select([
@@ -135,9 +135,9 @@ try {
     } else {
         $sortsel = ($cset->sort_by) ? $cset->sort_by : 'name';
         if ($cset->sort_asc) {
-            $sortsel .= ' ('.lang_by_realm('controlsets', 'ascorder').')';
+            $sortsel .= ' ('._ld('controlsets', 'ascorder').')';
         } else {
-            $sortsel .= ' ('.lang_by_realm('controlsets', 'descorder').')';
+            $sortsel .= ' ('._ld('controlsets', 'descorder').')';
         }
     }
 
@@ -146,11 +146,11 @@ try {
     $sql = 'SELECT user_id,first_name,last_name FROM '.CMS_DB_PREFIX.'users WHERE WHERE user_id > 1 ORDER BY last_name, first_name';
     $rows = $db->getArray($sql);
     if ($rows) {
-        $users = [-1 => lang_by_realm('controlsets', 'all_users')];
+        $users = [-1 => _ld('controlsets', 'all_users')];
         foreach ($rows as &$one) {
             $nm = trim($one['first_name'].' '.$one['last_name']);
             if (!$nm) {
-                $nm = lang_by_realm('controlsets', 'nousername', $one['user_id']);
+                $nm = _ld('controlsets', 'nousername', $one['user_id']);
             }
             $users[$one['user_id']] = $nm;
         }
@@ -189,10 +189,10 @@ try {
         } else {
             $arr = array_intersect_key($users, $sel);
             $outusersel = implode(',', $arr);
-            if (!$outusersel) { $outusersel = lang('none'); }
+            if (!$outusersel) { $outusersel = _la('none'); }
         }
     } else {
-        $inusersel = lang_by_realm('controlsets', 'nouser');
+        $inusersel = _ld('controlsets', 'nouser');
         $outusersel = $inusersel;
     }
 
@@ -200,7 +200,7 @@ try {
     $sql = 'SELECT group_id,group_name FROM '.CMS_DB_PREFIX.'groups WHERE group_id > 1 ORDER BY group_name';
     $rows = $db->getAssoc($sql);
     if ($rows) {
-        $grps = [-1 => lang_by_realm('controlsets', 'all_groups')] + $rows;
+        $grps = [-1 => _ld('controlsets', 'all_groups')] + $rows;
         $sel = ($cset->match_groups) ? $cset->match_groups : [-1];
         if ($pmod) {
             $ingrpsel = FormUtils::create_select([
@@ -235,18 +235,18 @@ try {
         } else {
             $arr = array_intersect_key($grps, $sel);
             $outgrpsel = implode(',', $arr);
-            if (!$outgrpsel) { $outgrpsel = lang('none'); }
+            if (!$outgrpsel) { $outgrpsel = _la('none'); }
         }
     } else {
-        $ingrpsel = lang_by_realm('controlsets', 'nogroup');
+        $ingrpsel = _ld('controlsets', 'nogroup');
         $outgrpsel = $ingrpsel;
     }
 
     $inpats = ($cset->match_patterns) ? implode(';', $cset->match_patterns) : '';
     $outpats = ($cset->exclude_patterns) ? implode(';', $cset->exclude_patterns) : '';
     if (!$pmod) {
-        if (!$inpats) { $inpats = lang('none'); }
-        if (!$outpats) { $outpats = lang('none'); }
+        if (!$inpats) { $inpats = _la('none'); }
+        if (!$outpats) { $outpats = _la('none'); }
     }
 
     // TODO support more-sophisticated filtering
@@ -321,7 +321,7 @@ try {
 
     $tree = rdir_tree(CMS_ROOT_PATH, 3); // TODO tailor this place/depth per context
 
-	$styles = <<<EOS
+    $styles = <<<EOS
 <style type="text/css">
  #treecontainer {
   max-height:15em;
@@ -340,11 +340,11 @@ try {
  }
 </style>
 EOS;
-	add_page_headtext($styles, false);
+    add_page_headtext($styles, false);
 
     //TODO ensure flexbox css for multi-row .colbox, .rowbox.flow, .boxchild
     //TODO fix crappy interactions between single- and double-clicks
-    $close = lang('close');
+    $close = _la('close');
     $sep = DIRECTORY_SEPARATOR;
     $js = <<<EOS
 <script type="text/javascript">
@@ -438,8 +438,8 @@ EOS;
      'incpatns' => $inpats,
      'excpatns' => $outpats,
      'folders' => $tree,
-     'yes' => lang('yes'),
-     'no' => lang('no'),
+     'yes' => _la('yes'),
+     'no' => _la('no'),
     ]);
 
     $content = $smarty->fetch('openaxscontrol.tpl');

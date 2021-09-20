@@ -100,7 +100,7 @@ final class Permission
 	 * @throws UnexpectedValueException
 	 * @return mixed recorded value | null
 	 */
-	public function __get($key)
+	public function __get(string $key)
 	{
 		if( !in_array($key,self::PROPS) ) {
 			//try for a deprecated alias
@@ -117,7 +117,7 @@ final class Permission
 	 * @ignore
 	 * @throws LogicException or UnexpectedValueException
 	 */
-	public function __set($key,$value)
+	public function __set(string $key,$value)
 	{
 		if( $key == 'id' ) {
 			throw new LogicException($key.' cannot be set this way in '.__CLASS__.' objects');
@@ -331,7 +331,7 @@ final class Permission
 	 * Get the name of a numbered permission, if possible
 	 * @since 2.99
 	 * @param muixed $permid int | numeric string
-	 * @return mixed string|null
+	 * @return mixed string | null
 	 */
 	public static function get_perm_name($permid)
 	{

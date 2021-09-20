@@ -76,15 +76,15 @@ function smarty_function_admin_icon($params, $template)
 /*
 function smarty_cms_about_function_admin_icon()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none') ... OR lang('none')
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+<li>detail</li> ... OR _la('none') ... OR _la('none')
 EOS
 	);
 }
 */
 function smarty_cms_help_function_admin_icon()
 {
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin generates page-content representing an icon for display in an admin page',
 	'admin_icon icon= ...',
 	<<<'EOS'

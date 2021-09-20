@@ -57,6 +57,7 @@ use function cms_notice;
 use function cms_warning;
 use function CMSMS\de_entitize;
 use function CMSMS\sanitizeVal;
+use function CMSMS\schema_is_current;
 use function debug_buffer;
 use function get_userid;
 use function lang;
@@ -84,7 +85,7 @@ final class ModuleOperations
 	private const CORENAMES_PREF = 'coremodules';
 
 //	const CORENAMES_DEFAULT = TODO
-//'AdminLog,AdminSearch,ContentManager,CMSMailer,CmsJobManager,AdminLogin,FileManager,FilePicker,MicroTiny,ModuleManager,Navigator,Search';
+//'AdminLogin,AdminSearch,ContentManager,FileManager,FilePicker,MicroTiny,ModuleManager,Navigator,OutMailer,Search';
 
 	/**
 	 * Name of default login-processor module
@@ -111,7 +112,7 @@ final class ModuleOperations
 	/**
 	 * @var array Recorded module-class aliases
 	 * Initially unset to trigger loading upon 1st request
-	 * @todo the autoloader should make use of this map via public-ized get_module_classname()
+	 * @todo the autoloader should make use of this map via get_module_classname()
 	 * @ignore
 	 */
 	private $classmap;
@@ -259,8 +260,11 @@ final class ModuleOperations
 	}
 
 	/**
-	 * @ignore
-	 * @since 2.99 public scope, not private
+	 * Get the classname corresponding to the named module.
+	 * It might differ from what's expected for $modname
+	 * e.g. an alias or have a specific namespace.
+	 * @since 2.99 public access
+	 *
 	 * @param string $modname
 	 * @return mixed string | null if $modname is empty
 	 */
@@ -275,25 +279,32 @@ final class ModuleOperations
 	}
 
 	/**
-	 * Record a 'permanent' alias for a module class.
-	 * This caches the alias until it's set again or otherwise altered
-	 * in AppParams data, as distinct from class_alias()
-	 * Useful e.g. when the module class has a non-standard namespace,
-	 * which is not otherwise handled in this class.
-	 * And there's no removal, change etc.
-	 * Essentially, this is a CRAPPY API. DON'T USE IT!
+	 * Cache a 'permanent' alias for a module class.
+	 * This records an alias which will be used until it's altered in
+	 * or removed from AppParams data, as distinct from class_alias().
+	 * Useful e.g. for back-compatibility when a module has been
+	 * renamed, or a module-class has a non-standard namespace
+	 * (which is not otherwise handled in this class).
 	 *
 	 * @param string $modname The module name
-	 * @param string $classname The class name
+	 * @param string $classname The actual class name or falsy to remove the alias
 	 */
 	public function set_module_classname(string $modname,string $classname)
 	{
 		$modname = trim($modname);
+		if( !$modname) return;
 		$classname = trim($classname);
-		if( !$modname || !$classname ) return;
 
 		$this->get_module_classmap();
-		$this->classmap[$modname] = $classname;
+		if( $classname ) {
+			if( strpos($lasssname,'\\') === false ) {
+				$classname = $this->modulespace.$classname;
+			}
+			$this->classmap[$modname] = $classname;
+		}
+		else {
+			unset($this->classmap[$modname]);
+		}
 		AppParams::set(self::CLASSMAP_PREF,serialize($this->classmap));
 	}
 
@@ -421,7 +432,7 @@ VALUES (?,?,?,?)');
 			$cache->refresh('module_deps');
 			$cache->refresh('module_depstree');
 			$cache->refresh('module_plugins');
-//TODO	 	$cache->delete('menu_modules','*');
+			$cache->delete('menu_modules');
 			SingleItem::LoadedMetadata()->refresh('*');
 
 			cms_notice('Installed module '.$modname.' version '.$mod->GetVersion());
@@ -446,6 +457,23 @@ VALUES (?,?,?,?)');
 	{
 		// try to get an instance of the class
 		$mod = $this->get_module_instance($modname,'',true); // forced
+		if( !$mod ) {
+			$classname = $this->get_module_classname($modname);
+			// load the module itself (autoloaded if necessary and possible)
+			if( !class_exists($classname,true) ) {
+				// autoload failed, try manual fallback
+				$filename = $this->get_module_filename($modname);
+				if( $filename ) {
+					require_once $filename;
+				}
+				else {
+					cms_warning("Cannot load module '$modname', its class-file does not exist");
+					return [false,$msg];
+				}
+			}
+			$mod = new $classname(true); // overload the contstructor, to skip some f/e init stuff
+			// TODO set $this->moduleinfo[$modname]
+		}
 		if( $mod ) {
 			$core = $this->IsSystemModule($modname);
 			if( $core ) {
@@ -506,19 +534,19 @@ VALUES (?,?,?,?)');
 			}
 
 			// do the actual installation stuff
-//			if( !$core ) { // if not already done during the recent get_module_instance()
-			$result = $this->_install_module($mod);
-			if( $result[0] == false ) {
-				if( !is_string($result[1]) || $result[1] == '' ) {
-					$result[1] = ( !$this->installing ) ?
-						lang('failure'): //TODO better default messages
-						'Unspecified reason';
+			if( !$core ) { // if not already attempted|completed during the recent get_module_instance()
+				$result = $this->_install_module($mod);
+				if( $result[0] == false ) {
+					if( !is_string($result[1]) || $result[1] == '' ) {
+						$result[1] = ( !$this->installing ) ?
+							lang('failure'): //TODO better default messages
+							'Unspecified reason';
+					}
+					cms_error("Module '$modname' installation failed: ".$result[1]);
 				}
-				cms_error("Module '$modname' installation failed: ".$result[1]);
+				return $result;
 			}
-			return $result;
-//			}
-//			return [true,''];
+			return [true,''];
 		}
 		else {
 			$result = "Module '$modname' installation failed";
@@ -567,8 +595,7 @@ VALUES (?,?,?,?)');
 	private function _upgrade_module($mod,string $to_version = '') : array
 	{
 		// upgrade only if the database schema is up-to-date. TODO might be circular?
-		$gCms = SingleItem::App();
-		if( !$gCms->schema_is_current() ) {
+		if( !schema_is_current() ) {
 			$msg = ( !$this->installing ) ?
 				lang('error_coreupgradeneeded'):
 				'Upgrade CMSMS itself before module-upgrade';
@@ -585,6 +612,7 @@ VALUES (?,?,?,?)');
 			return [true,'']; // nothing to do
 		}
 
+		$gCms = SingleItem::App(); // deprecated - some modules check this
 		$result = $mod->Upgrade($dbversion,$to_version);
 		if( $result && $result !== 1 ) {
 			if( is_numeric($result) ) {
@@ -927,15 +955,16 @@ VALUES (?,?,?,$longnow)");
 
 	/**
 	 * Return locally-cached info about installed modules
+	 * @param bool $force since 2.99 Flag whether to force-load the modules cache. Default false
 	 * @return array, maybe empty, or each member like $modname => props
 	 *  props are from db via LoadedData 'modules', plus calculated 'dependents'
 	 * @ignore
 	 */
-	private function _get_installed_module_info() : array
+	private function _get_installed_module_info(bool $force = false) : array
 	{
-		if( !isset($this->moduleinfo) ) {
+		if( $force || !isset($this->moduleinfo) ) {
 			$this->moduleinfo = [];
-			$data = SingleItem::LoadedData()->get('modules');
+			$data = SingleItem::LoadedData()->get('modules', $force);
 			if( $data && is_array($data) ) {
 				foreach( $data as $modname => $props ) {
 					//double-check that cache data are current TODO ignore it if upgrade needed
@@ -1149,18 +1178,21 @@ VALUES (?,?,?,$longnow)");
 		$this->modules[$modname] = $mod;
 		// if the installer is not running and the module is 'core', try to install/upgrade it if need be
 		if( !$this->installing && $this->IsSystemModule($modname) ) {
-			if( $gCms->schema_is_current() ) {
-			    // current schema, ok to install module if necessary
+			if( schema_is_current() ) {
+				// current schema, ok to install module if necessary
 				if( !isset($info[$modname]) ) {
 					$result = $this->_install_module($mod);
-					if( !$result[0] ) {
+					if( $result[0] ) {
+						$info = $this->_get_installed_module_info(true); // TODO incremental $info[] change
+						// now installed TODO bypass upgrade-check, just Initialize*()
+					}
+					else {
 						// nope, can't auto install...
 						debug_buffer("Automatic installation of module '$modname' failed");
 						unset($mod,$this->modules[$modname]);
 						return false;
 					}
 				}
-				// is installed, slide into a possible upgrade
 			}
 			// current schema or not, check whether an upgrade is needed
 			if( isset($info[$modname]) ) {
@@ -1168,7 +1200,10 @@ VALUES (?,?,?,$longnow)");
 				if( version_compare($dbversion,$mod->GetVersion()) < 0 ) {
 					// looks like upgrade is needed
 					$result = $this->_upgrade_module($mod);
-					if( !$result ) {
+					if( $result ) {
+						$info = $this->_get_installed_module_info(true); // TODO incremental $info[] change
+					}
+					else {
 						// upgrade failed
 						debug_buffer("Automatic upgrade of module '$modname' failed");
 						unset($mod,$this->modules[$modname],$info[$modname]);

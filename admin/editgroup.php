@@ -41,7 +41,7 @@ if (isset($_POST['cancel'])) {
 
 $userid = get_userid();
 if (!check_permission($userid, 'Manage Groups')) {
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 $group = '';
@@ -72,11 +72,11 @@ if (isset($_POST['editgroup'])) {
     $tmp = trim($_POST['group']);
     $group = sanitizeVal($tmp, CMSSAN_NAME);
     if ($group !== $tmp) {
-        $errors[] = lang('illegalcharacters', lang('groupname'));
+        $errors[] = _la('illegalcharacters', _la('groupname'));
     } elseif (!$group) {
-        $errors[] = lang('nofieldgiven', lang('groupname'));
+        $errors[] = _la('nofieldgiven', _la('groupname'));
     } elseif (!AdminUtils::is_valid_itemname($group)) {
-        $errors[] = lang('errorbadname');
+        $errors[] = _la('errorbadname');
     }
 
     // not compulsory
@@ -94,7 +94,7 @@ if (isset($_POST['editgroup'])) {
             audit($groupobj->id, 'Admin Users Group '.$groupobj->name, 'Edited');
             redirect('listgroups.php'.$urlext);
         } else {
-            $errors[] = lang('errorupdatinggroup');
+            $errors[] = _la('errorupdatinggroup');
         }
     }
     SingleItem::Theme()->RecordNotice('error', $errors);

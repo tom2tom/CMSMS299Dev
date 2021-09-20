@@ -19,12 +19,14 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
 use CMSMS\ScriptsMerger;
+use CMSMS\SingleItem;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 use CMSMS\Utils;
+//use function CMSMS\add_shutdown;
+use function CMSMS\sanitizeVal;
 
 /*
 Variables which must or may be defined by including code:
@@ -62,7 +64,7 @@ if( empty($module) ) {
 }
 
 if( isset($params['cancel']) ) {
-   $module->SetInfo(lang_by_realm('layout', 'msg_cancelled'));
+   $module->SetInfo(_ld('layout', 'msg_cancelled'));
    $module->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
 }
 
@@ -78,16 +80,16 @@ if( isset($params['submit']) || isset($params['apply']) ) {
             $tpl->set_originator($originator);
         }
         if( !empty($params['name']) ) {
-            $val = strip_tags(trim($params['name'])); //no fancy-pants ...
+            $val = sanitizeVal($params['name'], CMSSAN_PURESPC); //no fancy-pants ...
             $val = TemplateOperations::get_unique_template_name($val);
             $tpl->set_name($val);
         }
         elseif( $adding ) {
-            $val = TemplateOperations::get_unique_template_name(lang_by_realm('layout', 'new_template'));
+            $val = TemplateOperations::get_unique_template_name(_ld('layout', 'new_template'));
             $tpl->set_name($val);
         }
         if( isset($params['description']) ) {
-            $tpl->set_description($params['description']);
+            $tpl->set_description($params['description']); // no sanitizeVal() ??
         }
         if( isset($params['content']) ) {
             $tpl->set_content($params['content']);
@@ -99,7 +101,7 @@ if( isset($params['submit']) || isset($params['apply']) ) {
             $tpl->set_additional_editors($params['addt_editors']);
         }
         if( isset($params['default']) ) {
-            $tpl->set_type_dflt((bool)$params['default']);
+            $tpl->set_type_default((bool)$params['default']);
         }
         if( isset($params['owner_id']) ) {
             $tpl->set_owner($params['owner_id']);
@@ -138,16 +140,16 @@ if( isset($params['submit']) || isset($params['apply']) ) {
 
     if( isset($params['submit']) ) {
         if( $params['tpl'] > 0 ) {
-            $msg = lang_by_realm('layout', 'msg_template_saved');
+            $msg = _ld('layout', 'msg_template_saved');
         }
         else {
-            $msg = lang_by_realm('layout', 'msg_template_added');
+            $msg = _ld('layout', 'msg_template_added');
         }
         $module->SetMessage($msg);
         $module->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
     }
     else {
-        $module->ShowMessage(lang_by_realm('layout', 'msg_template_saved'));
+        $module->ShowMessage(_ld('layout', 'msg_template_saved'));
     }
 }
 
@@ -155,7 +157,7 @@ if( $params['tpl'] > 0 ) {
     try {
         $template = TemplateOperations::get_template($params['tpl']);
         if( empty($title) ) {
-            $title = lang_by_realm('layout', 'prompt_edit_template');
+            $title = _ld('layout', 'prompt_edit_template');
         }
     }
     catch( Throwable $t ) {
@@ -168,7 +170,7 @@ else {
     $template->set_originator($originator);
     $template->set_owner($user_id);
     if( empty($title) ) {
-        $title = lang_by_realm('layout', 'create_template');
+        $title = _ld('layout', 'create_template');
     }
 }
 
@@ -212,7 +214,7 @@ if( $can_manage ) {
     foreach( $allgroups as &$one ) {
         if( $one->id == 1) continue;
         if( !$one->active) continue;
-        $eds_list[-(int)$one->id] = lang_by_realm('layout', 'prompt_group') . ': ' . $one->name;
+        $eds_list[-(int)$one->id] = _ld('layout', 'prompt_group') . ': ' . $one->name;
     }
     unset($one);
 }
@@ -232,10 +234,10 @@ if( !empty($pageincs['head'])) {
 /*
 $do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
 if( $do_locking) {
-    SingleItem::App()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $user_id);
+    add_shutdown(10, 'LockOperations::delete_for_nameduser', $user_id);
 }
-$s1 = json_encode(lang_by_realm('layout', 'error_lock'));
-$s2 = json_encode(lang_by_realm('layout', 'msg_lostlock'));
+$s1 = json_encode(_ld('layout', 'error_lock'));
+$s2 = json_encode(_ld('layout', 'msg_lostlock'));
 $cancel = lang('cancel');
 */
 /*

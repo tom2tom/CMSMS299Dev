@@ -86,20 +86,20 @@ class wizard_step2 extends wizard_step
     /**
      * Collect data from config.php file, if any, plus some related params
      * @param string $dir filepath of site root directory
-     * @return mixed array | null
+     * @return array maybe empty
      * @throws Exception
      */
     private function get_cmsms_info(string $dir)
     {
         if (!$dir) {
-            return;
+            return [];
         }
 
         $fn = $dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'config.php';
         if (!is_file($fn)) {
             $fn = $dir.DIRECTORY_SEPARATOR.'config.php';
             if (!is_file($fn)) {
-                return;
+                return [];
             }
         }
         $app = get_app();
@@ -109,14 +109,13 @@ class wizard_step2 extends wizard_step
         include_once $fn;
 
         $aname = (!empty($config['admin_path'])) ? $config['admin_path'] : 'admin';
-//      if( !is_file($dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'moduleinterface.php') ) return;
-//      if( !is_dir($dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'modules') ) return;
+//      if( !is_file($dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'moduleinterface.php') ) return [];
         if (!is_file($dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php')) {
-            return;
+            return [];
         }
         $fv = $dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'version.php';
         if (!is_file($fv)) {
-            return;
+            return [];
         }
         $t = filemtime($fv);
         if (!defined('CMS_VERSION')) {
@@ -223,15 +222,15 @@ class wizard_step2 extends wizard_step
      *
      * @param string $dir filesystem path of site-root folder, or a descendant of that
      * @param int $n optional no. of files in $dir 1 .. 100 Default 5
-     * @return mixed array | null
+     * @return array maybe empty
      */
     private function list_files(string $dir, int $n = 5)
     {
         if (!$dir) {
-            return;
+            return [];
         }
         if (!is_dir($dir)) {
-            return;
+            return [];
         }
         $files = glob($dir.DIRECTORY_SEPARATOR.'*'); // filesystem path
         $fc = count($files);

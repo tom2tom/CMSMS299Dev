@@ -3,24 +3,24 @@
    {if isset($wiki_url) && isset($image_help_external)}
     <span class="helptext">
       <a href="{$wiki_url}" target="_blank" class="helpicon">{$image_help_external}</a>
-      <a href="{$wiki_url}" target="_blank">{lang('help')}</a> ({lang('new_window')})
+      <a href="{$wiki_url}" target="_blank">{_ld('admin','help')}</a> ({_ld('admin','new_window')})
     </span>
    {/if}
   </div>
  {else}
   <div class="information">
-   <p>{lang_by_realm('tags','tag_info')}<br />{lang_by_realm('tags','tag_info3')}</p>
+   <p>{_ld('tags','tag_info')}<br />{_ld('tags','tag_info3')}</p>
   </div>
 {/if}
 {if !empty($pdev)}
 <div class="pageoverflow pregap">
-  <p class="pagetext">{lang('upload_plugin_file')}</p>
+  <p class="pagetext">{_ld('admin','upload_plugin_file')}</p>
   <form action="{$selfurl}" enctype="multipart/form-data" method="post">
   {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
 {/foreach}
   <p class="pageinput"><input type="file" name="pluginfile" size="30" maxlength="255" accept="application/x-php" /></p>
   <div class="pageinput pregap">
-   <button type="submit" name="upload" class="adminsubmit icon do">{lang('submit')}</button>
+   <button type="submit" name="upload" class="adminsubmit icon do">{_ld('admin','submit')}</button>
   </div>
   </form>
 </div>
@@ -32,12 +32,12 @@
   <table class="pagetable">
     <thead>
      <tr>
-       <th title="{lang_by_realm('tags','tag_name')}">{lang('name')}</th>
-       <th title="{lang_by_realm('tags','tag_type')}">{lang('type')}</th>
-{*       <th title="{lang_by_realm('tags','tag_cachable')}" style="text-align:center">{lang('cachable')}</th> *}
-       <th title="{lang_by_realm('tags','tag_adminplugin')}" style="text-align:center">{lang('adminplugin')}</th>
-       <th title="{lang_by_realm('tags','tag_help')}" style="text-align:center">{lang('help')}</th>
-       <th title="{lang_by_realm('tags','tag_about')}" style="text-align:center">{lang('about')}</th>
+       <th title="{_ld('tags','tag_name')}">{_ld('admin','name')}</th>
+       <th title="{_ld('tags','tag_type')}">{_ld('admin','type')}</th>
+{*       <th title="{_ld('tags','tag_cachable')}" style="text-align:center">{_ld('admin','cachable')}</th> *}
+       <th title="{_ld('tags','tag_adminplugin')}" style="text-align:center">{_ld('admin','adminplugin')}</th>
+       <th title="{_ld('tags','tag_help')}" style="text-align:center">{_ld('admin','help')}</th>
+       <th title="{_ld('tags','tag_about')}" style="text-align:center">{_ld('admin','about')}</th>
      </tr>
     </thead>
     <tbody>
@@ -48,7 +48,7 @@
         {$one.name}
        </td>
        <td>
-          <span title="{lang_by_realm('tags',$one.type)}">{$one.type}</span>
+          <span title="{_ld('tags',$one.type)}">{$one.type}</span>
        </td>
 {*       <td style="text-align:center;">
          {if empty($one.cachable)}{$iconcno}{else}{$iconcyes}{/if}
@@ -58,12 +58,12 @@
        </td>
        <td style="text-align:center;">
          {if isset($one.help_url)}
-           <a href="{$one.help_url}" title="{lang_by_realm('tags','viewhelp')}">{$iconhelp}</a>
+           <a href="{$one.help_url}" title="{_ld('tags','viewhelp')}">{$iconhelp}</a>
          {/if}
        </td>
        <td style="text-align:center;">
          {if isset($one.about_url)}
-           <a href="{$one.about_url}" title="{lang_by_realm('tags','viewabout')}">{$iconabout}</a>
+           <a href="{$one.about_url}" title="{_ld('tags','viewabout')}">{$iconabout}</a>
          {/if}
        </td>
 {/strip}

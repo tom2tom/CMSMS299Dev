@@ -1191,7 +1191,7 @@ class http_request
      * Set error message (internal)
      *
      * @param string $error Error message
-     * @return mixed string|null
+     * @return mixed string | null
      */
     public function _setError($error)
     {

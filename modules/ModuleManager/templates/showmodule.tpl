@@ -25,9 +25,9 @@
     <tr>
       <th></th>
       <th>{$nametext}</th>
-      <th title="{$mod->Lang('title_modulelastversion')}">{$vertext}</th>
-      <th title="{$mod->Lang('title_modulereleasedate')}">{$mod->Lang('releasedate')}</th>
-      <th title="{$mod->Lang('title_moduledownloads')}">{$mod->Lang('downloads')}</th>
+      <th title="{_ld($_module,'title_modulelastversion')}">{$vertext}</th>
+      <th title="{_ld($_module,'title_modulereleasedate')}">{_ld($_module,'releasedate')}</th>
+      <th title="{_ld($_module,'title_moduledownloads')}">{_ld($_module,'downloads')}</th>
       <th>{$sizetext}</th>
       <th>{$statustext}</th>
       <th>&nbsp;</th>
@@ -45,9 +45,9 @@
      <td>{$entry->downloads}</td>
      <td>{$entry->size}</td>
      <td>{$entry->status}</td>
-     <td title="{$mod->Lang('title_modulereleasedepends')}">{$entry->dependslink}</td>
-     <td title="{$mod->Lang('title_modulereleasehelp')}">{$entry->helplink}</td>
-     <td title="{$mod->Lang('title_modulereleaseabout')}">{$entry->aboutlink}</td>
+     <td title="{_ld($_module,'title_modulereleasedepends')}">{$entry->dependslink}</td>
+     <td title="{_ld($_module,'title_modulereleasehelp')}">{$entry->helplink}</td>
+     <td title="{_ld($_module,'title_modulereleaseabout')}">{$entry->aboutlink}</td>
    </tr>
 {/foreach}
   </tbody>

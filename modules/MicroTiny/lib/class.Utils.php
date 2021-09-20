@@ -157,10 +157,10 @@ EOS;
 				Profile::load(MicroTiny::PROFILE_FRONTEND):
 				Profile::load(MicroTiny::PROFILE_ADMIN);
 		}
-		catch( Exception $e ) {
+		catch( Throwable $e ) {
 //			$profile = null;
 			// oops, we gots a problem.
-			die($e->Getmessage());
+			exit($e->Getmessage());
 		}
 
 		if( !$selector ) $selector = 'textarea.MicroTiny';

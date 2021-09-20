@@ -23,7 +23,8 @@ const ICMSSAN_NAME = 8;
 const ICMSSAN_PUNCTX = 16;
 const ICMSSAN_PURE = 32;
 const ICMSSAN_PURESPC = 64;
-//const ICMSSAN_ =     128; reserved
+const ICMSSAN_PHPSTRING = 128;
+//const ICMSSAN_ =     256; reserved
 const ICMSSAN_FILE = 512;
 const ICMSSAN_PATH = 1024;
 const ICMSSAN_ACCOUNT = 2048;
@@ -151,7 +152,7 @@ function lang(...$args)
  *
  * @param mixed $in
  * @param bool $strict Default false
- * @return mixed bool or null
+ * @return mixed bool | null
  */
 function to_bool($in, bool $strict = false)
 {
@@ -212,6 +213,8 @@ function is_email(string $str) : bool
  *    (e.g. for a 'pure' 1-word name).
  * ICMSSAN_PURESPC
  *  as for ICMSSAN_PURE, but allow space(s) (e.g. for a clean multi-word value)
+ * ICMSSAN_PHPSTRING
+ *  replicates the deprecated filter FILTER_SANITIZE_STRING, without any additional filter-flags
  * ICMSSAN_FILE
  *  remove non-printable chars plus these: * ? \ / and substitute '_' for each space
  *    (e.g. for file names, modules, plugins, UDTs, templates, stylesheets, admin themes, frontend themes)
@@ -316,6 +319,10 @@ function sanitizeVal(string $str, int $scope = ICMSSAN_PURE, string $ex = '') : 
         case ICMSSAN_PURESPC:
             $patn = '/[^\w \-.\x80-\xff]/';
             break;
+		case ICMSSAN_PHPSTRING:
+            $str = strtr(strip_tags($str), ['"'=>'&#34;', "'"=>'&#39;']);
+            $patn = '/[\x00-\x08,\x0b,\x0c,\x0e-\x1f]/';
+			break;
         default: // incl. ICMSSAN_PURE
             $patn = '/[^\w\-.\x80-\xff]/';
             break;
@@ -622,7 +629,7 @@ function get_writable_error() : array
  *
  * @param string $patn pathnames-pattern recognizable by glob()
  * @param int $flags Or'd GLOB_* bitflags
- * @return mixed array | false
+ * @return array maybe empty
  */
 /*function safeglob(string $patn, int $flags = 0)
 {
@@ -631,7 +638,7 @@ function get_writable_error() : array
         return \glob($patn, $flags);
     }
     //TODO self-managed interrogation
-    return false;
+    return [];
 }
 */
 /**

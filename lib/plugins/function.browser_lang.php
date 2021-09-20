@@ -95,7 +95,7 @@ EOS;
 /*
 function smarty_cms_help_function_browser_lang()
 {
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'browser_lang ...',  <<<'EOS'
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'browser_lang ...',  <<<'EOS'
 <li>default</li>
 <li>accepted</li>
 EOS

@@ -21,7 +21,6 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace cms_installer;
 
 use CMSMS\AppState;
-use CMSMS\ContentOperations;
 use CMSMS\Database\Connection;
 use CMSMS\DataException;
 use CMSMS\Route;
@@ -49,6 +48,7 @@ use function check_permission;
 use function cms_installer\get_server_permissions;
 use function cms_installer\lang;
 use function cms_installer\rrmdir;
+use function error_msg;
 use function file_put_contents;
 use function get_userid;
 use function verbose_msg;
@@ -314,19 +314,6 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 	$corename = TemplateType::CORE;
 
 	$skeleton = [
-     'stylesheets' => [
-      'table' => 'layout_stylesheets',
-      'subtypes' => [
-       'stylesheet' => [
-        'id' => [],
-        'name' => [],
-        'description' => ['optional' => 1],
-        'media_type' => ['optional' => 1],
-        'content' => ['isdata' => 1],
-        'contentfile' => ['optional' => 1],
-       ]
-      ]
-     ],
      'stylegroups' => [
       'table' => 'layout_css_groups',
       'subtypes' => [
@@ -334,8 +321,25 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
         'id' => [],
         'name' => [],
         'description' => ['optional' => 1],
-        'create_date' => [],
-        'modified_date' => ['optional' => 1],
+       ]
+      ]
+     ],
+     'stylesheets' => [
+      'sql' => 'SELECT * FROM %slayout_stylesheets WHERE originator=\''.$corename.'\' OR originator LIKE \'%%Theme\' ORDER BY originator,name',
+      'subtypes' => [
+       'stylesheet' => [
+        'id' => [],
+        'originator' => [],
+        'name' => [],
+        'description' => ['optional' => 1],
+        'media_type' => ['optional' => 1],
+        'media_query' => ['optional' => 1],
+        'owner_id' => ['optional' => 1],
+        'type_id' => ['optional' => 1],
+        'type_dflt' => ['optional' => 1],
+        'listable' => ['optional' => 1],
+        'contentfile' => ['optional' => 1],
+        'content' => ['isdata' => 1],
        ]
       ]
      ],
@@ -350,13 +354,12 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
       ]
      ],
      'templatetypes' => [
-      'sql' => 'SELECT * FROM %slayout_tpl_types WHERE originator=\''.$corename.'\' ORDER BY name',
+      'sql' => 'SELECT * FROM %slayout_tpl_types WHERE originator=\''.$corename.'\' OR originator LIKE \'%%Theme\' ORDER BY originator,name',
       'subtypes' => [
        'tpltype' => [
         'id' => [],
         'originator' => [],
         'name' => [],
-        'dflt_contents' => ['isdata' => 1, 'optional' => 1],
         'description' => ['optional' => 1],
         'lang_cb' => ['optional' => 1],
         'dflt_content_cb' => ['optional' => 1],
@@ -364,24 +367,8 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
         'has_dflt' => ['optional' => 1],
         'requires_contentblocks' => ['optional' => 1],
         'one_only' => ['optional' => 1],
-        'owner' => [],
-       ]
-      ]
-     ],
-     'templates' => [
-      'sql' => 'SELECT * FROM %slayout_templates WHERE originator=\''.$corename.'\' ORDER BY name',
-      'subtypes' => [
-       'template' => [
-        'id' => [],
-        'originator' => [],
-        'name' => [],
-        'content' => ['isdata' => 1],
-        'description' => ['optional' => 1],
-        'type_id' => [],
-        'owner_id' => [],
-        'type_dflt' => ['optional' => 1],
-        'listable' => ['optional' => 1],
-        'contentfile' => ['optional' => 1],
+        'owner_id' => ['optional' => 1],
+        'dflt_content' => ['isdata' => 1, 'optional' => 1],
        ]
       ]
      ],
@@ -394,6 +381,24 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
         'description' => ['optional' => 1],
         'create_date' => [],
         'modified_date' => ['optional' => 1],
+       ]
+      ]
+     ],
+     'templates' => [
+      'sql' => 'SELECT * FROM %slayout_templates WHERE originator=\''.$corename.'\' OR originator LIKE \'%%Theme\' ORDER BY originator,name',
+      'subtypes' => [
+       'template' => [
+        'id' => [],
+        'originator' => [],
+        'name' => [],
+        'description' => ['optional' => 1],
+        'hierarchy' => ['optional' => 1],
+        'owner_id' => ['optional' => 1],
+        'type_id' => ['optional' => 1],
+        'type_dflt' => ['optional' => 1],
+        'listable' => ['optional' => 1],
+        'contentfile' => ['optional' => 1],
+        'content' => ['isdata' => 1],
        ]
       ]
      ],
@@ -443,15 +448,23 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
        'page' => [
         'content_id' => [],
         'content_name' => [],
-        'content_alias' => [],
         'type' => [],
-        'template_id' => [],
+        'default_content' => ['optional' => 1],
+        'show_in_menu' => ['optional' => 1],
+        'active' => ['optional' => 1],
+        'cachable' => ['optional' => 1],
+        'secure' => ['optional' => 1],
+        'owner_id' => ['optional' => 1],
         'parent_id' => [],
-        'active' => ['keeps' => [1]],
-        'default_content' => ['keeps' => [1]],
-        'show_in_menu' => ['keeps' => [1]],
-        'menu_text' => ['isdata' => 1],
-        'cachable' => ['keeps' => [1]],
+        'template_id' => [],
+        'item_order' => [],
+        'menu_text' => ['optional' => 1, 'isdata' => 1],
+        'content_alias' => ['optional' => 1],
+        'metadata' => ['optional' => 1],
+        'titleattribute' => ['optional' => 1],
+        'page_url' => ['optional' => 1],
+        'tabindex' => ['optional' => 1],
+        'accesskey' => ['optional' => 1],
         'styles' => [],
        ]
       ]
@@ -471,9 +484,10 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
       'subtypes' => [
         'tag' => [
         'name' => [],
-        'code' => ['isdata' => 1],
         'description' => ['isdata' => 1, 'optional' => 1],
         'parameters' => ['isdata' => 1, 'optional' => 1],
+        'contentfile' => ['optional' => 1],
+        'code' => ['isdata' => 1],
        ]
       ]
      ],
@@ -495,41 +509,41 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 	//these xml data must be manually reconciled with $skeleton[] above
 	$xw->writeDtd('cmsmssitedata', null, null, '
  <!ELEMENT dtdversion (#PCDATA)>
- <!ELEMENT stylesheets (stylesheet*)>
- <!ELEMENT stylesheet (id,name,description?,media_type?,media_query?,content,contentfile?)>
+ <!ELEMENT stylegroups (stylegroup*)>
+ <!ELEMENT stylegroup (id,name,description?)>
  <!ELEMENT id (#PCDATA)>
  <!ELEMENT name (#PCDATA)>
  <!ELEMENT description (#PCDATA)>
+ <!ELEMENT stylesheets (stylesheet*)>
+ <!ELEMENT stylesheet (id,originator,name,description?,media_type?,media_query?,owner_id?,type_id?,type_dflt?,listable?,contentfile?,content)>
+ <!ELEMENT originator (#PCDATA)>
  <!ELEMENT media_type (#PCDATA)>
  <!ELEMENT media_query (#PCDATA)>
- <!ELEMENT content (#PCDATA)>
+ <!ELEMENT owner_id (#PCDATA)>
+ <!ELEMENT type_id (#PCDATA)>
+ <!ELEMENT type_dflt (#PCDATA)>
+ <!ELEMENT listable (#PCDATA)>
  <!ELEMENT contentfile (#PCDATA)>
- <!ELEMENT stylegroups (stylegroup*)>
- <!ELEMENT stylegroup (id,name,description?)>
+ <!ELEMENT content (#PCDATA)>
  <!ELEMENT stylegroupmembers (stylegroupmember*)>
  <!ELEMENT stylegroupmember (group_id,css_id,item_order?)>
  <!ELEMENT group_id (#PCDATA)>
  <!ELEMENT css_id (#PCDATA)>
  <!ELEMENT item_order (#PCDATA)>
  <!ELEMENT templatetypes (tpltype*)>
- <!ELEMENT tpltype (id,originator,name,dflt_contents?,description?,lang_cb?,dflt_content_cb?,help_content_cb?,has_dflt?,requires_contentblocks?,one_only?,owner?)>
- <!ELEMENT originator (#PCDATA)>
- <!ELEMENT dflt_contents (#PCDATA)>
+ <!ELEMENT tpltype (id,originator,name,description?,lang_cb?,dflt_content_cb?,help_content_cb?,has_dflt?,requires_contentblocks?,one_only?,owner_id?,dflt_content?)>
  <!ELEMENT lang_cb (#PCDATA)>
  <!ELEMENT dflt_content_cb (#PCDATA)>
  <!ELEMENT help_content_cb (#PCDATA)>
  <!ELEMENT has_dflt (#PCDATA)>
  <!ELEMENT requires_contentblocks (#PCDATA)>
  <!ELEMENT one_only (#PCDATA)>
- <!ELEMENT owner (#PCDATA)>
- <!ELEMENT templates (template*)>
- <!ELEMENT template (id,originator,name,content,description?,type_id?,owner_id?,type_dflt?,listable?,contentfile?)>
- <!ELEMENT type_id (#PCDATA)>
- <!ELEMENT owner_id (#PCDATA)>
- <!ELEMENT type_dflt (#PCDATA)>
- <!ELEMENT listable (#PCDATA)>
+ <!ELEMENT dflt_content (#PCDATA)>
  <!ELEMENT templategroups (templategroup*)>
  <!ELEMENT templategroup (id,name,description?)>
+ <!ELEMENT templates (template*)>
+ <!ELEMENT template (id,originator,name,description?,hierarchy?,owner_id?,type_id?,type_dflt?,listable?,contentfile?,content)>
+ <!ELEMENT hierarchy (#PCDATA)>
  <!ELEMENT templategroupmembers (templategroupmember*)>
  <!ELEMENT templategroupmember (group_id,tpl_id,item_order?)>
  <!ELEMENT tpl_id (#PCDATA)>
@@ -544,24 +558,30 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
  <!ELEMENT designtpl (design_id,tpl_id,tpl_order?)>
  <!ELEMENT tpl_order (#PCDATA)>
  <!ELEMENT pages (page*)>
- <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text?,cachable?,styles?)>
+ <!ELEMENT page (content_id,content_name,type,default_content?,show_in_menu?,active?,cachable?,secure?,owner_id,parent_id,template_id,item_order,menu_text?,content_alias?,metadata?,titleattribute?,page_url?,tabindex?,accesskey?,styles?)>
  <!ELEMENT content_id (#PCDATA)>
  <!ELEMENT content_name (#PCDATA)>
- <!ELEMENT content_alias (#PCDATA)>
  <!ELEMENT type (#PCDATA)>
- <!ELEMENT template_id (#PCDATA)>
- <!ELEMENT parent_id (#PCDATA)>
- <!ELEMENT active (#PCDATA)>
  <!ELEMENT default_content (#PCDATA)>
  <!ELEMENT show_in_menu (#PCDATA)>
- <!ELEMENT menu_text (#PCDATA)>
+ <!ELEMENT active (#PCDATA)>
  <!ELEMENT cacheable (#PCDATA)>
+ <!ELEMENT secure (#PCDATA)>
+ <!ELEMENT parent_id (#PCDATA)>
+ <!ELEMENT template_id (#PCDATA)>
+ <!ELEMENT menu_text (#PCDATA)>
+ <!ELEMENT content_alias (#PCDATA)>
+ <!ELEMENT metadata (#PCDATA)>
+ <!ELEMENT titleattribute (#PCDATA)>
+ <!ELEMENT page_url (#PCDATA)>
+ <!ELEMENT tabindex (#PCDATA)>
+ <!ELEMENT accesskey (#PCDATA)>
  <!ELEMENT styles (#PCDATA)>
  <!ELEMENT properties (property+)>
  <!ELEMENT property (content_id,prop_name,content)>
  <!ELEMENT prop_name (#PCDATA)>
  <!ELEMENT usertags (tag*)>
- <!ELEMENT tag (name,description?,parameters?,code,contentfile?)>
+ <!ELEMENT tag (name,description?,parameters?,contentfile?,code)>
  <!ELEMENT parameters (#PCDATA)>
  <!ELEMENT code (#PCDATA)>
  <!ELEMENT usertagfiles (file*)>
@@ -758,26 +778,48 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 						verbose_msg(lang('install_stylesheets'));
 					}
 					foreach ($typenode->children() as $node) {
+						$val = (string)$node->originator;
+						// process if anonymous, core- or theme-sourced (any other sheet-data installed elsewhere)
+						if ($val) {
+							if (!($val == '__CORE__' || endswith($val, 'Theme'))) {
+								continue;
+							}
+						}
 						$ob = new Stylesheet();
 						try {
+							$ob->set_originator(($val) ? $val : '__CORE_');
 							$ob->set_name((string)$node->name);
 							$ob->set_description((string)$node->description);
-							$ob->set_content(htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES)); // NOT worth CMSMS\de_specialize
 							if ((string)$node->media_type) {
-								$ob->set_media_types((string)$node->media_type); //assume a single type
+								$ob->set_media_types((string)$node->media_type); //TODO don't assume a single type
 							}
 							if ((string)$node->media_query) {
 								$ob->set_media_query((string)$node->media_query);
 							}
+							$ob->set_owner(1);
+							$val = (string)$node->type_id;
+							$ob->set_type((int)$val);
+							$val = (string)$node->type_dflt;
+							$ob->set_type_default((bool)$val);
+							$val = (string)$node->listable;
+							$ob->set_listable((bool)$val);
+							$val = (string)$node->contentfile;
+							$ob->set_content_file((bool)$val);
+							$ob->set_content(htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES)); // NOT worth CMSMS\de_specialize
 							$ob->save();
 						} catch (DataException $e) {
-							//TODO report error
+							if ($runtime) {
+								error_msg('Failed to install stylesheet \''.(string)$node->name).'\' : '.$e->getMessage();
+							}
 							continue;
 						} catch (Throwable $t) {
-							//TODO report error
+							if ($runtime) {
+								error_msg('Failed to install stylesheet \''.(string)$node->name.'\' : '.$t->getMessage());
+							}
 							continue;
 						}
-						$styles[(int)$node->id] = $ob->get_id();
+						$val = (string)$node->id;
+						$styles[(int)$val] = $ob->get_id(); // map new to old
 					}
 					break;
 				case 'stylegroups':
@@ -788,13 +830,18 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							$ob->set_description((string)$node->description);
 							$ob->save();
 						} catch (DataException $e) {
-							//TODO report error
+							if ($runtime) {
+								error_msg('Failed to install stylesheets-group \''.(string)$node->name).'\' : '.$e->getMessage();
+							}
 							continue;
 						} catch (Throwable $t) {
-							//TODO report error
+							if ($runtime) {
+								error_msg('Failed to install stylesheets-group \''.(string)$node->name).'\' : '.$t->getMessage();
+							}
 							continue;
 						}
-						$cssgrps[(int)$node->id] = $ob->get_id();
+						$val = (string)$node->id;
+						$cssgrps[(int)$val] = $ob->get_id();
 					}
 					break;
 				case 'stylegroupmembers':
@@ -815,7 +862,9 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							$ob->set_members($arr[0]);
 							$ob->save();
 						} catch (Throwable $t) {
-							//TODO report error
+							if ($runtime) {
+								error_msg('Failed to install stylesheets-group ('.$gid.') members : '.$t->getMessage());
+							}
 							continue;
 						}
 					}
@@ -829,8 +878,10 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 						$val = (string)$node->originator;
 						if (!$val) {
 							$val = $corename;
-						} elseif ($val != $corename) {
-							continue; //core-only: modules' template-data installed by them
+						} else {
+							if (!($val == $corename || endswith($val, 'Theme'))) {
+								continue; //core- or Theme-derived : modules' template-data installed by them
+							}
 						}
 						$ob = new TemplateType();
 						try {
@@ -841,7 +892,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 								$ob->set_description($val);
 							}
 							$ob->set_owner(1);
-							$val3 = (string)$node->dflt_contents;
+							$val3 = (string)$node->dflt_content;
 							if ($val3 !== '') {
 								$ob->set_dflt_contents(htmlspecialchars_decode($val3, ENT_XML1 | ENT_QUOTES));
 								$ob->set_dflt_flag(true);
@@ -879,16 +930,18 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							}
 							$ob->save();
 						} catch (DataException $e) {
-							//TODO report error
-							continue;
-						} catch (DataException $e) {
-							//TODO report error
+							if ($runtime) {
+								error_msg('Failed to install template-type \''.(string)$node->name.'\' : '.$e->getMessage());
+							}
 							continue;
 						} catch (Throwable $t) {
-							//TODO report error
+							if ($runtime) {
+								error_msg('Failed to install template-type \''.(string)$node->name.'\' : '.$t->getMessage());
+							}
 							continue;
 						}
-						$types[(int)$node->id] = $ob->get_id();
+						$val = (string)$node->id;
+						$types[(int)$val] = $ob->get_id(); // map id's
 					}
 					break;
 				case 'templates':
@@ -901,8 +954,11 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							continue;
 						}
 						$val2 = (string)$node->originator;
-						if ($val2 && $val2 !== $corename) {
-							continue; //anonymous && core only: modules' template-data installed by them
+						// process if anonymous, core- or theme-sourced (modules' template-data installed by them)
+						if ($val2) {
+							if (!($val2 == $corename || endswith($val2, 'Theme'))) {
+								continue;
+							}
 						}
 						$ob = new Template();
 						try {
@@ -910,19 +966,34 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 								$ob->set_originator($val2);
 							}
 							$ob->set_name((string)$node->name);
-							$ob->set_type($types[$val]);
 							$ob->set_description((string)$node->description);
 							$ob->set_owner(1);
 //							$val = (string)$node->group_id; //name or id DEPRECATED & maybe wrong GROUP ID
 //							if ($val !== '') { $ob->set_group($val); }
-							$ob->set_type_dflt((bool)$node->type_dflt);
+//							$val = (string)$node->category;
+//?							$ob->set_category(($val) ? (int)$val : 1)); // TODO
+// hierarchy NOT USED ATM
+							$ob->set_type($types[$val]);
+							$val = (string)$node->type_dflt;
+							$ob->set_type_default((bool)$val);
+// TODO						$val = (string)$node->groups;
+// TODO						$ob->set_groups(($val) ? $val : null));
+//							$val = (string)$node->additional_editors;
+// no add'l eds @ new site	$ob->set_additional_editors(($val) ? $val : null));
+							$val = (string)$node->listable;
+							$ob->set_listable((bool)$val);
+							$val = (string)$node->contentfile;
+							$ob->set_content_file((bool)$val);
 							$ob->set_content(htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
 							$ob->save();
 						} catch (Throwable $t) {
-							//TODO report error
+							if ($runtime) {
+								error_msg('Failed to install template \''.(string)$node->name.'\' : '.$t->getMessage());
+							}
 							continue;
 						}
-						$templates[(int)$node->id] = $ob->get_id();
+						$val = (string)$node->id;
+						$templates[(int)$val] = $ob->get_id();
 					}
 					break;
 				case 'templategroups':
@@ -936,10 +1007,13 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							$ob->set_description((string)$node->description);
 							$ob->save();
 						} catch (Throwable $t) {
-							//TODO report error
+							if ($runtime) {
+								error_msg('Failed to install template-group \''.(string)$node->name.'\' : '.$t->getMessage());
+							}
 							continue;
 						}
-						$tplgrps[(int)$node->id] = $ob->get_id();
+						$val = (string)$node->id;
+						$tplgrps[(int)$val] = $ob->get_id();
 					}
 					break;
 				case 'templategroupmembers':
@@ -960,13 +1034,15 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							$ob->set_members($arr[0]);
 							$ob->save();
 						} catch (Throwable $t) {
-							//TODO report error
+							if ($runtime) {
+								error_msg('Failed to add member(s) to templates-group ('.$gid.') : '.$t->getMessage());
+							}
 							continue;
 						}
 					}
 					break;
 				case 'designs':
-					//TODO must do this section after modules are installed, and if DesignManager is present
+					//TODO must do this section after modules are installed, and DesignManager is one of them
 					if (!class_exists('DesignManager\Design')) {
 						break; //TODO try to load the class
 					}
@@ -978,10 +1054,13 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 //							$ob->set_default((bool)$node->dflt);
 							$ob->save();
 						} catch (Throwable $t) {
-							//TODO report error
+							if ($runtime) {
+								error_msg('Failed to install design \''.(string)$node->name.'\' : '.$t->getMessage());
+							}
 							continue;
 						}
-						$designs[(int)$node->id] = $ob->get_id();
+						$val = (string)$node->id;
+						$designs[(int)$val] = $ob->get_id();
 					}
 					break;
 				case 'designstyles': //stylesheets assigned to designs
@@ -1006,7 +1085,9 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							$ob->set_designs($arr[0]);
 							$ob->save();
 						} catch (Throwable $t) {
-							//TODO report error
+							if ($runtime) {
+								error_msg('Failed to install stylesheet from design ('.$sid.') : '.$t->getMessage());
+							}
 							continue;
 						}
 					}
@@ -1033,7 +1114,9 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							$ob->set_designs($arr[0]);
 							$ob->save();
 						} catch (Throwable $t) {
-							//TODO report error
+							if ($runtime) {
+								error_msg('Failed to install template from design ('.$tid.') : '.$t->getMessage());
+							}
 							continue;
 						}
 					}
@@ -1092,7 +1175,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 					break;
 				case 'properties': //must be processed after pages
 					foreach ($typenode->children() as $node) {
-						$val = (int)$node->content_id;
+						$val = (string)$node->content_id;
 						if (!$val) {
 							continue;
 						}
@@ -1100,6 +1183,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 						if ($val2 === '') {
 							continue;
 						}
+						$val = (int)$val;
 						if (empty($pages[$val])) {
 							$pages[$val] = [];
 						}
@@ -1132,7 +1216,8 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							$to = $tobase;
 						}
 						$name = (string)$node->name;
-						if ((bool)$node->embedded) {
+						$val = (string)$node->embedded;
+						if ($val) {
 							@file_put_contents($to.$name, base64_decode((string)$node->content));
 						} else {
 							$from = (string)$node->relfrom;
@@ -1182,18 +1267,13 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 					$db = SingleItem::Db();
 					$query = 'INSERT INTO '.CMS_DB_PREFIX.'userplugins (
 name,
-code,
 description,
-parameters) VALUES (?,?,?,?)';
+parameters,
+contentfile,
+code) VALUES (?,?,?,?,?)';
 					foreach ($typenode->children() as $node) {
 						$parms = (array)$node;
-						$args = [$params['name']];
-						$val = $parms['code'] ?? null;
-						if ($val) {
-							$args[] = htmlspecialchars_decode($val, ENT_XML1 | ENT_QUOTES);
-						} else {
-							$args[] = null;
-						}
+						$args = [$parms['name']];
 						$val = $parms['description'] ?? null;
 						if ($val) {
 							$args[] = htmlspecialchars_decode($val, ENT_XML1 | ENT_QUOTES);
@@ -1206,7 +1286,19 @@ parameters) VALUES (?,?,?,?)';
 						} else {
 							$args[] = null;
 						}
+						// if the plugin is file-stored, that file is expected to be processed separately
+						$args[] = $parms['contentfile'] ?? 0;
+						$val = $parms['code'] ?? null;
+						if ($val) {
+							$args[] = htmlspecialchars_decode($val, ENT_XML1 | ENT_QUOTES);
+						} else {
+							$args[] = null;
+						}
+
 						if (!$db->execute($query, $args)) {
+							if ($runtime) {
+								error_msg('Failed to install user-plugin \''.$parms['name'].'\' : '.$db->errorMsg());
+							}
 							return false;
 						}
 					}
@@ -1238,7 +1330,8 @@ parameters) VALUES (?,?,?,?)';
 							$to = $tobase;
 						}
 						$name = (string)$node->name;
-						if ((bool)$node->embedded) {
+						$val = (string)$node->embedded;
+						if ($val) {
 							@file_put_contents($to.$name, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
 							@chmod($to.$name, $filemode);
 						} else {
@@ -1282,7 +1375,8 @@ parameters) VALUES (?,?,?,?)';
 							$to = $tobase;
 						}
 						$name = (string)$node->name;
-						if ((bool)$node->embedded) {
+						$val = (string)$node->embedded;
+						if ($val) {
 							@file_put_contents($to.$name, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
 							@chmod($to.$name, $filemode);
 						} else {
@@ -1326,7 +1420,8 @@ parameters) VALUES (?,?,?,?)';
 							$to = $tobase;
 						}
 						$name = (string)$node->name;
-						if ((bool)$node->embedded) {
+						$val = (string)$node->embedded;
+						if ($val) {
 							@file_put_contents($to.$name, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
 							@chmod($to.$name, $filemode);
 						} else {
@@ -1361,10 +1456,12 @@ parameters) VALUES (?,?,?,?)';
 		$map = [-1 => -1]; // maps proffered id's to installed id's
 		$db = SingleItem::Db();
 		foreach ($pages as $val => $arr) {
-			//TODO revert to using ContentManager\contenttypes\whatever class
+	//TODO revert to using ContentManager\contenttypes\whatever class
 			$map[$val] = SavePage($arr, $map, $db);
 		}
-		ContentOperations::get_instance()->SetAllHierarchyPositions();
+		if (!$runtime) {
+			ContentOperations::get_instance()->SetAllHierarchyPositions();
+		}
 	}
 
 	return '';
@@ -1379,10 +1476,12 @@ parameters) VALUES (?,?,?,?)';
  * array suitable for stuffing into database tables
  * @param array $pagemap Map from proffered pageid to installed-page id
  * @param Connection $db Database connection
- * @return mixed int content-id or false upon error
+ * @return mixed int content-id | false upon error
  */
 function SavePage(array $parms, array $pagemap, $db)
 {
+	global $runtime;
+
 	extract($parms['fields']);
 
 	$p = $parent_id ?? -1;
@@ -1403,58 +1502,60 @@ function SavePage(array $parms, array $pagemap, $db)
 		$o = (int)$db->getOne($query, [$p]);
 		$item_order = ($o < 1) ? 1 : $o + 1;
 	}
-
 	// TODO handle $template_id < 1
 
+	$content_id = $db->genID(CMS_DB_PREFIX.'content_seq'); //as late as possible (less racy)
+
+	// pages' hierarchy-related properties are set upstream
 	$query = 'INSERT INTO '.CMS_DB_PREFIX.'content (
 content_id,
 content_name,
-content_alias,
 type,
+default_content,
+show_in_menu,
+active,
+cachable,
+secure,
 owner_id,
 parent_id,
 template_id,
 item_order,
-active,
-default_content,
-show_in_menu,
-cachable,
-secure,
-page_url,
 menu_text,
+content_alias,
 metadata,
 titleattribute,
+page_url,
+tabindex,
 accesskey,
 styles,
-tabindex,
-last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-
-	$content_id = $db->genID(CMS_DB_PREFIX.'content_seq'); //as late as possible (less racy)
+last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)';
 	$args = [
 		$content_id,
-		$content_name ?? '',
-		$content_alias ?? '',
+		(!empty($content_name) ? $content_name : null),
 		$type ?? 'content',
-		$owner_id ?? 1,
-		$parent_id,
-		$template_id ?? -1,
-		$item_order,
-		$active ?? 1,
 		$default_content ?? 0,
 		$show_in_menu ?? 1,
+		$active ?? 1,
 		$cachable ?? 1,
 		$secure ?? 0,
-		$page_url ?? null,
-		$menu_text ?? null,
-		$metadata ?? null,
-		$titleattribute ?? null,
-		$accesskey ?? null,
-		$styles ?? null,
+		$owner_id ?? 1,
+		$parent_id,
+		(!empty($template_id) ? $template_id : null),
+		$item_order,
+		(!empty($menu_text) ? $menu_text : null),
+		(!empty($content_alias) ? $content_alias : null),
+		(!empty($metadata) ? $metadata : null),
+		(!empty($titleattribute) ? $titleattribute : null),
+		(!empty($page_url) ? $page_url : null),
 		$tabindex ?? 0,
-		$last_modified_by ?? 0,
+		(!empty($accesskey) ? $accesskey : null),
+		(!empty($styles) ? $styles : null),
 	];
 
 	if (!$db->execute($query, $args)) {
+		if (!empty($runtime)) {
+			error_msg('Failed to install page \''.$content_name.'\' ('.$content_id.') : '.$db->errorMsg());
+		}
 		return false;
 	}
 
@@ -1474,7 +1575,11 @@ content) VALUES (?,?,?,?)';
 				}
 				$ptype = 'string';
 			}
-			$result = $db->execute($query, [$content_id, $ptype, $name, $val]);
+			if (!$db->execute($query, [$content_id, $ptype, $name, $val])) {
+				if (!empty($runtime)) {
+					error_msg('Failed to install property \''.$name.'\' for page ('.$content_id.') : '.$db->errorMsg());
+				}
+			}
 		}
 	}
 
@@ -1482,7 +1587,6 @@ content) VALUES (?,?,?,?)';
 		$route = Route::new_builder($page_url, '__CONTENT__', $content_id, '', true);
 		RouteOperations::add_static($route);
 	}
-
 	return $content_id;
 }
 

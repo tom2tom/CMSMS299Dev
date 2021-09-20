@@ -41,7 +41,7 @@ function smarty_function_cms_lang_info($params, $template)
 /*
 function smarty_cms_about_function_cms_lang_info()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
 <li>detail</li> ... OR lang('none')
 EOS
 	);
@@ -50,7 +50,7 @@ EOS
 /*
 function smarty_cms_help_function_cms_lang_info()
 {
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'cms_lang_info ...', <<<'EOS'
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'cms_lang_info ...', <<<'EOS'
 <li>lang: optional language/translation identifier</li>
 EOS
 	);

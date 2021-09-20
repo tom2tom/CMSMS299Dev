@@ -46,15 +46,15 @@ function smarty_function_page_message($params, $template)
 /*
 function smarty_cms_about_function_page_message()
 {
-	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
+	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+<li>detail</li> ... OR _la('none')
 EOS
 	);
 }
 */
 function smarty_cms_help_function_page_message()
 {
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin generates content for a styled information-message on an admin page',
 	'page_message msg=...',
     '<li>msg: the content to be displayed</li>'

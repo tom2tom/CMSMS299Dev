@@ -19,15 +19,14 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
+
+use function CMSMS\get_scripts_manager;
+
 // since 2.99
-
-use CMSMS\SingleItem;
-
 function smarty_function_cms_queue_script($params, $template)
 {
-	if( !isset($params['file']) ) return '';
-	$combiner = SingleItem::App()->GetScriptsManager();
-
+	if( !isset($params['file']) ) { return ''; }
+	$combiner = get_scripts_manager();
 	$file = trim($params['file']);
 	$priority = (int)($params['priority'] ?? 0);
 	$res = $combiner->queue_file($file, $priority);
@@ -37,7 +36,7 @@ function smarty_function_cms_queue_script($params, $template)
 /*
 D function smarty_cms_help_function_cms_queue_script()
 {
-	echo lang_by_realm('tags', 'help_generic',
+	echo _ld('tags', 'help_generic',
 	'This plugin records a javascript-file for later accumulation into a single script element for a page.
 ',
 	'cms_queue_script file=&quot;path/to/whatever.js&quot;',
@@ -51,7 +50,7 @@ EOS
 */
 function smarty_cms_about_function_cms_queue_script()
 {
-	echo lang_by_realm('tags', 'about_generic',
+	echo _ld('tags', 'about_generic',
 	<<<EOS
 <p>Author: Robert Campbell</p>
 <p>Version: 1.0</p>

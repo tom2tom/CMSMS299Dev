@@ -155,8 +155,8 @@ EOS;
 
 function smarty_cms_about_function_syntax_area()
 {
-	$n = lang('none');
-	echo lang_by_realm('tags', 'about_generic',
+	$n = _la('none');
+	echo _ld('tags', 'about_generic',
 	'Initial release May 2019',
 	"<li>$n</li>"
 	);

@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE cmsmssitedata [
  <!ELEMENT dtdversion (#PCDATA)>
- <!ELEMENT stylesheets (stylesheet*)>
- <!ELEMENT stylesheet (id,name,description?,media_type?,media_query?,content,contentfile?)>
+ <!ELEMENT stylegroups (stylegroup*)>
+ <!ELEMENT stylegroup (id,name,description?)>
  <!ELEMENT id (#PCDATA)>
  <!ELEMENT name (#PCDATA)>
  <!ELEMENT description (#PCDATA)>
+ <!ELEMENT stylesheets (stylesheet*)>
+ <!ELEMENT stylesheet (id,originator,name,description?,media_type?,media_query?,owner_id?,type_id?,type_dflt?,listable?,contentfile?,content)>
+ <!ELEMENT originator (#PCDATA)>
  <!ELEMENT media_type (#PCDATA)>
  <!ELEMENT media_query (#PCDATA)>
- <!ELEMENT content (#PCDATA)>
+ <!ELEMENT owner_id (#PCDATA)>
+ <!ELEMENT type_id (#PCDATA)>
+ <!ELEMENT type_dflt (#PCDATA)>
+ <!ELEMENT listable (#PCDATA)>
  <!ELEMENT contentfile (#PCDATA)>
- <!ELEMENT stylegroups (stylegroup*)>
- <!ELEMENT stylegroup (id,name,description?)>
+ <!ELEMENT content (#PCDATA)>
  <!ELEMENT stylegroupmembers (stylegroupmember*)>
  <!ELEMENT stylegroupmember (group_id,css_id,item_order?)>
  <!ELEMENT group_id (#PCDATA)>
  <!ELEMENT css_id (#PCDATA)>
  <!ELEMENT item_order (#PCDATA)>
  <!ELEMENT templatetypes (tpltype*)>
- <!ELEMENT tpltype (id,originator,name,dflt_contents?,description?,lang_cb?,dflt_content_cb?,help_content_cb?,has_dflt?,requires_contentblocks?,one_only?,owner?)>
- <!ELEMENT originator (#PCDATA)>
- <!ELEMENT dflt_contents (#PCDATA)>
+ <!ELEMENT tpltype (id,originator,name,description?,lang_cb?,dflt_content_cb?,help_content_cb?,has_dflt?,requires_contentblocks?,one_only?,owner_id?,dflt_content?)>
  <!ELEMENT lang_cb (#PCDATA)>
  <!ELEMENT dflt_content_cb (#PCDATA)>
  <!ELEMENT help_content_cb (#PCDATA)>
  <!ELEMENT has_dflt (#PCDATA)>
  <!ELEMENT requires_contentblocks (#PCDATA)>
  <!ELEMENT one_only (#PCDATA)>
- <!ELEMENT owner (#PCDATA)>
- <!ELEMENT templates (template*)>
- <!ELEMENT template (id,originator,name,content,description?,type_id?,owner_id?,type_dflt?,listable?,contentfile?)>
- <!ELEMENT type_id (#PCDATA)>
- <!ELEMENT owner_id (#PCDATA)>
- <!ELEMENT type_dflt (#PCDATA)>
- <!ELEMENT listable (#PCDATA)>
+ <!ELEMENT dflt_content (#PCDATA)>
  <!ELEMENT templategroups (templategroup*)>
  <!ELEMENT templategroup (id,name,description?)>
+ <!ELEMENT templates (template*)>
+ <!ELEMENT template (id,originator,name,description?,hierarchy?,owner_id?,type_id?,type_dflt?,listable?,contentfile?,content)>
+ <!ELEMENT hierarchy (#PCDATA)>
  <!ELEMENT templategroupmembers (templategroupmember*)>
  <!ELEMENT templategroupmember (group_id,tpl_id,item_order?)>
  <!ELEMENT tpl_id (#PCDATA)>
@@ -50,27 +50,33 @@
  <!ELEMENT designtpl (design_id,tpl_id,tpl_order?)>
  <!ELEMENT tpl_order (#PCDATA)>
  <!ELEMENT pages (page*)>
- <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text?,cachable?,styles?)>
+ <!ELEMENT page (content_id,content_name,type,default_content?,show_in_menu?,active?,cachable?,secure?,owner_id,parent_id,template_id,item_order,menu_text?,content_alias?,metadata?,titleattribute?,page_url?,tabindex?,accesskey?,styles?)>
  <!ELEMENT content_id (#PCDATA)>
  <!ELEMENT content_name (#PCDATA)>
- <!ELEMENT content_alias (#PCDATA)>
  <!ELEMENT type (#PCDATA)>
- <!ELEMENT template_id (#PCDATA)>
- <!ELEMENT parent_id (#PCDATA)>
- <!ELEMENT active (#PCDATA)>
  <!ELEMENT default_content (#PCDATA)>
  <!ELEMENT show_in_menu (#PCDATA)>
- <!ELEMENT menu_text (#PCDATA)>
+ <!ELEMENT active (#PCDATA)>
  <!ELEMENT cacheable (#PCDATA)>
+ <!ELEMENT secure (#PCDATA)>
+ <!ELEMENT parent_id (#PCDATA)>
+ <!ELEMENT template_id (#PCDATA)>
+ <!ELEMENT menu_text (#PCDATA)>
+ <!ELEMENT content_alias (#PCDATA)>
+ <!ELEMENT metadata (#PCDATA)>
+ <!ELEMENT titleattribute (#PCDATA)>
+ <!ELEMENT page_url (#PCDATA)>
+ <!ELEMENT tabindex (#PCDATA)>
+ <!ELEMENT accesskey (#PCDATA)>
  <!ELEMENT styles (#PCDATA)>
  <!ELEMENT properties (property+)>
  <!ELEMENT property (content_id,prop_name,content)>
  <!ELEMENT prop_name (#PCDATA)>
- <!ELEMENT simpletags (tag*)>
- <!ELEMENT tag (name,description?,parameters?,code)>
+ <!ELEMENT usertags (tag*)>
+ <!ELEMENT tag (name,description?,parameters?,code,contentfile?)>
  <!ELEMENT parameters (#PCDATA)>
  <!ELEMENT code (#PCDATA)>
- <!ELEMENT simpletagfiles (file*)>
+ <!ELEMENT usertagfiles (file*)>
  <!ELEMENT file (name,relto,(relfrom|embedded),content?)>
  <!ELEMENT relto (#PCDATA)>
  <!ELEMENT relfrom (#PCDATA)>
@@ -82,12 +88,26 @@
 <cmsmssitedata>
 	<dtdversion>0.9</dtdversion>
 
+	<stylegroups>
+		<group>
+			<id>3</id>
+			<name>Demonstration stylesheets group</name>
+			<description>The stylesheets here will be applied in the specified order to each page which includes this group among its styles-sources.</description>
+		</group>
+	</stylegroups>
 	<stylesheets>
 		<stylesheet>
 			<id>1</id>
+			<originator>SimplexTheme</originator>
 			<name>Simplex Core</name>
 			<description>Simplex theme core stylesheet, containing 12-column grid system and HTML5 resets (normalize.css)</description>
 			<media_type>screen</media_type>
+			<media_query></media_query>
+			<owner_id>1</owner_id>
+			<type_id></type_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
+			<contentfile>0</contentfile>
 			<content><![CDATA[[[strip]]
 
 [[* /*! normalize.css v2.1.3 | MIT License | git.io/normalize */ *]]
@@ -934,13 +954,19 @@ body {
 }
 
 [[/strip]]]]></content>
-			<contentfile>0</contentfile>
 		</stylesheet>
 		<stylesheet>
 			<id>2</id>
+			<originator>SimplexTheme</originator>
 			<name>Simplex Layout</name>
 			<description>Simplex theme main stylesheet</description>
 			<media_type>screen</media_type>
+			<media_query></media_query>
+			<owner_id>1</owner_id>
+			<type_id></type_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
+			<contentfile>0</contentfile>
 			<content><![CDATA[[[strip]]
 
 [[* APPEARANCE *]]
@@ -2409,13 +2435,60 @@ a.printbutton {
 	width: device-width;
 }
 [[/strip]]]]></content>
+		</stylesheet>
+		<stylesheet>
+			<id>4</id>
+			<originator>SimplexTheme</originator>
+			<name>Simplex Print</name>
+			<description>Default print styles for the Simplex theme</description>
+			<media_type>print</media_type>
+			<media_query></media_query>
+			<owner_id>1</owner_id>
+			<type_id></type_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
 			<contentfile>0</contentfile>
+			<content><![CDATA[[[strip]]
+
+[[* /* reset body background and color, just in case */ *]]
+body {
+    background: #fff;
+    color: #000;
+    font-family: Georgia, Times New Roman, serif;
+    font-size: 12pt
+}
+[[* /* any element with class noprint or listed below should not be printed */ *]]
+.noprint,
+.visuallyhidden {
+    display: none
+}
+[[* /* display image as block */ *]]
+img {
+    display: block;
+    float: none
+}
+[[* /* links arent clickable on paper, lets display url */ *]]
+a:link:after {
+    content: &quot; (&quot; attr(href) &quot;) &quot;;
+}
+a {
+    text-decoration: underline
+}
+
+[[/strip]]]]></content>
 		</stylesheet>
 		<stylesheet>
 			<id>3</id>
+			<originator>SimplexTheme</originator>
 			<name>Simplex Slideshow</name>
 			<description>Simplex theme stylesheet for header slideshow</description>
 			<media_type>screen</media_type>
+			<media_query></media_query>
+			<owner_id>1</owner_id>
+			<type_id></type_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
+			<contentfile>0</contentfile>
 			<content><![CDATA[[[strip]]
 
 [[* /* --- COLORS --- */ *]]
@@ -2662,73 +2735,36 @@ a.printbutton {
 }
 
 [[/strip]]]]></content>
-			<contentfile>0</contentfile>
-		</stylesheet>
-		<stylesheet>
-			<id>4</id>
-			<name>Simplex Print</name>
-			<description>Default print styles for the Simplex theme</description>
-			<media_type>print</media_type>
-			<content><![CDATA[[[strip]]
-
-[[* /* reset body background and color, just in case */ *]]
-body {
-    background: #fff;
-    color: #000;
-    font-family: Georgia, Times New Roman, serif;
-    font-size: 12pt
-}
-[[* /* any element with class noprint or listed below should not be printed */ *]]
-.noprint,
-.visuallyhidden {
-    display: none
-}
-[[* /* display image as block */ *]]
-img {
-    display: block;
-    float: none
-}
-[[* /* links arent clickable on paper, lets display url */ *]]
-a:link:after {
-    content: &quot; (&quot; attr(href) &quot;) &quot;;
-}
-a {
-    text-decoration: underline
-}
-
-[[/strip]]]]></content>
-			<contentfile>0</contentfile>
 		</stylesheet>
 	</stylesheets>
-	<stylegroups>
-		<group>
-			<id>3</id>
-			<name>Demonstration stylesheets group</name>
-			<description>The stylesheets here will be applied in the specified order to each page which includes this group among its styles-sources.</description>
-			<create_date>2019-04-17 17:55:28</create_date>
-			<modified_date></modified_date>
-		</group>
-	</stylegroups>
 	<templatetypes>
 		<tpltype>
 			<id>15</id>
 			<originator>__CORE__</originator>
 			<name>generic</name>
-			<dflt_contents></dflt_contents>
 			<description></description>
-			<lang_cb>CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback</lang_cb>
+			<lang_cb>CMSMS\internal\std_layout_template_callbacks::generic_type_lang_callback</lang_cb>
 			<dflt_content_cb></dflt_content_cb>
-			<help_content_cb>CMSMS\\internal\\std_layout_template_callbacks::template_help_callback</help_content_cb>
+			<help_content_cb>CMSMS\internal\std_layout_template_callbacks::template_help_callback</help_content_cb>
 			<has_dflt>0</has_dflt>
 			<requires_contentblocks>0</requires_contentblocks>
 			<one_only>0</one_only>
-			<owner>1</owner>
+			<owner_id>1</owner_id>
+			<dflt_content></dflt_content>
 		</tpltype>
 		<tpltype>
 			<id>14</id>
 			<originator>__CORE__</originator>
 			<name>page</name>
-			<dflt_contents><![CDATA[{strip}
+			<description></description>
+			<lang_cb>CMSMS\internal\std_layout_template_callbacks::page_type_lang_callback</lang_cb>
+			<dflt_content_cb>CMSMS\internal\std_layout_template_callbacks::reset_page_type_defaults</dflt_content_cb>
+			<help_content_cb>CMSMS\internal\std_layout_template_callbacks::template_help_callback</help_content_cb>
+			<has_dflt>1</has_dflt>
+			<requires_contentblocks>1</requires_contentblocks>
+			<one_only>0</one_only>
+			<owner_id>1</owner_id>
+			<dflt_content><![CDATA[{strip}
 	{process_pagedata}
 {/strip}&lt;!doctype html&gt;
 &lt;html lang=&quot;{cms_get_language}&quot;&gt;
@@ -2754,22 +2790,283 @@ a {
 	&lt;/section&gt;
 &lt;/body&gt;
 
-&lt;/html&gt;]]></dflt_contents>
-			<description></description>
-			<lang_cb>CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback</lang_cb>
-			<dflt_content_cb>CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_defaults</dflt_content_cb>
-			<help_content_cb>CMSMS\\internal\\std_layout_template_callbacks::template_help_callback</help_content_cb>
-			<has_dflt>1</has_dflt>
-			<requires_contentblocks>1</requires_contentblocks>
-			<one_only>0</one_only>
-			<owner>1</owner>
+&lt;/html&gt;]]></dflt_content>
 		</tpltype>
 	</templatetypes>
 	<templates>
 		<template>
+			<id>21</id>
+			<originator>SimplexTheme</originator>
+			<name>Simplex_Footer_Navigation</name>
+			<description></description>
+			<hierarchy></hierarchy>
+			<owner_id>1</owner_id>
+			<type_id>15</type_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
+			<contentfile>0</contentfile>
+			<content><![CDATA[{strip}
+{$main_id = &apos; id=\&apos;footer-menu\&apos;&apos;}
+{function do_footer_class}
+    {if count($classes) &gt; 0} class=&apos;{implode(&apos; &apos;,$classes)}&apos;{/if}
+{/function}
+
+{function name=&apos;Simplex_footer_menu&apos; depth=&apos;1&apos;}
+    &lt;ul{$main_id}{if isset($ul_class) &amp;&amp; $ul_class != &apos;&apos;} class=&quot;{$ul_class}&quot;{/if}&gt;
+        {$main_id = &apos;&apos;}
+        {$ul_class = &apos;&apos;}
+        {foreach $data as $node}
+            {* setup classes for the anchor and list item *}
+            {$list_class = []}
+            {$href_class = []}
+
+            {if $node-&gt;current || $node-&gt;parent}
+                {* this is the current page *}
+                {$list_class[] = &apos;current&apos;}
+                {$href_class[] = &apos;current&apos;}
+            {/if}
+
+            {if $node-&gt;children_exist}
+                {$list_class[] = &apos;parent&apos;}
+            {/if}
+
+            {* build the menu item node *}
+            {if $node-&gt;type == &apos;sectionheader&apos;}
+                {$list_class[] = &apos;sectionheader&apos;}
+                &lt;li{do_footer_class classes=$list_class}&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;
+                {if isset($node-&gt;children)}
+                    {Simplex_footer_menu data=$node-&gt;children depth=$depth+1}
+                {/if}
+                &lt;/li&gt;
+            {else if $node-&gt;type == &apos;separator&apos;}
+                {$list_class[] = &apos;separator&apos;}
+                &lt;li{do_footer_class classes=$list_class}&apos;&gt;&lt;hr class=&apos;separator&apos; /&gt;&lt;/li&gt;
+            {else}
+                {* regular item *}
+                &lt;li{do_footer_class classes=$list_class}&gt;
+                    &lt;a{do_footer_class classes=$href_class} href=&apos;{$node-&gt;url}&apos;{if $node-&gt;target != &apos;&apos;} target=&apos;{$node-&gt;target}&apos;{/if}&gt;{$node-&gt;menutext}&lt;/a&gt;
+                    {if isset($node-&gt;children)}
+                        {Simplex_footer_menu data=$node-&gt;children depth=$depth+1}
+                    {/if}
+                &lt;/li&gt;
+            {/if}
+        {/foreach}
+    &lt;/ul&gt;
+{/function}
+
+{if isset($nodes)}
+    {Simplex_footer_menu data=$nodes depth=&apos;0&apos; ul_class=&apos;cf&apos;}
+{/if}
+{/strip}
+]]></content>
+		</template>
+		<template>
+			<id>20</id>
+			<originator>SimplexTheme</originator>
+			<name>Simplex_Main_Navigation</name>
+			<description></description>
+			<hierarchy></hierarchy>
+			<owner_id>1</owner_id>
+			<type_id>15</type_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
+			<contentfile>0</contentfile>
+			<content><![CDATA[{strip}
+{$main_id = &apos; id=\&apos;main-menu\&apos;&apos;}
+{function do_class}
+    {if count($classes) &gt; 0} class=&apos;{implode(&apos; &apos;,$classes)}&apos;{/if}
+{/function}
+
+{function name=&apos;Simplex_menu&apos; depth=&apos;1&apos;}
+    &lt;ul{$main_id}{if isset($ul_class) &amp;&amp; $ul_class != &apos;&apos;} class=&quot;{$ul_class}&quot;{/if}&gt;
+        {$main_id = &apos;&apos;}
+        {$ul_class = &apos;&apos;}
+        {foreach $data as $node}
+            {* setup classes for the anchor and list item *}
+            {$list_class = []}
+            {$href_class = [&apos;cf&apos;]}
+            {$parent_indicator = &apos;&apos;}
+            {$aria_support = &apos;&apos;}
+
+            {if $node-&gt;current || $node-&gt;parent}
+                {* this is the current page *}
+                {$list_class[] = &apos;current&apos;}
+                {$href_class[] = &apos;current&apos;}
+            {/if}
+
+            {if $node-&gt;children_exist}
+                {$list_class[] = &apos;parent&apos;}
+                {$aria_support = &apos; aria-haspopup=\&apos;true\&apos;&apos;}
+                {$parent_indicator = &apos; &lt;i class=\&apos;icon-arrow-left\&apos; aria-hidden=\&apos;true\&apos;&gt;&lt;/i&gt;&apos;}
+            {/if}
+
+            {* build the menu item node *}
+            {if $node-&gt;type == &apos;sectionheader&apos;}
+                {$list_class[] = &apos;sectionheader&apos;}
+                &lt;li{do_class classes=$list_class}{$aria_support}&gt;&lt;span&gt;{$node-&gt;menutext}{$parent_indicator}&lt;/span&gt;
+                {if isset($node-&gt;children)}
+                    {Simplex_menu data=$node-&gt;children depth=$depth+1}
+                {/if}
+                &lt;/li&gt;
+            {else if $node-&gt;type == &apos;separator&apos;}
+                {$list_class[] = &apos;separator&apos;}
+                &lt;li{do_class classes=$list_class}&apos;&gt;&lt;hr class=&apos;separator&apos; /&gt;&lt;/li&gt;
+            {else}
+                {* regular item *}
+                &lt;li{do_class classes=$list_class}{$aria_support}&gt;
+                    &lt;a{do_class classes=$href_class} href=&apos;{$node-&gt;url}&apos;{if $node-&gt;target != &apos;&apos;} target=&apos;{$node-&gt;target}&apos;{/if}&gt;{$node-&gt;menutext}{$parent_indicator}&lt;/a&gt;
+                    {if isset($node-&gt;children)}
+                        {Simplex_menu data=$node-&gt;children depth=$depth+1}
+                    {/if}
+                &lt;/li&gt;
+            {/if}
+        {/foreach}
+    &lt;/ul&gt;
+{/function}
+
+{if isset($nodes)}
+    {Simplex_menu data=$nodes depth=&apos;0&apos; ul_class=&apos;cf&apos;}
+{/if}
+{/strip}
+]]></content>
+		</template>
+		<template>
+			<id>23</id>
+			<originator>SimplexTheme</originator>
+			<name>Simplex_NewsDetail_template</name>
+			<description></description>
+			<hierarchy></hierarchy>
+			<owner_id>1</owner_id>
+			<type_id>15</type_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
+			<contentfile>0</contentfile>
+			<content><![CDATA[{* this is a sample detail template that works with the Simplex theme *}
+{* set a canonical variable that can be used in the head section if process_whole_template is false in the config.php *}
+{if isset($entry-&gt;canonical)}
+  {$canonical=$entry-&gt;canonical scope=global}
+  {$main_title=$entry-&gt;title scope=global}
+{/if}
+
+{* &lt;h2&gt;{$entry-&gt;title|cms_escape:&apos;htmlall&apos;}&lt;/h2&gt; *}
+{if $entry-&gt;summary}{$entry-&gt;summary}{/if}
+{$entry-&gt;content}
+{if $entry-&gt;extra}{$extra_label} {$entry-&gt;extra}{/if}
+{if $return_url}
+&lt;br /&gt;
+&lt;span class=&apos;back&apos;&gt;&#8592; {$return_url}{if $category_name != &apos;&apos;} - {$category_link}{/if}&lt;/span&gt;
+{/if}
+
+&lt;footer class=&apos;news-meta&apos;&gt;
+ {if $entry-&gt;startdate}{$entry-&gt;startdate|cms_date_format}{/if}
+ {if $entry-&gt;category}&lt;strong&gt;{$category_label}&lt;/strong&gt; {$entry-&gt;category}{/if}
+ {if $entry-&gt;author}&lt;strong&gt;{$author_label}&lt;/strong&gt; {$entry-&gt;author}{/if}
+&lt;/footer&gt;
+]]></content>
+		</template>
+		<template>
+			<id>24</id>
+			<originator>SimplexTheme</originator>
+			<name>Simplex_NewsSummary_template</name>
+			<description></description>
+			<hierarchy></hierarchy>
+			<owner_id>1</owner_id>
+			<type_id>15</type_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
+			<contentfile>0</contentfile>
+			<content><![CDATA[{strip}
+&lt;!-- .news-summary wrapper --&gt;
+&lt;article class=&apos;news-summary&apos;&gt;
+&lt;span class=&apos;heading&apos;&gt;&lt;span&gt;News&lt;/span&gt;&lt;/span&gt;
+        &lt;ul class=&apos;category-list cf&apos;&gt;
+        {foreach $cats as $node}
+        {if $node.depth &gt; $node.prevdepth}
+            {repeat string=&apos;&lt;ul&gt;&apos; times=$node.depth-$node.prevdepth}
+        {elseif $node.depth &lt; $node.prevdepth}
+            {repeat string=&apos;&lt;/li&gt;&lt;/ul&gt;&apos; times=$node.prevdepth-$node.depth}
+            &lt;/li&gt;
+            {elseif $node.index &gt; 0}&lt;/li&gt;
+            {/if}
+            &lt;li{if $node.index == 0} class=&apos;first&apos;{/if}&gt;
+        {if $node.count &gt; 0}
+                &lt;a href=&apos;{$node.url}&apos;&gt;{$node.news_category_name}&lt;/a&gt;{else}&lt;span&gt;{$node.news_category_name} &lt;/span&gt;{/if}
+        {/foreach}
+        {repeat string=&apos;&lt;/li&gt;&lt;/ul&gt;&apos; times=$node.depth-1}&lt;/li&gt;
+        &lt;/ul&gt;
+    {foreach $items as $entry}
+    &lt;!-- .news-article (wrapping each article) --&gt;
+    &lt;section class=&apos;news-article&apos;&gt;
+        &lt;header&gt;
+            &lt;h2&gt;&lt;a href=&apos;{$entry-&gt;moreurl}&apos; title=&apos;{$entry-&gt;title|cms_escape:&apos;htmlall&apos;}&apos;&gt;{$entry-&gt;title|cms_escape}&lt;/a&gt;&lt;/h2&gt;
+            &lt;div class=&apos;meta cf&apos;&gt;
+{*
+                &lt;time class=&apos;date&apos; datetime=&apos;{$entry-&gt;start|date_format:&apos;%Y-%m-%d&apos;}&apos;&gt;
+                    &lt;span class=&apos;day&apos;&gt; {$entry-&gt;start|date_format:&apos;%d&apos;} &lt;/span&gt;
+                    &lt;span class=&apos;month&apos;&gt; {$entry-&gt;start|date_format:&apos;%b&apos;} &lt;/span&gt;
+                &lt;/time&gt;
+*}
+                &lt;span class=&apos;author&apos;&gt; {$author_label} {$entry-&gt;author} &lt;/span&gt;
+                &lt;span class=&apos;category&apos;&gt; {$category_label} {$entry-&gt;category}&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/header&gt;
+        {if $entry-&gt;summary}
+            &lt;p&gt;{$entry-&gt;summary|strip_tags}&lt;/p&gt;
+            &lt;span class=&apos;more&apos;&gt;{$entry-&gt;morelink} &#8594;&lt;/span&gt;
+        {else if $entry-&gt;content}
+            &lt;p&gt;{$entry-&gt;content|strip_tags}&lt;/p&gt;
+        {/if}
+    &lt;/section&gt;
+    &lt;!-- .news-article //--&gt;
+    {/foreach}
+        &lt;!-- news pagination --&gt;
+        {if $pagecount &gt; 1}
+        &lt;span class=&apos;paginate&apos;&gt;
+            {if $pagenumber &gt; 1}
+                {$firstpage}&amp;nbsp;{$prevpage}
+            {/if}
+                {$pagetext}&amp;nbsp;{$pagenumber}&amp;nbsp;{$oftext}&amp;nbsp;{$pagecount}
+            {if $pagenumber &lt; $pagecount}
+                {$nextpage}&amp;nbsp;{$lastpage}
+            {/if}
+        &lt;/span&gt;
+        {/if}
+&lt;/article&gt;
+&lt;!-- .news-summary //--&gt;
+{/strip}
+]]></content>
+		</template>
+		<template>
+			<id>25</id>
+			<originator>SimplexTheme</originator>
+			<name>Simplex_Search_template</name>
+			<description></description>
+			<hierarchy></hierarchy>
+			<owner_id>1</owner_id>
+			<type_id>15</type_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
+			<contentfile>0</contentfile>
+			<content><![CDATA[&lt;div class=&quot;five-col search noprint&quot; role=&quot;search&quot;&gt;
+{form_start action=dosearch method=$form_method returnid=$destpage inline=$inline}
+  {if isset($hidden)}{$hidden}{/if}
+  &lt;label for=&quot;{$search_actionid}searchinput&quot; class=&quot;visuallyhidden&quot;&gt;{$searchprompt}:&lt;/label&gt;
+  &lt;input type=&quot;search&quot; class=&quot;search-input&quot; id=&quot;{$search_actionid}searchinput&quot; name=&quot;{$search_actionid}searchinput&quot; size=&quot;20&quot; maxlength=&quot;50&quot; value=&quot;&quot; placeholder=&quot;{$searchtext}&quot; /&gt;&lt;i class=&quot;icon-search&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;
+&lt;/form&gt;
+&lt;/div&gt;
+]]></content>
+		</template>
+		<template>
 			<id>1</id>
 			<originator>__CORE__</originator>
 			<name>Default</name>
+			<description>A simple starting point to build templates from</description>
+			<hierarchy></hierarchy>
+			<owner_id>1</owner_id>
+			<type_id>14</type_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
+			<contentfile>0</contentfile>
 			<content><![CDATA[{strip} {process_pagedata} {/strip}
 &lt;!doctype html&gt;
 &lt;html lang=&quot;{cms_get_language}&quot;&gt;
@@ -2793,276 +3090,19 @@ a {
   &lt;/section&gt;
 &lt;/body&gt;
 &lt;/html&gt;]]></content>
-			<description>A simple starting point to build templates from</description>
-			<type_id>14</type_id>
-			<owner_id>1</owner_id>
-			<type_dflt>0</type_dflt>
-			<listable>1</listable>
-			<contentfile>0</contentfile>
 		</template>
 		<template>
 			<id>16</id>
 			<originator>__CORE__</originator>
-			<name>Filetest</name>
-			<content><![CDATA[TemplateFileDemo_16.tpl]]></content>
+			<name>TemplateFileDemo</name>
 			<description>A demontration file-tempate</description>
-			<type_id>14</type_id>
+			<hierarchy></hierarchy>
 			<owner_id>1</owner_id>
-			<type_dflt>1</type_dflt>
+			<type_id>14</type_id>
+			<type_dflt>0</type_dflt>
 			<listable>1</listable>
 			<contentfile>1</contentfile>
-		</template>
-		<template>
-			<id>20</id>
-			<originator>__CORE__</originator>
-			<name>Simplex_Main_Navigation</name>
-			<content><![CDATA[{strip}
-{$main_id = ' id=\'main-menu\''}
-{function do_class}
-    {if count($classes) > 0} class='{implode(' ',$classes)}'{/if}
-{/function}
-
-{function name='Simplex_menu' depth='1'}
-    <ul{$main_id}{if isset($ul_class) && $ul_class != ''} class="{$ul_class}"{/if}>
-        {$main_id = ''}
-        {$ul_class = ''}
-        {foreach $data as $node}
-            {* setup classes for the anchor and list item *}
-            {$list_class = []}
-            {$href_class = ['cf']}
-            {$parent_indicator = ''}
-            {$aria_support = ''}
-    
-            {if $node->current || $node->parent}
-                {* this is the current page *}
-                {$list_class[] = 'current'}
-                {$href_class[] = 'current'}
-            {/if}
-    
-            {if $node->children_exist}
-                {$list_class[] = 'parent'}
-                {$aria_support = ' aria-haspopup=\'true\''}
-                {$parent_indicator = ' <i class=\'icon-arrow-left\' aria-hidden=\'true\'></i>'}
-            {/if}
-    
-            {* build the menu item node *}
-            {if $node->type == 'sectionheader'}
-                {$list_class[] = 'sectionheader'}
-                <li{do_class classes=$list_class}{$aria_support}><span>{$node->menutext}{$parent_indicator}</span>
-                {if isset($node->children)}
-                    {Simplex_menu data=$node->children depth=$depth+1}
-                {/if}
-                </li>
-            {else if $node->type == 'separator'}
-                {$list_class[] = 'separator'}
-                <li{do_class classes=$list_class}'><hr class='separator' /></li>
-            {else}
-                {* regular item *}
-                <li{do_class classes=$list_class}{$aria_support}>
-                    <a{do_class classes=$href_class} href='{$node->url}'{if $node->target != ''} target='{$node->target}'{/if}>{$node->menutext}{$parent_indicator}</a>
-                    {if isset($node->children)}
-                        {Simplex_menu data=$node->children depth=$depth+1}
-                    {/if}
-                </li>
-            {/if}
-        {/foreach}
-    </ul>
-{/function}
-
-{if isset($nodes)}
-    {Simplex_menu data=$nodes depth='0' ul_class='cf'}
-{/if}
-{/strip}]]></content>
-			<description></description>
-			<type_id></type_id>
-			<owner_id>1</owner_id>
-			<type_dflt>0</type_dflt>
-			<listable>1</listable>
-			<contentfile>0</contentfile>
-		</template>
-		<template>
-			<id>21</id>
-			<originator>__CORE__</originator>
-			<name>Simplex_Footer_Navigation</name>
-			<content><![CDATA[{strip}
-{$main_id = ' id=\'footer-menu\''}
-{function do_footer_class}
-    {if count($classes) > 0} class='{implode(' ',$classes)}'{/if}
-{/function}
-
-{function name='Simplex_footer_menu' depth='1'}
-    <ul{$main_id}{if isset($ul_class) && $ul_class != ''} class="{$ul_class}"{/if}>
-        {$main_id = ''}
-        {$ul_class = ''}
-        {foreach $data as $node}
-            {* setup classes for the anchor and list item *}
-            {$list_class = []}
-            {$href_class = []}
-    
-            {if $node->current || $node->parent}
-                {* this is the current page *}
-                {$list_class[] = 'current'}
-                {$href_class[] = 'current'}
-            {/if}
-    
-            {if $node->children_exist}
-                {$list_class[] = 'parent'}
-            {/if}
-    
-            {* build the menu item node *}
-            {if $node->type == 'sectionheader'}
-                {$list_class[] = 'sectionheader'}
-                <li{do_footer_class classes=$list_class}><span>{$node->menutext}</span>
-                {if isset($node->children)}
-                    {Simplex_footer_menu data=$node->children depth=$depth+1}
-                {/if}
-                </li>
-            {else if $node->type == 'separator'}
-                {$list_class[] = 'separator'}
-                <li{do_footer_class classes=$list_class}'><hr class='separator' /></li>
-            {else}
-                {* regular item *}
-                <li{do_footer_class classes=$list_class}>
-                    <a{do_footer_class classes=$href_class} href='{$node->url}'{if $node->target != ''} target='{$node->target}'{/if}>{$node->menutext}</a>
-                    {if isset($node->children)}
-                        {Simplex_footer_menu data=$node->children depth=$depth+1}
-                    {/if}
-                </li>
-            {/if}
-        {/foreach}
-    </ul>
-{/function}
-
-{if isset($nodes)}
-    {Simplex_footer_menu data=$nodes depth='0' ul_class='cf'}
-{/if}
-{/strip}]]></content>
-			<description></description>
-			<type_id></type_id>
-			<owner_id>1</owner_id>
-			<type_dflt>0</type_dflt>
-			<listable>1</listable>
-			<contentfile>0</contentfile>
-		</template>
-		<template>
-			<id>22</id>
-			<originator>__CORE__</originator>
-			<name>Simplex_NewsDetail_template</name>
-			<content><![CDATA[{* this is a sample detail template that works with the Simplex theme *}
-{* set a canonical variable that can be used in the head section if process_whole_template is false in the config.php *}
-{if isset($entry->canonical)}
-  {$canonical=$entry->canonical scope=global}
-  {$main_title=$entry->title scope=global}
-{/if}
-
-{* <h2>{$entry->title|cms_escape:'htmlall'}</h2> *}
-{if $entry->summary}{$entry->summary}{/if}
-{$entry->content}
-{if $entry->extra}{$extra_label} {$entry->extra}{/if}
-{if $return_url}
-<br />
-<span class='back'>&#8592; {$return_url}{if $category_name != ''} - {$category_link}{/if}</span>
-{/if}
-
-<footer class='news-meta'>
- {if $entry->startdate}{$entry->startdate|cms_date_format}{/if}
- {if $entry->category}<strong>{$category_label}</strong> {$entry->category}{/if}
- {if $entry->author}<strong>{$author_label}</strong> {$entry->author}{/if}
-</footer>]]></content>
-			<description></description>
-			<type_id></type_id>
-			<owner_id>1</owner_id>
-			<type_dflt>0</type_dflt>
-			<listable>1</listable>
-			<contentfile>0</contentfile>
-		</template>
-		<template>
-			<id>23</id>
-			<originator>__CORE__</originator>
-			<name>Simplex_NewsSummary_template</name>
-			<content><![CDATA[{strip}
-<!-- .news-summary wrapper -->
-<article class='news-summary'>
-<span class='heading'><span>News</span></span>
-        <ul class='category-list cf'>
-        {foreach $cats as $node}
-        {if $node.depth > $node.prevdepth}
-            {repeat string='<ul>' times=$node.depth-$node.prevdepth}
-        {elseif $node.depth < $node.prevdepth}
-            {repeat string='</li></ul>' times=$node.prevdepth-$node.depth}
-            </li>
-            {elseif $node.index > 0}</li>
-            {/if}
-            <li{if $node.index == 0} class='first'{/if}>
-        {if $node.count > 0}
-                <a href='{$node.url}'>{$node.news_category_name}</a>{else}<span>{$node.news_category_name} </span>{/if}
-        {/foreach}
-        {repeat string='</li></ul>' times=$node.depth-1}</li>
-        </ul>
-    {foreach $items as $entry}
-    <!-- .news-article (wrapping each article) -->
-    <section class='news-article'>
-        <header>
-            <h2><a href='{$entry->moreurl}' title='{$entry->title|cms_escape:'htmlall'}'>{$entry->title|cms_escape}</a></h2>
-            <div class='meta cf'>
-{*
-                <time class='date' datetime='{$entry->start|date_format:'%Y-%m-%d'}'>
-                    <span class='day'> {$entry->start|date_format:'%d'} </span>
-                    <span class='month'> {$entry->start|date_format:'%b'} </span>
-                </time>
-*}
-                <span class='author'> {$author_label} {$entry->author} </span>
-                <span class='category'> {$category_label} {$entry->category}</span>
-            </div>
-        </header>
-        {if $entry->summary}
-            <p>{$entry->summary|strip_tags}</p>
-            <span class='more'>{$entry->morelink} &#8594;</span>
-        {else if $entry->content}
-            <p>{$entry->content|strip_tags}</p>
-        {/if}
-    </section>
-    <!-- .news-article //-->
-    {/foreach}
-        <!-- news pagination -->
-        {if $pagecount > 1}
-        <span class='paginate'>
-            {if $pagenumber > 1}
-                {$firstpage}&nbsp;{$prevpage}
-            {/if}
-                {$pagetext}&nbsp;{$pagenumber}&nbsp;{$oftext}&nbsp;{$pagecount}
-            {if $pagenumber < $pagecount}
-                {$nextpage}&nbsp;{$lastpage}
-            {/if}
-        </span>
-        {/if}
-</article>
-<!-- .news-summary //-->
-{/strip}]]></content>
-			<description></description>
-			<type_id></type_id>
-			<owner_id>1</owner_id>
-			<type_dflt>0</type_dflt>
-			<listable>1</listable>
-			<contentfile>0</contentfile>
-		</template>
-		<template>
-			<id>24</id>
-			<originator>__CORE__</originator>
-			<name>Simplex_Search_template</name>
-			<content><![CDATA[<div class="five-col search noprint" role="search">
-{form_start action=dosearch method=$form_method returnid=$destpage inline=$inline}
-  {if isset($hidden)}{$hidden}{/if}
-  <label for="{$search_actionid}searchinput" class="visuallyhidden">{$searchprompt}:</label>
-  <input type="search" class="search-input" id="{$search_actionid}searchinput" name="{$search_actionid}searchinput" size="20" maxlength="50" value="" placeholder="{$searchtext}" /><i class="icon-search" aria-hidden="true"></i>
-</form>
-</div>]]></content>
-			<description></description>
-			<type_id></type_id>
-			<owner_id>1</owner_id>
-			<type_dflt>0</type_dflt>
-			<listable>1</listable>
-			<contentfile>0</contentfile>
+			<content><![CDATA[TemplateFileDemo.tpl]]></content>
 		</template>
 	</templates>
 	<designs>
@@ -3084,79 +3124,19 @@ The theme uses jQuery. Theme-specific javascript is in a minified file. If you w
 		<designcss>
 			<design_id>1</design_id>
 			<css_id>2</css_id>
-			<css_order>1</css_order>
+			<css_order>2</css_order>
 		</designcss>
 		<designcss>
 			<design_id>1</design_id>
 			<css_id>3</css_id>
-			<css_order>3</css_order>
-		</designcss>
-		<designcss>
-			<design_id>1</design_id>
-			<css_id>4</css_id>
-			<css_order>2</css_order>
+			<css_order>1</css_order>
 		</designcss>
 	</designstyles>
 	<designtemplates>
 		<designtpl>
 			<design_id>1</design_id>
 			<tpl_id>1</tpl_id>
-			<tpl_order>4</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>5</tpl_id>
 			<tpl_order>1</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>6</tpl_id>
-			<tpl_order>2</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>7</tpl_id>
-			<tpl_order>3</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>8</tpl_id>
-			<tpl_order>7</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>9</tpl_id>
-			<tpl_order>11</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>10</tpl_id>
-			<tpl_order>9</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>11</tpl_id>
-			<tpl_order>10</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>12</tpl_id>
-			<tpl_order>8</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>13</tpl_id>
-			<tpl_order>5</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>15</tpl_id>
-			<tpl_order>12</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>16</tpl_id>
-			<tpl_order>6</tpl_order>
 		</designtpl>
 	</designtemplates>
 	<pages>
@@ -3168,101 +3148,172 @@ The theme uses jQuery. Theme-specific javascript is in a minified file. If you w
 			<show_in_menu>1</show_in_menu>
 			<active>1</active>
 			<cachable>1</cachable>
+			<secure>0</secure>
+			<owner_id>1</owner_id>
 			<parent_id>0</parent_id>
 			<template_id>1</template_id>
+			<item_order>1</item_order>
 			<menu_text><![CDATA[Home]]></menu_text>
 			<content_alias>home</content_alias>
+			<metadata></metadata>
+			<titleattribute></titleattribute>
+			<page_url></page_url>
+			<tabindex>0</tabindex>
+			<accesskey></accesskey>
 			<styles>2,1,4</styles>
 		</page>
 		<page>
 			<content_id>2</content_id>
 			<content_name>Help</content_name>
 			<type>content</type>
+			<default_content>0</default_content>
 			<show_in_menu>1</show_in_menu>
 			<active>1</active>
 			<cachable>1</cachable>
+			<secure>0</secure>
+			<owner_id>1</owner_id>
 			<parent_id>0</parent_id>
 			<template_id>1</template_id>
+			<item_order>1</item_order>
 			<menu_text><![CDATA[Help]]></menu_text>
 			<content_alias>help</content_alias>
+			<metadata></metadata>
+			<titleattribute></titleattribute>
+			<page_url></page_url>
+			<tabindex>0</tabindex>
+			<accesskey></accesskey>
 			<styles>2,1,4</styles>
 		</page>
 		<page>
 			<content_id>3</content_id>
 			<content_name>About CMSMS</content_name>
 			<type>content</type>
+			<default_content>0</default_content>
 			<show_in_menu>1</show_in_menu>
 			<active>1</active>
 			<cachable>1</cachable>
+			<secure>0</secure>
+			<owner_id>1</owner_id>
 			<parent_id>0</parent_id>
 			<template_id>1</template_id>
+			<item_order>1</item_order>
 			<menu_text><![CDATA[About]]></menu_text>
 			<content_alias>about-cmsms</content_alias>
+			<metadata></metadata>
+			<titleattribute></titleattribute>
+			<page_url></page_url>
+			<tabindex>0</tabindex>
+			<accesskey></accesskey>
 			<styles>3,2</styles>
 		</page>
 		<page>
 			<content_id>5</content_id>
 			<content_name>Why use CMS Made Simple?</content_name>
 			<type>content</type>
+			<default_content>0</default_content>
 			<show_in_menu>1</show_in_menu>
 			<active>1</active>
 			<cachable>1</cachable>
+			<secure>0</secure>
+			<owner_id>1</owner_id>
 			<parent_id>0</parent_id>
 			<template_id>1</template_id>
+			<item_order>1</item_order>
 			<menu_text><![CDATA[Why use CMS Made Simple?]]></menu_text>
 			<content_alias>why-use-cms-made-simple</content_alias>
+			<metadata></metadata>
+			<titleattribute></titleattribute>
+			<page_url></page_url>
+			<tabindex>0</tabindex>
+			<accesskey></accesskey>
 			<styles>3,2</styles>
 		</page>
 		<page>
 			<content_id>6</content_id>
 			<content_name>Support Options</content_name>
 			<type>content</type>
+			<default_content>0</default_content>
 			<show_in_menu>1</show_in_menu>
 			<active>1</active>
 			<cachable>1</cachable>
+			<secure>0</secure>
+			<owner_id>1</owner_id>
 			<parent_id>2</parent_id>
 			<template_id>1</template_id>
+			<item_order>1</item_order>
 			<menu_text><![CDATA[Support Options]]></menu_text>
 			<content_alias>support-options</content_alias>
+			<metadata></metadata>
+			<titleattribute></titleattribute>
+			<page_url></page_url>
+			<tabindex>0</tabindex>
+			<accesskey></accesskey>
 			<styles>2,1,4</styles>
 		</page>
 		<page>
 			<content_id>7</content_id>
 			<content_name>Documentation</content_name>
 			<type>content</type>
+			<default_content>0</default_content>
 			<show_in_menu>1</show_in_menu>
 			<active>1</active>
 			<cachable>1</cachable>
+			<secure>0</secure>
+			<owner_id>1</owner_id>
 			<parent_id>2</parent_id>
 			<template_id>1</template_id>
+			<item_order>2</item_order>
 			<menu_text><![CDATA[Documentation]]></menu_text>
 			<content_alias>documentation</content_alias>
+			<metadata></metadata>
+			<titleattribute></titleattribute>
+			<page_url></page_url>
+			<tabindex>0</tabindex>
+			<accesskey></accesskey>
 			<styles>2,1,4</styles>
 		</page>
 		<page>
 			<content_id>4</content_id>
 			<content_name>Who is CMSMS for?</content_name>
 			<type>content</type>
+			<default_content>0</default_content>
 			<show_in_menu>1</show_in_menu>
 			<active>1</active>
 			<cachable>1</cachable>
+			<secure>0</secure>
+			<owner_id>1</owner_id>
 			<parent_id>3</parent_id>
 			<template_id>1</template_id>
+			<item_order>1</item_order>
 			<menu_text><![CDATA[Who is CMSMS for?]]></menu_text>
 			<content_alias>who-is-cmsms-for</content_alias>
+			<metadata></metadata>
+			<titleattribute></titleattribute>
+			<page_url></page_url>
+			<tabindex>0</tabindex>
+			<accesskey></accesskey>
 			<styles>2,1,4</styles>
 		</page>
 		<page>
 			<content_id>8</content_id>
 			<content_name>History</content_name>
 			<type>content</type>
+			<default_content>0</default_content>
 			<show_in_menu>1</show_in_menu>
 			<active>1</active>
 			<cachable>1</cachable>
+			<secure>0</secure>
+			<owner_id>1</owner_id>
 			<parent_id>3</parent_id>
 			<template_id>1</template_id>
+			<item_order>2</item_order>
 			<menu_text><![CDATA[History]]></menu_text>
 			<content_alias>history</content_alias>
+			<metadata></metadata>
+			<titleattribute></titleattribute>
+			<page_url></page_url>
+			<tabindex>0</tabindex>
+			<accesskey></accesskey>
 			<styles>2,1,4</styles>
 		</page>
 	</pages>
@@ -3699,11 +3750,11 @@ The theme uses jQuery. Theme-specific javascript is in a minified file. If you w
 			<content></content>
 		</property>
 	</properties>
-	<simpletags>
+	<usertags>
 		<tag>
 			<name>user_agent</name>
 			<code><![CDATA[return $_SERVER[&quot;HTTP_USER_AGENT&quot;];]]></code>
-			<description><![CDATA[Display the user&#39;s user&#45;agent information]]></description>
+			<description><![CDATA[Display the user&apos;s user-agent information]]></description>
 			<parameters></parameters>
 		</tag>
 		<tag>
@@ -3722,17 +3773,10 @@ if($thisYear == $startCopyRight){
 // it wasn&apos;t, print start year and this year separated by a dash
  return $startCopyRight.&apos;-&apos;.$thisYear;
 }]]></code>
-			<description><![CDATA[Display year or years-range YYYY[-YYYY]
-Usage: {custom_copyright [start=&#39;YYYY&#39;]}]]></description>
+			<description><![CDATA[Display year or years-range YYYY[-YYYY]Usage: {custom_copyright [start=&apos;YYYY&apos;]}]]></description>
 			<parameters><![CDATA[start : optional first year of the copyright interval, default 2004]]></parameters>
 		</tag>
-		<tag>
-			<name>newname</name>
-			<code><![CDATA[asdfasf]]></code>
-			<description><![CDATA[adfsd]]></description>
-			<parameters><![CDATA[adfsf]]></parameters>
-		</tag>
-	</simpletags>
+	</usertags>
 	<uploadfiles>
 		<file>
 			<name>logo1.gif</name>
@@ -3743,21 +3787,6 @@ Usage: {custom_copyright [start=&#39;YYYY&#39;]}]]></description>
 			<name>thumb_logo1.gif</name>
 			<relto>images</relto>
 			<relfrom>images</relfrom>
-		</file>
-		<file>
-			<name>screen_DM.png</name>
-			<relto>simplex/images</relto>
-			<relfrom>simplex/images</relfrom>
-		</file>
-		<file>
-			<name>thumb_screen_DM.png</name>
-			<relto>simplex/images</relto>
-			<relfrom>simplex/images</relfrom>
-		</file>
-		<file>
-			<name>Edit-anywhere.png</name>
-			<relto>simplex/images</relto>
-			<relfrom>simplex/images</relfrom>
 		</file>
 		<file>
 			<name>cmsms-76x76.png</name>
@@ -3801,26 +3830,6 @@ Usage: {custom_copyright [start=&#39;YYYY&#39;]}]]></description>
 		</file>
 		<file>
 			<name>palm-circle.png</name>
-			<relto>simplex/images</relto>
-			<relfrom>simplex/images</relfrom>
-		</file>
-		<file>
-			<name>Adding-pages.png</name>
-			<relto>simplex/images</relto>
-			<relfrom>simplex/images</relfrom>
-		</file>
-		<file>
-			<name>thumb_screen_MM.png</name>
-			<relto>simplex/images</relto>
-			<relfrom>simplex/images</relfrom>
-		</file>
-		<file>
-			<name>thumb_Adding-pages.png</name>
-			<relto>simplex/images</relto>
-			<relfrom>simplex/images</relfrom>
-		</file>
-		<file>
-			<name>screen_MM.png</name>
 			<relto>simplex/images</relto>
 			<relfrom>simplex/images</relfrom>
 		</file>
@@ -3890,12 +3899,7 @@ Usage: {custom_copyright [start=&#39;YYYY&#39;]}]]></description>
 			<relfrom>simplex/teaser</relfrom>
 		</file>
 	</uploadfiles>
-	<simpletagfiles>
-		<file>
-			<name>web.config</name>
-			<relto></relto>
-			<relfrom>user_plugins</relfrom>
-		</file>
+	<usertagfiles>
 		<file>
 			<name>file_custom_copyright.phphp</name>
 			<relto></relto>
@@ -3906,13 +3910,59 @@ Usage: {custom_copyright [start=&#39;YYYY&#39;]}]]></description>
 			<relto></relto>
 			<relfrom>user_plugins</relfrom>
 		</file>
-	</simpletagfiles>
+	</usertagfiles>
 	<templatefiles>
 		<file>
-			<name>TemplateFileDemo_16.tpl</name>
+			<name>TemplateFileDemo.tpl</name>
 			<relto></relto>
 			<relfrom>templates</relfrom>
 		</file>
 	</templatefiles>
-	<stylefiles/>
+	<stylefiles>
+		<file>
+			<name>basictable.min.css</name>
+			<relto></relto>
+			<relfrom>styles</relfrom>
+		</file>
+		<file>
+			<name>LICENSE-NORMALIZE</name>
+			<relto></relto>
+			<relfrom>styles</relfrom>
+		</file>
+		<file>
+			<name>flex-grid-lite.min.css</name>
+			<relto></relto>
+			<relfrom>styles</relfrom>
+		</file>
+		<file>
+			<name>LICENSE-GRID960</name>
+			<relto></relto>
+			<relfrom>styles</relfrom>
+		</file>
+		<file>
+			<name>flex-grid-lite-demo.html</name>
+			<relto></relto>
+			<relfrom>styles</relfrom>
+		</file>
+		<file>
+			<name>grid-960.min.css</name>
+			<relto></relto>
+			<relfrom>styles</relfrom>
+		</file>
+		<file>
+			<name>grid-960-demo.html</name>
+			<relto></relto>
+			<relfrom>styles</relfrom>
+		</file>
+		<file>
+			<name>normalize.min.css</name>
+			<relto></relto>
+			<relfrom>styles</relfrom>
+		</file>
+		<file>
+			<name>LICENSE-FLEXGRIDLITE</name>
+			<relto></relto>
+			<relfrom>styles</relfrom>
+		</file>
+	</stylefiles>
 </cmsmssitedata>

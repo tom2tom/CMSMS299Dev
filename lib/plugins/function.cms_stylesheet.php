@@ -330,7 +330,7 @@ EOS;
 /*
 D function smarty_cms_help_function_cms_stylesheet()
 {
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'cms_stylesheet ...', <<<'EOS'
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'cms_stylesheet ...', <<<'EOS'
 <li>name</li>
 <li>styles</li>
 <li>designid</li>

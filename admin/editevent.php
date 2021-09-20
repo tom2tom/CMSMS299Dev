@@ -43,8 +43,8 @@ $userid = get_userid();
 $access = check_permission($userid, 'Modify Events');
 
 if (!$access) {
-//TODO some pushed popup	lang('noaccessto', lang('modifyeventhandler'))
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+//TODO some pushed popup	_la('noaccessto', _la('modifyeventhandler'))
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 $themeObject = SingleItem::Theme();
@@ -56,9 +56,9 @@ $sender = '';
 $sendername = '';
 
 if (1) { //$access) {
-	$icondown = $themeObject->DisplayImage('icons/system/arrow-d.gif', lang('down'),'','','systemicon');
-	$iconup = $themeObject->DisplayImage('icons/system/arrow-u.gif', lang('up'),'','','systemicon');
-	$icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'),'','','systemicon');
+	$icondown = $themeObject->DisplayImage('icons/system/arrow-d.gif', _la('down'),'','','systemicon');
+	$iconup = $themeObject->DisplayImage('icons/system/arrow-u.gif', _la('up'),'','','systemicon');
+	$icondel = $themeObject->DisplayImage('icons/system/delete.gif', _la('delete'),'','','systemicon');
 
 	if (isset($_POST['add'])) {
 		de_specialize_array($_POST);
@@ -99,7 +99,7 @@ if (1) { //$access) {
 			// move an item up (decrease its order)
 			// increases the previous order, and decreases the current handler id
 			if (!$handler || $cur_order < 1) {
-//				$themeObject->RecordNotice('error', lang('someerror')); //TODO useless
+//				$themeObject->RecordNotice('error', _la('someerror')); //TODO useless
 				return;
 			}
 			Events::OrderHandlerUp($handler);
@@ -116,7 +116,7 @@ if (1) { //$access) {
 
 		case 'delete':
 			if (!$handler) {
-//				$themeObject->RecordNotice('error', lang('missingparams')); //TODO useless befor return
+//				$themeObject->RecordNotice('error', _la('missingparams')); //TODO useless befor return
 				return;
 			}
 			Events::RemoveEventHandlerById($handler);
@@ -131,7 +131,7 @@ if (1) { //$access) {
 	$modops = SingleItem::ModuleOperations();
 
 	if ($sender == 'Core') {
-		$sendername = lang('core');
+		$sendername = _la('core');
 		$description = Events::GetEventDescription($event);
 	} else {
 		$mod = $modops->get_module_instance($sender);

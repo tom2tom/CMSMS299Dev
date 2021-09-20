@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Error403Exception;
 use CMSMS\SingleItem;
+use function CMSMS\get_site_UUID;
 
 $orig_memory = (function_exists('memory_get_usage') ? memory_get_usage() : 0);
 
@@ -33,8 +34,8 @@ check_login();
 $userid = get_userid();
 $access = check_permission($userid, 'Modify Site Preferences');
 if (!$access) {
-    //TODO some pushed popup  lang('needpermissionto', '"Modify Site Preferences"')
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+    //TODO some pushed popup  _la('needpermissionto', '"Modify Site Preferences"')
+    throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
 $themeObject = SingleItem::Theme();
@@ -45,30 +46,30 @@ require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'test.functions.php');
 function checksum_lang($params, $smarty)
 {
     if (isset($params['key'])) {
-        return lang($params['key']);
+        return _la($params['key']);
     }
 }
 
 function check_checksum_data(&$report)
 {
     if ((!isset($_FILES['cksumdat'])) || empty($_FILES['cksumdat']['name'])) {
-        $report = lang('error_nofileuploaded');
+        $report = _la('error_nofileuploaded');
         return false;
     } elseif ($_FILES['cksumdat']['error'] > 0) {
-        $report = lang('error_uploadproblem');
+        $report = _la('error_uploadproblem');
         return false;
     } elseif ($_FILES['cksumdat']['size'] == 0) {
-        $report = lang('error_uploadproblem');
+        $report = _la('error_uploadproblem');
         return false;
     }
 
     $fh = fopen($_FILES['cksumdat']['tmp_name'], 'r');
     if (!$fh) {
-        $report = lang('error_uploadproblem');
+        $report = _la('error_uploadproblem');
         return false;
     }
 
-    $salt = SingleItem::App()->GetSiteUUID();
+    $salt = get_site_UUID();
     $filenotfound = [];
     $notreadable = 0;
     $md5failed = 0;
@@ -151,19 +152,19 @@ function check_checksum_data(&$report)
         // build the error report
         $tmp2 = [];
         if ($filespassed == 0) {
-            $tmp2[] = lang('no_files_scanned');
+            $tmp2[] = _la('no_files_scanned');
         }
         if ($errorlines) {
-            $tmp2[] = lang('lines_in_error', $errorlines);
+            $tmp2[] = _la('lines_in_error', $errorlines);
         }
         if ($filenotfound) {
-            $tmp2[] = sprintf('%d %s', count($filenotfound), lang('files_not_found'));
+            $tmp2[] = sprintf('%d %s', count($filenotfound), _la('files_not_found'));
         }
         if ($notreadable) {
-            $tmp2[] = sprintf('%d %s', $notreadable, lang('files_not_readable'));
+            $tmp2[] = sprintf('%d %s', $notreadable, _la('files_not_readable'));
         }
         if ($md5failed) {
-            $tmp2[] = sprintf('%d %s', $md5failed, lang('files_checksum_failed'));
+            $tmp2[] = sprintf('%d %s', $md5failed, _la('files_checksum_failed'));
         }
         if (!empty($tmp)) {
             $tmp .= '<br />';
@@ -171,11 +172,11 @@ function check_checksum_data(&$report)
 
         $tmp = implode('<br />', $tmp2);
         if ($filenotfound) {
-            $tmp .= '<br />'.lang('files_not_found').':';
+            $tmp .= '<br />'._la('files_not_found').':';
             $tmp .= '<br />'.implode('<br />', $filenotfound).'<br />';
         }
         if ($filesfailed) {
-            $tmp .= '<br />'.count($filesfailed).' '.lang('files_failed').':';
+            $tmp .= '<br />'.count($filesfailed).' '._la('files_failed').':';
             $tmp .= '<br />'.implode('<br />', $filesfailed).'<br />';
         }
 
@@ -199,7 +200,7 @@ function generate_checksum_file(&$report)
         return false;
     }
     if (count($tmp) <= 1) {
-        $report = lang('error_retrieving_file_list');
+        $report = _la('error_retrieving_file_list');
         return false;
     }
     // lang files last (per FR)
@@ -219,7 +220,7 @@ function generate_checksum_file(&$report)
     });
 
     $output = '';
-    $salt = SingleItem::App()->GetSiteUUID();
+    $salt = get_site_UUID();
 
     foreach ($tmp as $file) {
         if (!is_link($file)) {
@@ -259,7 +260,7 @@ if (isset($_POST['action'])) {
       case 'upload':
         $res = check_checksum_data($report);
         if ($res === true) {
-            $themeObject->RecordNotice('success', lang('checksum_passed'));
+            $themeObject->RecordNotice('success', _la('checksum_passed'));
         }
         break;
       case 'download':

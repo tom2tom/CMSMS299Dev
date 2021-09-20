@@ -123,7 +123,7 @@ EOS;
 /*
 function smarty_cms_help_function_page_attr()
 {
-	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'page_attr ...', <<<'EOS'
+	echo _ld('tags', 'help_generic', 'This plugin does ...', 'page_attr ...', <<<'EOS'
 <li>page</li>
 <li>key</li>
 <li>inactive</li>

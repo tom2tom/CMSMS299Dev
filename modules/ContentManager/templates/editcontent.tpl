@@ -1,19 +1,19 @@
 {$extra_content|default:''}
 
 {if $content_id < 1}
-    <h3>{$mod->Lang('prompt_editpage_addcontent')}</h3>
+    <h3>{_ld($_module,'prompt_editpage_addcontent')}</h3>
 {else}
-    <h3>{$mod->Lang('prompt_editpage_editcontent')}&nbsp;<em>({$content_id})</em></h3>
+    <h3>{_ld($_module,'prompt_editpage_editcontent')}&nbsp;<em>({$content_id})</em></h3>
 {/if}
 
 {function submit_buttons}
-  <button type="submit" name="{$actionid}submit" title="{$mod->Lang('title_editpage_submit')}" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-  <button type="submit" name="{$actionid}cancel" title="{$mod->Lang('title_editpage_cancel')}" class="adminsubmit icon cancel" formnovalidate>{$mod->Lang('cancel')}</button>
+  <button type="submit" name="{$actionid}submit" title="{_ld($_module,'title_editpage_submit')}" class="adminsubmit icon check">{_ld($_module,'submit')}</button>
+  <button type="submit" name="{$actionid}cancel" title="{_ld($_module,'title_editpage_cancel')}" class="adminsubmit icon cancel" formnovalidate>{_ld($_module,'cancel')}</button>
   {if $content_id}
-    <button type="submit" name="{$actionid}apply" title="{$mod->Lang('title_editpage_apply')}" class="adminsubmit icon apply">{$mod->Lang('apply')}</button>
+    <button type="submit" name="{$actionid}apply" title="{_ld($_module,'title_editpage_apply')}" class="adminsubmit icon apply">{_ld($_module,'apply')}</button>
   {/if}
   {if ($content_id != '') && $content_obj->IsViewable() && $content_obj->Active()}
-    <a id="viewpage" rel="external" href="{$content_obj->GetURL()}" title="{$mod->Lang('title_editpage_view')}">{admin_icon icon='view.gif' alt=$mod->Lang('view_page')}</a>
+    <a id="viewpage" rel="external" href="{$content_obj->GetURL()}" title="{_ld($_module,'title_editpage_view')}">{admin_icon icon='view.gif' alt=_ld($_module,'view_page')}</a>
   {/if}
 {/function}
 
@@ -30,28 +30,31 @@
     {tab_header name=$key label=$tabname active=$active_tab}
   {/foreach}
   {if $content_obj->HasPreview()}
-    {tab_header name='_preview_' label=$mod->Lang('prompt_preview')}
+    {tab_header name='_preview_' label=_ld($_module,'prompt_preview')}
   {/if}
   {* tab content *}
   {foreach $tab_names as $key => $tabname}
     {tab_start name=$key}
-      {if isset($tab_message_array[$key])}{$tab_message_array[$key]}{/if}
+      {if isset($tab_message_array[$key])}
+      <p class="pageinfo">{$tab_message_array[$key]}</p>
+      {/if}
       {if isset($tab_contents_array.$key) && is_array($tab_contents_array.$key)}
-        {foreach $tab_contents_array.$key as $fld}
+        {foreach $tab_contents_array.$key as $fld}{if $fld}
         <div class="pageoverflow">
-          <p class="pagetext">{$fld[0]}</p>
-          <p class="pageinput">{$fld[1]}{if count($fld) == 3}<br />{$fld[2]}{/if}</p>
+          {if $fld.0}<label class="pagetext"{if (strpos($fld.0,'>') !== false)} {$fld.0}{else}>{$fld.0}{/if}:</label>{/if}
+          {if $fld.1}{$fld.1}{/if}
+          <div class="pageinput">{$fld.2}{if !empty($fld.3)}<br />{$fld.3}{/if}</div>
         </div>
-        {/foreach}
+        {/if}{/foreach}
       {/if}
   {/foreach}
   {if $content_obj->HasPreview()}
     {tab_start name='_preview_'}
-      <div class="pagewarn">{$mod->Lang('warn_preview')}</div>
+      <div class="pagewarn">{_ld($_module,'warn_preview')}</div>
       <iframe name="_previewframe_" class="preview" id="previewframe"></iframe>
       <div id="previewerror" style="display:none;">
         <fieldset>
-          <legend>{$mod->Lang('report')}</legend>
+          <legend>{_ld($_module,'report')}</legend>
           <ul id="preview_errors" class="pageerror"></ul>
         </fieldset>
       </div>

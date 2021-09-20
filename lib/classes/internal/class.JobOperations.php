@@ -31,7 +31,6 @@ use CMSMS\DataException;
 use CMSMS\Events;
 use CMSMS\IRegularTask;
 use CMSMS\LoadedDataType;
-use CMSMS\ModuleOperations;
 use CMSMS\RequestParameters;
 use CMSMS\SingleItem;
 use CMSMS\Utils;
@@ -609,7 +608,7 @@ final class JobOperations
      *
      * @param bool $check_only Optional flag whether to merely check for existence
      *  of relevant job(s). Default false.
-     * @return mixed array | bool
+     * @return mixed bool $check_only is true, otherwise array maybe empty
      */
     public function get_jobs(bool $check_only = false)
     {
@@ -631,7 +630,7 @@ final class JobOperations
         $rst = $db->SelectLimit($sql, self::MAXJOBS);
 
         if (!$rst) {
-            return false;
+            return [];
         }
 
         $out = [];

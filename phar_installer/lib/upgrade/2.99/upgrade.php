@@ -8,6 +8,7 @@ use CMSMS\Group;
 use CMSMS\Permission;
 use CMSMS\SingleItem;
 use CMSMS\TemplateType;
+use CMSMS\Utils;
 use function cms_installer\endswith;
 use function cms_installer\get_server_permissions;
 use function cms_installer\joinpath;
@@ -100,9 +101,9 @@ if ($return != 2) {
 
 // 2.0 reformat layout template types' callbacks
 $tbl = CMS_DB_PREFIX.'layout_tpl_types';
-$data = $db->getArray('SELECT id,lang_cb,dflt_content_cb,help_content_cb,one_only,owner FROM '.$tbl);
+$data = $db->getArray('SELECT id,originator,lang_cb,dflt_content_cb,help_content_cb,one_only,owner_id FROM '.$tbl);
 if ($data) {
-    $stmt = $db->prepare("UPDATE $tbl SET lang_cb=?,dflt_content_cb=?,help_content_cb=?,one_only=?,owner=? WHERE id=?");
+    $stmt = $db->prepare("UPDATE $tbl SET lang_cb=?,dflt_content_cb=?,help_content_cb=?,one_only=?,owner_id=? WHERE id=?");
     foreach ($data as $row) {
         $cbl = unserialize($row['lang_cb'], []);
         if (!(is_null($cbl) || is_scalar($cbl))) {
@@ -129,7 +130,7 @@ if ($data) {
             }
         }
         $singl = ($row['one_only']) ? 1 : 0;
-        $owner = ($row['owner'] > 1) ? $row['owner'] : 1;
+        $owner = ($row['originator'] != '__CORE__') ? 0 : (($row['owner_id'] > 1) ? $row['owner_id'] : 1);
         $db->execute($stmt, [$cbl, $cbc, $cbh, $singl, $owner, $row['id']]);
     }
     $stmt->close();
@@ -421,8 +422,8 @@ $longnow = $db->DbTimeStamp(time(), false);
 // 2.8 re-space task-related properties
 $sql = 'DELETE FROM '.CMS_DB_PREFIX."siteprefs WHERE sitepref_name LIKE 'Core::%'";
 $db->execute($sql);
-// revised 'namespace' indicator in recorded names c.f. AppParams::NAMESPACER
-$sql = 'UPDATE '.CMS_DB_PREFIX."siteprefs SET sitepref_name = REPLACE(sitepref_name,'_mapi_pref_','\\\\\\\\'),modified_date = ? WHERE sitepref_name LIKE '%\\_mapi\\_pref\\_%'";
+// revised 'namespace' indicator in recorded names i.e. AppParams::NAMESPACER
+$sql = 'UPDATE '.CMS_DB_PREFIX."siteprefs SET sitepref_name = REPLACE(sitepref_name,'_mapi_pref_','#]]#'),modified_date = ? WHERE sitepref_name LIKE '%\\_mapi\\_pref\\_%'";
 $db->execute($sql, [$longnow]);
 
 // 4. Extra/revised permissions
@@ -617,6 +618,18 @@ try {
 }
 */
 
+// 11A. Alternative displayed-value formats
+$val = AppParams::get('defaultdateformat'); //deprecated strftime()-compatible format
+if ($val) {
+    $s = Utils::convert_dt_format($val);
+    $s = preg_replace('/[aABgGhHiIsuveOpPTZ]/', '', $s);
+    $val = trim($s, ' :');
+} else {
+    $val = 'j l Y';
+}
+AppParams::set('date_format', $val); // date()-compatible format
+AppParams::set('datetime_format', $val.' h:i a');
+
 // 12. Update user preferences
 
 // 12.1 migrate to new default theme
@@ -656,6 +669,28 @@ $url = preg_replace('@^/[^/]+/@','',$url);
 // 12.3 migrate user-homepages like 'index.php*' to 'menu.php*'
 $sql = 'UPDATE '.CMS_DB_PREFIX."userprefs SET value = REPLACE(value,'index.php','menu.php') WHERE preference='homepage' AND value LIKE 'index.php%'";
 $db->execute($sql);
+
+// 12.4
+// replicate 'date_format_string' parameter (deprecated strftime()-compatible format)
+//  as 'date_format' and 'datetime_format' parameters in date()-compatible format
+$sql = 'SELECT user_id,value FROM '.CMS_DB_PREFIX."userprefs WHERE preference='date_format_string'";
+$data = $db->getArray($sql);
+if ($data) {
+    $sql = 'INSERT INTO '.CMS_DB_PREFIX."userprefs (user_id,preference,`value`) VALUES(?,'date_format',?)";
+    $sql2 = 'INSERT INTO '.CMS_DB_PREFIX."userprefs (user_id,preference,`value`) VALUES(?,'datetime_format',?)";
+    foreach ($data as $row) {
+        $val = (string)$row['value'];
+        if ($val) {
+            $s = Utils::convert_dt_format($val);
+            $s = preg_replace('/[aABgGhHiIsuveOpPTZ]/', '', $s);
+            $val = trim($s, ' :');
+        } else {
+            $val = 'j l Y';
+        }
+        $db->execute($sql, [$row['user_id'], $val]);
+        $db->execute($sql2, [$row['user_id'], $val.' h:i a']);
+    }
+}
 
 // 13. file-changes which must be after the do_files() (main) update
 
@@ -701,7 +736,7 @@ if (version_compare($fromvers, '2.2.900') >= 0 && version_compare($fromvers, '2.
     $d = '';
     foreach ($dirs as $fp) {
         $modname = basename($fp);
-        if (!in_array($modname, ['MenuManager', / *'CMSMailer',* / 'News'])) { //TODO exclude all non-core modules in files-tarball
+        if (!in_array($modname, ['MenuManager', 'News'])) { //TODO exclude all non-core modules in files-tarball
             if (!$d) {
                 $d = $destdir . DIRECTORY_SEPARATOR . 'modules';
                 @mkdir($d, $dirmode, true);
@@ -713,7 +748,7 @@ if (version_compare($fromvers, '2.2.900') >= 0 && version_compare($fromvers, '2.
     }
 }
 */
-
+/*
 // 13.4 move 'core' modules to /modules
 $s = $destdir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'modules';
 $list = scandir($s);
@@ -728,7 +763,7 @@ foreach ($list as $modname) {
     rename($r, $to);
 }
 rrmdir($s);
-
+*/
 // 13.5 move any 'non-core' modules to /modules
 // i.e. pre-position them for user to install \ upgrade | delete
 $s = $destdir . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'modules';
@@ -751,25 +786,19 @@ rrmdir($s);
 // NOTE uninstallation fails if redundant-module classfile is deleted e.g. during files-manifest processing
 // TODO some yukky workaround for such deletions
 $ops = SingleItem::ModuleOperations();
-// replacement version of this has different name
-$res = $ops->UninstallModule('CMSContentManager');
-if ($res[0]) {
-    verbose_msg(lang('uninstall_module','CMSContentManager'));
-    $s = cms_module_path('CMSContentManager', true);
-    rrmdir($s);
-}
-else {
-    verbose_msg('CMSContentManager : '.$res[1]);
-}
-// obsolete background-jobs processor
-$res = $ops->UninstallModule('CmsJobManager');
-if ($res[0]) {
-    verbose_msg(lang('uninstall_module','CmsJobManager'));
-    $s = cms_module_path('CmsJobManager', true);
-    rrmdir($s);
-}
-else {
-    verbose_msg('CmsJobManager : '.$res[1]);
+foreach ([
+    'CMSContentManager', // new version of this has different name
+    'CMSMailer', // ditto
+    'CmsJobManager', // obsolete background-jobs processor
+] as $modname) {
+    $res = $ops->UninstallModule($modname);
+    if ($res[0]) {
+        verbose_msg(lang('uninstall_module', $modname));
+        $s = cms_module_path($modname, true);
+        if ($s) { rrmdir($s); }
+    } else {
+        verbose_msg($modname.' : '.$res[1]);
+    }
 }
 
 // 14. Cleanup plugins
