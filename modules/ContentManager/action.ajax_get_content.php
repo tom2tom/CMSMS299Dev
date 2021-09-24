@@ -1,6 +1,6 @@
 <?php
 /*
-CMSContentManger module action: ajax_get_content
+ContentManger module action: ajax_get_content
 Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -25,6 +25,8 @@ use ContentManager\Utils as ManagerUtils;
 use CMSMS\FormUtils;
 use CMSMS\UserParams;
 use CMSMS\Utils;
+
+// CHECKME moduleinterface used for ajax? if( !$this->CheckContext() ) exit;
 
 if( !empty($firstlist) ) {
     $ajax = false;
@@ -134,12 +136,12 @@ try {
         $icon = $themeObject->DisplayImage('icons/system/view',$t,'','','systemicon');
         $linkview = '<a target="_blank" href="XXX" class="page_view" accesskey="v">'.$icon.'</a>'.PHP_EOL;
 
-        $url = $this->create_action_url($id,'admin_copycontent',['page'=>'XXX']);
+        $url = $this->create_action_url($id,'copycontent',['page'=>'XXX']);
         $t = $this->Lang('prompt_page_copy');
         $icon = $themeObject->DisplayImage('icons/system/copy',$t,'','','systemicon page_copy');
         $linkcopy = '<a href="'.$url.'" accesskey="o">'.$icon.'</a>'.PHP_EOL;
 
-        $url = $this->create_action_url($id,'admin_editcontent',['content_id'=>'XXX']);
+        $url = $this->create_action_url($id,'editcontent',['content_id'=>'XXX']);
         $t = $this->Lang('prompt_page_edit');
         $icon = $themeObject->DisplayImage('icons/system/edit',$t,'','','systemicon page_edit');
         $linkedit = '<a href="'.$url.'" class="page_edit" accesskey="e" data-cms-content="XXX">'.$icon.'</a>'.PHP_EOL;
@@ -147,7 +149,7 @@ try {
         $url = str_replace('XXX','%s',$url).'&m1_steal=1'; //sprintf template
         $tpl->assign('stealurl',$url);
 
-        $url = $this->create_action_url($id,'admin_editcontent',['parent_id'=>'XXX']);
+        $url = $this->create_action_url($id,'editcontent',['parent_id'=>'XXX']);
         $t = $this->Lang('prompt_page_addchild');
         $icon = $themeObject->DisplayImage('icons/system/newobject',$t,'','','systemicon page_addchild');
         $linkchild = '<a href="'.$url.'" class="page_edit" accesskey="a">'.$icon.'</a>'.PHP_EOL;
@@ -157,23 +159,23 @@ try {
         $icon = $themeObject->DisplayImage('icons/system/delete',$t,'','','systemicon page_delete');
         $linkdel = '<a href="'.$url.'" class="page_delete" accesskey="r">'.$icon.'</a>'.PHP_EOL;
 
-		$now = time();
-		$userid = get_userid();
+        $now = time();
+        $userid = get_userid();
         $menus = [];
         foreach( $editinfo as &$row ) {
             $acts = [];
             $rid = $row['id'];
 
-			if( isset($row['lock']) ) {
-				$obj = $row['lock'];
-				$locker = $obj['uid'];
-				if( $locker == $userid ) {
-					unset($row['lock'], $row['lockuser']);
-				}
-				else {
-					$row['lock'] = ($obj['expires'] < $now) ? 1 : -1;
-				}
-			}
+            if( isset($row['lock']) ) {
+                $obj = $row['lock'];
+                $locker = $obj['uid'];
+                if( $locker == $userid ) {
+                    unset($row['lock'], $row['lockuser']);
+                }
+                else {
+                    $row['lock'] = ($obj['expires'] < $now) ? 1 : -1;
+                }
+            }
 
             if( isset($row['move']) ) {
                 if( $row['move'] == 'up' ) {
@@ -204,7 +206,7 @@ try {
             }
             $menus[] = FormUtils::create_menu($acts,['id'=>'Page'.$rid]);
         }
-		unset($row);
+        unset($row);
 
         $tpl->assign('content_list',$editinfo)
          ->assign('menus',$menus);

@@ -24,9 +24,8 @@ use CMSMS\Events;
 use CMSMS\Group;
 use CMSMS\SingleItem;
 
-if (!isset($gCms)) {
-    exit;
-}
+//if (some worthy test fails) exit;
+if (!function_exists('cmsms')) exit;
 
 SingleItem::ContentTypeOperations()->RebuildStaticContentTypes();
 
@@ -86,6 +85,10 @@ foreach([
 ] as $name) {
 	Events::CreateEvent($me,$name); //since 2.0
 	if ($flag) {
-		Events::CreateEvent('Core',$name); //deprecated since 2.0, replicate ancient infrastructure
+		Events::CreateEvent('Core', $name); //deprecated since 2.0, replicate ancient infrastructure
 	}
 }
+
+// semi-permanent alias for back-compatibility
+$ops = SingleItem::ModuleOperations();
+$ops->set_module_classname('CMSContentManager', get_class($this));

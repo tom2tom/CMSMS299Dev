@@ -79,7 +79,7 @@ EOS
 'help_stemming' => 'Ignore words which have the more common morphological and inflexional endings of other words',
 'help_stopwords' => 'Words to be ignored when conducting a search, comma-separated, no intervening space(s)',
 'help' => '<h3>What does this do?</h3>
-<p>Search is a module for searching "core" content along with certain registered modules.  You put in a word or two and it gives you back matching, relevant results.</p>
+<p>Search is a module for searching in "core" content and certain registered modules. The user enters a word or two and the module displays matching, relevant results.</p>
 <h3>How is it used?</h3>
 <p>The easiest way to use it is with the {search} wrapper tag (wraps the module in a tag, to simplify the syntax). This will insert the module into your template or page anywhere you wish, and display the search form.  The code would look something like: <code>{search}</code></p>
 <h4>How do i prevent certain content from being indexed</h4>

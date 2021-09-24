@@ -24,6 +24,7 @@ use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\SingleItem;
 use CMSMS\UserParams;
+use function CMSMS\log_info;
 
 $dsep = DIRECTORY_SEPARATOR;
 require ".{$dsep}admininit.php";
@@ -131,7 +132,7 @@ VALUES (?,?,NOW())');
                     }
                     // put mention into the admin log
                     $group_id = (isset($_GET['group_id'])) ? (int)$_GET['group_id'] : -1;
-                    audit($group_id, 'Assignment Group ID: '.$group_id, 'Changed');
+                    log_info($group_id, 'Assignment Group ID: '.$group_id, 'Changed');
                 }
             }
         }

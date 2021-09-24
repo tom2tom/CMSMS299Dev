@@ -26,6 +26,7 @@ use CMSMS\Events;
 use CMSMS\Group;
 use CMSMS\SingleItem;
 use function CMSMS\de_specialize_array;
+use function CMSMS\log_info;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
@@ -91,7 +92,7 @@ if (isset($_POST['editgroup'])) {
         if ($groupobj->save()) {
             Events::SendEvent( 'Core', 'EditGroupPost', [ 'group'=>&$groupobj ] );
             // put mention into the admin log
-            audit($groupobj->id, 'Admin Users Group '.$groupobj->name, 'Edited');
+            log_info($groupobj->id, 'Admin Users Group '.$groupobj->name, 'Edited');
             redirect('listgroups.php'.$urlext);
         } else {
             $errors[] = _la('errorupdatinggroup');

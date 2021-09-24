@@ -21,9 +21,10 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
 use CMSMS\Database\DataDictionary;
+use CMSMS\SingleItem;
 use CMSMS\Template;
-use CMSMS\TemplatesGroup;
 use CMSMS\TemplateType;
+use function CMSMS\log_error;
 
 //if (some worthy test fails) exit;
 
@@ -90,46 +91,46 @@ $dict->ExecuteSQLArray($sqlarray);
 $me = $this->GetName();
 
 try {
-    $form_type = new TemplateType();
-    $form_type->set_originator($me);
-    $form_type->set_name('searchform');
-    $form_type->set_dflt_flag(TRUE);
-    $form_type->set_lang_callback('Search::page_type_lang_callback');
-    $form_type->set_content_callback('Search::reset_page_type_defaults');
-    $form_type->reset_content_to_factory();
-    $form_type->save();
+    $type = new TemplateType();
+    $type->set_originator($me);
+    $type->set_name('searchform');
+    $type->set_dflt_flag(TRUE);
+    $type->set_lang_callback('Search::page_type_lang_callback');
+    $type->set_content_callback('Search::reset_page_type_defaults');
+    $type->reset_content_to_factory();
+    $type->save();
 
     $tpl = new Template();
     $tpl->set_originator($me);
     $tpl->set_name('Search Form Sample');
     $tpl->set_owner($userid);
     $tpl->set_content($this->GetSearchHtmlTemplate());
-    $tpl->set_type($form_type);
+    $tpl->set_type($type);
     $tpl->set_type_default(TRUE);
     $tpl->save();
 
-    $results_type = new TemplateType();
-    $results_type->set_originator($me);
-    $results_type->set_name('searchresults');
-    $results_type->set_dflt_flag(TRUE);
-    $results_type->set_lang_callback('Search::page_type_lang_callback');
-    $results_type->set_content_callback('Search::reset_page_type_defaults');
-    $results_type->reset_content_to_factory();
-    $results_type->save();
+    $type = new TemplateType();
+    $type->set_originator($me);
+    $type->set_name('searchresults');
+    $type->set_dflt_flag(TRUE);
+    $type->set_lang_callback('Search::page_type_lang_callback');
+    $type->set_content_callback('Search::reset_page_type_defaults');
+    $type->reset_content_to_factory();
+    $type->save();
 
     $tpl = new Template();
     $tpl->set_originator($me);
     $tpl->set_name('Search Results Sample');
     $tpl->set_owner($userid);
     $tpl->set_content($this->GetResultsHtmlTemplate());
-    $tpl->set_type($results_type);
+    $tpl->set_type($type);
     $tpl->set_type_default(TRUE);
     $tpl->save();
-} catch( Throwable $t) {
+} catch (Throwable $t) {
     if ($newsite) {
         return $t->GetMessage();
     } else {
-        audit('', $me, 'Installation error: '.$t->GetMessage());
+        log_error($me, 'Installation error: '.$t->GetMessage());
     }
 }
 
@@ -149,4 +150,8 @@ $this->RegisterEvents();
 $this->RegisterModulePlugin(true);
 $this->RegisterSmartyPlugin('search', 'function', 'function_plugin');
 
+if ($newsite) {
+    // ensure demo-pages are loadable for searching
+    SingleItem::ContentTypeOperations()->RebuildStaticContentTypes();
+}
 $this->Reindex();

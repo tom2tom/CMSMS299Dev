@@ -22,8 +22,6 @@ If not, see <https://www.gnu.org/licenses/>.
 
 //use CMSMS\IMultiEditor;
 //use CMSMS\Mailer; OutMailer\Mailer; //TODO if no OutMailer present, revert to mail()
-use ContentManager\ContentBase;
-use ContentManager\contenttypes\Content;
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
 use CMSMS\CoreCapabilities;
@@ -34,7 +32,10 @@ use CMSMS\HookOperations;
 use CMSMS\SingleItem;
 use CMSMS\Url;
 use CMSMS\Utils;
+use ContentManager\ContentBase;
+use ContentManager\contenttypes\Content;
 use function CMSMS\de_specialize_array;
+use function CMSMS\log_notice;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
@@ -318,9 +319,9 @@ if (isset($_POST['submit'])) {
                     // TODO CMSMS\sanitizeVal($tmsg, CMSSAN_NONPRINT) CMS_SAN_TODO etc for html incl. tags
                     $prevsitedown = AppParams::get('site_downnow', 0);
                     if (!$prevsitedown && $sitedown) {
-                        audit('', 'Global Settings', 'Sitedown enabled');
+                        log_notice('Global Settings', 'Sitedown enabled');
                     } elseif ($prevsitedown && !$sitedown) {
-                        audit('', 'Global Settings', 'Sitedown disabled');
+                        log_notice('Global Settings', 'Sitedown disabled');
                     }
                     AppParams::set('site_downnow', $sitedown);
                     AppParams::set('sitedownmessage', $tmsg);
@@ -470,7 +471,7 @@ if (isset($_POST['submit'])) {
 
         if (!$errors) {
             // put mention into the admin log
-            audit('', 'Global Settings', 'Edited');
+            log_notice('Global Settings', 'Edited');
             $messages[] = _la('siteprefsupdated');
         }
     } else {

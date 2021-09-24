@@ -19,19 +19,25 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use ContentManager\Utils;
 use CMSMS\SingleItem;
+use ContentManager\Utils;
+use function CMSMS\log_error;
+use function CMSMS\log_notice;
+use function CMSMS\log_warning;
 
-//if( some worthy test fails ) exit;
-if( !isset($action) || $action != 'admin_bulk_setstyles' ) exit;
+if( !$this->CheckContext() ) exit;
 
 if( isset($params['cancel']) ) {
-  $this->SetInfo($this->Lang('msg_cancelled'));
-  $this->Redirect($id,'defaultadmin',$returnid);
+    $this->SetInfo($this->Lang('msg_cancelled'));
+    $this->Redirect($id,'defaultadmin',$returnid);
+}
+if( !$this->CheckPermission('Manage All Content') ) {
+    $this->SetError($this->Lang('error_bulk_permission'));
+    $this->Redirect($id,'defaultadmin',$returnid);
 }
 if( empty($params['bulk_content']) ) {
-  $this->SetError($this->Lang('error_missingparam'));
-  $this->Redirect($id,'defaultadmin',$returnid);
+    $this->SetError($this->Lang('error_missingparam'));
+    $this->Redirect($id,'defaultadmin',$returnid);
 }
 
 $pagelist = $params['bulk_content'];
@@ -44,8 +50,8 @@ if( isset($params['submit']) ) {
     }
 */
     $value = (isset($params['styles'])) ? implode(',',$params['styles']) : null; //from checkboxes
-    $i = 0;
     $user_id = get_userid();
+    $n = 0;
 
     try {
         foreach( $pagelist as $pid ) {
@@ -55,13 +61,13 @@ if( isset($params['submit']) ) {
             $content->SetStyles($value);
             $content->SetLastModifiedBy($user_id);
             $content->Save();
-            ++$i;
+            ++$n;
         }
-        audit('','ContentManager','Changed stylesheet on '.$i.' pages');
+        log_notice('ContentManager','Changed stylesheet on '.$n.' pages');
         $this->SetMessage($this->Lang('msg_bulk_successful'));
     }
     catch( Throwable $t ) {
-        cms_warning('Changing styles on multiple pages failed: '.$t->getMessage());
+        log_error('Failed to change styles on multiple pages',$t->getMessage());
         $this->SetError($t->getMessage());
     }
     $cache = SingleItem::LoadedData();

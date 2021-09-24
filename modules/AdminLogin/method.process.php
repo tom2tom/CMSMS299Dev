@@ -27,6 +27,8 @@ use CMSMS\SingleItem;
 use CMSMS\User;
 use CMSMS\UserParams;
 use CMSMS\Utils;
+use function CMSMS\log_info;
+use function CMSMS\log_notice;
 use function CMSMS\sanitizeVal;
 
 /*
@@ -124,7 +126,7 @@ $check_passwords = function(User $user, AdminLogin $mod) use ($infomessage, $err
             $user->Save();
             // put mention into the admin log
             $ip_passw_recovery = Utils::get_real_ip();
-            audit('', 'Core', 'Completed lost password recovery for: '.$user->username.' (IP: '.$ip_passw_recovery.')');
+            log_notice('', 'Completed lost password recovery for: '.$user->username.' (IP: '.$ip_passw_recovery.')');
             Events::SendEvent('Core', 'LostPasswordReset', ['uid'=>$user->id, 'username'=>$user->username, 'ip'=>$ip_passw_recovery]);
             $infomessage = $mod->Lang('passwordchangedlogin');
             $changepwhash = '';
@@ -157,7 +159,7 @@ if (isset($_SESSION[$id.'logout_user_now'])) {
     Events::SendEvent('Core', 'LogoutPre', ['uid'=>$userid, 'username'=>$username]);
     $login_ops->deauthenticate(); // unset all the cruft needed to make sure we're logged in
     Events::SendEvent('Core', 'LogoutPost', ['uid'=>$userid, 'username'=>$username]);
-    audit($userid, 'Admin User '.$username, 'Logged Out');
+    log_info($userid, 'Admin User '.$username, 'Logged Out');
     // do any module-specific logout stuff here
     // slide through to 'submit' processing
 } elseif (isset($_REQUEST[$id.'forgotpwform']) && isset($_REQUEST[$id.'forgottenusername'])) { // check for a forgot-pw job
@@ -173,7 +175,7 @@ if (isset($_SESSION[$id.'logout_user_now'])) {
             if (!$user->email) {
                 $errmessage = $this->Lang('norecoveryaddress');
             } elseif ($send_recovery_email($user, $this)) { // careful about $this
-                audit('', 'Core', 'Sent lost-password email for '.$user->username);
+                log_notice('', 'Sent lost-password email for '.$user->username);
                 $infomessage = $this->Lang('recoveryemailsent');
             } else {
                 $errmessage = $this->Lang('error_sendemail');
@@ -265,10 +267,10 @@ if (isset($_POST[$id.'cancel'])) {
 
             // put mention into the admin log
             if (isset($_REQUEST[$id.'renewpwform'])) {
-                audit($user->id, 'Admin User '.$user->username, 'Password Renewed');
+                log_info($user->id, 'Admin User '.$user->username, 'Password Renewed');
                 unset($_POST[$id.'renewpwform']);
             } else {
-                audit($user->id, 'Admin User '.$user->username, 'Logged In');
+                log_info($user->id, 'Admin User '.$user->username, 'Logged In');
             }
 
             // send the post-login event
@@ -315,7 +317,7 @@ if (isset($_POST[$id.'cancel'])) {
         Events::SendEvent('Core', 'LoginFailed', ['user'=>$username]);
         // put mention into the admin log
         $ip_login_failed = Utils::get_real_ip();
-        audit('', '(IP: ' . $ip_login_failed . ') ' . 'Admin User ' . $username, 'Login failed');
+        log_notice('(IP: ' . $ip_login_failed . ') ' . 'Admin User ' . $username, 'Login failed');
     }
     unset($_REQUEST[$id.'forgottenusername'],$_POST[$id.'forgottenusername']);
 }

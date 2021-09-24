@@ -26,9 +26,12 @@ use CMSMS\RouteOperations;
 use CMSMS\SingleItem;
 use CMSMS\TemplateType;
 use CMSMS\Url;
-use CMSMS\Utils;
+use CMSMS\Utils as AppUtils;
 use News\AdminOperations;
+use News\Utils;
 use function CMSMS\de_specialize_array;
+use function CMSMS\log_error;
+use function CMSMS\log_info;
 use function CMSMS\specialize;
 //use function CMSMS\de_specialize;
 //use function CMSMS\sanitizeVal;
@@ -197,7 +200,7 @@ news_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
                 if (($status == 'published' || $status == 'final') && $searchable) {
                     //Update search index
-                    $module = Utils::get_search_module();
+                    $module = AppUtils::get_search_module();
                     if (is_object($module)) {
                         $text = $content . ' ' . $summary . ' ' . $title . ' ' . $title;
                         $until = ($useexp && $this->GetPreference('expired_searchable', 0) == 0) ? $enddate : NULL;
@@ -220,7 +223,7 @@ news_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
                     'news_url' => $news_url
                 ]);
                 // put mention into the admin log
-                audit($articleid, 'News: ' . $title, 'Article added');
+                log_info($articleid, 'News: ' . $title, 'Article added');
                 $this->SetMessage($this->Lang('articleadded'));
                 if (!isset($params['apply'])) {
                     $this->Redirect($id, 'defaultadmin', $returnid);
@@ -308,8 +311,9 @@ WHERE news_id=?';
         'checksum' => md5_file($tmpfname)
     ];
     $tparms = ['preview' => md5(serialize($_SESSION['news_preview']))];
-    if (isset($params['detailtemplate']))
-        $tparms['detailtemplate'] = trim($params['detailtemplate']);
+    if (!empty($params['detailtemplate'])) {
+        $tparms['detailtemplate'] = Utils::check_file(trim($params['detailtemplate']));
+    }
     $url = $this->create_url('_preview_', 'detail', $detail_returnid, $tparms, true, false, '', false, 2);
 
     $response = '<?xml version="1.0"?>';
@@ -443,7 +447,7 @@ try {
          ->assign('preview_returnid', $str);
     }
 } catch( Throwable $t ) {
-    cms_error('', $this->GetName().'::addarticle', 'No detail templates available for preview');
+    log_error('No detail templates available for preview', $this->GetName().'::addarticle');
     $this->ShowErrors($t->GetMessage());
 }
 

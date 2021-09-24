@@ -29,8 +29,9 @@ use const CMS_DEPREC;
 use const CMS_FILETAGS_PATH;
 use const CMSSAN_FILE;
 use const CMSSAN_NONPRINT;
-use function audit;
 use function CMSMS\de_specialize;
+use function CMSMS\log_error;
+use function CMSMS\log_warning;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 use function file_put_contents;
@@ -353,7 +354,7 @@ final class UserTagOperations
 					$query = 'SELECT id,contentfile FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
 					$dbr = $db->getRow($query, [$name]);
 					if (!$dbr) {
-						audit('', __METHOD__, "Userplugin '$name' doesn't exist");
+						log_error("Userplugin doesn't exist", $name);
 						// TODO warn user
 						return null;
 					}
@@ -441,7 +442,7 @@ final class UserTagOperations
 			$query = 'SELECT id,contentfile FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
 			$dbr = $db->getRow($query, [$name]);
 			if (!$dbr) {
-				audit('', __METHOD__, "Userplugin '$name' doesn't exist");
+				log_error("Userplugin doesn't exist", $name);
 				// TODO warn user
 				return null;
 			}
@@ -494,9 +495,10 @@ final class UserTagOperations
 				}
 				return ($props) ? (($multi) ? $dbr : reset($dbr)) : true;
 			}
-			// maybe it's file-stored tho' previously missed as such
+			// maybe it's file-stored but unregistered
 			$res = $this->GetFileTag($name, $props); //UDTfiles
 			if ($res) {
+				log_warning("Un-registered userplugin used", $name);
 				//remember it TODO dB-data update, apply real id
 				$this->ArraySet($name, [0, true, null], $this->cache);
 				return $res;
@@ -802,7 +804,7 @@ EOS;
 				if ($row['contentfile']) {
 					$fp = $this->FilePath($name);
 					if (!is_readable($fp)) {
-						audit($id, __METHOD__, "File-stored userplugin '$name' doesn't exist");
+						log_error("File-stored userplugin doesn't exist", $name);
 						// TODO remove from dB and/or warn user
 						continue;
 					}

@@ -26,6 +26,7 @@ use CMSMS\ScriptsMerger;
 use CMSMS\SingleItem;
 use CMSMS\UserOperations;
 use function CMSMS\de_specialize_array;
+use function CMSMS\log_info;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
@@ -177,7 +178,7 @@ if (isset($_POST['submit'])) {
             $result = $userobj->Save();
             if ($result) {
                 // put mention into the admin log
-                audit($userid, 'Admin User '.$userobj->username, 'Edited');
+                log_info($userid, 'Admin User '.$userobj->username, 'Edited');
                 Events::SendEvent('Core', 'EditUserPost', [ 'user'=>$userobj ]);
                 $themeObject->RecordNotice('success', _la('accountupdated'));
                 $userobj->password = '';

@@ -29,6 +29,7 @@ use CMSMS\SingleItem;
 use CMSMS\User;
 use CMSMS\UserParams;
 use function CMSMS\de_specialize_array;
+use function CMSMS\log_info;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
@@ -168,7 +169,7 @@ if (isset($_POST['submit'])) {
                 }
 
                 // put mention into the admin log
-                audit($userobj->id, 'Admin User ' . $userobj->username, 'Added');
+                log_info($userobj->id, 'Admin User ' . $userobj->username, 'Added');
                 redirect('listusers.php'.$urlext);
             } else {
                 $errors[] = _la('errorinsertinguser');

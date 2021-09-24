@@ -24,6 +24,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\LockOperations;
 use CMSMS\SingleItem;
+use function CMSMS\log_notice;
 
 $dsep = DIRECTORY_SEPARATOR;
 require ".{$dsep}admininit.php";
@@ -64,11 +65,11 @@ if ($is_admin) {
 	$db = cmsms()->GetDb();
 	$sql = 'DELETE FROM '.CMS_DB_PREFIX.LockOperations::LOCK_TABLE.' WHERE type = ?';
 	$db->execute($sql,[$type]);
-	cms_notice("Cleared all $type locks");
+	log_notice("Cleared all $type locks");
 } else {
 	// clear only my locks
 	LockOperations::delete_for_user($type);
-	cms_notice("Cleared his own $type locks");
+	log_notice("Cleared user's $type locks");
 }
 
 SingleItem::Theme()->ParkNotice('info',_ld('layout','msg_lockscleared'));

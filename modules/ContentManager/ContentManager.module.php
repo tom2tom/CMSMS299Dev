@@ -72,7 +72,7 @@ final class ContentManager extends CMSModule
         return [
          'title'=> $this->Lang('settings_title'),
          //'desc'=> 'useful text goes here', // optional useful text
-         'url'=> $this->create_action_url('m1_','admin_settings'), // if permitted
+         'url'=> $this->create_action_url('','settings'), // if permitted
          //optional 'text' => custom link-text | explanation e.g need permission
         ];
     }
@@ -123,7 +123,7 @@ final class ContentManager extends CMSModule
             $obj->title = $this->Lang('title_contentmanager_settings');
             $obj->description = $this->Lang('desc_contentmanager_settings');
             $obj->icon = false;
-            $obj->action = 'admin_settings';
+            $obj->action = 'settings';
             $obj->name = 'set';
             $out[] = $obj;
         }

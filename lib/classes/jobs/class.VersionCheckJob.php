@@ -28,7 +28,7 @@ use CMSMS\Async\RecurType;
 use CMSMS\HttpRequest;
 use const CMS_DEFAULT_VERSIONCHECK_URL;
 use const CMS_VERSION;
-use function cms_notice;
+use function CMSMS\log_notice;
 
 class VersionCheckJob extends CronJob
 {
@@ -59,7 +59,7 @@ class VersionCheckJob extends CronJob
             $alert->msgkey = 'new_version_avail2';
             $alert->msgargs = [ CMS_VERSION, $remote_ver ];
             $alert->save();
-            cms_notice('CMSMS version '.$remote_ver.' is available');
+            log_notice('CMSMS version '.$remote_ver.' is available');
             return 2;
         }
         return 1;

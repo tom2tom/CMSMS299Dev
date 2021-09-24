@@ -27,7 +27,7 @@ use function cms_get_css;
 use function cms_path_to_url;
 use function file_put_contents;
 
-//TODO a job to clear old consolidations ? how old ? c.f. TMP_CACHE_LOCATION cleaner
+//TODO an async Job to clear old consolidations ? how old ? c.f. TMP_CACHE_LOCATION cleaner
 
 /**
  * A class for consolidating specified stylesheet files and/or strings
@@ -75,12 +75,11 @@ class StylesMerger
     /**
      * Record a string to be merged
      *
-     * @since 2.99
      * @param string $output   css string
      * @param int    $priority Optional priority 1..3 for the style. Default 0
      *  hence use current default
-     * @param bool   $min since 2.99 Optional flag whether to force minimize
-     *  this script in the merged file. Default false
+     * @param bool   $min Optional flag whether to force minimize this
+     *  string in the merged file. Default false
      * @param bool   $force    Optional flag whether to force recreation of the merged file. Default false
      */
     public function queue_string(string $output, int $priority = 0, bool $min = false, bool $force = false)
@@ -99,12 +98,13 @@ class StylesMerger
      * @param string $filename Filesystem path of styles file
      * @param int    $priority Optional priority 1... for the file. Default 0
      *  hence use current default
-     * @param bool   $min since 2.99 Optional flag whether to force minimize
-     *  this script in the merged file. Default false
+     * @param bool   $min Optional flag whether to force minimize
+     *  this file's content in the merged file. Default false
      * @return bool indicating success
      */
     public function queue_file(string $filename, int $priority = 0, bool $min = false)
     {
+//TODO  $filename = $this->url_to_path($filename); // migrate URL-formatted filename to filepath
         if (!is_file($filename)) return false;
 
         $sig = Crypto::hash_string($filename);
@@ -129,10 +129,10 @@ class StylesMerger
     /**
      * Find and record a style-file to be merged if necessary
      *
-     * @since 2.99
-     * @param string $filename absolute or relative filepath of the wanted styles file,
-     *  optionally including [.-]min before its .css extension
-     *  If searching is needed, a discovered mMin-format version will be preferred over non-min.
+     * @param string $filename absolute or relative filepath of the wanted
+     *  styles file, optionally including [.-]min before its .css extension
+     *  If searching is needed, a discovered mMin-format version will be
+     *  preferred over non-min.
      * @param int    $priority Optional priority 1..3 for the style. Default 0
      *  hence use current default
      * @param bool   $min  Optional flag whether to force-minimize the
@@ -142,6 +142,7 @@ class StylesMerger
      */
     public function queue_matchedfile(string $filename, int $priority = 0, bool $min = false, $custompaths = '') : bool
     {
+//TODO  $filename = $this->url_to_path($filename); // migrate URL-formatted filename to filepath
         $cache_filename = cms_get_css($filename, false, $custompaths);
         if ($cache_filename) {
             return $this->queue_file($cache_filename, $priority, $min);
@@ -150,7 +151,7 @@ class StylesMerger
     }
 
     /**
-     * Convert $content to miminal size
+     * Convert $content to minimal size
      * @internal
      * @param string $content
      * @return string
@@ -159,13 +160,13 @@ class StylesMerger
     {
         // not perfect, but very close ...
         $str = preg_replace(
-            ['~^\s+~','~\s+$~','~\s+~', '~/\*[^!](\*(?!\/)|[^*])*\*/~'],
-            [''      ,''      ,' '    , ''],
+            ['~^\s+~', '~\s+$~', '~\s+~', '~/\*[^!](\*(?!\/)|[^*])*\*/~'],
+            [''      , ''      , ' '    , ''],
             $content);
         $str = strtr($str, ['\r' => '', '\n' => '']);
         return str_replace(
-            [ '  ', ': ', ', ', '{ ', '; ', '( ', '} ', ' :', ' {', '; }', ';}', ' }', ' )'],
-            [ ' ' , ':' , ',' , '{' , ';' , '(' , '}' , ':' , '{' , '}'  , '}' , '}' , ')' ],
+            ['  ', ': ', ', ', '{ ', '; ', '( ', '} ', ' :', ' {', '; }', ';}', ' }', ' )'],
+            [' ' , ':' , ',' , '{' , ';' , '(' , '}' , ':' , '{' , '}'  , '}' , '}' , ')' ],
             $str);
     }
 
@@ -238,12 +239,11 @@ class StylesMerger
      * page-content.
      * @see also StylesMerger::render_styles()
      *
-     * @since 2.99
      * @param string $output_path Optional file system absolute path of folder
-     *  to hold the styles file. Default '' hence use TMP_CACHE_LOCATION
+     *  to hold the generated styles file. Default '' hence use TMP_CACHE_LOCATION
      * @param bool   $force       Optional flag whether to force re-creation
      *  of the merged file. Default false
-     * @return string html string <link ...  /> | ''
+     * @return string html like <link ...  /> | ''
      */
     public function page_content(string $output_path = '', bool $force = false) : string
     {
@@ -255,5 +255,17 @@ class StylesMerger
             return "<link rel=\"stylesheet\" type=\"text/css\" href=\"$url\" media=\"all\" />\n";
         }
         return '';
+    }
+
+    /**
+     * Convert the supplied path, if it's an URL, to the corresponding filepath
+     *
+     * @param string
+     * @return string
+     */
+    protected function url_to_path(string $path) : string
+    {
+        //TODO
+        return $path;
     }
 } // class

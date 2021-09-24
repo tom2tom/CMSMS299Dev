@@ -22,6 +22,8 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use function CMSMS\log_notice;
+
 //if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
 
@@ -39,7 +41,7 @@ if( $dir ) {
 }
 
 if( $result ) {
-    audit('',$this->GetName().'::local_chmod','Changed permissions on '.$module.' directory');
+    log_notice($this->GetName().'::local_chmod','Changed permissions on '.$module.' directory');
     $this->SetMessage($this->Lang('msg_module_chmod'));
 } else {
     $this->SetError($this->Lang('error_chmodfailed'));

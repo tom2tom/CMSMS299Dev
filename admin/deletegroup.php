@@ -23,6 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\SingleItem;
+use function CMSMS\log_info;
 
 if (!isset($_GET['group_id'])) {
     return;
@@ -69,7 +70,7 @@ if ($groupobj) {
     if ($groupobj->Delete()) {
         Events::SendEvent('Core', 'DeleteGroupPost', [ 'group'=>&$groupobj ] );
         // put mention into the admin log
-        audit($group_id, 'Admin Users Group '.$group_name, 'Deleted');
+        log_info($group_id, 'Admin Users Group '.$group_name, 'Deleted');
     } else {
         $themeObject->ParkNotice('error', _la('failure'));
     }

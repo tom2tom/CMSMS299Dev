@@ -21,6 +21,9 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\SingleItem;
+use function CMSMS\log_error;
+use function CMSMS\log_warning;
+use function CMSMS\sanitizeVal;
 
 /**
  * Class for handling file-stored module templates as a resource.
@@ -30,13 +33,30 @@ use CMSMS\SingleItem;
  * @ignore
  * @since 1.11
  */
-class Smarty_Resource_module_file_tpl extends Smarty_Resource_Custom //OR Smarty_Internal_Resource_File
+class Smarty_Resource_module_file_tpl extends Smarty_Resource_Custom
 {
     // static properties here >> SingleItem ?
     /**
+     * @var array intra-request cache of used templates, each member like
+     *  name => [ 'content' => whatever, 'modified' => non-0 timestamo ]
      * @ignore
      */
     private static $loaded = [];
+
+    /**
+     * populate Source Object with meta data from Resource, and work
+     * around Smarty's filepath-setting limitation
+     *
+     * @param Smarty_Template_Source   $source    source object
+     * @param Smarty_Internal_Template $_template template object
+     */
+    public function populate(Smarty_Template_Source $source, Smarty_Internal_Template $_template = null)
+    {
+        parent::populate($source, $_template);
+        if ($source->exists) {
+            $source->filepath = $source->type . ':' . sanitizeVal(strtr($source->name, [';'=>'_']), CMSSAN_FILE);
+        }
+    }
 
     /**
      * @param string $name    template identifier like 'modulename;filename'
@@ -55,7 +75,8 @@ class Smarty_Resource_module_file_tpl extends Smarty_Resource_Custom //OR Smarty
             return;
         }
         $modname = trim($parts[0]);
-        $mod = SingleItem::ModuleOperations()->get_module_instance($modname); //loaded modules only
+        // not cms_module_path($modname), module might be present but uninstalled
+        $mod = SingleItem::ModuleOperations()->get_module_instance($modname);
         if( $mod ) {
             $module_path = $mod->GetModulePath();
             $filename = trim($parts[1]);
@@ -66,17 +87,16 @@ class Smarty_Resource_module_file_tpl extends Smarty_Resource_Custom //OR Smarty
             foreach( $files as $one ) {
                 if( is_file($one) ) {
                     $content = @file_get_contents($one);
-                    if( !$content ) {
-                        cms_warning('Empty template: '.$one);
-                        continue;
+                    if( $content ) {
+                        $source = $content;
+                        $mtime = @filemtime($one);
+                        self::$loaded[$name] = ['content'=>$content,'modified'=>$mtime];
+                        return;
                     }
-                    $source = $content;
-                    $mtime = @filemtime($one);
-                    self::$loaded[$name] = ['content'=>$content,'modified'=>$mtime];
-                    return;
+                    log_warning('Empty template',$one);
                 }
             }
         }
-        cms_error('Missing template: '.$name);
+        log_error('Missing template',$name);
     }
 } // class

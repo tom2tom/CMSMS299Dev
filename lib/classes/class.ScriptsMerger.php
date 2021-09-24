@@ -29,7 +29,7 @@ use function cms_get_script;
 use function cms_path_to_url;
 use function file_put_contents;
 
-//TODO a job to clear old consolidations ? how old ? c.f. TMP_CACHE_LOCATION cleaner
+//TODO an async Job to clear old consolidations ? how old ? c.f. TMP_CACHE_LOCATION cleaner
 
 /**
  * A class for consolidating specified javascript files and/or strings
@@ -105,6 +105,7 @@ class ScriptsMerger
      */
     public function queue_file(string $filename, int $priority = 0)
     {
+//TODO  $filename = $this->url_to_path($filename); // migrate URL-formatted filename to filepath
         if (!is_file($filename)) return false;
 
         $sig = Crypto::hash_string($filename);
@@ -128,16 +129,18 @@ class ScriptsMerger
     /**
      * Find and record a script-file to be merged if necessary
      *
-     * @param string $filename absolute or relative filepath or (base)name of the
-     *  wanted script file, optionally including [.-]min before the .js extension
-     *  If the name includes a version, that will be taken into account.
-     *  Otherwise, any found version will be used. Min-format preferred over non-min.
+     * @param string $filename absolute or relative filepath or (base)name
+     *  of the wanted script file, optionally including [.-]min before
+     *  the .js extension. If the name includes a version, that will be
+     *  taken into account. Otherwise, any found version will be used.
+     *  Min-format will be preferred over non-min.
      * @param int    $priority Optional priority 1..3 for the script. Default 0 (use current default)
-     * @param mixed  $custompaths since 2.99 Optional string | string[] custom places to search before defaults
+     * @param mixed  $custompaths Optional string | string[] custom places to search before defaults
      * @return bool indicating success
      */
     public function queue_matchedfile(string $filename, int $priority = 0, $custompaths = '') : bool
     {
+//TODO  $filename = $this->url_to_path($filename); // migrate URL-formatted filename to filepath
         $cache_filename = cms_get_script($filename, false, $custompaths);
         if ($cache_filename) {
             return $this->queue_file($cache_filename, $priority);
@@ -216,14 +219,13 @@ class ScriptsMerger
      * page-content.
      * @see also ScriptsMerger::render_scripts()
      *
-     * @since 2.99
      * @param string $output_path Optional Filesystem absolute path of folder
-     *  to hold the styles file. Default '' hence use TMP_CACHE_LOCATION
+     *  to hold the merged-scripts file. Default '' hence use TMP_CACHE_LOCATION
      * @param bool   $force       Optional flag whether to force re-creation
      *  of the merged file. Default false
      * @param bool   $defer Optional flag whether to automatically include
      *  script jquery.cmsms_defer.js. Default false
-     * @return string html string <script ... </script> | ''
+     * @return string html like <script ... </script> | ''
      */
     public function page_content(string $output_path = '', bool $force = false, bool $defer = false) : string
     {
@@ -235,5 +237,17 @@ class ScriptsMerger
             return "<script type=\"text/javascript\" src=\"$url\"></script>\n";
         }
         return '';
+    }
+
+    /**
+     * Convert the supplied path, if it's an URL, to the corresponding filepath
+     * 
+     * @param string
+     * @return string
+     */
+    protected function url_to_path(string $path) : string
+    {
+        //TODO
+        return $path;
     }
 } // class

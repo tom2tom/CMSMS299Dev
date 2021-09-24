@@ -22,10 +22,10 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
 use CMSMS\Group;
+use CMSMS\SingleItem;
 
-if (!isset($gCms)) {
-    exit;
-}
+//if (some worthy test fails) exit;
+if (!function_exists('cmsms')) exit;
 
 $group = new Group();
 $group->name = 'Editor';
@@ -35,7 +35,7 @@ try {
         Events::SendEvent('Core', 'DeleteGroupPost', ['group' => &$group]);
     }
 } catch (Throwable $t) {
-	// ignore this error
+    // ignore this error
 }
 
 $this->RemovePreference();
@@ -59,4 +59,11 @@ foreach([
  'ContentPreRender', // 2.2
 ] as $name) {
     Events::RemoveEvent($me,$name);
+}
+
+$ops = SingleItem::ModuleOperations();
+$alias = $ops->get_module_classname('CMSContentManager');
+$mine = get_class($this);
+if ($alias && strpos($alias, $mine) !== false) {
+    $ops->set_module_classname('CMSContentManager', null);
 }

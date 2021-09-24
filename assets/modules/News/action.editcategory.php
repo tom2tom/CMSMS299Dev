@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\Events;
 use News\AdminOperations;
 use News\Utils;
+use function CMSMS\log_info;
 
 //if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify News Preferences')) exit;
@@ -94,7 +95,7 @@ WHERE news_category_id = ?';
 
       Events::SendEvent('News', 'NewsCategoryEdited', [ 'category_id'=>$catid, 'name'=>$name, 'origname'=>$origname ] );
       // put mention into the admin log
-      audit($catid, 'News category: '.$name, ' Category edited');
+      log_info($catid, 'News category: '.$name, ' Category edited');
 
       $this->SetMessage($this->Lang('categoryupdated'));
       $this->RedirectToAdminTab('categories','','admin_settings');

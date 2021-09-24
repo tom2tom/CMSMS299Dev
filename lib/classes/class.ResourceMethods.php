@@ -94,6 +94,15 @@ class ResourceMethods
 	// default versions of methods required/accessed by the module-manager module
 	// NOTE no event-processing, permission-changes(checks are ok), redirections, messaging like ShowErrors() etc
 
+    public function CheckContext() : bool
+    {
+        $str = $_SERVER['PHP_SELF'] ?? '';
+        if (!$str) {
+            $str = reset(get_included_files());
+        }
+        return basename($str, '.php') === 'moduleinterface';
+    }
+
 	public function CheckPermission(...$perms) : bool
 	{
 		$userid = get_userid(false);

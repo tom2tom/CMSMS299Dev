@@ -22,15 +22,15 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use function CMSMS\get_scripts_manager;
 // since 2.99
-function smarty_function_cms_render_scripts( $params, $template )
+function smarty_function_cms_render_scripts($params, $template)
 {
 	$combiner = get_scripts_manager();
 	$force = cms_to_bool($params['force'] ?? false);
 
 	$out = '';
-	$filename = $combiner->render_scripts(PUBLIC_CACHE_LOCATION, $force, false);
+	$filename = $combiner->render_scripts(TMP_CACHE_LOCATION, $force, false);
 	if( $filename ) {
-		$url = PUBLIC_CACHE_URL."/$filename";
+		$url = cms_path_to_url(TMP_CACHE_LOCATION)."/$filename";
 		$nocache = cms_to_bool($params['nocache'] ?? false);
 		if( $nocache ) $url .= '?t='.time();
 		$val = cms_to_bool($params['defer'] ?? true);

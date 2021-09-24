@@ -1,6 +1,6 @@
 <?php
 /*
-Audit management class
+Admin log management class
 Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\DeprecationNotice;
-use CMSMS\IAuditManager;
+use CMSMS\ILogManager;
 use CMSMS\Log\dbstorage;
 use CMSMS\Log\logfilter;
 use CMSMS\Log\logger;
@@ -36,7 +36,7 @@ use const CMS_DEPREC;
  * @package CMS
  * @license GPL
  */
-final class AuditOperations implements IAuditManager
+final class LogOperations implements ILogManager
 {
     /**
      * The message-recorder object in use.
@@ -59,12 +59,12 @@ final class AuditOperations implements IAuditManager
 
     /**
      * Get the singleton instance of this class.
-     * @return AuditOperations
+     * @return LogOperations
      */
     public static function get_instance() : self
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\SingleItem::AuditOperations()'));
-        return SingleItem::AuditOperations();
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\SingleItem::LogOperations()'));
+        return SingleItem::LogOperations();
     }
 
     /**
@@ -78,14 +78,14 @@ final class AuditOperations implements IAuditManager
 
     /**
      * Replace the backend data-recorder
-     * @param IAuditManager-compatible $mgr
+     * @param ILogManager-compatible $mgr
      */
-    public function set_auditor(IAuditManager $mgr)
+    public function set_recorder(ILogManager $mgr)
     {
         $this->_data_mgr = $mgr;
     }
 
-    private function get_auditor()
+    private function get_recorder()
     {
         if (!$this->_data_mgr) {
             $this->init();
@@ -95,25 +95,25 @@ final class AuditOperations implements IAuditManager
 
     // interface methods
 
-    public function audit(string $msg, string $subject = '', $itemid = null)
+    public function info(string $msg, string $subject = '', $itemid = null)
     {
-        if (!$itemid) $itemid = '0';
-        $this->get_auditor()->audit($msg, $subject, $itemid);
+        if (!$itemid) { $itemid = '0'; }
+        $this->get_recorder()->info($msg, $subject, $itemid);
     }
 
     public function notice(string $msg, string $subject = '')
     {
-        $this->get_auditor()->notice($msg, $subject);
+        $this->get_recorder()->notice($msg, $subject);
     }
 
     public function warning(string $msg, string $subject = '')
     {
-        $this->get_auditor()->warning($msg, $subject);
+        $this->get_recorder()->warning($msg, $subject);
     }
 
     public function error(string $msg, string $subject = '')
     {
-        $this->get_auditor()->error($msg, $subject);
+        $this->get_recorder()->error($msg, $subject);
     }
 
     public function clear()

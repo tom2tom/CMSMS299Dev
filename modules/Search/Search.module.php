@@ -196,7 +196,7 @@ class Search extends CMSModule
     }
 */
     /**
-     * Hook function to populate centralised site-settings UI
+     * Hook function to populate centralized site-settings UI
      * @internal
      * @since 2.0
      * @return array
@@ -207,7 +207,7 @@ class Search extends CMSModule
         return [
          'title'=>$this->Lang('settings_title', $this->GetName()),
          //'desc'=>'useful text goes here', // optional useful text
-         'url'=>$this->create_action_url('m1_', 'defaultadmin', ['activetab'=>'options']), // if permitted
+         'url'=>$this->create_action_url('', 'defaultadmin', ['activetab'=>'options']), // if permitted
          //optional 'text' => custom link-text | explanation e.g need permission
         ];
     }
@@ -222,16 +222,25 @@ class Search extends CMSModule
         return ''.@file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'results.tpl');
     }
 
+    /**
+     * @return string
+     */
     protected function DefaultStopWords()
     {
         return Utils::CleanWords($this->Lang('default_stopwords'));
     }
 
+    /**
+     * @return array
+     */
     public function RemoveStopWordsFromArray($words)
     {
         return Utils::RemoveStopWordsFromArray($this, $words);
     }
 
+    /**
+     * @return array
+     */
     public function StemPhrase($phrase)
     {
         return Utils::StemPhrase($this, $phrase);
@@ -244,7 +253,7 @@ class Search extends CMSModule
 
     public function DeleteWords($module = 'Search', $id = -1, $attr = '')
     {
-        return Utils::DeleteWords($module, $id, $attr);
+        Utils::DeleteWords($module, $id, $attr);
     }
 
     /**
@@ -259,7 +268,7 @@ class Search extends CMSModule
 
     public function Reindex()
     {
-        return Utils::Reindex($this);
+        Utils::Reindex($this);
     }
 
     public static function page_type_lang_callback($str)

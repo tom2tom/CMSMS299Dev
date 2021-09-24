@@ -23,6 +23,7 @@ use CMSMS\Events;
 use News\AdminOperations;
 use News\Utils;
 use function CMSMS\de_specialize;
+use function CMSMS\log_info;
 use function CMSMS\specialize;
 
 //if( some worthy test fails ) exit;
@@ -69,7 +70,7 @@ if( isset($params['name']) ) {
 
                 Events::SendEvent('News', 'NewsCategoryAdded', ['category_id'=>$catid, 'name'=>$name]);
                 // put mention into the admin log
-                audit($catid, 'News category: '.$name, ' Added');
+                log_info($catid, 'News category: '.$name, ' Added');
 
                 $this->SetMessage($this->Lang('categoryadded'));
                 $this->RedirectToAdminTab('groups');

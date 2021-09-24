@@ -27,6 +27,7 @@ use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 use CMSMS\Utils;
+use function CMSMS\log_error;
 
 if (!isset($gCms)) exit;
 //$db = SingleItem::Db(); upstream
@@ -123,7 +124,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
                 $upgrade_template($summary_template_type,'summary',$tplname,'current_summary_template','News-Summary-');
             }
         }
-        catch( Throwable $t ) {
+        catch (Throwable $t) {
             // ignore this error
         }
 
@@ -140,7 +141,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
                 $upgrade_template($detail_template_type,'detail',$tplname,'current_detail_template','News-Detail-');
             }
         }
-        catch( Throwable $t ) {
+        catch (Throwable $t) {
             // ignore this error
         }
 
@@ -157,7 +158,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
                 $upgrade_template($form_template_type,'form',$tplname,'current_form_template','News-Form-');
             }
         }
-        catch( Throwable $t ) {
+        catch (Throwable $t) {
             // ignore this error
         }
 
@@ -174,12 +175,12 @@ if( version_compare($oldversion,'2.50') < 0 ) {
                 $upgrade_template($browsecat_template_type,'browsecat',$tplname,'current_browsecat_template','News-Browsecat-');
             }
         }
-        catch( Throwable $t ) {
+        catch (Throwable $t) {
             // ignore this error
         }
     }
-    catch( Throwable $t ) {
-        audit('',$me,'Upgrade Error: '.$t->GetMessage());
+    catch (Throwable $t) {
+        log_error($me,'Upgrade Error: '.$t->GetMessage());
         return $t->GetMessage();
     }
 
@@ -198,9 +199,9 @@ if( version_compare($oldversion,'2.50.8') < 0 ) {
             }
         }
     }
-    catch( Throwable $t ) {
+    catch (Throwable $t) {
         // log it
-        audit('',$me,'Uninstall Error: '.$t->GetMessage());
+        log_error($me,'Uninstall Error: '.$t->GetMessage());
         return $t->GetMessage();
     }
 }

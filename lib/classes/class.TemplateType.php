@@ -34,8 +34,8 @@ use LogicException;
 use RuntimeException;
 use UnexpectedValueException;
 use const CMS_DB_PREFIX;
-use function audit;
 use function cms_to_stamp;
+use function CMSMS\log_info;
 use function lang;
 
 /**
@@ -88,18 +88,18 @@ class TemplateType
 	/**
 	 * @ignore
 	 */
-	private $_dirty;
+	private $dirty;
 
 	/**
 	 * @ignore
 	 */
-	private $_assistant;
+	private $assistant;
 
 	/**
 	 * @ignore
 	 * This object's properties, some or all of self::PROPS
 	 */
-	private $_data;
+	private $props;
 
 	// static properties here >> SingleItem property|ies ?
 	/**
@@ -107,27 +107,27 @@ class TemplateType
 	 * Intra-request cache of loaded type-objects
 	 * Each member like: id => object
 	 */
-	private static $_cache;
+	private static $cache;
 
 	/**
 	 * @ignore
 	 * Intra-request cache of loaded type-objects' source
 	 * Each member like: originator::name => id
 	 */
-	private static $_name_cache;
+	private static $name_cache;
 
 	/**
 	 * @ignore
 	 * Intra-request cache of all locks on TemplateType objects
 	 * Each member like: oid => lock-object
 	 */
-	private static $_lock_cache;
+	private static $lock_cache;
 
 	/**
 	 * @ignore
-	 * Intra-request cache of flag whether _lock_cache has been populated
+	 * Intra-request cache of flag whether lock_cache has been populated
 	 */
-	private static $_lock_cache_loaded = FALSE;
+	private static $lock_cache_loaded = FALSE;
 
 	/**
 	 * Constructor
@@ -135,7 +135,7 @@ class TemplateType
 	 */
 	public function __construct($props = NULL)
 	{
-		$this->_data = [
+		$this->props = [
 			'id' => 0,
 			'originator' => NULL,
 			'name' => NULL,
@@ -152,10 +152,10 @@ class TemplateType
 			'modified_date' => NULL,
 		];
 		if( $props && is_array($props) ) {
-			$keeps = array_intersect_key($props, $this->_data);
-			$this->_data = array_merge($this->_data, $keeps);
+			$keeps = array_intersect_key($props, $this->props);
+			$this->props = array_merge($this->props, $keeps);
 		}
-		$this->_dirty = TRUE;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -165,7 +165,7 @@ class TemplateType
 	 */
 	public function get_id()
 	{
-		return $this->_data['id'] ?? NULL;
+		return $this->props['id'] ?? NULL;
 	}
 
 	/**
@@ -176,7 +176,7 @@ class TemplateType
 	 */
 	public function get_originator($viewable = FALSE)
 	{
-		$out = $this->_data['originator'] ?? NULL;
+		$out = $this->props['originator'] ?? NULL;
 		if( $viewable ) {
 			if( !$out ) { $out = ''; }
 			elseif( $out == self::CORE ) { $out = 'Core'; }
@@ -195,8 +195,8 @@ class TemplateType
 		$str = trim($str);
 		if( !$str ) throw new LogicException('Originator cannot be empty');
 		if( $str == 'Core' ) $str = self::CORE;
-		$this->_data['originator'] = $str;
-		$this->_dirty = TRUE;
+		$this->props['originator'] = $str;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -206,7 +206,7 @@ class TemplateType
 	 */
 	public function get_name()
 	{
-		return $this->_data['name'] ?? '';
+		return $this->props['name'] ?? '';
 	}
 
 	/**
@@ -219,8 +219,8 @@ class TemplateType
 	{
 		$str = trim($str);
 		if( !$str ) throw new LogicException('Name cannot be empty');
-		$this->_data['name'] = $str;
-		$this->_dirty = TRUE;
+		$this->props['name'] = $str;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -230,7 +230,7 @@ class TemplateType
 	 */
 	public function get_dflt_flag()
 	{
-		return !empty($this->_data['has_dflt']);
+		return !empty($this->props['has_dflt']);
 	}
 
 	/**
@@ -242,8 +242,8 @@ class TemplateType
 	public function set_dflt_flag($flag = TRUE)
 	{
 		if( !is_bool($flag) ) throw new UnexpectedValueException('value is invalid for set_dflt_flag');
-		$this->_data['has_dflt'] = $flag;
-		$this->_dirty = TRUE;
+		$this->props['has_dflt'] = $flag;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -253,7 +253,7 @@ class TemplateType
 	 */
 	public function get_dflt_contents()
 	{
-		return $this->_data['dflt_content'] ?? '';
+		return $this->props['dflt_content'] ?? '';
 	}
 
 	/**
@@ -263,8 +263,8 @@ class TemplateType
 	 */
 	public function set_dflt_contents($str)
 	{
-		$this->_data['dflt_content'] = $str;
-		$this->_dirty = TRUE;
+		$this->props['dflt_content'] = $str;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -274,7 +274,7 @@ class TemplateType
 	 */
 	public function get_description()
 	{
-		return $this->_data['description'] ?? '';
+		return $this->props['description'] ?? '';
 	}
 
 	/**
@@ -284,8 +284,8 @@ class TemplateType
 	 */
 	public function set_description($str)
 	{
-		$this->_data['description'] = $str;
-		$this->_dirty = TRUE;
+		$this->props['description'] = $str;
+		$this->dirty = TRUE;
 	 }
 
 	/**
@@ -295,7 +295,7 @@ class TemplateType
 	 */
 	public function get_owner()
 	{
-		return $this->_data['owner'] ?? 0;
+		return $this->props['owner'] ?? 0;
 	}
 
 	/**
@@ -307,8 +307,8 @@ class TemplateType
 	public function set_owner($owner)
 	{
 		if( !is_numeric($owner) || (int)$owner == 0 ) throw new LogicException('value is invalid for owner in '.__METHOD__);
-		$this->_data['owner'] = (int)$owner;
-		$this->_dirty = TRUE;
+		$this->props['owner'] = (int)$owner;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -319,7 +319,7 @@ class TemplateType
 	 */
 	public function get_created()
 	{
-		$str = $this->_data['create_date'] ?? '';
+		$str = $this->props['create_date'] ?? '';
 		return ($str) ? cms_to_stamp($str) : NULL;
 	}
 
@@ -335,12 +335,12 @@ class TemplateType
 	 * Get the timestamp for when this template-type was last saved.
 	 * @since 2.99
 	 *
-	 * @return mixed Unix timestamp, or null if this object has not been saved.
+	 * @return int Unix timestamp. Default 1 (i.e. non-falsy)
 	 */
 	public function get_modified()
 	{
-		$str = $this->_data['modified_date'] ?? '';
-		return ($str) ? cms_to_stamp($str) : $this->get_created();
+		$str = $this->props['modified_date'] ?? $this->props['create_date'] ?? '';
+		return ($str) ? cms_to_stamp($str) : 1;
 	}
 
 	/**
@@ -360,8 +360,8 @@ class TemplateType
 	 */
 	public function set_lang_callback($callback)
 	{
-		$this->_data['lang_callback'] = $callback;
-		$this->_dirty = TRUE;
+		$this->props['lang_callback'] = $callback;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -371,7 +371,7 @@ class TemplateType
 	 */
 	public function get_lang_callback()
 	{
-		return $this->_data['lang_callback'] ?? NULL; //NOTE key != database field name
+		return $this->props['lang_callback'] ?? NULL; //NOTE key != database field name
 	}
 
 	/**
@@ -383,8 +383,8 @@ class TemplateType
 	 */
 	public function set_help_callback($callback)
 	{
-		$this->_data['help_callback'] = $callback; //NOTE key != database field name
-		$this->_dirty = TRUE;
+		$this->props['help_callback'] = $callback; //NOTE key != database field name
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -394,7 +394,7 @@ class TemplateType
 	 */
 	public function get_help_callback()
 	{
-		return $this->_data['help_callback'] ?? NULL;
+		return $this->props['help_callback'] ?? NULL;
 	}
 
 	/**
@@ -406,8 +406,8 @@ class TemplateType
 	 */
 	public function set_content_callback($callback)
 	{
-		$this->_data['content_callback'] = $callback; //NOTE key != database field name
-		$this->_dirty = TRUE;
+		$this->props['content_callback'] = $callback; //NOTE key != database field name
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -417,7 +417,7 @@ class TemplateType
 	 */
 	public function get_content_callback()
 	{
-		return $this->_data['content_callback'] ?? NULL;
+		return $this->props['content_callback'] ?? NULL;
 	}
 
 	/**
@@ -429,8 +429,8 @@ class TemplateType
 	public function set_oneonly_flag($flag = TRUE)
 	{
 		if( !is_bool($flag) ) throw new UnexpectedValueException('value is invalid for set_oneonly_flag');
-		$this->_data['one_only'] = $flag;
-		$this->_dirty = TRUE;
+		$this->props['one_only'] = $flag;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -440,7 +440,7 @@ class TemplateType
 	 */
 	public function get_oneonly_flag()
 	{
-		return !empty($this->_data['one_only']);
+		return !empty($this->props['one_only']);
 	}
 
 	/**
@@ -451,8 +451,8 @@ class TemplateType
 	public function set_content_block_flag($flag)
 	{
 		$flag = (bool)$flag;
-		$this->_data['requires_contentblocks'] = $flag;
-		$this->_dirty = TRUE;
+		$this->props['requires_contentblocks'] = $flag;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -462,7 +462,7 @@ class TemplateType
 	 */
 	public function get_content_block_flag()
 	{
-		return !empty($this->_data['requires_contentblocks']);
+		return !empty($this->props['requires_contentblocks']);
 	}
 
 	/**
@@ -470,17 +470,17 @@ class TemplateType
 	 */
 	private static function get_locks() : array
 	{
-		if( !self::$_lock_cache_loaded ) {
-			self::$_lock_cache = [];
+		if( !self::$lock_cache_loaded ) {
+			self::$lock_cache = [];
 			$tmp = LockOperations::get_locks('templatetype');
 			if( $tmp ) {
 				foreach( $tmp as $one ) {
-					self::$_lock_cache[$one['oid']] = $one;
+					self::$lock_cache[$one['oid']] = $one;
 				}
 			}
-			self::$_lock_cache_loaded = TRUE;
+			self::$lock_cache_loaded = TRUE;
 		}
-		return self::$_lock_cache;
+		return self::$lock_cache;
 	}
 
 	/**
@@ -541,7 +541,7 @@ class TemplateType
 		}
 
 		if( !$is_insert ) {
-			if( !isset($this->_data['id']) || (int)$this->_data['id'] < 1 ) throw new LogicException('Type id is not set');
+			if( !isset($this->props['id']) || (int)$this->props['id'] < 1 ) throw new LogicException('Type id is not set');
 
 			// check for item with the same name
 			$db = SingleItem::Db();
@@ -570,10 +570,12 @@ class TemplateType
 	 */
 	protected function _insert()
 	{
-		if( !$this->_dirty ) return;
+		if( !$this->dirty ) return;
 		$this->validate();
-		$now = time();
+//		$now = time();
 
+		$orig = $this->get_originator();
+		$name = $this->get_name();
 		$cbl = $this->get_lang_callback();
 		if( $cbl ) {
 			if( !is_scalar($cbl) ) {
@@ -602,21 +604,6 @@ class TemplateType
 			$cbc = NULL;
 		}
 		$db = SingleItem::Db();
-		$args = [
-			$this->get_originator(),
-			$this->get_name(),
-			($this->get_dflt_flag() ? 1 : 0),
-			($this->get_oneonly_flag() ? 1 : 0),
-			$this->get_description(),
-			$cbl,
-			$cbh,
-			$cbc,
-			($this->get_content_block_flag() ? 1 : 0),
-			$this->get_owner(),
-			$this->get_dflt_contents(),
-			$db->DbTimeStamp(time(), false),
-		];
-
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.
 ' (
 originator,
@@ -632,13 +619,27 @@ owner_id,
 dflt_content,
 create_date
 ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)';
+		$args = [
+			$orig,
+			$name,
+			($this->get_dflt_flag() ? 1 : 0),
+			($this->get_oneonly_flag() ? 1 : 0),
+			$this->get_description(),
+			$cbl,
+			$cbh,
+			$cbc,
+			($this->get_content_block_flag() ? 1 : 0),
+			$this->get_owner(),
+			$this->get_dflt_contents(),
+			$db->DbTimeStamp(time(), false),
+		];
 		$dbr = $db->execute($query,$args);
 		if( !$dbr ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
 
-		$this->_data['id'] = $db->Insert_ID(); // i.e. $dbr, here
-		$this->_dirty = NULL;
+		$this->props['id'] = $db->Insert_ID(); // i.e. $dbr, here
+		$this->dirty = NULL;
 
-		audit($this->get_id(),$this->get_originator(),'Template-Type '.$this->get_name().' Created');
+		log_info($this->get_id(),$orig,'Template-Type \''.$name.'\' Created');
 	}
 
 
@@ -652,7 +653,7 @@ create_date
 	 */
 	protected function _update()
 	{
-		if( !$this->_dirty ) return;
+		if( !$this->dirty ) return;
 		$this->validate(FALSE);
 
 		$cbl = $this->get_lang_callback();
@@ -716,8 +717,8 @@ modified_date = ?
 WHERE id = ?';
 		$db->execute($query,$args);
 		if( $db->errorNo() === 0 ) {
-			$this->_dirty = FALSE;
-			audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Updated');
+			$this->dirty = FALSE;
+			log_info($this->get_id(),'CMSMS','template-type '.$this->get_name().' Updated');
 			return;
 		}
 		throw new SQLException($db->errMsg());
@@ -763,13 +764,13 @@ WHERE id = ?';
 		if( $tmp ) throw new LogicException('Cannot delete a template-type with existing templates');
 		$db = SingleItem::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
-		$dbr = $db->execute($query,[$this->_data['id']]);
+		$dbr = $db->execute($query,[$this->props['id']]);
 		if( !$dbr ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
 
-		$this->_dirty = TRUE;
-		audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Deleted');
+		$this->dirty = TRUE;
+		log_info($this->get_id(),'CMSMS','template-type '.$this->get_name().' Deleted');
 		Events::SendEvent('Core', 'DeleteTemplateTypePost', [ get_class($this) => &$this ]);
-		unset($this->_data['id']);
+		unset($this->props['id']);
 	}
 
 	/**
@@ -924,10 +925,11 @@ WHERE id = ?';
 		unset($row['lang_cb'],$row['help_content_cb'],$row['dflt_content_cb']);
 
 		$ob = new self($row);
-		$ob->_dirty = FALSE;
+		$ob->dirty = FALSE;
 
-		self::$_cache[$ob->get_id()] = $ob;
-		self::$_name_cache[$ob->get_originator().'::'.$ob->get_name()] = $ob->get_id();
+		$id = $ob->get_id();
+		self::$cache[$id] = $ob;
+		self::$name_cache[$ob->get_originator().'::'.$ob->get_name()] = $id;
 		return $ob;
 	}
 
@@ -944,20 +946,20 @@ WHERE id = ?';
 		$row = NULL;
 		if( is_numeric($a) && (int)$a > 0 ) {
 			$a = (int)$a;
-			if( isset(self::$_cache[$a]) ) return self::$_cache[$a];
+			if( isset(self::$cache[$a]) ) return self::$cache[$a];
 			// just in case: check the database
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 			$row = $db->getRow($query,[$a]);
 			if( $row ) {
 				$id = (int)$row['id'];
-				self::$_cache[$id] = self::_load_from_data($row);
-				return self::$_cache[$id];
+				self::$cache[$id] = self::_load_from_data($row);
+				return self::$cache[$id];
 			}
 		}
 		elseif( is_string($a) && $a !== '' ) {
-			if( isset(self::$_name_cache[$a]) ) {
-				$id = self::$_name_cache[$a];
-				return self::$_cache[$id];
+			if( isset(self::$name_cache[$a]) ) {
+				$id = self::$name_cache[$a];
+				return self::$cache[$id];
 			}
 
 			$parts = explode('::',$a,2);
@@ -981,8 +983,8 @@ WHERE id = ?';
 				if( !$parts[0] || strcasecmp($parts[0],'core') == 0 )  { $parts[0] = self::CORE; }
 				$row = $db->getRow($query,[trim($parts[0]),trim($parts[1])]);
 				if( $row ) {
-					self::$_cache[$row['id']] = self::_load_from_data($row);
-					return self::$_cache[$row['id']];
+					self::$cache[$row['id']] = self::_load_from_data($row);
+					return self::$cache[$row['id']];
 				}
 			}
 		}
@@ -1003,7 +1005,7 @@ WHERE id = ?';
 
 		$db = SingleItem::Db();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE originator = ?';
-		if( self::$_cache ) $query .= ' AND id NOT IN ('.implode(',',array_keys(self::$_cache)).')';
+		if( self::$cache ) $query .= ' AND id NOT IN ('.implode(',',array_keys(self::$cache)).')';
 		$query .= ' ORDER BY IF(modified_date, modified_date, create_date) DESC';
 		$list = $db->getArray($query,[$originator]);
 		if( !$list ) return [];
@@ -1013,7 +1015,7 @@ WHERE id = ?';
 		}
 
 		$out = [];
-		foreach( self::$_cache as $id => $one ) {
+		foreach( self::$cache as $id => $one ) {
 			if( $one->get_originator() == $originator ) $out[] = $one;
 		}
 		return $out;
@@ -1028,7 +1030,7 @@ WHERE id = ?';
 	{
 		$db = SingleItem::Db();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME;
-		if( self::$_cache && count(self::$_cache) ) $query .= ' WHERE id NOT IN ('.implode(',',array_keys(self::$_cache)).')';
+		if( self::$cache && count(self::$cache) ) $query .= ' WHERE id NOT IN ('.implode(',',array_keys(self::$cache)).')';
 		$query .= '	ORDER BY IF(modified_date, modified_date, create_date)';
 		$list = $db->getArray($query);
 		if( !$list ) return [];
@@ -1036,7 +1038,7 @@ WHERE id = ?';
 		foreach( $list as $row ) {
 			self::_load_from_data($row);
 		}
-		return array_values(self::$_cache);
+		return array_values(self::$cache);
 	}
 
 	/**
@@ -1053,7 +1055,7 @@ WHERE id = ?';
 		foreach( $list as $one ) {
 			if( !is_numeric($one) || (int)$one < 1 ) continue;
 			$one = (int)$one;
-			if( isset(self::$_cache[$one]) ) continue;
+			if( isset(self::$cache[$one]) ) continue;
 			$list2[] = $one;
 		}
 		if( !$list2 ) return [];
@@ -1077,7 +1079,7 @@ WHERE id = ?';
 	 */
 	public static function get_loaded_types()
 	{
-		if( is_array(self::$_cache) ) return array_keys(self::$_cache);
+		if( is_array(self::$cache) ) return array_keys(self::$cache);
 		return [];
 	}
 
@@ -1087,9 +1089,9 @@ WHERE id = ?';
 	 * @since 2.2
 	 * @return mixed TemplateTypeAssistant | null
 	 */
-	public function get_assistant()
+	public function getassistant()
 	{
-		if( !$this->_assistant ) {
+		if( !$this->assistant ) {
 			$org = $this->get_originator(); // TODO if '__CORE__' ?
 			$nm = $this->get_name();
 			if( !$org || !$nm ) return;
@@ -1101,13 +1103,13 @@ WHERE id = ?';
 				if( class_exists($cn) ) {
 					$tmp = new $cn();
 					if( $tmp instanceof TemplateTypeAssistant ) {
-						$this->_assistant = $tmp;
+						$this->assistant = $tmp;
 						break;
 					}
 				}
 			}
 		}
-		return $this->_assistant;
+		return $this->assistant;
 	}
 
 	/**
@@ -1122,7 +1124,7 @@ WHERE id = ?';
 		$name = trim($name);
 		if( !$name ) return;
 
-		$assistant = $this->get_assistant();
+		$assistant = $this->getassistant();
 		if( !$assistant ) return;
 
 		return $assistant->get_usage_string($name);

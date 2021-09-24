@@ -15,6 +15,7 @@ use RuntimeException;
 use stdClass;
 use const CMS_DB_PREFIX;
 use function cmsms;
+//use function CMSMS\log_info;
 
 abstract class base_email_platform
 {
@@ -130,7 +131,7 @@ abstract class base_email_platform
             if ($this->mod->GetPreference('logsends')) {
                 Utils::log_send(getenv('REMOTE_ADDR'), $this->num, $this->msg);
             }
-            $this->mod->Audit(OutMailer::AUDIT_SEND, OutMailer::MODNAME, $this->statusmsg);
+            log_info(OutMailer::AUDIT_SEND, OutMailer::MODNAME, $this->statusmsg);
         }
         return $success;
     }

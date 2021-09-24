@@ -29,6 +29,7 @@ use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use CMSMS\Utils;
 use function CMSMS\de_specialize_array;
+use function CMSMS\log_info;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize_array;
 
@@ -135,7 +136,7 @@ if (isset($_POST['submit'])) {
     UserParams::set_for_user($userid, 'wysiwyg_theme', $wysiwygtheme);
 
     // Audit, message, cleanup
-    audit($userid, 'Admin User '.$userobj->username, 'Edited');
+    log_info($userid, 'Admin User '.$userobj->username, 'Edited');
     $themeObject->RecordNotice('success', _la('prefsupdated'));
 //    AdminUtils::clear_cached_files();
 // TODO  SingleItem::LoadedData()->delete('menu_modules', $userid);

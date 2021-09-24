@@ -22,6 +22,7 @@ use function cms_installer\rrmdir;
 use function cms_installer\smarty;
 use function cms_installer\startswith;
 use function cms_module_places;
+use function CMSMS\log_notice;
 
 class wizard_step9 extends wizard_step
 {
@@ -362,7 +363,7 @@ class wizard_step9 extends wizard_step
         $this->system_setup(2, $destdir);
 
         // write history
-        audit('', 'System Upgraded', 'New version '.CMS_VERSION);
+        log_notice('System Upgraded', 'New version '.CMS_VERSION);
     }
 
     /**
@@ -381,12 +382,62 @@ class wizard_step9 extends wizard_step
         }
         $this->connect_to_cmsms($destdir);
 
-        // TODO installing demo-site content before modules generates errors:
-        // (e.g. the 'design'-related data require presence of DesignManager module)
-        // Failed to install design 'Default' : INSERT INTO cms_layout_cssgroup_members (group_id,css_id,item_order) VALUES (?,?,?) --1 
-        // Unable to process module 'Search': Unrecognized class content used in CMSMS\ContentOperations::LoadContentFromId
+        // site content
+        if (!empty($choices['samplecontent'])) {
+            $arr = installer_base::CONTENTXML;
+            $fn = end($arr);
+        } else {
+            $fn = 'initial.xml';
+        }
 
-        // install modules
+        $dir = $app->get_assetsdir();
+        $xmlfile = $dir.DIRECTORY_SEPARATOR.$fn;
+        if (is_file($xmlfile)) {
+            if ($fn != 'initial.xml') {
+                $this->message(lang('install_samplecontent'));
+            }
+            // these are irrelevant for 'initial.xml' but the importer API still wants them
+            $dir = $app->get_rootdir();
+            $arr = installer_base::UPLOADFILESDIR;
+            $uploadsfolder = joinpath($dir, ...$arr);
+            $arr = installer_base::CUSTOMFILESDIR;
+            $workersfolder = joinpath($dir, ...$arr);
+
+            try {
+//                if( ($fp = $app->get_phar()) ) {
+//                    $fp = joinpath($fp, 'lib', 'iosite.functions.php'); // avoid stream-wrapper
+//                }
+//                else {
+                // __DIR__ might be phar://abspath/to/pharfile/relpath/to/thisfolder
+                $fp = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'iosite.functions.php';
+//                }
+                $space = require_once $fp;
+                if ($space === false) { /* TODO handle error */
+                } elseif ($space === 1) {
+                    $space = '';
+                }
+
+                $funcname = ($space) ? $space.'\import_content' : 'import_content';
+                if (($res = $funcname($xmlfile, $uploadsfolder, $workersfolder))) {
+                    $this->error($res);
+                } else {
+                    // update pages hierarchy
+                    $this->verbose(lang('install_updatehierarchy'));
+                    SingleItem::ContentOperations()->SetAllHierarchyPositions();
+                }
+            } catch (Throwable $t) {
+                if ($fn != 'initial.xml') {
+                    $msg = 'Demonstration-content';
+                } else {
+                    $msg = 'Default-content';
+                }
+                $this->error($msg.' installation error: '.$t->getMessage());
+            }
+        } else {
+            $this->error(lang('error_nocontent', $fn));
+        }
+
+        // modules
         $this->message(lang('install_modules'));
         $coremodules = $app->get_config()['coremodules'];
         $modops = SingleItem::ModuleOperations();
@@ -458,63 +509,8 @@ class wizard_step9 extends wizard_step
 
         $this->system_setup(1, $destdir);
 
-        // site content
-        if (!empty($choices['samplecontent'])) {
-            $arr = installer_base::CONTENTXML;
-            $fn = end($arr);
-        } else {
-            $fn = 'initial.xml';
-        }
-
-        $dir = $app->get_assetsdir();
-        $xmlfile = $dir.DIRECTORY_SEPARATOR.$fn;
-        if (is_file($xmlfile)) {
-            if ($fn != 'initial.xml') {
-                $this->message(lang('install_samplecontent'));
-            }
-            // these are irrelevant for 'initial.xml' but the importer API still wants them
-            $dir = $app->get_rootdir();
-            $arr = installer_base::UPLOADFILESDIR;
-            $uploadsfolder = joinpath($dir, ...$arr);
-            $arr = installer_base::CUSTOMFILESDIR;
-            $workersfolder = joinpath($dir, ...$arr);
-
-            try {
-//                if( ($fp = $app->get_phar()) ) {
-//                    $fp = joinpath($fp, 'lib', 'iosite.functions.php'); // avoid stream-wrapper
-//                }
-//                else {
-                // __DIR__ might be phar://abspath/to/pharfile/relpath/to/thisfolder
-                $fp = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'iosite.functions.php';
-//                }
-                $space = require_once $fp;
-                if ($space === false) { /* TODO handle error */
-                } elseif ($space === 1) {
-                    $space = '';
-                }
-
-                $funcname = ($space) ? $space.'\import_content' : 'import_content';
-                if (($res = $funcname($xmlfile, $uploadsfolder, $workersfolder))) {
-                    $this->error($res);
-                } else {
-                    // update pages hierarchy
-                    $this->verbose(lang('install_updatehierarchy'));
-                    SingleItem::ContentOperations()->SetAllHierarchyPositions();
-                }
-            } catch (Throwable $t) {
-                if ($fn != 'initial.xml') {
-                    $msg = 'Demonstration-content';
-                } else {
-                    $msg = 'Default-content';
-                }
-                $this->error($msg.' installation error: '.$t->getMessage());
-            }
-        } else {
-            $this->error(lang('error_nocontent', $fn));
-        }
-
         // write history
-        audit('', 'System Installed', 'Version '.CMS_VERSION);
+        log_notice('System Installed', 'Version '.CMS_VERSION);
     }
 
     /**
@@ -563,7 +559,7 @@ class wizard_step9 extends wizard_step
         $this->system_setup(3, $destdir);
 
         // write history
-        audit('', 'System Freshened', 'All core files renewed');
+        log_notice('System Freshened', 'All core files renewed');
     }
 
     /**

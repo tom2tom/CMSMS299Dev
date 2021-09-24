@@ -30,6 +30,7 @@ use ModuleManager\ModuleRepClient;
 use ModuleManager\Operations;
 use ModuleManager\Utils;
 use ModuleNoDataException;
+use function CMSMS\log_error;
 
 //if (some worthy test fails) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
@@ -108,7 +109,7 @@ try {
             }
 
             if( !is_array($res) || !$res[0] ) {
-                cms_error('',$this->GetName().'::installmodule',' Problem installing, upgrading or activating '.$name);
+                log_error('Problem installing, upgrading or activating module',$name);
                 debug_buffer('ERROR: problem installing/upgrading/activating '.$name);
                 debug_buffer($rec,'action record');
                 debug_buffer($res,'error info');
@@ -231,10 +232,10 @@ try {
                 $res = ModuleRepClient::get_multiple_moduleinfo($alldeps);
             }
         }
-        catch( ModuleNoDataException $e ) {
+        catch (ModuleNoDataException $e) {
             // at least one of the dependencies could not be found on the server.
             // may be a system module... or if not, throw an exception
-            cms_error('',$this->GetVersion().'::installmodule','At least one requested module was not available at the forge');
+            log_error('At least one dependent module is not available from the forge',$module_name);
 		    $this->ShowErrors($e->GetMessage());
         }
 
@@ -316,7 +317,7 @@ try {
 
     $tpl->display();
 }
-catch( Throwable $t ) {
+catch (Throwable $t) {
     $this->SetError($t->GetMessage());
     $this->RedirectToAdminTab();
 }

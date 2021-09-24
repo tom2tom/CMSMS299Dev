@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\Database\DataDictionary;
 use CMSMS\RouteOperations;
 use CMSMS\TemplateType;
+use function CMSMS\log_error;
 
 if( !isset($gCms) ) exit;
 
@@ -93,7 +94,6 @@ try {
     }
   }
 }
-catch( Throwable $t ) {
-  // log it
-  audit('',$me,'Uninstall Error: '.$t->getMessage());
+catch (Throwable $t) {
+  log_error($me,'Uninstall error: '.$t->getMessage());
 }

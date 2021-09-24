@@ -20,6 +20,7 @@ See the GNU Affero General Public License
 
 use CMSMS\AppParams;
 use CMSMS\Crypto;
+use CMSMS\SingleItem;
 use OutMailer\PrefCrypter;
 
 //if (some worthy test fails) exit;
@@ -119,3 +120,7 @@ $this->SetPreference('platform', null); //TODO alias
 //$this->SetPreference('lastcleared', time());
 
 $this->CreateEvent('EmailDeliveryReported');
+
+// semi-permanent alias for back-compatibility
+$ops = SingleItem::ModuleOperations();
+$ops->set_module_classname('CMSMailer', get_class($this));

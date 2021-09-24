@@ -1,6 +1,6 @@
 <?php
 /*
- Plugin to generate an url or link to a page of the current website.
+Plugin to generate an url or link to a page of the current website.
 Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -43,7 +43,7 @@ function smarty_function_cms_selflink($params, $template)
 
 	if( isset($params['page']) || isset($params['href']) ) {
 		$page = null;
-		if (isset($params['href'])) {
+		if( isset($params['href']) ) {
 			$page = trim($params['href']);
 			$urlonly = true;
 		}
@@ -162,36 +162,45 @@ function smarty_function_cms_selflink($params, $template)
 			$node = $hm->find_by_tag('id',$startpage);
 			if( !$node ) return;
 			$node = $node->get_parent();
-			if( !$node ) return;
+			if( !$node ) return '';
 			$content = $node->getContent();
-			if( !$content ) return;
+			if( !$content ) return '';
 			$pageid = $content->Id();
 			break;
 
 		default:
 			// unknown direction... prolly should do something here.
-			return;
+			return '';
 		}
 	}
 
-	if( $pageid == '' ) return '';
+	if( $pageid == '' ) {
+		return '';
+	}
 
 	// a final check to see if this page exists.
 	$node = $hm->find_by_tag('id',$pageid);
-	if( !$node ) return '';
+	if( !$node ) {
+		return '';
+	}
 
 	// get the content object.
 	$content = $node->getContent();
-	if( !$content || !is_object($content) || !$content->Active() || !$content->HasUsableLink() ) return;
-
+	if( !$content || !is_object($content) || !$content->Active() || !$content->HasUsableLink() ) {
+		return '';
+	}
 	$url = $content->GetUrl();
 	if( $urlparam ) $url .= $urlparam;
 	if( $url && !empty($params['anchorlink']) ) { $url .= '#' . ltrim($params['anchorlink'], ' #'); }
 	elseif( $url && !empty($params['fragment']) ) { $url .= '#' . ltrim($params['fragment'], ' #'); }
 
-	if( !$url ) return ''; // no url to link to, therefore nothing to do.
+	if( !$url ) {
+		return ''; // no url to link to, therefore nothing to do.
+	}
 
-	if( isset($params['urlonly']) ) $urlonly = cms_to_bool($params['urlonly']);
+	if( isset($params['urlonly']) ) {
+		$urlonly = cms_to_bool($params['urlonly']);
+	}
 
 	if( $urlonly ) {
 		if( !empty($params['assign']) ) {
@@ -203,7 +212,7 @@ function smarty_function_cms_selflink($params, $template)
 
 	// Now we build the output
 	$result = '';
-	if (!empty($params['label'])) {
+	if( !empty($params['label']) ) {
 		$label = specialize($params['label']);
 	}
 
@@ -218,8 +227,8 @@ function smarty_function_cms_selflink($params, $template)
 	}
 	$title = specialize(strip_tags($title));
 
-	if ($rellink && $dir != '' ) {
-		// output a relative link.
+	if( $rellink && $dir ) {
+		// output a relative link
 		$result .= '<link rel="';
 		switch($dir) {
 		case 'prev':
@@ -235,14 +244,13 @@ function smarty_function_cms_selflink($params, $template)
 			break;
 		}
 
-		$result .= '" title="'.$title.'" ';
-		$result .= 'href="'.$url.'" />';
+		$result .= '" title="'.$title.'" href="'.$url.'" />';
 	}
 	else {
 		if( isset($params['label_side']) ) $label_side = strtolower(trim($params['label_side']));
 		if( $label_side == 'left' ) $result .= $label.' ';
 		$result .= '<a href="'.$url.'"';
-		$result .= ' title="'.$title.'" ';
+		$result .= ' title="'.$title.'"';
 		if( isset($params['target']) ) $result .= ' target="'.$params['target'].'"';
 		if( isset($params['id']) ) $result .= ' id="'.$params['id'].'"';
 		if( isset($params['class']) ) $result .= ' class="'.$params['class'].'"';
@@ -281,7 +289,7 @@ function smarty_function_cms_selflink($params, $template)
 	}
 
 	$result = trim($result);
-	if( !empty($params['assign']) ){
+	if( !empty($params['assign']) ) {
 		$template->assign(trim($params['assign']),$result);
 		return '';
 	}

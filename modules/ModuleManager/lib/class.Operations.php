@@ -33,15 +33,14 @@ use RuntimeException;
 use XMLWriter;
 use const CMS_VERSION;
 use const TMP_CACHE_LOCATION;
-use function audit;
 use function cms_join_path;
 use function cms_module_places;
+use function CMSMS\log_notice;
 use function file_put_contents;
 use function get_recursive_file_list;
 use function get_server_permissions;
 use function lang;
 use function recursive_delete;
-use function startswith;
 
 class Operations
 {
@@ -233,7 +232,7 @@ class Operations
 
         $moduledetails['size'] = filesize($xmlfile);
 
-        if( !$brief ) audit('','Module', 'Expanded module: '.$moduledetails['name'].' version '.$moduledetails['version']);
+        if( !$brief ) log_notice('Module', 'Expanded module: '.$moduledetails['name'].' version '.$moduledetails['version']);
 
         return $moduledetails;
     }

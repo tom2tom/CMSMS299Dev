@@ -22,6 +22,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\SingleItem;
 use CMSMS\Utils;
+use function CMSMS\log_error;
+use function CMSMS\sanitizeVal;
 
 /**
  * A class for handling generic db- and file-stored layout templates as a resource.
@@ -37,9 +39,26 @@ use CMSMS\Utils;
 class Smarty_Resource_cms_template extends Smarty_Resource_Custom
 {
     /**
-     * @param string $name  template identifier (name or numeric id)
+     * populate Source Object with meta data from Resource, and work
+     * around Smarty's filepath-setting limitation
+     *
+     * @param Smarty_Template_Source   $source    source object
+     * @param Smarty_Internal_Template $_template template object
+     */
+    public function populate(Smarty_Template_Source $source, Smarty_Internal_Template $_template = null)
+    {
+        parent::populate($source, $_template);
+        if ($source->exists) {
+            if (!is_numeric($source->name)) {
+                $source->filepath = $source->type . ':' . sanitizeVal($source->name, CMSSAN_FILE);
+            }
+        }
+    }
+
+    /**
+     * @param string $name  template identifier, numeric id (i.e. whole-page) or name (probably a page-component)
      * @param mixed $source store for retrieved template content, if any
-     * @param int $mtime    store for retrieved template modification timestamp, if $source is set
+     * @param int $mtime    store for retrieved template modification timestamp, if $source is populated
      */
     protected function fetch($name,&$source,&$mtime)
     {
@@ -69,7 +88,7 @@ class Smarty_Resource_cms_template extends Smarty_Resource_Custom
 
         // here we replicate CMSMS\Template::get_content() without the overhead of loading that class
         $db = SingleItem::Db();
-        $sql = 'SELECT id,name,content,contentfile,COALESCE(modified_date, create_date, \'1900-1-1 00:00:01\') AS modified FROM '.CMS_DB_PREFIX.'layout_templates WHERE id=? OR name=?';
+        $sql = 'SELECT id,name,content,contentfile,COALESCE(modified_date,create_date,\'2000-1-1 00:00:01\') AS modified FROM '.CMS_DB_PREFIX.'layout_templates WHERE id=? OR name=?';
         $data = $db->getRow($sql,[$name,$name]);
         if( $data ) {
             if( $data['contentfile'] ) {
@@ -79,12 +98,12 @@ class Smarty_Resource_cms_template extends Smarty_Resource_Custom
                         $data['content'] = file_get_contents($fp);
                     } catch( Throwable $t ) {
 //                      trigger_error('cms_template resource: '.$t->getMessage());
-                        cms_error("Template file '$fp' failed to load: ".$t->getMessage());
+                        log_error('Failed to load template file', basename($fp).','.$t->getMessage());
                         return;
                     }
                 }
                 else {
-                    cms_error("Template file '$fp' is missing");
+                    log_error('Missing template file', basename($fp));
                     return;
                 }
             }
@@ -95,12 +114,18 @@ class Smarty_Resource_cms_template extends Smarty_Resource_Custom
             $data['content'] = str_replace('`', '&#96;', $text);
         }
         else {
-            cms_error('Missing template: '.$name);
+            log_error('Missing template',$name);
             return;
         }
 
-        $content = $data['content'];
+        if( strpos($data['content'], '<body>') === FALSE ) {
+            $source = $data['content'];
+            $mtime = ( $data['modified'] ) ? cms_to_stamp($data['modified']) : time() - 86400;
+            return;
+        }
+
         // out-of-order processing to allow header tailoring
+        $content = $data['content'];
         $pos1 = stripos($content,'<head');
         $pos2 = stripos($content,'<header',(int)$pos1);
         if( $pos1 === FALSE || $pos1 == $pos2 ) {
@@ -141,7 +166,6 @@ class Smarty_Resource_cms_template extends Smarty_Resource_Custom
 {\$parts[1]}
 {CMSMS\\tailorpage('PageBodyPostRender',$id)}
 EOS;
-        $st = ( $data['modified'] ) ? cms_to_stamp($data['modified']) : time() - 86400;
-        $mtime = $st;
+        $mtime = ( $data['modified'] ) ? cms_to_stamp($data['modified']) : time() - 86400;
     }
 } // class

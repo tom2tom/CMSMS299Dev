@@ -21,11 +21,11 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use ContentManager\Utils;
 
-//if( some worthy test fails ) exit;
+if( !$this->CheckContext() ) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) exit;
 
 if( isset($params['cancel']) ) {
-	$this->RedirectToAdminTab('','','admin_settings');
+	$this->RedirectToAdminTab('','','settings');
 }
 
 switch( $params['tab'] ) {
@@ -68,18 +68,18 @@ switch( $params['tab'] ) {
 			}
 		}
 		if( !$modified ) {
-			$this->RedirectToAdminTab($params['tab'],'','admin_settings');
+			$this->RedirectToAdminTab($params['tab'],'','settings');
 		}
 		// verify as needed
 		if( is_array($page_prefs['disallowed_types']) && in_array($page_prefs['contenttype'],$page_prefs['disallowed_types']) ) {
 			$this->SetError($this->Lang('error_contenttype_disallowed'));
-			$this->RedirectToAdminTab($params['tab'],'','admin_settings');
+			$this->RedirectToAdminTab($params['tab'],'','settings');
 		}
 		$this->SetPreference('page_prefs',serialize($page_prefs));
 		break;
 	default:
-		$this->RedirectToAdminTab('','','admin_settings');
+		$this->RedirectToAdminTab('','','settings');
 }
 
 $this->SetMessage($this->Lang('msg_prefs_saved'));
-$this->RedirectToAdminTab($params['tab'],'','admin_settings');
+$this->RedirectToAdminTab($params['tab'],'','settings');

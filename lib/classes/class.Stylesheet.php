@@ -25,14 +25,11 @@ use CMSMS\AdminUtils;
 use CMSMS\DataException;
 use CMSMS\DeprecationNotice;
 use CMSMS\LockOperations;
-use CMSMS\SingleItem;
 use CMSMS\StylesheetOperations;
-use CMSMS\StylesheetsGroup;
 use InvalidArgumentException;
 use LogicException;
 use UnexpectedValueException;
 use const CMS_ASSETS_PATH;
-use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use const CMSSAN_FILE;
 use function cms_join_path;
@@ -253,7 +250,7 @@ class Stylesheet
 	 * @internal
 	 * @ignore
 	 *
-	 * @param array $props
+	 * @param array $props sheet properties from db tables
 	 * @throws UnexpectedValueException
 	 */
 	public function set_properties(array $props)
@@ -262,6 +259,12 @@ class Stylesheet
 		unset($props['groups']);
 		// no support (yet?) for additional editors c.f. Template
 
+		if( $props['media_type'] ) {
+			$props['media_type'] = explode(',', $props['media_type']);
+		}
+		else {
+			$props['media_type'] = [];
+		}
 		// verbatim, no validate / sanitize
 		$this->props = $props;
 
@@ -400,7 +403,7 @@ class Stylesheet
 	 * Get the type-id of this stylesheet, if any
 	 * @since 2.99
 	 *
-	 * @return int, 0 if untyped
+	 * @return int, 0 if un-typed
 	 */
 	public function get_type() : int
 	{
@@ -671,11 +674,11 @@ class Stylesheet
 	/**
 	 * Get a timestamp representing when this stylesheet was last saved
 	 *
-	 * @return int UNIX UTC timestamp Default 1
+	 * @return int UNIX UTC timestamp. Default 1 (i.e. not falsy)
 	 */
 	public function get_modified()
 	{
-		$str = $this->props['modified_date'] ?? '';
+		$str = $this->props['modified_date'] ?? $this->props['create_date'] ?? '';
 		return ($str) ? cms_to_stamp($str) : 1;
 	}
 

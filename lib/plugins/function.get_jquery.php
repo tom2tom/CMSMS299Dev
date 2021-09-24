@@ -28,6 +28,7 @@ function smarty_function_get_jquery($params, $template)
 	$migrate = cms_to_bool($params['migrate'] ?? false);
 	$ui = cms_to_bool($params['ui'] ?? true);
 	$uicss = $ui || cms_to_bool($params['uicss'] ?? false);
+	$append = trim($params['append'] ?? ''); // deprecated since 2.99
 
 	$incs = cms_installed_jquery($core, $migrate, $ui, $uicss);
 
@@ -42,9 +43,20 @@ EOS;
 	}
 
 	$jsm = new ScriptsMerger();
-	if ($core) $jsm->queue_file($incs['jqcore'], 1);
-	if ($migrate) $jsm->queue_file($incs['jqmigrate'], 1);
-	if ($ui) $jsm->queue_file($incs['jqui'], 1);
+	if ($core) { $jsm->queue_file($incs['jqcore'], 1); }
+	if ($migrate) { $jsm->queue_file($incs['jqmigrate'], 1); }
+	if ($ui) { $jsm->queue_file($incs['jqui'], 1); }
+	if ($append) { // deprecated since 2.99
+		$extras = explode(',', $append);
+		foreach ($extras as $spath) {
+			$filename = basename($spath);
+			$custompath = dirname($spath); // TODO check ok with relative path
+			$fp = cms_get_script($filename, false, $custompath);
+			if ($fp) {
+				$jsm->queue_file($fp, 2);
+			}
+		}
+	}
 	$out .= $jsm->page_content();
 	if( !empty($params['assign']) ) {
 		$template->assign(trim($params['assign']), $out);

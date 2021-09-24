@@ -24,6 +24,7 @@ use CMSMS\AppState;
 use CMSMS\Template;
 use CMSMS\TemplateType;
 use News\AdminOperations;
+use function CMSMS\log_error;
 
 if( !isset($gCms) ) exit;
 
@@ -182,14 +183,14 @@ try {
     $type->reset_content_to_factory();
     $type->save();
 }
-catch( Throwable $t ) {
-    if( $newsite) {
+catch (Throwable $t) {
+    if( $newsite ) {
         return $t->getMessage();
     }
     else {
         // log it
         debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
-        audit('',$me,'Installation error: '.$t->getMessage());
+        log_error($me,'Installation error: '.$t->getMessage());
     }
 }
 
@@ -208,13 +209,13 @@ try {
         $tpl->save();
     }
 }
-catch( Throwable $t ) {
-    if( $newsite) {
+catch (Throwable $t) {
+    if( $newsite ) {
         return $t->getMessage();
     }
     else {
         debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
-        audit('',$me,'Installation error: '.$t->getMessage());
+        log_error($me,'Installation error: '.$t->getMessage());
     }
 }
 
@@ -230,13 +231,13 @@ try {
     $type->set_help_callback('News::template_help_callback');
     $type->save();
 }
-catch( Throwable $t ) {
-    if( $newsite) {
+catch (Throwable $t) {
+    if( $newsite ) {
         return $t->getMessage();
     }
     else {
         debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
-        audit('',$me,'Installation error: '.$t->getMessage());
+        log_error($me,'Installation error: '.$t->getMessage());
     }
 }
 
@@ -255,13 +256,13 @@ try {
         $tpl->save();
     }
 }
-catch( Throwable $t ) {
-    if( $newsite) {
+catch (Throwable $t) {
+    if( $newsite ) {
         return $t->getMessage();
     }
     else {
         debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
-        audit('',$me,'Installation error: '.$t->getMessage());
+        log_error($me,'Installation error: '.$t->getMessage());
     }
 }
 
@@ -277,13 +278,13 @@ try {
     $type->set_help_callback('News::template_help_callback');
     $type->save();
 }
-catch( Throwable $t ) {
-    if( $newsite) {
+catch (Throwable $t) {
+    if( $newsite ) {
         return $t->getMessage();
     }
     else {
         debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
-        audit('',$me,'Installation error: '.$t->getMessage());
+        log_error($me,'Installation error: '.$t->getMessage());
     }
 }
 
@@ -302,14 +303,13 @@ try {
         $tpl->save();
     }
 }
-catch( Throwable $t ) {
-    // log it
-    if( $newsite) {
+catch (Throwable $t) {
+    if( $newsite ) {
         return $t->getMessage();
     }
     else {
         debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
-        audit('',$me,'Installation error: '.$t->getMessage());
+        log_error($me,'Installation error: '.$t->getMessage());
     }
 }
 

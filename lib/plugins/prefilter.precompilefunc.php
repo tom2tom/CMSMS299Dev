@@ -22,40 +22,38 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
 
-function smarty_prefilter_precompilefunc($tpl_output, $smarty)
+function smarty_prefilter_precompilefunc($source, Smarty_Internal_Template $template)
 {
-	$result = explode(':', $smarty->_current_file);
+	$type = $template->source->type;
 
-	if (count($result) > 1)	{
-		if( startswith($result[0],'tmp_') ) $result[0] = 'template';
+	if( startswith($type,'tmp_') ) $type = 'template';
 
-		switch ($result[0]) {
-		case 'cms_stylesheet':
-		case 'stylesheet':
-			Events::SendEvent('Core', 'StylesheetPreCompile', ['stylesheet'=>&$tpl_output]);
-			break;
-
-		case 'content':
-			Events::SendEvent('Core', 'ContentPreCompile', ['content' => &$tpl_output]);
-			break;
-
-		case 'cms_template':
-// handled by cms_template	case 'cms_file':
-		case 'tpl_top':
-		case 'tpl_body':
-		case 'tpl_head':
-		case 'template':
-			Events::SendEvent('Core', 'TemplatePreCompile', ['template' => &$tpl_output, 'type' => $result[0]]);
+	switch ($type) {
+	case 'cms_stylesheet':
+	case 'stylesheet':
+		Events::SendEvent('Core', 'StylesheetPreCompile', ['stylesheet'=>&$source]);
 		break;
 
-		default:
-			break;
-		}
+	case 'content':
+		Events::SendEvent('Core', 'ContentPreCompile', ['content' => &$source]);
+		break;
+
+	case 'cms_template':
+// handled by cms_template	case 'cms_file':
+//		case 'tpl_top':
+//		case 'tpl_body':
+//		case 'tpl_head':
+	case 'template':
+		Events::SendEvent('Core', 'TemplatePreCompile', ['template' => &$source, 'type' => $type]);
+	break;
+
+	default:
+		break;
 	}
 
-	Events::SendEvent('Core', 'SmartyPreCompile', ['content' => &$tpl_output]);
+	Events::SendEvent('Core', 'SmartyPreCompile', ['content' => &$source]);
 
-	return $tpl_output;
+	return $source;
 }
 /* NOT published in UI
 function smarty_cms_about_prefilter_precompilefunc()

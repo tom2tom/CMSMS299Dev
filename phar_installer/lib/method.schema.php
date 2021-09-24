@@ -103,7 +103,8 @@ $tbl = CMS_DB_PREFIX.'content';
 //titleattribute html descriptor displayed in some contexts
 //id_hierarchy is akin to a site-relative URL-path composed of page-id's
 // 50 chars =~ 10 levels on a 9999-page site
-//hierarchy mimics id_hierarchy with each level 0-padded to 4 places
+//hierarchy is akin to a site-relative URL-path composed of display-orders
+// with each level 0-padded to 3 places 40 chars = 10 levels, each .NNN
 //hierarchy_path is akin to a site-relative URL-path composed
 // of page-aliases: 500 chars =~ 10 levels @ 50 each
 // NOTE index 'i_contentid_hierarchy' on (content_id,hierarchy) is used in FORCE INDEX queries
@@ -123,15 +124,15 @@ item_order I1 UNSIGNED DEFAULT 0,
 menu_text C(255) CHARACTER SET utf8mb4,
 content_alias C(255),
 hierarchy_path C(500),
-hierarchy C(75) INDEX XKEY,
-id_hierarchy C(75),
+hierarchy C(40) COLLATE ascii_bin INDEX XKEY,
+id_hierarchy C(50) COLLATE ascii_bin,
 metadata C(10000),
 titleattribute C(255) CHARACTER SET utf8mb4,
 page_url C(255),
 tabindex I1 UNSIGNED DEFAULT 0,
 accesskey C(8),
 styles C(50),
-last_modified_by I UNSIGNED,
+last_modified_by I UNSIGNED DEFAULT 0,
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP INDEX
 ';

@@ -85,7 +85,7 @@ foreach ([
 error_reporting($lvl);
 
 /* POSSIBLES
-//NA 'CMSMS\AuditOperations' => 'CMSMS\AuditManager', //AuditManager == interface
+//NA 'CMSMS\LogOperations' => 'CMSMS\AuditManager', //AuditManager == interface
 //NA 'CMSMS\AutoCookieOperations' => 'CMSMS\AutoCookieManager',
 //NA 'CMSMS\Cookies' => 'cms_cookies',
 //NA 'CMSMS\SignedCookieOperations' => 'CMSMS\SignedCookieManager',

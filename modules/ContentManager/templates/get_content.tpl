@@ -43,7 +43,7 @@
       <strong>{_ld($_module,'prompt_showinmenu')}:</strong> {if $row.showinmenu}{_ld($_module,'yes')}{else}{_ld($_module,'no')}{/if}<br />
       <strong>{_ld($_module,'wantschildren')}:</strong> {if $row.wantschildren|default:1}{_ld($_module,'yes')}{else}{_ld($_module,'no')}{/if}
       {/strip}{/capture}
-      <a href="{cms_action_url action='admin_editcontent' content_id=$row.id}" class="page_edit tooltip" accesskey="e" data-cms-content='{$row.id}' data-cms-description='{$tooltip_pageinfo|cms_htmlentities}'>{$row.page|default:''}</a>
+      <a href="{cms_action_url action='editcontent' content_id=$row.id}" class="page_edit tooltip" accesskey="e" data-cms-content='{$row.id}' data-cms-description='{$tooltip_pageinfo|cms_htmlentities}'>{$row.page|default:''}</a>
       {else}
         {if isset($row.lock)}
          {capture assign='tooltip_lockinfo'}{strip}
@@ -59,7 +59,7 @@
          {if !$row.can_steal}
           <span class="tooltip" data-cms-description='{$tooltip_lockinfo|htmlentities}'>{$row.page}</span>
          {else}
-          <a href="{cms_action_url action='admin_editcontent' content_id=$row.id}" class="page_edit tooltip steal_lock" accesskey="e" data-cms-content='{$row.id}' data-cms-description='{$tooltip_lockinfo|htmlentities}'>{$row.page}</a>
+          <a href="{cms_action_url action='editcontent' content_id=$row.id}" class="page_edit tooltip steal_lock" accesskey="e" data-cms-content='{$row.id}' data-cms-description='{$tooltip_lockinfo|htmlentities}'>{$row.page}</a>
          {/if}
         {else}
          {$row.page}
@@ -76,7 +76,7 @@
     {elseif $column == 'template'}
       {if !empty($row.template)}
         {if $row.can_edit_tpl}
-        <a href="{cms_action_url module='DesignManager' action='admin_edit_template' tpl=$row.template_id}" class="page_template" title="{_ld($_module,'prompt_page_template')}">
+        <a href="{cms_action_url module='DesignManager' action='edit_template' tpl=$row.template_id}" class="page_template" title="{_ld($_module,'prompt_page_template')}">
           {$row.template}
         </a>
         {else}
@@ -142,24 +142,24 @@
       {/if}
     {elseif $column == 'copy'}
       {if $row.copy != ''}
-      <a href="{cms_action_url action='admin_copycontent' page=$row.id}" accesskey="o">
+      <a href="{cms_action_url action='copycontent' page=$row.id}" accesskey="o">
        {admin_icon icon='copy.gif' class='systemicon page_copy' title=_ld($_module,'prompt_page_copy')}
       </a>
       {/if}
     {elseif $column == 'edit'}
       {if $row.can_edit}
-      <a href="{cms_action_url action=admin_editcontent content_id=$row.id}" accesskey="e" class="page_edit" title="{_ld($_module,'addcontent')}" data-cms-content="{$row.id}">
+      <a href="{cms_action_url action=editcontent content_id=$row.id}" accesskey="e" class="page_edit" title="{_ld($_module,'addcontent')}" data-cms-content="{$row.id}">
         {admin_icon icon='edit.gif' class='systemicon page_edit' title=_ld($_module,'prompt_page_edit')}
       </a>
       {else}
         {if isset($row.lock) && $row.can_steal}
-        <a href="{cms_action_url action=admin_editcontent content_id=$row.id}" accesskey="e" class="page_edit" title="{_ld($_module,'addcontent')}" data-cms-content="{$row.id}" class="steal_lock">
+        <a href="{cms_action_url action=editcontent content_id=$row.id}" accesskey="e" class="page_edit" title="{_ld($_module,'addcontent')}" data-cms-content="{$row.id}" class="steal_lock">
           {admin_icon icon='permissions.gif' class='systemicon page_edit steal_lock' title=_ld($_module,'prompt_steal_lock_edit')}
         </a>
         {/if}
       {/if}
     {elseif $column == 'addchild'}
-      <a href="{cms_action_url action=admin_editcontent parent_id=$row.id}" accesskey="a" class="page_edit" title="{_ld($_module,'addchildhere')}">
+      <a href="{cms_action_url action=editcontent parent_id=$row.id}" accesskey="a" class="page_edit" title="{_ld($_module,'addchildhere')}">
        {admin_icon icon='newobject.gif' class='systemicon page_addchild' title=_ld($_module,'prompt_page_addchild')}
       </a>
     {elseif $column == 'delete'}
@@ -189,16 +189,16 @@
 <div class="rowbox flow">
   <div class="pageoptions boxchild">
     {if $can_add_content}
-    <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{_ld($_module,'prompt_addcontent')}" class="pageoptions">{$t=_ld($_module,'addcontent')}{admin_icon icon='newobject.gif' alt=$t}&nbsp;{$t}</a>
+    <a href="{cms_action_url action=editcontent}" accesskey="n" title="{_ld($_module,'prompt_addcontent')}" class="pageoptions">{$t=_ld($_module,'addcontent')}{admin_icon icon='newobject.gif' alt=$t}&nbsp;{$t}</a>
     {/if}
     {if !$have_filter && isset($content_list)}
     <a class="expandall" href="{cms_action_url action='defaultadmin' expandall=1}" accesskey="e" title="{_ld($_module,'prompt_expandall')}">{$t=_ld($_module,'expandall')}{admin_icon icon='expandall.gif' alt=$t}&nbsp;{$t}</a>
     <a class="collapseall" href="{cms_action_url action='defaultadmin' collapseall=1}" accesskey="c" title="{_ld($_module,'prompt_collapseall')}">{$t=_ld($_module,'contractall')}{admin_icon icon='contractall.gif' alt=$t}&nbsp;{$t}</a>
     {if $can_reorder_content}
-    <a id="ordercontent" href="{cms_action_url action=admin_ordercontent}" accesskey="r" title="{_ld($_module,'prompt_ordercontent')}">{$t=_ld($_module,'reorderpages')}{admin_icon icon='reorder.gif' alt=$t}&nbsp;{$t}</a>
+    <a id="ordercontent" href="{cms_action_url action=ordercontent}" accesskey="r" title="{_ld($_module,'prompt_ordercontent')}">{$t=_ld($_module,'reorderpages')}{admin_icon icon='reorder.gif' alt=$t}&nbsp;{$t}</a>
     {/if}
     {if $have_locks}
-    <a id="clearlocks" href="{cms_action_url action=admin_clearlocks}" accesskey="l" title="{_ld($_module,'prompt_clearlocks')}">{$t=_ld($_module,'title_clearlocks')}{admin_icon icon='run.gif' alt=$t}&nbsp;{$t}</a>
+    <a id="clearlocks" href="{cms_action_url action=clearlocks}" accesskey="l" title="{_ld($_module,'prompt_clearlocks')}">{$t=_ld($_module,'title_clearlocks')}{admin_icon icon='run.gif' alt=$t}&nbsp;{$t}</a>
     {/if}
     {/if}
     <a id="filterdisplay" accesskey="f" title="{_ld($_module,'prompt_filter')}">{$t=_ld($_module,'filter')}{admin_icon icon=$filterimage alt=$t}&nbsp;{$t}</a>
@@ -222,7 +222,7 @@
   </div>{*boxchild*}
 </div>{*rowbox*}
 
-{form_start action='admin_multicontent' id='listform'}
+{form_start action='multicontent' id='listform'}
 <div id="contentlist">
  {* error container *}
  {if isset($error)}
@@ -265,7 +265,7 @@
 {if isset($content_list)}
   <div class="pageoptions rowbox{if $can_add_content} expand">
   <div class="boxchild">
-    <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{_ld($_module,'prompt_addcontent')}" class="pageoptions">{$t=_ld($_module,'addcontent')}{admin_icon icon='newobject.gif' class='systemicon' alt=$t}&nbsp;{$t}</a>
+    <a href="{cms_action_url action=editcontent}" accesskey="n" title="{_ld($_module,'prompt_addcontent')}" class="pageoptions">{$t=_ld($_module,'addcontent')}{admin_icon icon='newobject.gif' class='systemicon' alt=$t}&nbsp;{$t}</a>
   </div>
   {else}" style="justify-content:flex-end;">{/if}
   {if $multiselect && isset($bulk_options)}

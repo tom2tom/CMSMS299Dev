@@ -22,38 +22,36 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
 
-function smarty_postfilter_postcompilefunc($tpl_output, $smarty)
+function smarty_postfilter_postcompilefunc($source, Smarty_Internal_Template $template)
 {
-	$result = explode(':', $smarty->_current_file);
+	$type = $template->source->type;
 
-	if (count($result) > 1)	{
-		switch ($result[0])	{
-		case 'cms_stylesheet':
-		case 'stylesheet':
-			Events::SendEvent('Core', 'StylesheetPostCompile', ['stylesheet'=>&$tpl_output]);
-			break;
-
-		case 'content':
-			Events::SendEvent('Core', 'ContentPostCompile', ['content' => &$tpl_output]);
-			break;
-
-		case 'cms_template':
-//also handled by as cms_template	case 'cms_file':
-		case 'template':
-		case 'tpl_top':
-		case 'tpl_body':
-		case 'tpl_head':
-			Events::SendEvent('Core', 'TemplatePostCompile', ['template'=>&$tpl_output,'type'=>$result[0]]);
+	switch ($type)	{
+	case 'cms_stylesheet':
+	case 'stylesheet':
+		Events::SendEvent('Core', 'StylesheetPostCompile', ['stylesheet'=>&$source]);
 		break;
 
-		default:
-			break;
-		}
+	case 'content':
+		Events::SendEvent('Core', 'ContentPostCompile', ['content' => &$source]);
+		break;
+
+	case 'cms_template':
+// handled by cms_template	case 'cms_file':
+	case 'template':
+//		case 'tpl_top':
+//		case 'tpl_body':
+//		case 'tpl_head':
+		Events::SendEvent('Core', 'TemplatePostCompile', ['template'=>&$source, 'type'=>$type]);
+	break;
+
+	default:
+		break;
 	}
 
-	Events::SendEvent('Core', 'SmartyPostCompile', ['content' => &$tpl_output]);
+	Events::SendEvent('Core', 'SmartyPostCompile', ['content' => &$source]);
 
-	return $tpl_output;
+	return $source;
 }
 /* Not published in UI
 function smarty_cms_about_postfilter_postcompilefunc()

@@ -36,9 +36,9 @@ use CMSMS\Utils;
 use SmartyException;
 use Throwable;
 use function check_permission;
-use function cms_error;
 use function cms_join_path;
 use function cms_to_bool;
+use function CMSMS\log_error;
 use function CMSMS\specialize;
 use function create_file_dropdown;
 use function get_userid;
@@ -287,7 +287,7 @@ class Content extends ContentBase
 			$parser->compileTemplateSource();
 			$this->_contentBlocks = page_template_parser::get_content_blocks();
 		}
-		catch( SmartyException $e ) {
+		catch (SmartyException $e) {
 			$this->_contentBlocks = [];
 			// smarty exceptions here could be a bad template, or missing template, or something else.
 			throw new ContentException($this->mod->Lang('error_parsing_content_blocks').': '.$e->getMessage());
@@ -384,8 +384,8 @@ class Content extends ContentBase
 						$dflt_design = DesignManager\Design::load_default(); DISABLED
 						$design_id = $dflt_design->get_id();
 					}
-					catch( Throwable $t ) {
-						cms_error('No default design specified');
+					catch (Throwable $t) {
+						log_error('No default design specified');
 					}
 				}
 				$input = '';
@@ -399,7 +399,7 @@ class Content extends ContentBase
 					];
 				}
 			}
-			catch( Throwable $t ) {
+			catch (Throwable $t) {
 				// nothing here yet.
 			}
 */
@@ -413,8 +413,8 @@ class Content extends ContentBase
 						$dflt_tpl = TemplateOperations::get_default_template_by_type(TemplateType::CORE.'::page');
 						$template_id = $dflt_tpl->get_id();
 					}
-					catch( Throwable $t ) {
-						cms_error('No default page template found');
+					catch (Throwable $t) {
+						log_error('No default page template found');
 					}
 				}
 
@@ -437,8 +437,8 @@ class Content extends ContentBase
 				$input
 				];
 			}
-			catch( Throwable $t ) {
-				// nothing here yet.
+			catch (Throwable $t) {
+				// nothing here (yet?)
 			}
 			break;
 /*
@@ -457,8 +457,8 @@ class Content extends ContentBase
 * /
 				return [];
 			}
-			catch( Throwable $t ) {
-				// nothing here yet.
+			catch (Throwable $t) {
+				// nothing here (yet?)
 			}
 			break;
 */

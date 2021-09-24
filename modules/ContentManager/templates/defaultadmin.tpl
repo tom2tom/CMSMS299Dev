@@ -1,3 +1,4 @@
+<noscript><h3 style="color:red;text-align:center;">{_ld($_module,'info_javascript_required')}</h3></noscript>
 <div id="content_area">
 {include file='module_file_tpl:ContentManager;get_content.tpl'}
 </div><!-- end #content_area -->

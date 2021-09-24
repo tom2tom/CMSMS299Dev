@@ -104,7 +104,7 @@ C.page_url) LIKE ?'];
 
                 $content_id = $row['content_id'];
                 if ($pmod1 || $content_ops->CheckPageAuthorship($userid, $content_id)) {
-                    $url = $content_manager->create_action_url('m1_', 'admin_editcontent', ['content_id' => $content_id]);
+                    $url = $content_manager->create_action_url('', 'admin_editcontent', ['content_id' => $content_id]);
                 } else {
                     $url = ''; // no edit-access to this page
                 }

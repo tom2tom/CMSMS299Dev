@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\AdminUtils;
 use CMSMS\Utils;
 use News\AdminOperations;
+use function CMSMS\log_notice;
 
 //if( some worthy test fails ) exit;
 $papp = $this->CheckPermission('Approve News');
@@ -62,7 +63,7 @@ WHERE news_id IN ('.implode(',',$sel).')';
             $longnow = $db->DbTimeStamp(time(),false);
             $parms = [(int)$params['bulk_category'],$longnow];
             $db->execute($query,$parms);
-            audit('',$this->GetName().'::defaultadmin','Category changed for '.count($sel).' articles');
+            log_notice($this->GetName().'::defaultadmin','Category changed for '.count($sel).' articles');
             $this->ShowMessage($this->Lang('msg_success'));
             break;
 
@@ -71,7 +72,7 @@ WHERE news_id IN ('.implode(',',$sel).')';
 WHERE news_id IN ('.implode(',',$sel).')';
             $longnow = $db->DbTimeStamp(time(),false);
             $db->execute($query,['published',$longnow]);
-            audit('',$this->GetName().'::defaultadmin','Published status set for '.count($sel).' articles');
+            log_notice($this->GetName().'::defaultadmin','Published status set for '.count($sel).' articles');
             $this->ShowMessage($this->Lang('msg_success'));
             break;
 
@@ -80,7 +81,7 @@ WHERE news_id IN ('.implode(',',$sel).')';
 WHERE news_id IN ('.implode(',',$sel).')';
             $longnow = $db->DbTimeStamp(time(),false);
             $db->execute($query,['draft',$longnow]);
-            audit('',$this->GetName().'::defaultadmin','Draft status set for '.count($sel).' articles');
+            log_notice($this->GetName().'::defaultadmin','Draft status set for '.count($sel).' articles');
             $this->ShowMessage($this->Lang('msg_success'));
             break;
 

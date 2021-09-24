@@ -251,7 +251,9 @@ final class ContentOperations
 	public function LoadContentFromId($id, bool $loadprops=false)
 	{
 		$id = (int)$id;
-		if( $id < 1 ) { $id = $this->GetDefaultContent(); }
+		if( $id < 1 ) {
+			$id = $this->GetDefaultContent();
+		}
 
 		$cache = SingleItem::SystemCache();
 		$contentobj = $cache->get($id,'tree_pages');
@@ -266,14 +268,17 @@ final class ContentOperations
 					$classname = $ctype->class;
 					$contentobj = new $classname($row);
 					 // legacy support deprecated since 2.99
-					if( method_exists( $contentobj,'LoadFromData') ) { $contentobj->LoadFromData($row); }
+					if( method_exists( $contentobj,'LoadFromData') ) {
+						$contentobj->LoadFromData($row);
+					}
 					$cache->set($id,$contentobj,'tree_pages');
 				}
 				else {
-					throw new Exception('Unrecognized class '.$row['type'].' used in '.__METHOD__);
+					throw new Exception('Unrecognized content-type \''.$row['type'].'\' used in '.__METHOD__);
 				}
 			}
-//		} else {
+//		}
+//		else {
 			//TODO trigger module-loading etc, so that page tags get registered
 		}
 
@@ -303,7 +308,8 @@ final class ContentOperations
 			if( $id ) {
 				return $this->LoadContentFromId($id);
 			}
-//		} else {
+//		}
+//		else {
 			//TODO trigger module-loading etc, so page tags get registered
 		}
 
@@ -330,7 +336,7 @@ final class ContentOperations
 
 		while( $current_parent_id > 0 ) {
 			$item_order = max($row['item_order'], 1);
-			$hier = str_pad($item_order, 4, '0', STR_PAD_LEFT) . '.' . $hier; //max usable order 9999 since 2.99, was 99999
+			$hier = str_pad($item_order, 3, '0', STR_PAD_LEFT) . '.' . $hier; //max usable order 999 (tho in practice > 9 is a sucky design) since 2.99, was 99999
 			$idhier = $current_parent_id . '.' . $idhier;
 			$pathhier = $row['alias'] . '/' . $pathhier;
 			$current_parent_id = $row['parent_id'];
@@ -338,9 +344,9 @@ final class ContentOperations
 			$row = $hash[$current_parent_id];
 		}
 
-		if (strlen($hier) > 0) $hier = substr($hier, 0, -1);
-		if (strlen($idhier) > 0) $idhier = substr($idhier, 0, -1);
-		if (strlen($pathhier) > 0) $pathhier = substr($pathhier, 0, -1);
+		if( strlen($hier) > 0 ) $hier = substr($hier, 0, -1);
+		if( strlen($idhier) > 0 ) $idhier = substr($idhier, 0, -1);
+		if( strlen($pathhier) > 0 ) $pathhier = substr($pathhier, 0, -1);
 
 		// static properties here >> SingleItem property|ies ?
 		// if we actually did something, return the row.
@@ -513,7 +519,7 @@ final class ContentOperations
 		while( !$rst->EOF() ) {
 			$row = $rst->fields;
 
-			if (!in_array($row['type'], $valids)) continue;
+			if( !in_array($row['type'], $valids) ) continue;
 
 			$id = (int)$row['content_id'];
 			$contentobj = $cache->get($id,'tree_pages');
@@ -622,7 +628,7 @@ final class ContentOperations
 		for( $i = 0, $n = count($contentrows); $i < $n; $i++ ) {
 			$row = &$contentrows[$i];
 
-			if (!in_array($row['type'], $valids)) {
+			if( !in_array($row['type'], $valids) ) {
 				continue;
 			}
 
@@ -631,7 +637,7 @@ final class ContentOperations
 			if( !$contentobj ) {
 //				unset($row['metadata']);
 				$contentobj = $this->CreateNewContent($row['type'], $row);
-				if ($contentobj) {
+				if( $contentobj ) {
 					// legacy support
 					if( method_exists($contentobj, 'LoadFromData') ) {
 						$contentobj->LoadFromData($row, false);
@@ -790,7 +796,7 @@ final class ContentOperations
 	 * Check if a content alias is used
 	 *
 	 * @param string $alias The alias to check
-	 * @param int $content_id The id of hte current page, if any
+	 * @param int $content_id The id of the current page, if any
 	 * @return bool
 	 * @since 2.2.2
 	 */
@@ -801,7 +807,7 @@ final class ContentOperations
 
 		$params = [ $alias ];
 		$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE content_alias = ?';
-		if ($content_id > 0) {
+		if( $content_id > 0 ) {
 			$query .= ' AND content_id != ?';
 			$params[] = $content_id;
 		}
@@ -834,12 +840,12 @@ final class ContentOperations
 	public function CheckAliasError(string $alias, int $content_id = -1)
 	{
 		if( !$this->CheckAliasValid($alias) ) return lang('invalidalias2');
-		if ($this->CheckAliasUsed($alias,$content_id)) return lang('aliasalreadyused');
+		if( $this->CheckAliasUsed($alias, $content_id) ) return lang('aliasalreadyused');
 		return FALSE;
 	}
 
 	/**
-	 * Convert a 0-padded ('unfriendly') display-order hierarchy (like 0004.0002.0003)
+	 * Convert a 0-padded ('unfriendly') display-order hierarchy (like 004.002.003)
 	 * to a non-padded ('friendly') equivalent (like 4.2.3).
 	 *
 	 * @param string $position The hierarchy position to convert
@@ -848,12 +854,14 @@ final class ContentOperations
 	public function CreateFriendlyHierarchyPosition(string $position)
 	{
 		$tmp = '';
-		$levels = explode('.',$position);
-
-		foreach ($levels as $onelevel) {
-			$tmp .= ltrim($onelevel, '0') . '.';
+		$levels = explode('.', $position);
+		$n = count($levels);
+		$m = $n - 1;
+		for( $i = 0; $i < $n; ++$i ) {
+			$tmp .= ltrim($levels[$i], '0');
+			if( $i < $m ) { $tmp .= '.'; }
 		}
-		return rtrim($tmp, '.');
+		return $tmp;
 	}
 
 	/**
@@ -867,12 +875,14 @@ final class ContentOperations
 	public function CreateUnfriendlyHierarchyPosition(string $position)
 	{
 		$tmp = '';
-		$levels = explode('.',$position);
-
-		foreach ($levels as $onelevel) {
-			$tmp .= str_pad($onelevel, 4, '0', STR_PAD_LEFT) . '.'; //max usable order 9999 since 2.99, was 99999
+		$levels = explode('.', $position);
+		$n = count($levels);
+		$m = $n - 1;
+		for( $i = 0; $i < $n; ++$i ) {
+			$tmp .= str_pad($levels[$i], 3, '0', STR_PAD_LEFT); //max usable order 999 (tho in practice > 9 is a sucky design) since 2.99, was 99999
+			if( $i < $m ) { $tmp .= '.'; }
 		}
-		return rtrim($tmp, '.');
+		return $tmp;
 	}
 
 	/**

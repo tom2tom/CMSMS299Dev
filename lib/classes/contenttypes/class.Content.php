@@ -52,7 +52,7 @@ class Content extends ContentBase
 
 	/**
 	 * @since 2.99
-	 * #return string
+	 * @return string
 	 */
 	public function TemplateResource() : string
 	{

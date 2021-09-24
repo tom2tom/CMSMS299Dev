@@ -1,6 +1,6 @@
 <?php
 /*
-ContentManager module action: [de]activate multiple pages
+ContentManager module action: flag multiple pages as [not] cachable
 Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -21,39 +21,40 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\SingleItem;
+use function CMSMS\log_error;
+use function CMSMS\log_notice;
 
-//if( some worthy test fails ) exit;
-if( !isset($action) || $action != 'admin_bulk_active' ) exit;
+if( !$this->CheckContext() ) exit;
 
 if( !$this->CheckPermission('Manage All Content') ) {
     $this->SetError($this->Lang('error_bulk_permission'));
     $this->Redirect($id,'defaultadmin',$returnid);
 }
-if( !isset($params['bulk_content']) ) {
+if( empty($params['bulk_content']) ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->Redirect($id,'defaultadmin',$returnid);
 }
 
 $pagelist = $params['bulk_content'];
-$active = !empty($params['active']);
+$cachable = !empty($params['cachable']);
 $user_id = get_userid();
-$i = 0;
+$n = 0;
 
 try {
     foreach( $pagelist as $pid ) {
         $content = $this->GetContentEditor($pid);
         if( !is_object($content) ) continue;
 
-        if( $content->DefaultContent() ) continue;
-        $content->SetActive($active);
+        $content->SetCachable($cachable);
         $content->SetLastModifiedBy($user_id);
         $content->Save();
-        ++$i;
+        ++$n;
     }
-    audit('','ContentManager','Changed active status on '.$i.' pages');
+    log_notice('ContentManager','Changed cachable status on '.$n.' pages');
     $this->SetMessage($this->Lang('msg_bulk_successful'));
 }
-catch( Throwable $t ) {
+catch (Throwable $t) {
+    log_error('Multi-page cachability change failed',$t->getMessage());
     $this->SetError($t->getMessage());
 }
 $cache = SingleItem::LoadedData();

@@ -20,6 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 // since 2.99
+// alternatively, use {$smarty.const.CMS_ASSETS_URL}
 function smarty_function_assets_url($params, $template)
 {
 	$out = CMS_ASSETS_URL;
@@ -44,5 +45,5 @@ function smarty_cms_help_function_assets_url()
 	echo _ld('tags', 'help_generic',
 	'This plugin retrieves an URL representing the site\'s topmost/base folder where assets are stored.',
 	'assets_url',
-	"<li>$n</li>");
+	"<li>$n</li>").'<br /><pre><code>{$smarty.const.CMS_ASSETS_URL}</code></pre> is equivalent';
 }

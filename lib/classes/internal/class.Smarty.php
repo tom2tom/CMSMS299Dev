@@ -36,7 +36,7 @@ use const CMS_DEBUG;
 use const CMS_ROOT_PATH;
 use const TMP_CACHE_LOCATION;
 use const TMP_TEMPLATES_C_LOCATION;
-use function cms_error;
+use function CMSMS\log_error;
 use function cms_join_path;
 use function get_userid;
 use function is_sitedown;
@@ -49,7 +49,7 @@ OR
  require_once cms_join_path(CMS_ROOT_PATH,'lib','smarty','Smarty.class.php'); //when BC not needed
 else
 */
-require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'vendor', 'smarty', 'smarty', 'libs', 'SmartyBC.class.php'); //deprecated - support for Smarty2 API
+require_once cms_join_path(CMS_ROOT_PATH,'lib','vendor','smarty','smarty','libs','SmartyBC.class.php'); //deprecated - support for Smarty2 API
 
 /**
  * Class to tailor Smarty for CMSMS use.
@@ -98,7 +98,7 @@ smarty cache lifetime != global cache ttl, probably
         $this->template_class = 'CMSMS\internal\template_wrapper';
 
         // default plugin handler
-        $this->registerDefaultPluginHandler([ $this, 'defaultPluginHandler' ]);
+        $this->registerDefaultPluginHandler([$this,'defaultPluginHandler']);
 
         // dirs for compiled (i.e. non-cached), cached and config
         $this->setCompileDir(TMP_TEMPLATES_C_LOCATION)
@@ -158,6 +158,15 @@ smarty cache lifetime != global cache ttl, probably
                 }
             }
 
+            // Make site places available for general use
+            $config = SingleItem::Config();
+            $this->assignGlobal('_site_root_path',CMS_ROOT_PATH)
+                 ->assignGlobal('_site_root_url',CMS_ROOT_URL)
+                 ->assignGlobal('_site_themes_path',CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'themes')
+                 ->assignGlobal('_site_themes_url',$config['assets_url'].'/themes')
+                 ->assignGlobal('_site_uploads_path',$config['uploads_path'])
+                 ->assignGlobal('_site_uploads_url',CMS_UPLOADS_URL);
+
             // Load resources
 //            $this->registerResource('content',new content_resource())
             $this->setDefaultResourceType('content');
@@ -171,7 +180,6 @@ smarty cache lifetime != global cache ttl, probably
             // Autoload filters
             $this->autoloadFilters();
 
-            $config = SingleItem::Config();
             if( !$config['permissive_smarty'] ) {
                 // Apply our security object
                 $this->enableSecurity('CMSMS\internal\SmartySecurityPolicy');
@@ -209,23 +217,24 @@ smarty cache lifetime != global cache ttl, probably
     }
 
     /**
-     * Load filters from CMSMS plugins folders
+     * Load filters from smarty-plugins folders
      */
     private function autoloadFilters()
     {
         $pre = [];
         $post = [];
         $output = [];
-
+        // Filters will be applied in same order as registered
+        // TODO manage processing order hare, if it matters
         foreach( $this->getPluginsDir() as $dir ) {
             if( !is_dir($dir) ) continue;
 
-            $files = glob($dir.'*php');
+            $files = glob($dir.'*.php');
             if( !$files ) continue;
 
             foreach( $files as $file ) {
                 $parts = explode('.',basename($file));
-                if( !is_array($parts) || count($parts) != 3 ) continue;
+                if( count($parts) != 3 ) continue;
 
                 switch( $parts[0] ) {
                 case 'output':
@@ -246,7 +255,7 @@ smarty cache lifetime != global cache ttl, probably
         $this->autoload_filters = ['pre'=>$pre,'post'=>$post,'output'=>$output];
     }
 
-    public function registerClass($obj, $name)
+    public function registerClass($obj,$name)
     {
         if( $this->security_policy ) $this->security_policy->static_classes[] = $obj;
         parent::registerClass($obj,$name);
@@ -264,7 +273,7 @@ smarty cache lifetime != global cache ttl, probably
      * @param bool    &$cachable true by default, set it false here if relevant
      * @return bool indicating success
      */
-    public function defaultPluginHandler($name, $type, $template, &$callback, &$script, &$cachable)
+    public function defaultPluginHandler($name,$type,$template,&$callback,&$script,&$cachable)
     {
 /* NOTE plugin-dirs scan is done within smarty, this never finds an actual plugin
    so we cannot use this to force $cachable to false
@@ -314,7 +323,7 @@ smarty cache lifetime != global cache ttl, probably
             if( $row && is_callable($row['callable']) ) {
                 $callback = $row['callable'];
 //                if (0) {
-                    $val = AppParams::get('smarty_cachemodules', 0);
+                    $val = AppParams::get('smarty_cachemodules',0);
                     if ($val != 2) {
                         $cachable = (bool)$val;
                     } else {
@@ -328,7 +337,7 @@ smarty cache lifetime != global cache ttl, probably
             $callback = SingleItem::UserTagOperations()->CreateTagFunction($name);
             if( $callback ) {
 //                if (0) {
-                    $val = AppParams::get('smarty_cacheusertags', false);
+                    $val = AppParams::get('smarty_cacheusertags',false);
                     $cachable = (bool)$val;
 //                }
                 return true;
@@ -347,7 +356,7 @@ smarty cache lifetime != global cache ttl, probably
      * @param string Optional plugin-type, default 'function' TODO support '*'/'any'
      * @return bool
      */
-    public function is_plugin(string $name, string $type = 'function') : bool
+    public function is_plugin(string $name,string $type = 'function') : bool
     {
         if( isset($this->registered_plugins[$type][$name]) ) {
             return true;
@@ -397,15 +406,15 @@ smarty cache lifetime != global cache ttl, probably
      * @return Smarty_Internal_Template template object
      * @throws LogicException
      */
-    public function createTemplate($template, $cache_id = null, $compile_id = null, $parent = null, $do_clone = true)
+    public function createTemplate($template,$cache_id = null,$compile_id = null,$parent = null,$do_clone = true)
     {
         foreach( ['eval:','string:','cms_file:','extends:'] as $type ) {
-            if( startswith($template, $type) ) {
-                return parent::createTemplate($template, $cache_id, $compile_id, $parent, $do_clone);
+            if( startswith($template,$type) ) {
+                return parent::createTemplate($template,$cache_id,$compile_id,$parent,$do_clone);
             }
         }
         if( strpos($template,'*') === false && strpos($template,'/') === false ) {
-            return parent::createTemplate($template, $cache_id, $compile_id, $parent, $do_clone);
+            return parent::createTemplate($template,$cache_id,$compile_id,$parent,$do_clone);
         }
         throw new LogicException($template.' is not a valid Smarty resource in CMSMS');
     }
@@ -418,25 +427,25 @@ smarty cache lifetime != global cache ttl, probably
      * @param bool $show_trace Optional flag whether to include a backtrace in the displayed report. Default true
      * @return string
      */
-    public function errorConsole(Exception $e, bool $show_trace = true) : string
+    public function errorConsole(Exception $e,bool $show_trace = true) : string
     {
         $this->force_compile = true;
 
         # do not show smarty debug console popup to users not logged in
         //$this->debugging = get_userid(false);
-        $this->assign('e_line', $e->getLine())
-             ->assign('e_file', $e->getFile())
-             ->assign('e_message', $e->getMessage())
-             ->assign('loggedin', get_userid(false));
+        $this->assign('e_line',$e->getLine())
+             ->assign('e_file',$e->getFile())
+             ->assign('e_message',$e->getMessage())
+             ->assign('loggedin',get_userid(false));
         if( $show_trace ) {
-            $this->assign('e_trace', \htmlentities($e->getTraceAsString()));
+            $this->assign('e_trace',\htmlentities($e->getTraceAsString()));
         }
         else {
-            $this->assign('e_trace', null);
+            $this->assign('e_trace',null);
         }
 
         // put mention into the admin log
-        cms_error('Smarty Error: '. substr( $e->getMessage(),0 ,200 ) );
+        log_error($e->getMessage,'Smarty');
 
         $output = $this->fetch('cmsms-error-console.tpl');
 

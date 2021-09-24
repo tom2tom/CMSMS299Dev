@@ -20,6 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\TemplateOperations;
+use function CMSMS\log_error;
 
 //if (some worthy test fails) exit;
 
@@ -29,7 +30,7 @@ if (isset($params['formtemplate'])) {
 else {
     $tpl = TemplateOperations::get_default_template_by_type('Search::searchform');
     if( !is_object($tpl) ) {
-        cms_error('',$this->GetName().'::default','No default summary template found');
+        log_error('No default summary template found',$this->GetName().'::default');
         $this->ShowErrorPage('No default summary template found');
         return;
     }

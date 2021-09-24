@@ -20,10 +20,12 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use function CMSMS\log_error;
+
 function smarty_function_breadcrumbs($params, $template)
 {
 	// put mention into the admin log
-	cms_error('', '{breadcrumbs} plugin', 'is non-functional');
+	log_error('Plugin is non-functional','{breadcrumbs}');
 
 	return <<<'EOT'
 <span style="font-weight:bold;color:#f00;">

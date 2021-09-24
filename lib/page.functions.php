@@ -24,7 +24,7 @@ namespace {
 use CMSMS\App;
 use CMSMS\AppParams;
 use CMSMS\AppState;
-use CMSMS\AuditOperations;
+use CMSMS\LogOperations;
 use CMSMS\CoreCapabilities;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
@@ -46,6 +46,7 @@ use function CMSMS\execSpecialize;
 use function CMSMS\add_debug_message;
 use function CMSMS\get_debug_messages;
 use function CMSMS\get_site_UUID;
+use function CMSMS\log_error;
 use function CMSMS\specialize;
 use function CMSMS\urlencode;
 use function endswith;
@@ -492,12 +493,12 @@ function redirect_to_alias(string $alias)
 	$node = $hm->find_by_tag('alias', $alias);
 	if (!$node) {
 		// put mention into the admin log
-		cms_warning('Core: Attempt to redirect to invalid alias: '.$alias);
+		log_error('Attempt to redirect to invalid page',$alias);
 		return;
 	}
 	$contentobj = $node->getContent();
 	if (!is_object($contentobj)) {
-		cms_warning('Core: Attempt to redirect to invalid alias: '.$alias);
+		log_error('Attempt to redirect to invalid page',$alias);
 		return;
 	}
 	$url = $contentobj->GetURL();
@@ -1853,41 +1854,13 @@ function debug_buffer($var, string $title = '')
 /**
  * @ignore
  * @since 0.3
- * @see AuditOperations::audit()
+ * @deprecated since 2.99 instead use CMSMS\log_info()
+ * @see LogOperations::info()
  */
 function audit($itemid, string $subject, string $msg = '')
 {
-	SingleItem::AuditOperations()->audit($msg, $subject, $itemid);
-}
-
-/**
- * @ignore
- * @since 2.99
- * @see AuditOperations::notice()
- */
-function cms_notice(string $msg, string $subject = '')
-{
-	SingleItem::AuditOperations()->notice($msg, $subject);
-}
-
-/**
- * @ignore
- * @since 2.99
- * @see AuditOperations::warning()
- */
-function cms_warning(string $msg, string $subject = '')
-{
-	SingleItem::AuditOperations()->warning($msg, $subject);
-}
-
-/**
- * @ignore
- * @since 2.99
- * @see AuditOperations::error()
- */
-function cms_error(string $msg, string $subject = '')
-{
-	SingleItem::AuditOperations()->error($msg, $subject);
+	assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\log_info()'));
+	SingleItem::LogOperations()->info($msg, $subject, $itemid);
 }
 
 /**
@@ -1897,7 +1870,7 @@ function cms_error(string $msg, string $subject = '')
  */
 function chmod_r(string $path, int $mode) : bool
 {
-	assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'recursive_chmod'));
+	assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'recursive_chmod()'));
 	return recursive_chmod($path, $mode, 0);
 }
 
@@ -1947,6 +1920,47 @@ static $deflang = 0;
 static $defenc = '';
 // custom bitflag to trigger execSpecialize() during CMSMS\entitize() and CMSMS\specialize()
 define('ENT_EXEC', 2 << 15); //something compatible with PHP's ENT_* enum values
+
+
+/**
+ * @ignore
+ * @since 02.99
+ * @see LogOperations::info()
+ */
+function log_info($itemid, string $subject, string $msg = '')
+{
+	SingleItem::LogOperations()->info($msg, $subject, $itemid);
+}
+
+/**
+ * @ignore
+ * @since 2.99
+ * @see LogOperations::notice()
+ */
+function log_notice(string $msg, string $subject = '')
+{
+	SingleItem::LogOperations()->notice($msg, $subject);
+}
+
+/**
+ * @ignore
+ * @since 2.99
+ * @see LogOperations::warning()
+ */
+function log_warning(string $msg, string $subject = '')
+{
+	SingleItem::LogOperations()->warning($msg, $subject);
+}
+
+/**
+ * @ignore
+ * @since 2.99
+ * @see LogOperations::error()
+ */
+function log_error(string $msg, string $subject = '')
+{
+	SingleItem::LogOperations()->error($msg, $subject);
+}
 
 /**
  * Add a dump-message
@@ -2371,7 +2385,6 @@ function get_site_UUID() : string
 {
 	return SingleItem::get('site_uuid');
 }
-
 
 /**
  * Retrieve the installed schema version.

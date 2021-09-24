@@ -25,9 +25,12 @@ use CMSMS\FormUtils;
 use CMSMS\RouteOperations;
 use CMSMS\SingleItem;
 use CMSMS\TemplateType;
-use CMSMS\Utils;
+use CMSMS\Utils as AppUtils;
 use News\AdminOperations;
+use News\Utils;
 use function CMSMS\de_specialize_array;
+use function CMSMS\log_error;
+use function CMSMS\log_info;
 use function CMSMS\specialize;
 use function CMSMS\specialize_array;
 
@@ -185,7 +188,7 @@ WHERE news_id=?';
             }
 
             //Update search index
-            $module = Utils::get_search_module();
+            $module = AppUtils::get_search_module();
             if (is_object($module)) {
                 if ($status == 'draft' || $status == 'archived' || !$searchable) {
                     $module->DeleteWords($me, $articleid, 'article');
@@ -215,7 +218,7 @@ WHERE news_id=?';
                 'news_url' => $news_url
             ]);
             // put mention into the admin log
-            audit($articleid, 'News: ' . $title, 'Article edited');
+            log_info($articleid, 'News: ' . $title, 'Article edited');
         } // !error
 
         if (isset($params['apply']) && isset($params['ajax'])) {
@@ -291,8 +294,9 @@ WHERE news_id=?';
         'checksum' => md5_file($tmpfname)
     ];
     $tparms = ['preview' => md5(serialize($_SESSION['news_preview']))];
-    if (isset($params['detailtemplate']))
-        $tparms['detailtemplate'] = trim($params['detailtemplate']);
+    if (!empty($params['detailtemplate'])) {
+        $tparms['detailtemplate'] = Utils::check_file(trim($params['detailtemplate']));
+    }
     $url = $this->create_url('_preview_', 'detail', $detail_returnid, $tparms, true, false, '', false, 2);
 
     $response = '<?xml version="1.0"?>';
@@ -501,8 +505,8 @@ try {
          ->assign('preview', true)
          ->assign('preview_returnid', $str);
     }
-} catch( Throwable $t ) {
-    cms_error('', $me.'::editarticle', 'No detail template available for preview');
+} catch (Throwable $t) {
+    log_error('No detail template available for preview', $me.'::editarticle');
     $this->ShowErrors($t->GetMessage());
 }
 

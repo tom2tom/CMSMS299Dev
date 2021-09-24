@@ -23,19 +23,19 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\SingleItem;
 use CMSMS\TemplateOperations;
 use Navigator\Utils;
+use function CMSMS\log_error;
 
 //if( some worthy test fails ) exit;
 
 debug_buffer('Start Navigator breadcrumbs action');
 
-$template = null;
-if( isset($params['template']) ) {
-    $template = trim($params['template']);
+if( !empty($params['template']) ) {
+    $template = Utils::check_file(trim($params['template']));
 }
 else {
     $tpl = TemplateOperations::get_default_template_by_type('Navigator::breadcrumbs');
     if( !is_object($tpl) ) {
-        cms_error('',$this->GetName().'::breadcrumbs','No default breadcrumbs template found');
+        log_error('No default breadcrumbs template found',$this->GetName().'::breadcrumbs');
         $this->ShowErrorPage('No default breadcrumbs template found');
         return;
     }
@@ -76,7 +76,7 @@ $curNode = $endNode;
 $have_stopnode = FALSE;
 
 while( is_object($curNode) && $curNode->get_tag('id') > 0 ) {
-    $content = $curNode->getContent($deep,true,true);
+    $content = $curNode->getContent($deep,TRUE,TRUE);
     if( !$content ) {
         $curNode = $curNode->get_parent();
         break;
@@ -102,8 +102,8 @@ if( !$have_stopnode && $stopat == Navigator::__DFLT_PAGE ) {
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
 $tpl->assign('starttext',$starttext)
- ->assign('nodelist',array_reverse($pagestack));
-$tpl->display();
+ ->assign('nodelist',array_reverse($pagestack))
+ ->display();
 unset($tpl);
 
 debug_buffer('Finished Navigator breadcrumbs action');

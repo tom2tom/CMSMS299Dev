@@ -33,8 +33,8 @@ use LogicException;
 use RuntimeException;
 use UnexpectedValueException;
 use const CMS_DB_PREFIX;
-use function audit;
 use function cms_to_stamp;
+use function CMSMS\log_info;
 
 /**
  * A class representing a templates group.
@@ -62,26 +62,26 @@ class TemplatesGroup
 	/**
 	 * @ignore
 	 */
-	protected $_dirty = FALSE;
+	protected $dirty = FALSE;
 
 	/**
 	 * Array of group properties: id, name, description
 	 * @ignore
 	 */
-	protected $_data = [];
+	protected $props = [];
 
 	/**
 	 * Array of integer template id's, ordered by group item_order
 	 * @ignore
 	 */
-	protected $_members = [];
+	protected $members = [];
 
 	// static properties here >> SingleItem property|ies ?
 	/**
 	 * @ignore
 	 */
-	private static $_lock_cache;
-	private static $_lock_cache_loaded = FALSE;
+	private static $lock_cache;
+	private static $lock_cache_loaded = FALSE;
 
 	/**
 	 * Set all core properties of the group.
@@ -91,8 +91,8 @@ class TemplatesGroup
 	 */
 	public function set_properties(array $props)
 	{
-		$this->_data = $props;
-		$this->_dirty = TRUE;
+		$this->props = $props;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -102,7 +102,7 @@ class TemplatesGroup
 	 */
 	public function get_id()
 	{
-		return  ( isset($this->_data['id']) ) ? (int)$this->_data['id'] : null;
+		return  ( isset($this->props['id']) ) ? (int)$this->props['id'] : null;
 	}
 
 	/**
@@ -112,7 +112,7 @@ class TemplatesGroup
 	 */
 	public function get_name()
 	{
-		return $this->_data['name'] ?? '';
+		return $this->props['name'] ?? '';
 	}
 
 	/**
@@ -130,8 +130,8 @@ class TemplatesGroup
 		if( !AdminUtils::is_valid_itemname($str) ) {
 			throw new UnexpectedValueException('Invalid characters in name');
 		}
-		$this->_data['name'] = $str;
-		$this->_dirty = TRUE;
+		$this->props['name'] = $str;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -141,7 +141,7 @@ class TemplatesGroup
 	 */
 	public function get_description()
 	{
-		return $this->_data['description'] ?? '';
+		return $this->props['description'] ?? '';
 	}
 
 	/**
@@ -152,8 +152,8 @@ class TemplatesGroup
 	public function set_description($str)
 	{
 		$str = trim($str);
-		$this->_data['description'] = $str;
-		$this->_dirty = TRUE;
+		$this->props['description'] = $str;
+		$this->dirty = TRUE;
 	}
 
    /**
@@ -163,7 +163,7 @@ class TemplatesGroup
 	*/
 	public function get_created()
 	{
-		$str = $this->_data['create_date'] ?? '';
+		$str = $this->props['create_date'] ?? '';
 		return ($str) ? cms_to_stamp($str) : 1;
 	}
 
@@ -174,8 +174,8 @@ class TemplatesGroup
 	 */
 	public function get_modified()
 	{
-		$str = $this->_data['modified_date'] ?? '';
-		return ($str) ? cms_to_stamp($str) : $this->get_created();
+		$str = $this->props['modified_date'] ?? $this->props['create_date'] ?? '';
+		return ($str) ? cms_to_stamp($str) : 1;
 	}
 
 	/**
@@ -186,7 +186,7 @@ class TemplatesGroup
 	 */
 	public function get_members_summary() : string
 	{
-		return implode(',',$this->_members);
+		return implode(',',$this->members);
 	}
 
 	/**
@@ -199,19 +199,19 @@ class TemplatesGroup
 	 */
 	public function get_members(bool $by_name = FALSE)
 	{
-		if( !$this->_members ) return [];
+		if( !$this->members ) return [];
 
 		$out = [];
 		if( $by_name ) {
 			$db = SingleItem::Db();
-			$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE id IN ('.implode(',',$this->_members).')';
+			$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE id IN ('.implode(',',$this->members).')';
 			$dbr = $db->getAssoc($query);
-			foreach( $this->_members as $id ) {
+			foreach( $this->members as $id ) {
 				$out[$id] = $dbr[$id] ?? '<Missing Template>';
 			}
 		}
 		else {
-			foreach( $this->_members as $id ) {
+			foreach( $this->members as $id ) {
 				$out[$id] = TemplateOperations::get_template($id);
 			}
 		}
@@ -268,12 +268,12 @@ class TemplatesGroup
 	{
 		$ids = $this->interpret_members($a);
 		if( $ids ) {
-			$this->_members = array_values($ids);
+			$this->members = array_values($ids);
 		}
 		else {
-			$this->_members = [];
+			$this->members = [];
 		}
-		$this->_dirty = TRUE;
+		$this->dirty = TRUE;
 	}
 
 	/**
@@ -286,14 +286,14 @@ class TemplatesGroup
 	{
 		$ids = $this->interpret_members($a);
 		if( $ids ) {
-			if( !empty($this->_members) ) {
-				$tmp = array_merge($this->_members,$ids);
-				$this->_members = array_values(array_unique($tmp,SORT_NUMERIC));
+			if( !empty($this->members) ) {
+				$tmp = array_merge($this->members,$ids);
+				$this->members = array_values(array_unique($tmp,SORT_NUMERIC));
 			}
 			else {
-				$this->_members = array_values($ids);
+				$this->members = array_values($ids);
 			}
-			$this->_dirty = TRUE;
+			$this->dirty = TRUE;
 		}
 	}
 
@@ -305,12 +305,12 @@ class TemplatesGroup
 	 */
 	public function remove_members($a)
 	{
-		if( !empty($this->_members) ) {
+		if( !empty($this->members) ) {
 			$ids = $this->interpret_members($a);
 			if( $ids ) {
-				$tmp = array_diff($this->_members, $ids);
-				$this->_members = array_values($tmp);
-				$this->_dirty = TRUE;
+				$tmp = array_diff($this->members, $ids);
+				$this->members = array_values($tmp);
+				$this->dirty = TRUE;
 			}
 		}
 	}
@@ -320,17 +320,17 @@ class TemplatesGroup
 	*/
 	private static function get_locks() : array
 	{
-		if( !self::$_lock_cache_loaded ) {
-			self::$_lock_cache = [];
+		if( !self::$lock_cache_loaded ) {
+			self::$lock_cache = [];
 			$tmp = LockOperations::get_locks('stylesheetgroup');
 			if( $tmp ) {
 				foreach( $tmp as $one ) {
-					self::$_lock_cache[$one['oid']] = $one;
+					self::$lock_cache[$one['oid']] = $one;
 				}
 			}
-			self::$_lock_cache_loaded = TRUE;
+			self::$lock_cache_loaded = TRUE;
 		}
-		return self::$_lock_cache;
+		return self::$lock_cache;
 	}
 
 	/**
@@ -416,10 +416,10 @@ class TemplatesGroup
 		if( !$insert ) {
 			$db->execute('DELETE FROM '.CMS_DB_PREFIX.self::MEMBERSTABLE.' WHERE group_id='.$gid);
 		}
-		if( $this->_members ) {
+		if( $this->members ) {
 			$o = 1;
 			$stmt = $db->prepare('INSERT INTO '.CMS_DB_PREFIX.self::MEMBERSTABLE.' (group_id,tpl_id,item_order) VALUES (?,?,?)');
-			foreach( $this->_members as $id ) {
+			foreach( $this->members as $id ) {
 				$db->execute($stmt,[$gid,$id,$o++]);
 			}
 			$stmt->close();
@@ -431,7 +431,7 @@ class TemplatesGroup
 	 */
 	protected function _insert()
 	{
-		if( !$this->_dirty ) return;
+		if( !$this->dirty ) return;
 		$this->validate();
 
 		$db = SingleItem::Db();
@@ -443,10 +443,10 @@ class TemplatesGroup
 		if( !$dbr ) {
 			throw new SQLException($db->sql.' -- '.$db->errorMsg());
 		}
-		$gid = $this->_data['id'] = $db->Insert_ID();
+		$gid = $this->props['id'] = $db->Insert_ID();
 		$this->save_members($db,TRUE);
-		$this->_dirty = FALSE;
-		audit($gid,'CMSMS','Templates group created');
+		$this->dirty = FALSE;
+		log_info($gid,'CMSMS','Templates group created');
 	}
 
 	/**
@@ -454,7 +454,7 @@ class TemplatesGroup
 	 */
 	protected function _update()
 	{
-		if( !$this->_dirty ) return;
+		if( !$this->dirty ) return;
 		$this->validate();
 
 		$db = SingleItem::Db();
@@ -465,8 +465,8 @@ class TemplatesGroup
 			(int)$this->get_id()
 		]);
 		$this->save_members($db,FALSE);
-		$this->_dirty = FALSE;
-		audit($this->get_id(),'CMSMS','Templates group updated');
+		$this->dirty = FALSE;
+		log_info($this->get_id(),'CMSMS','Templates group updated');
 	}
 
 	/**
@@ -501,9 +501,9 @@ class TemplatesGroup
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::MEMBERSTABLE.' WHERE group_id = ?';
 		$db->execute($query,[$gid]);
 
-		audit($gid,'CMSMS','Templates group deleted');
-		unset($this->_data['id']);
-		$this->_dirty = TRUE;
+		log_info($gid,'CMSMS','Templates group deleted');
+		unset($this->props['id']);
+		$this->dirty = TRUE;
 	}
 
 	/**

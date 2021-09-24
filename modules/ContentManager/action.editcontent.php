@@ -20,8 +20,6 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use ContentManager\ContentBase;
-use ContentManager\Utils;
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\ContentException;
@@ -32,7 +30,10 @@ use CMSMS\LockOperations;
 use CMSMS\ScriptsMerger;
 use CMSMS\SingleItem;
 use CMSMS\UserParams;
+use ContentManager\ContentBase;
+use ContentManager\Utils;
 use function CMSMS\add_shutdown;
+use function CMSMS\log_info;
 
 //if( some worthy test fails ) exit;
 
@@ -213,7 +214,7 @@ try {
                 $contentops->SetDefaultContent( $content_obj->Id() );
             }
             unset($_SESSION['__cms_copy_obj__']);
-            audit($content_obj->Id(),'ContentManager','Edited content item '.$content_obj->Name());
+            log_info($content_obj->Id(),'ContentManager','Edited content item '.$content_obj->Name());
             if( isset($params['submit']) ) {
                 $this->SetMessage($this->Lang('msg_editpage_success'));
                 $this->Redirect($id,'defaultadmin',$returnid);
@@ -366,19 +367,20 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('editcontent.tpl')); /
 if( $content_obj->HasPreview() ) {
     $tpl->assign('has_preview',1);
     $preview_url = CMS_ROOT_URL.'/index.php?'.$config['query_var'].'='.CMS_PREVIEW_PAGEID;
-    $validate_url = $this->create_action_url($id,'admin_editcontent',['preview'=>1,CMS_JOB_KEY=>1]);
+    $validate_url = $this->create_action_url($id,'editcontent',['preview'=>1,CMS_JOB_KEY=>1]);
 }
 else {
     $preview_url = '';
     $validate_url = '';
 }
-
+/*
 if( $this->GetPreference('template_list_mode','allpage') != 'all')  {
-    $designchanged_ajax_url = $this->create_action_url($id,'admin_ajax_gettemplates',[CMS_JOB_KEY=>1]);
+    $designchanged_ajax_url = $this->create_action_url($id,'ajax_gettemplates',[CMS_JOB_KEY=>1]);
 }
 else {
     $designchanged_ajax_url = '';
 }
+*/
 
 $tpl->assign('content_id',$content_id)
  ->assign('content_obj',$content_obj)
@@ -392,7 +394,7 @@ $tpl->assign('content_id',$content_id)
 
 $parms = [CMS_JOB_KEY=>1];
 if( $content_id > 0 ) $parms['content_id'] = $content_id;
-$apply_ajax_url = $this->create_action_url($id,'admin_editcontent',$parms);
+$apply_ajax_url = $this->create_action_url($id,'editcontent',$parms);
 $lock_timeout = AppParams::get('lock_timeout', 60);
 $do_locking = ($content_id > 0 && $lock_timeout > 0) ? 1:0;
 if ($do_locking) {

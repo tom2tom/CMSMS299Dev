@@ -194,7 +194,7 @@ EOS;
      */
     public function get_browser_url()
     {
-        return $this->create_action_url('m1_','filepicker');
+        return $this->create_action_url('','filepicker');
     }
 
     /**

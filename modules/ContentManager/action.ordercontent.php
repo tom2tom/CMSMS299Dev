@@ -21,16 +21,18 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\SingleItem;
+use function CMSMS\log_notice;
 
-//if( some worthy test fails ) exit;
+if( !$this->CheckContext() ) exit;
+
 if( !$this->CheckPermission('Manage All Content') ) exit;
 
 if( isset($params['cancel']) ) {
-  $this->SetInfo($this->Lang('msg_cancelled'));
-  $this->Redirect($id,'defaultadmin');
+    $this->SetInfo($this->Lang('msg_cancelled'));
+    $this->Redirect($id,'defaultadmin');
 }
 if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
-	// this seems unused
+    // this seems unused
 /*    function ordercontent_get_node_rec($str,$prefix = 'page_')
     {
         $hm = cmsms()->GetHierarchyManager();
@@ -94,7 +96,7 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
         }
         $stmt->close();
         SingleItem::ContentOperations()->SetAllHierarchyPositions();
-        audit('','ContentManager','Content pages dynamically reordered');
+        log_notice('ContentManager','Content pages dynamically reordered');
         $this->RedirectToAdminTab('pages');
     }
 }

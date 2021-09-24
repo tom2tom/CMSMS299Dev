@@ -2,6 +2,7 @@
 
 use CMSMS\Events;
 use FileManager\Utils;
+use function CMSMS\log_notice;
 
 //if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed() ) exit;
@@ -63,7 +64,7 @@ if( isset($params['delete']) ) {
 
     $parms = ['file'=>$fn];
     if( $thumb ) $parms['thumb'] = $thumb;
-    audit('','File Manager::delete', 'Removed file: '.$fn);
+    log_notice('File Manager', 'Removed file: '.$fn);
     Events::SendEvent( 'FileManager', 'OnFileDeleted', $parms );
   } // foreach
 

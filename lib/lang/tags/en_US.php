@@ -356,22 +356,24 @@ EOT
 
 'help_function_cms_stylesheet' => <<<'EOT'
 <h3>What does this do?</h3>
-<p>A replacement for the {stylesheet} tag, this tag provides caching of css files by generating static files in the tmp/cache directory, and smarty processing of the individual stylesheets.</p>
-<p>This plugin retrieves stylesheet information from the system. By default, it grabs all of the stylesheets attached to the current template in the order specified by the designer, and combines them into a single stylesheet tag.</p>
-<p>Generated stylesheets are uniquely named according to the last modification date in the database, and are only generated if a stylesheet has changed.</p>
-<p>This tag is the replacement for the {stylesheet} tag.</p>
+<p>This plugin provides caching of css files by generating static files in the tmp/cache directory, and smarty processing of the individual stylesheets.</p>
+<p>By default, the plugin grabs all the stylesheets attached to the current page, in the order specified by the designer, and combines them into a single stylesheet tag.</p>
+<p>Generated stylesheets are uniquely named according to the last modification date in the database, and are re-generated only if a stylesheet has changed.</p>
+<p>This tag replaces the {stylesheet} tag.</p>
 <h3>How is it used?</h3>
 <p>Insert the tag into the template/content head-section like: <code>{cms_stylesheet}</code></p>
 <h4>What parameters does it take?</h4>
 <ul>
- <li><em>(optional)</em> name - Instead of getting all stylesheets for the given page, it will only get one specifically named one, whether it's attached to the current template or not</li>
- <li><em>(optional)</em> nocombine - (boolean, default false) If enabled, and there are multiple stylesheets associated with the template, the stylesheets will be output as separate tags rather than combined into a single tag</li>
- <li><em>(optional)</em> nolinks - (boolean, default false) If enabled, the stylesheets will be output as a URL without &lt;link&gt; tag</li>
- <li><em>(optional)</em> designid - If this is defined, return stylesheets associated with that design instead of the current one</li>
+ <li><em>(optional)</em> name - Instead of getting all stylesheets for the given page, it will only get one specifically named one, whether or not it's assigned to the current page</li>
+ <li><em>(optional)</em> nocombine - (boolean, default false) If enabled, and there are multiple stylesheets for the page, those stylesheets will be output as separate tags rather than combined into a single tag</li>
+ <li><em>(optional)</em> nolinks - (boolean, default false) If enabled, the stylesheets will be output as an URL without &lt;link&gt; tag</li>
  <li><em>(optional)</em> media - <strong>[deprecated]</strong> - When used in conjunction with the name parameter this parameter will override the media type for that stylesheet. When used in conjunction with the templateid parameter, the media parameter will only output stylesheet tags for those stylesheets that are marked as compatible with the specified media type.</li>
-</ul>
+ <li><em>(optional)</em> min</li> - (boolean, default true unless CMS_DEBUG is defined) If enabled, the css content will be minified before storage | output</li>
+ <li><em>(optional)</em> stripbackground</li> - (boolean, default false) If enabled, background-specific styling will be removed</li>
+ <li><em>(optional)</em> styles</li> - (string) Optional comma-separated sequence of stylesheet ID's to use, in the same manner as, and as an alternative to, the &quot;name&quot; parameter</li>
+/ul>
 <h3>Smarty Processing</h3>
-<p>When generating css files this system passes the stylesheets retrieved from the database through smarty. The smarty delimiters have been changed from the CMSMS standard { and } to [[ and ]] respectively to ease transition in stylesheets. This allows creating smarty variables i.e.: [[assign var='red' value='#900']] at the top of the stylesheet, and then using these variables later in the stylesheet, i.e:</p>
+<p>When generating css files, the system passes the retrieved stylesheets through Smarty. The Smarty delimiters are changed from the usual { and } to [[ and ]] respectively, to ease transition in stylesheets. This allows creating smarty variables i.e.g. [[$red = '#900']] at the top of the stylesheet, and then using these variables later in the stylesheet, e.g.</p>
 <pre>
 <code>
 h3 .error { color: [[$red]]; }<br/>
@@ -380,10 +382,10 @@ h3 .error { color: [[$red]]; }<br/>
 <p>Because the cached files are generated in the tmp/cache directory of the CMSMS installation, the CSS relative working directory is not the root of the website. Therefore any images, or other tags that require a url should use the [[root_url]] tag to force it to be an absolute url. i.e:</p>
 <pre>
 <code>
-h3 .error { background: url([[root_url]]/uploads/images/error_background.gif); }<br/>
+h3 .error { background: url([[$_site_uploads_url]]/images/error_background.gif); }<br/>
 </code>
 </pre>
-<p><strong>Note:</strong> Due to the caching nature of the plugin, smarty variables should be placed at the top of EACH stylesheet that is attached to a template.</p>
+<p><strong>Note:</strong> Due to the caching nature of the plugin, Smarty variables should be placed at the top of EACH stylesheet.</p>
 EOT
 ,
 

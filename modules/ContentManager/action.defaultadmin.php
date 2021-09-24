@@ -1,6 +1,6 @@
 <?php
 /*
-CMSContentManger module action: defaultadmin
+ContentManger module action: defaultadmin
 Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -29,10 +29,7 @@ use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 use CMSMS\UserParams;
 
-//if( some worthy test fails ) exit;
-// no permissions checks here.
-
-echo '<noscript><h3 style="color:red;text-align:center;">'.$this->Lang('info_javascript_required').'</h3></noscript>'.PHP_EOL;
+if( !$this->CheckContext() ) exit;
 
 $builder = new ContentListBuilder($this);
 $pagelimit = UserParams::get($this->GetName().'_pagelimit',500);
@@ -161,7 +158,7 @@ if( isset($curpage) ) {
     $_SESSION[$modname.'_curpage'] = $curpage;
 }
 
-$find_url = $this->create_action_url($id,'admin_ajax_pagelookup',[CMS_JOB_KEY=>1]);
+$find_url = $this->create_action_url($id,'ajax_pagelookup',[CMS_JOB_KEY=>1]);
 
 $url = $this->create_action_url($id,'ajax_get_content',[CMS_JOB_KEY=>1]);
 list($page_url, $page_data) = urlsplit($url);
@@ -421,13 +418,9 @@ $(function() {
   done_handler: setuplist
  });
  setuplist();
- params = $.extend($watch_data, {
-  $securekey: cms_data.user_key,
-  $jobkey: 1
- });
  watcher = Poller.run({
   url: '$watch_url',
-  data: params,
+  data: pagedata,
   interval: $secs,
   done_handler: adjust_locks
  });

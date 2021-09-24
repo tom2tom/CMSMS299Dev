@@ -28,8 +28,8 @@ use CMSMS\SingleItem;
 use CMSMS\SQLException;
 use LogicException;
 use const CMS_DB_PREFIX;
-use function cms_notice;
-use function cms_warning;
+use function CMSMS\log_notice;
+use function CMSMS\log_warning;
 use function get_userid;
 use function lang;
 
@@ -308,10 +308,10 @@ VALUES (?,?,?,?)';
         $userid = get_userid(false);
         if( $userid != $props['uid'] ) {
             if( $TODO->expired() ) { // TODO
-                cms_notice(sprintf('Lock %s (%s/%d) owned by uid %s deleted by non owner',
+                log_notice(sprintf('Lock %s (%s/%d) owned by uid %s deleted by non owner',
                     $props['id'], $props['type'], $props['oid'], $props['uid']));
             } else {
-                cms_warning('Attempt to delete a non expired lock owned by user '.$userid);
+                log_warning('Attempt to delete a non expired lock owned by user '.$userid);
                 throw new LockOwnerException('CMSEX_L001');
             }
         }

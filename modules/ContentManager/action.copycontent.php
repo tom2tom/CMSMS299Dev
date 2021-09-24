@@ -13,43 +13,43 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-//if( some worthy test fails ) exit;
+if( !$this->CheckContext() ) exit;
 
 if( !isset($params['page']) ) {
-  $this->SetError($this->Lang('error_missingparam'));
-  $this->Redirect($id,'defaultadmin',$returnid);
+    $this->SetError($this->Lang('error_missingparam'));
+    $this->Redirect($id,'defaultadmin',$returnid);
 }
 $content_id = (int)$params['page'];
 if( $content_id < 1 ) {
-  $this->SetError($this->Lang('error_missingparam'));
-  $this->Redirect($id,'defaultadmin',$returnid);
+    $this->SetError($this->Lang('error_missingparam'));
+    $this->Redirect($id,'defaultadmin',$returnid);
 }
 
 //
 // get the data
 //
 if( !$this->CanEditContent($content_id) ) {
-  $this->SetError($this->Lang('error_copy_permission'));
-  $this->Redirect($id,'defaultadmin',$returnid);
+    $this->SetError($this->Lang('error_copy_permission'));
+    $this->Redirect($id,'defaultadmin',$returnid);
 }
 
 $hm = cmsms()->GetHierarchyManager();
 $node = $hm->find_by_tag('id',$content_id);
 if( !$node ) {
-  $this->SetError($this->Lang('error_invalidpageid'));
-  $this->Redirect($id,'defaultadmin',$returnid);
+    $this->SetError($this->Lang('error_invalidpageid'));
+    $this->Redirect($id,'defaultadmin',$returnid);
 }
 $from_obj = $node->getContent(FALSE,FALSE,FALSE);
 if( !$from_obj ) {
-  $this->SetError($this->Lang('error_invalidpageid'));
-  $this->Redirect($id,'defaultadmin',$returnid);
+    $this->SetError($this->Lang('error_invalidpageid'));
+    $this->Redirect($id,'defaultadmin',$returnid);
 }
 $from_obj->GetAdditionalEditors();
 $from_obj->HasProperty('anything'); // forces properties to be loaded.
@@ -64,4 +64,4 @@ $to_obj->SetDefaultContent(0);
 $to_obj->SetOwner($userid);
 $to_obj->SetLastModifiedBy($userid);
 $_SESSION['__cms_copy_obj__'] = serialize($to_obj);
-$this->Redirect($id,'admin_editcontent','',['content_id'=>'copy']);
+$this->Redirect($id,'editcontent','',['content_id'=>'copy']);

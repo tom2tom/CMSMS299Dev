@@ -23,6 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\Events;
 use CMSMS\SingleItem;
 use CMSMS\UserParams;
+use function CMSMS\log_info;
 
 if (!isset($_GET['user_id'])) {
     return;
@@ -57,7 +58,7 @@ if ($userid != $cur_userid) {
             Events::SendEvent( 'Core', 'DeleteUserPost', ['user'=>&$oneuser] );
 
             // put mention into the admin log
-            audit($userid, 'Admin User '.$user_name, 'Deleted');
+            log_info($userid, 'Admin User '.$user_name, 'Deleted');
         } else {
             $key = 'failure';
         }

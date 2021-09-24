@@ -23,16 +23,16 @@ use CMSMS\Events;
 use CMSMS\TemplateOperations;
 use Search\ItemCollection;
 use function CMSMS\specialize;
+use function CMSMS\log_error;
 
 //if (some worthy test fails) exit;
 
-$template = null;
 if (!empty($params['resulttemplate'])) {
     $template = trim($params['resulttemplate']);
 } else {
     $tpl = TemplateOperations::get_default_template_by_type('Search::searchresults');
     if (!is_object($tpl)) {
-        cms_error('',$this->GetName().'::dosearch','No default summary template found');
+        log_error('No default summary template found',$this->GetName().'::dosearch');
         $this->ShowErrorPage('No default summary template found');
         return;
     }

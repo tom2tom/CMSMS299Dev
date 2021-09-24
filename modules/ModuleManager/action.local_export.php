@@ -25,6 +25,8 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\Events;
 use CMSMS\NlsOperations;
 use CMSMS\SingleItem;
+use function CMSMS\log_error;
+use function CMSMS\log_notice;
 use function CMSMS\sanitizeVal;
 
 //if( some worthy test fails ) exit;
@@ -68,7 +70,7 @@ try {
     }
     else {
         $xmlname = $mod->GetName().'-'.$mod->GetVersion().'.xml';
-        audit('',$this->GetName().'::local_export','Exported '.$mod->GetName().' to '.$xmlname);
+        log_notice($this->GetName().'::local_export','Exported '.$mod->GetName().' to '.$xmlname);
 
         // send the file.
         $handlers = ob_list_handlers();
@@ -81,7 +83,8 @@ try {
         exit;
     }
 }
-catch( Throwable $t ) {
+catch (Throwable $t) {
+    log_error('Failed to export module '.$modname,$t->GetMessage());
     $this->SetError($t->GetMessage());
     $this->RedirectToAdminTab();
 }

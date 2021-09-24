@@ -19,7 +19,7 @@
 {/function}
 
 <h3>{_ld($_module,'prompt_ordercontent')}</h3>
-{form_start action='admin_ordercontent' id="theform"}
+{form_start action='ordercontent' id="theform"}
 <input type="hidden" id="orderlist" name="{$actionid}orderlist" value="" />
 <div class="pageinfo">{_ld($_module,'info_ordercontent')}</div>
 <div class="pageinput postgap">

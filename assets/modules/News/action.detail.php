@@ -23,6 +23,7 @@ use CMSMS\Error404Exception;
 use CMSMS\TemplateOperations;
 use News\Article;
 use News\Utils;
+use function CMSMS\log_error;
 
 //if( some worthy test fails ) exit;
 
@@ -34,14 +35,14 @@ $article = null;
 $preview = false;
 $articleid = $params['articleid'] ?? -1;
 
-if( isset($params['detailtemplate']) ) {
-    $template = trim($params['detailtemplate']);
+if( !empty($params['detailtemplate']) ) {
+    $template = Utils::check_file(trim($params['detailtemplate']));
 }
 else {
     $me = $this->GetName();
     $tpl = TemplateOperations::get_default_template_by_type($me.'::detail');
     if( !is_object($tpl) ) {
-        cms_error('',$me.'::detail','No usable detail template found');
+        log_error('No usable detail template found', $me.'::detail');
         $this->ShowErrorPage('No usable detail template found');
         return;
     }
@@ -84,7 +85,7 @@ $article->set_linkdata($id,$params);
 
 $return_url = $this->CreateReturnLink($id, isset($params['origid'])?$params['origid']:$returnid, $this->lang('news_return'));
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
 $tpl->assign('return_url', $return_url)
  ->assign('entry', $article);
 

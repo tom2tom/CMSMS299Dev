@@ -24,6 +24,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\SingleItem;
 use CMSMS\Events;
 
+//if (some worthy test fails) exit;
 if (!function_exists('cmsms')) exit;
 
 //$dict = new DataDictionary($db);
@@ -43,6 +44,10 @@ if( version_compare($oldversion,'2.0') < 0 ) {
     ] as $name) {
         Events::CreateEvent($me,$name); //since 2.0
     }
+
+    // semi-permanent alias for back-compatibility
+    $ops = SingleItem::ModuleOperations();
+    $ops->set_module_classname('CMSContentManager',get_class($this));
 }
 
 SingleItem::ContentTypeOperations()->RebuildStaticContentTypes();

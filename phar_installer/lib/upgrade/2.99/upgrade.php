@@ -137,7 +137,7 @@ if ($data) {
 }
 
 // 2.1 revise callbacks for page and generic layout template types
-// directly to table - can't do object->save() which triggers audit(), N/A during installer
+// directly to table - can't do object->save() which triggers admin-log change, N/A during installer
 $corename = TemplateType::CORE;
 $page_type = TemplateType::load($corename.'::page');
 if ($page_type) {

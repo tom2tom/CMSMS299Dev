@@ -27,17 +27,16 @@ use CMSMS\SingleItem;
 use CMSMS\SQLException;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetsGroup;
-use DateTime;
 use LogicException;
 use Throwable;
 use UnexpectedValueException;
 use const CMS_ASSETS_PATH;
 use const CMS_DB_PREFIX;
 use const CMSSAN_FILE;
-use function audit;
 use function check_permission;
 use function cms_join_path;
-use function cms_notice;
+use function CMSMS\log_info;
+use function CMSMS\log_notice;
 use function CMSMS\sanitizeVal;
 use function endswith;
 use function file_put_contents;
@@ -152,9 +151,9 @@ class StylesheetOperations
 
 //		SingleItem::LoadedData()->refresh('LayoutStylesheets'); if that cache exists
 		$str = 'Stylesheet \''.$sht->get_name().'\' Deleted';
-		cms_notice($str);
+		log_notice($str);
 		Events::SendEvent('Core', 'DeleteStylesheetPost', [get_class($sht) => &$sht]);
-		audit($sid, $orig, $str);
+		log_info($sid, $orig, $str);
 	}
 
 	/**
@@ -257,7 +256,6 @@ class StylesheetOperations
 				}
 			}
 		}
-
 		return $out;
 	}
 
@@ -893,7 +891,7 @@ WHERE id = ?';
 		}
 
 //		SingleItem::LoadedData()->refresh('LayoutStylesheets'); if that cache exists
-		audit($sid, $orig, 'Stylesheet \''.$name.'\' Updated');
+		log_info($sid, $orig, 'Stylesheet \''.$name.'\' Updated');
 	}
 
 	/**
@@ -959,7 +957,7 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 		}
 
 //		SingleItem::LoadedData()->refresh('LayoutStylesheets'); if that cache exists
-		audit($sid, $orig, 'Stylesheet \''.$name.'\' Created');
+		log_info($sid, $orig, 'Stylesheet \''.$name.'\' Created');
 	}
 
 	/**

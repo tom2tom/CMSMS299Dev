@@ -26,6 +26,7 @@ use CMSMS\Events;
 use CMSMS\Group;
 use CMSMS\SingleItem;
 use function CMSMS\de_specialize;
+use function CMSMS\log_info;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
@@ -76,7 +77,7 @@ if (isset($_POST['addgroup'])) {
             if ($groupobj->save()) {
                 Events::SendEvent('Core', 'AddGroupPost', [ 'group'=>&$groupobj ]);
                 // put mention into the admin log
-                audit($groupobj->id, 'Admin Users Group '.$groupobj->name, 'Added');
+                log_info($groupobj->id, 'Admin Users Group '.$groupobj->name, 'Added');
                 redirect('listgroups.php'.$urlext);
             } else {
                 $errors[] = _la('errorinsertinggroup');

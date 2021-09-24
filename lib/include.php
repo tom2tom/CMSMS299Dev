@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-//use CMSMS\AuditOperations;
+//use CMSMS\LogOperations;
 use CMSMS\AdminTheme;
 use CMSMS\App;
 use CMSMS\AppConfig;
@@ -84,7 +84,6 @@ $config = AppConfig::get_instance(); // this object was already used during defi
 SingleItem::insert('Config', $config); // now we can cache it with other singletons
 //SingleItem::insert('AppConfig', $config); // and an alias
 //SingleItem::insert('cms_config', $config); // and another
-//SingleItem::insert('AuditOperations', AuditOperations::get_instance()); //audit() needs direct access to this class
 
 // check for valid inclusion
 $includer = $_SERVER['SCRIPT_FILENAME'] ?? '';
@@ -143,7 +142,7 @@ if (!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['QUERY_STRING'])) {
     $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING'];
 }
 
-//AuditOperations::get_instance()->init();
+//LogOperations::get_instance()->init();
 
 // Set the timezone
 if ($config['timezone']) @date_default_timezone_set(trim($config['timezone']));

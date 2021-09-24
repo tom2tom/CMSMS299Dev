@@ -1,6 +1,6 @@
 <?php
 /*
-ContentManager module action: admin_settings
+ContentManager module action: settings
 Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -25,7 +25,8 @@ use CMSMS\SingleItem;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 
-//if( some worthy test fails ) exit;
+if( !$this->CheckContext() ) exit;
+
 if( !$this->CheckPermission('Modify Site Preferences') ) exit;
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('settings.tpl')); //,null,null,$smarty);
@@ -56,7 +57,7 @@ $dflts = 'expand,icon1,hier,page,alias,template,friendlyname,active,default,view
 $tmp = explode(',',$allcols);
 $opts = [];
 foreach( $tmp as $one ) {
-  $opts[$one] = $this->Lang('colhdr_'.$one);
+    $opts[$one] = $this->Lang('colhdr_'.$one);
 }
 $tpl->assign('visible_column_opts',$opts);
 $tmp = explode(',',$this->GetPreference('list_visiblecolumns',$dflts));
@@ -71,21 +72,21 @@ $realm = $this->GetName();
 $types = SingleItem::ContentTypeOperations()->ListContentTypes(false,false,false,$realm);
 
 if( $types ) {
-  //exclude types which are nonsense for default (maybe make this a preference?)
-  foreach( [
-    'errorpage',
-    'link',
-    'pagelink',
-    'sectionheader',
-    'separator',
-  ] as $one ) {
-    unset($types[$one]);
-  }
+    //exclude types which are nonsense for default (maybe make this a preference?)
+    foreach( [
+     'errorpage',
+     'link',
+     'pagelink',
+     'sectionheader',
+     'separator',
+    ] as $one ) {
+        unset($types[$one]);
+    }
 }
 
 list($stylerows,$grouped,$js) = Utils::get_sheets_data($prefs['styles'] ?? []);
 if( $js ) {
-  add_page_foottext($js);
+    add_page_foottext($js);
 }
 
 $tpl->assign('page_prefs',$prefs)

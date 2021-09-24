@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use ModuleManager\ModuleRepClient;
 use ModuleManager\Utils;
+use function CMSMS\log_error;
 
 //if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
@@ -37,7 +38,7 @@ $repmodules = $repmodules[1];
 
 $result = Utils::get_installed_modules();
 if( ! $result[0] ) {
-    cms_error('', $this->GetName().'::modulelist', $result[1]);
+    log_error($result[1],$this->GetName().'::modulelist');
     $this->DisplayErrorPage($result[1]);
     return;
 }

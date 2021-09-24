@@ -34,7 +34,8 @@ use Throwable;
 use const CLEAN_STRING;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
-use function audit;
+use function CMSMS\log_error;
+use function CMSMS\log_notice;
 use function startswith;
 //use function CMSMS\sanitizeVal;
 
@@ -385,7 +386,7 @@ final class ModulePluginOperations
 			}
 			else {
 				// an array with only one member !?
-				audit('', __CLASS__, 'Cannot register plugin '.$name.' for module '.$module_name.' - invalid callable');
+				log_error(__CLASS__, 'Cannot register plugin for module '.$module_name.' - invalid callable');
 				return;
 			}
 		}
@@ -401,7 +402,7 @@ final class ModulePluginOperations
 		}
 
 		if( !is_callable($callable) ) {
-			audit('', __CLASS__, 'Substitute the default handler for plugin '.$name);
+			log_notice(__CLASS__, 'Substitute the default handler for plugin '.$module_name);
 //			$callable = $module_name.'::function_plugin';
 			$callable = __CLASS__.'::'.$module_name;
 		}

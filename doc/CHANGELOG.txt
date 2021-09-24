@@ -111,12 +111,12 @@ The installer remedies those breakages as best it can, but might miss some cases
 To access the main Smarty class: $smarty-object->smarty
 
 The main function name MUST NOT include a qualifier before the plugin type, like smarty[stuff]_xxxxx e.g. smarty_cms_xxxxx. Current smarty cannot process such.
-(Not to be confused with e.g. smarty_function_cms_xxxxx.)
+(Not to be confused with e.g. smarty_function_cms_xxxxx which remains valid.)
 
 deprecated
 
 cms_jquery  see get_jquery
-cms_stylesheet  media, designid parameters are deprecated, styles parameter added
+cms_stylesheet  media, designid parameters are deprecated (ignored)
 global_content  global content blocks are just templates since CMSMS 2
 fetch_pagedata  replicates {content} tag
 process_pagedata out-of-order displayed-page processing is automatic
@@ -124,7 +124,9 @@ process_pagedata out-of-order displayed-page processing is automatic
 changed
 
 cms_textarea  adapted to work with updated FormUtils::create_textarea()
+all date-formatters expect date()-compatible formats, but will convert deprecated strftime()-compatible formats if possible
 current_date  if no format is given, site-preference 'defaultdateformat' is used
+cms_stylesheet  min, styles parameters added, automatic sorting of output media-types 
 
 LOCATIONS
 
@@ -192,6 +194,7 @@ DETAILS
          CMSMS\specialize_array(),
          CMSMS\de_specialize(),
          CMSMS\de_specialize_array(),
+         CMSMS\log_info(),CMSMS\log_notice(),CMSMS\log_warning(),CMSMS\log_error()
   - New content-security methods: CMSMS\execSpecialchars(), CMSMS\sanitizeVal(),
          CMSMS\Database\Connection::escStr();
   - New method: AdminUtils::get_module_icon()
@@ -203,7 +206,7 @@ DETAILS
       PageHeadPostRender, PageHeadPreRender, PageBodyPostRender, PageBodyPreRender, PostRequest
   - CHANGE: parameter-seprarators in generated URL strings default to '&' instead of '&amp;' (per RFC 3986)
   - CHANGE: Formerly hard-coded admin-menu data have been migrated into a standalone file. Those data can be tailored e.g. by the theme at runtime or by the site-developer anytime
-  - FEATURE: New globally-available security-check function e.g. in module-actions :: if (!checkuuid($uuid)) exit;
+  - FEATURE: New globally-available context-validation functions e.g. in module-actions :: if (!checkuuid($uuid)) exit; OR if (!$this->CheckContext()) exit;
   - CHANGE: Management of page styles is much more flexible
   - CHANGE: Database connection supports parameterized commands with a single non-array value (other than null) instead of an array including just that value
   - CHANGE: Database connection reports success as the insert-id after an INSERT command applied to a table with an autoincrement field, instead of just true
@@ -211,15 +214,17 @@ DETAILS
   - CHANGE: Database connection reliably reports success (as the no. of affected rows) after an UPDATE command
   - CHANGE: URL-string constructor methods support non-scalar paramter values
   - CHANGE: Page style(s) are applied directly, insead of via a Design. Each design is now just a tool to facilitate site development
-  - CHANGE: Enable use of php functions date(),strtotime() in smarty frontend templates
   - REMOVED: All strftime() usage, per PHP 8.1 deprecation. Instead use date() and related methods and classes
   - DEPRECATED: strftime()-compatibile site-preference 'defaultdateformat'. Instead use date()-compatible 'date_format' or 'datetime_format'
   - CHANGE: Smarty modifier-plugin cms_date_format undertands formats which are or include 'timed'
   - CHANGE: Smarty modifier-plugin cms_date_format sanitizes generated text, so no need to supplement in templates with '|cms_escape'
+  - CHANGE: Smarty tolerates additional functions: _la(),_ld(),_lm(),cms_join_path(),CMSMS\entitize(),CMSMS\specialize(),CMSMS\sanitizeVal(),CMSMS\tailorpage(),date(),lang_by_realm(),str_contains(),str_ends_with(),str_starts_with(),strtotime(),stripos(),strripos(),strrpos()
+  - CHANGE: global-scope Smarty-variables: $_site_root_path,$_site_root_url,$_site_themes_path,$_site_themes_url,$_site_uploads_path,$_site_uploads_url are automatically defined during each frontend request
   - BREAKING: Renamed permission 'Modify User-defined Tags' to 'Manage User Plugins'
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.99 at least, the module is still operational.)
-  - CHANGE: Renamed CMSContentManager module to ContentManager (shorter module-names help deal with a Smarty 20-character limit)
-  - CHANGE: News module is non-core, and in future will be distributed independently of the core files (and probably replaced)
+  - CHANGE: Renamed CMSContentManager module to ContentManager (shorter module-names help deal with a Smarty 25-character limit on resource-names)
+  - CHANGE: Renamed CMSMailer module to OutMailer (with pending support for sending via external platforms like Mailchimp)
+  - CHANGE: News module is non-core, and in future will be distributed independently of the core files (and possibly replaced)
   - BREAKING: Long-deprecated frontend creation of news items has been removed
   - BREAKING: Newly created pages and newly-stored module-plugins default to cachable. This can be overridden when the page is saved, or the plugin deployed {nocache}{/nocache}.
   - ADD: Extra permissions: 'Remote Administration', 'View Admin Log'
@@ -369,9 +374,6 @@ DETAILS
      suffixes to allow parsing a subset of the template.
   - FEATURE: The cmsfile: resource is now the default resource (instead of file:)
   - FEATURE: Now allow loading a page template directly from a smarty resource.
-  - FEATURE: New config entry $config['page_template_list'] to allow manually creating a page template list of smarty
-      resources:. When enabled, and adding or editing content no design selection is possible, and this list will be displayed.
-      Note: when using this, implementing {cms_stylesheet} in the file based templates will be problematic.
   - IMPROVE: Organize and refactor the template parsing code.
   - FEATURE: Added the ability to stop processing content, via an exception.  This is useful in situations where output is retrieved from a cache.
   - FEATURE: Added the {content_text} plugin to allow adding simple static text instructions for editors on the edit content page.
@@ -718,7 +720,7 @@ Core - General
   - Refactoring of the Admin login code to be cleaner, more efficient, more secure.
   - No longer allow any modules to auto-upgrade on frontend requests.
   - Fix problem with cms_filecache_driver::clear().
-  - Introduces the new Hook mechanism to allow optimizing cms_stylesheet a bit further. All core SendEvent calls are now implemented as hooks.
+  - Introduces the new Hook mechanism.
   - changegroupperms can now localize permission names,  and add an info string for each permission. (the listpermissions hook).
   - Add add_headtext(), get_headtext(), add_footertext(), get_footertext() methods to the Admin theme class.
   - minor refactoring of admin/index.php, admin/header.php, admin/footer.php and admin/moduleinterface.php.

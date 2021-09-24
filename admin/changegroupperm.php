@@ -26,6 +26,7 @@ use CMSMS\HookOperations;
 use CMSMS\LangOperations;
 use CMSMS\SingleItem;
 use CMSMS\UserParams;
+use function CMSMS\log_info;
 
 $dsep = DIRECTORY_SEPARATOR;
 require ".{$dsep}admininit.php";
@@ -101,7 +102,7 @@ if (isset($_POST['submit'])) {
     $stmt2->close();
     $stmt3->close();
     // put mention into the admin log
-    audit($userid, 'Permission Group ID: '.$userid, 'Changed');
+    log_info($userid, 'Permission Group ID: '.$userid, 'Changed');
     $message = _la('permissionschanged');
 //    AdminUtils::clear_cached_files();
 //    SingleItem::LoadedData()->refresh('IF ANY');

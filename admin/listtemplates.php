@@ -163,9 +163,9 @@ try {
         if( $navpages > 1 ) {
             $pagelengths = [10=>10];
             $pagerows += $pagerows;
-            if( $pagerows < $totalrows ) $pagelengths[20] = 20;
+            if( $pagerows < $n ) $pagelengths[20] = 20;
             $pagerows += $pagerows;
-            if( $pagerows < $totalrows ) $pagelengths[40] = 40;
+            if( $pagerows < $n ) $pagelengths[40] = 40;
             $pagelengths[0] = _la('all');
         }
         else {
@@ -181,7 +181,7 @@ try {
         $db = SingleItem::Db();
         $query = 'SELECT EXISTS (SELECT 1 FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.')';
         if( $db->getOne($query) ) {
-            $smarty->assign('templates',false); //signal row(s) exist, but none matches
+            $smarty->assign('templates', false); //signal row(s) exist, but none matches
         }
     }
 

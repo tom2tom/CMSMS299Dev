@@ -27,6 +27,8 @@ use DateTime;
 use DateTimeZone;
 use News\Article;
 use const CMS_DB_PREFIX;
+use function cms_join_path;
+use function endswith;
 
 final class Utils
 {
@@ -381,5 +383,24 @@ WHERE status = \'published\' AND news_id = ? AND ('.$db->ifNull('start_time',1).
 		if( $row ) {
 			return self::get_article_from_row($row); //, (($for_display) ? 'PUBLIC' : 'ALL'));
 		}
+	}
+
+	/**
+	 * Substitute a module-file template name (like *.tpl) for an un-suffixed
+	 * template name, if appropriate
+	 *
+	 * @param string $tplname trimmed value provided as an action parameter
+	 * @return string
+	 */
+	public static function check_file(string $tplname) : string
+	{
+		if( !endswith($tplname,'.tpl') ) {
+			$asfile = $tplname.'.tpl';
+			$tplpath = cms_join_path(dirname(__DIR__), 'templates', $asfile);
+			if( is_file($tplpath) ) {
+				return $asfile;
+			}
+		}
+		return $tplname;
 	}
 } // class

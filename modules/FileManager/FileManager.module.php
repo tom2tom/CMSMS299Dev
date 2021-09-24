@@ -277,7 +277,7 @@ final class FileManager extends CMSModule
             $obj->action = 'admin_settings';
             $obj->name = 'set';
             $obj->icon = false;
-            $obj->url = $this->create_action_url('m1_', $obj->action);
+            $obj->url = $this->create_action_url('', $obj->action);
             $out[] = $obj;
         }
 

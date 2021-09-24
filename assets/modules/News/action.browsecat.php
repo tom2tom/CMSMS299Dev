@@ -21,20 +21,21 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\TemplateOperations;
 use News\Utils;
+use function CMSMS\log_error;
 use function CMSMS\specialize_array;
 
 //if( some worthy test fails ) exit;
 
 // TODO icon/image display
 
-if( isset($params['browsecattemplate']) ) {
-    $template = trim($params['browsecattemplate']);
+if( !empty($params['browsecattemplate']) ) {
+    $template = Utils::check_file(trim($params['browsecattemplate']));
 }
 else {
     $me = $this->GetName();
     $tpl = TemplateOperations::get_default_template_by_type($me.'::browsecat');
     if( !is_object($tpl) ) {
-        cms_error('', $me.'..browsecat', 'No usable news-categories-template found');
+        log_error('No usable news-categories-template found', $me.'::browsecat');
         $this->ShowErrorPage('No usable news-categories-template found');
         return;
     }
@@ -46,8 +47,6 @@ specialize_array($items);
 
 // display template
 $tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
-
 $tpl->assign('count', count($items))
- ->assign('cats', $items);
-
-$tpl->display();
+ ->assign('cats', $items)
+ ->display();

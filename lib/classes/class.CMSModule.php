@@ -41,6 +41,7 @@ use CMSMS\SingleItem;
 use CMSMS\Utils;
 use ContentManager\BulkOperations;
 use function CMSMS\get_site_UUID;
+use function CMSMS\log_info;
 use function CMSMS\sanitizeVal;
 use function CMSMS\template_processing_allowed;
 //use function CMSMS\de_entitize;
@@ -2404,7 +2405,9 @@ abstract class CMSModule
             }
             return $tpl_name;
         }
-        if( endswith($tpl_name,'.tpl') ) return 'module_file_tpl:'.$this->GetName().';'.$tpl_name;
+        if( endswith($tpl_name,'.tpl') ) {
+            return 'module_file_tpl:'.$this->GetName().';'.$tpl_name;
+        }
         return 'cms_template:'.$tpl_name;
     }
 
@@ -2751,7 +2754,7 @@ abstract class CMSModule
     /**
      * Put an event into the audit (admin) log. For consistency, this
      * should be done during most admin events.
-     * @deprecated since 2.99 instead use audit() directly
+     * @deprecated since 2.99 instead use CMSMS\log_info() directly
      *
      * @final
      * @param mixed  $itemid   useful for working on a specific record (i.e. article or user), but often '' or 0
@@ -2760,8 +2763,8 @@ abstract class CMSModule
      */
     final public function Audit($itemid, string $itemname, string $detail = '')
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('function','audit'));
-        audit($itemid, $itemname, $detail);
+        assert(empty(CMS_DEPREC), new DeprecationNotice('function','CMSMS\log_info()'));
+        log_info($itemid, $itemname, $detail);
     }
 
     /**
@@ -2985,6 +2988,23 @@ abstract class CMSModule
         catch( Exception $e ) {
             // ignored.
         }
+    }
+
+    /**
+     * Report whether the current script is running (on the server) via
+     * moduleinterface.php. A context-validity check for module actions,
+     * except when running 'inline'.
+     * @since 2.99
+     *
+     * @return bool indicating acceptability
+     */
+    public function CheckContext() : bool
+    {
+        $str = $_SERVER['PHP_SELF'] ?? '';
+        if (!$str) {
+            $str = reset(get_included_files());
+        }
+        return basename($str, '.php') === 'moduleinterface';
     }
 
     /**

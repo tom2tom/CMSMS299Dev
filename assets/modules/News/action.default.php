@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\TemplateOperations;
 use News\Utils;
 use function CMSMS\de_specialize;
+use function CMSMS\log_error;
 //use function CMSMS\specialize;
 
 //if( some worthy test fails ) exit;
@@ -34,13 +35,13 @@ if( !empty ($params['browsecat']) ) {
 
 $me = $this->GetName();
 
-if( isset($params['summarytemplate']) ) {
-    $template = trim($params['summarytemplate']);
+if( !empty($params['summarytemplate']) ) {
+    $template = Utils::check_file(trim($params['summarytemplate']));
 }
 else {
     $tpl = TemplateOperations::get_default_template_by_type($me.'::summary');
     if( !is_object($tpl) ) {
-        cms_error('', $me.'::default', 'No default summary template found');
+        log_error('No default summary template found', $me.'::default');
         $this->ShowErrorPage('No default summary template found');
         return;
     }
@@ -238,7 +239,9 @@ if( $rst ) {
         $urlparms = ['articleid'=>$row['news_id']];
         if( isset($params['category_id']) ) { $urlparms['category_id'] = $params['category_id']; }
         if( isset($params['detailpage']) ) { $urlparms['origid'] = $returnid; }
-        if( isset($params['detailtemplate']) ) { $urlparms['detailtemplate'] = $params['detailtemplate']; }
+        if( !empty($params['detailtemplate']) ) {
+            $urlparms['detailtemplate'] =  Utils::check_file(trim($params['detailtemplate']));
+        }
         if( isset($params['lang']) ) { $urlparms['lang'] = $params['lang']; }
         if( isset($params['pagelimit']) ) { $urlparms['pagelimit'] = $params['pagelimit']; }
         if( isset($params['showall']) ) { $urlparms['showall'] = $params['showall']; }
@@ -251,7 +254,7 @@ if( $rst ) {
             if( !$prettyurl ) {
                 $aliased_title = munge_string_to_url($row['news_title']);
                 $prettyurl = 'News/'.$row['news_id'].'/'.($detailpage!=''?$detailpage:$returnid)."/$aliased_title";
-                if( isset($urlparms['detailtemplate']) ) {
+                if( !empty($urlparms['detailtemplate']) ) {
                     $prettyurl .= '/d, ' . $urlparms['detailtemplate'];
                 }
             }
@@ -296,7 +299,7 @@ else {
     $pagecount = 0;
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource($template), null, null, $smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //, null, null, $smarty);
 
 // TODO specialize() relevant ->assign()'d values
 // pagination variables for the template

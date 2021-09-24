@@ -26,6 +26,7 @@ use CMSMS\Events;
 use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use function CMSMS\de_specialize;
+use function CMSMS\log_info;
 use function CMSMS\sanitizeVal;
 
 $dsep = DIRECTORY_SEPARATOR;
@@ -85,7 +86,7 @@ if (isset($_GET['switchuser'])) {
 
             if ($result) {
                 // put mention into the admin log
-                audit($userid, 'Admin User ' . $thisuser->username, 'Edited');
+                log_info($userid, 'Admin User ' . $thisuser->username, 'Edited');
                 Events::SendEvent('Core', 'EditUserPost', ['user' => &$thisuser]);
             } else {
                 $themeObject->RecordNotice('error', _la('errorupdatinguser'));
@@ -122,7 +123,7 @@ if (isset($_GET['switchuser'])) {
                 Events::SendEvent('Core', 'DeleteUserPre', ['user'=>&$oneuser]);
                 $oneuser->Delete();
                 Events::SendEvent('Core', 'DeleteUserPost', ['user'=>&$oneuser]);
-                audit($uid, 'Admin User ' . $oneuser->username, 'Deleted');
+                log_info($uid, 'Admin User ' . $oneuser->username, 'Deleted');
                 $ndeleted++;
             }
             if ($ndeleted > 0) {
@@ -146,7 +147,7 @@ if (isset($_GET['switchuser'])) {
                 Events::SendEvent('Core', 'EditUserPre', ['user'=>&$oneuser]);
                 UserParams::remove_for_user($uid);
                 Events::SendEvent('Core', 'EditUserPost', ['user'=>&$oneuser]);
-                audit($uid, 'Admin User ' . $oneuser->username, 'Settings cleared');
+                log_info($uid, 'Admin User ' . $oneuser->username, 'Settings cleared');
                 $nusers++;
             }
             if ($nusers > 0) {
@@ -181,7 +182,7 @@ if (isset($_GET['switchuser'])) {
                                 UserParams::set_for_user($uid, $k, $v);
                             }
                             Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$oneuser ]);
-                            audit($uid, 'Admin User ' . $oneuser->username, 'Settings cleared');
+                            log_info($uid, 'Admin User ' . $oneuser->username, 'Settings cleared');
                             $nusers++;
                         }
                     }
@@ -214,7 +215,7 @@ if (isset($_GET['switchuser'])) {
                     $oneuser->active = 0;
                     $oneuser->save();
                     Events::SendEvent('Core', 'EditUserPost', ['user'=>&$oneuser]);
-                    audit($uid, 'Admin User ' . $oneuser->username, 'Disabled');
+                    log_info($uid, 'Admin User ' . $oneuser->username, 'Disabled');
                     $nusers++;
                 }
             }
@@ -245,7 +246,7 @@ if (isset($_GET['switchuser'])) {
                     $oneuser->active = 1;
                     $oneuser->save();
                     Events::SendEvent('Core', 'EditUserPost', ['user'=>&$oneuser]);
-                    audit($uid, 'Admin User ' . $oneuser->username, 'Enabled');
+                    log_info($uid, 'Admin User ' . $oneuser->username, 'Enabled');
                     $nusers++;
                 }
             }

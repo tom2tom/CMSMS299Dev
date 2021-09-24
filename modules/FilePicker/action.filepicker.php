@@ -35,6 +35,7 @@ use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
 use FilePicker\PathAssistant;
 use FilePicker\Utils;
+use function CMSMS\log_error;
 
 //if( some worthy test fails ) exit;
 //BAD in iframe if( !check_login(true) ) exit; // admin only.... but any admin
@@ -379,7 +380,7 @@ EOS;
     ]);
     $tpl->display();
 }
-catch( Throwable $t ) {
-    cms_error('','FilePicker::filepicker',$t->GetMessage());
+catch (Throwable $t) {
+    log_error($t->GetMessage(),'FilePicker::filepicker');
     $this->ShowErrorPage($t->GetMessage());
 }

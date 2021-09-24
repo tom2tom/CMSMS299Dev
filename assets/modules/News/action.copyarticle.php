@@ -20,11 +20,12 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use News\AdminOperations;
+use function CMSMS\log_error;
 
 //if (some worthy test fails) exit;
 
 if (!$this->CheckPermission('Modify News')) {
-    cms_error('', $this->GetName().'::copyarticle', "No 'Modify News' permission");
+    log_error("No 'Modify News' permission", $this->GetName().'::copyarticle');
     $this->ShowErrorPage('You are not authorized to modify news items');
     return;
 }

@@ -124,9 +124,9 @@ try {
         if( $navpages > 1 ) {
             $pagelengths = [10=>10];
             $pagerows += $pagerows;
-            if( $pagerows < $totalrows ) $pagelengths[20] = 20;
+            if( $pagerows < $n ) $pagelengths[20] = 20;
             $pagerows += $pagerows;
-            if( $pagerows < $totalrows ) $pagelengths[40] = 40;
+            if( $pagerows < $n ) $pagelengths[40] = 40;
             $pagelengths[0] = _la('all');
         } else {
             $pagelengths = null;
@@ -134,8 +134,8 @@ try {
         $sellength = 10; //OR some $_REQUEST[]
 
         $smarty->assign('navpages', $navpages)
-         ->assign('pagelengths',$pagelengths)
-         ->assign('currentlength',$sellength);
+         ->assign('pagelengths', $pagelengths)
+         ->assign('currentlength', $sellength);
     }
     else {
         $db = SingleItem::Db();
@@ -148,8 +148,8 @@ try {
 
     $extras = get_secure_param_array();
 
-    $smarty->assign('urlext',$urlext)
-     ->assign('extraparms',$extras);
+    $smarty->assign('urlext', $urlext)
+     ->assign('extraparms', $extras);
 }
 catch( Throwable $t ) {
     echo '<div class="error">'.$t->GetMessage().'</div>';

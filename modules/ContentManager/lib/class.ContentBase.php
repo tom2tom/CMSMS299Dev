@@ -256,7 +256,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 */
 	protected $mSecure = 0;
 
-	/* * 
+	/* *
 	 * The content-type of this page ('content','link' etc)
 	 * String
 	 *
@@ -462,11 +462,11 @@ abstract class ContentBase implements IContentEditor, Serializable
 		$this->mModifiedDate = $data['modified_date'] ?? null;
 		$this->mOwner		 = $data['owner_id'] ?? 0;
 		$this->mURL			 = $data['page_url'] ?? null;
-		$this->mParentId	 = $data['parent_id'] ?? -1;
+		$this->mParentId	 = $data['parent_id'] ?? -1; //root, no parent
 		$this->mSecure		 = $data['secure'] ?? false; //deprecated since 2.0
 		$this->mShowInMenu	 = !empty($data['show_in_menu']);
 		$this->mStyles		 = $data['styles'] ?? null; //since 2.0, replaces design_id
-		$this->mTabIndex	 = $data['tabindex'] ?? 0; // since 2.0, default formerly was 1
+		$this->mTabIndex	 = $data['tabindex'] ?? 0; //since 2.0, default formerly was 1
 		$this->mTemplateId	 = $data['template_id'] ?? 0;
 		$this->mTitleAttribute = $data['titleattribute'] ?? null;
 //		$this->mType		= $data['type'] ?? null;

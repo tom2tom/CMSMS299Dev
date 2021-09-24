@@ -7,7 +7,7 @@
   liclass: is used to build a string containing class names given to the li tag.
 *}
 
-{function name=Nav_menu depth=1}{strip}
+{function Nav_menu depth=1}{strip}
 <ul>
   {foreach $data as $node}
     {* setup classes for the anchor and list item *}

@@ -26,6 +26,7 @@ use CMSMS\ScriptsMerger;
 use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use function CMSMS\de_specialize_array;
+use function CMSMS\log_info;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
@@ -181,7 +182,7 @@ if (isset($_POST['submit'])) {
                         $stmt3->close();
                     }
                     // put mention into the admin log
-                    audit($userid, 'Admin User ' . $userobj->username, ' Edited');
+                    log_info($userid, 'Admin User ' . $userobj->username, ' Edited');
                     Events::SendEvent('Core', 'EditUserPost', ['user' => &$userobj]);
                     $themeObject->RecordNotice('success', _la('accountupdated'));
                 } else {
@@ -204,7 +205,7 @@ if (isset($_POST['submit'])) {
                         foreach ($prefs as $k => $v) {
                             UserParams::set_for_user($user_id, $k, $v);
                         }
-                        audit($user_id, 'Admin User ' . $userobj->username, 'Settings copied from template user');
+                        log_info($user_id, 'Admin User ' . $userobj->username, 'Settings copied from template user');
                         $message[] = _la('msg_usersettingscopied');
                     }
                 } else {
@@ -213,7 +214,7 @@ if (isset($_POST['submit'])) {
             } elseif (isset($_POST['clearusersettings'])) {
                 if ($user_id > 1) {
                     // clear all preferences for this user.
-                    audit($user_id, 'Admin User ' . $userobj->username, ' Settings cleared');
+                    log_info($user_id, 'Admin User ' . $userobj->username, ' Settings cleared');
                     UserParams::remove_for_user($user_id);
                     $message[] = _la('msg_usersettingscleared');
                 } else {

@@ -65,7 +65,7 @@ final class AdminMenuItem
             if( $this->module && $this->action ) {
                 $mod = Utils::get_module($this->module);
                 if( $mod ) {
-                    return $mod->create_action_url('m1_',$this->action);
+                    return $mod->create_action_url('',$this->action);
                 }
             }
             break;
@@ -176,7 +176,7 @@ final class AdminMenuItem
             $obj->priority = 50;
             $obj->section = $mod->GetAdminSection();
             $obj->title = $mod->GetFriendlyName();
-            $obj->url = $mod->create_action_url('m1_',$action);
+            $obj->url = $mod->create_action_url('',$action);
             return $obj;
         }
     }

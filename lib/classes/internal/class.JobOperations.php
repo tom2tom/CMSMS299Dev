@@ -48,6 +48,7 @@ use const TMP_CACHE_LOCATION;
 use function audit;
 use function cms_join_path;
 use function cms_path_to_url;
+use function CMSMS\log_notice;
 use function debug_to_log;
 use function error_log;
 
@@ -578,8 +579,8 @@ final class JobOperations
             if (!empty($row['module'])) {
                 $mod = Utils::get_module($row['module']);
                 if (!is_object($mod)) {
-                    debug_to_log(sprintf('Could not load module %s required by job %s', $row['module'], $row['name']));
-                    audit('', 'TODO', sprintf('Could not load module %s required by job %s', $row['module'], $row['name']));
+                    debug_to_log(sprintf('Failed to load module %s required by job %s', $row['module'], $row['name']));
+                    log_notice('JobOperations', sprintf('Failed to load module %s required by job %s', $row['module'], $row['name']));
 //                    throw new RuntimeException('Job '.$row['name'].' requires module '.$row['module'].' That could not be loaded');
                 }
             }
@@ -640,7 +641,7 @@ final class JobOperations
                 $mod = Utils::get_module($row['module']);
                 if (!is_object($mod)) {
                     debug_to_log(sprintf('Could not load module %s required by job %s', $row['module'], $row['name']));
-                    audit('', 'JobOperations', sprintf('Could not load module %s required by job %s', $row['module'], $row['name']));
+                    log_notice('JobOperations', sprintf('Could not load module %s required by job %s', $row['module'], $row['name']));
                 }
             }
             try {
@@ -709,7 +710,7 @@ final class JobOperations
             unset($row);
             $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE id IN ('.implode(',', $idlist).')';
             $db->execute($sql);
-            audit('', $mod->GetName(), 'Cleared '.count($idlist).' bad jobs');
+            log_notice('JobOperations', 'Cleared '.count($idlist).' bad jobs');
         }
         AppParams::set('joblastbadrun', $now);
     }

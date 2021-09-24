@@ -25,7 +25,7 @@ use ContentManager\ContentListBuilder;
 use CMSMS\SingleItem;
 use function CMSMS\de_specialize;
 
-//if( some worthy test fails ) exit;
+if( !$this->CheckContext() ) exit;
 if( !$this->CanEditContent() ) exit;
 
 $out = [];

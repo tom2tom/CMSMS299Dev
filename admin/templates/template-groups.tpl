@@ -13,14 +13,14 @@
   <tr>
     <th title="{_ld('layout','title_group_id')}">{_ld('layout','prompt_id')}</th>
     <th title="{_ld('layout','title_group_name')}">{_ld('layout','prompt_name')}</th>
-    <th title="{_ld('layout','title_group_members')}">{_ld('layout','members')}</th>
+    <th title="{_ld('layout','title_group_members')}">{_ld('layout','member_ids')}</th>
     <th class="pageicon"></th>{* locks/menu *}
   </tr>
  </thead>
  <tbody>
   {foreach $list_groups as $group}{$gid=$group->get_id()}{$url="edittplgroup.php`$urlext`&grp=`$gid`"}
   {cycle values='row1,row2' assign='rowclass'}
-  <tr class="{$rowclass}" onmouseover="this.className='{$rowclass}hover';" onmouseout="this.className='{$rowclass}';">		  
+  <tr class="{$rowclass}" onmouseover="this.className='{$rowclass}hover';" onmouseout="this.className='{$rowclass}';">
     <td><a href="{$url}" title="{_ld('layout','prompt_edit')}">{$gid}</a></td>{/strip}
     <td><a href="{$url}" title="{_ld('layout','prompt_edit')}">{$group->get_name()}</a></td>
     <td>{$group->get_members_summary()}</td>

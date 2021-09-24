@@ -24,7 +24,9 @@ namespace Navigator;
 use CMSMS\AppParams;
 use CMSMS\SingleItem;
 use NavigatorNode;
+use function cms_join_path;
 use function CMSMS\specialize;
+use function endswith;
 use function startswith;
 
 final class Utils
@@ -64,6 +66,7 @@ final class Utils
 
     /**
      * Populate a node to be used for generating a menu-item
+     *
      * @param object $node
      * @param bool $deep whether to also populate the 'non-core' properties of content-objects
      * @param int  $nlevels  max recursion depth
@@ -147,7 +150,7 @@ final class Utils
             if( $node->has_children() ) {
                 $children = $node->getChildren($deep,$show_all); //loads children into cache : SLOW! TODO just get id's
                 if( $children ) {
-					$cache = SingleItem::SystemCache();
+                    $cache = SingleItem::SystemCache();
                     foreach( $children as &$node ) {
                         $id = $node->get_tag('id');
                         if( $cache->has($id,'tree_pages') ) {
@@ -182,5 +185,24 @@ final class Utils
 
             return $obj;
         }
+    }
+
+    /**
+     * Substitute a module-file template name (like *.tpl) for an un-suffixed
+     * template name, if appropriate
+     *
+     * @param string $tplname trimmed value provided as an action parameter
+     * @return string
+     */
+    public static function check_file(string $tplname) : string
+    {
+        if( !endswith($tplname,'.tpl') ) {
+            $asfile = $tplname.'.tpl';
+            $tplpath = cms_join_path(dirname(__DIR__),'templates',$asfile);
+            if( is_file($tplpath) ) {
+                return $asfile;
+            }
+        }
+        return $tplname;
     }
 } // class

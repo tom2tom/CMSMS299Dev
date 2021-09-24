@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\TemplateOperations;
 use Navigator\Utils;
+use function CMSMS\log_error;
 
 //if( some worthy test fails ) exit;
 
@@ -37,21 +38,19 @@ $childrenof = null;
 $deep = false; //true; properties not generally needed
 $collapse = false;
 
-$template = null;
-if( isset($params['template']) ) {
-    $template = trim($params['template']);
+if( !empty($params['template']) ) {
+    $template = Utils::check_file(trim($params['template']));
 }
 else {
     $tpl = TemplateOperations::get_default_template_by_type('Navigator::navigation');
     if( !is_object($tpl) ) {
-        cms_error('',$this->GetName().'::default','No default template found');
+        log_error('No default template found',$this->GetName().'::default');
         $this->ShowErrorPage('No default template found');
         return;
     }
     $template = $tpl->get_name();
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
 $hm = $gCms->GetHierarchyManager();
 foreach( $params as $key => $value ) {
     switch( $key ) {
@@ -212,7 +211,7 @@ elseif( $start_level > 1 ) {
             $id = $arr2[$start_level-2];
             $tmp = $arr[$id];
             if( $tmp->has_children() ) {
-                // do childrenof this element
+                // do children of this element
                 $rootnodes = $tmp->get_children();
             }
         }
@@ -255,9 +254,10 @@ foreach( $rootnodes as $node ) {
 }
 
 Utils::clear_excludes();
-$tpl->assign('nodes',$outtree);
 
-$tpl->display();
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
+$tpl->assign('nodes',$outtree)
+  ->display();
 
 unset($tpl);
 debug_buffer('Finished Navigator default action');

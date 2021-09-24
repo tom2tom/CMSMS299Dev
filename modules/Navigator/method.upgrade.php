@@ -1,6 +1,7 @@
 <?php
 
 use CMSMS\TemplateType;
+use function CMSMS\log_error;
 
 if( !isset($gCms) ) exit;
 
@@ -14,9 +15,12 @@ if( version_compare($oldversion,'1.0.5') < 0 ) {
             }
         }
     }
-    catch( Throwable $t ) {
-        // log it
-        audit('',$this->GetName(),'Upgrade error: '.$t->GetMessage());
+    catch (Throwable $t) {
+        log_error($this->GetName(),'Upgrade error: '.$t->GetMessage());
         return $t->GetMessage();
     }
+/* TODO robust migration from Menu-Manager module ..
+$this->RegisterSmartyPlugin('menu', 'function', 'function_plugin');
+$this->RegisterSmartyPlugin('cms_breadcrumbs', 'function', 'nav_breadcrumbs');
+*/
 }

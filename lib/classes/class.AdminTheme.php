@@ -50,13 +50,13 @@ use const CMS_USER_KEY;
 use const CMSSAN_FILE;
 use function add_page_foottext;
 use function add_page_headtext;
-use function audit;
 use function check_permission;
 use function cms_join_path;
 use function cms_module_places;
 use function cms_path_to_url;
 use function CMSMS\get_page_foottext;
 use function CMSMS\get_page_headtext;
+use function CMSMS\log_info;
 use function CMSMS\sanitizeVal;
 use function endswith;
 use function get_secure_param;
@@ -382,7 +382,7 @@ abstract class AdminTheme
                                 ['_', '-', '\\$1'],
                                 $modname.'-'.$nm);
                             if (empty($one->url)) {
-                                $one->url = $mod->create_action_url('m1_', $one->action);
+                                $one->url = $mod->create_action_url('', $one->action);
                             }
                             $one->system = $sys;
                             $usermoduleinfo[$key] = $one;
@@ -596,7 +596,7 @@ abstract class AdminTheme
             }
         } else {
             // put mention into the admin log
-            audit(get_userid(false),'Admin Theme','No module information found for user');
+            log_info(get_userid(false),'Admin Theme','No module information found for user');
         }
     }
 
@@ -1001,7 +1001,7 @@ abstract class AdminTheme
         //TODO some core method c.f. \CMSMS\AdminUtils::get_generic_url()
         $mod = Utils::get_module('ModuleManager');
         if (is_object($mod)) {
-            return $mod->create_action_url('m1_', 'defaultadmin', ['modulehelp'=>$modname]);
+            return $mod->create_action_url('', 'defaultadmin', ['modulehelp'=>$modname]);
         }
     }
 

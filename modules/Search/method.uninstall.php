@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Database\DataDictionary;
 use CMSMS\TemplateType;
+use function CMSMS\log_error;
 
 //if (some worthy test fails) exit;
 
@@ -70,8 +71,7 @@ try {
         }
     }
 }
-catch( Throwable $t ) {
-    // log it
-    audit('',$this->GetName(),'Uninstall error: '.$t->GetMessage());
+catch (Throwable $t) {
+    log_error($this->GetName(),'Uninstall error: '.$t->GetMessage());
     return $t->GetMessage();
 }

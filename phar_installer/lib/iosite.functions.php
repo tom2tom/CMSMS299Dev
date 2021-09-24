@@ -285,6 +285,129 @@ function file_relpath(string $toroot, string $tobase) : string
 					//TODO must do this after modules are installed
 					}
 					break;
+
+     'designs' => [
+      'table' => 'module_designs',
+      'subtypes' => [
+       'design' => [
+        'id' => [],
+        'name' => [],
+        'description' => ['optional' => 1],
+       ]
+      ]
+     ],
+     'designstyles' => [
+      'sql' => 'SELECT * FROM %smodule_designs_css ORDER BY design_id,css_id,css_order',
+      'subtypes' => [
+       'designcss' => [
+        'design_id' => [],
+        'css_id' => [],
+        'css_order' => ['optional' => 1],
+       ]
+      ]
+     ],
+     'designtemplates' => [
+      'sql' => 'SELECT * FROM %smodule_designs_tpl ORDER BY design_id,tpl_id,tpl_order',
+      'subtypes' => [
+       'designtpl' => [
+        'design_id' => [],
+        'tpl_id' => [],
+        'tpl_order' => ['optional' => 1],
+       ]
+      ]
+     ],
+
+ <!ELEMENT designs (design*)>
+ <!ELEMENT design (id,name,description?,dflt?)>
+ <!ELEMENT dflt (#PCDATA)>
+ <!ELEMENT designstyles (designcss*)>
+ <!ELEMENT designcss (design_id,css_id,css_order)>
+ <!ELEMENT design_id (#PCDATA)>
+ <!ELEMENT css_order (#PCDATA)>
+ <!ELEMENT designtemplates (designtpl*)>
+ <!ELEMENT designtpl (design_id,tpl_id,tpl_order?)>
+ <!ELEMENT tpl_order (#PCDATA)>
+
+				case 'designs':
+					//TODO must do this section after modules are installed, and DesignManager is one of them
+					if (!class_exists('DesignManager\Design')) {
+						break; //TODO try to load the class
+					}
+					foreach ($typenode->children() as $node) {
+						$ob = new Design();
+						try {
+							$ob->set_name((string)$node->name);
+							$ob->set_description((string)$node->description);
+//							$ob->set_default((bool)$node->dflt);
+							$ob->save();
+						} catch (Throwable $t) {
+							if ($runtime) {
+								error_msg('Failed to install design \''.(string)$node->name.'\' : '.$t->getMessage());
+							}
+							continue;
+						}
+						$val = (string)$node->id;
+						$designs[(int)$val] = $ob->get_id();
+					}
+					break;
+				case 'designstyles': //stylesheets assigned to designs
+					//TODO must do this after modules are installed
+					if (!class_exists('DesignManager\Design')) {
+						break;
+					}
+					$bank = [];
+					foreach ($typenode->children() as $node) {
+						$val = (int)$node->css_id;
+						$val2 = (int)$node->design_id;
+						if (isset($styles[$val]) && isset($designs[$val2])) {
+							$val3 = $styles[$val];
+							$bank[$val3][0][] = $designs[$val2];
+							$bank[$val3][1][] = (int)$node->css_order;
+						}
+					}
+					foreach ($bank as $sid => $arr) {
+						array_multisort($arr[1], $arr[0]);
+						try {
+							$ob = StylesheetOperations::get_stylesheet($sid);
+							$ob->set_designs($arr[0]);
+							$ob->save();
+						} catch (Throwable $t) {
+							if ($runtime) {
+								error_msg('Failed to install stylesheet from design ('.$sid.') : '.$t->getMessage());
+							}
+							continue;
+						}
+					}
+					break;
+				case 'designtemplates': //templates assigned to designs
+					//TODO must do this after modules are installed
+					if (!class_exists('DesignManager\Design')) {
+						break;
+					}
+					$bank = [];
+					foreach ($typenode->children() as $node) {
+						$val = (int)$node->tpl_id;
+						$val2 = (int)$node->design_id;
+						if (isset($templates[$val]) && isset($designs[$val2])) {
+							$val3 = $templates[$val];
+							$bank[$val3][0][] = $designs[$val2];
+							$bank[$val3][1][] = (int)$node->tpl_order;
+						}
+					}
+					foreach ($bank as $tid => $arr) {
+						array_multisort($arr[1], $arr[0]);
+						try {
+							$ob = TemplateOperations::get_template($tid);
+							$ob->set_designs($arr[0]);
+							$ob->save();
+						} catch (Throwable $t) {
+							if ($runtime) {
+								error_msg('Failed to install template from design ('.$tid.') : '.$t->getMessage());
+							}
+							continue;
+						}
+					}
+					break;
 */
 
 /**
@@ -412,36 +535,6 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
        ]
       ]
      ],
-     'designs' => [
-      'table' => 'module_designs',
-      'subtypes' => [
-       'design' => [
-        'id' => [],
-        'name' => [],
-        'description' => ['optional' => 1],
-       ]
-      ]
-     ],
-     'designstyles' => [
-      'sql' => 'SELECT * FROM %smodule_designs_css ORDER BY design_id,css_id,css_order',
-      'subtypes' => [
-       'designcss' => [
-        'design_id' => [],
-        'css_id' => [],
-        'css_order' => ['optional' => 1],
-       ]
-      ]
-     ],
-     'designtemplates' => [
-      'sql' => 'SELECT * FROM %smodule_designs_tpl ORDER BY design_id,tpl_id,tpl_order',
-      'subtypes' => [
-       'designtpl' => [
-        'design_id' => [],
-        'tpl_id' => [],
-        'tpl_order' => ['optional' => 1],
-       ]
-      ]
-     ],
      'pages' => [
       'sql' => 'SELECT * FROM %scontent ORDER BY parent_id,content_id',
       'subtypes' => [
@@ -547,16 +640,6 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
  <!ELEMENT templategroupmembers (templategroupmember*)>
  <!ELEMENT templategroupmember (group_id,tpl_id,item_order?)>
  <!ELEMENT tpl_id (#PCDATA)>
- <!ELEMENT designs (design*)>
- <!ELEMENT design (id,name,description?,dflt?)>
- <!ELEMENT dflt (#PCDATA)>
- <!ELEMENT designstyles (designcss*)>
- <!ELEMENT designcss (design_id,css_id,css_order)>
- <!ELEMENT design_id (#PCDATA)>
- <!ELEMENT css_order (#PCDATA)>
- <!ELEMENT designtemplates (designtpl*)>
- <!ELEMENT designtpl (design_id,tpl_id,tpl_order?)>
- <!ELEMENT tpl_order (#PCDATA)>
  <!ELEMENT pages (page*)>
  <!ELEMENT page (content_id,content_name,type,default_content?,show_in_menu?,active?,cachable?,secure?,owner_id,parent_id,template_id,item_order,menu_text?,content_alias?,metadata?,titleattribute?,page_url?,tabindex?,accesskey?,styles?)>
  <!ELEMENT content_id (#PCDATA)>
@@ -767,7 +850,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 	$types = [-1 => -1];
 	$templates = [-1 => -1];
 	$tplgrps = [-1 => -1];
-	$designs = [-1 => -1];
+//	$designs = [-1 => -1];
 	$pages = [];
 
 	foreach ($xml->children() as $typenode) {
@@ -1036,86 +1119,6 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 						} catch (Throwable $t) {
 							if ($runtime) {
 								error_msg('Failed to add member(s) to templates-group ('.$gid.') : '.$t->getMessage());
-							}
-							continue;
-						}
-					}
-					break;
-				case 'designs':
-					//TODO must do this section after modules are installed, and DesignManager is one of them
-					if (!class_exists('DesignManager\Design')) {
-						break; //TODO try to load the class
-					}
-					foreach ($typenode->children() as $node) {
-						$ob = new Design();
-						try {
-							$ob->set_name((string)$node->name);
-							$ob->set_description((string)$node->description);
-//							$ob->set_default((bool)$node->dflt);
-							$ob->save();
-						} catch (Throwable $t) {
-							if ($runtime) {
-								error_msg('Failed to install design \''.(string)$node->name.'\' : '.$t->getMessage());
-							}
-							continue;
-						}
-						$val = (string)$node->id;
-						$designs[(int)$val] = $ob->get_id();
-					}
-					break;
-				case 'designstyles': //stylesheets assigned to designs
-					//TODO must do this after modules are installed
-					if (!class_exists('DesignManager\Design')) {
-						break;
-					}
-					$bank = [];
-					foreach ($typenode->children() as $node) {
-						$val = (int)$node->css_id;
-						$val2 = (int)$node->design_id;
-						if (isset($styles[$val]) && isset($designs[$val2])) {
-							$val3 = $styles[$val];
-							$bank[$val3][0][] = $designs[$val2];
-							$bank[$val3][1][] = (int)$node->css_order;
-						}
-					}
-					foreach ($bank as $sid => $arr) {
-						array_multisort($arr[1], $arr[0]);
-						try {
-							$ob = StylesheetOperations::get_stylesheet($sid);
-							$ob->set_designs($arr[0]);
-							$ob->save();
-						} catch (Throwable $t) {
-							if ($runtime) {
-								error_msg('Failed to install stylesheet from design ('.$sid.') : '.$t->getMessage());
-							}
-							continue;
-						}
-					}
-					break;
-				case 'designtemplates': //templates assigned to designs
-					//TODO must do this after modules are installed
-					if (!class_exists('DesignManager\Design')) {
-						break;
-					}
-					$bank = [];
-					foreach ($typenode->children() as $node) {
-						$val = (int)$node->tpl_id;
-						$val2 = (int)$node->design_id;
-						if (isset($templates[$val]) && isset($designs[$val2])) {
-							$val3 = $templates[$val];
-							$bank[$val3][0][] = $designs[$val2];
-							$bank[$val3][1][] = (int)$node->tpl_order;
-						}
-					}
-					foreach ($bank as $tid => $arr) {
-						array_multisort($arr[1], $arr[0]);
-						try {
-							$ob = TemplateOperations::get_template($tid);
-							$ob->set_designs($arr[0]);
-							$ob->save();
-						} catch (Throwable $t) {
-							if ($runtime) {
-								error_msg('Failed to install template from design ('.$tid.') : '.$t->getMessage());
 							}
 							continue;
 						}

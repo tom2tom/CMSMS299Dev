@@ -4,7 +4,7 @@
     <tr>
       {if $manage_stylesheets}<th title="{_ld('layout','title_group_id')}">{_ld('layout','prompt_id')}</th>{/if}
       <th title="{_ld('layout','title_css_name')}">{_ld('layout','prompt_name')}</th>
-      <th title="{_ld('layout','title_group_members')}">{_ld('layout','members')}</th>
+      <th title="{_ld('layout','title_group_members')}">{_ld('layout','member_ids')}</th>
       {if $manage_stylesheets}<th class="pageicon"></th>{/if} {* menu *}
     </tr>
   </thead>

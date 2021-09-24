@@ -21,19 +21,20 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace ContentManager;
 
-use ContentManager; // the module-class
-use ContentManager\ContentBase;
-use ContentManager\ContentListFilter;
-use ContentManager\ContentListQuery;
-use ContentManager\Utils;
 use CMSMS\LockOperations;
 use CMSMS\SingleItem;
 use CMSMS\TemplateOperations;
 use CMSMS\Tree;
 use CMSMS\UserParams;
+use ContentManager; // the module-class
+use ContentManager\ContentBase;
+use ContentManager\ContentListFilter;
+use ContentManager\ContentListQuery;
+use ContentManager\Utils;
 use Throwable;
 use function audit;
 use function check_authorship;
+use function CMSMS\log_info;
 use function get_userid;
 
 /**
@@ -363,7 +364,7 @@ final class ContentListBuilder
 		if( $content->DefaultContent() ) return $this->_module->Lang('error_delete_defaultcontent');
 
 		$content->Delete();
-		audit($page_id,'Core','Deleted content page');
+		log_info($page_id,'Core','Deleted content page');
 
 		if( $childcount == 1 && $parent_id > -1 ) $this->collapse_section($parent_id);
 		$this->collapse_section($page_id);

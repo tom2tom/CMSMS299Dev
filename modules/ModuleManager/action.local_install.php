@@ -23,6 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\SingleItem;
+use function CMSMS\log_notice;
 use function CMSMS\sanitizeVal;
 
 //if( some worthy test fails ) exit;
@@ -52,7 +53,7 @@ if( !is_object($mod) ) {
     $this->RedirectToAdminTab();
 }
 
-audit('',$this->GetName().'::local_install','Installed '.$modname.' '.$mod->GetVersion());
+log_notice($this->GetName().'::local_install','Installed '.$modname.' '.$mod->GetVersion());
 $msg = $mod->InstallPostMessage();
 if( !$msg ) $msg = $this->Lang('msg_module_installed', $modname);
 $this->SetMessage($msg);

@@ -50,12 +50,12 @@ use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use const CMS_VERSION;
 use const CMSSAN_FILE;
-use function cms_error;
 use function cms_module_path;
 use function cms_module_places;
-use function cms_notice;
-use function cms_warning;
 use function CMSMS\de_entitize;
+use function CMSMS\log_error;
+use function CMSMS\log_notice;
+use function CMSMS\log_warning;
 use function CMSMS\sanitizeVal;
 use function CMSMS\schema_is_current;
 use function debug_buffer;
@@ -435,10 +435,10 @@ VALUES (?,?,?,?)');
 			$cache->delete('menu_modules');
 			SingleItem::LoadedMetadata()->refresh('*');
 
-			cms_notice('Installed module '.$modname.' version '.$mod->GetVersion());
+			log_notice('Installed module '.$modname.' version '.$mod->GetVersion());
 			Events::SendEvent('Core','ModuleInstalled',['name' => $modname,'version' => $mod->GetVersion()]);
 		} else {
-			cms_notice('Installed module '.$modname.' version '.$mod->GetVersion());
+			log_notice('Installed module '.$modname.' version '.$mod->GetVersion());
 		}
 
 		return [true,$mod->InstallPostMessage()];
@@ -467,7 +467,7 @@ VALUES (?,?,?,?)');
 					require_once $filename;
 				}
 				else {
-					cms_warning("Cannot load module '$modname', its class-file does not exist");
+					log_warning("Module class-file does not exist",$modname);
 					return [false,$msg];
 				}
 			}
@@ -488,7 +488,7 @@ VALUES (?,?,?,?)');
 					} else {
 						$msg = $result; // no lang available when installing
 					}
-					cms_error($result);
+					log_error($result);
 					return [false,$msg];
 				}
 			}
@@ -503,7 +503,7 @@ VALUES (?,?,?,?)');
 					if( $core ) {
 						$newmod = $this->get_module_instance($mname);
 						if( !is_object($newmod) || version_compare($newmod->GetVersion(),$mversion) < 0 ) {
-							cms_error('Module '.$modname.' installation failed: depends on '.$mname);
+							log_error('Module installation failed', $modname.' depends on '.$mname.'-'.$mversion);
 							$msg = ( !$this->installing ) ?
 								lang('missingdependency').': '.$mname:
 								'Missing dependency: '.$mname;
@@ -514,7 +514,7 @@ VALUES (?,?,?,?)');
 						$minfo = $this->moduleinfo[$mname] ?? NULL;
 						if( $minfo ) {
 							if( version_compare($minfo['version'],$mversion) < 0 ) {
-								cms_error("Module '$modname' installation failed: depends on '$mname'");
+								log_error('Module installation failed', $modname.' depends on '.$mname.'-'.$mversion);
 								$msg = ( !$this->installing ) ?
 									lang('missingdependency').': '.$mname:
 									'Missing dependency: '.$mname;
@@ -523,7 +523,7 @@ VALUES (?,?,?,?)');
 							$newmod = $this->get_module_instance($mname);
 						}
 						else {
-							cms_error("Module '$modname' installation failed: depends on '$mname'");
+							log_error('Module installation failed', $modname.' depends on '.$mname);
 							$msg = ( !$this->installing ) ?
 								lang('missingdependency').': '.$mname:
 								'Missing dependency: '.$mname;
@@ -542,7 +542,7 @@ VALUES (?,?,?,?)');
 							lang('failure'): //TODO better default messages
 							'Unspecified reason';
 					}
-					cms_error("Module '$modname' installation failed: ".$result[1]);
+					log_error('Module installation failed', $modname.','.$result[1]);
 				}
 				return $result;
 			}
@@ -553,7 +553,7 @@ VALUES (?,?,?,?)');
 			$msg = ( !$this->installing ) ?
 				lang('errormodulenotloaded'):
 				$result;
-			cms_error($result);
+			log_error($result);
 			return [false,$msg];
 		}
 	}
@@ -620,7 +620,7 @@ VALUES (?,?,?,?)');
 					lang('failure'): // TODO better default message
 					'Unspecified reason';
 			}
-			cms_error('Module '.$modname.' upgrade failed: '.$result);
+			log_error('Module upgrade failed', $modname.','.$result);
 			return [false,$result];
 		}
 
@@ -670,13 +670,13 @@ VALUES (?,?,?,$longnow)");
 			SingleItem::LoadedMetadata()->refresh('*');
 
 			$vers = $mod->GetVersion();
-			cms_notice('Upgraded module '.$modname.' to version '.$vers);
+			log_notice('Upgraded module '.$modname.' to version '.$vers);
 			Events::SendEvent('Core','ModuleUpgraded',
 				['name' => $modname,'oldversion' => $dbversion,'newversion' => $vers]);
 			SingleItem::LoadedData()->delete('events'); // WHY ??
 		}
 		else {
-			cms_notice('Upgraded module '.$modname.' to version '.$mod->GetVersion());
+			log_notice('Upgraded module '.$modname.' to version '.$mod->GetVersion());
 		}
 		return [true,''];
 	}
@@ -747,7 +747,7 @@ VALUES (?,?,?,$longnow)");
 					lang('failure'): // TODO better default error message (again)
 					'Unspecified reason';
 			}
-			cms_error('Module '.$modname.' uninstall failed: '.$result);
+			log_error('Module uninstall failed', $modname.','.$result);
 			return [false,$result];
 		}
 
@@ -811,12 +811,12 @@ VALUES (?,?,?,$longnow)");
 
 			SingleItem::LoadedMetadata()->refresh('*');
 
-			cms_notice('Uninstalled module '.$modname);
+			log_notice('Uninstalled module',$modname);
 			Events::SendEvent('Core','ModuleUninstalled',['name' => $modname]);
 			$cache->delete('Events'); // WHY ??
 		}
 		else {
-			cms_notice('Uninstalled module '.$modname);
+			log_notice('Uninstalled module',$modname);
 		}
 		return [true,''];
 	}
@@ -873,10 +873,10 @@ VALUES (?,?,?,$longnow)");
 
 			Events::SendEvent('Core','AfterModuleActivated',['name'=>$modname,'activated'=>$activate]);
 			if( $activate ) {
-				cms_notice("Module $modname activated");
+				log_notice('Activated module',$modname);
 			}
 			else {
-				cms_notice("Module $modname deactivated");
+				log_notice('Deactivated module',$modname);
 			}
 		}
 		return true;
@@ -1117,7 +1117,7 @@ VALUES (?,?,?,$longnow)");
 		$force |= $this->installing; // CHECKME
 		$info = $this->_get_installed_module_info();
 		if( !($force || isset($info[$modname])) ) {
-			cms_warning("Nothing is known about module '$modname', cannot load it (yet?)");
+			log_warning("Unknown module",$modname);
 			return false;
 		}
 
@@ -1133,7 +1133,7 @@ VALUES (?,?,?,$longnow)");
 					// this is the start of a recursive process: get_module_instance() may call _get_module(), and iterate ...
 					$mod2 = $this->get_module_instance($mname,$mversion); // TODO unforced ok for deps ?
 					if( !is_object($mod2) ) {
-						cms_warning("Cannot load module '$modname', there was a problem loading prerequisite-module '$mname' version '$mversion'");
+						log_warning("Module not loaded, problem with prerequisite-module '$mname' version '$mversion'",$modname);
 						return false;
 					}
 				}
@@ -1149,7 +1149,7 @@ VALUES (?,?,?,$longnow)");
 				require_once $filename;
 			}
 			else {
-				cms_warning("Cannot load module '$modname', its class-file does not exist");
+				log_warning("Module class-file does not exist",$modname);
 				return false;
 			}
 		}
@@ -1163,14 +1163,14 @@ VALUES (?,?,?,$longnow)");
 
 		if( !is_object($mod) || !($mod instanceof CMSModule || $mod instanceof IResource) ) {
 			// some problem loading
-			cms_error("Cannot load module '$modname', due to some problem instantiating the class");
+			log_error('Failed to instantiate module class', $modname);
 			unset($mod);
 			return false;
 		}
 
 		if( version_compare($mod->MinimumCMSVersion(),CMS_VERSION) > 0 ) {
 			// not compatible, can't load
-			cms_error("Cannot load module '$modname', it is incompatible wth this version of CMSMS");
+			log_error('Module incompatible with CMSMS version', $modname);
 			unset($mod);
 			return false;
 		}

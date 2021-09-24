@@ -38,9 +38,9 @@ use const CMS_ASSETS_PATH;
 use const CMS_DB_PREFIX;
 use const CMSSAN_FILE;
 use const CMSSAN_NAME;
-use function audit;
 use function check_permission;
 use function cms_join_path;
+use function CMSMS\log_info;
 use function CMSMS\sanitizeVal;
 use function endswith;
 use function file_put_contents;
@@ -166,7 +166,7 @@ class TemplateOperations
 			@unlink($fp);
 		}
 
-		audit($tid, 'CMSMS', 'Template \''.$tpl->get_name().'\' Deleted');
+		log_info($tid, 'CMSMS', 'Template \''.$tpl->get_name().'\' Deleted');
 		Events::SendEvent('Core', 'DeleteTemplatePost', [$key => &$tpl]);
 		//		SingleItem::LoadedData()->refresh('LayoutTemplates'); if that cache exists
 	}
@@ -1130,7 +1130,7 @@ WHERE id=?';
 		}
 
 //		SingleItem::LoadedData()->refresh('LayoutTemplates'); if that cache exists
-		audit($tid, $orig, 'Template \''.$name.'\' Updated');
+		log_info($tid, $orig, 'Template \''.$name.'\' Updated');
 		return $tpl; //TODO what use ? event ? chain-methods?
 	}
 
@@ -1204,7 +1204,7 @@ content) VALUES (?,?,?,?,?,?,?,?,?)';
 
 //		SingleItem::LoadedData()->refresh('LayoutTemplates'); if that cache exists
 
-		audit($tid, $orig, 'Template \''.$name.'\' Created');
+		log_info($tid, $orig, 'Template \''.$name.'\' Created');
 
 		// return a fresh instance of the object (e.g. to pass to event handlers ??)
 		$row = $tpl->get_properties();

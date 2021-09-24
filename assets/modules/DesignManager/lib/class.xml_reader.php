@@ -24,7 +24,7 @@ namespace DesignManager;
 use CMSMS\Utils;
 use CMSMS\XMLException;
 use XMLReader;
-use function cms_error;
+use function CMSMS\log_error;
 
 class xml_reader extends XMLReader
 {
@@ -35,7 +35,7 @@ class xml_reader extends XMLReader
   public static function __errhandler($errno,$errstr,$errfile,$errline)
   {
     if( strpos($errstr,'XMLReader') !== FALSE ) {
-      cms_error('DesignManger\xml_reader: '.$errstr);
+      log_error($errstr, 'DesignManger\xml_reader');
       $mod = Utils::get_module('DesignManager');
       throw new XMLException($mod->Lang('error_xmlstructure').':<br />'.$errstr);
     }

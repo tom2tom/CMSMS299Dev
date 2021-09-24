@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
 use News\AdminOperations;
+use function CMSMS\log_info;
 
 //if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify News Preferences')) exit;
@@ -47,7 +48,7 @@ if (is_numeric($catid)) {
     $db->execute($query, [$catid]);
 
     Events::SendEvent( 'News', 'NewsCategoryDeleted', [ 'category_id'=>$catid, 'name'=>$row['news_category_name'] ] );
-    audit($catid, 'News category: '.$catid, ' Category deleted');
+    log_info($catid, 'News category: '.$catid, ' Category deleted');
 
     AdminOperations::UpdateHierarchyPositions();
 

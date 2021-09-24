@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\LockOperations;
 use CMSMS\SingleItem;
+use function CMSMS\log_notice;
 
 //if( some worthy test fails ) exit;
 
@@ -33,11 +34,11 @@ if( $is_admin ) {
     $db = cmsms()->GetDb();
     $sql = 'DELETE FROM '.CMS_DB_PREFIX. LockOperations::LOCK_TABLE.' WHERE type = ?';
     $db->execute($sql,['content']);
-    cms_notice('Cleared all content locks');
+    log_notice('ContentManager','Cleared all content locks');
 } else {
     // clear only my locks
     LockOperations::delete_for_user($type);
-    cms_notice("User $uid Cleared his own content locks");
+    log_notice("User $uid cleared his/her own content locks");
 }
 
 $this->SetMessage($this->Lang('msg_lockscleared'));

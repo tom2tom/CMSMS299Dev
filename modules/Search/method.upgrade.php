@@ -24,6 +24,7 @@ use CMSMS\Database\DataDictionary;
 use CMSMS\Template;
 use CMSMS\TemplateType;
 use Search\Utils;
+use function CMSMS\log_error;
 
 //if (some worthy test fails) exit;
 
@@ -91,7 +92,7 @@ if (version_compare($oldversion,'1.50') < 0) {
             $this->DeleteTemplate('displayresult');
         }
     } catch (Throwable $t) {
-        audit('',$me,'Installation error: '.$t->GetMessage());
+        log_error($me,'Installation error: '.$t->GetMessage());
         return $t->GetMessage();
     }
 }

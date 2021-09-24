@@ -30,8 +30,8 @@ use CMSMS\StylesheetOperations;
 use LogicException;
 use UnexpectedValueException;
 use const CMS_DB_PREFIX;
-use function audit;
 use function cms_to_stamp;
+use function CMSMS\log_info;
 
 /**
  * A class representing a stylesheets group.
@@ -56,26 +56,26 @@ class StylesheetsGroup
 	/**
 	 * @ignore
 	 */
-	protected $_dirty = false;
+	protected $dirty = false;
 
 	/**
 	 * Array of group properties: id, name, description
 	 * @ignore
 	 */
-	protected $_data = [];
+	protected $props = [];
 
 	/**
 	 * Array of integer stylesheet id's, ordered by group item_order
 	 * @ignore
 	 */
-	protected $_members = [];
+	protected $members = [];
 
 	// static properties here >> SingleItem property|ies ?
 	/**
 	 * @ignore
 	 */
-	private static $_lock_cache;
-	private static $_lock_cache_loaded = false;
+	private static $lock_cache;
+	private static $lock_cache_loaded = false;
 
 	/**
 	 * Set all core properties of the group.
@@ -84,8 +84,8 @@ class StylesheetsGroup
 	 */
 	public function set_properties(array $props)
 	{
-		$this->_data = $props;
-		$this->_dirty = true;
+		$this->props = $props;
+		$this->dirty = true;
 	}
 
 	/**
@@ -95,7 +95,7 @@ class StylesheetsGroup
 	 */
 	public function get_id()
 	{
-		return  ( isset($this->_data['id']) ) ? (int)$this->_data['id'] : null;
+		return ( isset($this->props['id']) ) ? (int)$this->props['id'] : null;
 	}
 
 	/**
@@ -105,7 +105,7 @@ class StylesheetsGroup
 	 */
 	public function get_name() : string
 	{
-		return $this->_data['name'] ?? '';
+		return $this->props['name'] ?? '';
 	}
 
 	/**
@@ -123,8 +123,8 @@ class StylesheetsGroup
 		if( !AdminUtils::is_valid_itemname($str) ) {
 			throw new UnexpectedValueException('Invalid characters in name');
 		}
-		$this->_data['name'] = $str;
-		$this->_dirty = true;
+		$this->props['name'] = $str;
+		$this->dirty = true;
 	}
 
 	/**
@@ -134,7 +134,7 @@ class StylesheetsGroup
 	 */
 	public function get_description() : string
 	{
-		return $this->_data['description'] ?? '';
+		return $this->props['description'] ?? '';
 	}
 
 	/**
@@ -145,8 +145,8 @@ class StylesheetsGroup
 	public function set_description(string $str)
 	{
 		$str = trim($str);
-		$this->_data['description'] = $str;
-		$this->_dirty = true;
+		$this->props['description'] = $str;
+		$this->dirty = true;
 	}
 
 	/**
@@ -156,7 +156,7 @@ class StylesheetsGroup
 	 */
 	public function get_created() : int
 	{
-		$str = $this->_data['create_date'] ?? '';
+		$str = $this->props['create_date'] ?? '';
 		return ($str) ? cms_to_stamp($str) : 1;
 	}
 
@@ -167,8 +167,8 @@ class StylesheetsGroup
 	 */
 	public function get_modified() : int
 	{
-		$str = $this->_data['modified_date'] ?? '';
-		return ($str) ? cms_to_stamp($str) : $this->get_created();
+		$str = $this->props['modified_date'] ?? $this->props['create_date'] ?? '';
+		return ($str) ? cms_to_stamp($str) : 1;
 	}
 
 	/**
@@ -178,7 +178,7 @@ class StylesheetsGroup
 	 */
 	public function get_members_summary() : string
 	{
-		return implode(',',$this->_members);
+		return implode(',',$this->members);
 	}
 
 	/**
@@ -190,19 +190,19 @@ class StylesheetsGroup
 	 */
 	public function get_members(bool $by_name = false) : array
 	{
-		if( !$this->_members ) return [];
+		if( !$this->members ) return [];
 
 		$out = [];
 		if( $by_name ) {
 			$db = SingleItem::Db();
-			$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE id IN ('.implode(',',$this->_members).')';
+			$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE id IN ('.implode(',',$this->members).')';
 			$dbr = $db->getAssoc($query);
-			foreach( $this->_members as $id ) {
+			foreach( $this->members as $id ) {
 				$out[$id] = $dbr[$id] ?? '<Missing Stylesheet>';
 			}
 		}
 		else {
-			foreach( $this->_members as $id ) {
+			foreach( $this->members as $id ) {
 				$out[$id] = StylesheetOperations::get_stylesheet($id);
 			}
 		}
@@ -258,12 +258,12 @@ class StylesheetsGroup
 	{
 		$ids = $this->interpret_members($a);
 		if( $ids ) {
-			$this->_members = array_values($ids);
+			$this->members = array_values($ids);
 		}
 		else {
-			$this->_members = [];
+			$this->members = [];
 		}
-		$this->_dirty = true;
+		$this->dirty = true;
 	}
 
 	/**
@@ -275,14 +275,14 @@ class StylesheetsGroup
 	{
 		$ids = $this->interpret_members($a);
 		if( $ids ) {
-			if( !empty($this->_members) ) {
-				$tmp = array_merge($this->_members,$ids);
-				$this->_members = array_values(array_unique($tmp,SORT_NUMERIC));
+			if( !empty($this->members) ) {
+				$tmp = array_merge($this->members,$ids);
+				$this->members = array_values(array_unique($tmp,SORT_NUMERIC));
 			}
 			else {
-				$this->_members = array_values($ids);
+				$this->members = array_values($ids);
 			}
-			$this->_dirty = true;
+			$this->dirty = true;
 		}
 	}
 
@@ -293,12 +293,12 @@ class StylesheetsGroup
 	 */
 	public function remove_members($a)
 	{
-		if( !empty($this->_members) ) {
+		if( !empty($this->members) ) {
 			$ids = $this->interpret_members($a);
 			if( $ids ) {
-				$tmp = array_diff($this->_members, $ids);
-				$this->_members = array_values($tmp);
-				$this->_dirty = true;
+				$tmp = array_diff($this->members, $ids);
+				$this->members = array_values($tmp);
+				$this->dirty = true;
 			}
 		}
 	}
@@ -308,17 +308,17 @@ class StylesheetsGroup
 	 */
 	private static function get_locks() : array
 	{
-		if( !self::$_lock_cache_loaded ) {
-			self::$_lock_cache = [];
+		if( !self::$lock_cache_loaded ) {
+			self::$lock_cache = [];
 			$tmp = LockOperations::get_locks('stylesheetgroup');
 			if( $tmp ) {
 				foreach( $tmp as $one ) {
-					self::$_lock_cache[$one['oid']] = $one;
+					self::$lock_cache[$one['oid']] = $one;
 				}
 			}
-			self::$_lock_cache_loaded = true;
+			self::$lock_cache_loaded = true;
 		}
-		return self::$_lock_cache;
+		return self::$lock_cache;
 	}
 
 	/**
@@ -400,10 +400,10 @@ class StylesheetsGroup
 		if( !$insert ) {
 			$db->execute('DELETE FROM '.CMS_DB_PREFIX.self::MEMBERSTABLE.' WHERE group_id='.$gid);
 		}
-		if( $this->_members ) {
+		if( $this->members ) {
 			$o = 1;
 			$stmt = $db->prepare('INSERT INTO '.CMS_DB_PREFIX.self::MEMBERSTABLE.' (group_id,css_id,item_order) VALUES (?,?,?)');
-			foreach( $this->_members as $id ) {
+			foreach( $this->members as $id ) {
 				$db->execute($stmt,[$gid,$id,$o++]);
 			}
 			$stmt->close();
@@ -415,7 +415,7 @@ class StylesheetsGroup
 	 */
 	protected function insert()
 	{
-		if( !$this->_dirty ) return;
+		if( !$this->dirty ) return;
 		$this->validate();
 
 		$db = SingleItem::Db();
@@ -427,10 +427,10 @@ class StylesheetsGroup
 		if( !$dbr ) {
 			throw new SQLException($db->sql.' -- '.$db->errorMsg());
 		}
-		$gid = $this->_data['id'] = $db->Insert_ID();
+		$gid = $this->props['id'] = $db->Insert_ID();
 		$this->save_members($db,true);
-		$this->_dirty = false;
-		audit($gid,'CMSMS','Stylesheets-group '.$this->get_name().' Created');
+		$this->dirty = false;
+		log_info($gid,'CMSMS','Stylesheets-group '.$this->get_name().' Created');
 	}
 
 	/**
@@ -438,7 +438,7 @@ class StylesheetsGroup
 	 */
 	protected function update()
 	{
-		if( !$this->_dirty ) return;
+		if( !$this->dirty ) return;
 		$this->validate();
 
 		$db = SingleItem::Db();
@@ -449,8 +449,8 @@ class StylesheetsGroup
 			(int)$this->get_id()
 		]);
 		$this->save_members($db,false);
-		$this->_dirty = false;
-		audit($this->get_id(),'CMSMS','Stylesheets group updated');
+		$this->dirty = false;
+		log_info($this->get_id(),'CMSMS','Stylesheets group updated');
 	}
 
 	/**
@@ -485,9 +485,9 @@ class StylesheetsGroup
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::MEMBERSTABLE.' WHERE group_id = ?';
 		$db->execute($query,[$gid]);
 
-		audit($gid,'CMSMS','Stylesheets group deleted');
-		unset($this->_data['id']);
-		$this->_dirty = true;
+		log_info($gid,'CMSMS','Stylesheets group deleted');
+		unset($this->props['id']);
+		$this->dirty = true;
 	}
 
 	/**

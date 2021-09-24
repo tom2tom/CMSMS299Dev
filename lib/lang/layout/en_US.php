@@ -129,6 +129,7 @@ EOS
 'media_type_speech' => 'Speech',
 'media_type_tty' => 'TTY',
 'media_type_tv' => 'TV',
+'member_ids' => 'Member IDs', // see also prompt_members
 'members' => 'Members', // see also prompt_members
 'modified' => 'Modified', //see also prompt_modified
 'msg_allpagesupdated' => 'All content pages were updated', // TODO PREVENT ANY SUCH OPERATION - TOO RISKY!

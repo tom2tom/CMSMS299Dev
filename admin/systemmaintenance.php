@@ -26,6 +26,7 @@ use CMSMS\AppParams;
 use CMSMS\Error403Exception;
 use CMSMS\RouteOperations;
 use CMSMS\SingleItem;
+use function CMSMS\log_notice;
 use function CMSMS\specialize;
 
 $dsep = DIRECTORY_SEPARATOR;
@@ -94,7 +95,7 @@ if (isset($_POST['optimizeall'])) {
     }
 
     // put mention into the admin log
-    audit('', 'System Maintenance', 'All db-tables optimized');
+    log_notice('System Maintenance', 'All db-tables optimized');
     $themeObject->RecordNotice('success', _la('sysmain_tablesoptimized'));
 }
 
@@ -111,7 +112,7 @@ if (isset($_POST['repairall'])) {
     }
 
     // put mention into the admin log
-    audit('', 'System Maintenance', 'All database tables repaired');
+    log_notice('System Maintenance', 'All database tables repaired');
     $themeObject->RecordNotice('success', _la('sysmain_tablesrepaired'));
 }
 
@@ -144,14 +145,14 @@ if (isset($_POST['clearcache'])) {
     SingleItem::LoadedMetadata()->refresh('*');
     AdminUtils::clear_cached_files();
     // put mention into the admin log
-    audit('', 'System maintenance', 'Caches cleared');
+    log_notice('System maintenance', 'Caches cleared');
     $themeObject->ParkNotice('success', _la('cachecleared'));
     redirect(basename(__FILE__).$urlext); //go refresh the caches
 }
 
 if (isset($_POST['updateroutes'])) {
     RouteOperations::rebuild_static_routes();
-    audit('', 'System maintenance', 'Static routes rebuilt');
+    log_notice('System maintenance', 'Static routes rebuilt');
     $themeObject->RecordNotice('success', _la('routesrebuilt'));
     $smarty->assign('active_content', 1);
 }
@@ -159,7 +160,7 @@ if (isset($_POST['updateroutes'])) {
 $contentops = SingleItem::ContentOperations();
 if (isset($_POST['updatehierarchy'])) {
     $contentops->SetAllHierarchyPositions();
-    audit('', 'System maintenance', 'Page hierarchy positions updated');
+    log_notice('System maintenance', 'Page hierarchy positions updated');
     $themeObject->RecordNotice('success', _la('sysmain_hierarchyupdated'));
     $smarty->assign('active_content', 1);
 }
@@ -204,7 +205,7 @@ if (isset($_POST['addaliases'])) {
         }
     }
     $stmt->close();
-    audit('', 'System maintenance', 'Fixed pages missing aliases, count:' . $count);
+    log_notice('System maintenance', 'Fixed pages missing aliases, count:' . $count);
     $themeObject->RecordNotice('success', $count . ' ' . _la('sysmain_aliasesfixed'));
     $smarty->assign('active_content', 1);
 }
@@ -223,7 +224,7 @@ if (isset($_POST['fixtypes'])) {
     }
 
     $stmt->close();
-    audit('', 'System maintenance', 'Converted pages with invalid content types, count:' . $count);
+    log_notice('System maintenance', 'Converted pages with invalid content types, count:' . $count);
     $themeObject->RecordNotice('success', $count . ' ' . _la('sysmain_typesfixed'));
     $smarty->assign('active_content', 1);
 }

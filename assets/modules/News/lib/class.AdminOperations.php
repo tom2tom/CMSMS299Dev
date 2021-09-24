@@ -28,7 +28,7 @@ use CMSMS\RouteOperations;
 use CMSMS\SingleItem;
 use CMSMS\Utils;
 use const CMS_DB_PREFIX;
-use function audit;
+use function CMSMS\log_info;
 use function get_userid;
 
 final class AdminOperations
@@ -122,8 +122,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
         Events::SendEvent( 'News', 'NewsArticleDeleted', ['news_id'=>$articleid ] );
 
-        // put mention into the admin log
-        audit($articleid, 'News: '.$articleid, 'Article deleted');
+        log_info($articleid, 'News: '.$articleid, 'Article deleted');
         return true;
     }
 

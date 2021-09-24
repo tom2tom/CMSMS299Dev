@@ -73,12 +73,12 @@ if( $dbr ) {
 	}
 
 	$numrows = count($templates);
-	$pagerows = (int)$this->GetPreference('article_pagelimit',10); //OR user-specific?
+	$pagerows = (int)$this->GetPreference('article_pagelimit', 10); //OR user-specific?
 
 	if ($numrows > $pagerows) {
 		//setup for SSsort paging
 		$tplpages = ceil($numrows/$pagerows);
-		$tpl->assign('totpg2',$tplpages);
+		$tpl->assign('totpg2', $tplpages);
 
 		$choices = [strval($pagerows) => $pagerows];
 		$f = ($pagerows < 4) ? 5 : 2;
@@ -98,9 +98,9 @@ if( $dbr ) {
 		$tplpages = 1;
 	}
 
-	$tpl->assign('tpllist',$templates)
-		->assign('tplcount',$numrows)
-		->assign('tplpages',$tplpages);
+	$tpl->assign('tpllist', $templates)
+		->assign('tplcount', $numrows)
+		->assign('tplpages', $tplpages);
 
 	$s1 = json_encode($this->Lang('confirm_delete'));
 	$s2 = json_encode($this->Lang('confirm_tpldefault'));
@@ -148,5 +148,5 @@ EOS;
 	add_page_foottext($js);
 }
 else {
-	$tpl->assign('tplcount',0);
+	$tpl->assign('tplcount', 0);
 }

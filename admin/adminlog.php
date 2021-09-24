@@ -27,6 +27,7 @@ use CMSMS\Log\logfilter;
 use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use function CMSMS\de_specialize_array;
+use function CMSMS\log_notice;
 
 $dsep = DIRECTORY_SEPARATOR;
 require ".{$dsep}admininit.php";
@@ -40,9 +41,9 @@ $pclear = check_permission($userid, 'Clear Admin Log');
 $psee = $pclear || check_permission($userid, 'View Admin Log');
 
 if ($pclear && isset($_GET['clear'])) {
-    SingleItem::AuditOperations()->clear();
+    SingleItem::LogOperations()->clear();
     unset($_SESSION['adminlog_filter']);
-    audit('','Admin log','Cleared');
+    log_notice('Admin log cleared');
     $themeObject->RecordNotice('success', _la('adminlogcleared'));
 } elseif (isset($_GET['download'])) {
     if (isset($_SESSION['adminlog_filter']) && $_SESSION['adminlog_filter'] instanceof logfilter) {
@@ -52,7 +53,7 @@ if ($pclear && isset($_GET['clear'])) {
     }
     // override the limit to 1000000 lines
     $filter->limit = 1000000;
-    $query = SingleItem::AuditOperations()->query($filter);
+    $query = SingleItem::LogOperations()->query($filter);
     if ($query && !$query->EOF()) {
         $format = trim(UserParams::get_for_user($userid, 'datetime_format'));
         if (!$format) $format = trim(AppParams::get('datetime_format'));
@@ -99,7 +100,7 @@ if ($page > 1) {
 }
 
 $pagelist = [];
-$query = SingleItem::AuditOperations()->query($filter);
+$query = SingleItem::LogOperations()->query($filter);
 $np = $query->numpages;
 if ($np > 0) {
     if ($np < 25) {

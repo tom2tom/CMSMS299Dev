@@ -21,14 +21,14 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS\Log;
 
 use CMSMS\AppState;
-use CMSMS\IAuditManager;
+use CMSMS\ILogManager;
 use CMSMS\Log\logrecord;
 use CMSMS\Utils;
 use Throwable;
 use function get_userid;
 use function get_username;
 
-class logger implements IAuditManager
+class logger implements ILogManager
 {
     private $_storage;
     private $_installing;
@@ -56,7 +56,7 @@ class logger implements IAuditManager
         return $parms;
     }
 
-    public function audit(string $msg, string $subject = '', $item_id = null)
+    public function info(string $msg, string $subject = '', $item_id = null)
     {
         $parms = $this->get_common_parms() +
             ['severity'=>logrecord::TYPE_MSG, 'subject'=>$subject, 'message'=>$msg, 'item_id'=>$item_id];

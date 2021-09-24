@@ -60,6 +60,7 @@ final class SmartySecurityPolicy extends Smarty_Security
                 'array_reverse',
                 'array_search',
                 'asort',
+                'cms_join_path', //since 2.99
                 'CMSMS\entitize', //since 2.99
                 'CMSMS\specialize', //since 2.99
                 'CMSMS\sanitizeVal', //since 2.99
@@ -88,18 +89,24 @@ final class SmartySecurityPolicy extends Smarty_Security
                 'ksort',
                 'lang',
                 'lang_by_realm', //since 2.99
-                'mt_jsbool', //Microtiny module method
+                'mt_jsbool', //Microtiny-module method
                 'nl2br',
                 'print_r',
                 'shuffle',
                 'sizeof',
                 'sort',
                 'startswith',
+                'str_contains', //since 2.99 PHP8+
+                'str_ends_with', //since 2.99 PHP8+
+                'str_starts_with', //since 2.99 PHP8+
                 'str_replace',
                 'strcasecmp',
                 'strcmp',
+                'stripos', //since 2.99
                 'strlen',
                 'strpos',
+                'strripos', //since 2.99
+                'strrpos', //since 2.99
                 'strtolower',
                 'strtotime',
                 'strtoupper',

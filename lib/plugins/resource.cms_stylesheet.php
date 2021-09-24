@@ -21,14 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\SingleItem;
-//use Smarty_Resource_Custom;
-//use Throwable;
-//use const CMS_ASSETS_PATH;
-//use const CMS_DB_PREFIX;
-//use function cms_error;
-//use function cms_join_path;
-//use function cms_to_stamp;
-//use function endswith;
+use function CMSMS\log_error;
+use function CMSMS\sanitizeVal;
 
 /**
  * A class for handling db- and file-stored css content as a smarty resource.
@@ -53,9 +47,28 @@ class Smarty_Resource_cms_stylesheet extends Smarty_Resource_Custom
     private static $stmt;
 
     /**
+     * @var array intra-request cache of used templates, each member like
+     *  name => [ 'id' => props-array, 'name' => ref. to props-array ]
      * @ignore
      */
     private static $loaded = [];
+
+    /**
+     * populate Source Object with meta data from Resource, and work
+     * around Smarty's filepath-setting limitation
+     *
+     * @param Smarty_Template_Source   $source    source object
+     * @param Smarty_Internal_Template $_template template object
+     */
+    public function populate(Smarty_Template_Source $source, Smarty_Internal_Template $_template = null)
+    {
+        parent::populate($source, $_template);
+        if ($source->exists) {
+            if (!is_numeric($source->name)) {
+                $source->filepath = $source->type . ':' . sanitizeVal($source->name, CMSSAN_FILE);
+            }
+        }
+    }
 
     /**
      * @param string  $name    template identifier (name or id)
@@ -83,29 +96,29 @@ class Smarty_Resource_cms_stylesheet extends Smarty_Resource_Custom
                 self::$stmt = self::$db->prepare('SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_stylesheets WHERE id=? OR name=?');
                 register_shutdown_function([$this, 'cleanup']);
             }
-            $rst = self::$db->execute(self::$stmt,[$name,$name]);
+            $rst = self::$db->execute(self::$stmt, [$name, $name]);
             if( !$rst || $rst->EOF() ) {
                 if( $rst ) $rst->Close();
-                cms_error('Missing stylesheet: '.$name);
+                log_error('Missing stylesheet', $name);
                 $mtime = false;
                 return;
             }
             else {
                 $data = $rst->FetchRow();
                 if( $data['contentfile'] ) {
-                    $fp = cms_join_path(CMS_ASSETS_PATH,'styles',$data['content']);
+                    $fp = cms_join_path(CMS_ASSETS_PATH,'styles', $data['content']);
                     if( is_readable($fp) && is_file($fp) ) {
                         try {
                             $data['content'] = file_get_contents($fp);
                         } catch( Throwable $t ) {
 //                            trigger_error('cms_stylesheet resource: '.$t->getMessage());
-                            cms_error("Stylesheet file $fp failed to load: ".$t->getMessage());
+                            log_error('Failed to load stylesheet file', basename($fp).','.$t->getMessage());
                             $mtime = false;
                             return;
                         }
                     }
                     else {
-                        cms_error("Stylesheet file $fp is missing");
+                        log_error('Missing stylesheet file', basename($fp));
                         $mtime = false;
                         return;
                     }

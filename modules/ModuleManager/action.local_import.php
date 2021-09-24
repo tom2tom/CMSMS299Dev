@@ -24,6 +24,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
 use ModuleManager\Operations;
+use function CMSMS\log_error;
+use function CMSMS\log_notice;
 
 //if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
@@ -51,11 +53,11 @@ try {
     $ops->expand_xml_package( $file['tmp_name'], true, false );
     Events::SendEvent( 'ModuleManager', 'AfterModuleImport', [ 'file'=>$file['name']] );
 
-    audit('',$this->GetName().'::local_import','Imported module from '.$file['name']);
+    log_notice($this->GetName().'::local_import','Imported module from '.$file['name']);
     $this->Setmessage($this->Lang('msg_module_imported'));
 }
-catch( Throwable $t ) {
-    cms_error('',$this->GetName().'::local_import','Module import failed: '.$file['name'].', '.$e->GetMessage());
+catch (Throwable $t) {
+    log_error('Module import failed', $file['name'].','.$t->GetMessage());
     $this->SetError($t->GetMessage());
 }
 

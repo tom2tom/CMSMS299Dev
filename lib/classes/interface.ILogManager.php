@@ -1,6 +1,6 @@
 <?php
 /*
-Audit management interface
+AdminLog management interface
 Copyright (C) 2017-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -23,9 +23,9 @@ namespace CMSMS;
 
 use CMSMS\Log\logfilter;
 
-interface IAuditManager
+interface ILogManager
 {
-	public function audit(string $msg, string $subject = '', $item_id = null);
+	public function info(string $msg, string $subject = '', $item_id = null);
 	public function notice(string $msg, string $subject = '');
 	public function warning(string $msg, string $subject = '');
 	public function error(string $msg, string $subject = '');

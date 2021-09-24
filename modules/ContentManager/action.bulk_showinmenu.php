@@ -1,6 +1,6 @@
 <?php
 /*
-ContentManager module action: flag multiple pages as [not] cachable
+ContentManager module action: flag multiple pages as in-menu
 Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -21,9 +21,11 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\SingleItem;
+use function CMSMS\log_error;
+use function CMSMS\log_notice;
 
 //if( some worthy test fails ) exit;
-if( !isset($action) || $action != 'admin_bulk_cachable' ) exit;
+if( !isset($action) || $action != 'bulk_showinmenu' ) exit;
 
 if( !$this->CheckPermission('Manage All Content') ) {
     $this->SetError($this->Lang('error_bulk_permission'));
@@ -35,26 +37,28 @@ if( !isset($params['bulk_content']) ) {
 }
 
 $pagelist = $params['bulk_content'];
-$cachable = !empty($params['cachable']);
+$showinmenu = !empty($params['showinmenu']);
 $user_id = get_userid();
-$i = 0;
+$n = 0;
 
 try {
     foreach( $pagelist as $pid ) {
         $content = $this->GetContentEditor($pid);
         if( !is_object($content) ) continue;
 
-        $content->SetCachable($cachable);
+        $content->SetShowInMenu($showinmenu);
         $content->SetLastModifiedBy($user_id);
         $content->Save();
-        ++$i;
+        ++$n;
     }
-    audit('','ContentManager','Changed cachable status on '.$i.' pages');
+    log_notice('ContentManager','Changed show-in-menu status of '.$n.' pages');
     $this->SetMessage($this->Lang('msg_bulk_successful'));
 }
-catch( Throwable $t ) {
+catch (Throwable $t) {
+    log_error('Multi-page in-menu change failed',$t->getMessage());
     $this->SetError($t->getMessage());
 }
+
 $cache = SingleItem::LoadedData();
 // TODO or refresh() & save, ready for next stage ?
 $cache->delete('content_quicklist');

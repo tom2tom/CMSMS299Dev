@@ -1,6 +1,6 @@
 <?php
 /*
-CMSContentManger module action: ajax_check_locks
+ContentManger module action: ajax_check_locks
 Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -22,8 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\AppParams;
 use CMSMS\LockOperations;
 
-//if( some worthy test fails ) exit;
-// no permissions checks here
+if( !$this->CheckContext() ) exit;
 
 $handlers = ob_list_handlers();
 for( $cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt ) { ob_end_clean(); }
@@ -46,6 +45,6 @@ foreach( $list as $lock ) {
     }
 }
 
-$out = json_encode($locks, JSON_NUMERIC_CHECK+JSON_FORCE_OBJECT);
+$out = json_encode($locks, JSON_NUMERIC_CHECK | JSON_FORCE_OBJECT);
 echo $out;
 exit;

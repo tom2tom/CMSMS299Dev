@@ -20,11 +20,12 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+//use CMSMS\TemplatesGroup;
 use CMSMS\AppState;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
-//use CMSMS\TemplatesGroup;
 use CMSMS\TemplateType;
+use function CMSMS\log_error;
 
 if( !isset($gCms) ) exit;
 
@@ -41,10 +42,10 @@ try {
     $menu_type->reset_content_to_factory();
     $menu_type->save();
 }
-catch( Throwable $t ) {
+catch (Throwable $t) {
     // log it
     debug_to_log(__FILE__.':'.__LINE__.' '.$t->GetMessage());
-    audit('',$me,'Installation Error: '.$t->GetMessage());
+    log_error($me,'Installation error: '.$t->GetMessage());
     return $t->GetMessage();
 }
 
@@ -59,10 +60,10 @@ try {
     $crumb_type->reset_content_to_factory();
     $crumb_type->save();
 }
-catch( Throwable $t ) {
+catch (Throwable $t) {
     // log it
     debug_to_log(__FILE__.':'.__LINE__.' '.$t->GetMessage());
-    audit('',$me,'Installation Error: '.$t->GetMessage());
+    log_error($me,'Installation error: '.$t->GetMessage());
     return $t->GetMessage();
 }
 
@@ -152,9 +153,9 @@ try {
                 $extras[] = $tpl->get_id();
             }
         }
-        catch( Throwable $t ) {
+        catch (Throwable $t) {
             // if we got here, it's prolly because default content was not installed.
-            audit('',$me,'Installation Error: '.$t->GetMessage());
+            log_error($me,'Installation Error: '.$t->GetMessage());
         }
 
         if( $extras ) {
@@ -182,12 +183,15 @@ try {
         $tpl->save();
     }
 }
-catch( Throwable $t ) {
+catch (Throwable $t) {
     debug_to_log(__FILE__.':'.__LINE__.' '.$t->GetMessage());
-    audit('',$me,'Installation Error: '.$t->GetMessage());
+    log_error($me,'Installation Error: '.$t->GetMessage());
     return $t->GetMessage();
 }
 
 // register plugins
 $this->RegisterModulePlugin(TRUE);
 $this->RegisterSmartyPlugin('nav_breadcrumbs','function','nav_breadcrumbs');
+// MenuManager module hangovers
+$this->RegisterSmartyPlugin('menu','function','function_plugin');
+$this->RegisterSmartyPlugin('cms_breadcrumbs','function','nav_breadcrumbs');

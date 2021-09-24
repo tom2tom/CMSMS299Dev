@@ -21,6 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppParams;
 use CMSMS\SingleItem;
+use function CMSMS\log_error;
+use function CMSMS\log_notice;
 
 try {
     $ops->process_errors();
@@ -48,11 +50,11 @@ try {
         $nm = 'process-jobs';
         if ($ops->lock_expired()) {
             debug_to_log($nm.': removing an expired lock (probably an error occurred)');
-            audit('', $nm, 'Removing an expired lock. An error probably occurred with a previous job.');
+            log_notice($nm, 'Removing an expired lock. An error probably occurred with a previous job.');
             $ops->unlock();
         } else {
             debug_to_log($nm.': still locked (probably because of an error)... wait for a bit');
-            audit('', $nm, 'Processing is already occurring.');
+            log_notice($nm, 'Processing is already occurring');
             return;
         }
     }
@@ -88,7 +90,7 @@ try {
             $res = $job->execute();
             if ($log) {
                 switch ($res) {
-                    case 2: 
+                    case 2:
                     case null: // for deprecated 2.2-API jobs
                         error_log('completed job '.$job->name."\n", 3, $log);
 /* TMI                  break;
@@ -115,7 +117,7 @@ try {
                 $ops->unload_job($job);
             }
 /* TMI      if ($dev && ($res == 2 || $res === null)) {
-                audit('', 'Core', 'Completed job '.$job->name);
+                log_notice('Completed job',$job->name);
             }
 */
         } catch (Throwable $t) {
@@ -125,11 +127,11 @@ try {
                     error_log($job->name.' Throwable: '. $t->GetMessage()."\n", 3, $log);
                     error_log($t->getTraceAsString()."\n", 3, $log);
                 }
-                audit('', 'Core', 'An error occurred while processing: '.$job->name);
+                log_error('Error while processing job', $job->name);
                 $ops->joberrorhandler($job, $t->GetMessage(), $t->GetFile(), $t->GetLine());
             } else {
                 //TODO
-                audit('', 'Core', 'An error occurred while processing some job');
+                log_error('An error occurred while processing some job');
             }
         }
         $now = time();

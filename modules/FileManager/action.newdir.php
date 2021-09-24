@@ -1,5 +1,6 @@
 <?php
 use FileManager\Utils;
+use function CMSMS\log_notice;
 
 //if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
@@ -9,30 +10,30 @@ $path = Utils::get_cwd();
 
 $newdirname = '';
 if (isset($params['newdirname'])) {
-  $newdirname = trim($params['newdirname']);
+    $newdirname = trim($params['newdirname']);
 
-  if (!Utils::is_valid_filename($params['newdirname'])) {
-    // $this->Redirect($id, 'defaultadmin',$returnid,array("fmerror"=>"invalidnewdir"));
-    $this->ShowErrors($this->Lang('invalidnewdir'));
-    //fallthrough
-  } else {
-
-    $newdir = cms_join_path(CMS_ROOT_PATH, $params['path'], $params['newdirname']);
-
-    if (is_dir($newdir)) {
-      $this->ShowErrors($this->Lang('direxists'));
-      //fallthrough
+    if (!Utils::is_valid_filename($params['newdirname'])) {
+        // $this->Redirect($id, 'defaultadmin',$returnid,array("fmerror"=>"invalidnewdir"));
+        $this->ShowErrors($this->Lang('invalidnewdir'));
+        //fallthrough
     } else {
-      if (mkdir($newdir)) {
-        $params['fmmessage'] = 'newdirsuccess'; //strips the file data
-        $this->Audit(0, 'File Manager', 'Created new directory: ' . $params['newdirname']);
-        $this->Redirect($id, 'defaultadmin', $returnid, $params);
-      } else {
-        $params['fmerror'] = 'newdirfail';
-        $this->Redirect($id, 'defaultadmin', $returnid, $params);
-      }
+
+        $newdir = cms_join_path(CMS_ROOT_PATH, $params['path'], $params['newdirname']);
+
+        if (is_dir($newdir)) {
+            $this->ShowErrors($this->Lang('direxists'));
+            //fallthrough
+        } else {
+            if (mkdir($newdir)) {
+                $params['fmmessage'] = 'newdirsuccess'; //strips the file data
+                log_notice('File Manager', 'Created new directory: ' . $params['newdirname']);
+                $this->Redirect($id, 'defaultadmin', $returnid, $params);
+            } else {
+                $params['fmerror'] = 'newdirfail';
+                $this->Redirect($id, 'defaultadmin', $returnid, $params);
+            }
+        }
     }
-  }
 }
 $tpl = $smarty->createTemplate($this->GetTemplateResource('newdir.tpl')); //,null,null,$smarty);
 

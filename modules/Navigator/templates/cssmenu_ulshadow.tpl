@@ -7,7 +7,7 @@
   liclass: is used to build a string containing class names given to the li tag.
 *}
 
-{function name=cssmenu_ulshadow depth=1}
+{function cssmenu_ulshadow depth=1}
 <ul{if $depth ==0} id="primary-nav"{else} class="unli"{/if}>
   {foreach $data as $node}
     {* setup classes for the anchor and list item *}

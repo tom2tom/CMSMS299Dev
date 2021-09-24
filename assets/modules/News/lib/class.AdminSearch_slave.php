@@ -96,7 +96,7 @@ final class AdminSearch_slave extends Base_slave
                 }
 
                 if( $this->check_permission() ) {
-                    $url = $mod->create_action_url('m1_','editarticle',['articleid'=>$row['news_id']]);
+                    $url = $mod->create_action_url('','editarticle',['articleid'=>$row['news_id']]);
                 }
                 else {
                     $url = ''; // OR view-only URL?

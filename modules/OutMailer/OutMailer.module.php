@@ -106,7 +106,7 @@ class OutMailer extends CMSModule
         return [
           'title' => $this->Lang('settings_title'),
         //'desc' => 'useful text goes here', // optional useful text
-          'url' => $this->create_action_url('m1_', 'defaultadmin', ['activetab'=>'internal']), // if permitted
+          'url' => $this->create_action_url('', 'defaultadmin', ['activetab'=>'internal']), // if permitted
         //optional 'text' => custom link-text | explanation e.g. need permission
         ];
     }

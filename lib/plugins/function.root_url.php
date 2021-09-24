@@ -20,6 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+// alternatively, use {$smarty.const.CMS_ROOT_URL}
 function smarty_function_root_url($params, $template)
 {
 	if( !empty($params['assign']) ) {
@@ -45,5 +46,5 @@ function smarty_cms_help_function_root_url()
 	'This plugin retrieves the base/root URL of the website',
 	'root_url',
 	"<li>$n</li>"
-	);
+	).'<br /><pre><code>{$smarty.const.CMS_ROOT_URL}</code></pre> is equivalent';
 }

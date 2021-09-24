@@ -757,8 +757,8 @@ class Template
 	 */
 	public function get_modified()
 	{
-		$str = $this->props['modified_date'] ?? '';
-		return ($str) ? cms_to_stamp($str) : $this->get_created();
+		$str = $this->props['modified_date'] ?? $this->props['create_date'] ?? '';
+		return ($str) ? cms_to_stamp($str) : 1;
 	}
 
 	/**

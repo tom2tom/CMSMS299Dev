@@ -28,6 +28,7 @@ use CMSMS\SingleItem;
 use CMSMS\StylesheetOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
+use function CMSMS\log_error;
 
 // variables needed here and in-scope for hook-functions
 if (!AppState::test(AppState::LOGIN_PAGE)) {
@@ -100,7 +101,7 @@ if ($list) {
 	foreach ($list as $modname => $info) {
 		$mod = Utils::get_module($modname);
 		if (!is_object($mod)) {
-			audit('', 'Core', 'rich-edit module '.$modname.' requested, but could not be instantiated');
+			log_error('Rich-text editor module could not be instantiated', $modname);
 			continue;
 		}
 
@@ -143,7 +144,7 @@ if ($list) {
 				$out = $mod->WYSIWYGGenerateHeader($selector, $cssname); //deprecated API
 				if ($out) { add_page_headtext($out); }
 			} catch (Throwable $t) {
-				audit('', 'Core', 'richtext editor module '.$module_name.' error: '.$t->getMessage());
+				log_error('Rich-text editor module '.$modname.' error',$t->getMessage());
 			}
 			$n++;
 		}
@@ -162,7 +163,7 @@ if ($list) {
 				$out = $mod->WYSIWYGGenerateHeader(/*$params*/); //deprecated API
 				if ($out) { add_page_headtext($out); }
 			} catch (Throwable $t) {
-				audit('', 'Core', 'richtext editor module '.$module_name.' error: '.$t->getMessage());
+				log_error('Rich-text editor module '.$modname.' error',$t->getMessage());
 			}
 		}
 		$n++;
@@ -195,10 +196,10 @@ if ($list) {
 				if ($out) { add_page_headtext($out); }
 				$n++;
 			} catch (Throwable $t) {
-				audit('', 'Core', 'syntax hilight module '.$module_name.' error: '.$t->getMessage());
+				log_error('Syntax hilight module '.$module_name.' error',$t->getMessage());
 			}
 		} else {
-			audit('', 'Core', 'syntax hilight module '.$module_name.' requested, but could not be instantiated');
+			log_error('Syntax hilight module '.$module_name.' could not be instantiated');
 		}
 	}
 }

@@ -1,5 +1,6 @@
 <?php
 use FileManager\Utils;
+use function CMSMS\log_error;
 
 //if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
@@ -30,8 +31,8 @@ try {
         $this->RedirectToAdminTab();
     }
 }
-catch( Throwable $t ) {
-    cms_error('','FileManager::changedir','Attempt to set working directory to an invalid location: '.$path);
+catch (Throwable $t) {
+    log_error('Attempt to set invalid working directory',$path);
     if( isset($params['ajax']) ) exit('ERROR');
     $this->SetError($this->Lang('invalidchdir',$path));
     $this->RedirectToAdminTab();

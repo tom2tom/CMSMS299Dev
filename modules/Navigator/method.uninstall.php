@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\TemplateType;
+use function CMSMS\log_error;
 
 $this->RemovePreference();
 $this->DeleteTemplate();
@@ -37,14 +38,13 @@ try {
               }
           }
       }
-      catch( Throwable $t ) {
-          cms_error('',$this->GetName().'::method.uninstall','Error: '.$t->GetMessage());
+      catch (Throwable $t) {
+          log_error($t->GetMessage(),$this->GetName().'::method.uninstall');
       }
       $type->delete();
   }
 }
-catch( Throwable $t ) {
-    // log it
-    cms_error('',$this->GetName().'::method.uninstall','Error: '.$t->GetMessage());
+catch (Throwable $t) {
+    log_error($t->GetMessage(),$this->GetName().'::method.uninstall');
     return $t->GetMessage();
 }
