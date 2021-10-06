@@ -24,9 +24,7 @@ namespace Navigator;
 use CMSMS\AppParams;
 use CMSMS\SingleItem;
 use NavigatorNode;
-use function cms_join_path;
 use function CMSMS\specialize;
-use function endswith;
 use function startswith;
 
 final class Utils
@@ -185,24 +183,5 @@ final class Utils
 
             return $obj;
         }
-    }
-
-    /**
-     * Substitute a module-file template name (like *.tpl) for an un-suffixed
-     * template name, if appropriate
-     *
-     * @param string $tplname trimmed value provided as an action parameter
-     * @return string
-     */
-    public static function check_file(string $tplname) : string
-    {
-        if( !endswith($tplname,'.tpl') ) {
-            $asfile = $tplname.'.tpl';
-            $tplpath = cms_join_path(dirname(__DIR__),'templates',$asfile);
-            if( is_file($tplpath) ) {
-                return $asfile;
-            }
-        }
-        return $tplname;
     }
 } // class

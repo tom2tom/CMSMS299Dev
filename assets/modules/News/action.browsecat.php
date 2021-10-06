@@ -29,7 +29,7 @@ use function CMSMS\specialize_array;
 // TODO icon/image display
 
 if( !empty($params['browsecattemplate']) ) {
-    $template = Utils::check_file(trim($params['browsecattemplate']));
+    $template = trim($params['browsecattemplate']);
 }
 else {
     $me = $this->GetName();

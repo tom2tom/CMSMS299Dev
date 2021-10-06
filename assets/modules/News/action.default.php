@@ -36,7 +36,7 @@ if( !empty ($params['browsecat']) ) {
 $me = $this->GetName();
 
 if( !empty($params['summarytemplate']) ) {
-    $template = Utils::check_file(trim($params['summarytemplate']));
+    $template = trim($params['summarytemplate']);
 }
 else {
     $tpl = TemplateOperations::get_default_template_by_type($me.'::summary');
@@ -240,7 +240,7 @@ if( $rst ) {
         if( isset($params['category_id']) ) { $urlparms['category_id'] = $params['category_id']; }
         if( isset($params['detailpage']) ) { $urlparms['origid'] = $returnid; }
         if( !empty($params['detailtemplate']) ) {
-            $urlparms['detailtemplate'] =  Utils::check_file(trim($params['detailtemplate']));
+            $urlparms['detailtemplate'] = trim($params['detailtemplate']);
         }
         if( isset($params['lang']) ) { $urlparms['lang'] = $params['lang']; }
         if( isset($params['pagelimit']) ) { $urlparms['pagelimit'] = $params['pagelimit']; }

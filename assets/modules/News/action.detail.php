@@ -36,7 +36,7 @@ $preview = false;
 $articleid = $params['articleid'] ?? -1;
 
 if( !empty($params['detailtemplate']) ) {
-    $template = Utils::check_file(trim($params['detailtemplate']));
+    $template = trim($params['detailtemplate']);
 }
 else {
     $me = $this->GetName();

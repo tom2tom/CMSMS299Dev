@@ -47,7 +47,7 @@ if ($row) {
     $startform = FormUtils::create_form_start($this, ['id' => $id, 'action' => 'opengate']);
     $textarea_desc = FormUtils::create_textarea([
         'enablewysiwyg' => 1,
-        'modid' => $id,
+        'getid' => $id,
         'name' => 'description',
         'class' => 'pageextrasmalltextarea',
         'value' => $row['description'],

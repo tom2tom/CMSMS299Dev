@@ -244,12 +244,12 @@ abstract class base_email_platform
 //            $tplvars['additem'] = $mod->CreateLink($id, 'opengate', '', $addicon, $args).' '.
 //                $mod->CreateLink($id, 'opengate', '', $text, $args);
             $tplvars['additem'] = FormUtils::create_action_link($mod, [
-                'modid' => $id,
+                'getid' => $id,
                 'action' => 'opengate',
                 'contents' => $addicon,
                 'params' => $args,
             ]).' '.FormUtils::create_action_link($mod, [
-                'modid' => $id,
+                'getid' => $id,
                 'action' => 'opengate',
                 'contents' => $text,
                 'params' => $args,

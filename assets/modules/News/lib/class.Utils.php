@@ -27,8 +27,6 @@ use DateTime;
 use DateTimeZone;
 use News\Article;
 use const CMS_DB_PREFIX;
-use function cms_join_path;
-use function endswith;
 
 final class Utils
 {
@@ -88,7 +86,7 @@ final class Utils
 		$depth = 1;
 		$db = SingleItem::Db();
 		$counts = [];
-        $longnow = $db->DbTimeStamp(time());
+		$longnow = $db->DbTimeStamp(time());
 
 		$q2 = 'SELECT news_category_id,COUNT(news_id) AS cnt FROM '.CMS_DB_PREFIX.'module_news WHERE news_category_id IN (';
 		$q2 .= implode(',',$cat_ids).')';
@@ -372,7 +370,7 @@ final class Utils
 	public static function get_article_by_id($article_id,$for_display = TRUE,$allow_expired = FALSE)
 	{
 		$db = SingleItem::Db();
-        $longnow = $db->DbTimeStamp(time());
+		$longnow = $db->DbTimeStamp(time());
 		$query = 'SELECT N.*, G.news_category_name FROM '.CMS_DB_PREFIX.'module_news N
 LEFT OUTER JOIN '.CMS_DB_PREFIX.'module_news_categories G ON G.news_category_id = N.news_category_id
 WHERE status = \'published\' AND news_id = ? AND ('.$db->ifNull('start_time',1).' < '.$longnow.')';
@@ -383,24 +381,5 @@ WHERE status = \'published\' AND news_id = ? AND ('.$db->ifNull('start_time',1).
 		if( $row ) {
 			return self::get_article_from_row($row); //, (($for_display) ? 'PUBLIC' : 'ALL'));
 		}
-	}
-
-	/**
-	 * Substitute a module-file template name (like *.tpl) for an un-suffixed
-	 * template name, if appropriate
-	 *
-	 * @param string $tplname trimmed value provided as an action parameter
-	 * @return string
-	 */
-	public static function check_file(string $tplname) : string
-	{
-		if( !endswith($tplname,'.tpl') ) {
-			$asfile = $tplname.'.tpl';
-			$tplpath = cms_join_path(dirname(__DIR__), 'templates', $asfile);
-			if( is_file($tplpath) ) {
-				return $asfile;
-			}
-		}
-		return $tplname;
 	}
 } // class

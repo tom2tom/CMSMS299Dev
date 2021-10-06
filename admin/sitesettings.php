@@ -1030,6 +1030,7 @@ $smarty->assign([
   ])
   ->assign('textarea_metadata', FormUtils::create_textarea([
     'wantedsyntax' => 'html',
+    'getid' => '',
     'htmlid' => 'globalmetadata',
     'name' => 'metadata',
     'class' => 'pagesmalltextarea',
@@ -1037,6 +1038,7 @@ $smarty->assign([
   ]))
   ->assign('textarea_sitedownmessage', FormUtils::create_textarea([
     'enablewysiwyg' => 1,
+    'getid' => '',
     'htmlid' => 'sitedownmessage',
     'name' => 'sitedownmessage',
     'class' => 'pagesmalltextarea',

@@ -27,7 +27,6 @@ use CMSMS\SingleItem;
 use CMSMS\TemplateType;
 use CMSMS\Utils as AppUtils;
 use News\AdminOperations;
-use News\Utils;
 use function CMSMS\de_specialize_array;
 use function CMSMS\log_error;
 use function CMSMS\log_info;
@@ -295,7 +294,7 @@ WHERE news_id=?';
     ];
     $tparms = ['preview' => md5(serialize($_SESSION['news_preview']))];
     if (!empty($params['detailtemplate'])) {
-        $tparms['detailtemplate'] = Utils::check_file(trim($params['detailtemplate']));
+        $tparms['detailtemplate'] = trim($params['detailtemplate']);
     }
     $url = $this->create_url('_preview_', 'detail', $detail_returnid, $tparms, true, false, '', false, 2);
 

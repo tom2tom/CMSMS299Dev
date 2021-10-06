@@ -835,8 +835,10 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 		$sid = $sht->id;
 		$orig = $sht->originator;
 		$name = $sht->name;
+		$desc = $sht->description;
 		$tmp = $sht->media_types;
-		$type = ($tmp) ? implode(',', $tmp) : '';
+		$mt = ($tmp) ? implode(',', $tmp) : null;
+		$mq = $sht->media_query;
 
 		$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.'SET
 originator = ?,
@@ -853,11 +855,11 @@ content = ?
 WHERE id = ?';
 		$db = SingleItem::Db();
 		$db->execute($sql, [
-			$orig,
+			($orig) ? $orig : null,
 			$name,
-			$sht->description,
-			$type,
-			$sht->media_query,
+			($desc) ? $desc : null,
+			$mt,
+			($mq) ? $mq : null,
 			$sht->owner_id,
 			$sht->type_id,
 			$sht->type_dflt,
@@ -901,8 +903,10 @@ WHERE id = ?';
 	{
 		$orig = $sht->originator;
 		$name = $sht->name;
+		$desc = $sht->description;
 		$tmp = $sht->get_media_types();
-		$types = ($tmp) ? implode(',', $tmp) : '';
+		$mt = ($tmp) ? implode(',', $tmp) : null;
+		$mq = $sht->media_query;
 
 		$sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (
 originator,
@@ -918,11 +922,11 @@ contentfile,
 content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 		$db = SingleItem::Db();
 		$dbr = $db->execute($sql, [
-			$orig,
+			($orig) ? $orig : null,
 			$name,
-			$sht->description,
-			$types,
-			$sht->media_query,
+			($desc) ? $desc : null,
+			$mt,
+			($mq) ? $mq : null,
 			$sht->owner_id,
 			$sht->type_id,
 			$sht->type_dflt,

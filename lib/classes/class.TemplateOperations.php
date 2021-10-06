@@ -118,7 +118,7 @@ class TemplateOperations
 	/**
 	 * Save a template
 	 *
-	 * @param Template $tpl The template object. (or perhaps a deprecated CmsLayoutTemplate)
+	 * @param Template $tpl The template object (or perhaps a deprecated CmsLayoutTemplate).
 	 */
 	public static function save_template($tpl)
 	{
@@ -1079,17 +1079,18 @@ WHERE id=?';
 		$tid = $tpl->id;
 		$orig = $tpl->originator;
 		$name = $tpl->name;
+		$desc = $tpl->description;
 		$args = [
-		  $orig,
-		  $name,
-		  $tpl->description,
-		  $tpl->type_id,
-		  $tpl->type_dflt,
-		  $tpl->owner_id,
-		  $tpl->listable,
-		  $tpl->contentfile,
-		  $tpl->content,
-		  $tid
+			($orig) ? $orig : null,
+			$name,
+			($desc) ? $desc : null,
+			$tpl->type_id,
+			$tpl->type_dflt,
+			$tpl->owner_id,
+			$tpl->listable,
+			$tpl->contentfile,
+			$tpl->content,
+			$tid
 		];
 		$db->execute($sql, $args);
 //		if( db error ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
@@ -1155,16 +1156,17 @@ contentfile,
 content) VALUES (?,?,?,?,?,?,?,?,?)';
 		$orig = $tpl->originator;
 		$name = $tpl->name;
+		$desc = $tpl->description;
 		$args = [
-		  $orig,
-		  $name,
-		  $tpl->description,
-		  $tpl->type_id,
-		  $tpl->type_dflt,
-		  $tpl->owner_id,
-		  $tpl->listable,
-		  $tpl->contentfile,
-		  $tpl->content
+			($orig) ? $orig : null,
+			$name,
+			($desc) ? $desc : null,
+			$tpl->type_id,
+			$tpl->type_dflt,
+			$tpl->owner_id,
+			$tpl->listable,
+			$tpl->contentfile,
+			$tpl->content
 		];
 		$dbr = $db->execute($sql, $args);
 		if (!$dbr) {

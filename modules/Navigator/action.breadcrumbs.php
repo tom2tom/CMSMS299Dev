@@ -30,7 +30,7 @@ use function CMSMS\log_error;
 debug_buffer('Start Navigator breadcrumbs action');
 
 if( !empty($params['template']) ) {
-    $template = Utils::check_file(trim($params['template']));
+    $template = trim($params['template']);
 }
 else {
     $tpl = TemplateOperations::get_default_template_by_type('Navigator::breadcrumbs');

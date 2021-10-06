@@ -39,7 +39,7 @@ $deep = false; //true; properties not generally needed
 $collapse = false;
 
 if( !empty($params['template']) ) {
-    $template = Utils::check_file(trim($params['template']));
+    $template = trim($params['template']);
 }
 else {
     $tpl = TemplateOperations::get_default_template_by_type('Navigator::navigation');

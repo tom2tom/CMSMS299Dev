@@ -1068,6 +1068,8 @@ class FormUtils
         }
         $excludes = array_merge([
             'module',
+            'getid',
+            'htmlid',
             'id',
             'idsuffix',
             'returnid',
