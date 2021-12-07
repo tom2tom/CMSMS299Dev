@@ -39,7 +39,7 @@
        {/if}
     </td>
     <td>{$elem->type}</td>
-    <td>{$elem->dflt}</td>
+    <td style="text-align:center">{$elem->dflt}</td>
     <td>
     {if $elem->edit}{$elem->edit}{else}&nbsp;{/if}
     {if $elem->copy}{$elem->copy}{else}&nbsp;{/if}

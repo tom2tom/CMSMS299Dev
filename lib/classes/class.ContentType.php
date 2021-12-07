@@ -64,6 +64,9 @@ class ContentType implements \ArrayAccess
 
 	/**
 	 * @param mixed $parms Optional parameters assoc. array | null
+	 * Recognized members are: 'type' 'friendlyname' 'locator' 'editorlocator'
+	 * The latter 2 are filepaths of display- and edit-classes, if needed
+	 * because auto-loading cannot retrieve them
 	 */
 	public function __construct($parms = null)
 	{
@@ -111,12 +114,12 @@ class ContentType implements \ArrayAccess
 		switch ($pre) {
 			case 'set':
 				$len = ($chk[4] == '_') ? 4 : 3;
-				$key = strtolower(substr($chk, $len));
-				$this->$key = $args[0];
+				$key = substr($chk, $len);
+				$this->$key = $args[0] ?? null;
 				break;
 			case 'get':
 				$len = ($chk[4] == '_') ? 4 : 3;
-				$key = strtolower(substr($chk, $len));
+				$key = substr($chk, $len);
 				return $this->$key;
 		}
 	}

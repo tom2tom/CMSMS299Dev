@@ -147,6 +147,7 @@ function urlsplit(string $u) : array
     return [$u, '{}'];
 }
 
+$have_locks = 0; // default value, adjusted downstream
 $firstlist = 1; // status indicator for included code
 // used by included code
 $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);

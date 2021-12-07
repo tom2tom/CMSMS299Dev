@@ -1,0 +1,1038 @@
+[[$theme_root = $_site_themes_url|cat:'/Steppo']]
+
+/* ----- COLORS ----- */
+
+[[$orange = '#ffa041']]
+[[$white = '#fff']]
+[[$light_grey = '#b2b3b4']]
+[[$mid_grey = '#7d7f82']]
+[[$deep_grey = '#595a5c']]
+
+@font-face {
+	font-family: icons;
+	src: url([[$theme_root]]/fonts/icons.woff2?87419516) format('woff2'),
+		url([[$theme_root]]/fonts/icons.woff?87419516) format('woff'),
+		url([[$theme_root]]/fonts/icons.ttf?87419516) format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it.
+   Note, it will break hinting! In other OS's the font will be not as sharp as it could be */
+/*
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	@font-face {
+		font-family: icons;
+		src: url([[$theme_root]]/fonts/icons.svg?87419516#icons) format('svg');
+	}
+}
+*/
+[class^="icon-"]:before, [class*=" icon-"]:before {
+	font-family: icons;
+	font-style: normal;
+	font-weight: normal;
+	speak: never;
+
+	display: inline-block;
+	text-decoration: inherit;
+	width: 1em;
+	margin-right: .2em;
+	text-align: center;
+	/* opacity: .8; */
+
+	/* For safety - reset parent styles that can break glyph codes*/
+	font-variant: normal;
+	text-transform: none;
+
+	/* Fix buttons height, for twitter bootstrap */
+	line-height: 1;
+
+	/* Animation center compensation - margins should be symmetric */
+	/* remove if not needed */
+	margin-left: .2em;
+
+	/* you can be more comfortable with increased icons size */
+	/* font-size: 120%; */
+
+	/* Font smoothing. That was taken from TWBS */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+
+	/* Uncomment for 3D effect */
+	/* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+}
+
+.icon-menu:before { content: '\e900'; } /* '' */
+.icon-close:before { content: '\e901'; } /* '' */
+.icon-top:before { content: '\e902'; } /* '' */
+.icon-twitter:before { content: '\e903'; color: #1da1f2; } /* '' */
+.icon-linkedin:before { content: '\e904'; color: #0077b5; } /* '' */
+.icon-pinterest:before { content: '\e905'; color: #e5021a; } /* '' */
+.icon-youtube:before { content: '\e906'; color: #ff0000; } /* '' */
+.icon-facebook:before { content: '\e907'; color: #3b5998; } /* '' */
+.icon-search:before { content: '\e908'; } /* '' */
+
+body {
+	color: [[$deep_grey]];
+	background-color: [[$white]];
+	font: 1.1em/1.6 'Noto Sans', Arial, sans-serif;
+	margin: 0 auto;
+	padding: 0;
+	-moz-hyphens: auto;
+	-webkit-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
+	transition-property: color, background-color;
+	transition-duration: .75s;
+}
+a {
+	color: inherit;
+	text-decoration: underline .125em [[$orange]];
+}
+a:hover {
+	text-decoration-line: none;
+	color: [[$orange]];
+}
+a img {
+	border: none;
+}
+address {
+	font-style: normal;
+}
+button,
+input[type=submit] {
+	border: 2px solid [[$orange]];
+	background-color: [[$white]];
+	cursor: pointer;
+	padding: .25em 1em;
+	color: inherit;
+	font-weight: bold;
+	line-height: inherit;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	vertical-align: middle;
+}
+button:hover,
+input[type=submit]:hover,
+button:focus,
+input[type=submit]:focus {
+	background-color: [[$orange]];
+	color: [[$white]];
+}
+button:active,
+input[type=submit]:active {
+	background-color: [[$deep_grey]];
+	color: [[$white]];
+	border-color: currentcolor;
+}
+fieldset {
+	margin: 0;
+	padding: 0;
+	border: none;
+}
+figure {
+	margin: 0;
+}
+h1,
+h2,
+h3 {
+	font-family: 'Noto Serif', 'Times New Roman', serif;
+	font-weight: bold;
+	margin-top: 0;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+h1 {
+	font-size: 2em;
+	line-height: 1.5;
+	margin-bottom: .75em;
+}
+h2 {
+	font-size: 1.625em;
+	line-height: 1.5;
+	margin-bottom: .962em;
+}
+h3 {
+	font-size: 1.25em;
+	margin-bottom: 1.25em;
+	line-height: 1.5;
+}
+h4 {
+	font-size: inherit;
+	line-height: inherit;
+	margin-bottom: 1.5em;
+}
+img,
+input,
+select,
+textarea {
+	vertical-align: middle;
+	margin: 0;
+	box-sizing: border-box;
+	max-width: 100%;
+	line-height: inherit;
+	color: inherit;
+}
+img {
+	height: auto;
+}
+input,
+select,
+textarea {
+	border: 2px solid [[$light_grey]];
+	padding: .25em .5em;
+}
+input:focus,
+select:focus,
+textarea:focus {
+	border-color: [[$orange]];
+	outline-style: none;
+}
+input:invalid:focus,
+select:invalid:focus,
+textarea:invalid:focus {
+	box-shadow: none;
+}
+input[type=checkbox],
+input[type=radio] {
+	border: none;
+	padding: 0;
+}
+input[type=submit]:focus,
+input[type=checkbox]:focus,
+input[type=radio]:focus {
+	outline-style: dotted;
+}
+form label {
+	font-style: italic;
+	display: table;
+}
+ol,
+ul {
+	padding-left: 0;
+	margin-left: 0;
+	list-style: none;
+}
+ul ul,
+ol ol {
+	margin-bottom: 0;
+}
+ol {
+	counter-reset: ol;
+}
+ol li {
+	margin-left: 1.5em;
+	position: relative;
+}
+ol li:before {
+	counter-increment: ol;
+	content: counter(ol) '.';
+	color: [[$orange]];
+	margin-right: .25em;
+	position: absolute;
+	right: 100%;
+}
+p,
+table,
+ul,
+ol {
+	margin-top: 0;
+	margin-bottom: 1.563em;
+}
+textarea {
+resize: vertical;
+}
+/* code chunks */
+pre,
+code {
+	font-family: 'Noto Sans Mono', 'Courier New', monospace;
+}
+pre {
+	border: 1px solid [[$deep_grey]];
+	background-color: [[$light_grey]];
+	margin: 0 1em 1em 1em;
+	padding: 0.5em;
+	line-height: 1.5;
+}
+pre code {
+	color: [[$deep_grey]];
+	line-height: 1.5;
+	font-size: 1em;
+}
+.accessibility {
+	position: absolute;
+	left: -9999em;
+}
+
+body > header {
+	padding: 1em 0;
+	position: relative;
+	min-height: 1.875em;
+	background-color: [[$white]];
+	-moz-hyphens: manual;
+	-webkit-hyphens: manual;
+	-ms-hyphens: manual;
+	hyphens: manual;
+}
+header .logo {
+	margin-left: 5%;
+}
+header .logo img {
+/* TODO light / dark version of logotext for content */
+	max-width: 9.688em;
+	max-height: 4em;
+/*	width: 30em; */
+}
+/* #nav {
+	border: 1px solid red;
+} */
+#nav {
+	position: absolute;
+	right: 9999em;
+	top: -9999em;
+	margin-top: 1em;
+	padding-top: .5em;
+	overflow: auto;
+}
+/* nav toggle */
+header > input {
+	position: absolute;
+}
+header > input {
+	left: -9999em;
+}
+header > label {
+	position: absolute;
+	line-height: 1;
+	color: [[$white]];
+	cursor: pointer;
+	top: 1.375em;
+	right: 5%;
+}
+header > label:before,
+header > label:after {
+	position: absolute;
+}
+header > label:before {
+	font: .875em/1 icons;
+	content: '\e900';
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	right: 1.267em;
+	top: 50%;
+	transform: translateY(-50%);
+	color: [[$deep_grey]];
+	transition: color .25s;
+}
+header > label:after {
+	content: '';
+	width: .875em;
+	height: .75em;
+	right: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	background: linear-gradient([[$orange]], [[$orange]]) 0 0 / .813em .125em,
+		linear-gradient([[$orange]], [[$orange]]) 0 50% / 100% .125em,
+		linear-gradient([[$orange]], [[$orange]]) 0 100% / .75em .125em;
+	background-repeat: no-repeat;
+	/* transition: background-size .5s; */
+}
+header > label:hover:before {
+	color: [[$orange]];
+}
+header > label:hover:after {
+	background-size: 100% .125em, .75em .125em, .813em .125em;
+}
+header > input:checked + label:before {
+	content: '\e901';
+}
+header > input:checked + label:after {
+	background-size: .125em 100%, 100% .125em, 0 0;
+	background-position: center;
+	height: .875em;
+	transform: translateY(-50%) rotate(45deg);
+	transition: none;
+}
+header > input:checked + label:hover:after {
+	transform: translateY(-50%) rotate(45deg) scale(1.15);
+}
+/* end nav toggle */
+/* general nav styles */
+#nav nav {
+	padding-bottom: 1em;
+}
+#nav nav ul {
+	margin: 0;
+}
+#nav nav a {
+	text-decoration-line: none;
+}
+#nav nav a,
+#nav nav li > label {
+	display: block;
+	position: relative;
+	line-height: 1.333;
+}
+#nav nav a:before,
+#nav nav li > label:before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: .188em;
+}
+#nav nav .current > a:before,
+#nav nav .current > label:before {
+	background-color: [[$orange]];
+}
+header > input:checked ~ #nav {
+	position: static;
+}
+/* search form styles */
+#nav form {
+	padding: 0 5% .75em;
+	position: relative;
+}
+.jsenabled #nav form label {
+	position: absolute;
+	padding: 0 .5em;
+	cursor: text;
+	transition-property: font-size, padding, margin, background-color, opacity, left;
+	transition-duration: .25s;
+	border: 2px solid transparent;
+	background-clip: padding-box;
+	margin-top: .25em;
+}
+#nav form .focus label,
+#nav form .val label {
+	background-color: [[$white]];
+	font-size: .75em;
+	margin-top: -1em;
+	padding-left: .25em;
+	padding-right: .25em;
+	margin-left: .417em;
+}
+#nav form .focus label {
+color: [[$orange]];
+}
+#nav form input {
+	width: 100%;
+	padding-right: 11.111%;
+}
+#nav form button {
+	padding: .25em;
+	border: none;
+	background-color: transparent;
+	position: absolute;
+	right: 6.25%;
+	margin-top: 1px;
+}
+#nav form button:hover,
+#nav form button:active,
+#nav form button:focus {
+	background-color: transparent;
+	color: [[$orange]];
+}
+#nav form button:before {
+	content: '\e908';
+	font: 1.5em/1 icons;
+	display: block;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+#nav form button span {
+	position: absolute;
+	left: -9999em;
+}
+/* end search form styles */
+/* fist-level items */
+#nav nav > ul > li {
+	border: dotted [[$orange]];
+	border-width: 1px 0 0;
+}
+#nav nav > ul > li:last-child {
+	border-bottom-width: 1px;
+}
+#nav nav > ul > li > a,
+#nav nav > ul > li > label {
+	font-size: 1.5em;
+	font-weight: bold;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	padding: .25em 7.5% .25em 5%;
+}
+#nav nav > ul > li > a:before,
+#nav nav > ul > li > label:before {
+	width: .125em;
+}
+#nav nav li > input {
+	position: absolute;
+	left: -9999em;
+}
+#nav nav li > label {
+	cursor: pointer;
+}
+#nav nav li > label:after {
+	content: '';
+	display: inline-block;
+	width: .375em;
+	height: .375em;
+	border: solid [[$orange]];
+	border-width: 0 2px 2px 0;
+	transform: rotate(-45deg);
+	margin: .458em 0 0 .292em;
+	position: absolute;
+	transition-property: transform, margin-top;
+	transition-duration: .25s;
+}
+#nav nav li > input:checked + label:after {
+	transform: rotate(45deg);
+	margin-top: .333em;
+}
+#nav nav label:hover {
+	color: [[$orange]];
+}
+/* hide lower-level menu items */
+#nav nav ul ul {
+	position: absolute;
+	left: -9999em;
+	top: -9999em;
+	z-index: 110;
+}
+/* show child items if parent is selected */
+#nav nav ul input:checked ~ ul {
+	position: static;
+}
+/* second-level items */
+#nav nav li li > a,
+#nav nav li li > label {
+	font-size: 1.25em;
+	padding: .3em 7.5% .3em 5%;
+}
+#nav nav li li > a:before,
+#nav nav li li label:before {
+	width: .15em;
+}
+#nav nav li li label:after {
+	margin-top: .4em;
+	margin-left: .35em;
+	width: .438em;
+	height: .438em;
+}
+#nav li li input:checked + label:after {
+	margin-top: .3em;
+}
+#nav nav .parent > :before {
+	content: none;
+}
+/* third-level and deeper items */
+#nav nav li li li > a,
+#nav nav li li li > label {
+	font-size: 1em;
+	padding: .375em 7.5% .375em 10%;
+}
+#nav nav li li li label:after {
+	margin-top: .375em;
+	width: .375em;
+	height: .375em;
+	margin-left: .375em;
+}
+#nav nav li li li input:checked + label:after {
+	margin-top: .25em;
+}
+/* fourth-level items */
+#nav nav li li li li > a,
+#nav nav li li li li > label {
+	padding-left: 15%;
+}
+/* fifth-level items; from here on, all lower levels are indented the same */
+#nav nav li li li li li > a,
+#nav nav li li li li li > label {
+	padding-left: 20%;
+}
+
+/* mobile nav JS-related styles */
+.nav_active, .nav_active body {
+	overflow: hidden;
+}
+.nav_active body > header {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	box-sizing: border-box;
+	padding-bottom: 0;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 100;
+}
+.nav_active #nav {
+	display: flex;
+	flex-direction: column;
+	flex: 0 1 100%;
+}
+.nav_active #nav.scrolled {
+	border-top: 1px solid rgba(0,0,0,.1);
+}
+
+body > footer {
+	margin: 4em 1em 0;
+	border-top: 2px solid [[$orange]];
+	position: relative;
+	text-align: center;
+	padding: 1.5em 0;
+	display: flex;
+	flex-direction: column;
+}
+body > footer:before {
+	content: '\e902';
+	font: 2.5rem/1 icons;
+	position: absolute;
+	color: [[$orange]];
+	left: 50%;
+	top: 0;
+	margin-top: -1px;
+	transform: translate(-50%, -50%);
+	border: 2px solid [[$white]];
+	border-radius: 100%;
+	background-color: [[$white]];
+}
+body > footer > * {
+	font-size: .82em;
+	line-height: 1.6;
+}
+body > footer a {
+	color: [[$orange]];
+	text-decoration-line: none;
+}
+body > footer .back-top {
+	position: absolute;
+	left: -9999em;
+}
+footer .social {
+	display: flex;
+	justify-content: center;
+	margin: 1.2em 0 0;
+	order: 1;
+}
+footer .social li {
+	margin-left: .692em;
+	display: flex;
+	align-items: center;
+}
+footer .social li:first-child {
+	margin-left: 0;
+}
+footer .social a {
+	color: [[$light_grey]];
+}
+footer .social a:hover {
+	color: [[$orange]];
+}
+footer .social a:before {
+	font: 3rem/1 icons;
+	display: block;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+footer .social .twitter a:before {
+	content: '\e903';
+	color: #1da1f2;
+}
+footer .social .linkedin a:before {
+	content: '\e904';
+	color: #0077b5;
+}
+footer .social .pinterest a:before {
+	content: '\e905';
+	color: #e5021a;
+}
+footer .social .youtube a:before {
+	content: '\e906';
+	color: #ff0000;
+}
+footer .social .facebook a:before {
+	content: '\e907';
+	color: #3b5998;
+}
+footer .social a span {
+	position: absolute;
+	left: -9999em;
+}
+main {
+	padding: 0 5%;
+}
+main ul li {
+	margin-left: 1em;
+}
+main ul li:before {
+	content: '';
+	width: .438em;
+	height: .438em;
+	background-color: [[$orange]];
+	position: absolute;
+	margin-left: -1em;
+	border-radius: 100%;
+	margin-top: .5em;
+	box-sizing: border-box;
+}
+main ul ul li:before {
+	background-color: transparent;
+	border: 1px solid [[$orange]];
+}
+main ul ul ul li:before {
+	background-color: [[$orange]];
+	border: none;
+}
+main ul ul ul ul li:before {
+	background-color: transparent;
+	border: 1px solid [[$orange]];
+}
+
+.section-group {
+	margin-top: 4em;
+}
+.section-group > section {
+	margin: 2.5em auto 0;
+	text-align: center;
+	max-width: 20em;
+}
+.section-group > section img {
+	margin-bottom: 0.5em;
+	width: auto;
+	height: 3em;
+}
+.section-group > section h2 {
+	border-bottom: 2px solid [[$orange]];
+}
+.section-group > section p {
+	text-align: justify;
+}
+
+@media screen and (min-width: 40em) {
+	body {
+		padding: 1.563em 0 0;
+	}
+	body > header {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		padding: 0 4%;
+		min-height: 0;
+		margin-bottom: 2.5em;
+		z-index: 100;
+	}
+	.nav_active body > header {
+		position: static;
+		height: auto;
+		flex-direction: row;
+	}
+	header .logo {
+		margin: 0 1.563em 0 0;
+	}
+	header .logo img {
+		max-width: 28.125vw;
+	}
+	header > label {
+		right: 9999em;
+	}
+	#nav {
+		position: relative;
+		right: auto;
+		top: auto;
+		overflow: visible;
+		margin: 1.563em 0 1.563em auto;
+		padding: 0 2em 0 0;
+	}
+	header > input:checked ~ #nav {
+		position: relative;
+	}
+	.nav_active, .nav_active body {
+		overflow: auto;
+	}
+	.nav_active #nav {
+		flex: 0 1 auto;
+	}
+	.nav_active #nav.scrolled {
+		border: none;
+	}
+	#nav form {
+		position: absolute;
+		top: 50%;
+		right: 0;
+		z-index: 1;
+		padding: 0;
+		transform: translateY(-50%);
+		margin-right: -.25em;
+		white-space: nowrap;
+		margin-top: -2px;
+	}
+	#nav form label {
+		position: absolute;
+		left: -9999em;
+		opacity: .01;
+		transition: opacity .5s;
+		display: inline;
+		z-index: 1;
+	}
+	#nav form:hover label,
+	#nav form:focus-within label {
+		position: static;
+		opacity: 1;
+	}
+	.jsenabled #nav form label {
+		margin-top: .125em;
+		transition-delay: 0s, 0s, 0s, 0s, 0s, .15s; /* font-size, padding, margin, background-color, opacity, left */
+		transition-duration: .25s, .25s, .25s, .25s, .25s, 0s;
+	}
+	.jsenabled #nav form:hover label,
+	.jsenabled #nav form:focus-within label {
+		left: 0;
+		position: absolute;
+		transition-delay: 0s, 0s, 0s, 0s, .1s, .2s;
+		transition-duration: .25s, .25s, .25s, .25s, .25s, 0s;
+	}
+	#nav form .focus label,
+	#nav form .val label {
+		margin-top: -1em;
+	}
+	#nav form input {
+		width: 0;
+		padding: .125em 0;
+		margin-right: -4px;
+		opacity: 0;
+		transition-property: width, padding, margin, opacity;
+		transition-duration: .5s, .5s, .5s, .25s;
+		transition-delay: 0s, 0s, 0s, .25s;
+	}
+	#nav form:hover input,
+	#nav form:focus-within input {
+		width: 20em;
+		padding-left: .5em;
+		padding-right: .5em;
+		margin-right: 0;
+		opacity: 1;
+		transition-duration: .5s;
+		transition-delay: 0s;
+	}
+	#nav form button {
+		position: static;
+	}
+	#nav form button:before {
+		font-size: 1em;
+	}
+	#nav nav {
+		padding: 0;
+		transition: opacity .5s .25s;
+	}
+	#nav form:hover + nav,
+	#nav form:focus-within + nav {
+		opacity: 0;
+		transition-delay: 0s;
+	}
+/*	#nav nav a {
+		display: inline;
+	} */
+	#nav nav li:hover > label {
+		color: [[$orange]];
+	}
+	#nav nav > ul {
+		display: flex;
+	}
+	#nav nav > ul > li {
+		border: none;
+		margin-left: 1.563em;
+		position: relative;
+	}
+	#nav nav > ul > li:first-child {
+		margin-left: 0;
+	}
+	#nav nav > ul > li > a, #nav nav > ul > li > label {
+		font-size: 1em;
+		padding: 0;
+	}
+	#nav nav .current > a,
+	#nav nav .current > label {
+		text-decoration: underline .188em [[$orange]];
+	}
+	#nav nav a:before,
+	#nav nav li > label:before {
+		content: none;
+	}
+	#nav nav ul input:checked ~ ul {
+		position: absolute;
+	}
+	#nav nav > ul > li > label {
+		padding-right: .75em;
+	}
+	#nav nav li > label:after {
+		width: .313em;
+		height: .313em;
+		transform: rotate(45deg);
+		margin-top: .313em;
+	}
+	#nav nav .parent {
+		position: relative;
+	}
+	#nav nav .parent > ul {
+		min-width: 10em;
+		padding: 1em;
+		background-color: [[$white]];
+		box-shadow: 0 2px 3px rgba(0,0,0,.4);
+	}
+	#nav nav > ul > .parent:hover {
+		padding-bottom: .5em;
+		margin-bottom: -.5em;
+	}
+	#nav nav > ul > .parent:hover > ul {
+		left: 50%;
+		top: 100%;
+		transform: translateX(-50%);
+	}
+	#nav nav > ul > .parent:hover > .outside {
+		left: auto;
+		right: 0;
+		transform: none;
+	}
+	#nav nav > ul > .parent > ul:before {
+		content: '';
+		position: absolute;
+		left: 50%;
+		top: 0;
+		width: .75em;
+		height: .75em;
+		background-color: [[$white]];
+		transform: rotate(45deg) translate(-50%, -25%);
+		box-shadow: -1px -1px 2px -1px rgba(0,0,0,.4);
+	}
+	#nav nav > ul > .parent > .outside:before {
+		left: auto;
+		right: 1em;
+	}
+	#nav nav li li > a, #nav nav li li > label {
+		font-size: 1em;
+		padding-left: 0;
+		padding-right: 1.25em;
+	}
+	#nav nav li .parent > ul {
+		left: -9999em;
+		top: -9999em;
+/*		transform: none; */
+		z-index: 1;
+	}
+	#nav nav li .parent:hover > ul {
+		left: 100%;
+		top: 0;
+	}
+	#nav nav li .parent:hover > .outside {
+		left: auto;
+		right: 100%;
+	}
+	#nav nav li li > label:after {
+		right: auto;
+	}
+	#nav nav > ul > li > ul > li label:after,
+	#nav nav li li input:checked + label:after {
+		width: .313em;
+		height: .313em;
+		transform: rotate(-45deg);
+	}
+	#nav nav > ul > li > ul > li input:checked + label:after {
+		margin-top: .438em;
+	}
+	#nav nav li li li > a,
+	#nav nav li li li > label,
+	#nav nav li li li li > a,
+	#nav nav li li li li > label {
+		padding-left: 0;
+		padding-right: 1.25em;
+	}
+	body > footer {
+		margin-left: 4%;
+		margin-right: 4%;
+		flex-direction: row;
+		text-align: left;
+		padding-top: .563em;
+		align-items: start;
+	}
+	footer .social {
+		margin: 0 0 0 auto;
+	}
+	main {
+		padding-left: 4%;
+		padding-right: 4%;
+	}
+
+	.section-group {
+		display: flex;
+		justify-content: space-between;
+	}
+	.section-group > * {
+/*		flex: 0 1 31.25%; */
+		flex: 0 1 29.348%;
+	}
+	.section-group > section {
+		padding: 0;
+		margin: 0;
+	}
+}
+
+@media screen and (min-width: 50em) {
+	header .logo img {
+		max-width: 14em; /* TODO */
+	}
+}
+
+@media screen and (min-width: 75em) {
+	body {
+		font-size: 1.1em;
+	}
+}
+
+@media screen and (prefers-color-scheme: dark) {
+	body {
+		color: [[$white]];
+		background-color: [[$deep_grey]];
+	}
+	body > header {
+		background-color: [[$deep_grey]];
+	}
+	body > footer:before {
+		border-color: [[$deep_grey]];
+	}
+	header > label {
+		color: [[$deep_grey]];
+	}
+	header > label:before {
+		color: [[$white]];
+	}
+	input, select, textarea {
+		background-color: [[$deep_grey]];
+	}
+	pre {
+		border: 1px solid [[$light_grey]];
+		background-color: [[$mid_grey]];
+	}
+	.nav_active #nav.scrolled {
+		border-color: rgba(255,255,255,.2);
+	}
+	#nav form .focus label,
+	#nav form .val label {
+		background-color: [[$deep_grey]];
+	}
+	#nav nav .parent > ul,
+	#nav nav > ul > .parent > ul:before {
+		background-color: [[$deep_grey]];
+	}
+}
+
+@media screen and (prefers-color-scheme: dark) and (min-width: 40em) {
+	#nav nav .parent > ul,
+	#nav nav > ul > .parent > ul:before {
+		border: 1px solid [[$orange]];
+	}
+	#nav nav > ul > .parent > ul:before {
+		border-width: 1px 0 0 1px;
+	}
+}

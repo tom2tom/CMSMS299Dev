@@ -26,7 +26,7 @@ use function CMSMS\specialize_array;
 
 //if( some worthy test fails ) exit;
 
-// TODO icon/image display
+// TODO category icon/image display
 
 if( !empty($params['browsecattemplate']) ) {
     $template = trim($params['browsecattemplate']);

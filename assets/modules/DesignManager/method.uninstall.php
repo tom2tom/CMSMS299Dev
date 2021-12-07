@@ -25,7 +25,9 @@ use CMSMS\Events;
 use CMSMS\Group;
 use DesignManager\Design;
 
-if (!function_exists('cmsms')) exit;
+if (empty($this) || !($this instanceof DesignManager)) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
 $dict = new DataDictionary($db);
 $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.Design::TABLENAME);

@@ -147,7 +147,7 @@ class DataDictionary
      *
      * @param string $table The table name
      * @return mixed false if no such table, or array of privileged fieldname(s),
-	 *  if not empty then each member like
+     *  if not empty then each member like
      *  'FieldName'=>1
      *  or if $full is true, like
      *  'FieldName'=>[
@@ -241,7 +241,17 @@ class DataDictionary
 
     /**
      * Return $name quoted (if necessary) in a manner suitable for the database.
-     * Name content is not escaped here (crappy-name management is left to the user...)
+     * Name content is not checked here (reserved-word management is left to the user)
+     * From MySQL documentation:
+     * Permitted characters in unquoted identifiers:
+     * ASCII: [0-9,a-z,A-Z$_] (basic Latin letters, digits 0-9, dollar, underscore)
+     * Extended: U+0080 .. U+FFFF
+     * Permitted characters in quoted identifiers include the full Unicode Basic Multilingual Plane (BMP), except U+0000:
+     * ASCII: U+0001 .. U+007F
+     * Extended: U+0080 .. U+FFFF
+     * ASCII NUL (U+0000) and supplementary characters (U+10000 and higher) are not permitted in quoted or unquoted identifiers.
+     * Identifiers may begin with a digit but unless quoted may not consist solely of digits.
+     * Database, table, and column names cannot end with space characters.
      *
      * @internal
      *
@@ -256,15 +266,19 @@ class DataDictionary
             return '';
         }
 
-        $name = trim($name);
+        $name = rtrim($name);
 
         // if name is already quoted, do nothing
         if (preg_match('/^`.+`$/', $name)) {
             return $name;
         }
         // if name contains special characters, quote it
-        $patn = ($allowBrackets) ? '\w\(\)' : '\w';
+        $patn = ($allowBrackets) ? '\w$()\x80-\xff' : '\w$\x80-\xff';
         if (preg_match('/[^'.$patn.']/', $name)) {
+            return '`'.$name.'`';
+        }
+        // if name contains only digits, quote it
+        if (preg_match('/^\s*\d+$/', $name)) {
             return '`'.$name.'`';
         }
         return $name;
@@ -761,14 +775,15 @@ class DataDictionary
         $alter = self::ALTERTABLE.$this->TableName($tablename);
 
         foreach ($lines as $id => $v) {
-            if (isset($cols[$id])) {
+            $ln = strtolower($id);
+            if (isset($cols[$ln])) { // TODO caseless isset()
+// TODO handle case where field exists but user is not permitted to play with it
                 if (($p = strpos($v, self::DROPSIG)) === false) {
                     $out[self::$ctr++] = $alter.self::ALTERCOLUMN.$v;
                 } else {
-                    $out[self::$ctr++] = $alter.self::DROPCOLUMN.substring($v, 0 ,$p);
+                    $out[self::$ctr++] = $alter.self::DROPCOLUMN.substring($v, 0, $p);
                 }
-            } else {
-// TODO handle case where field exists but user is not permitted to play with it
+            } elseif (strpos($v, self::DROPSIG) === false) {
                 $out[self::$ctr++] = $alter.self::ADDCOLUMN.$v;
             }
         }

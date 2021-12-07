@@ -59,7 +59,7 @@ if( $curcategory && $withchildren ) {
 //Load the (filtered) items
 $query1 = 'SELECT N.news_id,N.news_title,N.start_time,N.end_time,N.status,NC.long_name
 FROM '.CMS_DB_PREFIX.'module_news N
-LEFT OUTER JOIN '.CMS_DB_PREFIX.'module_news_categories NC
+LEFT JOIN '.CMS_DB_PREFIX.'module_news_categories NC
 ON N.news_category_id = NC.news_category_id';
 $parms = [];
 if( $curcategory ) {
@@ -79,21 +79,29 @@ $rst = $db->execute($query1, $parms);
 
 if( $rst ) {
     if( $papp ) {
-        $iconcancel = $themeObj->DisplayImage('icons/system/true', $this->Lang('revert'), null, '', 'systemicon');
-        $iconapprove = $themeObj->DisplayImage('icons/system/false', $this->Lang('approve'), null, '', 'systemicon');
+//      $iconcancel = $themeObj->DisplayImage('icons/system/true', $this->Lang('revert'), null, '', 'systemicon');
+//      $iconapprove = $themeObj->DisplayImage('icons/system/false', $this->Lang('approve'), null, '', 'systemicon');
+        $labelarchived = $this->Lang('archived');
+        $labelpublished = $this->Lang('published');
+        $titlepublished = $this->Lang('revert');
+        $labelfinal = $this->Lang('final');
+        $titlefinal = $this->Lang('approve');
     }
     else {
         $stati = [
         'draft' => $this->Lang('draft'),
+        'pending' => $this->Lang('pending'), // CHECKME
         'final' => $this->Lang('final'),
         'published' => $this->Lang('published'),
         'archived' => $this->Lang('archived'),
         ];
     }
-    if( $pmod ) {
+    if( $pmod || $pprop ) {
         $titl = $this->Lang('editthis');
         $iconedit = $themeObj->DisplayImage('icons/system/edit', $this->Lang('edit'), '', '', 'systemicon');
         $iconcopy = $themeObj->DisplayImage('icons/system/copy', $this->Lang('copy'), '', '', 'systemicon');
+        //if count cats > 1 handled in template
+        $iconmove = $themeObj->DisplayImage('icons/system/export', $this->Lang('move'), '', '', 'systemicon');
     }
     if( $pdel ) {
         $icondel = $themeObj->DisplayImage('icons/system/delete', $this->Lang('delete'), '', '', 'systemicon');
@@ -106,7 +114,7 @@ if( $rst ) {
         $onerow = new stdClass();
 
         $onerow->id = $row['news_id'];
-        if( $pmod ) {
+        if( $pmod || $pprop ) {
             $onerow->title = $this->CreateLink($id, 'editarticle', $returnid,
             $row['news_title'], ['articleid'=>$row['news_id']], '',
             false, false, 'title="'.$titl.'"');
@@ -120,23 +128,29 @@ if( $rst ) {
         $onerow->category = $row['long_name'];
         $onerow->expired = $row['end_time'] && strtotime($row['end_time']) < $now; // don't care about timezones
         if( $papp ) {
-            if( $row['status'] == 'published' ) {
+            if ($onerow->expired) {
+                $onerow->approve_link = $labelarchived;
+            }
+            elseif( $row['status'] == 'published' ) {
                 $onerow->approve_link = $this->CreateLink(
-                    $id, 'approvearticle', $returnid, $iconcancel, ['approve'=>0, 'articleid'=>$row['news_id']]);
+                    $id, 'approvearticle', $returnid, $labelpublished, ['approve'=>0, 'articleid'=>$row['news_id']], '', false, false, 'title="'.$titlepublished.'"');
             }
             else {
+                //TODO properly handle draft | final | pending
                 $onerow->approve_link = $this->CreateLink(
-                    $id, 'approvearticle', $returnid, $iconapprove, ['approve'=>1, 'articleid'=>$row['news_id']]);
+                    $id, 'approvearticle', $returnid, $labelfinal, ['approve'=>1, 'articleid'=>$row['news_id']], '', false, false, 'title="'.$titlefinal.'"');
             }
         }
         else {
             $onerow->approve_link = $stati[$row['status']];
         }
 
-        if( $pmod ) {
+        if( $pmod || $pprop ) {
             $onerow->edit_url = $this->create_action_url($id, 'editarticle', ['articleid'=>$row['news_id']]);
             $onerow->editlink = $this->CreateLink($id, 'editarticle', $returnid, $iconedit, ['articleid'=>$row['news_id']]);
             $onerow->copylink = $this->CreateLink($id, 'copyarticle', $returnid, $iconcopy, ['articleid'=>$row['news_id']]);
+            //TODO if count cats > 1
+            $onerow->movelink = $this->CreateLink($id, 'movearticle', $returnid, $iconmove, ['articleid'=>$row['news_id']], '', false, false, 'class="move_article" data-id="'.$row['news_id'].'"');
         }
         if( $pdel ) {
             $onerow->deletelink = $this->CreateLink($id, 'deletearticle', $returnid, $icondel, ['articleid'=>$row['news_id']], '', false, false, 'class="delete_article"');
@@ -182,7 +196,8 @@ if( $rst ) {
     $query = 'SELECT news_category_id, long_name FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
     $dbr = $db->getAssoc($query);
     specialize_array($dbr);
-    $categorylist = [''=>$this->Lang('all')] + $dbr;
+//    $categorylist = [''=>$this->Lang('all')] + $dbr;
+    $categorylist = $dbr;
     $bulkcategories = Utils::get_category_list(); //different order
     specialize_array($bulkcategories);
 
@@ -203,10 +218,11 @@ if( $rst ) {
      'statustext' => $this->Lang('status'),
      'titletext' => $this->Lang('title'),
      'typetext' => $this->Lang('type'),
-//     'prompt_pagelimit' => $this->Lang('prompt_pagelimit'),
-//     'prompt_sorting' => $this->Lang('prompt_sorting'),
-//     'reassigntext' => $this->Lang('reassign_category'),
-//     'selecttext' => $this->Lang('select'),
+     'formstart_catselector' => $this->CreateFormStart($id, 'movearticle'),
+     'selectortext' => $this->Lang('reassign_category'),
+//   'prompt_pagelimit' => $this->Lang('prompt_pagelimit'),
+//   'prompt_sorting' => $this->Lang('prompt_sorting'),
+//   'selecttext' => $this->Lang('select'),
     ]);
 
     $s1 = json_encode($this->Lang('confirm_delete'));
@@ -309,6 +325,25 @@ $(function() {
   cms_confirm_linkclick(this,$s1);
   return false;
  });
+ $('a.move_article').on('click', function(ev) {
+  ev.preventDefault();
+  var id = $(this).attr('data-id');
+  $('#catselector').find('#movedarticle').val(id);
+  cms_dialog($('#catselector'), {
+   modal: true,
+   width: 'auto',
+   buttons: {
+    '$submit': function() {
+     $(this).dialog('close');
+     $('#catselector').find('form').trigger('submit');
+    },
+    '$cancel': function() {
+     $(this).dialog('close');
+    }
+   }
+  });
+  return false;
+ });
  $('#toggle_filter').on('click', function() {
   cms_dialog($('#itemsfilter'), {
    modal: true,
@@ -335,7 +370,9 @@ else { //no rows
       ->assign('itemcount', 0);
 }
 
-if( $pmod ) {
+if( $pmod || $pprop ) {
     $icon = $themeObj->DisplayImage('icons/system/newobject.gif', $this->Lang('addarticle'), '', '', 'systemicon');
-    $tpl->assign('addlink', $this->CreateLink($id, 'addarticle', $returnid, $icon, [], '', false, false, '') .' '. $this->CreateLink($id, 'addarticle', $returnid, $this->Lang('addarticle'), [], '', false, false, 'class="pageoptions"'));
+    $tpl->assign('addlink', $this->CreateLink($id, 'addarticle', $returnid, $icon, [], '', false, false, '')
+     .' '
+     .$this->CreateLink($id, 'addarticle', $returnid, $this->Lang('addarticle'), [], '', false, false, 'class="pageoptions"'));
 }

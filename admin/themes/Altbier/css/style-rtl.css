@@ -5,6 +5,7 @@
  * Release year 2018
  *
  * Built upon Theme: OneEleven 2012 (c) * Author: Goran Ilic (ja@ich-mach-das.at) - http://dev.cmsmadesimple.org/users/uniqu3 * Version: 1.0
+ * Uses Font Awesome 5 Free font-icons, the stylesheet for which is assumed to be separately (pre-)loaded
  */
 
 /* a bit of trickery for new FontAwesome 5.x JS SVG load */
@@ -196,7 +197,7 @@ a.external {
 }
 .file::after {
     padding-right: 25px;
-    font-family: "Font Awesome 5 Free";
+    font-family: 'Font Awesome 5 Free';
     content: '\f03a';
 }
 .important, text-danger {
@@ -362,6 +363,15 @@ input[type="submit"],
 /*    text-transform: uppercase */
 }
 
+/*
+.ui-button.ui-icon relevant class {
+    background-image: url(../images/layout/ui-icons_444444_256x240.png)  -x*16px -y*16px no-repeat;
+}
+*/
+.ui-button-icon.ui-icon.ui-icon-closethick {
+    background: #ff0000 url(../images/layout/ui-icon_ffffff-close.png) center no-repeat;
+}
+
 .adminsubmit:active,
 .adminsubmit:hover,
 .ui-button:hover,
@@ -482,7 +492,7 @@ table.pagetable a.text-red {
     margin-right: -1.6em;
     content: '\f071';
     color: #d4a711;
-    font-family: "Font Awesome 5 Free";
+    font-family: 'Font Awesome 5 Free';
     font-weight: 900;
     font-size: 1.5em;
     vertical-align: middle;
@@ -512,7 +522,7 @@ table.pagetable a.text-red {
     margin-right: -1.6em;
     content: '\f05e';
     color: #ec1313;
-    font-family: "Font Awesome 5 Free";
+    font-family: 'Font Awesome 5 Free';
     font-weight: 900;
     font-size: 1.5em;
     vertical-align: middle;
@@ -528,7 +538,7 @@ table.pagetable a.text-red {
     margin-right: -1.6em;
     content: '\f058';
     color: #0da50d;
-    font-family: "Font Awesome 5 Free";
+    font-family: 'Font Awesome 5 Free';
     font-weight: 900;
     font-size: 1.5em;
     vertical-align: middle;
@@ -552,7 +562,7 @@ table.pagetable a.text-red {
     margin-right: -1.6em;
     content: '\f05a';
     color: #426ef0;
-    font-family: "Font Awesome 5 Free";
+    font-family: 'Font Awesome 5 Free';
     font-weight: 900;
     font-size: 1.5em;
     vertical-align: middle;
@@ -711,7 +721,7 @@ aside .no-slide,
 }
 .jqt-close::after {
     content: '\f410';
-    font-family: "Font Awesome 5 Free";
+    font-family: 'Font Awesome 5 Free';
     font-weight: 900;
     font-size: 1.6em;
 }
@@ -845,7 +855,7 @@ aside .no-slide,
     /* margin: 5px */
 }
 .close-warning::after {
-    font-family: "Font Awesome 5 Free";
+    font-family: 'Font Awesome 5 Free';
     content: '\f410';
     font-size: 1em;
     color: #333;
@@ -1068,7 +1078,7 @@ header .shortcuts li.notifications i {
     top: -33px
 }
 #ac_sidebar .toggle-button::after {
-    font-family: "Font Awesome 5 Free";
+    font-family: 'Font Awesome 5 Free';
     font-weight: 900;
 /*    display: none; */
 }
@@ -1128,7 +1138,7 @@ header .shortcuts li.notifications i {
 
 /* !!! FontAwesome 5.x (free version) Icons */
 #ac_pagemenu li a::before {
-    font-family: "Font Awesome 5 Free";
+    font-family: 'Font Awesome 5 Free';
     font-weight: 600;
     font-size: 1.2em;
     margin-left: .3em;
@@ -1218,7 +1228,7 @@ header .shortcuts li.notifications i {
 
 /* !!! FontAwesome 5.x (free version) Icons */
 nav h3 a::before {
-    font-family:"Font Awesome 5 Free";
+    font-family:'Font Awesome 5 Free';
     font-size: 1.2em; /* sized by js */
     font-weight: 900;
     margin-left: 0.2em;
@@ -1317,7 +1327,12 @@ nav h3 a .svg-inline--fa {
     height: auto;
 /*    line-height: 1.3; */
     word-break: break-word;
-    word-wrap: hyphenate;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    -ms-hyphens: auto;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;
 /*    padding: 5px 30px 5px 5px; */
     padding-right: 10px;
     font-weight: normal;
@@ -1521,7 +1536,7 @@ div.dialog a.bookmark {
 }
 div.dialog a.bookmark::after {
 /*    background: url(../images/icons/extra/bookmark.gif) no-repeat right */
-    font-family: "Font Awesome 5 Free";
+    font-family: 'Font Awesome 5 Free';
     content: '\f02e';
 }
 
@@ -2163,6 +2178,11 @@ ul.sortableList li {
 ul.sortableList div.label {
     border: solid 1px #ddd;
     word-wrap: break-word;
+    overflow-wrap: break-word;
+    -ms-hyphens: auto;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;
     border-radius: 4px;
     cursor: move;
     padding: 3px 35px 3px 10px;
@@ -2172,7 +2192,7 @@ ul.sortableList div.label {
 }
 ul.sortableList div.label::after {
 /*  background: #eee url(../images/icons/extra/reorder.gif) no-repeat 10px 50%; */
-    font-family: "Font Awesome 5 Free";
+    font-family: 'Font Awesome 5 Free';
     content: '\f338';
 }
 
@@ -2614,6 +2634,11 @@ ul.social-icons li {
         padding: 0;
         max-width: 30px;
         word-wrap: break-word;
+        overflow-wrap: break-word;
+        -ms-hyphens: auto;
+        -webkit-hyphens: auto;
+        -moz-hyphens: auto;
+        hyphens: auto;
         text-overflow: ellipsis;
     }
     .checkbox {

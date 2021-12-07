@@ -437,12 +437,13 @@ final class App
     }
 
     /**
-     * Does nothing
-     * @deprecated since 2.99
+     * Does nothing. Formerly, get the template-parser instance.
+     * @deprecated since 2.99 use new page_template_parser()
+     * @see CMSMS\internal\page_template_parser class
      */
     public function get_template_parser()
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice(__METHOD__.' does nothing', ''));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('class', 'CMSMS\internal\page_template_parser'));
     }
 
     /**

@@ -3,13 +3,13 @@
 namespace Ddrv\Mailer;
 
 use Ddrv\Mailer\Contract\Transport;
-use Ddrv\Mailer\Message;
 use Ddrv\Mailer\Exception\RecipientsListEmptyException;
 use Ddrv\Mailer\Exception\TransportException;
+use Ddrv\Mailer\Message;
 
 final class Mailer
 {
-    const MAILER_VERSION = "5.1";
+    const MAILER_VERSION = '5.1';
 
     /**
      * @var string|null

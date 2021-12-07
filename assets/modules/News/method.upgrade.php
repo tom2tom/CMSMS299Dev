@@ -29,19 +29,21 @@ use CMSMS\TemplateType;
 use CMSMS\Utils;
 use function CMSMS\log_error;
 
-if (!isset($gCms)) exit;
-//$db = SingleItem::Db(); upstream
+if( empty($this) || !($this instanceof News) ) exit;
+
+$installer_working = AppState::test(AppState::INSTALL);
+if( $installer_working ) {
+    $uid = 1; // hardcode to first user
+}
+else {
+   if( !$this->CheckPermission('Modify Modules') ) exit;
+   $uid = get_userid(FALSE);
+}
+
 $dict = $db->NewDataDictionary(); //or new DataDictionary($db);
 $me = $this->GetName();
 
 if( version_compare($oldversion,'2.50') < 0 ) {
-    $installer_working = AppState::test(AppState::INSTALL);
-    if( $installer_working ) {
-        $uid = 1; // hardcode to first user
-    }
-    else {
-        $uid = get_userid(FALSE);
-    }
 
     $_fix_name = function($str) {
         if( AdminUtils::is_valid_itemname($str) ) return $str;
@@ -80,23 +82,23 @@ if( version_compare($oldversion,'2.50') < 0 ) {
 
             $mod->DeleteTemplate($tplname);
         }
-        catch( Throwable $t ) {
+        catch (Throwable $t) {
             // ignore this error
         }
-
     };
 
     try {
         $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'module_news','searchable I1');
         $dict->ExecuteSQLArray($sqlarray);
 
-        $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'module_news_categories','item_order I1 UNSIGNED DEFAULT 0');
+        $tbl = CMS_DB_PREFIX.'module_news_categories';
+        $sqlarray = $dict->AddColumnSQL($tbl,'item_order I1 UNSIGNED DEFAULT 0');
         $dict->ExecuteSQLArray($sqlarray);
 
-        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY parent_id';
+        $query = 'SELECT * FROM '.$tbl.' ORDER BY parent_id';
         $categories = $db->getArray($query);
 
-        $uquery = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET item_order = ? WHERE news_category_id = ?';
+        $uquery = 'UPDATE '.$tbl.' SET item_order = ? WHERE news_category_id = ?';
         if( $categories ) {
             $prev_parent = null;
             $item_order = 0;
@@ -144,7 +146,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
         catch (Throwable $t) {
             // ignore this error
         }
-
+/*
         try {
             $form_template_type = new TemplateType();
             $form_template_type->set_originator($me);
@@ -161,7 +163,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
         catch (Throwable $t) {
             // ignore this error
         }
-
+*/
         try {
             $browsecat_template_type = new TemplateType();
             $browsecat_template_type->set_originator($me);
@@ -206,32 +208,111 @@ if( version_compare($oldversion,'2.50.8') < 0 ) {
     }
 }
 
-if( version_compare($oldversion,'2.90') < 0 ) {
+if( version_compare($oldversion,'3.1') < 0 ) {
+    $this->CreatePermission('Propose News','Create News Items For Approval');
     $this->CreatePermission('Modify News Preferences', 'Modify News Module Settings');
+    $this->AddEventHandler('Core','DeleteUserPre'); // support item-ownership changes
 
-	$fmt = $this->GetPreference('date_format');
-    $this->RemovePreference();
+    try {
+        // Add approval-request notice templates-type
+        $type = new TemplateType();
+        $type->set_originator($me);
+        $type->set_name('approvalmessage');
+        $type->set_dflt_flag(TRUE);
+        $type->set_lang_callback('News::page_type_lang_callback');
+        $type->set_content_callback('News::reset_page_type_defaults');
+        $type->reset_content_to_factory();
+        $type->set_help_callback('News::template_help_callback');
+        $type->save();
+    }
+    catch (Throwable $t) {
+        if( $installer_working ) {
+            return $t->getMessage();
+        }
+        else {
+            debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
+            log_error($me,'Installation error: '.$t->getMessage());
+        }
+    }
+
+    try {
+        // And type-default template
+        $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'approval_email.tpl';
+        if( is_file( $fn ) ) {
+            $content = @file_get_contents($fn);
+            $tpl = new Template();
+            $tpl->set_originator($me);
+            $tpl->set_name('Article Approval-Request Email');
+            $tpl->set_owner($uid);
+            $tpl->set_content($content);
+            $tpl->set_type($type);
+            $tpl->set_type_default(TRUE);
+            $tpl->save();
+        }
+    }
+    catch (Throwable $t) {
+        if( $installer_working ) {
+            return $t->getMessage();
+        }
+        else {
+            debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
+            log_error($me,'Installation error: '.$t->getMessage());
+        }
+    }
+
+    $this->RemovePreference('allowed_upload_types');
+    $this->RemovePreference('auto_create_thumbnails');
+    $this->SetPreference('email_template','Article Approval-Request Email'); // notice-body generator
+    $this->SetPreference('email_to','');
+
+    $fmt = $this->GetPreference('date_format');
     if ($fmt) {
-        $fmt = Utils::convert_dt_format($fmt);
+        $str = Utils::convert_dt_format($fmt);
+        $str = preg_replace('/[aABgGhHiIsuveOpPTZ]/','',$str); // no time
+        $fmt = trim($str,' :');
     }
     else {
-        $fmt = 'Y-m-d';
+        $fmt = 'Y-m-j';
     }
-    $this->SetPreference('date_format',$fmt);
-    $this->SetPreference('default_category',1);
-    $this->SetPreference('time_format','H:i');
-    $this->SetPreference('timeblock',News::HOURBLOCK);
+    $this->SetPreference('date_format', $fmt);
 
-    $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_fielddefs');
-    $dict->ExecuteSQLArray($sqlarray);
-    $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_fieldvals');
-    $dict->ExecuteSQLArray($sqlarray);
-    $db->DropSequence(CMS_DB_PREFIX.'module_news_categories_seq');
+    foreach ([
+     ['alert_drafts',1],
+     ['allow_summary_wysiwyg',1],
+     ['article_pagelimit',10],
+     ['clear_category',0],
+     ['current_detail_template',''], // TODO never changed Intended for the preferred preview-template (whose type is 'News::detail')
+     ['default_category',1],
+     ['detail_returnid',-1],
+     ['expired_searchable',1],
+     ['expired_viewable',0],
+     ['expiry_interval',30],
+     ['time_format','G:i'],
+     ['timeblock',News::HOURBLOCK],
+    ] as $row) {
+        $val = $this->GetPreference($row[0],-22);
+        if ($val === -22) {
+            $this->SetPreference($row[0],$row[1]);
+        }
+    }
+
+    $up = cms_join_path($config['uploads_path'],$me);
+    $fp = str_replace($me,'news',$up);
+    if( is_dir($fp) ) {
+        rename($fp,$up);
+    }
+    elseif( !is_dir($up) ) {
+        @mkdir($up,0771,true);
+    }
 
     $longnow = $db->DbTimeStamp(time(),false);
 
     $tbl = CMS_DB_PREFIX.'module_news';
     $query = 'UPDATE '.$tbl.' SET author_id=0 WHERE author_id<0';
+    $db->execute($query);
+    //TODO better default date-time
+    //e.g. $when = $db->getOne("SELECT create_time FROM information_schema.tables WHERE table_schema = '{$db->name}' AND table_name='$tbl'");
+    $query = 'UPDATE '.$tbl.' SET create_date=\'2010-1-1 12:00:00\' WHERE create_date IS NULL';
     $db->execute($query);
     $query = 'UPDATE '.$tbl.' SET modified_date=NULL WHERE modified_date<=create_date';
     $db->execute($query);
@@ -239,47 +320,102 @@ if( version_compare($oldversion,'2.90') < 0 ) {
     $db->execute($query,[$longnow]);
     $query = 'UPDATE '.$tbl.' SET start_time=MAX(news_date,modified_date,create_date) WHERE start_time IS NULL AND status!=\'draft\'';
     $db->execute($query);
+    $query = 'UPDATE '.$tbl.' SET searchable=1 WHERE searchable IS NULL';
+    $db->execute($query);
 
-    $sqlarray = $dict->DropColumnSQL($tbl,'news_date');
+    $sqlarray = $dict->DropColumnSQL($tbl,'news_date'); // OR alter table news_date DROP, if that works !!
     $dict->ExecuteSqlArray($sqlarray);
-    $sqlarray = $dict->RenameColumnSQL($tbl,'icon','image_url','C(255)');
+    $sqlarray = $dict->RenameColumnSQL($tbl,'icon','image_url','C(255) CHARACTER SET ascii COLLATE ascii_general_ci'); // ditto
     $dict->ExecuteSqlArray($sqlarray);
-    $sqlarray = $dict->ChangeTableSQL($tbl,'
-news_id I UNSIGNED,
+    $sqlarray = $dict->ChangeTableSQL($tbl,
+'news_id I UNSIGNED,
 news_category_id I UNSIGNED,
-status C(25),
-news_data C(15000),
+status C(25) CHARACTER SET ascii COLLATE ascii_bin,
+news_data X(65535),
 summary C(1000),
-alias C(255),
+news_url C(255) CHARACTER SET ascii COLLATE ascii_general_ci,
 create_date DT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 author_id I UNSIGNED DEFAULT 0,
-searchable I1 DEFAULT 1
+searchable I1 UNSIGNED DEFAULT 1
 ',
     'CHARACTER SET utf8mb4');
     $dict->ExecuteSqlArray($sqlarray);
 
-    $tbl = CMS_DB_PREFIX.'module_news_categories';
+    // migrate frontend-submitted (hence field-stored) images to corresponding main table::image_url if latter N/A
+    // field-types: 'file' i.e. uploaded file (maybe image), 'linkedfile' i.e. external link (maybe image) ignored
+    // the recorded value is file basename, stored at $config['uploads_path']/news/'id'.$itemid/$filename
+    // see: former AdminOperations::handle_upload()
+    $pref = CMS_DB_PREFIX;
+    $sql = <<<EOS
+SELECT FV.news_id,FV.value
+FROM {$pref}module_news_fieldvals FV
+INNER JOIN {$pref}module_news_fielddefs FD
+ON FV.fielddef_id = FD.id
+WHERE FD.type = 'file'
+EOS;
+    $data = $db->getArray($sql);
+    if( $data ) {
+        $sql = 'UPDATE '.$tbl.' SET image_url=? WHERE news_id=? AND (image_url IS NULL OR image_url=\'\')';
+        foreach( $data as $row ) {
+            $fp = cms_join_path($up,'id'.$row['news_id'],$row['value']);
+            if( is_file($fp) && 1 ) { // TODO && is image
+                $url = $me.'/id'.$row['news_id'].'/'.$row['value'];
+                $db->execute($sql,[$url,$row['news_id']]);
+            }
+        }
+    }
+    $sql = <<<EOS
+SELECT FV.news_id,FV.value
+FROM {$pref}module_news_fieldvals FV
+INNER JOIN {$pref}module_news_fielddefs FD
+ON FV.fielddef_id = FD.id
+WHERE FD.type = 'linkedfile'
+EOS;
+    $data = $db->getArray($sql);
+    if( $data ) {
+        $tmpl = '<br /><br/>See also: <a href="%s" ...>this related information</a>.'; // TODO translated
+        $sql = 'UPDATE '.$tbl.' SET news_data=CONCAT(news_data,?) WHERE news_id=?';
+        foreach( $data as $row ) {
+            if (0) { // is acceptable link
+                $val = sprintf($tmpl,$row['value']);
+                $db->execute($sql,[$val,$row['news_id']]);
+            }
+        }
+    }
 
-    $query = 'UPDATE '.$tbl.' SET modified_date=NULL WHERE modified_date<=create_date';
+    $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_fielddefs');
+    $dict->ExecuteSQLArray($sqlarray);
+    $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_fieldvals');
+    $dict->ExecuteSQLArray($sqlarray);
+
+    $tbl = CMS_DB_PREFIX.'module_news_categories';
+    //TODO better default date-time
+    //e.g. $when = $db->getOne("SELECT create_time FROM information_schema.tables WHERE table_schema = '{$db->name}' AND table_name='$tbl'");
+    $query = 'UPDATE '.$tbl.' SET create_date=\'2010-1-1 12:00:00\' WHERE create_date IS NULL';
     $db->execute($query);
 
     $sqlarray = $dict->ChangeTableSQL($tbl,
-'
-news_category_id I UNSIGNED AUTO,
-news_category_name C(255) CHARACTER SET utf8mb4,
+'news_category_id I UNSIGNED AUTO,
+news_category_name C(60) NOTNULL CHARACTER SET utf8mb4,
+hierarchy C(255) COLLATE ascii_bin,
 item_order I1 UNSIGNED DEFAULT 0,
-long_name C(1000) CHARACTER SET utf8mb4,
-alias C(255),
+long_name C(630) CHARACTER SET utf8mb4,
+category_url C(255),
 image_url C(255),
-create_date DT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ',
     'CHARACTER SET ascii');
     $dict->ExecuteSqlArray($sqlarray);
 
-    $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_templates WHERE type_id=(SELECT id FROM '.CMS_DB_PREFIX.'layout_tpl_types WHERE originator=\'News\' AND name=\'form\')';
+    $query = 'UPDATE '.$tbl.' SET modified_date=NULL WHERE modified_date<=create_date';
     $db->execute($query);
-    $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tpl_types WHERE originator=\'News\' AND name=\'form\'';
+
+    $db->DropSequence(CMS_DB_PREFIX.'module_news_categories_seq');
+
+    $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_templates WHERE type_id=(SELECT id FROM '.CMS_DB_PREFIX."layout_tpl_types WHERE originator='$me' AND name='form')";
+    $db->execute($query);
+    $query = 'DELETE FROM '.CMS_DB_PREFIX."layout_tpl_types WHERE originator='$me' AND name='form'";
     $db->execute($query);
 }

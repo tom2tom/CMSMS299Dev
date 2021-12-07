@@ -65,6 +65,15 @@ $src_excludes = [
 ];
 //TODO root-dir  '/\.htaccess$/',
 
+// TODO completely ignore some places c.f. build_release script:
+$folder_excludes = [
+'assets/templates',
+'assets/styles',
+'assets/themes',
+'assets/user_plugins',
+'uploads', // needed ?
+];
+
 $compare_excludes = [
 '.git*', '*.md', '*.MD',
 '.svn', 'svn-*',

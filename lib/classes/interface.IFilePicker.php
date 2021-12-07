@@ -59,10 +59,10 @@ interface IFilePicker
     /**
      * Generate HTML & related js, css for an input field that can be used to specify a selected file.
      *
-     * @param string $name The name for the input field
-     * @param string $value The current value for the input field
+     * @param string $name The name-attribute for the input field
+     * @param string $value The initial/current value for the input field
      * @param CMSMS\FilePickerProfile $profile The profile to use when building the filepicker interface
-	 * @param bool   $required Optional flag, whether some choice must be entered. Default false
+	 * @param bool   $required Optional flag, whether a choice must be provided in the generated element. Default false
      */
     public function get_html($name, $value, $profile, $required = false);
 } // interface

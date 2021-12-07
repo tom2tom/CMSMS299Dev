@@ -2,7 +2,9 @@
 
 //use CMSMS\Database\DataDictionary;
 
-if (!function_exists('cmsms')) exit;
+if (empty($this) || !($this instanceof FileManager)) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
 // remove the database table
 /*$dict = new DataDictionary($db);

@@ -297,7 +297,7 @@ final class ModuleOperations
 
 		$this->get_module_classmap();
 		if( $classname ) {
-			if( strpos($lasssname,'\\') === false ) {
+			if( strpos($classname,'\\') === false ) {
 				$classname = $this->modulespace.$classname;
 			}
 			$this->classmap[$modname] = $classname;
@@ -786,7 +786,7 @@ VALUES (?,?,?,$longnow)");
 			}
 
 //			$jobmgr = SingleItem::App()->GetJobManager();
-//			if( $jobmgr ) $jobmgr->delete_jobs_by_module($modname);
+//			if( $jobmgr ) $jobmgr->unload_jobs_by_module($modname);
 			(new JobOperations())->unload_jobs_by_module($modname);
 
 			$db->execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?',[$modname]);

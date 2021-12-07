@@ -1,6 +1,6 @@
 <?php
 /*
-Class for building and managing content lists
+Class for building and managing content lists and their members
 Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -32,16 +32,13 @@ use ContentManager\ContentListFilter;
 use ContentManager\ContentListQuery;
 use ContentManager\Utils;
 use Throwable;
-use function audit;
 use function check_authorship;
 use function CMSMS\log_info;
 use function get_userid;
 
 /**
- * A simple class for building and managing content lists.
+ * A class for building and managing page/content lists and their members.
  *
- * @internal
- * @ignore
  * @final
  */
 final class ContentListBuilder
@@ -157,22 +154,23 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Toggle the active state of a content page
+	 * Set the active state of a page.
+	 *
+	 * @param int $page_id > 0 or else ignored
+	 * @param bool $state
+	 * @return boolean indicating success
 	 */
 	public function set_active($page_id,$state = TRUE)
 	{
-		$state = (bool)$state;
 		$page_id = (int)$page_id;
 		if( $page_id < 1 ) return FALSE;
 		if( !$this->_module->CheckPermission('Manage All Content') ) return FALSE;
 
-		$hm = SingleItem::App()->GetHierarchyManager();
-		$node = $hm->quickfind_node_by_id($page_id);
-		if( !$node ) return FALSE;
-		$content = $node->getContent(FALSE,FALSE,FALSE);
+		$contentops = SingleItem::ContentOperations();
+		$content = $contentops->LoadEditableContentFromId($page_id);
 		if( !$content ) return FALSE;
 
-		$content->SetActive($state);
+		$content->SetActive((bool)$state);
 		$content->Save();
 		return TRUE;
 	}
@@ -272,7 +270,7 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Set the specified page as the default page
+	 * Set the specified page as the default page.
 	 */
 	public function set_default($page_id)
 	{
@@ -282,17 +280,19 @@ final class ContentListBuilder
 		if( !$this->_module->CheckPermission('Manage All Content') ) return;
 
 		$contentops = SingleItem::ContentOperations();
-		$content1 = $contentops->LoadContentFromId($page_id);
+		$content1 = $contentops->LoadEditableContentFromId($page_id);
 		if( !$content1 ) return FALSE;
 		if( !$content1->IsDefaultPossible() ) return FALSE;
 		if( !$content1->Active() ) return FALSE;
 
+		$page_id2 = $contentops->GetDefaultContent();
+		if( $page_id === $page_id2 ) return TRUE;
+
 		$content1->SetDefaultContent(TRUE);
 		$content1->Save();
 
-		$page_id2 = $contentops->GetDefaultContent();
-		$content2 = $contentops->LoadContentFromId($page_id2);
-		if( $page_id != $page_id2 && $content2 ) {
+		$content2 = $contentops->LoadEditableContentFromId($page_id2);
+		if( $content2 ) {
 			$content2->SetDefaultContent(FALSE);
 			$content2->Save();
 		}
@@ -301,7 +301,11 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Move a content page up, or down wrt it's peers.
+	 * Move a page up or down wrt its peers.
+	 *
+	 * @param int $page_id
+	 * @param int $direction < 0 indicates up, > 0 indicates down
+	 * @return boolean indicating success
 	 */
 	public function move_content($page_id,$direction)
 	{
@@ -322,30 +326,33 @@ final class ContentListBuilder
 
 		if( !$test ) return FALSE;
 
-		$content = $contentops->LoadContentFromId($page_id);
+		$content = $contentops->LoadEditableContentFromId($page_id);
 		if( !$content ) return FALSE;
 
-		$content->ChangeItemOrder($direction); //BAD TODO 'shortform' content-object
+		$content->ChangeItemOrder($direction);
 		$contentops->SetAllHierarchyPositions();
 		return TRUE;
 	}
 
 	/**
-	 * Delete a content page.
+	 * Delete a page.
 	 *
-	 * returns error message on failure.	null on success;
+	 * @param int $page_id
+	 * @return mixed error message on failure | null on success
 	 */
 	public function delete_content($page_id)
 	{
 		$page_id = (int)$page_id;
 		if( $page_id < 1 ) return $this->_module->Lang('error_invalidpageid');
 
-		$test = FALSE;
 		if( $this->_module->CheckPermission('Manage All Content') ) {
 			$test = TRUE;
 		}
 		elseif( $this->_module->CheckPermission('Remove Pages') && check_authorship($this->_userid,$page_id) ) {
 			$test = TRUE;
+		}
+		else {
+			$test = FALSE;
 		}
 
 		if( !$test ) return $this->_module->Lang('error_delete_permission');
@@ -355,21 +362,27 @@ final class ContentListBuilder
 		if( !$node ) return $this->_module->Lang('error_invalidpageid');
 		if( $node->has_children() ) return $this->_module->Lang('error_delete_haschildren');
 
-		$parent = $node->get_parent();
-		$parent_id = $node->get_tag('id');
-		$childcount = 0;
-		if( $parent ) $childcount = $parent->count_children();
-
-		$content = $node->getContent(FALSE,FALSE,FALSE);
+		$contentops = SingleItem::ContentOperations();
+		$content = $contentops->LoadEditableContentFromId($page_id);
 		if( $content->DefaultContent() ) return $this->_module->Lang('error_delete_defaultcontent');
 
+		$parent = $node->get_parent();
+		if( $parent ) {
+			$parent_id = $parent->get_tag('id');
+			$childcount = $parent->count_children();
+		}
+		else {
+			$parent_id = -1;
+			$childcount = 0;
+		}
+
 		$content->Delete();
-		log_info($page_id,'Core','Deleted content page');
+		log_info($page_id,'ContentManager','Deleted content page');
 
 		if( $childcount == 1 && $parent_id > -1 ) $this->collapse_section($parent_id);
 		$this->collapse_section($page_id);
 
-		SingleItem::ContentOperations()->SetAllHierarchyPositions();
+		$contentops->SetAllHierarchyPositions();
 	}
 
 	public function pretty_urls_configured()
@@ -463,7 +476,7 @@ final class ContentListBuilder
 		$hm = SingleItem::App()->GetHierarchyManager();
 		$display = [];
 
-		// filter the display list by what we're authorized to view.
+		// filter the display list by what the user is authorized to view.
 		$modify_any_page = $this->_module->CheckPermission('Manage All Content') || $this->_module->CheckPermission('Modify Any Page');
 		if( $this->_filter && $modify_any_page ) {
 			// we display only the pages matching the filter
@@ -685,6 +698,7 @@ final class ContentListBuilder
 		$users = $this->_get_users();
 		$columns = $this->get_display_columns();
 		$cache = SingleItem::LoadedData()->get('content_quicklist');
+		$contentops = SingleItem::ContentOperations();
 
 		$out = [];
 		foreach( $page_list as $page_id ) {
@@ -692,13 +706,15 @@ final class ContentListBuilder
 			if( !$node ) {
 				continue;
 			}
-			$content = $node->getContent(FALSE,TRUE,TRUE); // not a IContentEditor-compatible object
+			//NOTE CMSMS\contenttypes\ContentBase object
+//			$content = $node->getContent(FALSE,TRUE,TRUE); // get everything
+			$content = $contentops->LoadEditableContentFromId($page_id);
 			if( !$content ) {
 				continue;
 			}
 
 			$rec = [];
-			$rec['depth'] = $node->get_level();
+			$rec['depth'] = $node->get_level(); // OR $content->GetLevel();
 			$rec['id'] = $content->Id();
 			$rec['title'] = strip_tags($content->Name());
 			$rec['menutext'] = strip_tags($content->MenuText());

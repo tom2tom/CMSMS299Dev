@@ -7,7 +7,7 @@
     {if $can_manage}
     <button type="submit" id="submitbtn" name="{$actionid}submit" class="adminsubmit icon check">{_ld('admin','submit')}</button>
 {if !empty($withcancel)}<button type="submit" id="cancelbtn" name="{$actionid}cancel" class="adminsubmit icon cancel" formnovalidate>{_ld('admin','cancel')}</button>{/if}
-{if $tid > 0}<button type="submit" id="applybtn" name="{$actionid}apply" class="adminsubmit icon apply">{_ld('admin','apply')}</button>{/if}
+{if $tid > 0} <button type="submit" id="applybtn" name="{$actionid}apply" class="adminsubmit icon apply">{_ld('admin','apply')}</button>{/if}
     {else}
     <button type="submit" id="cancelbtn" name="{$actionid}cancel" class="adminsubmit icon close" formnovalidate>{_ld('admin','close')}</button>
     {/if}
@@ -83,7 +83,7 @@
     {if $can_manage}
     <button type="submit" id="submitbtn" name="{$actionid}submit" class="adminsubmit icon check">{_ld('admin','submit')}</button>
 {if !empty($withcancel)}<button type="submit" id="cancelbtn" name="{$actionid}cancel" class="adminsubmit icon cancel" formnovalidate>{_ld('admin','cancel')}</button>{/if}
-{if $tid > 0}<button type="submit" id="applybtn" name="{$actionid}apply" class="adminsubmit icon apply">{_ld('admin','apply')}</button>{/if}
+{if $tid > 0} <button type="submit" id="applybtn" name="{$actionid}apply" class="adminsubmit icon apply">{_ld('admin','apply')}</button>{/if}
     {else}
     <button type="submit" id="cancelbtn" name="{$actionid}cancel" class="adminsubmit icon close" formnovalidate>{_ld('admin','close')}</button>
     {/if}

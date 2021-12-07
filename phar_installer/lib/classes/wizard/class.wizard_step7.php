@@ -62,6 +62,7 @@ class wizard_step7 extends wizard_step
             $this->do_index_html();
         } catch (Throwable $t) {
             $this->error($t->GetMessage());
+            return; // no further progress
         }
 
         $this->finish();
@@ -178,6 +179,9 @@ class wizard_step7 extends wizard_step
         if (!$destdir) {
             throw new Exception(lang('error_internal', 702));
         }
+        $filehandler = new install_filehandler();
+        $filehandler->set_destdir($destdir); // might throw
+
         $languages = ['en_US'];
         if ($checklangs) { // upgrade or refresh
             try {
@@ -191,10 +195,8 @@ class wizard_step7 extends wizard_step
             $languages = array_merge($languages, $choices['languages']);
         }
         $languages = array_unique($languages);
-
-        $filehandler = new install_filehandler();
-        $filehandler->set_destdir($destdir);
         $filehandler->set_languages($languages);
+
         $filehandler->set_output_fn([$this, 'verbose']);
 
         $from = $to = $lens = [];

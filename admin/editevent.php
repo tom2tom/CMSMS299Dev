@@ -63,7 +63,7 @@ if (1) { //$access) {
 	if (isset($_POST['add'])) {
 		de_specialize_array($_POST);
 		// we're adding some funky event-handler
-		$sender = sanitizeVal($_POST['originator'], CMSSAN_FILE); // module-name | 'Core'
+		$sender = sanitizeVal($_POST['originator'], CMSSAN_FILE); // 'Core' | module-name
 		$event = sanitizeVal($_POST['event'], CMSSAN_PURE); // letters only
 		$handler = sanitizeVal($_POST['handler'], CMSSAN_PUNCT); // allow ':\'
 		if ($sender && $event && $handler) {
@@ -79,7 +79,7 @@ if (1) { //$access) {
 		//TODO clear events cache(s) when relevant
 		de_specialize_array($_GET);
 		if (!empty($_GET['originator'])) {
-			$sender = sanitizeVal($_GET['originator'], CMSSAN_FILE); // module-name | 'Core'
+			$sender = sanitizeVal($_GET['originator'], CMSSAN_FILE); // 'Core' | module-name
 		}
 		if (!empty($_GET['event'])) {
 			$event = sanitizeVal($_GET['event'], CMSSAN_PURE); // letters only

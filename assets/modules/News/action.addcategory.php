@@ -20,6 +20,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Events;
+use CMSMS\FileType;
+use CMSMS\SingleItem;
 use News\AdminOperations;
 use News\Utils;
 use function CMSMS\de_specialize;
@@ -33,8 +35,6 @@ if( isset($params['cancel']) ) {
     $this->RedirectToAdminTab('groups');
 }
 
-// TODO icon/image handling
-
 if( isset($params['parent']) ) {
     $parent = (int)$params['parent'];
 }
@@ -47,22 +47,53 @@ if( isset($params['name']) ) {
     $tmp = de_specialize(trim($params['name']));
     // valid URL chars allowed (tho' some must be encoded in URL's)
     $name = preg_replace('<[^A-Za-z0-9\-._~:/?#[]@!$&\'()*+,;=%\x00-\xff]>', '', $tmp); //2.99+
-    if( $name ) {
+    if( $name ) { // TODO if (!$error)
         //small race-risk here
         $query = 'SELECT news_category_id FROM '.CMS_DB_PREFIX.'module_news_categories WHERE parent_id = ? AND news_category_name = ?';
         $tmp = $db->getOne($query, [$parent, $name]);
         if( $tmp ) {
+            //$error = true;
             $this->ShowErrors($this->Lang('error_duplicatename'));
         }
         else {
-            $query = 'SELECT MAX(item_order) FROM '.CMS_DB_PREFIX.'module_news_categories WHERE parent_id = ?';
-			$dbr = $db->getOne($query, [$parent]);
-            $item_order = (int)$dbr + 1;
-            $longnow = $db->DbTimeStamp(time(),false);
+            if( !empty($params['generate_url']) ) {
+                $str = ( $name ) ? $name : 'newscategory'.mt_rand(10000, 99999);
+                $category_url = Utils::condense($str, true);
+            }
+            else {
+                $category_url = (!empty($params['category_url'])) ? trim($params['category_url']) : null;
+            }
 
+            if ($category_url) {
+                if ($category_url[0] == '/' || substr_compare($category_url, '/', -1, 1) == 0) {
+                    $category_url = trim($category_url, '/ ');
+                }
+                //TODO other cleanup
+            }
+
+            $image_url = (!empty($params['image_url'])) ? trim($params['image_url']) : null;
+            if ($image_url) {
+                // TODO validate, cleanup this
+            }
+
+            $query = 'SELECT MAX(item_order) FROM '.CMS_DB_PREFIX.'module_news_categories WHERE parent_id = ?';
+            $dbr = $db->getOne($query, [$parent]);
+            $item_order = (int)$dbr + 1;
+            $longnow = $db->DbTimeStamp(time(), false);
             $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_categories
-(news_category_name,parent_id,item_order,create_date) VALUES(?,?,?,?)';
-            $dbr = $db->execute($query, [$name, $parent, $item_order, $longnow]);
+(news_category_name,
+parent_id,
+item_order,
+category_url,
+image_url,
+create_date) VALUES(?,?,?,?,?,?)';
+            $dbr = $db->execute($query, [
+            $name,
+            $parent,
+            $item_order,
+            $category_url,
+            $image_url,
+            $longnow]);
             if( $dbr ) {
                 $catid = $db->Insert_ID();
 
@@ -70,12 +101,14 @@ if( isset($params['name']) ) {
 
                 Events::SendEvent('News', 'NewsCategoryAdded', ['category_id'=>$catid, 'name'=>$name]);
                 // put mention into the admin log
-                log_info($catid, 'News category: '.$name, ' Added');
+                log_info($catid, 'News category: '.$name, 'Added');
 
                 $this->SetMessage($this->Lang('categoryadded'));
                 $this->RedirectToAdminTab('groups');
             }
-            $this->ShowErrors($this->Lang('error_detailed', $db->errorMsg()));
+            else {
+                $this->ShowErrors($this->Lang('error_detailed', $db->errorMsg()));
+            }
         }
     }
     else {
@@ -92,16 +125,37 @@ foreach( $tmp as $nm => $cid ) {
     $categories[(int)$cid] = specialize($nm);
 }
 
+$picker = SingleItem::ModuleOperations()->GetFilePickerModule();
+$dir = $config['uploads_path'];
+$userid = get_userid(false);
+$tmp = $picker->get_default_profile($dir, $userid);
+$profile = $tmp->overrideWith(['top'=>$dir, 'type'=>FileType::IMAGE]);
+$text = $picker->get_html($id.'image_url', $image_url, $profile);
+
 $parms = $params; //TODO any extras, any specialize()'s
 unset($parms['action'], $parms['name']);
 
-// Display template
+// pass it all to template for display
+
 $tpl = $smarty->createTemplate($this->GetTemplateResource('editcategory.tpl')); //, null, null, $smarty);
 
 $tpl->assign('formaction', 'addcategory')
  ->assign('formparms', $parms)
- ->assign('parent', $parent)
+ ->assign('catid', $catid)
+ ->assign('parent', $parentid)
  ->assign('name', $name)
- ->assign('categories', $categories);
+ ->assign('category_url', $category_url)
+ ->assign('categories', $categories)
+ ->assign('filepicker', $text);
+// associated image, if any
+if( $image_url ) {
+    $tpl->assign('image_url', CMS_UPLOADS_URL.'/'.trim($image_url, ' /'));
+}
+else {
+   $tpl->assign('image_url', $image_url);
+}
+
+// page resources
+require_once __DIR__.DIRECTORY_SEPARATOR.'method.categoryscript.php';
 
 $tpl->display();

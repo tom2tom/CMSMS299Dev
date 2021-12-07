@@ -64,20 +64,27 @@ final class PHPmailTransport implements Transport
             throw new RecipientsListEmptyException();
         }
         $to = str_replace('To:', '', $to);
-        $subject = $message->getSubject();
-        $body = $message->getBodyRaw(); //TODO confirm $body not starts with multiple "\r\n"'s and each line separated by "\r\n"
-        if ($body) { $body = trim($body)."\r\n"; }
-        $headers = $message->getHeadersRaw(array('to','subject'));
+        $subject = $message->getSubject(); // TODO ensure RFC 2047 compliance (http://www.faqs.org/rfcs/rfc2047.html)
+        $body = $message->getBodyRaw();
+        if ($body) {
+            $s = wordwrap(trim($body), 70, "\r\n");
+            // ensure correct line-breaks
+            $s = preg_replace(array('/\r(?!\n)/', '/(?<!\r)\n/'), array("\r\n", "\r\n"), $s);
+            $body = $s."\r\n";
+        } else {
+            $body = "\r\n";
+        }
+        $headers = $message->getHeadersRaw(array('to', 'subject')); //TODO support single-sending
         $parms = ($this->options) ? (is_array($this->options) ? implode(' ', $this->options) : $this->options) : '';
         if (is_callable($this->requestLogger)) {
-            call_user_func($this->requestLogger, 'TODO');
+            call_user_func($this->requestLogger, 'send (PHP mail) to: '.$to);
         }
         if (mail($to, $subject, $body, $headers, trim($parms))) {
             return true;
         }
         $arr = error_get_last();
         if (is_callable($this->responseLogger)) {
-            call_user_func($this->responseLogger, 'TODO ' . $arr['message']);
+            call_user_func($this->responseLogger, 'failure: ' . $arr['message']);
         }
         throw new Exception($arr['message']);
     }

@@ -363,7 +363,7 @@ foreach ([
     ['layout_templates','id','name','description'],
     ['layout_tpl_types','id','name',' description'],
     ['layout_tpl_groups','id','name','description'],
-    [DesignManager\Design::TABLENAME,'id','name','description'],
+    [DesignManager\Design::TABLENAME,'id','name','description'],  DISABLED
 */
 ] as $data) {
     $flds = array_slice($data, 1);
@@ -548,7 +548,9 @@ foreach ($arr as $name => $val) {
 
 // 7. Redundant site params
 $arr = [
+    'backendwysiwyg',
     'cms_is_uptodate',
+    'nogcbwysiwyg', 
     'pseudocron_granularity',
     'pseudocron_lastrun',
     'useadvancedcss',
@@ -622,10 +624,10 @@ try {
 $val = AppParams::get('defaultdateformat'); //deprecated strftime()-compatible format
 if ($val) {
     $s = Utils::convert_dt_format($val);
-    $s = preg_replace('/[aABgGhHiIsuveOpPTZ]/', '', $s);
+    $s = preg_replace(['/[aABgGhHiIsuveOpPTZ]/', '/%(?!%)/'], ['', ''], $s);
     $val = trim($s, ' :');
 } else {
-    $val = 'j l Y';
+    $val = 'j F Y';
 }
 AppParams::set('date_format', $val); // date()-compatible format
 AppParams::set('datetime_format', $val.' h:i a');
@@ -678,17 +680,19 @@ $data = $db->getArray($sql);
 if ($data) {
     $sql = 'INSERT INTO '.CMS_DB_PREFIX."userprefs (user_id,preference,`value`) VALUES(?,'date_format',?)";
     $sql2 = 'INSERT INTO '.CMS_DB_PREFIX."userprefs (user_id,preference,`value`) VALUES(?,'datetime_format',?)";
+    $sql3 = 'UPDATE '.CMS_DB_PREFIX."userprefs SET `value`=? WHERE user_id=? AND preference='date_format_string'"; // deprecated
     foreach ($data as $row) {
         $val = (string)$row['value'];
         if ($val) {
             $s = Utils::convert_dt_format($val);
-            $s = preg_replace('/[aABgGhHiIsuveOpPTZ]/', '', $s);
+            $s = preg_replace(['/[aABgGhHiIsuveOpPTZ]/','/%(?!%)/'], ['',''], $s);
             $val = trim($s, ' :');
         } else {
-            $val = 'j l Y';
+            $val = 'j F Y';
         }
         $db->execute($sql, [$row['user_id'], $val]);
         $db->execute($sql2, [$row['user_id'], $val.' h:i a']);
+        $db->execute($sql3, [$val, $row['user_id']]);
     }
 }
 

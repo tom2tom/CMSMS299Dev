@@ -68,9 +68,10 @@ final class content_plugins
     }
 
     /**
-     * This handles {content} blocks.
+     * Handler for each {content} tag.
      * After determining which content block to render, $smarty->fetch()
-     * generates a 'content:' resource to retrieve the value of the block.
+     * generates a 'content:' resource to retrieve the value of the block,
+     * which is then assigned to a smarty variable, or echo()'d.
      *
      * @since 1.11
      * @param array $params
@@ -109,6 +110,9 @@ final class content_plugins
     }
 
     /**
+     * Handler for each {fetch_pagedata} tag.
+     * Fetch frontend page content and assign it to a smarty variable,
+     * or echo() it.
      * @param array $params
      * @param template_wrapper $template
      * @return mixed string or null
@@ -130,8 +134,9 @@ final class content_plugins
     }
 
     /**
-     * Handler for the deprecated {process_pagedata} tag. Fetch/process page
-     * content so that smarty stuff can be handled, but don't display the content.
+     * Handler for each {process_pagedata} tag.
+     * Fetch/process frontend page content so that smarty stuff can be
+     * handled, but don't display the content.
      * The tag has been a mechanism for out-of-order page content processing.
      * @since 2.99
      * @deprecated since 2.99
@@ -149,6 +154,7 @@ final class content_plugins
     }
 
     /**
+     * Handler for each {content_image} tag.
      * @param array $params
      * @param mixed $template
      * @return mixed string or null
@@ -162,10 +168,12 @@ final class content_plugins
         }
 
         $config = SingleItem::Config();
-        $adddir = AppParams::get('contentimage_path');
-        if( isset($params['dir']) && $params['dir'] != '' ) {
+        if( !empty($params['dir']) ) {
             $adddir = $params['dir'];
         }
+        else {
+            $adddir = AppParams::get('contentimage_path');
+        } 
         $dir = cms_join_path($config['uploads_path'], $adddir);
         $basename = basename($config['uploads_path']);
 
@@ -234,7 +242,7 @@ final class content_plugins
     }
 
     /**
-     *
+     * Handler for each {content_module} tag.
      * @param array $params
      * @param mixed $template
      * @return mixed string or null
@@ -265,9 +273,7 @@ final class content_plugins
     }
 
     /**
-     *
-     * never returns content on frontend requests
-     *
+     * Handler for each {content_text} tag. Does nothing.
      * @param array $params
      * @param mixed $template
      * @return null
@@ -320,8 +326,8 @@ final class content_plugins
     }
 
     /**
-     * Generate PHP code to compile a content block tag.
-     * This is the registered handler for frontend-page {content} tags
+     * Compiler for frontend-page {content} tags.
+     * Generates PHP code to compile a content block tag.
      *
      * @param array $params
      * @param Smarty_Internal_SmartyTemplateCompiler $template UNUSED

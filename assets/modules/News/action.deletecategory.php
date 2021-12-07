@@ -43,11 +43,15 @@ if (is_numeric($catid)) {
     $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id = ?';
     $db->execute($query, [$catid]);
 
-    //And from any articles
-    $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET news_category_id = -1 WHERE news_category_id = ?';
+    //And any articles
+    if ($this->GetPreference('clear_category', false)) {
+        $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news WHERE news_category_id = ?';
+    } else {
+        $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET news_category_id = 1 WHERE news_category_id = ?';
+    }
     $db->execute($query, [$catid]);
 
-    Events::SendEvent( 'News', 'NewsCategoryDeleted', [ 'category_id'=>$catid, 'name'=>$row['news_category_name'] ] );
+    Events::SendEvent('News', 'NewsCategoryDeleted', ['category_id'=>$catid, 'name'=>$row['news_category_name']]);
     log_info($catid, 'News category: '.$catid, ' Category deleted');
 
     AdminOperations::UpdateHierarchyPositions();

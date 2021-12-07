@@ -53,9 +53,9 @@ function redirect(string $to)
                 $to .= $components['path'];
             }
             //Path is relative, append current directory first.
-            elseif (isset($_SERVER['PHP_SELF']) && !is_null($_SERVER['PHP_SELF'])) { //Apache
+            elseif (isset($_SERVER['PHP_SELF']) && !is_null($_SERVER['PHP_SELF'])) { //Apache TODO isset >> != null
                 $to .= (strlen(dirname($_SERVER['PHP_SELF'])) > 1 ? dirname($_SERVER['PHP_SELF']).'/' : '/') . $components['path'];
-            } elseif (isset($_SERVER['REQUEST_URI']) && !is_null($_SERVER['REQUEST_URI'])) { //Lighttpd
+            } elseif (isset($_SERVER['REQUEST_URI']) && !is_null($_SERVER['REQUEST_URI'])) { //Lighttpd TODO isset >> != null
                 if (endswith($_SERVER['REQUEST_URI'], '/')) {
                     $to .= (strlen($_SERVER['REQUEST_URI']) > 1 ? $_SERVER['REQUEST_URI'] : '/') . $components['path'];
                 } else {
@@ -216,7 +216,7 @@ function is_email(string $str) : bool
  * ICMSSAN_PHPSTRING
  *  replicates the deprecated filter FILTER_SANITIZE_STRING, without any additional filter-flags
  * ICMSSAN_FILE
- *  remove non-printable chars plus these: * ? \ / and substitute '_' for each space
+ *  remove non-printable chars plus these: * ? \ /
  *    (e.g. for file names, modules, plugins, UDTs, templates, stylesheets, admin themes, frontend themes)
  * ICMSSAN_PATH
  *  as for ICMSSAN_FILE, but allow \ / (e.g. for file paths)
@@ -309,20 +309,19 @@ function sanitizeVal(string $str, int $scope = ICMSSAN_PURE, string $ex = '') : 
             $patn = '/[\x00-\x1f"\';=?^`<>\x7f]/';
             break;
         case ICMSSAN_FILE:
-            $str = preg_replace('~\s+~', '_', $str);
             $patn = '~[\x00-\x1f*?\\/\x7f]~';
             break;
         case ICMSSAN_PATH:
-            $str = preg_replace(['~[\\/]+~', '~\s+~'], [DIRECTORY_SEPARATOR, '_'], $str);
+            $str = preg_replace('~[\\/]+~', DIRECTORY_SEPARATOR, $str);
             $patn = '/[\x00-\x1f*?\x7f]/';
             break;
         case ICMSSAN_PURESPC:
             $patn = '/[^\w \-.\x80-\xff]/';
             break;
-		case ICMSSAN_PHPSTRING:
+        case ICMSSAN_PHPSTRING:
             $str = strtr(strip_tags($str), ['"'=>'&#34;', "'"=>'&#39;']);
             $patn = '/[\x00-\x08,\x0b,\x0c,\x0e-\x1f]/';
-			break;
+            break;
         default: // incl. ICMSSAN_PURE
             $patn = '/[^\w\-.\x80-\xff]/';
             break;

@@ -76,7 +76,7 @@
     {elseif $column == 'template'}
       {if !empty($row.template)}
         {if $row.can_edit_tpl}
-        <a href="{cms_action_url module='DesignManager' action='edit_template' tpl=$row.template_id}" class="page_template" title="{_ld($_module,'prompt_page_template')}">
+        <a href="{cms_action_url module='ContentManager' action='edittemplate' tpl=$row.template_id}" class="page_template" title="{_ld($_module,'prompt_page_template')}">
           {$row.template}
         </a>
         {else}

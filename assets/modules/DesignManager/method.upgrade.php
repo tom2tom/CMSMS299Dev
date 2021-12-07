@@ -19,10 +19,12 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\Database\DataDictionary;
-use DesignManager\Design;
+//use CMSMS\Database\DataDictionary;
+//use DesignManager\Design;
 
-if (!function_exists('cmsms')) exit;
+if (empty($this) || !($this instanceof DesignManager)) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
 if (version_compare($oldversion, '2.0') < 0) {
 	// remove invalid members from designs tables e.g. non-core templates
@@ -34,7 +36,7 @@ WHERE LT.originator != '__CORE__' AND LT.originator IS NOT NULL
 EOS;
 	$ids = $db->getCol($sql);
 	if ($ids) {
-		$sql = "DELETE FROM {$pre}module_designs_tpl WHERE tpl_id IN (".implode(',', $ids).')';  
+		$sql = "DELETE FROM {$pre}module_designs_tpl WHERE tpl_id IN (".implode(',', $ids).')';
 		$db->execute($sql);
 	}
 

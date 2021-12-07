@@ -10,7 +10,7 @@ $lang['friendlyname'] = 'CMSMS Navigation Builder';
 $lang['help'] = <<<EOT
 <h3>What does this do?</h3>
   <p>The &quot;Navigator&quot; module is an engine for generating navigations from the CMSMS content tree and a smarty template.  This module provides flexible filtering capabilities to allow building numerous navigations based on different criteria, and a simple to use hierarchical data format for generating navigations with complete flexibility.</p>
-  <p>This module has no admin interface of its own, instead it uses the DesignManager to manage Navigator templates.</p>
+  <p>This module has no admin interface of its own, instead Navigator templates are managed like all other templates via the admin-console template-editing page.</p>
 <h3>How is it used?</h3>
 <p>The simplest way to use this module is to insert the <code>{Navigator}</code> tag into a template.  The module accepts numerous parameters to alter its behavior and filter the data.</p>
 <h3>Why do I care about templates?</h3>
@@ -82,7 +82,7 @@ $lang['help_start_element'] = 'Starts the menu displaying at the given start_ele
 $lang['help_start_level'] = 'This option will have the menu only display items starting at the given level relative to the current page.  An easy example would be if you had one menu on the page with number_of_levels=1
 .  Then as a second menu, you have start_level=2.  Now, your second menu will show items based on what is selected in the first menu.  The minimum value for this parameter is 2';
 $lang['help_start_page'] = 'Starts the menu displaying at the given start_page and showing that element and its children only.  Takes a page alias.';
-$lang['help_template'] = 'The template to use for displaying the menu.  The named template must exist in the DesignManager or an error will be displayed.  If this parameter is not specified the default template of type Navigator::Navigation will be used';
+$lang['help_template'] = 'The template to use for displaying the menu.  The named template must exist in the system or else an error will be displayed.  If this parameter is not specified the default template of type Navigator::Navigation will be used';
 $lang['help_start_text'] = 'Useful only in the breadcrumbs action, this parameter allows specifying some optional text to display at the beginning of the breadcrumb navigation.  An example would be &quot;You Are Here&quot;';
 
 //T

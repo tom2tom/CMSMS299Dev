@@ -35,6 +35,7 @@ if( empty($params['bulk_content']) ) {
     $this->Redirect($id,'defaultadmin',$returnid);
 }
 
+$contentops = SingleItem::ContentOperations();
 $pagelist = $params['bulk_content'];
 $cachable = !empty($params['cachable']);
 $user_id = get_userid();
@@ -42,7 +43,7 @@ $n = 0;
 
 try {
     foreach( $pagelist as $pid ) {
-        $content = $this->GetContentEditor($pid);
+        $content = $contentops->LoadEditableContentFromId($pid);
         if( !is_object($content) ) continue;
 
         $content->SetCachable($cachable);

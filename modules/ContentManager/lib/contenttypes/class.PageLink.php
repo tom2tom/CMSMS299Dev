@@ -93,16 +93,16 @@ class PageLink extends ContentBase
 		// get the content type of page.
 		else {
 			$contentops = SingleItem::ContentOperations();
-			$destobj = $contentops->LoadContentFromID($page); //TODO ensure relevant content-object?
-			if( !is_object($destobj) ) {
+			$destcontent = $contentops->LoadEditableContentFromId($page);
+			if( !is_object($destcontent) ) {
 				$errors[] = $this->mod->Lang('destinationnotfound');
 				$result = false;
 			}
-			elseif( $destobj->Type() == 'pagelink' ) {
+			elseif( $destcontent->Type() == 'pagelink' ) {
 				$errors[] = $this->mod->Lang('pagelink_circular');
 				$result = false;
 			}
-			elseif( $destobj->Alias() == $this->mAlias ) {
+			elseif( $destcontent->Alias() == $this->mAlias ) {
 				$errors[] = $this->mod->Lang('pagelink_circular');
 				$result = false;
 			}
@@ -148,22 +148,21 @@ class PageLink extends ContentBase
 	public function EditAsArray($adding = false, $tab = 0, $showadmin = false)
 	{
 		switch($tab) {
-		case '0':
+		case 0:
 			return $this->display_attributes($adding);
-		case '1':
+		case 1:
 			return $this->display_attributes($adding,1);
 		}
 	}
 
 	public function GetURL($rewrite = true)
 	{
-		$page = $this->GetPropertyValue('page');
-		$params = $this->GetPropertyValue('params');
-
 		$contentops = SingleItem::ContentOperations();
-		$destcontent = $contentops->LoadContentFromId($page); //TODO ensure relevant content-object?
-		if( is_object( $destcontent ) ) {
+		$page = $this->GetPropertyValue('page');
+		$destcontent = $contentops->LoadEditableContentFromId($page);
+		if( is_object($destcontent) ) {
 			$url = $destcontent->GetURL();
+			$params = $this->GetPropertyValue('params');
 			return $url . $params;
 		}
 	}

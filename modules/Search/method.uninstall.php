@@ -23,7 +23,9 @@ use CMSMS\Database\DataDictionary;
 use CMSMS\TemplateType;
 use function CMSMS\log_error;
 
-//if (some worthy test fails) exit;
+if( empty($this) || !($this instanceof Search)) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
 $dict = new DataDictionary($db);
 

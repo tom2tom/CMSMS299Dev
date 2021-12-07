@@ -10,11 +10,28 @@
     </div>
   </div>
   <div class="pageoverflow">
+    {$t=_ld($_module,'prettyurl')}<label class="pagetext" for="caturl">{$t}:</label>
+    {cms_help 0=$_module key='help_category_url' title=$t}
+    <div class="pageinput">
+      <input type="text" name="{$actionid}category_url" id="caturl" value="{$category_url}" size="32" maxlength="64" /><br />
+      <input type="checkbox" id="genurl" name="{$actionid}generate_url" value="1" />
+      <label for="genurl">{_ld($_module,'generateurl')}</label>
+    </div>
+  </div>
+  <div class="pageoverflow">
     <label class="pagetext" for="catparent">{_ld($_module,'parent')}:</label>
     {cms_help 0=$_module key='help_category_parent' title=_ld($_module,'parent')}
     <div class="pageinput">
       <select name="{$actionid}parent" id="catparent">
         {html_options options=$categories selected=$parent}      </select>
+    </div>
+  </div>
+  <div class="pageoverflow">
+    <label class="pagetext" for="catimage">{_ld($_module,'cat_image')}:</label>
+    <div class="pageinput">
+      <img id="catimage" class="yesimage" src="{$image_url}" alt="{$image_url}" />
+      <br class="yesimage" />
+      {$filepicker}
     </div>
   </div>
   <div class="pageinput pregap">

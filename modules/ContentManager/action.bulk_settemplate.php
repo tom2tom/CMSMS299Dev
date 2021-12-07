@@ -41,8 +41,8 @@ if( empty($params['bulk_content']) ) {
     $this->Redirect($id,'defaultadmin',$returnid);
 }
 
+$contentops = SingleItem::ContentOperations();
 $pagelist = $params['bulk_content'];
-$hm = $gCms->GetHierarchyManager();
 
 $showmore = 0;
 if( isset($params['showmore']) ) {
@@ -65,7 +65,7 @@ if( isset($params['submit']) ) {
 
     try {
         foreach( $pagelist as $pid ) {
-            $content = $this->GetContentEditor($pid);
+            $content = $contentops->LoadEditableContentFromId($pid);
             if( !is_object($content) ) continue;
 
             $content->SetTemplateId((int)$params['template']);
@@ -94,9 +94,7 @@ if( isset($params['submit']) ) {
 
 $displaydata = [];
 foreach( $pagelist as $pid ) {
-    $node = $hm->find_by_tag('id',$pid);
-    if( !$node ) continue;  // this should not happen, but hey.
-    $content = $node->getContent(FALSE,FALSE,FALSE);
+    $content = $contentops->LoadEditableContentFromId($pid);
     if( !is_object($content) ) continue; // this should never happen either
 
     $rec = [];
@@ -110,7 +108,7 @@ foreach( $pagelist as $pid ) {
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('bulk_settemplate.tpl')); //,null,null,$smarty);
 
-$tpl->assign('showmore',UserParams::get('cgcm_bulk_showmore'))
+$tpl->assign('showmore',UserParams::get('cgcm_bulk_showmore')) // WHAT ??
  ->assign('pagelist',$params['bulk_content'])
  ->assign('displaydata',$displaydata);
 

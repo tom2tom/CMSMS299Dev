@@ -190,6 +190,7 @@ class ModuleInfo implements ArrayAccess
     }
 
     /**
+     * Get data about a module, from cache supplemented by possibly-uninstalled present module
      * @ignore
      * @param string $modname name of module whose props are wanted
      * @returns array maybe empty
@@ -224,7 +225,7 @@ class ModuleInfo implements ArrayAccess
                     $arr['changelog'] = $mod->GetChangelog();
 
                     $data[$modname] += $arr;
-                    SingleItem::LoadedData()->set('modules', $data);
+//                  SingleItem::LoadedData()->set('modules', $data); BAD if available-module is not installed!
                     return $data[$modname];
                 }
             }

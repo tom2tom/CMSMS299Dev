@@ -14,7 +14,7 @@ Thanks to community for supporting this software!
 
 *************************************
 
-- FontAwesome 5.0.8 (the free icons)
+- FontAwesome 5.14.0 (the free version)
 https://fontawesome.com/license
 
 *************************************

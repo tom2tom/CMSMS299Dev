@@ -29,7 +29,7 @@ class wizard_step1 extends wizard_step
         $app = get_app();
         if (isset($_POST['destdir'])) {
             $dir = sanitizeVal($_POST['destdir'], ICMSSAN_PATH);
-            if ($dir) {
+            if ($dir) { //TODO && is_dir() ?
                 $app->set_destdir($dir);
             }
         }

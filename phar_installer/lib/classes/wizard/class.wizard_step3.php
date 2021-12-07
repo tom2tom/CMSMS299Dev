@@ -494,8 +494,8 @@ class wizard_step3 extends wizard_step
          ->assign('verbose', $verbose)
          ->assign('retry_url', $_SERVER['REQUEST_URI']);
         if ($verbose) {
-            $smarty->assign('information', $informational);
-        } //assume specialize() not needed
+            $smarty->assign('information', $informational); //assume specialize() not needed
+        }
         // TODO button(s) and processing for enable verbose mode etc.
 
         $smarty->display('wizard_step3.tpl');

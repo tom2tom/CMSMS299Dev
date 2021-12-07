@@ -23,26 +23,30 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\TemplateType;
 use function CMSMS\log_error;
 
+if( empty($this) || !($this instanceof Navigator)) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
+
 $this->RemovePreference();
 $this->DeleteTemplate();
 $this->RemoveSmartyPlugin();
 
 try {
-  $types = TemplateType::load_all_by_originator('Navigator');
-  foreach( $types as $type ) {
-      try {
-          $templates = $type->get_template_list();
-          if( $templates ) {
-              foreach( $templates as $tpl ) {
-                  $tpl->delete();
-              }
-          }
-      }
-      catch (Throwable $t) {
-          log_error($t->GetMessage(),$this->GetName().'::method.uninstall');
-      }
-      $type->delete();
-  }
+    $types = TemplateType::load_all_by_originator('Navigator');
+    foreach( $types as $type ) {
+        try {
+            $templates = $type->get_template_list();
+            if( $templates ) {
+                foreach( $templates as $tpl ) {
+                    $tpl->delete();
+                }
+            }
+        }
+        catch (Throwable $t) {
+            log_error($t->GetMessage(),$this->GetName().'::method.uninstall');
+        }
+        $type->delete();
+    }
 }
 catch (Throwable $t) {
     log_error($t->GetMessage(),$this->GetName().'::method.uninstall');

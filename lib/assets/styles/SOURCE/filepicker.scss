@@ -29,21 +29,19 @@ $font_0: cmsms-filepicker;
 $font_id: 44234;
 
 //urls
-$url_0: url('../font/#{$font_0}.eot?#{$font_id}');
-$url_1: url('../font/#{$font_0}.eot?#{$font_id}#iefix');
-$url_2: url('../font/#{$font_0}.woff2?#{$font_id}');
-$url_3: url('../font/#{$font_0}.woff?#{$font_id}');
-$url_4: url('../font/#{$font_0}.ttf?#{$font_id}');
-$url_5: url('../font/#{$font_0}.svg?#{$font_id}##{$font_0}');
+//$url_0: url('../fonts/#{$font_0}.eot?#{$font_id}');
+//$url_1: url('../fonts/#{$font_0}.eot?#{$font_id}#iefix');
+$url_2: url('../fonts/#{$font_0}.woff2?#{$font_id}');
+$url_3: url('../fonts/#{$font_0}.woff?#{$font_id}');
+$url_4: url('../fonts/#{$font_0}.ttf?#{$font_id}');
+//$url_5: url('../fonts/#{$font_0}.svg?#{$font_id}##{$font_0}');
 
 @font-face {
 	font-family: '#{$font_0}';
-	src: $url_0;
-	src: $url_1 format('embedded-opentype'),
-		 $url_2 format('woff2'),
-		 $url_3 format('woff'),
-		 $url_4 format('truetype'),
-		 $url_5 format('svg');
+//	src: $url_5 format('svg'),
+	src: $url_2 format('woff2'),
+		$url_3 format('woff'),
+		$url_4 format('truetype');
 	font-weight: normal;
 	font-style: normal;
 }

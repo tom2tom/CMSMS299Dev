@@ -30,7 +30,7 @@ interface IMailer
 	// this method replicates PHP's mail() function
 	public function send_simple(string $to, string $subject, string $message, $additional_headers = [], string $additional_params = '') : bool;
 	public function IsSingleAddressor() : bool; // 2.99+
-	public function SetSingleSend(bool $state = true); // 2.99+
+	public function SetSingleSend(int $state = 1); // 2.99+
 
 	// PHPMailer class methods (some to be deprecated?)
 	public function GetAltBody();
@@ -105,7 +105,7 @@ interface IMailer
 	public function IsMail();
 	public function IsSendmail();
 	public function IsSMTP();
-	public function Send();
+	public function Send(); // TODO (int $batchsize = 0) // 2.99+
 	public function SetLanguage($lang_type);
 	public function SmtpClose();
 }

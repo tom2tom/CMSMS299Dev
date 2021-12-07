@@ -48,7 +48,7 @@ $add_defns[$tblprefix.'asyncjobs'] = [$tabopts, $flds];
 $flds = '
 id I UNSIGNED AUTO NOTNULL PKEY(`id`),
 originator C(50) NOTNULL,
-name C(25) NOTNULL,
+name C(25) COLLATE ascii_general_ci NOTNULL,
 publicname_key C(64),
 displayclass C(255) NOTNULL,
 editclass C(255),

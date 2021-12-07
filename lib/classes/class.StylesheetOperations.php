@@ -881,7 +881,7 @@ WHERE id = ?';
 
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE css_id = ?';
 		$db->execute($sql, [$sid]);
-		$all = $sht - groups;
+		$all = $sht->groups;
 		if ($all) {
 			$stmt = $db->prepare('INSERT INTO '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' (group_id,css_id,item_order) VALUES (?,?,?)');
 			$i = 1;
@@ -949,7 +949,7 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 //			if (db error) throw new SQLException($db->sql.' -- '.$db->errorMsg());
 		}
 
-		$all = $sht - groups;
+		$all = $sht->groups;
 		if ($all) {
 			$stmt = $db->prepare('INSERT INTO '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' (group_id,css_id,item_order) VALUES (?,?,?)');
 			$i = 1;

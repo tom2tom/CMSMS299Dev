@@ -1,0 +1,23 @@
+<h2>Browse-Category-Template Help</h2>
+
+<p>The News module&apos;s &apos;browsecat&apos; action exports the following variables:</p>
+<ul class="helptext">
+  <li>$cats (array) - An array of category information representing all categories in the News module</li>
+  <li>$count (int) - The number of members of cats</li>
+</ul>
+
+<h3>Category Information</h3>
+<p>Each member of the $cats array is itself an associative array.</p>
+<p>The following are the notable members of such arrays. Other elements may also be present for internal organizational purposes.</p>
+<ul class="helptext">
+  <li>alias (string) - A slug which may be included in a pretty-URL for linking to the article</li>
+  <li>count (int) - The number of valid displayable articles in the category</li>
+  <li>index (int) (deprecated) - An increasing index of the current category information. Instead use Smarty foreach-property @index.</li>
+  <li>image_url (string) - The uploads-folder-relative URL of an associated image (might be empty or unset)</li>
+  <li>item_order (int) - A numeric representation of the category&apos;s order among its peers</li>
+  <li>news_category_id (int) - The numeric id of the category</li>
+  <li>news_category_name (string) - The name of the category</li>
+  <li>parent_id (int) - The numeric id of the category&apos;s parent. A value less than one indicates no parent.</li>
+  <li>url (string) - URL for showing a summary-view of all valid displayable articles in the category</li>
+</ul>
+<p>The category information may be used in a template like <code>{$cats[0][&apos;news_category_name&apos;]}</code> or <code>{$cats.0.news_category_name}</code> etc.</p>

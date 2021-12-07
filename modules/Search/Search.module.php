@@ -19,14 +19,13 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
+//use CMSMS\Events;
+//use Search\Command\ReindexCommand;
+//use Search\PruneJob;
 use CMSMS\CoreCapabilities;
-use CMSMS\Events;
 use CMSMS\HookOperations;
 use CMSMS\TemplateType;
 use CMSMS\Utils as AppUtils;
-//use Search\Command\ReindexCommand;
-//use Search\PruneJob;
 use Search\Utils as Utils;
 
 class Search extends CMSModule
@@ -139,7 +138,7 @@ class Search extends CMSModule
 
                 // here check for a string to see
                 // if module content is indexable at all
-                $non_indexable = (strpos($text, NON_INDEXABLE_CONTENT) !== false);
+                $non_indexable = (strpos($text, self::NON_INDEXABLE_CONTENT) !== false);
                 $text = trim(strip_tags($text));
                 if ($text && !$non_indexable) {
                     Utils::AddWords($this, $this->GetName(), $content->Id(), 'content', $text);
@@ -165,6 +164,7 @@ class Search extends CMSModule
         switch( $capability ) {
         case CoreCapabilities::CORE_MODULE:
 //        case CoreCapabilities::TASKS:
+        case CoreCapabilities::EVENTS:
         case CoreCapabilities::SEARCH_MODULE:
         case CoreCapabilities::PLUGIN_MODULE:
         case CoreCapabilities::SITE_SETTINGS:
@@ -246,22 +246,22 @@ class Search extends CMSModule
         return Utils::StemPhrase($this, $phrase);
     }
 
-    public function AddWords($module = 'Search', $id = -1, $attr = '', $content = '', $expires = NULL)
+    public function AddWords($modname = 'Search', $id = -1, $attr = '', $content = '', $expires = NULL)
     {
-        return Utils::AddWords($this, $module,$id, $attr, $content, $expires);
+        return Utils::AddWords($this, $modname, $id, $attr, $content, $expires);
     }
 
-    public function DeleteWords($module = 'Search', $id = -1, $attr = '')
+    public function DeleteWords($modname = 'Search', $id = -1, $attr = '')
     {
-        Utils::DeleteWords($module, $id, $attr);
+        Utils::DeleteWords($modname, $id, $attr);
     }
 
     /**
-     * @param $module UNUSED
+     * @param $modname UNUSED
      * @param $id UNUSED
      * @param $attr UNUSED
      */
-    public function DeleteAllWords($module = 'Search', $id = -1, $attr = '')
+    public function DeleteAllWords($modname = 'Search', $id = -1, $attr = '')
     {
         Utils::DeleteAllWords();
     }

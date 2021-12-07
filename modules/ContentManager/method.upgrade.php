@@ -24,8 +24,9 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\SingleItem;
 use CMSMS\Events;
 
-//if (some worthy test fails) exit;
-if (!function_exists('cmsms')) exit;
+if( empty($this) || !($this instanceof ContentManager)) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
 //$dict = new DataDictionary($db);
 

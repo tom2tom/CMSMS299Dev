@@ -122,7 +122,7 @@ use function lang;
 	{
 		if( !$this->name ) throw new LogicException('No name specified for this group');
 		$db = SingleItem::Db();
-		$sql = 'SELECT group_id FROM '.CMS_DB_PREFIX.'groups WHERE group_name = ? AND group_id != ?';
+		$sql = 'SELECT group_id FROM `'.CMS_DB_PREFIX.'groups` WHERE group_name = ? AND group_id != ?';
 		$dbresult = $db->getOne($sql,[$this->name,$this->id]);
 		if( $dbresult ) throw new LogicException(lang('errorgroupexists',$this->name));
 	}

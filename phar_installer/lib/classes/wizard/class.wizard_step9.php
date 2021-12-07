@@ -12,7 +12,6 @@ use Throwable;
 use const CMS_DB_PREFIX;
 use const CMS_VERSION;
 use const CONFIG_FILE_LOCATION;
-use function audit;
 use function cms_installer\endswith;
 use function cms_installer\get_app;
 use function cms_installer\get_server_permissions;

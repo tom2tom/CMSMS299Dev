@@ -35,17 +35,11 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
     // this seems unused
 /*    function ordercontent_get_node_rec($str,$prefix = 'page_')
     {
-        $hm = cmsms()->GetHierarchyManager();
-
         if( !is_numeric($str) && startswith($str,$prefix) ) $str = substr($str,strlen($prefix));
-
-        $id = (int)$str;
-        $node = $hm->find_by_tag('id',$id);
-        if( $node ) {
-            $content = $node->getContent(false,true,true);
+        $pid = (int)$str;
+        $content = $contentops->LoadEditableContentFromId($pid);
             if( $content ) {
-                $rec = ['id' => $id]; //WHATFOR?
-            }
+            $rec = ['id' => $pid]; //WHAT FOR?
         }
     }
 */
@@ -74,15 +68,16 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
 
     // step 2, merge in old orders, and old parents
     $hm = $gCms->GetHierarchyManager();
+    $contentops = SingleItem::ContentOperations();
     $changelist = [];
     foreach( $orderlist as &$rec ) {
-        $node = $hm->find_by_tag('id',$rec['id']);
-        $content = $node->getContent(FALSE,TRUE,TRUE);
+        $content = $contentops->LoadEditableContentFromId($rec['id']);
         if( $content ) {
             $rec['old_parent'] = $content->ParentId();
             $rec['old_order'] = $content->ItemOrder();
-
-            if( $rec['old_parent'] != $rec['parent_id'] || $rec['old_order'] != $rec['order'] ) $changelist[] = $rec;
+            if( $rec['old_parent'] != $rec['parent_id'] || $rec['old_order'] != $rec['order'] ) {
+                $changelist[] = $rec;
+            }
         }
     }
 
@@ -95,14 +90,14 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
             $db->execute($stmt,[$rec['order'],$rec['parent_id'],$rec['id']]);
         }
         $stmt->close();
-        SingleItem::ContentOperations()->SetAllHierarchyPositions();
+        $contentops->SetAllHierarchyPositions();
         log_notice('ContentManager','Content pages dynamically reordered');
         $this->RedirectToAdminTab('pages');
     }
 }
 
 //custom requirements TODO
-$base_url = cms_path_to_url(CMS_ASSETS_PATH);
+$base_url = CMS_ASSETS_URL;
 $msg = json_encode($this->Lang('confirm_reorder'));
 
 $js = <<<EOS

@@ -51,7 +51,7 @@ use function startswith;
  * @package CMS
  * @license GPL
  * @since  2.99
- * Formerly a FilePicker module utilties class
+ * Formerly a FilePicker module utilities class
  */
 class FolderControlOperations
 {
@@ -368,6 +368,7 @@ class FolderControlOperations
      * Check whether $filename accords with relevant conditions among
      * the profile properties
      *
+	 * @param FolderControls $cset
      * @param string $filename Absolute|relative filesystem path, or
      *  just basename, of a file
      * @return boolean
@@ -376,25 +377,24 @@ class FolderControlOperations
     {
         $fn = basename($filename);
         try {
-            if( !$this->data['show_hidden'] && ($fn[0] === '.' || $fn[0] === '_') ) {
+            if( !$cset->show_hidden && ($fn[0] === '.' || $fn[0] === '_') ) {
                 throw new UnexpectedValueException($fn.': name is not acceptable');
             }
 
-            if( !$this->get_match($this->data['match_prefix'], $fn) ) {
+            if( !self::get_match($cset->match_prefix, $fn) ) {
                 throw new UnexpectedValueException($fn.': name is not acceptable');
             }
 
-            if( $this->data['exclude_prefix'] ) {
-                if( $this->get_match($this->data['exclude_prefix'], $fn) ) {
+            if( $cset->exclude_prefix ) {
+                if( self::get_match($cset->exclude_prefix, $fn) ) {
                     throw new UnexpectedValueException($fn.': name is not acceptable');
                 }
             }
 
-            if( $this->data['file_extensions'] === '' ) {
+            if( $cset->file_extensions === '' ) {
                 return true;
             }
             // file must have an acceptable extension
-            $fn = basename($filename);
             $p = strrpos($fn, '.');
             if( !$p ) { // file has no extension, or just an initial '.'
                 throw new UnexpectedValueException("Type '$fn' is not acceptable");
@@ -403,7 +403,7 @@ class FolderControlOperations
             if( !$ext ) { // file has empty extension
                 throw new UnexpectedValueException("Type '$fn' is not acceptable");
             }
-            $s = &$this->data['file_extensions'];
+            $s = &$cset->file_extensions;
             // we always do a caseless (hence ASCII) check,
             // cuz patterns and/or extension might be case-insensitive
             // and recognised extensions are all ASCII

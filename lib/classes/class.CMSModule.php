@@ -351,7 +351,7 @@ abstract class CMSModule
      *  should only be used during module uninstallation or upgrade.
      *
      * @since 1.11
-     * @param string $name Optional plugin name. Defaule '', which implies
+     * @param string $name Optional plugin name. Default '', which implies
      *  all plugins registered for this module.
      */
     public function RemoveSmartyPlugin($name = '')
@@ -599,7 +599,7 @@ abstract class CMSModule
      */
     public function CreateRoutes()
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CreateStaticRoutes'));
+        assert(!CMS_DEPREC, new DeprecationNotice('method','CreateStaticRoutes'));
         $this->CreateStaticRoutes();
     }
 
@@ -966,73 +966,75 @@ abstract class CMSModule
 
     /**
      * ------------------------------------------------------------------
-     * Content Block Related Functions
+     * Content-Block Related Functions
      * ------------------------------------------------------------------
      */
 
     /**
-     * Get an input field for a module generated content block type.
-     *
-     * This method is called from the content edit form when a {content_module} tag is encountered.
-     *
-     * This method can be overridden if the module is providing content
-     * block types to the CMSMS content objects.
+     * Return page element(s) for populating a module-generated content block.
+     * This method is called from a content-edit form when a {content_module}
+     * tag is encountered. The method should be sub-classed by modules
+     * which provide content block types to content objects.
      *
      * @abstract
      * @since 2.0
      * @param string $blockName Content block name
-     * @param mixed  $value     Content block value
+     * @param mixed  $value     Content block (current) value
      * @param array  $params    Associative array containing content block parameters
-     * @param bool   $adding    Flag indicating whether the content editor is in create mode (adding) vs. edit mode.
-     * @param ContentBase $content_obj The content object being edited.
-     * @return mixed Either an array with two elements (prompt, and xhtml element) or a string containing only the xhtml input element.
+     * @param bool   $adding    Flag indicating whether the content-editor is in create mode (adding). Otherwise edit mode.
+     * @param mixed $content_obj The (possibly-unsaved) content object being edited.
+     *  A core ContentBase object, or equivalent module-specific object.
+     * @return mixed Array with two elements (prompt and xhtml element) or
+     *  string containing only the xhtml input element.
      */
-    public function GetContentBlockFieldInput($blockName, $value, $params, $adding, ContentBase $content_obj)
+    public function GetContentBlockFieldInput($blockName, $value, $params, $adding, $content_obj)
     {
-        return false;
+        return '';
     }
 
     /**
-     * Return a value for a module generated content block type.
-     *
-     * This mehod is called from a {content_module} tag, when the content edit form is being edited.
+     * Return a value for a module generated content block.
+     * This method is called during processing a page which includes
+     * data from a {content_module} tag.
      *
      * Given input parameters (i.e: via _POST or _REQUEST), this method
      * will extract a value for the given content block information.
      *
-     * This method can be overridden if the module is providing content
-     * block types to the CMSMS content objects.
+     * This method may be sub-classed if the submitted block value needs
+     * adjustment before use.
      *
      * @abstract
      * @since 2.0
      * @param string $blockName Content block name
      * @param array  $blockParams Content block parameters
      * @param array  $inputParams input parameters
-     * @param ContentBase $content_obj The content object being edited.
-     * @return mixed The content block value if possible | false
+     * @param mixed $content_obj The content object being edited.
+     *  A core ContentBase object, or equivalent module-specific object.
+     * @return mixed The content block value to be used | (since 2.99) null (formerly false)
+     *  A falsy return value will be ignored.
      */
-    public function GetContentBlockFieldValue($blockName, $blockParams, $inputParams, ContentBase $content_obj)
+    public function GetContentBlockFieldValue($blockName, $blockParams, $inputParams, $content_obj)
     {
-        return false;
     }
 
     /**
-     * Validate the value for a module generated content block type.
+     * Validate the value for a module generated content block.
+     * This method is called during processing a page which includes
+     * data from a {content_module} tag.
      *
-     * This method is called from a {content_module} tag, when the content edit form is being validated.
-     *
-     * This method can be overridden if the module is providing content
-     * block types to the CMSMS content objects.
+     * This method may be sub-classed if the submitted block value needs
+     * validation before use.
      *
      * @abstract
      * @since 2.0
      * @param string $blockName Content block name
      * @param mixed  $value     Content block value
      * @param array $blockparams Content block parameters.
-     * @param contentBase $content_obj The content object that is currently being edited.
+     * @param mixed $content_obj The content object that is currently being edited.
+     *  A core ContentBase object, or equivalent module-specific object.
      * @return string An error message if the value is invalid, empty otherwise.
      */
-    public function ValidateContentBlockFieldValue($blockName, $value, $blockparams, ContentBase $content_obj)
+    public function ValidateContentBlockFieldValue($blockName, $value, $blockparams, $content_obj)
     {
         return '';
     }
@@ -1046,10 +1048,11 @@ abstract class CMSModule
      * @param string $blockName Content block name
      * @param string $value     Content block value as stored in the database
      * @param array  $blockparams Content block parameters
-     * @param ContentBase $content_obj The content object that is currently being displayed
+     * @param mixed $content_obj The content object that is currently being displayed
+     *  A core ContentBase object, or equivalent module-specific object.
      * @return string
      */
-    public function RenderContentBlockField($blockName, $value, $blockparams, ContentBase $content_obj)
+    public function RenderContentBlockField($blockName, $value, $blockparams, $content_obj)
     {
         return $value;
     }
@@ -1354,7 +1357,7 @@ abstract class CMSModule
         if ($this->VisibleToAdminUser()) {
             return [AdminMenuItem::from_module($this)];
         }
-		return [];
+        return [];
     }
 
     /**
@@ -1467,50 +1470,62 @@ abstract class CMSModule
 */
     /**
      * ------------------------------------------------------------------
-     * Syntax Highlighter Related Functions
+     * Syntax Highlight Related Functions
      *
-     * These functions are only for syntax-highlight editor modules.
+     * These methods are only for syntax-highlight editor modules.
      * ------------------------------------------------------------------
      */
 
     /**
-     * Returns page-header content (probably js, css) for this editor.
-     * @deprecated since 2.99. Instead generate and record such content when
-     * constructing the textarea element, using get_syntaxeditor_setup() and
-     * then cachers such as add_page_headtext(), add_page_foottext()
-     *
+     * Returns and/or otherwise populates init-related content (probably js, css)
+     * for this editor.
      * @abstract
-     * @return string
+     * @deprecated for admin use since 2.99. Instead generate and record
+     * such content when constructing the textarea element, using
+     * get_syntaxeditor_setup() and then placers such as add_page_headtext(),
+     * add_page_foottext()
+     *
+     * @param array $params since 2.99 Optional initialization parameters
+     *  which some modules may understand.
+     * @return string, possibly empty if setup data have been directly
+     *  recorded in the page header etc
+     * @throws Exception, CMSMS\Exception
      */
-    public function SyntaxGenerateHeader()
+    public function SyntaxGenerateHeader($params = [])
     {
         return '';
     }
 
     /**
      * ------------------------------------------------------------------
-     * Content (html) Rich-Edit Related Functions
+     * Content (html) Edit Related Functions
      *
      * These methods are only for rich-text-editor modules.
      * ------------------------------------------------------------------
      */
 
     /**
-     * Returns page-header content (probably js, css) for this editor.
-     * @deprecated since 2.99. Instead generate and record such content when
-     * constructing the textarea element, using get_richeditor_setup() and then
-     * cachers such as add_page_headtext(), add_page_foottext()
-     *
+     * Returns and/or otherwise populates init-related content (probably js, css)
+     * for this editor.
      * @abstract
-     * @param string $selector Optional id of the element whose content is to be edited.
-     *  If empty, the editor module should assume the selector to be textarea.<ModuleName>.
+     * @deprecated for admin use since 2.99. Instead generate and record
+     * such content when constructing the textarea element, using
+     * get_richeditor_setup() and then placers such as add_page_headtext(),
+     * add_page_foottext()
+     *
+     * @param string $selector Optional .querySelector()-compatible CSS selector
+     *  for the element(s) whose content is to be edited. If empty, the editor
+     *  module should use 'textarea.<ModuleName>' for the selector.
      * @param string $cssname Optional name of a CMSMS stylesheet to apply.
      *   If $selector is not empty then $cssname is only used for the specific element.
      *   Editor modules might ignore the $cssname parameter, depending on their settings and capabilities.
+     * @param array $params since 2.99 Optional initialization parameters
+     *  which some modules may understand.
+     * @return string, possibly empty if setup data have been directly
+     *  recorded in the page header etc
      * @throws Exception, CMSMS\Exception
-     * @return string
      */
-    public function WYSIWYGGenerateHeader($selector = '', $cssname = '')
+    public function WYSIWYGGenerateHeader($selector = '', $cssname = '', $params = [])
     {
         return '';
     }
@@ -2396,14 +2411,17 @@ abstract class CMSModule
      */
     final public function GetTemplateResource(string $tpl_name) : string
     {
-        if( strpos($tpl_name,':') !== false ) {
+        if( ($p = strpos($tpl_name,':')) !== false ) {
             if( startswith($tpl_name,'string:') || startswith($tpl_name,'eval:') || startswith($tpl_name,'extends:') ) {
                 throw new LogicException("Invalid smarty resource '$tpl_name' specified for a module template");
             }
-            if( strpos($tpl_name,';') === false ) {
-                throw new UnexpectedValueException("Invalid smarty resource '$tpl_name' specified for a module template");
+            if($p > 1 && isset($tpl_name[$p+1]) && $tpl_name[$p+1] == ':' ) {
+                return 'cms_template:'.$tpl_name; // originator provided
             }
-            return $tpl_name;
+            if( strpos($tpl_name,';') !== false ) {
+                return $tpl_name;
+            }
+            throw new UnexpectedValueException("Invalid smarty resource '$tpl_name' specified for a module template");
         }
         if( endswith($tpl_name,'.tpl') ) {
             return 'module_file_tpl:'.$this->GetName().';'.$tpl_name;
@@ -2552,7 +2570,7 @@ abstract class CMSModule
         return $this->_action_tpl->fetch('module_db_tpl:'.$this->GetName().';'.$tpl_name);
     }
 
-    /**
+    /*
      * ------------------------------------------------------------------
      * Deprecated User Defined Tag Functions.
      * ------------------------------------------------------------------
@@ -2567,7 +2585,7 @@ abstract class CMSModule
      */
     final public function ListUserTags() : array
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\UserTagOperations-instance->ListUserTags()'));
+        assert(!CMS_DEPREC, new DeprecationNotice('method','CMSMS\UserTagOperations-instance->ListUserTags()'));
         $ops = SingleItem::UserTagOperations();
         return $ops->ListUserTags();
     }
@@ -2584,7 +2602,7 @@ abstract class CMSModule
      */
     final public function CallUserTag(string $name, $arguments = [])
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\UserTagOperations-instance->CallUserTag()'));
+        assert(!CMS_DEPREC, new DeprecationNotice('method','CMSMS\UserTagOperations-instance->CallUserTag()'));
         $ops = SingleItem::UserTagOperations();
         return $ops->CallUserTag($name, $arguments);
     }
@@ -2763,7 +2781,7 @@ abstract class CMSModule
      */
     final public function Audit($itemid, string $itemname, string $detail = '')
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('function','CMSMS\log_info()'));
+        assert(!CMS_DEPREC, new DeprecationNotice('function','CMSMS\log_info()'));
         log_info($itemid, $itemname, $detail);
     }
 
@@ -3071,7 +3089,7 @@ abstract class CMSModule
      * List all preferences for a specific module by prefix.
      * @since 2.0
      * @final
-	 *
+     *
      * @param string $prefix
      * @return array preference name(s) | empty
      * @throws RuntimeException
@@ -3090,7 +3108,7 @@ abstract class CMSModule
             }
             return $tmp;
         }
-		return [];
+        return [];
     }
 
     /**

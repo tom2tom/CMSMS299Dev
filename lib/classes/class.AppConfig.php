@@ -24,7 +24,7 @@ namespace CMSMS;
 use ArrayAccess;
 use CMSMS\AppParams;
 use CMSMS\AppState;
-use CMSMS\DeprecationNotice;
+use CMSMS\DeprecationNotice; // not autoloadable!
 use RuntimeException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -38,6 +38,8 @@ use function CMSMS\sanitizeVal;
 use function get_server_permissions;
 use function stack_trace;
 use function startswith;
+
+//TODO circularity: deines e.g. CMS_DEPREC, and DeprecationNotice, not defined when this is 1st used
 
 /**
  * A singleton class for interacting with CMSMS configuration data.
@@ -78,13 +80,13 @@ final class AppConfig implements ArrayAccess
         'admin_dir' => self::TYPE_STRING,
         'admin_encoding' => self::TYPE_STRING,
         'admin_url' => self::TYPE_STRING,
-        'assets_dir' => self::TYPE_STRING, //deprecated since 2.99 see assets_{path,url}
+        'assets_dir' => self::TYPE_STRING, //deprecated since 2.99
         'assets_path' => self::TYPE_STRING,
         'assets_url' => self::TYPE_STRING,
         'auto_alias_content' => self::TYPE_BOOL,
         'content_encoding' => self::TYPE_STRING, //since 2.99 alias of 'default_encoding'
         'content_language' => self::TYPE_STRING, //since 2.99
-//        'content_processing_mode' => self::TYPE_INT,
+//      'content_processing_mode' => self::TYPE_INT,
         'db_credentials' => self::TYPE_STRING, //since 2.99 (difficult for installer!)
         'db_hostname' => self::TYPE_STRING,
         'db_name' => self::TYPE_STRING,
@@ -97,11 +99,12 @@ final class AppConfig implements ArrayAccess
         'debug' => self::TYPE_BOOL,
         'default_encoding' => self::TYPE_STRING,
         'default_upload_permission' => self::TYPE_STRING,
+        'deprecations' => self::TYPE_BOOL,
         'image_uploads_path' => self::TYPE_STRING,
         'image_uploads_url' => self::TYPE_STRING,
         'locale' => self::TYPE_STRING,
         'max_upload_size' => self::TYPE_INT,
-//        'obscure_urls' => self::TYPE_BOOL, //since 2.99 formerly secure_action_url
+//      'obscure_urls' => self::TYPE_BOOL, //since 2.99 formerly secure_action_url
         'page_extension' => self::TYPE_STRING,
         'permissive_smarty' => self::TYPE_BOOL,
         'persist_db_conn' => self::TYPE_BOOL,
@@ -381,13 +384,12 @@ final class AppConfig implements ArrayAccess
 //        case 'develop_mode':
 //            return false; c.f. default return null
 
-        case 'assets_dir':
-            assert(empty(CMS_DEPREC), new DeprecationNotice('property', 'assets_path'));
+		case 'assets_dir': // deprecated from v 2.99 but used in derivative members
             return 'assets';
 
         case 'assets_path':
             //TODO $this->url2path();
-            $this->_cache[$key] = cms_join_path($this->OffsetGet('root_path'),'assets');
+            $this->_cache[$key] = cms_join_path($this->OffsetGet('root_path'),$this->offsetGet('assets_dir'));
             return $this->_cache[$key];
 
         case 'assets_url':
@@ -528,7 +530,7 @@ final class AppConfig implements ArrayAccess
         // $_SERVER['HTTP_HOST'] can be spoofed... so if a root_url is not specified
         // we determine if the requested host is in a whitelist.
         // if all else fails, we use $_SERVER['SERVER_NAME']
-        $whitelist = (isset($this['host_whitelist'])) ? $this['host_whitelist'] : null;
+        $whitelist = $this['host_whitelist'] ?? null;
         if( !$whitelist ) return $_SERVER['SERVER_NAME'];
         $requested = $_SERVER['HTTP_HOST'];
 

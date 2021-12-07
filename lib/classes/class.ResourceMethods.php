@@ -88,8 +88,12 @@ class ResourceMethods
 	public function GetAuthorEmail() {}
 	public function GetDescription() {}
 	public function GetHeaderHTML() {}
+	public function InitializeAdmin() {}
+	public function InitializeFrontend() {}
+	public function InstallPostMessage() {}
 	public function SuppressAdminOutput() {}
 	public function UninstallPostMessage() {}
+	public function UninstallPreMessage() {}
 
 	// default versions of methods required/accessed by the module-manager module
 	// NOTE no event-processing, permission-changes(checks are ok), redirections, messaging like ShowErrors() etc
@@ -277,9 +281,6 @@ class ResourceMethods
 		return false;
 	}
 
-	public function InitializeAdmin() {}
-	public function InitializeFrontend() {}
-
 	public function Install()
 	{
 		$fp = $this->modpath.DIRECTORY_SEPARATOR.'method.install.php';
@@ -294,8 +295,6 @@ class ResourceMethods
 		}
 		return false;
 	}
-
-	public function InstallPostMessage() {}
 
 	public function IsAdminOnly() { return true; }
 
@@ -375,8 +374,6 @@ class ResourceMethods
 		}
 		return false;
 	}
-
-	public function UninstallPreMessage() {}
 
 	public function Upgrade($oldversion, $newversion)
 	{

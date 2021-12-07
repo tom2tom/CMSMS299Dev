@@ -326,7 +326,7 @@ final class Message implements MessageContract
      */
     public function addRecipient($email, $name = null, $type = self::RECIPIENT_TO)
     {
-        $type = strtolower((string)$type); // TODO maybe mb_strtolower
+        $type = strtolower((string)$type);
         if (!in_array($type, array(self::RECIPIENT_CC, self::RECIPIENT_BCC))) {
             $type = self::RECIPIENT_TO;
         }

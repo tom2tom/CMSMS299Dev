@@ -180,7 +180,7 @@ final class BookmarkOperations
 	public function DeleteBookmarkByID(int $id) : bool
 	{
 		$db = SingleItem::Db();
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.'admin_bookmarks where bookmark_id = ?';
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE bookmark_id = ?';
 		$dbr = $db->execute($query, [$id]);
 		return ($dbr != false);
 	}

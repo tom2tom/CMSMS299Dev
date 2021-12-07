@@ -185,12 +185,9 @@ p {
 
 @font-face {
   font-family: 'cmsms-ui';
-  src: url('../fonts/cmsms-ui.eot?54387041');
-  src: url('../fonts/cmsms-ui.eot?54387041#iefix') format('embedded-opentype'),
-       url('../fonts/cmsms-ui.woff2?54387041') format('woff2'),
-       url('../fonts/cmsms-ui.woff?54387041') format('woff'),
-       url('../fonts/cmsms-ui.ttf?54387041') format('truetype'),
-       url('../fonts/cmsms-ui.svg?54387041#cmsms-ui') format('svg');
+  src: url(../fonts/cmsms-ui.woff2?54387041) format('woff2'),
+    url(../fonts/cmsms-ui.woff?54387041) format('woff'),
+    url(../fonts/cmsms-ui.ttf?54387041) format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -200,13 +197,13 @@ p {
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'cmsms-ui';
-    src: url('../fonts/cmsms-ui.svg?54387041#cmsms-ui') format('svg');
+    src: url(../fonts/cmsms-ui.svg?54387041#cmsms-ui) format('svg');
   }
 }
 */
 
  [class^="icon-"]:before, [class*=" icon-"]:before, h4.step-title:after {
-  font-family: "cmsms-ui";
+  font-family: 'cmsms-ui';
   font-style: normal;
   font-weight: normal;
   speak: none;

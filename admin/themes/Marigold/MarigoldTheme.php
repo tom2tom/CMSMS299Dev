@@ -35,6 +35,7 @@ use CMSMS\Utils;
 use const CMS_ADMIN_PATH;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
+use function _la;
 use function check_permission;
 use function cms_installed_jquery;
 use function cms_join_path;
@@ -42,7 +43,6 @@ use function cms_path_to_url;
 use function CMSMS\get_page_foottext;
 use function CMSMS\get_page_headtext;
 use function get_userid;
-use function lang;
 use function munge_string_to_url;
 
 class MarigoldTheme extends AdminTheme
@@ -53,9 +53,10 @@ class MarigoldTheme extends AdminTheme
 	 */
 	const THEME_VERSION = '0.9';
 	/**
-	 + TODO variable for this e.g. better CDN
+	 + TODO variable(s) for this e.g. better CDN, SRI hash
 	 * e.g. 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
 	 *      'https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
+	 * <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	 * @ignore
 	 */
 	const AWESOME_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';

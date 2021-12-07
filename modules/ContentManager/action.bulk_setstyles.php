@@ -23,7 +23,6 @@ use CMSMS\SingleItem;
 use ContentManager\Utils;
 use function CMSMS\log_error;
 use function CMSMS\log_notice;
-use function CMSMS\log_warning;
 
 if( !$this->CheckContext() ) exit;
 
@@ -40,8 +39,9 @@ if( empty($params['bulk_content']) ) {
     $this->Redirect($id,'defaultadmin',$returnid);
 }
 
+$contentops = SingleItem::ContentOperations();
 $pagelist = $params['bulk_content'];
-$hm = $gCms->GetHierarchyManager();
+//$hm = $gCms->GetHierarchyManager();
 
 if( isset($params['submit']) ) {
 /*    if( !isset($params['styles']) ) {
@@ -55,7 +55,7 @@ if( isset($params['submit']) ) {
 
     try {
         foreach( $pagelist as $pid ) {
-            $content = $this->GetContentEditor($pid);
+            $content = $contentops->LoadEditableContentFromId($pid);
             if( !is_object($content) ) continue;
 
             $content->SetStyles($value);
@@ -90,10 +90,8 @@ if( $js ) {
 
 $displaydata = [];
 foreach( $pagelist as $pid ) {
-    $node = $hm->find_by_tag('id',$pid);
-    if( !$node ) continue;  // this should not happen, but hey.
-    $content = $node->getContent(false,false,false);
-    if( !is_object($content) ) continue; // this should never happen either
+    $content = $contentops->LoadEditableContentFromId($pid);
+    if( !is_object($content) ) continue; // this should never happen
 
     $rec = [];
     $rec['id'] = $content->Id();

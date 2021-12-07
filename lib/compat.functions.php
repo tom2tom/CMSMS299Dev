@@ -74,7 +74,7 @@ foreach ([
   'CMSMS\TemplateType' => 'CmsLayoutTemplateType', // !!
   'CMSMS\Tree' => 'cms_tree', // !!
   'CMSMS\Url' => 'cms_url', // !!
-  'DesignManager\Design' => 'CmsLayoutCollection', // !!
+  'DesignManager\Design' => 'CmsLayoutCollection', // !! replacement maybe N/A too
 ] as $replace => $past) {
     if (!class_exists($past, false)) {
 //        $res =
@@ -134,7 +134,6 @@ error_reporting($lvl);
 'CMSMS\GroupOperations' => 'GroupOperations',
 'CMSMS\HookOperations' => 'CMSMS\HookManager',
 'CMSMS\HttpRequest' => 'cms_http_request',
-'CMSMS\internal\ContentTree' => 'cms_content_tree',
 'CMSMS\internal\Smarty' => 'CMSMS\internal\Smarty_CMS',
 'CMSMS\IRegularTask' => 'CmsRegularTask',
 'CMSMS\LangOperations' => 'CmsLangOperations',

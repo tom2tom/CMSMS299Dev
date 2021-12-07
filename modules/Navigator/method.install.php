@@ -27,7 +27,9 @@ use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 use function CMSMS\log_error;
 
-if( !isset($gCms) ) exit;
+if (empty($this) || !($this instanceof Navigator)) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
 $me = $this->GetName();
 

@@ -169,10 +169,10 @@ path-to-sendmail [/= /A file1 [/A file2 ...]
 EOS;
 */
 /*
-The sendmail command reads standard input for message text. 
+The sendmail command reads standard input for message text.
 
 echo formatted message | sendmail [flags] [address ...]
-e.g. 
+e.g.
 echo -e "Subject:Hello \n\n I would like to buy a hamburger\n" | sendmail email@example.com
 
 sendmail [address] < file-containing-formatted-message
@@ -221,8 +221,14 @@ EX_OK ....
             throw new RecipientsListEmptyException();
         }
         $header = $message->getHeadersRaw();
-        $tmp = strtr($message->getBodyRaw(), ["\r\n"=>'\1', "\r"=>'\1', "\n"=>'\1']);
-        $body = strtr($tmp, ['\1' => "\r\n"]); //on WINOZE ??
+        $body = $message->getBodyRaw();
+        if ($body) {
+            $s = wordwrap(trim($body), 70, "\r\n");
+            // ensure correct line-breaks
+            $body = preg_replace(array('/\r(?!\n)/', '/(?<!\r)\n/'), array('\r\n', '\r\n'), $s);
+        } else {
+            $body = '';
+        }
 
         $mailer = $this->options['sendmailapp'];
 /*
@@ -249,10 +255,14 @@ EX_OK ....
 //        }
 
         if (is_callable($this->requestLogger)) {
-            $log = "sendmail(";  // TODO
+            $log = 'send (sendmail) to: '.$to; // TODO
             call_user_func($this->requestLogger, $log);
         }
-
+/*
+exec() only returns the last line of the generated output.
+shell_exec() returns the full output of the command, when the command finished running.
+system() immediately shows all output, and is used to show text.
+*/
         $fh = @popen($command, 'wb');
         if ($fh) {
             fwrite($fh, $header);
@@ -267,35 +277,35 @@ EX_OK ....
         if ($response == 0) {
             return true;
         }
-/* result enum from BSD etc sysexits.h
-EX_OK        0  successful completion on all addresses.
-EX_USAGE    64  command line usage error
-EX_DATAERR  65  data format error
-EX_NOINPUT  66  cannot open input
-EX_NOUSER   67  username not recognized
-EX_NOHOST   68  hostname not recognized
-EX_UNAVAILABLE 69  catchall meaning necessary resources were not available.
-EX_SOFTWARE 70  internal software error, including bad arguments.
-EX_OSERR    71  system error (e.g., can't fork)
-EX_OSFILE   72  critical OS file missing
-EX_CANTCREAT 73  can't create (user) output file
-EX_IOERR    74  input/output error
-EX_TEMPFAIL 75  message could not be sent immediately, but was queued
-EX_PROTOCOL 76  remote error in protocol
-EX_NOPERM   77  permission denied
-EX_CONFIG   78  configuration error
-EX_SYNTAX    ? Syntax error in address
-           127  executable wasn't found (*NIX)
-*/
-        if (is_callable($this->responseLogger)) {
-            call_user_func($this->responseLogger, 'TODO');
-        }
         if ($response != 75) {
-            $tmp = 'Email not sent successfully to '.implode(',',$to);
+            // sendmail command result enum from BSD etc sysexits.h
+            $errs = [
+            64 => 'Command line usage error',
+            65 => 'Data format error',
+            66 => 'Cannot open input',
+            67 => 'Username not recognized',
+            68 => 'Hostname not recognized',
+            69 => 'Necessary resources were not available',
+            70 => 'Internal software error, including bad arguments',
+            71 => 'System error',
+            72 => 'Critical OS file missing',
+            73 => 'Can\'t create (user) output file',
+            74 => 'Input/output error',
+            76 => 'Remote error in protocol',
+            77 => 'Permission denied',
+            78 => 'Configuration error',
+//EX_SYNTAX ? => 'Syntax error in address',
+            127 => 'Executable not found',
+            ];
+            $tmp = $errs[$response] ?? '';
+            $tmp .= ' Email not sent successfully to '.implode(',',$to);
         } elseif (empty($this->options['delay-silent'])) {
             $tmp = 'Email not sent immediately to '.implode(',',$to);
         } else {
-            return;
+            return false;
+        }
+        if (is_callable($this->responseLogger)) {
+            call_user_func($this->responseLogger, $tmp);
         }
         throw new RuntimeException($tmp);
     }

@@ -30,7 +30,6 @@ use CMSMS\FolderControlOperations;
 use CMSMS\IFilePicker;
 use CMSMS\SingleItem;
 use FilePicker\Utils;
-//use function CMSMS\get_scripts_manager;
 
 final class FilePicker extends CMSModule implements IFilePicker
 {
@@ -88,6 +87,7 @@ final class FilePicker extends CMSModule implements IFilePicker
      * Generate page-header js. For use by relevant module actions.
      * Include after jQuery and core js.
      * @since 2.0
+     *
      * @return string
      */
     protected function HeaderJsContent() : string
@@ -120,42 +120,8 @@ EOS;
     }
 
     /**
-     *
-     * @param type $blockName
-     * @param type $value
-     * @param array $params
-     * @param bool $adding
-     * @param ContentBase $content_obj
-     * @return string
-     */
-    public function GetContentBlockFieldInput($blockName, $value, $params, $adding, ContentBase $content_obj)
-    {
-        if( empty($blockName) ) return false;
-//        $uid = get_userid(false);
-//        $adding = (bool)( $adding || ($content_obj->Id() < 1) ); // hack for the core. Have to ask why though (JM)
-
-        $profile_name = $params['profile'] ?? '';
-        $profile = $this->get_profile_or_default($profile_name);
-
-        // TODO optionally allow further overriding the profile
-        $out = $this->get_html($blockName, $value, $profile);
-        return $out;
-    }
-/*
-    function ValidateContentBlockFieldValue($blockName,$value,$blockparams,ContentBase $content_obj)
-    {
-        echo('<br />:::::::::::::::::::::<br />');
-        debug_display($blockName, '$blockName');
-        debug_display($value, '$value');
-        debug_display($blockparams, '$blockparams');
-        //debug_display($adding, '$adding');
-        echo('<br />' . __FILE__ . ' : ('__METHOD__') : ' . __LINE__ . '<br />');
-        //die('<br />RIP!<br />');
-    }
-*/
-    /**
-     * Get a list of files in the prescribed folder (or else in the
-     *  top-level accessible folder for the current user)
+     * Get a list of files in the specified folder, or othewrwise in the
+     *  top-level accessible folder for the current user
      * @param string $dirpath Optional filesystem path, absolute or relative
      * @return array, possibly empty
      */
@@ -198,8 +164,39 @@ EOS;
     }
 
     /**
+     * Generate page content for a profile-conformant input-text element
+     * with file-pick ancillaries.
+     * Used by content-editor modules
+     *
+     * @param string $blockName Content block name, used here for
+     *  name-attribute of created element
+     * @param mixed  $value     Content block value, used for initial
+     *  value of created element
+     * @param array  $params    Associative array containing content
+     *  block parameters, of which only 'profile', if any, is used here
+     * @param bool $adding UNUSED whether the content editor is in create mode, otherwise edit mode
+     * @param mixed $content_obj UNUSED The (possibly-unsaved) content object being edited.
+     * @return string
+     */
+    public function GetContentBlockFieldInput($blockName, $value, $params, $adding, $content_obj)
+    {
+        if( !$blockName) return '';
+//      $uid = get_userid(false);
+//      if( !$adding && $content_obj->Id() < 1 ) { $adding = true; } // hack for the core. Have to ask why though (JM)
+
+        $profile_name = $params['profile'] ?? '';
+        $profile = $this->get_profile_or_default($profile_name);
+
+        // TODO optionally allow further overriding the profile
+        $out = $this->get_html($blockName, $value, $profile);
+        return $out;
+    }
+
+    /**
      * Generate page content for an input-text element with ancillaries
-     * which support file picking. Associated js is pushed into the page footer.
+     * which support file picking.
+     * During admin requests, associated js is placed at page bottom
+     *
      * @staticvar boolean $first_time
      * @param string $name the name-attribute of the element
      * @param string $value the initial value of the element
@@ -297,8 +294,6 @@ $(function() {
 </script>
 
 EOS;
-        add_page_foottext($js);
-
         $smarty = SingleItem::Smarty();
         $tpl = $smarty->createTemplate($this->GetTemplateResource('contentblock.tpl')); //, null, null, $smarty);
         $tpl->assign([
@@ -307,7 +302,15 @@ EOS;
          'required' => $required,
          'instance' => $inst,
          ]);
-        return $tpl->fetch();
+        $out = $tpl->fetch();
+
+        if( SingleItem::App()->is_frontend_request() ) {
+            return $out."\n".$js;
+        }
+        else {
+            add_page_foottext($js);
+            return $out;
+        }
     }
 
     /**
@@ -315,10 +318,10 @@ EOS;
      * @param string $filename
      * @return bool
      */
-    public function is_image( $filename )
+    public function is_image($filename)
     {
         $filename = trim($filename);
-        if( $filename ) return $this->_typehelper->is_image( $filename );
+        if( $filename ) return $this->_typehelper->is_image($filename);
         return false;
     }
 
@@ -328,9 +331,11 @@ EOS;
      * @param string $filepath
      * @return boolean
      */
-    public function is_acceptable_filename( $profile, $filepath )
+    public function is_acceptable_filename($profile, $filepath)
     {
-        if( endswith($filepath,'index.html') || endswith($filepath,'index.php') ) return false;
+        if( endswith($filepath,'index.html') || endswith($filepath,'index.php') ) {
+            return false;
+        }
         return FolderControlOperations::is_file_name_acceptable($profile,$filepath);
     }
 } // class

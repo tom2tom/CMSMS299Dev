@@ -24,6 +24,7 @@ use CMSMS\SingleItem;
 use function CMSMS\log_error;
 use function CMSMS\log_notice;
 
+//if( some worthy test fails ) exit;
 if( !$this->CheckContext() ) exit;
 
 if( !$this->CheckPermission('Manage All Content') ) {
@@ -35,6 +36,7 @@ if( !isset($params['bulk_content']) ) {
     $this->Redirect($id,'defaultadmin',$returnid);
 }
 
+$contentops = SingleItem::ContentOperations();
 $pagelist = $params['bulk_content'];
 $active = !empty($params['active']);
 $user_id = get_userid();
@@ -42,7 +44,7 @@ $n = 0;
 
 try {
     foreach( $pagelist as $pid ) {
-        $content = $this->GetContentEditor($pid);
+        $content = $contentops->LoadEditableContentFromId($pid);
         if( !is_object($content) ) continue;
 
         if( $content->DefaultContent() ) continue;
@@ -58,6 +60,7 @@ catch (Throwable $t) {
     log_error('Multi-page activation change failed',$t->getMessage());
     $this->SetError($t->getMessage());
 }
+
 $cache = SingleItem::LoadedData();
 // TODO or refresh() & save, ready for next stage ?
 $cache->delete('content_quicklist');

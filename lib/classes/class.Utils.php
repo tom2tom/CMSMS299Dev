@@ -251,8 +251,8 @@ final class Utils
 	 *  destination(s), each like emailaddress or Name <emailaddress>
 	 * @param string $subject plaintext subject
 	 * @param string $message plaintext or html message body-content
-	 * @param mixed array|string $additional_headers optional header(s)
-	 *  for the message
+	 * @param mixed array|string $additional_headers optional other header(s)
+	 *  for the message e.g. From, Cc, ...
 	 * @param string $additional_params optional extra params for sendmail
 	 *  if that's the currently-selected backend processor
 	 * @return bool indicating message was accepted for delivery
@@ -270,6 +270,7 @@ final class Utils
 				return false;
 			}
 		} else {
+			//TODO cleanup params e.g. subject per RFC 2047, trim'd $message with \r\n separators
 			return mail($to, $subject, $message, $additional_headers, $additional_params);
 		}
 	}
@@ -311,10 +312,12 @@ final class Utils
 
 	/**
 	 * Convert a strftime()-compatible display format to a date()-compatible format
+	 * Deals with (most) date and/or time formats
 	 * @since 2.99
 	 * @deprecated since 2.99 instead use date()-compatible formats
 	 *
 	 * @param string $fmt
+	 * @param bool $withtime Default true UNUSED
 	 * @return string
 	 */
 	public static function convert_dt_format(string $fmt) : string
@@ -423,5 +426,8 @@ final class Utils
 		$to[27] = str_replace($from, $to, $localT); //format time in a locale-specific way
 		$to[30] = str_replace($from, $to, $localDT); //format date and time in a locale-specific way
 		return str_replace($from, $to, $fmt);
+		//TODO if (!$withtime) {
+		// preg_replace('/[aABgGhHiIsuveOpPTZ]/', '', $fmt);
+		// return trim($fmt, ' :');
 	}
 } // class

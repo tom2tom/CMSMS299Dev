@@ -35,7 +35,7 @@ use CMSMS\Utils;
  * Instead, the content-type class (implementing IContentEditor), and if appropriate
  * a separate display-only variant, should just be registered permanently or during
  * each request via the CMSModule API.
- * @package		CMS
+ * @package CMS
  */
 abstract class ModuleContentType extends ContentBase
 {

@@ -27,7 +27,8 @@ use function startswith;
 
 /**
  * Currently used only by ContentManager::Content class, for
- * backend-page or frontend-page-preview
+ * backend-page or frontend-page-preview.
+ * Formerly, App::get_template_parser() returned something similar.
  */
 class page_template_parser extends Smarty_Internal_Template
 {
@@ -263,8 +264,8 @@ class page_template_parser extends Smarty_Internal_Template
      */
     public static function compile_imageblock(array $params, $template)
     {
-        if (!isset($params['block']) || empty($params['block'])) {
-            throw new EditContentException('{content_image} tag requires block parameter');
+        if (empty($params['block'])) {
+            throw new EditContentException("{content_image} tag requires 'block' parameter");
         }
 
         $rec = [
@@ -324,8 +325,8 @@ class page_template_parser extends Smarty_Internal_Template
      */
     public static function compile_moduleblock(array $params, $template)
     {
-        if (!isset($params['block']) || empty($params['block'])) {
-            throw new EditContentException('{content_module} tag requires block parameter');
+        if (empty($params['block'])) {
+            throw new EditContentException("{content_module} tag requires 'block' parameter");
         }
 
         $rec = [
@@ -380,14 +381,14 @@ class page_template_parser extends Smarty_Internal_Template
 
     /**
      * Process {content_text} tag
-     * Adds parameters array to intra-request cache.
+     * Adds parameters array to intra-request cache. TODO cache in smarty instead?
      *
      * @param array $params
      * @param mixed $template UNUSED
      */
     public static function compile_contenttext(array $params, $template)
     {
-        //if( !isset($params['block']) || empty($params['block']) ) throw new \CMSMS\EditContentException('{content_text} smarty block tag requires block parameter');
+        //if (empty($params['block'])) throw new \CMSMS\EditContentException("{content_text} tag requires a 'block' parameter");
 
         $rec = [
             'type'=>'static',

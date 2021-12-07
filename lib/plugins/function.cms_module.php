@@ -22,6 +22,9 @@ If not, see <https://www.gnu.org/licenses/>.
 function smarty_function_cms_module($params, $template)
 {
 	$out = cms_module_plugin($params, $template);
+	if( !$out && isset($params['try']) ) {
+		$out = '<!-- ERROR: missing module '.($params['module'] ?? '(no name)').' -->';
+	}
 
 	if( !empty($params['assign']) ) {
 		$template->assign(trim($params['assign']), $out);

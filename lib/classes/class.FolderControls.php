@@ -23,16 +23,16 @@ namespace CMSMS;
 
 use CMSMS\DataException;
 use CMSMS\FileType;
-use CMSMS\FileTypeHelper;
+//use CMSMS\FileTypeHelper;
 use CMSMS\FSControlValue;
 use CMSMS\SingleItem;
 use Exception;
 use UnexpectedValueException;
 use const CMS_ROOT_PATH;
 use const PUBLIC_CACHE_LOCATION;
-use function check_permission;
+//use function check_permission;
 use function cms_to_bool;
-use function get_userid;
+//use function get_userid;
 use function startswith;
 
 /**
@@ -136,34 +136,38 @@ class FolderControls
     }
 
     /**
-     * Try to interpret a suitable relative folder
+     * Try to interpret a suitable root-relative folder
      * @param string $path
      * @return mixed string (maybe empty) | null signals failure
      */
     private function rel_top(string $path)
     {
-        $ups = SingleItem::Config()['uploads_path'];
         $s = trim($path);
         if( $s === '' ) {
             return $s;
         }
         elseif( startswith($s, CMS_ROOT_PATH) ) {
-           $s = substr($s, strlen(CMS_ROOT_PATH));
-           return ltrim($s, ' \/');
+            if( is_dir($s) ) {
+               $s = substr($s, strlen(CMS_ROOT_PATH));
+               return ltrim($s, ' \/');
+            }
         }
         elseif( preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $s) ) {
             // path is absolute
             $s = preg_replace('~^\s*[a-zA-Z]\s*:~', '', $s);
             $s = ltrim($s, ' \/');
-            if( is_dir( CMS_ROOT_PATH.DIRECTORY_SEPARATOR.$s) ) {
+            if( is_dir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.$s) ) {
                 return $s;
             }
         }
-        elseif( is_dir( CMS_ROOT_PATH.DIRECTORY_SEPARATOR.$s) ) {
+        elseif( is_dir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.$s) ) {
             return $s;
         }
-        elseif (is_dir( CMS_ROOT_PATH.DIRECTORY_SEPARATOR.$ups.DIRECTORY_SEPARATOR.$s) ) {
-            return $ups.DIRECTORY_SEPARATOR.$s;
+        else {
+            $ups = SingleItem::Config()['uploads_path'];
+            if (is_dir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.$ups.DIRECTORY_SEPARATOR.$s) ) {
+                return $ups.DIRECTORY_SEPARATOR.$s;
+            }
         }
         return null; //failure
     }
@@ -238,6 +242,7 @@ class FolderControls
                 $n = (int)$val;
                 if( FileType::isValidValue($n) ) {
                     $this->data[$key] = $n;
+                    $this->data['typename'] = FileType::getName($n);
                     break;
                 }
                 throw new UnexpectedValueException("'$val' is not a valid value for '$key' in a ".__CLASS__.' object');
@@ -247,6 +252,7 @@ class FolderControls
             $s = strtoupper(trim($val));
             if( ($n = FileType::getValue($s)) !== null ) {
                 $this->data['type'] = $n;
+                $this->data[$key] = $s;
                 break;
             }
             throw new UnexpectedValueException("'$val' is not a valid value for '$key' in a ".__CLASS__.' object');
@@ -277,9 +283,9 @@ class FolderControls
             }
             break;
         case 'reltop':
-        case 'top': // accepted aliases
-        case 'topdir':
         case 'relative_top':
+        case 'top': // accepted aliases (for setting only)
+        case 'topdir':
             $s = $this->rel_top($val);
             if( $s !== null ) {
                 $this->data['reltop'] = $s;
@@ -349,11 +355,12 @@ class FolderControls
         case 'file_extensions':
         case 'file_mimes':
             return trim($this->data[$key], ' ,');
-        case 'top':
         case 'reltop':
-        case 'topdir':
         case 'relative_top':
             return trim($this->data['reltop']);
+        case 'top':
+        case 'topdir':
+            return CMS_ROOT_PATH.DIRECTORY_SEPARATOR.trim($this->data['reltop']);
         default:
             return $this->data[$key] ?? null;
         }
@@ -400,7 +407,7 @@ class FolderControls
     /**
      * Get a clone of this profile
      * @param mixed $new_id ignored since 2.99
-     *  Setting a specific id is automatic when a set is saved, and probited otherwise
+     *  Setting a specific id is automatic when a set is saved, and prohibited otherwise
      * @return self
      */
     public function withNewId($new_id = null)
@@ -410,8 +417,8 @@ class FolderControls
 
     /**
      * Get a clone of this profile with allowed replacement properties
-     * @param array $params assoc. array of profile props and respective vals
-     * Props id, create_date are ignored (not to be manuallu set)
+     * @param array $params assoc. array of profile props and respective values
+     * Props id, create_date are ignored (not to be manually set)
      * @return self
      * @throws UnexpectedValueException
      */

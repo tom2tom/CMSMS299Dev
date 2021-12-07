@@ -11,7 +11,7 @@
 {form_start}
 {foreach $pagelist as $pid}<input type="hidden" name="{$actionid}bulk_content[]" value="{$pid}" />
 {/foreach}
-{include  file='module_file_tpl:ContentManager;setstyles.tpl'}
+{include  file='module_file_tpl:ContentManager;setstyles.tpl' scope='global'}
 <div class="pageinput pregap">
   <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{_ld($_module,'submit')}</button>
   <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{_ld($_module,'cancel')}</button>

@@ -225,7 +225,7 @@ smarty cache lifetime != global cache ttl, probably
         $post = [];
         $output = [];
         // Filters will be applied in same order as registered
-        // TODO manage processing order hare, if it matters
+        // TODO manage processing order here, if it matters
         foreach( $this->getPluginsDir() as $dir ) {
             if( !is_dir($dir) ) continue;
 
@@ -343,7 +343,6 @@ smarty cache lifetime != global cache ttl, probably
                 return true;
             }
         }
-
         return false;
     }
 

@@ -20,14 +20,16 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\SingleItem;
+
 if( !$this->CheckContext() ) exit;
 
 if( !isset($params['page']) ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->Redirect($id,'defaultadmin',$returnid);
 }
-$content_id = (int)$params['page'];
-if( $content_id < 1 ) {
+$page_id = (int)$params['page'];
+if( $page_id < 1 ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->Redirect($id,'defaultadmin',$returnid);
 }
@@ -35,24 +37,18 @@ if( $content_id < 1 ) {
 //
 // get the data
 //
-if( !$this->CanEditContent($content_id) ) {
+if( !$this->CanEditContent($page_id) ) {
     $this->SetError($this->Lang('error_copy_permission'));
     $this->Redirect($id,'defaultadmin',$returnid);
 }
 
-$hm = cmsms()->GetHierarchyManager();
-$node = $hm->find_by_tag('id',$content_id);
-if( !$node ) {
-    $this->SetError($this->Lang('error_invalidpageid'));
-    $this->Redirect($id,'defaultadmin',$returnid);
-}
-$from_obj = $node->getContent(FALSE,FALSE,FALSE);
+$contentops = SingleItem::ContentOperations();
+$from_obj = $contentops->LoadEditableContentFromId($page_id, true);
 if( !$from_obj ) {
     $this->SetError($this->Lang('error_invalidpageid'));
     $this->Redirect($id,'defaultadmin',$returnid);
 }
 $from_obj->GetAdditionalEditors();
-$from_obj->HasProperty('anything'); // forces properties to be loaded.
 
 $userid = get_userid();
 $to_obj = clone $from_obj;
@@ -60,7 +56,7 @@ $to_obj->SetURL('');
 $to_obj->SetName('Copy of '.$from_obj->Name());
 $to_obj->SetMenuText('Copy of '.$from_obj->MenuText());
 $to_obj->SetAlias();
-$to_obj->SetDefaultContent(0);
+$to_obj->SetDefaultContent(FALSE);
 $to_obj->SetOwner($userid);
 $to_obj->SetLastModifiedBy($userid);
 $_SESSION['__cms_copy_obj__'] = serialize($to_obj);

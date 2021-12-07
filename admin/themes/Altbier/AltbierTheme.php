@@ -40,6 +40,7 @@ use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
+use function _la;
 use function check_permission;
 use function cleanValue;
 use function cms_installed_jquery;
@@ -60,11 +61,11 @@ class AltbierTheme extends AdminTheme
 	 */
 	const THEME_VERSION = '0.6';
 	/**
-	 * TODO variable for this
-	 * e.g. https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous"';
+	 * TODO variable(s) for this to generate e.g.
+	 * e.g. <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	 * @ignore
 	 */
-	const AWESOME_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.min.css';
+	const AWESOME_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css';
 
 	/**
 	 * @ignore
@@ -278,7 +279,7 @@ EOS;
 		if (is_file($fp)) {
 			$url = cms_path_to_url($fp);
 		} else {
-			$url = self::AWESOME_CDN; // TODO variable CDN URL
+			$url = self::AWESOME_CDN; // TODO variable(s) for CDN URL and SRI hash
 		}
 		$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
 
@@ -544,7 +545,7 @@ EOS;
 		if (is_file($fp)) {
 			$url = cms_path_to_url($fp); // TODO 2.99+
 		} else {
-			$url = self::AWESOME_CDN; // TODO variable CDN URL
+			$url = self::AWESOME_CDN; // TODO variable(s) for CDN URL and SRI hash
 		}
 		$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
 
@@ -553,6 +554,7 @@ EOS;
 			 ->assign('bottom_includes', get_page_foottext());
 		} else {
 			// replicate AdminHeaderSetup(), with different js
+			// no CSP-related attrs for html5shiv - old IE incapable!
 			$dir = ''; //TODO or '-rtl'
 			list($jqcss, $jqui, $jqcore) = $this->find_installed_jq();
 			$smarty->assign('header_includes', <<<EOS
@@ -564,7 +566,7 @@ EOS;
 //TODO jquery ancillaries
 <script type="text/javascript" src="themes/Altbier/includes/standard.min.js"></script>
 <!--[if lt IE 9]>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script> TODO conform CSP
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
 <![endif]-->
 
 EOS

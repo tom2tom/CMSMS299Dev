@@ -120,7 +120,7 @@ if( isset($params['submit']) || isset($params['apply']) ) {
             update_template($template, $params, false);
             TemplateOperations::save_template($template);
         }
-        catch( Throwable $t ) {
+        catch (Throwable $t) {
             $module->SetError($t->getMessage());
             $module->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
         }
@@ -131,7 +131,7 @@ if( isset($params['submit']) || isset($params['apply']) ) {
             update_template($template, $params, true);
             TemplateOperations::save_template($template);
         }
-        catch ( Throwable $t ) {
+        catch (Throwable $t) {
             $module->SetError($t->getMessage());
             $module->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
         }
@@ -160,7 +160,7 @@ if( $params['tpl'] > 0 ) {
             $title = _ld('layout', 'prompt_edit_template');
         }
     }
-    catch( Throwable $t ) {
+    catch (Throwable $t) {
         $module->SetError($t->getMessage());
         $module->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
     }
@@ -198,7 +198,7 @@ if( $can_manage ) {
                     if( $msg ) $infomessage .= '<br /><br />'.$msg;
                 }
             }
-            catch( Throwable $t ) {
+            catch (Throwable $t) {
                 $module->SetError($t->getMessage());
                 $module->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
             }
@@ -223,12 +223,12 @@ $jsm = new ScriptsMerger();
 $jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
 //$jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 $js = $jsm->page_content();
-if( $js) {
+if( $js ) {
     add_page_foottext($js);
 }
 
 $pageincs = get_syntaxeditor_setup(['edit'=>$can_manage, 'typer'=>'smarty']);
-if( !empty($pageincs['head'])) {
+if( !empty($pageincs['head']) ) {
     add_page_headtext($pageincs['head']);
 }
 /*
@@ -340,9 +340,19 @@ $tpl->assign('formaction', 'edittemplate')
  ->assign('withbuttons', !empty($show_buttons) || !empty($show_cancel))
  ->assign('withcancel', !empty($show_cancel));
 
-if( !isset($display) || $display ) {
-    $tpl->display();
-}
-else {
-    return $tpl->fetch();
+try {
+    if( !isset($display) || $display ) {
+        $tpl->display();
+    }
+    else {
+        return $tpl->fetch();
+    }
+} catch(Throwable $t) {
+    log_error('Edit template failure', $t->getMessage());
+    if( !isset($display) || $display ) {
+        echo $t->getMessage();
+    }
+    else {
+        return $t->getMessage();
+    }
 }

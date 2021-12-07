@@ -112,6 +112,7 @@ final class SmartySecurityPolicy extends Smarty_Security
                 'strtoupper',
                 'substr',
                 'time',
+                'trim',
                 'urlencode',
                 'var_dump',
                 ];

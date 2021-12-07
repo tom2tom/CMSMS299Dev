@@ -3,7 +3,6 @@
 //use CMSMS\Lock;
 //use CMSMS\StylesheetOperations;
 //use CMSMS\TemplateOperations;
-use Exception;
 use function cms_installer\lang;
 
 $name = $db->database;
@@ -169,7 +168,7 @@ $tbl = CMS_DB_PREFIX.'content_types';
 $flds = '
 id I UNSIGNED AUTO KEY,
 originator C(50) NOTNULL UKEY,
-name C(25) NOTNULL UKEY,
+name C(25) COLLATE ascii_general_ci NOTNULL UKEY,
 publicname_key C(64),
 displayclass C(255) NOTNULL,
 editclass C(255)

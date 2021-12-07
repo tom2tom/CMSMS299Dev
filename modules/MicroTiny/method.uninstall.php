@@ -24,7 +24,14 @@ use CMSMS\AppParams;
 use CMSMS\SingleItem;
 use CMSMS\UserParams;
 
-$this->RemovePermission('MicroTiny View HTML Source');
+if (empty($this) || !($this instanceof MicroTiny)) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
+
+$fp = cms_join_path($config['uploads_path'], 'images', 'uTiny-demo.png');
+if (is_file($fp)) {
+	@unlink($fp);
+}
 
 $me = $this->GetName();
 $val = AppParams::get('wysiwyg');
@@ -41,5 +48,9 @@ foreach ($users as $uid => $uname) {
 	$val = UserParams::get_for_user($uid, 'wysiwyg');
 	if ($val == $me) {
 		UserParams::set_for_user($uid, 'wysiwyg', '');
+		UserParams::set_for_user($uid, 'wysiwyg_type', '');
+		UserParams::set_for_user($uid, 'wysiwyg_theme', '');
 	}
 }
+
+$this->RemovePreference();

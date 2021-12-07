@@ -44,10 +44,10 @@ $mdm = explode(',',$t);
 $n = $this->GetPreference('timeblock',News::HOURBLOCK);
 switch($n) {
     case News::DAYBLOCK:
-        $gapmins = 60*24;
+        $gapmins = 1440; //60*24
         break;
     case News::HALFDAYBLOCK:
-        $gapmins = 60*12;
+        $gapmins = 720; //60*12
         break;
     default:
         $gapmins = 60;
@@ -68,7 +68,7 @@ $.datePicker.defaults.formatDate = function(date) {
 };
 $.datePicker.defaults.parseDate = function(string) {
  var date, parts = string.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
- if ( parts && parts.length == 4 ) {
+ if (parts && parts.length == 4) {
   date = new Date( parts[1], parts[2] - 1, parts[3] );
  } else {
   date = new Date();
@@ -81,14 +81,14 @@ if ($list) {
     $js .= <<<EOS
 function news_dopreview() {
   if(typeof tinyMCE !== 'undefined') {
-    tinyMCE.triggerSave(); //TODO a general API, to migrate editor-content into an input-element to be saved
+    tinyMCE.triggerSave(); //TODO generalise e.g. setpagecontent() to migrate editor-content into an input-element to be saved
   }
   var fm = $('form'),
      url = fm.attr('action'),
   params = [
   {name: '{$id}ajax', 'value': 1},
   {name: '{$id}preview', 'value': 1},
-  {name: '{$id}previewpage', 'value': $("input[name='preview_returnid']").val()},
+  {name: '{$id}previewpage', 'value': $('input[name="preview_returnid"]').val()},
   {name: '{$id}detailtemplate', 'value': $('#preview_template').val()},
   {name: cms_data.job_key, 'value': 1} //curtail display
   ].concat(fm.find('input:not([type=submit]), select, textarea').serializeArray());
@@ -120,23 +120,32 @@ EOS;
 
 $js .= <<<EOS
 $(function() {
-  $('[name$="apply"],[name$="submit"]').prop('disabled',true);
-  $('#edit_article').dirtyForm({
+  $('.cmsfp_elem').on('change', function() {
+    var img = $(this).val();
+    if (img) {
+      $('.yesimage').show();
+    } else {
+      $('.yesimage').hide();
+    }
+    return false;
+  }).triggerHandler('change');
+  $('[name="{$id}apply"],[name="{$id}submit"]').prop('disabled',true);
+  $('#edit_news').dirtyForm({
     onDirty: function() {
-      $('[name$="apply"],[name$="submit"]').prop('disabled',false);
+      $('[name="{$id}apply"],[name="{$id}submit"]').prop('disabled',false);
     }
   });
-  $(document).on('cmsms_textchange', function() {
-    // editor text change, set the form dirty.
+  $('#edit_news :input').on('change', function() {
+    // on any content change set the form dirty
     $('#edit_news').dirtyForm('option', 'dirty', true);
   });
-  $('[name$="submit"],[name$="apply"],[name$="cancel"]').on('click', function() {
+  $('[name="{$id}submit"],[name="{$id}apply"],[name="{$id}cancel"]').on('click', function() {
     $('#edit_news').dirtyForm('option', 'disabled', true);
   });
   $('#fld11').on('click', function() {
     $('#expiryinfo').toggle('slow');
   });
-  $('[name$="cancel"]').on('click', function() {
+  $('[name="{$id}cancel"]').on('click', function() {
     $(this).closest('form').attr('novalidate', 'novalidate');
   });
 
@@ -146,7 +155,7 @@ if ($list) {
   $('[name="{$id}apply"]').on('click', function(ev) {
     ev.preventDefault();
     if(typeof tinyMCE !== 'undefined') {
-      tinyMCE.triggerSave(); //TODO a general API, to migrate editor-content into an input-element to be saved
+      tinyMCE.triggerSave(); //TODO generalise e.g. setpagecontent() to migrate editor-content into an input-element to be saved
     }
     var fm = $('form'),
        url = fm.attr('action'),
@@ -154,7 +163,7 @@ if ($list) {
     {name: '{$id}ajax', 'value': 1},
     {name: '{$id}apply', 'value': 1},
     {name: cms_data.job_key, 'value': 1} // curtail display
-	].concat(fm.find('input:not([type=submit]), select, textarea').serializeArray());
+    ].concat(fm.find('input:not([type=submit]), select, textarea').serializeArray());
     $.ajax(url, {
       method: 'POST',
       data: params,
@@ -170,14 +179,14 @@ if ($list) {
         cms_notify('error', details);
       }
     });
-	return false;
+    return false;
   });
   $('#preview').on('click', function(ev) {
     ev.preventDefault();
     news_dopreview();
     return false;
   });
-  $("input[name='preview_returnid'],#preview_template").on('change', function(ev) {
+  $('input[name="preview_returnid"],#preview_template').on('change', function(ev) {
     ev.preventDefault();
     news_dopreview();
     return false;
@@ -198,6 +207,31 @@ if ($list) {
   });
 
 EOS;
+    if ($pprop) { // current user may create an article but not self-publish
+        $t = lang('ok');
+        $js .= <<<EOS
+  $('[name="{$id}apply"],[name="{$id}submit"]').on('click', function(ev) {
+    var st = $('[name="{$id}status"]').val();
+    if (st === 'final') {
+      ev.preventDefault();
+      cms_dialog($('#post_notice'), {
+        modal: true,
+        width: 'auto',
+        close: function (ev, ui) {
+          $('#post_notice').find('form').trigger('submit');
+        },
+        buttons: {
+          '$t': function() {
+            $(this).dialog('close');
+          }
+        }
+      });
+      return false;
+    }
+  });
+
+EOS;
+    }
 } //templates present
 $js .= <<<EOS
 });

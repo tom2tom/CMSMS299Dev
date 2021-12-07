@@ -34,10 +34,10 @@ use function CMSMS\specialize;
 
 $pmod = $this->CheckPermission('Modify Site Preferences') ||
     $this->CheckPermission('Modify Mail Preferences');
-$pgates = $pmod || $this->CheckPermission('Modify Email Gateways');
-$psee = $this->CheckPermission('View Email Gateways');
-//$ptpl = $this->CheckPermission('Modify Email Templates');
-if (!($pmod || $pgates || $psee)) exit; // || $ptpl
+$pgates = false; // NOT YET IMPLEMENTED $pmod || $this->CheckPermission('Modify Email Gateways');
+$psee = false; // NOT YET IMPLEMENTED $this->CheckPermission('View Email Gateways');
+$ptpl = $this->CheckPermission('Modify Email Templates');
+if (!($pmod || $pgates || $psee || $ptpl)) exit;
 
 if (!empty($params['activetab'])) {
     $activetab = $params['activetab'];
@@ -59,8 +59,7 @@ $mailprefs = [
  'smtpauth' => 3,
  'timeout' => 2,
  'username' => 1,
- //spool-related extras for this mailer
-/*
+/*/spool-related extras for this mailer
  'batchgap' => 2,
  'batchsize' => 2,
 */
@@ -68,7 +67,7 @@ $mailprefs = [
 ];
 
 if (isset($params['apply'])/* || isset($params['sendtest'])*/) {
-    // TODO sanitize, validate
+    // TODO sanitize & validate inputs
     // first update core mail prefs, if any
     $val = AppParams::get('mailprefs');
     if ($val) {
@@ -113,8 +112,10 @@ if (isset($params['apply'])/* || isset($params['sendtest'])*/) {
                 $tmp = (bool)$params[$key];
                 break;
             case 4:
-                if ($pw === null) { $pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY); }
-                $tmp = base64_encode(Crypto::encrypt_string(trim($val), $pw));
+                if ($pw === null) {
+                    $pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY);
+                }
+                $tmp = base64_encode(Crypto::encrypt_string(trim($params[$key]), $pw));
                 break;
             default:
                 $tmp = trim($params[$key]);
@@ -325,17 +326,18 @@ $singl_opts = [
 $val = (int)$mailprefs['single'];
 $singl_opts[$val] += ['checked'=> true];
 
+//$extras = []; //TODO all 'other' hidden items in each form
+
 $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);
 
-//$extras = []; //TODO all 'other' hidden items in each form
-// 'puse' => $puse,
 $tpl->assign([
  'startform' => FormUtils::create_form_start($this, ['id' => $id, 'action' => 'defaultadmin']),
  'extraparms' => null, //$extras,
  'tab' => $activetab,
  'pmod' => $pmod,
- 'psee' => $psee,
  'pgates' => $pgates,
+ 'psee' => $psee,
+ 'ptpl' => $ptpl,
  'title_charset' => $this->Lang('charset'),
  'value_charset' => $mailprefs['charset'],
  'title_mailer' => $this->Lang('mailer'),
@@ -357,16 +359,18 @@ $tpl->assign([
  'value_smtpauth' => $mailprefs['smtpauth'],
  'title_secure' => $this->Lang('secure'),
  'value_secure' => $mailprefs['secure'],
+ // see SmtpTransport const's which match tbese values
  'opts_secure' => [
      '' => $this->Lang('none'),
+     'stls' => $this->Lang('starttls'),
+     'tls' => $this->Lang('tls'),
      'ssl' => $this->Lang('ssl'),
-     'tls' => $this->Lang('tls')
   ],
  'title_username' => $this->Lang('username'),
  'value_username' => $mailprefs['username'],
  'title_password' => $this->Lang('password'),
  'value_password' => $mailprefs['password'],
-/*
+/* if batching is supported ...
  'title_batchgap' => $this->Lang('batchgap'),
  'opts_batchgap' => [
      0 => $this->Lang('none'),

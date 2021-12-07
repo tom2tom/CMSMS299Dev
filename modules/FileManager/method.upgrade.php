@@ -1,6 +1,7 @@
 <?php
-
-if (!function_exists('cmsms')) exit;
+if (empty($this) || !($this instanceof FileManager)) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
 $current_version = $oldversion;
 $this->SetPreference('uploadboxes','5');

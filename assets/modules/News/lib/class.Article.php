@@ -39,6 +39,7 @@ class Article
     'enddate',
     'extra',
     'id',
+    'image_url',
     'news_url',
     'params',
     'returnid',
@@ -46,7 +47,6 @@ class Article
     'status',
     'summary',
     'title',
-    'useexp',
     ];
 */
     private $_rawdata = [];
@@ -60,7 +60,6 @@ class Article
         if( isset($this->_rawdata[$key]) ) $res = $this->_rawdata[$key];
         return $res;
     }
-
 
     private function _getauthorinfo(int $author_id, bool $authorname = FALSE)
     {
@@ -84,7 +83,6 @@ class Article
         return $this->_meta['author'];
     }
 
-
     private function _get_returnid()
     {
         if( !isset($this->_meta['returnid']) ) {
@@ -96,22 +94,20 @@ class Article
         return $this->_meta['returnid'];
     }
 
-
     private function _get_canonical()
     {
         if( !isset($this->_meta['canonical']) ) {
-            $tmp = $this->news_url;
-            if( $tmp == '' ) {
-                $aliased_title = munge_string_to_url($this->title);
-                $tmp = 'news/'.$this->id.'/'.$this->returnid."/{$aliased_title}";
+            $value = $this->news_url;
+            if( !$value ) {
+                $value = munge_string_to_url($this->title); // TODO better version
             }
+            $purl = 'News/'.$this->id.'/'.$this->returnid.'/'.$value;
             $mod = AppUtils::get_module('News');
-            $canonical = $mod->create_url($this->_inid,'detail',$this->returnid,$this->params,false,false,$tmp,false,2);
+            $canonical = $mod->create_url($this->_inid,'detail',$this->returnid,$this->params,false,false,$purl,false,2);
             $this->_meta['canonical'] = $canonical;
         }
         return $this->_meta['canonical'];
     }
-
 
     private function _get_params()
     {
@@ -120,6 +116,16 @@ class Article
         return $params;
     }
 
+    // ensure we get a datetime-field-compatible value
+    private function dtform($key, $value)
+    {
+        if( is_int($value) ) { // timestamp?
+            $this->_rawdata[$key] = date('Y-m-d H:i:s', $value); // c.f. $db->DbTimeStamp($value,false) which also escapes content
+        }
+        else {
+            $this->_rawdata[$key] = $value; // just assume it's ok .... BAH!
+        }
+    }
 
     public function set_linkdata($id,$params,$returnid = '')
     {
@@ -153,8 +159,9 @@ class Article
         case 'title':
         case 'content':
         case 'summary':
-        case 'extra':
         case 'news_url':
+        case 'image_url':
+        case 'extra':
         case 'category_id':
         case 'status':
         case 'start_time':
@@ -193,11 +200,11 @@ class Article
         case 'category':
             // metadata
             return Utils::get_category_name_from_id($this->category_id);
-
+/*
         case 'useexp':
             if( isset($this->_meta['useexp']) ) return $this->_meta['useexp'];
             return 0;
-
+*/
         case 'canonical':
             // metadata
             return $this->_get_canonical();
@@ -211,11 +218,11 @@ class Article
             return $this->_get_params();
 
         default:
-/*          // check if there is a field with this alias
+/*          // check if there is a field with this news_url
             if( isset($this->_rawdata['fieldsbyname']) && is_array($this->_rawdata['fieldsbyname']) ) {
                 foreach( $this->_rawdata['fieldsbyname'] as $fname => &$obj ) {
                     if( !is_object($obj) ) continue;
-                    if( $key == $obj->alias ) return $obj->value;
+                    if( $key == $obj->news_url) return $obj->value;
                 }
                 unset($obj);
             }
@@ -224,7 +231,6 @@ class Article
 //          throw new Exception('Requesting invalid data from News article object '.$key);
         }
     }
-
 
     public function __isset(string $key)
     {
@@ -237,6 +243,7 @@ class Article
         case 'summary':
         case 'extra':
         case 'news_url':
+        case 'image_url':
         case 'category_id':
         case 'status':
         case 'start_time':
@@ -272,7 +279,6 @@ class Article
         return FALSE;
     }
 
-
     public function __set(string $key,$value)
     {
         switch( $key ) {
@@ -281,15 +287,16 @@ class Article
         case 'title':
         case 'content':
         case 'summary':
+        case 'news_url': // TODO validation
+        case 'image_url': // TODO validation
         case 'extra':
-        case 'news_url':
         case 'category_id':
             $this->_rawdata[$key] = $value;
             break;
 
         case 'status':
             $value = strtolower($value);
-            if( $value != 'published' &&  $value != 'final' ) $value = 'draft';
+            if( $value != 'published' &&  $value != 'final' ) { $value = 'draft'; }
             $this->_rawdata[$key] = $value;
             break;
 
@@ -320,17 +327,6 @@ class Article
 
 //        default: assert IF DEBUGGING
 //            throw new Exception('Modifying invalid data in News article object '.$key);
-        }
-    }
-
-    // ensure we get a datetime-field-compatible value
-    private function dtform($key, $value)
-    {
-        if( is_int($value) ) { // timestamp?
-            $this->_rawdata[$key] = date('Y-m-d H:i:s', $value); // c.f. $db->DbTimeStamp($value,false) which also escapes content
-        }
-        else {
-            $this->_rawdata[$key] = $value; // just assume it's ok .... BAH!
         }
     }
 }

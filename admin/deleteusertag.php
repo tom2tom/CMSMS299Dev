@@ -36,7 +36,7 @@ if (!check_permission($userid, 'Manage User Plugins')) {
 
 $themeObject = SingleItem::Theme();
 
-$tagname = sanitizeVal($_GET['name'], CMSSAN_FILE); // UDT might be file-stored
+$tagname = sanitizeVal($_GET['name'], CMSSAN_FILE); // UDT might be file-stored BUT no space(s) ?
 $ops = SingleItem::UserTagOperations();
 if ($ops->UserTagExists($tagname)) {  // UDT-files included
 //if exists $ops->DoEvent( deleteuserpluginpre etc);

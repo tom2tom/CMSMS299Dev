@@ -15,7 +15,7 @@
 <div class="pageoverflow postgap">
   {$t=_ld($_module,'prompt_pagedflt_styles')}<label class="pagetext" for="allsheets">{$t}:</label>
   {cms_help 0=$_module key='info_styles' title=$t}
-  {include file='module_file_tpl:ContentManager;setstyles.tpl' scope='parent'}
+  {include file='module_file_tpl:ContentManager;setstyles.tpl' scope='global'}
 </div>
 <div class="pageoverflow postgap">
   {$t=_ld($_module,'prompt_pagedflt_template_id')}<label class="pagetext" for="template_id">{$t}:</label>

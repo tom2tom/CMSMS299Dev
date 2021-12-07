@@ -238,7 +238,11 @@ if ($modnames) {
             }
         } else {
             $one = new stdClass();
-            $one->label = $mod->GetFriendlyName(); //TODO ->Lang(..._publicname if present
+            if (method_exists($mod, 'GetEditorName')) {
+                $one->label = $mod->GetEditorName();
+            } else {
+                $one->label = $mod->GetFriendlyName(); // admin menu label, may be useless here
+            }
             $one->value = $modnames[$i];
             $one->mainkey = null; //TODO ibid if any
             $one->themekey = null; //TODO ditto
@@ -290,7 +294,11 @@ if ($modnames) {
             }
         } elseif ($modnames[$i] != 'MicroTiny') { //that's only for html :(
             $one = new stdClass();
-            $one->label = $mod->GetFriendlyName(); //TODO
+            if (method_exists($mod, 'GetEditorName')) {
+                $one->label = $mod->GetEditorName();
+            } else {
+                $one->label = $mod->GetFriendlyName(); // admin menu label, may be useless here
+            }
             $one->value = $modnames[$i].'::'.$modnames[$i];
             $one->mainkey = null; //TODO
             $one->themekey = null; //TODO

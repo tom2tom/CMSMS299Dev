@@ -29,6 +29,8 @@ function smarty_function_thumbnail_url($params, $template)
 		return '';
 	}
 
+	//TODO parse $file which might be abs/rel path/url, or just basename
+
 	$dir = SingleItem::Config()['uploads_path'];
 	$add_dir = trim(($params['dir'] ?? ''), ' \/');
 
@@ -46,10 +48,13 @@ function smarty_function_thumbnail_url($params, $template)
 	if( is_file($fullpath) && is_readable($fullpath) ) {
 		// convert to URL
 		$out = CMS_UPLOADS_URL.'/';
-		if( $add_dir ) $out .= strtr($add_dir, '\\', '/') . '/';
+		if( $add_dir ) {
+			$out .= strtr($add_dir, '\\', '/') . '/';
+		}
 		$out .= $file;
 	}
 	else {
+		//TODO try for fallback non-thumb version of the file 
 		trigger_error("thumbnail_url plugin: invalid file $fullpath specified");
 	}
 

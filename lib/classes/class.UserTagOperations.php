@@ -456,28 +456,37 @@ final class UserTagOperations
 		} else {
 			//definite dB-storage, or unknown
 			$scrub = false;
+			$scrub2 = false;
+			//always get id and contentfile values, for local cache data at least
 			if (is_array($props)) {
 				$multi = count($props) > 1;
-				//always get id value, for local cache data at least
-				if (!in_array('id', $props)) {
-					array_shift($props, 'id');
+				if (!in_array('contentfile', $props)) {
+					array_shift($props, 'contentfile');
 					$scrub = true;
 				}
-				// TODO ditto for 'contentfile'
+				if (!in_array('id', $props)) {
+					array_shift($props, 'id');
+					$scrub2 = true;
+				}
 				$fields = implode(',', $props);
 			} elseif ($props) {
 				$multi = ($props == '*' || strpos(',', $props) !== false);
-				//always get id, contentfile
-				if ($props != '*' && strpos($props, 'id') === false) {
-					$fields = 'id,'.$props;
+				if ($props != '*' && strpos($props, 'contentfile') === false) {
+					$fields = 'contentfile,'.$props;
 					$scrub = true;
 				} else {
 					$fields = $props;
 				}
-				// TODO ditto for 'contentfile'
+				if ($fields != '*' && strpos($fields, 'id') === false) {
+					$fields = 'id,'.$fields;
+					$scrub2 = true;
+				}
+				if (!($scrub || $scrub2)) {
+					$fields = $props;
+				}
 			} else {
 				$multi = false;
-				$fields = 'id';
+				$fields = 'id,contentfile';
 			}
 			// TODO FilterforUse if relevant
 			$db = SingleItem::Db();
@@ -485,12 +494,13 @@ final class UserTagOperations
 			//TODO case-sensitive name-match if table|field definition is *_ci ?
 			$dbr = $db->getRow($query, [$name]);
 			if ($dbr) {
-				if ($filetag === null) {
-					$this->ArraySet($name,
-						[(int)$dbr['id'], (bool)$dbr['contentfile'], null],
-						$this->cache);
-				}
+				$this->ArraySet($name,
+					[(int)$dbr['id'], (bool)$dbr['contentfile'], null],
+					$this->cache);
 				if ($scrub) {
+					unset($dbr['contentfile']);
+				}
+				if ($scrub2) {
 					unset($dbr['id']);
 				}
 				return ($props) ? (($multi) ? $dbr : reset($dbr)) : true;

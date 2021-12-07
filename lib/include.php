@@ -68,9 +68,15 @@ if (!$installing && (!is_file(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCA
 
 require_once $dirpath.'misc.functions.php'; // system-independent methods
 // DEBUG require_once $dirpath.'version.php'; // some defines
+// TODO circularity: this might need various defines and/or DeprecationNotice
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppConfig.php'; // used in defines setup
 // DEBUG require_once $dirpath.'version.php'; // some defines
 require_once $dirpath.'defines.php'; // populate relevant defines (uses AppConfig instance)
+if (CMS_DEPREC) {
+    ini_set('assert.exception', 1);
+} else {
+    ini_set('zend.assertions', -1);
+}
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.App.php'; // used in autoloader
 require_once $dirpath.'module.functions.php'; // used in autoloader
 require_once $dirpath.'autoloader.php';  //uses defines, modulefuncs and (for module-class loads) SingleItem::App()
@@ -213,7 +219,7 @@ if ($CMS_JOB_TYPE < 2) {
     // hence the flat/quick list
     $obj = new LoadedDataType('content_quicklist', function(bool $force) {
         $tree = SingleItem::LoadedData()->get('content_tree', $force);
-        return $tree->getFlatList();
+        return $tree->getFlatList(); // c.f. LoadedDataType('content_flatlist') ??
     });
     $cache->add_type($obj);
 }

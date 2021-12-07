@@ -23,7 +23,7 @@
     <div id="fp-navbar-inner">
      <div>{* boxchild *}
 {* DEBUG ONLY <span id="view-list" class="js-trigger fp-button" title="{_ld($_module,'switchlist')}">&#9776;</span>
-      <span id="view-grid" class="js-trigger fp-button" title="{_ld($_module,'switchgrid')}">&#x25A6;</span>*}
+      <span id="view-grid" class="js-trigger fp-button" title="{_ld($_module,'switchgrid')}">&#x25A6;</span> *}
       <span id="level-up" class="fp-button{if !$cwd_up} disabled{/if}"{if $cwd_up} title="{_ld($_module,'displayup')}"{/if}>
         <i class="fifp-level-up"></i>
       </span>
@@ -122,7 +122,7 @@
 {/strip}{/foreach}
   </div>{* fp-list *}
   {if $profile->can_mkdir}{* popup dialog for mkdir *}
-  <div id="mkdir_dlg" title="{_ld($_module,'title_mkdir')}" style="display:none;">
+  <div id="mkdir_dlg" title="{_ld($_module,'mkdir')}" style="display:none;">
    <div class="dlg-options">
     <label for="fld_mkdir">{_ld($_module,'name')}:</label> <input type="text" id="fld_mkdir" />
    </div>

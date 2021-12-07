@@ -182,49 +182,51 @@
 </li>
 <li>>Version 2.12
   <ul>
-    <li>Major re-structuring takes place.  Involves oopifying much of the code for the summary and detail views.</li>
-    <li>The objects provided in the summary and detail views are now not simple objects, but smart ones.  Read the information in system default detail template for more information.</li>
-    <li>Optimization of code to minimize queries and improve performance.</li>
-    <li>Removes field alieses i,e.: \$entry->fieldname in the summary and detail views as it was an incomplete, problematic solution.</li>
+    <li>Major re-structuring takes place.  Involves oopifying much of the code for the summary and detail views</li>
+    <li>The objects provided in the summary and detail views are now not simple objects, but smart ones.  Read the information in system default detail template for more information</li>
+    <li>Optimization of code to minimize queries and improve performance</li>
+    <li>Removes field alieses i,e.: \$entry->fieldname in the summary and detail views as it was an incomplete, problematic solution</li>
     <li>The \$entry->fields and \$entry->customfieldsbyname hash are now merged into \$entry->fields.  This may cause some problems with upgrading.</li>
-    <li>Adds support for preview when adding or editing a news article.</li>
-    <li>Adds support for a user selectable search module.</li>
-    <li>Removes print actions.</li>
-    <li>Many more changes.</li>
+    <li>Adds support for preview when adding or editing a news article</li>
+    <li>Adds support for a user selectable search module</li>
+    <li>Removes print actions</li>
+    <li>Many more changes</li>
   </ul>
 </li>
 <li>Version 2.12.9
   <ul>
-    <li>Now send event when when status is changed in admin panel.</li>
-    <li>News fesubmit documented as deprecated.</li>
+    <li>Now send event when when status is changed in admin panel</li>
+    <li>News fesubmit documented as deprecated</li>
     <li>Added the showall preference to prevent throwing an exception when viewing expired articles in detail view and the showall param</li>
   </ul>
 </li>
 <li>Version 2.14
   <ul>
-    <li>Enhancements to the News\Field class.</li>
-    <li>Adds the idlist parameter.</li>
-    <li>Security fix.</li>
+    <li>Enhancements to the News\Field class</li>
+    <li>Adds the idlist parameter</li>
+    <li>Security fix</li>
   </ul>
 </li>
 <li>Version 3.0
   <ul>
-    <li>All module classes are namespaced.</li>
-    <li>Settings action merged into defaultadmin.</li>
-    <li>Settings modification permission 'Modify News Preferences' instead of 'Modify Site Preferences'.</li>
-    <li>Removed deprecated feusubmit action and related processing.</li>
-    <li>Removed support for input fields (which were mostly for fe use).</li>
+    <li>All module classes are namespaced</li>
+    <li>Settings action merged into defaultadmin</li>
+    <li>Settings modification permission 'Modify News Preferences' instead of 'Modify Site Preferences'</li>
+    <li>Removed deprecated feusubmit action and related processing</li>
+    <li>Removed support for input fields (which were mostly for fe use)</li>
     <li>Removed support for file fields, which are replaced by WYSIWYG editor functions</li>
-    <li>Sort and page the admin articles-list using js instead of on server.</li>
-    <li>Single-click takedown of published articles.</li>
-    <li>Reinstated optional intra-module template management.</li>
-    <li>Merged article post-date and start-date.</li>
-    <li>Articles without publication start-date are ignored.</li>
-    <li>Article publication start/end can be selected via js pickers.</li>
+    <li>Sort and page the admin articles-list using js instead of on server</li>
+    <li>Single-click takedown of published articles</li>
+    <li>Reinstated optional intra-module template management</li>
+    <li>Merged article post-date and start-date</li>
+    <li>Articles without publication start-date are ignored</li>
+    <li>Article publication start/end can be selected via js pickers</li>
   </ul>
 </li>
 <li>Version 3.1
   <ul>
-    <li>Migrated to suit CMSMS 2.3 beta or later.</li>
+    <li>Migrated to suit CMSMS 2.99 or later</li>
+    <li>Added 'Propose News' permission, supporting users whose articles need independent approval for publication</li>
+    <li>Reinstated support for article- and category-associated images</li>
   </ul>
 </ul>

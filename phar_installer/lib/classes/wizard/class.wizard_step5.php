@@ -94,7 +94,7 @@ class wizard_step5 extends wizard_step
             //record the selected members of $app_config['extramodules']
             $tmp = [];
             foreach ($_POST['wantedextras'] as $name) {
-                $tmp[] = sanitizeVal($name, ICMSSAN_FILE); //module-identifier corresponds to a foldername
+                $tmp[] = sanitizeVal($name, ICMSSAN_FILE); //module-identifier corresponds to a foldername BUT no space(s) ?
             }
             $this->_params['wantedextras'] = $tmp;
         }

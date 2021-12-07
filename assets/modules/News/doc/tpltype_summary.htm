@@ -1,0 +1,63 @@
+<h2>Summary-Template Help</h2>
+
+<p>The News module&apos;s &apos;default&apos; action exports the following variables:</p>
+<ul class="helptext">
+  <li>$prevpage (string) - If the current page number is 1, this is a translated string for the &apos;prevpage&apos; key. Otherwise, it is a link that will result in a summary view displaying the previous page.</li>
+  <li>$prevurl (string) - If the current page number is 1, this is not defined/empty. Otherwise it is an URL that when placed in an &lt;a&gt; tag and clicked on will result in a summary view displaying the previous page.</li>
+  <li>$firstpage (string) - If the current page number is 1, this is a translated string for the &apos;fistpage&apos; key. Otherwise, it is a link that will result in a summary view displaying the fist page.</li>
+  <li>$firsturl (string) - If the current page number is 1, this is not defined/empty. Otherwise it is a URL that when placed in an &lt;a&gt; tag and clicked on will result in a summary view displaying the first page.</li>
+  <li>$nextpage (string) - If the current page number is the last page given the current criteria, this is a translated string for the &apos;nextpage&apos; key. Otherwise, it is a link that will result in a summary view displaying the next page.</li>
+  <li>$nexturl (string) - If the current page number is the last page givent the current criteria, this is not defined/empty. Otherwise it is an URL that when placed in an &lt;a&gt; tag and clicked on will result in a summary view displaying the next page.</li>
+  <li>$lastpage (string) - If the current page number is the last page given the current criteria, this is a translated string for the &apos;nextpage&apos; key. Otherwise, it is a link that will result in a summary view displaying the last page.</li>
+  <li>$lasturl (string) - If the current page number is the last page givent he current criteria, this is not defined/empty. Otherwise it is an URL that when placed in an &lt;a&gt; tag and clicked on will result in a summary view displaying the last page.</li>
+  <li>$pagenumber (int) - The current page number. Starting from 1.</li>
+  <li>$pagecount (int) - The total number of pages to display, given the current criteria</li>
+  <li>$oftext (string) -  The translated string for &quot;of&quot;</li>
+  <li>$pagetext (string) - The translated string for &quot;page&quot;</li>
+  <li>$itemcount (int) - The total number of items that will be displayed in this view (count of the $items array)</li>
+  <li>$items (object[]) - An array of objects representing the news articles to be displayed</li>
+  <li>$category_name (string) - If a category id or category name was passed to the call to this module, then this variable will contain the name of the specified category. Otherwise, it will be empty.</li>
+  <li>$cats (array) (deprecated) - An array of category information representing all categories in the News module</li>
+</ul>
+
+<h3>News Article Information</h3>
+<p>Each member of the $items array is a PHP object.</p>
+<p>Each such object&apos;s members/properties are listed below.</p>
+<ul class="helptext">
+  <li>author (string) The username of the author... or unknown</li>
+  <li>author_id (int) - The uid of the author. A value of 0 indicates an anonymous user</li>
+  <li>authorname (string) - A concatenation of the users first and last names, if they exist</li>
+  <li>category (string) - The article&apos;s category name.<li>
+  <li>content (string) - The HTML content for the article</li>
+  <li>create_date (string) - The date/time when the article was first created</li>
+  <li>detail_url (string) - The URL to the detail view of the article</li>
+  <li>enddate (string) - Optional, the expiry date of the article</li>
+  <li>extra (string) - Optional, extra information</li>
+  <li>id (int) - The numeric id of the article</li>
+  <li>link (string) (deprecated) - The URL to the detail view of the article</li>
+  <li>modified_date (string) - The date/time when the article was last modified</li>
+  <li>morelink (string) (deprecated) - A link (using a translation of the word &quot;more&quot; as the text), to the detail view of the article</li>
+  <li>moreurl (string) (deprecated) - A URL to the detail view of the article.
+  <li>startdate (string) - Optional, the publication date of the article</li>
+  <li>summary (string) - The article summary</li>
+  <li>title (string) - The title of the article</li>
+  <li>titlelink (string) (deprecated) - A link (using the article title as the text) to the detail view of the article</li>
+</ul>
+<p>These article properties may be used in a template like <code>{$entry->id}</code> etc.</p>
+
+<h3>Category Information</h3>
+<p>Each member of the $cats array is itself an associative array.</p>
+<p>The following are the notable members of such arrays. Other members may also be present for internal organizational purposes.</p>
+<p>Use of this information for displaying categories-information is deprecated. Instead use module&apos;s &apos;browsecat&apos; action</p>
+<ul class="helptext">
+  <li>category_url (string) - A slug which may be included in a pretty-URL for linking to the category</li>
+  <li>count (int) - The number of displayable articles in the category</li>
+  <li>depth (int) - The depth (from the root category) of the current node</li>
+  <li>image_url (string) - The uploads-folder-relative URL of an associated image (might be empty or unset)</li>
+  <li>news_category_id (int) - The numeric id of the category</li>
+  <li>news_category_name (string) - The name of the category</li>
+  <li>parent_id (int) - The numeric id of the category&apos;s parent. A value of -1 indicates no parent.</li>
+  <li>prevdepth (int) - The depth (from the root) of the previous node</li>
+  <li>url (string) - URL for showing a summary-view of all articles in the category</li>
+</ul>
+<p>This category information may be used in a template like <code>{$cats[0][&apos;news_category_name&apos;]}</code> or <code>{$cats.0.news_category_name}</code> etc.</p>

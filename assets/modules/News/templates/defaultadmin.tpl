@@ -3,7 +3,7 @@
 {tab_header name='groups' label=_ld($_module,'categories') active=$tab}
 {tab_header name='templates' label=_ld('admin','templates') active=$tab}
 {tab_header name='settings' label=_ld('admin','settings') active=$tab}
-
+{$xcats = !empty($catcount) && $catcount > 1}
 {tab_start name='articles'}
 {/if}
 <div class="rowbox expand">
@@ -11,7 +11,7 @@
     {if $can_add}
     <a href="{cms_action_url action=addarticle}">{admin_icon icon='newobject.gif' alt=_ld($_module,'addarticle')} {_ld($_module,'addarticle')}</a>&nbsp;
     {/if}
-    {if isset($formstart_itemsfilter)}
+    {if $xcats && isset($formstart_itemsfilter)}
     <a id="toggle_filter" title="{_ld($_module,'tip_viewfilter')}">{admin_icon icon=$filterimage}
     {if $curcategory != ''}
     <span id="filter_active">{_ld($_module,'prompt_filtered')}</span>
@@ -19,6 +19,7 @@
     {_ld($_module,'prompt_filter')}
     {/if}</a>
     {/if}
+
   </div>{*boxchild*}
 {if $itemcount > 0 && isset($rowchanger)}
   <div class="boxchild">
@@ -33,7 +34,7 @@
 </div>{*rowbox*}
 {if $itemcount > 0}
 {form_start}
-<table class="pagetable{if $itemcount > 1} table_sort{/if}" id="articlelist">
+<table class="pagetable{if $itemcount > 1} table_sort{/if}" id="articlelist" style="width:auto;">
   <thead>
     <tr>
       <th{if $itemcount > 1} class="nosort"{/if}>#</th>
@@ -42,7 +43,7 @@
       <th{if $itemcount > 1} class="{ldelim}sss:'publishat'{rdelim}"{/if}>{$startdatetext}</th>
       <th{if $itemcount > 1} class="{ldelim}sss:'publishat'{rdelim}"{/if}>{$enddatetext}</th>
       <th class="pageicon{if $itemcount > 1} {ldelim}sss:'icon'{rdelim}{/if}">{$statustext}</th>{*if papp*}
-      <th class="pageicon{if $itemcount > 1} nosort{/if}">&nbsp;</th>{*if pmod &||$pdel*}
+      <th class="pageicon{if $itemcount > 1} nosort{/if}">&nbsp;</th>{*if pmod &|| $pdel*}
       <th class="pageicon{if $itemcount > 1} nosort{/if}"><input type="checkbox" id="selectall" value="1" title="{_ld($_module,'selectall')}" /></th>{*if pANY*}
     </tr>
   </thead>
@@ -59,9 +60,9 @@
           {$entry->enddate}
         {/if}
       </td>
-      <td{if isset($entry->approve_link)} style="text-align:center">{$entry->approve_link}{else}>{/if}</td>
+      <td{if isset($entry->approve_link)}>{$entry->approve_link}{else}>{/if}</td>
       <td>
-        {if isset($entry->editlink)}{$entry->editlink} {$entry->copylink}{/if}
+        {if isset($entry->editlink)}{$entry->editlink} {$entry->copylink}{if $xcats} {$entry->movelink}{/if}{/if}
         {if isset($entry->deletelink)} {$entry->deletelink}{/if}
       </td>
       <td>
@@ -87,7 +88,7 @@
     <select id="bulk_action" name="{$actionid}bulk_action">
       <option value="setpublished">{_ld($_module,'bulk_setpublished')}</option>
       <option value="setdraft">{_ld($_module,'bulk_setdraft')}</option>
-      <option value="setcategory">{_ld($_module,'bulk_setcategory')}</option>
+      {if $xcats}<option value="setcategory">{_ld($_module,'bulk_setcategory')}</option>{/if}
       {if isset($submit_massdelete)}
       <option value="delete">{_ld($_module,'bulk_delete')}</option>
       {/if}
@@ -102,8 +103,8 @@
 </div>{*rowbox*}
 </form>
 
-{if isset($formstart_itemsfilter)}
-<div id="itemsfilter" title="{$filtertext}" style="display: none;">
+{if $xcats && isset($formstart_itemsfilter)}
+<div id="itemsfilter" title="{$filtertext}" style="display:none;">
   {$formstart_itemsfilter}
   <div class="pageoverflow">
     <label class="pagetext" for="selcat">{$label_filtercategory}:</label>
@@ -131,4 +132,16 @@
 {include file='module_file_tpl:News;settingstab.tpl'}
 
 {tab_end}
+{/if}
+
+{if $xcats && $itemcount > 0}
+<div id="catselector" title="{$selectortext}" style="display:none;">
+  {$formstart_catselector}
+  <input type="hidden" id="movedarticle" name="{$actionid}articleid" />
+  <div class="pageoverflow">
+   <select id="destcat" name="{$actionid}tocategory">
+    {html_options options=$categorylist selected=-1}    </select>
+  </div>
+ </form>
+</div>
 {/if}

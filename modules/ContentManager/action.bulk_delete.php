@@ -69,7 +69,6 @@ $get_deletable_pages = function($node) use($can_bulk_delete, &$get_deletable_pag
 };
 
 $pagelist = $params['bulk_content'];
-$hm = SingleItem::App()->GetHierarchyManager();
 
 if( isset($params['submit']) ) {
 
@@ -80,9 +79,7 @@ if( isset($params['submit']) ) {
         $n = 0;
         try {
             foreach( $pagelist as $pid ) {
-                $node = $hm->quickfind_node_by_id($pid);
-                if( !$node ) continue;
-                $content = $node->getContent(FALSE,FALSE,TRUE);
+                $content = $contentops->LoadEditableContentFromId($pid);
                 if( !is_object($content) ) continue;
                 if( $content->DefaultContent() ) continue;
                 $content->Delete();
@@ -107,6 +104,7 @@ if( isset($params['submit']) ) {
     }
 }
 
+$hm = SingleItem::App()->GetHierarchyManager();
 $xlist = [];
 foreach( $pagelist as $pid ) {
     $node = $hm->quickfind_node_by_id($pid);
@@ -122,9 +120,7 @@ $xlist = array_unique($xlist);
 $contentops->LoadChildren(-1,FALSE,FALSE,$xlist);
 $displaydata =    [];
 foreach( $xlist as $pid ) {
-    $node = $hm->quickfind_node_by_id($pid);
-    if( !$node ) continue;    // this should not happen, but hey.
-    $content = $node->getContent(FALSE,FALSE,FALSE);
+    $content = $contentops->LoadEditableContentFromId($pid);
     if( !is_object($content) ) continue; // this should never happen either
 
     if( $content->DefaultContent() ) {
@@ -147,6 +143,7 @@ if( !$displaydata ) {
 }
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('bulk_delete.tpl')); //,null,null,$smarty);
+
 $tpl->assign('pagelist',$xlist)
  ->assign('displaydata',$displaydata);
 

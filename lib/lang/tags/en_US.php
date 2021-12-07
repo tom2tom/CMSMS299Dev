@@ -228,11 +228,14 @@ EOT
 
 'help_function_cms_init_editor' => <<<'EOT'
 <h3>What does this do?</h3>
-<p>This plugin is used to initialize the selected WYSIWYG editor for display when WYSIWYG functionalities are required for frontend data submission. This module will find the selected frontend WYSIWYG <em>(see global settings).</em>, determine if it has been requested, and if so generate the appropriate html code <em>(usually JavaScript links)</em> so that the WYSIWYG will initialize properly when the page is loaded. If no WYSIWYG editors have been requested for the frontend request this plugin will produce no output.</p>
+<p>This plugin is used to initialize the appropriate editor for display when WYSIWYG functionalities are required for content manipulation. This plugin will find the selected frontend or admin WYSIWYG <em>(see global settings).</em>, determine if it has been requested, and if so, generate the appropriate html code <em>(usually javascript links)</em> so that the WYSIWYG will initialize properly when the page is loaded. If no WYSIWYG editors have been requested for the frontend request this plugin will produce no output.</p>
 <h3>How is it used?</h3>
-<p>First, select the frontend WYSIWYG editor to be used, in the global settings page of the admin console. Next, if a frontend WYSIWYG editor is to be used on numerous pages, it might be best to include the {cms_init_editor} plugin in the relevant page template. Otherwise, that plugin may be included in the &quot;Page Specific Metadata&quot; field for each such page.</p>
+<p>First, select the frontend WYSIWYG editor to be used, in the global settings page of the admin console and in relevant user&apos;s individual settings. Next, if a frontend WYSIWYG editor is to be used on numerous pages, it might be best to include the {cms_init_editor} plugin in the relevant page template. Otherwise, that plugin may be included in the &quot;Page Specific Metadata&quot; field for each such page.</p>
 <h4>What parameters does it take?</h4>
-Any of Smarty's generic parameters (nocache, assign etc)
+<ul>
+ <li>wysiwyg - <em>(optional boolean)</em> - If set and true, generate a syntax-hightlighter editor. Not appropriate for frontend diplay</li>
+</ul>
+and/or any of Smarty's generic parameters (nocache, assign etc)
 EOT
 ,
 
@@ -330,25 +333,6 @@ EOT
 <ul>
  <li><strong>accepted <em>(required)</em></strong><br/> - A comma separated list of two character language names that are accepted</li>
  <li>default<br/>- <em>(optional)</em> A default language to output if no accepted language was supported by the browser. en is used if no other value is specified.</li>
-</ul>
-and/or any of Smarty's generic parameters (nocache, assign etc)
-EOT
-,
-
-'help_function_content_module' => <<<'EOT'
-<h3>What does this do?</h3>
-<p>This content block type allows interfacing with different modules to create different content block types.</p>
-<p>Some modules can define content block types for use in module templates, e.g. the FrontEndUsers module might define a group list content block type. It will then indicate how to use the {content_module} tag to utilize that block type within template(s).</p>
-<p><strong>Note:</strong> This block type must be used only with compatible modules, and must be used only in accordance with guidance provided by the respective modules.</p>
-<h4>What parameters does it take?</h4>
-<p>This tag accepts a few parameters, and passes all other parameters to the module for processing.</p>
-<ul>
- <li><strong>(required)</strong>module - The name of the module that will provide this content block. This module must be installed and available.</li>
- <li><strong>(required)</strong>block - The name of the content block</li>
- <li><em>(optional)</em>label - A label for the content block for use when editing the page</li>
- <li><em>(optional)</em> required - Allows specifying that the content block must contain some text</li>
- <li><em>(optional)</em> tab - The desired tab to display this field on in the edit form</li>
- <li><em>(optional)</em> priority (integer) - Allows specifying an integer priority for the block within the tab</li>
 </ul>
 and/or any of Smarty's generic parameters (nocache, assign etc)
 EOT
@@ -474,7 +458,7 @@ EOT
   <p>Example:</p>
   <pre>{content_image block='image1'}</pre><br/>
  </li>
- <li><em>(optional)</em> label (sring) - A label or prompt for this content block in the edit content page. If not specified, the block name will be used.</li>
+ <li><em>(optional)</em> label (string) - A label or prompt for this content block in the edit content page. If not specified, the block name will be used.</li>
  <li><em>(optional)</em> dir (string) - The name of a directory (relative to the uploads directory, from which to select image files. If not specified, the preference from the global settings page will be used. If that preference is empty, the uploads directory will be used.
  <p>Example: use images from the uploads/images directory.</p>
  <pre><code>{content_image block='image1' dir='images'}</code></pre><br/>
@@ -490,6 +474,25 @@ and/or any of Smarty's generic parameters (nocache, assign etc)
 <h3>More...</h3>
 <p><strong>Note:</strong> As of version 2.2, if this content block contains no value, then no output is generated.</p>
 <p>In addition to the arguments listed above, this plugin will accept any number of additional arguments and forward them directly to the generated img tag if any. i.e: <code>{content_image block='img1' id="id_img1" class="page-image" title='an image block' data-foo=bar}</code>
+EOT
+,
+
+'help_function_content_module' => <<<'EOT'
+<h3>What does this do?</h3>
+<p>This content block type allows interfacing with different modules to create different content block types.</p>
+<p>Some modules can define content block types for use in module templates, e.g. the FrontEndUsers module might define a group list content block type. It will then indicate how to use the {content_module} tag to utilize that block type within template(s).</p>
+<p><strong>Note:</strong> This block type must be used only with compatible modules, and must be used only in accordance with guidance provided by the respective modules.</p>
+<h4>What parameters does it take?</h4>
+<p>This tag accepts a few parameters, and passes all other parameters to the module for processing.</p>
+<ul>
+ <li><strong>(required)</strong>module - The name of the module that will provide this content block. This module must be installed and available.</li>
+ <li><strong>(required)</strong>block - The name of the content block</li>
+ <li><em>(optional)</em>label - A label for the content block for use when editing the page</li>
+ <li><em>(optional)</em> required - Allows specifying that the content block must contain some text</li>
+ <li><em>(optional)</em> tab - The desired tab to display this field on in the edit form</li>
+ <li><em>(optional)</em> priority (integer) - Allows specifying an integer priority for the block within the tab</li>
+</ul>
+and/or any of Smarty's generic parameters (nocache, assign etc)
 EOT
 ,
 
@@ -1412,8 +1415,8 @@ EOT
 'tag_adminplugin' => 'Indicates that the tag is available in the admin interface only, and is usually used in module templates',
 'tag_cachable' => 'Indicates whether the output of the plugin can be cached (when smarty caching is enabled). Admin plugins, and modifiers cannot be cached.',
 'tag_help' => 'Display the help (if any exists) for this tag',
-'tag_info' => 'Each tag (also known as plugin) is a vehicle for including some (generally small amount of) PHP functionality in page content and/or template(s).',
-'tag_info2' => 'Any tag might be designed to generate page content and/or (in a template) set variable(s) for use elsewhere in the template.',
+'tag_info' => 'Each plugin (also known as tag) is a vehicle for including some (generally small amount of) PHP functionality in page content and/or template(s).',
+'tag_info2' => 'Such plugins might be designed to generate page content and/or (in a template) set variable(s) for use elsewhere in the template.',
 'tag_info3' => 'Tag type broadly indicates the role of the tag. See the individual tooltips.<br />System tags may be for admin/backend use only, or also for frontend use.<br />Click the respective tag help icon for specific detail.',
 'tag_name' => 'The name of the tag',
 'tag_type' => 'The tag type (block, function, modifier, or pre- or post-filter)',
@@ -1422,7 +1425,7 @@ EOT
 'title_cachable' => 'This plugin is cachable',
 'title_notcachable' => 'This plugin is not cachable',
 'user_tag' => 'User Defined Tag',
-'udt__scope' => 'User Defined Tags are for frontend use only.',
+'udt__scope' => 'User plugins are for frontend use only.',
 'viewabout' => 'Display history and author information for this tag',
 'viewhelp' => 'Display help for this tag',
 

@@ -23,7 +23,9 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\SingleItem;
 use CMSMS\UserParams;
 
-if (!function_exists('cmsms')) exit;
+if (empty($this) || !($this instanceof AdminSearch)) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
 if (version_compare($oldversion,'1.2') < 0) {
     //try to re-locate deprecated class-aliases into autoloader search-path

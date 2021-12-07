@@ -31,17 +31,16 @@ INFRASTRUCTURE
 Coded for PHP 7.1+, compatible with 7.1.x to 8.1 (at least)
 jQuery 2.2.4 (effective upgrades from 1.x to the current 3.x need to be in two stages, with an intermediate 2.x)
 jQuery migrate 1.4.1
-jQuery-UI & jQuery-UI-css 1.12.1
+jQuery-UI & jQuery-UI-css 1.13.0
 support-js (cookies, sortable, uploads etc) latest releases as of 1/9/2018
 Smarty 3.1.39
 replacement for the OutMailer (formerly CMSMailer) module backend PHPMailer class (due to license incompatibility)
-TinyMCE (MicroTiny module) 4.9.5
+TinyMCE (MicroTiny module) 4.9.11 Now has incompatible license, so a replacement editor is needed
 
 CONFIG PARAMETERS
 
 new
 
-app_mode - 1 when operating as a web-app i.e. no admin users, maybe no admin console at all
 assets_url
 content_language - for PHP htmlentities() and html_entity_decode(), default 'xhtml'
 deprecations - if this parameter, and also debug, are not empty, deprecation notices will be thrown when something (method, property etc) deprecated is used
@@ -165,7 +164,7 @@ page-tab functions via the Admintheme classes - use CMSMS\AdminTabs-class (aka c
 most of the page-tab functions in the module-class - same replacement as previous point
 some individual methods scattered across various classes - refer to API documentation
 module-related classes & interfaces without suitable namespace
-css styling using the '960 Grid System' - migrate to cssgrid with fallback to flexbox
+css styling using the '960 Grid System' - migrate to cssgrid with fallback to flexbox or e.g. currently-included resources blueprint.css (grid), flex-grid-lite.css (flexbox)
 
 DETAILS
   - New admin-page-content direct-placement methods: CMSModule::AdminPageContent(), add|remove|get_page_headtext(), add|remove|get_page_foottext()
@@ -220,6 +219,7 @@ DETAILS
   - CHANGE: Smarty modifier-plugin cms_date_format sanitizes generated text, so no need to supplement in templates with '|cms_escape'
   - CHANGE: Smarty tolerates additional functions: _la(),_ld(),_lm(),cms_join_path(),CMSMS\entitize(),CMSMS\specialize(),CMSMS\sanitizeVal(),CMSMS\tailorpage(),date(),lang_by_realm(),str_contains(),str_ends_with(),str_starts_with(),strtotime(),stripos(),strripos(),strrpos()
   - CHANGE: global-scope Smarty-variables: $_site_root_path,$_site_root_url,$_site_themes_path,$_site_themes_url,$_site_uploads_path,$_site_uploads_url are automatically defined during each frontend request
+  - CHANGE: Smarty resource-identifiers for templates and stylesheets support optional source/originator, like 'originator;name'
   - BREAKING: Renamed permission 'Modify User-defined Tags' to 'Manage User Plugins'
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.99 at least, the module is still operational.)
   - CHANGE: Renamed CMSContentManager module to ContentManager (shorter module-names help deal with a Smarty 25-character limit on resource-names)

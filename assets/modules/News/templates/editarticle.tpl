@@ -3,9 +3,9 @@
 {form_start action=$formaction id='edit_news' extraparms=$formparms}
   <div class="pageoverflow postgap">
     <div class="pageinput">
-      <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{_ld('admin','submit')}</button>
-      <button type="submit" name="{$actionid}cancel" id="cancel" class="adminsubmit icon cancel" formnovalidate>{_ld('admin','cancel')}</button>
-      <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{_ld('admin','apply')}</button>
+      <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{_la('submit')}</button>
+      <button type="submit" name="{$actionid}cancel" id="cancel" class="adminsubmit icon cancel" formnovalidate>{_la('cancel')}</button>
+      <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{_la('apply')}</button>
     </div>
   </div>
 
@@ -20,9 +20,9 @@
    <p class="pagetext">{_ld($_module,'prompt_history')}:</p>
    <div class="pageinput">
    {_ld($_module,'created')}: {$createat}
-{if isset($modat)}<br /> {_ld($_module,'modified')}: {$modat}{/if}
-{if isset($pubat)}<br /> {_ld($_module,'published')}: {$pubat}{/if}
-{if isset($archat)}<br /> {_ld($_module,'archived')}: {$archat}{/if}
+{if isset($modat)}<br />{_ld($_module,'modified')}: {$modat}{/if}
+{if isset($pubat)}<br />{_ld($_module,'published')}: {$pubat}{/if}
+{if isset($archat)}<br />{_ld($_module,'archived')}: {$archat}{/if}
    </div>
 {/if}
 
@@ -44,6 +44,7 @@
       </div>
     </div>
 
+    {if !empty($categorylist)}
     <div class="pageoverflow">
       {$t=_ld($_module,'category')}<label class="pagetext" for="itemcat">* {$t}:</label>
       {cms_help 0=$_module key='help_article_category' title=$t}
@@ -52,15 +53,15 @@
           {html_options options=$categorylist selected=$category}        </select>
       </div>
     </div>
-    {if empty($hide_summary_field)}
-    <div class="pageoverflow pagetext">
+    {/if}
+
+    <div class="pageoverflow pagetext" style="max-height:12em;">
       {$t=_ld($_module,'summary')}{$t}:
       {cms_help 0=$_module key='help_article_summary' title=$t}
       <p class="pageinput">
         {$inputsummary}
       </p>
     </div>
-    {/if}
 
     <div class="pageoverflow pagetext">
       {$t=_ld($_module,'content')}* {$t}:
@@ -80,10 +81,12 @@
     </div>
 
     <div class="pageoverflow">
-      {$t=_ld($_module,'url')}<label class="pagetext" for="urlslug">{$t}:</label>
+      {$t=_ld($_module,'prettyurl')}<label class="pagetext" for="itemurl">{$t}:</label>
       {cms_help 0=$_module key='help_article_url' title=$t}
       <div class="pageinput">
-        <input type="text" name="{$actionid}news_url" id="urlslug" value="{$news_url}" size="50" maxlength="255" />
+        <input type="text" name="{$actionid}news_url" id="itemurl" value="{$news_url}" size="32" maxlength="64" /><br />
+        <input type="checkbox" id="genurl" name="{$actionid}generate_url" value="1" />
+        <label for="genurl">{_ld($_module,'generateurl')}</label>
       </div>
     </div>
 
@@ -94,11 +97,19 @@
         <input type="text" name="{$actionid}extra" id="extradata" value="{$extra}" size="50" maxlength="255" />
       </div>
     </div>
-  </div>
+
+    <div class="pageoverflow">
+      <label class="pagetext" for="itemimage">{_ld($_module,'item_image')}:</label>
+      <div class="pageinput">
+        <img id="itemimage" class="yesimage" src="{$image_url}" alt="{$image_url}" />
+        <br class="yesimage" />
+        {$filepicker}
+      </div>
+    </div>
 
   {if isset($statuses)}
     <div class="pageoverflow">
-      {$t=_ld('admin','status')}<label class="pagetext" for="TODOstatus">* {$t}:</label>
+      {$t=_ld('admin','status')}<label class="pagetext">* {$t}:</label>
       {cms_help 0=$_module key='help_article_status' title=$t}
       <div class="pageinput">
         {$statuses}{* radio group *}
@@ -108,20 +119,21 @@
     <input type="hidden" name="{$actionid}status" value="{$status}" />
   {/if}
 
-  <div id="pickers" class="pageoverflow pagetext">
-    {$t=_ld($_module,'prompt_publish')}{$t}:
-    {cms_help 0=$_module key='help_article_publish' title=$t}
-    <div class="pageinput">
-      <input type="text" name="{$actionid}fromdate" data-select="datepicker" value="{$fromdate}" size="12" />
-      {if $withtime}{_ld($_module,'at')} <input type="text" name="{$actionid}fromtime" class="time" value="{$fromtime}" size="10" />{/if}
-    </div>
-    {$t=_ld($_module,'prompt_expire')}{$t}:
-    {cms_help 0=$_module key='help_article_expire' title=$t}
-    <div class="pageinput">
-      <input type="text" name="{$actionid}todate" data-select="datepicker" value="{$todate}" size="12" />
-      {if $withtime}{_ld($_module,'at')} <input type="text" name="{$actionid}totime" class="time" value="{$totime}" size="10" />{/if}
-    </div>
-  </div>
+    <div id="pickers" class="pageoverflow pagetext">
+      {$t=_ld($_module,'prompt_publish')}{$t}:
+      {cms_help 0=$_module key='help_article_publish' title=$t}
+      <div class="pageinput">
+        <input type="text" name="{$actionid}fromdate" data-select="datepicker" value="{$fromdate}" size="12" />
+        {if $withtime}{_ld($_module,'at')} <input type="text" name="{$actionid}fromtime" class="time" value="{$fromtime}" size="10" />{/if}
+      </div>
+      {$t=_ld($_module,'prompt_expire')}{$t}:
+      {cms_help 0=$_module key='help_article_expire' title=$t}
+      <div class="pageinput">
+        <input type="text" name="{$actionid}todate" data-select="datepicker" value="{$todate}" size="12" />
+        {if $withtime}{_ld($_module,'at')} <input type="text" name="{$actionid}totime" class="time" value="{$totime}" size="10" />{/if}
+      </div>
+    </div>{*pickers*}
+  </div>{*edit_article*}
 
 {if !empty($preview)}
   {tab_start name='preview'}
@@ -141,8 +153,14 @@
 {/if}
 
   <div class="pregap pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{_ld('admin','submit')}</button>
-    <button type="submit" name="{$actionid}cancel" id="cancel" class="adminsubmit icon cancel" formnovalidate>{_ld('admin','cancel')}</button>
-    <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{_ld('admin','apply')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{_la('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" id="cancel" class="adminsubmit icon cancel" formnovalidate>{_la('cancel')}</button>
+    <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{_la('apply')}</button>
+  </div>
+
+  <div id="post_notice" title="" style="display:none;">
+    <div class="TODO">
+      <p>{_ld($_module,'info_notified')}}</p>
+    </div>
   </div>
 </form>

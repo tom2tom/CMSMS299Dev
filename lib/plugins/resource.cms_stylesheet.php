@@ -25,27 +25,19 @@ use function CMSMS\log_error;
 use function CMSMS\sanitizeVal;
 
 /**
- * A class for handling db- and file-stored css content as a smarty resource.
+ * A class for handling layout stylesheets as a Smarty resource.
+ *
+ * Handles file- and database-sourced content, numeric and string sheet identifiers,
+ * with or without related originator i.e. 'originator;name' or just 'name'.
  *
  * @package CMS
  * @internal
  * @ignore
- *
  * @since 1.12
  */
 class Smarty_Resource_cms_stylesheet extends Smarty_Resource_Custom
 {
     // static properties here >> SingleItem property|ies ?
-    /**
-     * @ignore
-     */
-    private static $db;
-
-    /**
-     * @ignore
-     */
-    private static $stmt;
-
     /**
      * @var array intra-request cache of used templates, each member like
      *  name => [ 'id' => props-array, 'name' => ref. to props-array ]
@@ -75,7 +67,7 @@ class Smarty_Resource_cms_stylesheet extends Smarty_Resource_Custom
      * @param string  &$source store for retrieved template content, if any
      * @param int     &$mtime  store for retrieved template modification timestamp
      */
-    protected function fetch($name,&$source,&$mtime)
+    protected function fetch($name, &$source, &$mtime)
     {
         // clean up the input
         $name = trim($name);
@@ -83,7 +75,6 @@ class Smarty_Resource_cms_stylesheet extends Smarty_Resource_Custom
             $name = 0 + $name;
         }
         elseif( !$name ) {
-            $mtime = false;
             return;
         }
 
@@ -91,45 +82,64 @@ class Smarty_Resource_cms_stylesheet extends Smarty_Resource_Custom
             $data = self::$loaded[$name];
         }
         else {
-            if( !self::$db ) {
-                self::$db = SingleItem::Db();
-                self::$stmt = self::$db->prepare('SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_stylesheets WHERE id=? OR name=?');
-                register_shutdown_function([$this, 'cleanup']);
+            if( strpos($name, ';') !== false ) {
+                $parts = explode(';', $name);
+                if( count($parts) != 2 || !$parts[1] ) {
+                    log_error('Unrecognized stylesheet', $name);
+                    return;
+                }
+                $name = $parts[1];
+                $orig = $parts[0];
+                if ($orig === '' || strcasecmp($orig, 'Core') == 0) {
+                    $orig = '__CORE__';
+                }
+                $so = ' originator=? AND';
+                $args = [$orig, $name, $name];
             }
-            $rst = self::$db->execute(self::$stmt, [$name, $name]);
+            else {
+                $orig = false;
+                $so = '';
+                $args = [$name, $name];
+            }
+
+            $db = SingleItem::Db();
+            $sql = 'SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_stylesheets WHERE'.$so.' (id=? OR name=?)';
+            $rst = $db->execute($sql, $args);
             if( !$rst || $rst->EOF() ) {
                 if( $rst ) $rst->Close();
-                log_error('Missing stylesheet', $name);
-                $mtime = false;
+                log_error('Missing stylesheet', ($orig) ? $orig.';'.$name : $name);
                 return;
             }
             else {
                 $data = $rst->FetchRow();
                 if( $data['contentfile'] ) {
-                    $fp = cms_join_path(CMS_ASSETS_PATH,'styles', $data['content']);
+                    $fp = cms_join_path(CMS_ASSETS_PATH, 'styles', $data['content']);
                     if( is_readable($fp) && is_file($fp) ) {
                         try {
                             $data['content'] = file_get_contents($fp);
                         } catch( Throwable $t ) {
 //                            trigger_error('cms_stylesheet resource: '.$t->getMessage());
                             log_error('Failed to load stylesheet file', basename($fp).','.$t->getMessage());
-                            $mtime = false;
                             return;
                         }
                     }
                     else {
                         log_error('Missing stylesheet file', basename($fp));
-                        $mtime = false;
                         return;
                     }
                 }
                 //sanitize sheet content, in case some malicious stuff was stored
                 // PHP tags and/or SmartyBC-supported {php}{/php} and/or '`'
-                $text = preg_replace(['/<\?php/i','/<\?=/','/<\?(\s|\n)/','~\[\[/?php\]\]~i'], ['','','',''], $data['content']);
+                $text = preg_replace(['/<\?php/i', '/<\?=/', '/<\?(\s|\n)/', '~\[\[/?php\]\]~i'], ['', '', '', ''], $data['content']);
                 $data['content'] = str_replace('`', '', $text);
 
                 self::$loaded[$data['id']] = $data;
-                self::$loaded[$data['name']] = &$data;
+                if( $orig ) {
+                    self::$loaded[$orig.';'.$data['name']] = &$data;
+                }
+                else {
+                    self::$loaded[$data['name']] = &$data;
+                }
                 $rst->Close();
             }
         }
@@ -144,13 +154,8 @@ class Smarty_Resource_cms_stylesheet extends Smarty_Resource_Custom
             $mtime = 1; // not falsy
         }
 
-        $text = '/* cmsms stylesheet: '.$name.' modified: '.date(DATE_RFC1036,$mtime).' */'."\n".$data['content'];
-        if( !endswith($text,"\n") ) $text .= "\n";
+        $text = '/* cmsms stylesheet: '.$name.' modified: '.date(DATE_RFC1036, $mtime).' */'."\n".$data['content'];
+        if( !endswith($text, "\n") ) $text .= "\n";
         $source = $text;
-    }
-
-    public function cleanup()
-    {
-        if (!empty(self::$stmt)) self::$stmt->close();
     }
 } // class

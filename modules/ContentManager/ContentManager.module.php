@@ -1,6 +1,6 @@
 <?php
 /*
-ContentManager - A CMSMS module to provide page-content management.
+ContentManager - A CMSMS module to provide site-pages management.
 Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -30,9 +30,9 @@ final class ContentManager extends CMSModule
     public function GetAdminSection() { return 'content'; }
     public function GetAuthor() { return 'Robert Campbell'; }
     public function GetAuthorEmail() { return ''; }
-    public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'doc'.DIRECTORY_SEPARATOR.'changelog.htm'); }
+    public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
-    public function GetHelp() { return $this->Lang('help_module'); }
+    public function GetHelp() { return $this->Lang('help_module'); } // OR un-translated modhelp.htm ?
     public function GetName() { return 'ContentManager'; }
     public function GetVersion() { return '2.0'; }
     public function HasAdmin() { return true; }
@@ -57,7 +57,7 @@ final class ContentManager extends CMSModule
 
     public function InitializeAdmin()
     {
-        HookOperations::add_hook('ExtraSiteSettings',[$this,'ExtraSiteSettings']);
+        HookOperations::add_hook('ExtraSiteSettings', [$this, 'ExtraSiteSettings']);
     }
 
     /**
@@ -72,7 +72,7 @@ final class ContentManager extends CMSModule
         return [
          'title'=> $this->Lang('settings_title'),
          //'desc'=> 'useful text goes here', // optional useful text
-         'url'=> $this->create_action_url('','settings'), // if permitted
+         'url'=> $this->create_action_url('', 'settings'), // if permitted
          //optional 'text' => custom link-text | explanation e.g need permission
         ];
     }
@@ -88,7 +88,7 @@ final class ContentManager extends CMSModule
         $pages = author_pages(get_userid(false));
         if( !$pages ) return false;
         if( $content_id <= 0 ) return true;
-        return in_array($content_id,$pages);
+        return in_array($content_id, $pages);
     }
 
     public function GetHeaderHTML()
@@ -97,10 +97,10 @@ final class ContentManager extends CMSModule
         $urlpath = $this->GetModuleURLPath();
         $fmt = '<link rel="stylesheet" type="text/css" href="%s/%s" />';
         $cssfiles = [
-        'css/module.css',
+        'css/module.css'
         ];
         foreach( $cssfiles as $one ) {
-            $out .= sprintf($fmt,$urlpath,$one).PHP_EOL;
+            $out .= sprintf($fmt, $urlpath, $one).PHP_EOL;
         }
         add_page_headtext($out, false);
     }
@@ -110,9 +110,9 @@ final class ContentManager extends CMSModule
         $out = [];
 
         if( $this->CheckPermission('Add Pages') || $this->CheckPermission('Remove Pages') || $this->CanEditContent() ) {
-            // user is entitled to see the main page in the navigation
+            // user is entitled to see the main page in the admin navigation
             $obj = AdminMenuItem::from_module($this);
-            $obj->title = $this->Lang('title_contentmanager');
+            $obj->title = $this->Lang('title_settingsmenu');
             $out[] = $obj;
         }
 
@@ -120,62 +120,13 @@ final class ContentManager extends CMSModule
             $obj = new AdminMenuItem();
             $obj->module = $this->GetName();
             $obj->section = 'siteadmin';
-            $obj->title = $this->Lang('title_contentmanager_settings');
-            $obj->description = $this->Lang('desc_contentmanager_settings');
+            $obj->title = $this->Lang('title_module_settings');
+            $obj->description = $this->Lang('desc_module_settings');
             $obj->icon = false;
             $obj->action = 'settings';
             $obj->name = 'set';
             $out[] = $obj;
         }
         return $out;
-    }
-
-    public function GetContentEditor($page_id)
-    {
-        if( $page_id < 1 ) {
-            //TODO create new object
-            return null;
-        }
-
-        $db = cmsms()->GetDb();
-        $params = $db->getRow('SELECT * FROM '.CMS_DB_PREFIX.'content WHERE content_id=?',[$page_id]);
-        if( $params ) {
-            switch( $params['type'] ) {
-                case 'content':
-                case 'Content':
-                    $type = 'Content';
-                    break;
-                case 'errorpage':
-                case 'ErrorPage':
-                    $type = 'ErrorPage';
-                    break;
-                case 'link':
-                case 'Link':
-                    $type = 'Link';
-                    break;
-                case 'pagelink':
-                case 'PageLink':
-                    $type = 'PageLink';
-                    break;
-                case 'sectionheader':
-                case 'SectionHeader':
-                    $type = 'SectionHeader';
-                    break;
-                case 'separator':
-                case 'Separator':
-                    $type = 'Separator';
-                    break;
-                default:
-                    $type = null;
-                    break;
-            }
-            if( $type ) {
-                $classname = 'ContentManager\contenttypes\\'.$type;
-                return new $classname($params);
-            } else {
-                //TODO API needed to retrieve one of these
-            }
-        }
-        return null;
     }
 } // class

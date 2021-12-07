@@ -191,7 +191,7 @@ final class ModulePluginOperations
 		}
 
 		if( !($mod = $this->_get_plugin_module($modname)) ) {
-			return "<!-- ERROR: $modname is not available, in this context at least -->\n";
+			return "<!-- ERROR: module '$modname' is not available, in this context at least -->";
 		}
 
 		unset($params['module']);
@@ -282,8 +282,8 @@ final class ModulePluginOperations
 	public function _get_plugin_module(string $name, string $type = 'function')
 	{
 		$row = $this->_find($name, $type);
-		if( is_array($row) ) {
-	 		if( $row['available'] != self::AVAIL_ALL ) {
+		if( $row ) {
+			if( $row['available'] != self::AVAIL_ALL ) {
 				$states = AppState::get();
 				if( in_array(AppState::FRONT_PAGE, $states) ) {
 					if( !($row['available'] & self::AVAIL_FRONTEND) ) return;

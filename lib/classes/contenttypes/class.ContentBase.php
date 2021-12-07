@@ -136,7 +136,7 @@ class ContentBase implements Serializable
 			default:
 /*				if (CMS_DEBUG) {
 					TODO for some properties ...
-					throw new Exception('Attempt to retrieve unrecognized content-property: '.$key);
+					CMSMS\log_warning 'Attempt to set specific content-property: '.$key);
 				}
 */
 				$this->_fields[$use] = $value;
@@ -156,14 +156,16 @@ class ContentBase implements Serializable
 			case '_props':
 				return $this->$use;
 			default:
-				if (isset($this->_fields[$use]) || is_null($this->_fields[$use])) {
+				if (isset($this->_fields[$use])) {
 					return $this->_fields[$use];
-				} elseif (isset($this->_props[$use]) || is_null($this->_props[$use])) {
+				} elseif (isset($this->_props[$use])) {
 					return $this->_props[$use];
 				}
-				if (CMS_DEBUG) {
-					throw new Exception('Attempt to retrieve unrecognised content-property: '.$key);
+/*				if (CMS_DEBUG) {
+					TODO for some properties ...
+					CMSMS\log_warning 'Attempt to retrieve unrecognised content-property: '.$key);
 				}
+*/
 				return null;
 		}
 	}
@@ -186,7 +188,7 @@ class ContentBase implements Serializable
 			case 'set':
 				$len = ($chk[4] == '_') ? 4 : 3;
 				$key = substr($chk, $len);
-				$this->__set($key, $args[0]);
+				$this->__set($key, $args[0] ?? null);
 				break;
 			case 'get':
 				$len = ($chk[4] == '_') ? 4 : 3;
@@ -465,18 +467,6 @@ class ContentBase implements Serializable
 		return (isset($this->_fields['type'])) ?
 			(strcasecmp($this->_fields['type'], 'content') == 0) :
 			false;
-	}
-
-	/**
-	 * Return whether this page is copyable.
-	 * (used during tree-construction)
-	 *
-	 * @abstract
-	 * @return bool Default false
-	 */
-	public function IsCopyable() : bool
-	{
-		return false;
 	}
 
 	/**
@@ -772,16 +762,6 @@ class ContentBase implements Serializable
 */
 
 	// ======= SERIALIZABLE INTERFACE METHODS =======
-
-	public function __serialize()
-	{
-		return $this->serialize();
-	}
-
-	public function __unserialize($serialized)
-	{
-		$this->unserialize($serialized);
-	}
 
 	public function serialize()
 	{

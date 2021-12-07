@@ -40,6 +40,7 @@ class News extends CMSModule
     const HALFDAYBLOCK = 2;
     const DAYBLOCK = 3;
 
+/* for CMSMS < 2.99
     public function __construct()
     {
         parent::__construct();
@@ -47,35 +48,37 @@ class News extends CMSModule
             require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'function.spacedloader.php';
         }
     }
-
+*/
     public function AllowSmartyCaching() { return true; }
     public function GetAdminDescription() { return $this->Lang('description'); }
     public function GetAdminSection() { return 'content'; }
     public function GetAuthor() { return 'Ted Kulp'; }
     public function GetAuthorEmail() { return 'ted@cmsmadesimple.org'; }
     public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
-    public function GetDependencies() { return ['FilePicker' => '1.0']; } // for article & category icons
+    public function GetDependencies() { return ['FilePicker' => '1.0']; } // for article- & category-images
     public function GetEventDescription($eventname) { return $this->lang('eventdesc-' . $eventname); }
     public function GetEventHelp($eventname) { return $this->lang('eventhelp-' . $eventname); }
     public function GetFriendlyName() { return $this->Lang('news'); }
     public function GetHelp() { return $this->Lang('help'); }
     public function GetName() { return 'News'; }
     public function GetVersion() { return '3.1'; }
+    public function HandlesEvents() { return true; }
     public function HasAdmin() { return true; }
     public function InstallPostMessage() { return $this->Lang('postinstall');  }
     public function IsPluginModule() { return true; } //deprecated in favour of capability
-//    public function LazyLoadAdmin() { return true; }
-//    public function LazyLoadFrontend() { return true; }
+//  public function LazyLoadAdmin() { return true; }
+//  public function LazyLoadFrontend() { return true; }
     public function MinimumCMSVersion() { return '2.99'; }
 
     public function InitializeFrontend()
     {
-/*
+/*      $this->RestrictUnknownParams(); does nothing in 2.99+
+        $this->SetParameterType('articleid', CLEAN_INT);
         $this->SetParameterType('assign', CLEAN_STRING);
         $this->SetParameterType('browsecat', CLEAN_INT);
         $this->SetParameterType('browsecattemplate', CLEAN_STRING);
-        $this->SetParameterType('category', CLEAN_STRING);
         $this->SetParameterType('category_id', CLEAN_STRING);
+        $this->SetParameterType('category', CLEAN_STRING);
         $this->SetParameterType('detailpage', CLEAN_STRING);
         $this->SetParameterType('detailtemplate', CLEAN_STRING);
         $this->SetParameterType('formtemplate', CLEAN_STRING);
@@ -113,27 +116,36 @@ class News extends CMSModule
 ?? sortby
 'start'
 'summarytemplate'
-
-//$params used in action.browsecat.php
+//$params used in or downstream from action.browsecat.php
 'browsecattemplate'
+'category'
+'detailpage'
+'showarchive'
+//$params used in or downstream from action.detail.php
+'articleid'
+'category_id'
+'detailtemplate'
+'origid'
+'preview'
 */
-        //some of these are probably redundant in the frontend
         $this->SetParameterType('articleid', CLEAN_INT);
         $this->SetParameterType('browsecat', CLEAN_INT); //??
-        $this->SetParameterType('browsecattemplate', CLEAN_STRING); //name
+        $this->SetParameterType('browsecattemplate', CLEAN_STRING); //general template name or News template like 'somefilename.tpl'
         $this->SetParameterType('category_id', CLEAN_INT);
-        $this->SetParameterType('category', CLEAN_STRING); //??
+        $this->SetParameterType('category', CLEAN_STRING); //comma-separated name(s)
         $this->SetParameterType('detailpage', CLEAN_STRING); //page id or alias
         $this->SetParameterType('detailtemplate', CLEAN_STRING); //name
         $this->SetParameterType('idlist', CLEAN_STRING); //??
         $this->SetParameterType('lang', CLEAN_STRING); //TODO explain
         $this->SetParameterType('moretext', CLEAN_STRING); //label, TODO ever submitted?
         $this->SetParameterType('number', CLEAN_INT); //alias for pagenumber ??
+        $this->SetParameterType('origid', CLEAN_INT);
         $this->SetParameterType('pagelimit', CLEAN_INT);
         $this->SetParameterType('pagenumber', CLEAN_INT);
-        $this->SetParameterType('returnid', CLEAN_INT);
+        $this->SetParameterType('preview', CLEAN_STRING); //hashed preview data
+//      $this->SetParameterType('returnid', CLEAN_INT);
         $this->SetParameterType('showall', CLEAN_INT); //??
-        $this->SetParameterType('showarchive', CLEAN_INT); //??
+        $this->SetParameterType('showarchive', CLEAN_INT);
         $this->SetParameterType('sortasc', CLEAN_STRING); // ''true'|'false'
         $this->SetParameterType('sortby', CLEAN_STRING); //TODO needed?
         $this->SetParameterType('start', CLEAN_INT); //offset of 1st displayed item
@@ -144,17 +156,22 @@ class News extends CMSModule
     {
         HookOperations::add_hook('ExtraSiteSettings', [$this, 'ExtraSiteSettings']);
 
-        $this->CreateParameter('action','default',$this->Lang('helpaction'));
-        $this->CreateParameter('articleid','',$this->Lang('help_articleid'));
+        $this->CreateParameter('action', 'default', $this->Lang('helpaction'));
+        $this->CreateParameter('articleid', '', $this->Lang('help_articleid'));
         $this->CreateParameter('browsecat', 0, $this->Lang('helpbrowsecat'));
         $this->CreateParameter('browsecattemplate', '', $this->Lang('helpbrowsecattemplate'));
+//      $this->CreateParameter('category_id', ... CLEAN_INT);
         $this->CreateParameter('category', 'category', $this->Lang('helpcategory'));
         $this->CreateParameter('detailpage', 'pagealias', $this->Lang('helpdetailpage'));
         $this->CreateParameter('detailtemplate', '', $this->Lang('helpdetailtemplate'));
-        $this->CreateParameter('idlist','',$this->Lang('help_idlist'));
+        $this->CreateParameter('idlist', '', $this->Lang('help_idlist'));
+//      $this->CreateParameter('lang', ... CLEAN_STRING); //TODO explain
         $this->CreateParameter('moretext', $this->Lang('moreprompt'), $this->Lang('helpmoretext'));
         $this->CreateParameter('number', 100000, $this->Lang('helpnumber'));
+//      $this->SetParameterType('origid', ...CLEAN_INT);
         $this->CreateParameter('pagelimit', 1000, $this->Lang('help_pagelimit'));
+//      $this->CreateParameter('pagenumber', ...CLEAN_INT);
+//      $this->CreateParameter('preview', ....CLEAN_STRING); //hashed preview data
         $this->CreateParameter('showall', 0, $this->Lang('helpshowall'));
         $this->CreateParameter('showarchive', 0, $this->Lang('helpshowarchive'));
         $this->CreateParameter('sortasc', 'true', $this->Lang('helpsortasc'));
@@ -166,47 +183,43 @@ class News extends CMSModule
     public function VisibleToAdminUser()
     {
         return $this->CheckPermission('Modify News') ||
+            $this->CheckPermission('Propose News') ||
             $this->CheckPermission('Approve News') ||
             $this->CheckPermission('Delete News') ||
             $this->CheckPermission('Modify News Preferences');
     }
-/*
-    public function GetDfltEmailTemplate()
-    {
-        return <<<EOS
-A new news article has been posted to the website. The details are as follows:
-Title:      {\$title}
-IP Address: {\$ipaddress}
-Summary:    {\$summary|strip_tags}
-Start Date: {\$startdate|cms_date_format:'timed'}
-End Date:   {\$enddate|cms_date_format:'timed'}
-EOS;
-    }
-*/
-    //TODO some of these might be better placed in the Utils class
 
-    public function SearchResultWithParams($returnid, $articleid, $attr = '', $params = '')
+    /**
+     * Search-module support method - get TBA
+     *
+     * @param int $returnid page identifier
+     * @param int $articleid news article identifier
+     * @param string $attr target-identifier. Only 'article' is recognized here
+     * @param array $params
+     * @return array 3 members
+     */
+    public function SearchResultWithParams($returnid, $articleid, $attr = '', $params = [])
     {
         $result = [];
 
         if( $attr == 'article' ) {
             $db = $this->GetDb();
-            $q = 'SELECT news_title,news_url FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
-            $row = $db->getRow( $q, [ $articleid ] );
+            $query = 'SELECT news_title,news_url FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
+            $row = $db->getRow($query, [$articleid]);
 
             if( $row ) {
                 $gCms = SingleItem::App();
-                //0 position is the prefix displayed in the list results.
+                //position 0 is the prefix displayed in the list results
                 $result[0] = $this->GetFriendlyName();
 
-                //1 position is the title
+                //position 1 is the title
                 $result[1] = $row['news_title'];
 
-                //2 position is the URL to the title.
+                //position 2 is the URL to the title
                 $detailpage = $returnid;
                 if( isset($params['detailpage']) ) {
                     $hm = $gCms->GetHierarchyManager();
-                    $id = $hm->find_by_identifier($params['detailpage'],false);
+                    $id = $hm->find_by_identifier($params['detailpage'], false);
                     if( $id ) {
                         $detailpage = $id;
                     }
@@ -214,42 +227,53 @@ EOS;
 
                 $detailtemplate = '';
                 if( isset($params['detailtemplate']) ) {
-                    if( !isset($hm) ) $hm = $gCms->GetHierarchyManager();
-                    $node = $hm->find_by_tag('alias',$params['detailtemplate']);
-                    if( $node ) $detailtemplate = '/d,' . $params['detailtemplate'];
+                    if( !isset($hm) ) { $hm = $gCms->GetHierarchyManager(); }
+                    $node = $hm->find_by_tag('alias', $params['detailtemplate']);
+                    if( $node ) {
+                        $detailtemplate = '/d,' . $params['detailtemplate'];
+                    }
                 }
 
                 $prettyurl = $row['news_url'];
-                if( $row['news_url'] == '' ) {
-                    $aliased_title = munge_string_to_url($row['news_title']);
-                    $prettyurl = 'news/' . $articleid.'/'.$detailpage."/$aliased_title".$detailtemplate;
+                if( !$prettyurl ) {
+                    $str = munge_string_to_url($row['news_title']); // OR some other algorithm e.g. condense()?
+                    $prettyurl = 'News/' . $articleid. '/' . $detailpage .'/' .$str . $detailtemplate;
                 }
 
                 $parms = [];
                 $parms['articleid'] = $articleid;
-                if( isset($params['detailtemplate']) ) $parms['detailtemplate'] = $params['detailtemplate'];
-                $result[2] = $this->CreateLink('cntnt01', 'detail', $detailpage, '', $parms ,'', true, false, '', true, $prettyurl);
+                if( isset($params['detailtemplate']) ) { $parms['detailtemplate'] = $params['detailtemplate']; }
+                $result[2] = $this->CreateLink('cntnt01', 'detail', $detailpage, '', $parms , '', true, false, '', true, $prettyurl);
             }
         }
 
         return $result;
     }
 
-    public function SearchReindex($module)
+    /**
+     * Search-module support method - update search index
+     *
+     * @param Search-module object $search
+     */
+    public function SearchReindex($search)
     {
+        $nsexp = $this->GetPreference('expired_searchable', 0) == 0; // TODO also use this for $query
         $db = $this->GetDb();
-
-        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE searchable = 1 AND status = \'published\' OR status = \'final\' ORDER BY start_time';
+        $query = 'SELECT news_id,news_title,news_data,summary,end_time FROM '.CMS_DB_PREFIX.
+        'module_news WHERE searchable = 1 AND status = \'published\' OR status = \'final\' ORDER BY start_time';
         $rst = $db->execute($query);
-        $nsexp = $this->GetPreference('expired_searchable',0) == 0;
-        while( $rst && !$rst->EOF() ) {
-            $module->AddWords($this->GetName(),
-                              $rst->fields['news_id'], 'article',
-                              $rst->fields['news_data'] . ' ' . $rst->fields['summary'] . ' ' . $rst->fields['news_title'] . ' ' . $rst->fields['news_title'],
-                              ($nsexp && $rst->fields['end_time'] != NULL) ? $rst->fields['end_time'] : NULL);
-            $rst->MoveNext();
+        if( $rst ) {
+            while( !$rst->EOF() ) {
+                $search->AddWords($this->GetName(),
+                    $rst->fields['news_id'], 'article',
+                    $rst->fields['news_data'] . ' ' . $rst->fields['summary'] . ' ' . $rst->fields['news_title'] . ' ' . $rst->fields['news_title'],
+                    ($nsexp && $rst->fields['end_time'] != NULL) ? $rst->fields['end_time'] : NULL);
+                $rst->MoveNext();
+            }
+            $rst->Close();
         }
     }
+
 /*
     public function GetFieldTypes()
     {
@@ -269,6 +293,8 @@ EOS;
         return $this->CreateInputDropdown($id, $name, array_flip($items), -1, $selected);
     }
 */
+    //TODO some of these might be better placed in the Utils class
+
     public function GetDateFormat() : string
     {
         $fmt = $this->GetPreference('date_format');
@@ -276,7 +302,7 @@ EOS;
             $fmt .= ' '.$this->GetPreference('time_format');
         }
         else {
-            $fmt = AppParams::get('date_format','Y-m-d');
+            $fmt = AppParams::get('date_format', 'Y-m-d');
             $fmt .= ' H:i';
         }
         return $fmt;
@@ -284,7 +310,7 @@ EOS;
 
     /**
      * Migrate the supplied string from database datetime-field format
-     * like 'Y-m-d H:i:s' to the preferred presentation format
+     * like 'Y-m-d H:i:s' to the preferred News-presentation format
      *
      * @param mixed $datetime string | null
      * @return string, maybe empty
@@ -299,62 +325,40 @@ EOS;
         return ''.$datetime;
     }
 
-    public function GetNotificationOutput($priority = 2)
-    {
-        // if this user has permission to change News articles from
-        // draft to final, and there are draft news articles,
-        // then display a nice message.
-        // this is a priority 2 item.
-        if( $priority >= 2 ) {
-            $output = [];
-            if( $this->CheckPermission('Approve News') ) {
-                $db = $this->GetDb();
-                $longnow = $db->DbTimeStamp(time());
-                $query = 'SELECT COUNT(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status!=\'published\' AND status!=\'final\'
-                  AND (end_time IS NULL OR end_time>'.$longnow.')';
-                $count = $db->getOne($query);
-                if( $count ) {
-                    $obj = new stdClass();
-                    $obj->priority = 2;
-                    $link = $this->CreateLink('m1_','defaultadmin','', $this->Lang('notify_n_draft_items_sub',$count));
-                    $obj->html = $this->Lang('notify_n_draft_items',$link);
-                    $output[] = $obj;
-                }
-            }
-        }
-        return $output;
-    }
-
     public function CreateStaticRoutes()
     {
         $str = $this->GetName();
-        RouteOperations::del_static('',$str);
+        RouteOperations::del_static('', $str);
 
         $db = SingleItem::Db();
         $c = strtoupper($str[0]);
-        $x = substr($str,1);
+        $x = substr($str, 1);
         $x1 = '['.$c.strtolower($c).']'.$x;
 
         $route = new Route('/'.$x1.'\/(?<articleid>[0-9]+)\/(?<returnid>[0-9]+)\/(?<junk>.*?)\/d,(?<detailtemplate>.*?)$/',
                               $str);
         RouteOperations::add_static($route);
-        $route = new Route('/'.$x1.'\/(?<articleid>[0-9]+)\/(?<returnid>[0-9]+)\/(?<junk>.*?)$/',$str);
+        $route = new Route('/'.$x1.'\/(?<articleid>[0-9]+)\/(?<returnid>[0-9]+)\/(?<junk>.*?)$/', $str);
         RouteOperations::add_static($route);
-        $route = new Route('/'.$x1.'\/(?<articleid>[0-9]+)\/(?<returnid>[0-9]+)$/',$str);
+        $route = new Route('/'.$x1.'\/(?<articleid>[0-9]+)\/(?<returnid>[0-9]+)$/', $str);
         RouteOperations::add_static($route);
-        $route = new Route('/'.$x1.'\/(?<articleid>[0-9]+)$/',$str,
-                              ['returnid'=>$this->GetPreference('detail_returnid',-1)]);
+        $route = new Route('/'.$x1.'\/(?<articleid>[0-9]+)$/', $str,
+                              ['returnid'=>$this->GetPreference('detail_returnid', -1)]);
         RouteOperations::add_static($route);
 
+        $pref = CMS_DB_PREFIX;
         $longnow = $db->DbTimeStamp(time());
-        $query = 'SELECT news_id,news_url FROM '.CMS_DB_PREFIX.'module_news WHERE status = ? AND news_url != \'\' AND '
-            . '('.$db->ifNull('start_time',1).'<'.$longnow.') AND (end_time IS NULL OR end_time>'.$longnow.')';
-        $query .= ' ORDER BY start_time DESC';
-        $tmp = $db->getArray($query,['published']);
+        $nonull = $db->ifNull('start_time', '2000-1-1');
+        $query = <<<EOS
+SELECT news_id,news_url FROM {$pref}module_news
+WHERE status = 'published' AND news_url IS NOT NULL AND news_url != '' AND $nonull <= $longnow AND (end_time IS NULL OR end_time > $longnow)
+ORDER BY start_time DESC
+EOS;
+        $tmp = $db->getArray($query);
 
-        if( is_array($tmp) ) {
+        if( $tmp ) {
             foreach( $tmp as $one ) {
-                AdminOperations::register_static_route($one['news_url'],$one['news_id']);
+                AdminOperations::register_static_route($one['news_url'], $one['news_id']);
             }
         }
     }
@@ -362,43 +366,52 @@ EOS;
     public static function page_type_lang_callback($str)
     {
         $mod = Utils::get_module('News');
-        if( is_object($mod) ) return $mod->Lang('type_'.$str);
+        if( is_object($mod) ) {
+            return $mod->Lang('type_'.$str);
+        }
+        return '';
     }
 
     public static function template_help_callback($str)
     {
-        $str = trim($str);
         $mod = Utils::get_module('News');
         if( is_object($mod) ) {
-            $file = $mod->GetModulePath().'/doc/tpltype_'.$str.'.inc';
-            if( is_file($file) ) return file_get_contents($file);
+            $file = cms_join_path($mod->GetModulePath(), 'doc', 'tpltype_'.trim($str).'.htm');
+            if( is_file($file) ) {
+                $base = $mod->GetModuleURLPath();
+                add_page_headtext('<link rel="stylesheet" type="text/css" href="'.$base.'/css/modhelp.css" />');
+                return file_get_contents($file);
+            }
         }
+        return '';
     }
 
     public static function reset_page_type_defaults(TemplateType $type)
     {
-        if( $type->get_originator() != 'News' ) throw new LogicException('Cannot reset contents for this template type');
-
-        $fn = null;
-        switch( $type->get_name() ) {
-        case 'summary':
-            $fn = 'orig_summary_template.tpl';
-            break;
-
-        case 'detail':
-            $fn = 'orig_detail_template.tpl';
-            break;
-
-        case 'form':
-            $fn = 'orig_form_template.tpl';
-            break;
-
-        case 'browsecat':
-            $fn = 'browsecat.tpl';
+        if( $type->get_originator() != 'News' ) {
+            throw new LogicException('Cannot reset contents for this template type');
         }
 
-        $fn = cms_join_path(__DIR__,'templates',$fn);
-        if( is_file($fn) ) return @file_get_contents($fn);
+        switch( $type->get_name() ) {
+        case 'summary':
+            $fn = 'summary_template.tpl';
+            break;
+        case 'detail':
+            $fn = 'detail_template.tpl';
+            break;
+        case 'browsecat':
+            $fn = 'browsecat.tpl';
+            break;
+        case 'approvalmessage':
+            $fn = 'approval_email.tpl';
+            break;
+        }
+
+        $fn = cms_join_path(__DIR__, 'templates', $fn);
+        if( is_file($fn) ) {
+            return @file_get_contents($fn);
+        }
+        return '';
     }
 
     public function HasCapability($capability, $params = [])
@@ -407,7 +420,8 @@ EOS;
            case CoreCapabilities::PLUGIN_MODULE:
            case CoreCapabilities::ADMINSEARCH:
            case CoreCapabilities::TASKS:
-         //case CoreCapabilities::EVENTS: ? ROUTE_MODULE ?
+           case CoreCapabilities::EVENTS:
+           // ? ROUTE_MODULE ?
            case CoreCapabilities::SITE_SETTINGS:
               return true;
         }
@@ -415,33 +429,36 @@ EOS;
     }
 
     /**
-     * Hook function to populate 'centralised' site settings UI
-     * @internal
-     * @since 2.99
-     * @return array
+     * Event handler to adjust ownership during user-removal
+     * @since 3.1
+     *
+     * @param string $originator
+     * @param string $eventname
+     * @param array $params
      */
-    public function ExtraSiteSettings()
+    public function DoEvent($originator, $eventname, &$params)
     {
-        //TODO check permission local or Site Prefs
-        return [
-         'title' => $this->Lang('settings_title'),
-         //'desc' => 'useful text goes here', // optional useful text
-         'url' => $this->create_action_url('','defaultadmin',['activetab'=>'settings']), // if permitted
-         //optional 'text' => custom link-text | explanation e.g need permission
-        ];
+        switch ($eventname) {
+            case 'DeleteUserPre':
+                if ($originator == 'Core') {
+                    $user = $params['user'];
+                    $db = $this->GetDb();
+                    $db->execute('UPDATE '.CMS_DB_PREFIX.'module_news SET author_id = 1 WHERE author_id = '.(int)$user->id);
+                }
+        }
     }
 
     public function get_tasks()
     {
         if( version_compare(CMS_VERSION, '2.2') < 0 ) {
             $out = [new AdjustStatusTask()];
-            if( $this->GetPreference('alert_drafts',1) ) {
+            if( $this->GetPreference('alert_drafts', 1) ) {
                 $out[] = new CreateDraftAlertTask();
             }
         }
         else {
             $out = [new AdjustStatusJob()];
-            if( $this->GetPreference('alert_drafts',1) ) {
+            if( $this->GetPreference('alert_drafts', 1) ) {
                 $out[] = new CreateDraftAlertJob();
             }
         }
@@ -455,8 +472,27 @@ EOS;
 
     public function GetAdminMenuItems()
     {
-        $out = [];
-        if( $this->VisibleToAdminUser() ) $out[] = AdminMenuItem::from_module($this);
-        return $out;
+        if( $this->VisibleToAdminUser() ) {
+            return [AdminMenuItem::from_module($this)];
+        }
+        return [];
+    }
+
+    /**
+     * Hook function to populate 'centralised' site settings UI
+     * @internal
+     * @since 3.1
+     *
+     * @return array
+     */
+    public function ExtraSiteSettings()
+    {
+        //TODO check permission local or Site Prefs
+        return [
+         'title' => $this->Lang('settings_title'),
+         //'desc' => 'useful text goes here', // optional useful text
+         'url' => $this->create_action_url('', 'defaultadmin', ['activetab'=>'settings']), // if permitted
+         //optional 'text' => custom link-text | explanation e.g need permission
+        ];
     }
 } // class

@@ -39,8 +39,8 @@ if( !isset($params['bulk_content']) ) {
     $this->Redirect($id,'defaultadmin',$returnid);
 }
 
+$contentops = SingleItem::ContentOperations();
 $pagelist = $params['bulk_content'];
-$hm = $gCms->GetHierarchyManager();
 
 if( isset($params['submit']) ) {
     if( !isset($params['confirm1']) || !isset($params['confirm2']) ) {
@@ -57,7 +57,7 @@ if( isset($params['submit']) ) {
 
     try {
         foreach( $pagelist as $pid ) {
-            $content = $this->GetContentEditor($pid);
+            $content = $contentops->LoadEditableContentFromId($pid);
             if( !is_object($content) ) continue;
 
             $content->SetOwner((int)$params['owner']);
@@ -85,11 +85,11 @@ if( isset($params['submit']) ) {
 }
 
 $displaydata = [];
+
 foreach( $pagelist as $pid ) {
-    $node = $hm->find_by_tag('id',$pid);
-    if( !$node ) continue; // this should not happen, but hey.
-    $content = $node->getContent(FALSE,FALSE,FALSE);
-    if( !is_object($content) ) continue; // this should never happen either
+    $content = $contentops->LoadEditableContentFromId($pid);
+
+    if( !is_object($content) ) continue; // this should never happen
 
     $rec = [];
     $rec['id'] = $content->Id();
@@ -100,16 +100,17 @@ foreach( $pagelist as $pid ) {
     $displaydata[] = $rec;
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('bulk_changeowner.tpl')); //,null,null,$smarty);
-
-$tpl->assign('pagelist',$params['bulk_content'])
- ->assign('displaydata',$displaydata);
 $userlist = SingleItem::UserOperations()->LoadUsers();
 $tmp = [];
 foreach( $userlist as $user ) {
     $tmp[$user->id] = $user->username;
 }
-$tpl->assign('userlist',$tmp)
+
+$tpl = $smarty->createTemplate($this->GetTemplateResource('bulk_changeowner.tpl')); //,null,null,$smarty);
+
+$tpl->assign('pagelist',$params['bulk_content'])
+ ->assign('displaydata',$displaydata)
+ ->assign('userlist',$tmp)
  ->assign('userid',get_userid());
 
 $tpl->display();

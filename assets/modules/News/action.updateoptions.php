@@ -19,28 +19,51 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\TemplateOperations;
+
 //if (some worthy test fails) exit;
 if( !$this->CheckPermission( 'Modify News Preferences' ) ) exit;
 if( isset($params['cancel']) ) {
     $this->RedirectToAdminTab('settings');
 }
 
-$this->SetPreference('default_category',$params['default_category']);
+//$this->SetPreference('allowed_upload_types',$params['allowed_upload_types']);
+//$this->SetPreference('formsubmit_emailaddress',$params['formsubmit_emailaddress']);
+
+$this->SetPreference('alert_drafts',!empty($params['alert_drafts']));
+$this->SetPreference('allow_summary_wysiwyg',!empty($params['allow_summary_wysiwyg']));
+
+$t = (int)$params['article_pagelimit'];
+$t = max(5,min(50,$t));
+$this->SetPreference('article_pagelimit',$t);
+
+$this->SetPreference('clear_category',!empty($params['clear_category']));
+// TODO sanitizeVal() where relevant
 $this->SetPreference('date_format',trim($params['date_format']));
-$t = (int)$params['expiry_interval'];
-$t = max(1, min(365,$t));
-$this->SetPreference('expiry_interval',$t);
+$this->SetPreference('default_category',(int)$params['default_category']);
+
 $t = (int)$params['detail_returnid'];
-if( $t == 0 ) $t = null;
+if( $t == 0 ) { $t = null; }
 $this->SetPreference('detail_returnid',$t);
-//$this->SetPreference('allowed_upload_types', $params['allowed_upload_types']);
-//$this->SetPreference('formsubmit_emailaddress', $params['formsubmit_emailaddress']);
-//$this->SetPreference('email_subject',trim($params['email_subject']));
-//$this->SetTemplate('email_template',$params['email_template']);
+
+$this->SetPreference('email_subject',trim($params['email_subject']));
+
+$t = (int)$params['email_template'];
+$row = $db->getRow('SELECT originator,name FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE id=?',[$t]);
+$this->SetPreference('email_template',$row['originator'].'::'.$row['name']);
+
+$this->SetPreference('email_to',trim($params['email_to']));
+
+$t = (int)$params['expiry_interval'];
+$t = max(1,min(365,$t));
+$this->SetPreference('expiry_interval',$t);
+
 $this->SetPreference('expired_searchable',!empty($params['expired_searchable']));
 $this->SetPreference('expired_viewable',!empty($params['expired_viewable']));
-$this->SetPreference('alert_drafts',!empty($params['alert_drafts']));
 
-$this->CreateStaticRoutes();
+$this->SetPreference('time_format',trim($params['time_format']));
+$this->SetPreference('timeblock',(int)$params['timeblock']);
+
+$this->CreateStaticRoutes(); // ??
 $this->SetMessage($this->Lang('optionsupdated'));
 $this->RedirectToAdminTab('settings');

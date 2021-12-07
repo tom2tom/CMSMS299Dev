@@ -103,7 +103,7 @@ class Content extends ContentBase
 	 * Set content attribute values (from parameters received from admin add/edit form)
 	 *
 	 * @param array $params Hash of parameters to load into content attributes
-	 * @param bool  $editing Whether we in an add or edit operation.
+	 * @param bool  $editing Whether this is an edit operation. Default false i.e. adding.
 	 */
 	public function FillParams($params, $editing = false)
 	{
@@ -130,8 +130,11 @@ class Content extends ContentBase
 						$mod = Utils::get_module($blockInfo['module']);
 						if( !is_object($mod) ) continue;
 						if( !$mod->HasCapability(CoreCapabilities::CONTENT_BLOCKS) ) continue;
+// TODO if falsy value	$current = $params[$name];
 						$tmp = $mod->GetContentBlockFieldValue($blockName,$blockInfo['params'],$params,$this);
-						if( $tmp != null ) $params[$name] = $tmp;
+						if( $tmp/* != null*/ ) { // TODO allow (some?) falsy value
+							$params[$name] = $tmp;
+						}
 					}
 				}
 			}
@@ -324,7 +327,7 @@ class Content extends ContentBase
 	 */
 	protected function get_template_list()
 	{
-        // static properties here >> SingleItem property|ies ?
+		// static properties here >> SingleItem property|ies ?
 		static $_list;
 		if( $_list ) return $_list;
 
@@ -353,18 +356,19 @@ class Content extends ContentBase
 	}
 
 	/**
-	 * Given information about a single property this method returns that property
+	 * Return UI element(s) for [re]setting a named content property
 	 * @internal
 	 *
 	 * @param string $propname The property name
-	 * @param string $adding A flag indicating whether or not we are in add or edit mode
+	 * @param string $adding Flag indicating whether the editor is processing
+	 *  an addition, otherwise it's an edit
 	 * @return array 2 members or empty
 	 *  [0] = label
 	 *  [1] = input element HTML and javascript.
 	 */
 	public function ShowElement($propname, $adding)
 	{
-        // static properties here >> SingleItem property|ies ?
+		// static properties here >> SingleItem property|ies ?
 //		static $_designs;
 //		static $_types;
 //		static $_designtree;
@@ -567,7 +571,7 @@ class Content extends ContentBase
 			if( !$res ) return '';
 		}
 */
-		if( $this->Id() < 1 && $value === '' ) {
+		if( $this->Id() < 1 && $value === '' ) { // unsaved content without value
 			$value = trim($this->_get_param($blockInfo,'default'));
 		}
 		$required = cms_to_bool($this->_get_param($blockInfo,'required'));
@@ -608,6 +612,7 @@ class Content extends ContentBase
 
 	/**
 	 * @ignore
+	 * @param array $blockInfo
 	 */
 	private function _display_static_text_block(array $blockInfo) : array
 	{
@@ -672,11 +677,11 @@ class Content extends ContentBase
 
 	/**
 	 * @ignore
-	 * @param string $blockName
-	 * @param array $blockInfo
-	 * @param mixed $value string|null
+	 * @param string $blockName content block name
+	 * @param array $blockInfo method/element parameters
+	 * @param mixed $value string|null initial value of the element to be created
 	 * @param bool  $adding	Flag indicating whether the content editor is in create mode (adding) vs. edit mode.
-	 * @return mixed
+	 * @return mixed string | null
 	 */
 	private function _display_module_block(string $blockName, array $blockInfo, $value, bool $adding)
 	{
@@ -702,11 +707,11 @@ class Content extends ContentBase
 
 	/**
 	 * @ignore
-	 * @param string $blockName
-	 * @param array $blockInfo
-	 * @param mixed $value string|null
+	 * @param string $blockName e.g. 'content_en'
+	 * @param array $blockInfo method parameters
+	 * @param mixed $value string|null initial value
 	 * @param bool $adding Optional flag indicating whether the content editor is in create mode (adding) vs. edit mode. Default false
-	 * @return array 2-members | empty
+	 * @return array 3-members (label, popup, input) | empty
 	 */
 	private function display_content_block(string $blockName, array $blockInfo, $value, bool $adding = false)
 	{

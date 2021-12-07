@@ -16,12 +16,12 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use cms_content_tree;
+use CMSMS\ContentTree;
 use RuntimeException;
 
 /**
@@ -63,19 +63,19 @@ class TreeOperations
    * @internal
    * @param array The data to import, a row for each page, with members
    *  content_id, parent_id, item_order, content_alias, active - all strings
-   * @return cms_content_tree
+   * @return ContentTree
    */
   public static function load_from_list(array $data)
   {
       // create a tree object
-      $tree = new cms_content_tree();
+      $tree = new ContentTree();
 //      $sorted = [];
 
       for( $i = 0, $n = count($data); $i < $n; $i++ ) {
           $row = $data[$i];
 
           // create new node.
-          $node = new cms_content_tree(['id'=>$row['content_id'],'alias'=>$row['content_alias'],'active'=>$row['active']]);
+          $node = new ContentTree(['id'=>$row['content_id'],'alias'=>$row['content_alias'],'active'=>$row['active']]);
 
           // find where to insert it.
           $parent_node = null;

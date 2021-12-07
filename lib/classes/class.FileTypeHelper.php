@@ -59,11 +59,14 @@ class FileTypeHelper
      */
     private $_image_extensions = [
         'ai',
+        'avif',
         'bmp',
         'cgm',
         'eps',
         'fla',
         'gif',
+        'heic',
+        'heif',
         'ico',
         'jp2',
         'jpc',
@@ -134,6 +137,7 @@ class FileTypeHelper
         'avi',
         'f4v',
         'flv',
+        'hevc',
         'm4v',
         'mkv',
         'mov',

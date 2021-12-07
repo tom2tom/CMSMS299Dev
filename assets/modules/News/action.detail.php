@@ -50,58 +50,62 @@ else {
 }
 
 if( $id == '_preview_' && isset($_SESSION['news_preview']) && isset($params['preview']) ) {
-    // see if our data matches.
+    // check whether our data matches
     if( md5(serialize($_SESSION['news_preview'])) == $params['preview'] ) {
         $fname = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.$_SESSION['news_preview']['fname'];
         if( is_file($fname) && (md5_file($fname) == $_SESSION['news_preview']['checksum']) ) {
             $data = unserialize(file_get_contents($fname), ['allowed_classes'=>false]);
             if( is_array($data) ) {
-                // get passed data into a standard format.
+                // get passed data into a standard format
                 $article = new Article();
                 $article->set_linkdata($id,$params);
-                Utils::fill_article_from_formparams($article,$data,false,false);
+                Utils::fill_article_from_formparams($article, $data, false, false);
                 $preview = true;
             }
         }
     }
 }
 
-if( isset($params['articleid']) && $params['articleid'] == -1 ) {
-    $article = Utils::get_latest_article();
-}
-elseif( isset($params['articleid']) && (int)$params['articleid'] > 0 ) {
-    if( isset($params['showall']) ) {
-        $show_expired = 1;
+if( isset($params['articleid']) ) {
+    if( $params['articleid'] == -1 ) {
+        $article = Utils::get_latest_article();
     }
-    else {
-        $show_expired = $this->GetPreference('expired_viewable',1);
+    elseif( (int)$params['articleid'] > 0 ) {
+        if( isset($params['showall']) ) {
+            $show_expired = 1;
+        }
+        else {
+            $show_expired = $this->GetPreference('expired_viewable', 1);
+        }
+        $article = Utils::get_article_by_id((int)$params['articleid'], true, $show_expired);
     }
-    $article = Utils::get_article_by_id((int)$params['articleid'],true,$show_expired);
+    unset($params['articleid']);
 }
+
 if( !$article ) {
-    throw new Error404Exception('Article '.(int)$params['articleid'].' not found, or otherwise unavailable');
+    throw new Error404Exception('Article '. (($articleid != -1) ? trim($articleid).' ' : '') . 'not found, or otherwise unavailable');
 }
-$article->set_linkdata($id,$params);
+$article->set_linkdata($id, $params);
 
-$return_url = $this->CreateReturnLink($id, isset($params['origid'])?$params['origid']:$returnid, $this->lang('news_return'));
-
-$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
-$tpl->assign('return_url', $return_url)
- ->assign('entry', $article);
+$return_url = $this->CreateReturnLink($id, ($params['origid'] ?? $returnid), $this->lang('news_return'));
 
 if (isset($params['category_id'])) {
-    $catName = $db->getOne('SELECT news_category_name FROM '.CMS_DB_PREFIX . 'module_news_categories where news_category_id=?',[(int)$params['category_id']]);
+    $catName = $db->getOne('SELECT news_category_name FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id=?', [(int)$params['category_id']]);
 }
 else {
     $catName = '';
 }
-$tpl->assign('category_name',$catName);
 
-unset($params['article_id']);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
 
-$tpl->assign('category_link',$this->CreateLink($id, 'default', $returnid, $catName, $params))
+$tpl->assign('entry', $article)
+ ->assign('return_url', $return_url)
+ ->assign('category_name', $catName)
+ ->assign('category_link', $this->CreateLink($id, 'default', $returnid, $catName, $params))
  ->assign('category_label', $this->Lang('category_label'))
  ->assign('author_label', $this->Lang('author_label'))
  ->assign('extra_label', $this->Lang('extra_label'));
+
+// TODO other useful vars e.g. category longname, url, image ...
 
 $tpl->display();

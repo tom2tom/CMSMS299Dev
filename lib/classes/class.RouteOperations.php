@@ -240,7 +240,7 @@ final class RouteOperations
 			if( $exact || empty($props['exact']) ) {
 				if( $exact ) {
 					if( self::is_exact($props['term']) ) {
-						$props['term'] = '~'.str_replace('~','\\~',$props['term']).'~';
+						$props['term'] = '~^'.str_replace('~','\\~',$props['term']).'$~'; // TODO preg_quote() term ??
 					}
 				}
 				$matches = NULL;
@@ -328,7 +328,8 @@ final class RouteOperations
 	 * Return a route-object that matches the specified string, if match is found
 	 *
 	 * @param string $str The string whose match is sought (usually an incoming request URL)
-	 * @param bool $exact Optional flag instructing an exact string match regardless of object properties. Default FALSE.
+	 * @param bool $exact Optional flag instructing an exact check regardless of object properties. Default FALSE.
+	 * For avoidance of doubt: this indicates 'maybe I got it wrong, check the other type too'
 	 * @param bool $static_only Optional flag indicating that only static (db-recorded) routes should be checked. Default FALSE.
 	 * @return mixed Route the matching route | null
 	 */
@@ -417,7 +418,7 @@ final class RouteOperations
 	 */
 	public static function register(Route $route) : bool
 	{
-		assert(empty(CMS_DEPREC),new DeprecationNotice('method','add_dynamic'));
+		assert(!CMS_DEPREC,new DeprecationNotice('method','add_dynamic'));
 		return self::add_dynamic($route);
 	}
 
@@ -441,6 +442,7 @@ final class RouteOperations
 	 * @since 1.11
 	 * @param Route $route The route to add.
 	 * @return bool indicating success
+	 * @throws Exception if database upsert fails
 	 */
 	public static function add_static(Route $route)
 	{
@@ -491,7 +493,7 @@ EOS;
 	 * @param mixed string | null $delmatch Optional value recorded in
 	 *  table delmatch (filter) field. Pre-2.99 this was used only if
 	 *  both $dest1 and $page were non-NULL)
-	 * @return bool
+	 * @return bool indicating success
 	 */
 	public static function del_static($pattern,$dest1 = NULL,$page = NULL,$delmatch = NULL) : bool
 	{
@@ -527,7 +529,6 @@ EOS;
 			self::clear_static_routes();
 			return TRUE;
 		}
-
 		return FALSE;
 	}
 

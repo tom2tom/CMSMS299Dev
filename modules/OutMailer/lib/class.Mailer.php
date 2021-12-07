@@ -19,8 +19,6 @@ See the GNU Affero General Public License
 */
 namespace OutMailer;
 
-use OutMailer\PrefCrypter;
-use CMSMS\AppParams;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use CMSMS\IMailer;
@@ -33,13 +31,18 @@ use Ddrv\Mailer\Transport\SendmailTransport;
 use Ddrv\Mailer\Transport\SmtpTransport;
 use Ddrv\Mailer\Transport\SpoolTransport;
 use Exception;
+use OutMailer\PrefCrypter;
 use const CMS_DEPREC;
 use const TMP_CACHE_LOCATION;
-use function CMSMS\de_entitize;
 use function cms_join_path;
+use function CMSMS\de_entitize;
+use function get_module_param;
+use function lang_by_realm;
 
 /**
  * A class for interfacing with Ddrv Mailer to send email.
+ * NOTE: type-declarations here are limited, to conform
+ * to the IMailer interface, which is essentially PHPMailer's API
  *
  * @package CMS
  * @license GPL
@@ -54,7 +57,7 @@ class Mailer implements IMailer
 //	private $headers;
 	private $from; //local cache in lieu of message API
 	private $ishtml;
-	private $single;
+	private $single; //enum 0|1|2
 	private $errmsg;
 
 	/**
@@ -128,16 +131,13 @@ class Mailer implements IMailer
 //			'batchsize' => 1, // unused ?
 			'single' => 1,
 		];
-		foreach ($mailprefs as $key => &$val) {
-			$val = $this->GetPreference($key);
-		}
-		unset($val);
-		$val = AppParams::get('mailprefs');
-		if ($val) {
-			$mailprefs = array_merge($mailprefs, unserialize($val, ['allowed_classes' => false]));
+		foreach ($mailprefs as $key => $val) {
+			$mailprefs[$key] = get_module_param('OutMailer', $key);
 		}
 		$pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY);
 		$mailprefs['password'] = Crypto::decrypt_string(base64_decode($mailprefs['password']), $pw);
+
+		$this->single = (int)$mailprefs['single'];
 
 		$value = $mailprefs['from'] ?? $mailprefs['fromuser'] ?? '';
 		$this->message->setSender(trim($value)); //TODO ($email, $name)
@@ -189,8 +189,6 @@ class Mailer implements IMailer
 		$this->transport['smtpauth'] = (bool)$mailprefs['smtpauth'];
 		$this->transport['timeout'] = (int)$mailprefs['timeout'];
 		$this->transport['priority'] = 1; // highest
-
-		$this->single = !empty($mailprefs['single']);
 	}
 
 	/**
@@ -297,7 +295,7 @@ class Mailer implements IMailer
 	 * Set the subject of the message
 	 * @param string $subject
 	 */
-	public function SetSubject(string $subject)
+	public function SetSubject($subject)
 	{
 		$this->message->setSubject($subject);
 	}
@@ -306,7 +304,7 @@ class Mailer implements IMailer
 	 *
 	 * @return string
 	 */
-	public function GetSubject() : string
+	public function GetSubject() //: string
 	{
 		return $this->message->getSubject();
 	}
@@ -318,7 +316,7 @@ class Mailer implements IMailer
 	 * @param string $email email address that the email will be from.
 	 * @param string $name optional sender's name
 	 */
-	public function SetFrom(string $email, string $name = '')
+	public function SetFrom($email, $name = '')
 	{
 		$this->message->setSender($email, $name);
 		$this->from[$email] = $name; //local cache enables retrieval
@@ -329,7 +327,7 @@ class Mailer implements IMailer
 	 * @param string $email
 	 * @return string
 	 */
-	public function GetFrom(string $email = '') : string
+	public function GetFrom($email = '') //: string
 	{
 		if ($email) {
 			return $this->from[$email] ?? '';
@@ -343,7 +341,7 @@ class Mailer implements IMailer
 	 * @param string $name  The sender's name
 	 * @return bool true on success, false if address already used
 	 */
-	public function AddAddress(string $email, string $name = '') : bool
+	public function AddAddress($email, $name = '') //: bool
 	{
 		$this->message->addRecipient($email, $name);
 		return true;
@@ -353,18 +351,18 @@ class Mailer implements IMailer
 	 * Remove a "To" address.
 	 * @param string $email
 	 */
-	public function RemoveAddress(string $email)
+	public function RemoveAddress($email)
 	{
-		$this->message->removeRecient($email);
+		$this->message->removeRecipient($email);
 	}
 
 	/**
 	 * Get all "To" addresses.
-	 * @return array
+	 * @return array each member like email=>['type'='to', 'name'=...]
 	 */
 	public function GetAddresses() : array
 	{
-		return $this->message->getRecipients();
+		return $this->message->getRecipientHeaders(Message::RECIPIENT_TO);
 	}
 
 	/**
@@ -373,9 +371,9 @@ class Mailer implements IMailer
 	 * @param string $name  The recipient's name
 	 * @return bool true on success, false if address already used
 	 */
-	public function AddCC(string $email, string $name = '') : bool
+	public function AddCC($email, $name = '') //: bool
 	{
-		$this->message->addCc($email, $name);
+		$this->message->addRecipient($email, $name, Message::RECIPIENT_CC);
 		return true;
 	}
 
@@ -383,18 +381,18 @@ class Mailer implements IMailer
 	 * Remove a "CC" address.
 	 * @param string $email
 	 */
-	public function RemoveCC(string $email)
+	public function RemoveCC($email)
 	{
-		$this->message->removeCc($email);
+		$this->message->removeRecipient($email);
 	}
 
 	/**
 	 * Get all "CC" addresses.
-	 * @return array
+	 * @return array each member like email=>['type'='cc', 'name'=...]
 	 */
 	public function GetCC() : array
 	{
-		return $this->message->getCc();
+		return $this->message->getRecipientHeaders(Message::RECIPIENT_CC);
 	}
 
 	/**
@@ -403,9 +401,9 @@ class Mailer implements IMailer
 	 * @param string $name  The real name
 	 * @return bool true on success, false if address already used
 	 */
-	public function AddBCC(string $email, string $name = '') : bool
+	public function AddBCC($email, $name = '') //: bool
 	{
-		$this->message->addBcc($email, $name);
+		$this->message->addRecipient($email, $name, Message::RECIPIENT_BCC);
 		return true;
 	}
 
@@ -413,27 +411,27 @@ class Mailer implements IMailer
 	 * Remove a "BCC" address.
 	 * @param string $email
 	 */
-	public function RemoveBCC(string $email)
+	public function RemoveBCC($email)
 	{
-		$this->message->removeBcc($email);
+		$this->message->removeRecipient($email);
 	}
 
 	/**
 	 * Get all "BCC" addresses.
-	 * @return array
+	 * @return array each member like email=>['type'='bcc', 'name'=...]
 	 */
 	public function GetBCC() : array
 	{
-		return $this->message->getBcc();
+		return $this->message->getRecipientHeaders(Message::RECIPIENT_BCC);
 	}
 
 	/**
 	 * Set the (initial) "Reply-to" address.
 	 * @param string $email
 	 */
-	public function SetReplyTo(string $email)
+	public function SetReplyTo($email)
 	{
-		$this->message->setHeader('Reply-To', $value);
+		$this->message->setHeader('Reply-To', $email);
 	}
 
 	/**
@@ -446,11 +444,11 @@ class Mailer implements IMailer
 
 	/**
 	 *
-	 * @return string
+	 * @return mixed string | null
 	 */
 	public function GetReplyTo() : string
 	{
-		return $this->message->getHeaderTODO('Reply-To');
+		return $this->message->getHeader('Reply-To');
 	}
 
 	/**
@@ -472,23 +470,24 @@ class Mailer implements IMailer
 
 	/**
 	 *
-	 * @return string
+	 * @return mixed string | null
 	 */
 	public function GetConfirmto() : string
 	{
-		return $this->message->getHeaderTODO('Disposition-Notification-To');
+		return $this->message->getHeader('Disposition-Notification-To');
 	}
 
 	/**
 	 * Add a custom header to the output email
+	 * e.g. $mailerobj->addCustomHeader('X-MYHEADER: some-value');
 	 *
-	 * e.g. $mailerobj->addCustomHeader('X-MYHEADER', 'some-value');
-	 * @param string $headername
+	 * @param string $header
 	 * @param string $value
 	 */
-	public function AddCustomHeader(string $headername, string $value)
+	public function AddCustomHeader($header)
 	{
-		$this->message->setHeader($headername, $value);
+		list($headername, $value) = explode(':', $header);
+		$this->message->setHeader(trim($headername), trim($value));
 	}
 
 	/**
@@ -504,9 +503,9 @@ class Mailer implements IMailer
 	 * [Un]set the message content type to HTML.
 	 * @param bool $state Default true
 	 */
-	public function IsHTML(bool $state = true)
+	public function IsHTML($state = true)
 	{
-		$this->ishtml = $state;
+		$this->ishtml = (bool)$state;
 	}
 
 	/**
@@ -516,7 +515,7 @@ class Mailer implements IMailer
 	 * Otherwise it should contain only text.
 	 * @param string $content
 	 */
-	public function SetBody(string $content)
+	public function SetBody($content)
 	{
 		if ($this->ishtml) {
 			$this->message->setHtml($content);
@@ -533,7 +532,7 @@ class Mailer implements IMailer
 	 * for email clients without HTML support.
 	 * @param string $content
 	 */
-	public function SetAltBody(string $content)
+	public function SetAltBody($content)
 	{
 		if ($this->ishtml) {
 			$content = $this->CleanHtmlBody($content);
@@ -572,14 +571,12 @@ class Mailer implements IMailer
 	}
 
 	/**
-	 * [Un]set the flag indicating intent to send an individual message to each destination
-	 * @param bool $state Default true
+	 * Set the mode for sending individual message
+	 * @param int $state enum 0..2 Default 1 (always)
 	 */
-	public function SetSingleSend(bool $state = true)
+	public function SetSingleSend(int $state = 1)
 	{
-//		if ($this->IsSingleAddressor()) {
-			$this->single = $state;
-//		}
+		$this->single = min(2, max(0, $state));
 	}
 
 	/**
@@ -595,7 +592,7 @@ class Mailer implements IMailer
 	 * Check whether there was an error on the last message send
 	 * @return bool
 	 */
-	public function IsError() : bool
+	public function IsError() //: bool
 	{
 		return $this->errmsg != false;
 	}
@@ -604,7 +601,7 @@ class Mailer implements IMailer
 	 * Return the error information from the last error.
 	 * @return string
 	 */
-	public function GetErrorInfo() : string
+	public function GetErrorInfo() //: string
 	{
 		return $this->errmsg;
 	}
@@ -613,14 +610,96 @@ class Mailer implements IMailer
 	 * Send the message
 	 * @param int $batchsize optional No. of messages to send in a single batch Default 0 hence no limit
 	 */
-	public function Send(int $batchsize = 0)
+	public function Send() // TODO IMailer has no param
 	{
-		if ($this->single) {
-			$this->SendSingles($batchsize);
-			return;
+		$mailer = new DoMailer($this->transport['object']);
+		switch ($this->single) {
+			case 1: // always
+			case 2: // if no copies
+			    if ($this->transport['object'] instanceof SmtpTransport) {
+					// TODO keep smtp connection alive
+				}
+				$allto = $this->GetAddresses();
+				$allcc = $this->GetCC();
+				$allbcc = $this->GetBCC();
+				$this->ClearAllRecipients();
+				if ($this->single == 1 || $allcc || $allbcc) {
+					foreach ($allto as $addr => $props) {
+						$this->AddAddress($addr, $props['name']);
+						try {
+							$mailer->send($this->message /*, int priority*/);
+						} catch (Exception $e) {
+							$this->errmsg = $e->GetMessage();
+						}
+						$this->RemoveAddress($addr);
+					}
+				} else {
+					foreach ($allto as $addr => $props) {
+						$this->AddAddress($addr, $props['name']);
+					}
+					try {
+						$mailer->send($this->message /*, int priority*/);
+					} catch (Exception $e) {
+						$this->errmsg = $e->GetMessage();
+					}
+					$this->ClearAllRecipients();
+				}
+
+				if ($allcc) {
+					$body = $this->GetBody(); // preserve
+					$this->AdjustBody('cc');
+ 					foreach ($allcc as $addr => $props) {
+						$this->AddAddress($addr, $props['name']);
+						try {
+							$mailer->send($this->message /*, int priority*/);
+						} catch (Exception $e) {
+							$this->errmsg = $e->GetMessage();
+						}
+						$this->RemoveAddress($addr);
+					}
+					$this->SetBody($body); // reinstate
+				}
+
+				if ($allbcc) {
+					$body = $this->GetBody(); // preserve
+					$this->AdjustBody('bcc');
+					foreach ($allbcc as $addr => $props) {
+						$this->AddAddress($addr, $props['name']);
+						try {
+							$mailer->send($this->message /*, int priority*/);
+						} catch (Exception $e) {
+							$this->errmsg = $e->GetMessage();
+						}
+						$this->RemoveAddress($addr);
+					}
+ 					$this->SetBody($body); // reinstate
+				}
+			    if ($this->transport['object'] instanceof SmtpTransport) {
+					// TODO quit smtp connection if still open
+				}
+//				$this->errmsg = 'Not yet supported';
+				break;
+			default: // never
+				try {
+					$mailer->send($this->message /*, int priority*/);
+/* OR
+				$mailer->send($this->message, $batchsize);
+				$mailer->flush();
+OR
+				$mailer->flush($batchsize);
+OR
+				$mailer->personal($this->message); // without spool
+OR
+				$mailer->personal($this->message, $batchsize); // with spool
+				$mailer->flush();
+*/
+				} catch (Exception $e) {
+					$this->errmsg = $e->GetMessage();
+				}
+				break;
 		}
-/*
-		$spool = new FileSpool($this->transport['object'], sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'mail');
+	}
+/*		$spool = new FileSpool($this->transport['object'], sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'mail');
 		//OR
 		$spool = new MemorySpool($this->transport['object']);
 
@@ -668,66 +747,28 @@ TEXT;
 			 $path                 // path to attached file
 		);
 */
-		$mailer = new DoMailer($this->transport['object']);
-		try {
-			$mailer->send($this->message /*, int priority*/);
-/*			//OR
-			$mailer->send($this->message, $batchsize);
-			$mailer->flush();
-			//OR
-			$mailer->flush($batchsize);
-			//OR
-			$mailer->personal($this->message); // without spool
-			// OR
-			$mailer->personal($this->message, $batchsize); // with spool
-			$mailer->flush();
-*/
-		} catch (Exception $e) {
-			$this->errmsg = $e->GetMessage();
-		}
-	}
-
 	protected function AdjustBody($mode)
 	{
-		// TODO $mod = ;
-		// TODO prepend $mod->Lang('bodyccnotice' | 'bodybccnotice') (with appropriate line-breaks) to body content
-	}
-
-	/**
-	 * Send the message individually to each specified destination
-	 * @param int $batchsize optional No. of messages to send in a single batch Default 0 hence no limit
-	 */
-	protected function SendSingles(int $batchsize = 0)
-	{
-		$allto = $this->GetAddresses();
-		$allcc = $this->GetCC();
-		$allbcc = $this->GetBCC();
-/* TODO
-		$this->ClearAllRecipients();
-
-		process each $allto member as single destination
-
-		if ($allcc) {
-			$body = $this->GetBody();
-			$this->AdjustBody('cc');
-			process each $allcc member as single destination
-			$this->SetBody($body); && Alt
+		switch ($mode) {
+			case 'cc':
+				$str = lang_by_realm('OutMailer', 'bodyccnotice');
+				break;
+			case 'bcc':
+				$str = lang_by_realm('OutMailer', 'bodybccnotice');
+				break;
+			default:
+				return;
 		}
-
-		if ($allbcc) {
-			$body = $this->GetBody();
-			$this->AdjustBody('bcc');
-			process each $allbcc member as single destination
- 			$this->SetBody($body); && Alt
-		}
-*/
-		$this->errmsg = 'Not yet supported';
+		$pref = ($this->ishtml) ? nl2br($str) : $str;
+		$sep = ($this->ishtml) ? '<br/>' : "\r\n"; // TODO generalise e.g. $this->transport->$eol
+		$body = $this->GetBody();
+		$this->SetBody($pref . $sep . $sep . $body);
 	}
 
 	// ============= OLD-CLASS METHODS =============
 
 	//deprecated alias
-	public function AddAttachment($path, $name = '')
+	public function AddAttachment($path, $name = '', $encoding = 'base64', $type = 'application/octet-stream')
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'addAttach'));
 		$this->AddAttach($name, '', $path);
@@ -736,30 +777,30 @@ TEXT;
 	/**
 	 * Add an embedded attachment.	This can include images, sounds, and
 	 * just about any other document.	Make sure to set the $type to an
-	 * image type.	For JPEG images use "image/jpeg" and for GIF images
+	 * image type. For JPEG images use "image/jpeg" and for GIF images
 	 * use "image/gif".
 	 * @param string $path Path to the attachment.
 	 * @param string $cid Content ID of the attachment. Use this to
 	 *  identify the Id for accessing the image in an HTML form.
 	 * @param string $name Overrides the attachment name.
-	 * @param string $encoding File encoding (see $Encoding).
-	 * @param string $type File extension (MIME) type.
+	 * @param string $encoding File encoding (see $Encoding). UNUSED
+	 * @param string $type File extension (MIME) type. UNUSED
 	 * @return bool
 	 */
-	function AddEmbeddedImage($path, $cid, $name = '')
+	function AddEmbeddedImage($path, $cid, $name = '', $encoding = 'base64', $type = 'application/octet-stream')
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'addAttach'));
 		$this->AddAttach($name, '', $path);
 	}
 
 	//deprecated alias
-	public function AddStringAttachment($string, $name)
+	public function AddStringAttachment($string, $name, $encoding = 'base64', $type = 'application/octet-stream')
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'addAttach'));
 		$this->AddAttach($name, $string, '');
 	}
 
-	public function AddReplyTo($email)
+	public function AddReplyTo($email, $name = '')
 	{
 		//TODO add comma-separated $email
 	}
@@ -810,8 +851,8 @@ TEXT;
 
 	public function GetBody()
 	{
-		//TODO return $this->message->X();
-		return '';
+		return $this->message->getBodyRaw();
+		return $val;
 	}
 
 	public function GetCharSet()

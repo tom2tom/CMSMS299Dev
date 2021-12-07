@@ -171,6 +171,7 @@ class wizard_step8 extends wizard_step
             'set_db_timezone' => $set,
             'set_names' => true,
         ], function($v) { return $v !== ''; });
+//DEBUG $params += ['debug' => true, 'deprecations' => true]; //DEBUG
 
         // get the system config instance
         $fp = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR;

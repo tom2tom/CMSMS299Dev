@@ -30,6 +30,18 @@ use CMSMS\AppConfig;
 
 $config = AppConfig::get_instance(); // SingleItem etc not yet set up
 
+// These 2 are before other $config accesses, in case CMS_DEPREC is needed there
+/**
+ * Whether CMSMS is in debug mode.
+ */
+define('CMS_DEBUG',$config['debug']);
+
+/**
+ * Whether to throw upon use of deprecated stuff.
+ * @since 2.99
+ */
+define('CMS_DEPREC',CMS_DEBUG && $config['deprecations']);
+
 /**
  * Where cachable system files can be written.
  */
@@ -51,17 +63,6 @@ define('PUBLIC_CACHE_LOCATION',$config['public_cache_location']);
  * The URL for public cachable files.
  */
 define('PUBLIC_CACHE_URL',$config['public_cache_url']);
-
-/**
- * Whether CMSMS is in debug mode.
- */
-define('CMS_DEBUG',$config['debug']);
-
-/**
- * Whether to throw upon use of deprecated stuff.
- * @since 2.99
- */
-define('CMS_DEPREC',CMS_DEBUG && $config['deprecations']);
 
 /**
  * Where CMSMS is installed.

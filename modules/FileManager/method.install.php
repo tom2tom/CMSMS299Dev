@@ -1,5 +1,8 @@
 <?php
-if (!function_exists('cmsms')) exit;
+if (empty($this) || !($this instanceof FileManager)) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
+
 $this->CreatePermission('Use FileManager Advanced',$this->Lang('permissionadvanced'));
 
 $this->SetPreference('advancedmode',0);
@@ -11,5 +14,3 @@ $this->SetPreference('permissionstyle','xxx');
 $this->CreateEvent('OnFileUploaded');
 $this->CreateEvent('OnFileDeleted');
 $this->RegisterModulePlugin(true);
-
-?>

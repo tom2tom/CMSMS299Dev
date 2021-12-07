@@ -65,7 +65,7 @@ class content_assistant
         if( $url[0] == '/' || substr_compare($url,'/',-1,1) == 0 ) return false;
 
         // check for chars not suitable for a pretty-url/route
-	    if( munge_string_to_url($url,true,true) != $url ) return false;
+        if( munge_string_to_url($url,true,true) != $url ) return false;
 
         // check for duplicates
         RouteOperations::load_routes();

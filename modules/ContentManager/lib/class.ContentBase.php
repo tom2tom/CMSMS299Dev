@@ -21,7 +21,6 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace ContentManager;
 
-use ContentManager\Utils;
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\ContentException;
@@ -38,6 +37,7 @@ use CMSMS\RouteOperations;
 use CMSMS\SingleItem;
 use CMSMS\Url;
 use CMSMS\Utils as AppUtils;
+use ContentManager\Utils;
 use Exception;
 use RuntimeException;
 use Serializable;
@@ -56,7 +56,7 @@ use function get_userid;
 use function munge_string_to_url;
 
 /**
- * Base content-editing class for the CmsContentManager module.
+ * Base content-editing class for the ContentManager module.
  *
  * @since	0.8
  * @package	CMS
@@ -500,7 +500,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * modifying this content object from form input fields (usually $_POST)
 	 *
 	 * @param array $params The input array (usually from $_POST)
-	 * @param bool  $editing Indicates whether this is an edit or add operation.
+	 * @param bool  $editing Whether this is an edit operation. Default false i.e. adding
 	 * @abstract
 	 */
 	public function FillParams($params, $editing = false)
@@ -763,6 +763,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 				$smarty = SingleItem::Smarty();
 				$tpl = $smarty->createTemplate($this->mod->GetTemplateResource('setstyles.tpl')); //,null,null,$smarty);
 				$tpl->assign('mod',$this->mod)
+				 ->assign('_module',$this->mod->GetName())
 				 ->assign('actionid',$id)
 				 ->assign('grouped',$grouped)
 				 ->assign('sheets',$sheets);
@@ -1676,11 +1677,12 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	/**
 	 * Save or update this content.
 	 *
-	 * @todo This function should return something (or throw an exception)
+	 * @todo This function should return T/F indicator (or throw an exception)
+	 * @returns true always
 	 */
 	public function Save()
 	{
-		Events::SendEvent( 'Core', 'ContentEditPre', [ 'content' => &$this ] ); //TODO deprecate? module for originator?
+		Events::SendEvent('Core', 'ContentEditPre', ['content' => &$this]); //TODO deprecate? module for originator?
 
 		if( !is_array($this->_props) ) {
 			debug_buffer('save is loading properties');
@@ -1697,18 +1699,19 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		$contentops = SingleItem::ContentOperations();
 		$contentops->SetContentModified();
 		$contentops->SetAllHierarchyPositions();
-		Events::SendEvent( 'Core', 'ContentEditPost', [ 'content' => &$this ] ); //TODO deprecate? module for originator?
+		Events::SendEvent('Core', 'ContentEditPost', ['content' => &$this]); //TODO deprecate? module for originator?
 		return true;
 	}
 
 	/**
-	 * Delete the current content object from the database.
+	 * Delete the current content object and all related data from the database.
 	 *
-	 * @todo this function should return something, or throw an exception
+	 * @todo This function should return T/F indicator (or throw an exception)
+	 * @returns true always
 	 */
 	public function Delete()
 	{
-		Events::SendEvent( 'Core', 'ContentDeletePre', [ 'content' => &$this ] ); //TODO deprecate? module for originator?
+		Events::SendEvent('Core', 'ContentDeletePre', ['content' => &$this]); //TODO deprecate? module for originator?
 		if( $this->mId > 0 ) {
 			$db = SingleItem::Db();
 
@@ -1734,7 +1737,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 			if( $this->mURL ) RouteOperations::del_static($this->mURL);
 		}
 
-		Events::SendEvent( 'Core', 'ContentDeletePost', [ 'content' => &$this ] ); //TODO deprecate? module for originator?
+		Events::SendEvent('Core', 'ContentDeletePost', ['content' => &$this]); //TODO deprecate? module for originator?
 		$this->mId = -1;
 		$this->mItemOrder = -1;
 
@@ -2503,6 +2506,19 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	}
 
 	/**
+	 * Return the pages-tree-depth of this content.
+	 *
+	 * @return int (0-based), -1 for a page not-yet placed in the tree
+	 */
+	public function GetLevel()
+	{
+		if( $this->mHierarchy ) {
+			return substr_count($this->mHierarchy,'.');
+		}
+		return -1;
+	}
+
+	/**
 	 * Return the integer id of the admin user that last modified this content page.
 	 *
 	 * @return int
@@ -2788,17 +2804,17 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		$this->mAdditionalEditors = $editorarray;
 	}
 
+/*	public function __serialize() : array
+	{
+		return [relevant key/value pairs];
+	}
+
+	public function __unserialize(array $data)
+	{
+		foreach ($data as $somemember->$val) $this->someprop = $val;
+	}
+*/
 	// ======= SERIALIZABLE INTERFACE METHODS =======
-
-	public function __serialize()
-	{
-		return $this->serialize();
-	}
-
-	public function __unserialize($serialized)
-	{
-		$this->unserialize($serialized);
-	}
 
 	public function serialize()
 	{

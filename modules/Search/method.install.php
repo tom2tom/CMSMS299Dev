@@ -26,12 +26,12 @@ use CMSMS\Template;
 use CMSMS\TemplateType;
 use function CMSMS\log_error;
 
-//if (some worthy test fails) exit;
-
+if (empty($this) || !($this instanceof Search)) exit;
 $newsite = AppState::test(AppState::INSTALL);
 if ($newsite) {
     $userid = 1; // templates owned by initial admin
 } else {
+	if (!$this->CheckPermission('Modify Modules')) exit;
     $userid = get_userid(false);
 }
 

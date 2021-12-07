@@ -65,6 +65,16 @@ $src_excludes = [
 -2 => '~tmp~',
 -1 => '~tests~',
 ] + $all_excludes;
+
+// root-relative sub-paths of source dirs whose actual contents are NOT for installation with sources in general.
+// instead their real contents will be handled by the site-importer, and pending that, just an empty 'index.html'
+$folder_excludes = [
+'assets/templates',
+'assets/styles',
+'assets/themes',
+'assets/user_plugins',
+];
+
 /*
 // members of $phar_excludes which need double-check before exclusion to confirm they're 'ours'
 $phar_checks = ['build', 'data', 'out'];
@@ -261,7 +271,7 @@ function get_alternate_files() : bool
 // get a filtered set of source-files from the original tree into $sourcedir
 function copy_local_files()
 {
-    global $sourcedir, $src_excludes, $src_checks, $verbose;
+    global $sourcedir, $src_excludes, $folder_excludes, $src_checks, $verbose;
 
     $localroot = current_root();
 
@@ -470,10 +480,21 @@ function copy_local_files()
     if (!empty($config['usertags_path'])) {
         @rename($fp.$config['usertags_path'], $fp.'assets'.DIRECTORY_SEPARATOR.'user_plugins');
     }
-    $fp2 = joinpath($sourcedir, 'assets', '');
+/*    $fp2 = joinpath($sourcedir, 'assets', '');
     // no change to {...[assets]/templates/*, ...[assets]/styles/*}, those files will be recorded in the relevant table
-    foreach ([/*'templates','styles',*/'user_plugins'] as $name) {
+    foreach ([/*'templates','styles',*  REMOVE THIS GAP IF UN-COMMENTED  /'user_plugins'] as $name) {
         @rrmdir($fp2.$name, false, true);
+    }
+*/
+    foreach ($folder_excludes as $s) {
+		$relpath = strtr($s, '\\/', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR);
+        $fp2 = $sourcedir.DIRECTORY_SEPARATOR.$relpath;
+        if (is_dir($fp2)) {
+            @rrmdir($fp2, false, true);
+        } else {
+			@mkdir($fp2, 0771);
+		}
+		touch($fp2.DIRECTORY_SEPARATOR.'index.html');
     }
 
     $dh = opendir($sourcedir);

@@ -146,8 +146,8 @@ foreach ([
     'cms_version_name' => $sysname, // public identifier for CMSMS version
     'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
     'current_theme' => '', // frontend theme name
-    'date_format' => 'j l Y',
-    'datetime_format' => 'j l Y h:i a',
+    'date_format' => 'j F Y',
+    'datetime_format' => 'j F Y g:i a',
     'defaultdateformat' => '%e %B %Y', // deprecated since 2.99 strftime()-compatible format
     'enablesitedownmessage' => 0, // deprecated since 2.99 use site_downnow
     'frontendlang' => 'en_US',
@@ -164,7 +164,7 @@ foreach ([
     'logintheme' => $theme,
     'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved." />'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
     'password_level' => 0, // p/w policy-type enumerator
-//	'password_life' => 0, // p/w lifetime (days) NO TIMEOUT SUPPORT
+//    'password_life' => 0, // p/w lifetime (days) NO TIMEOUT SUPPORT
     'site_help_url' => $helpurl,
     'site_uuid' => $uuid, // almost-certainly-unique signature of this site (see also siteuuid-file)
     'sitedownexcludeadmins' => 0,
@@ -172,7 +172,7 @@ foreach ([
     'sitedownmessage' => '',
     'site_downnow' => 0, //see also deprecated enablesitedownmessage
     'site_logo' => '',
-//	'sitemask' => '', for old (md5-hashed) admin-user passwords - useless in new installs
+//    'sitemask' => '', for old (md5-hashed) admin-user passwords - useless in new installs
     'sitename' => $choices['sitename'],
     'smarty_cachelife' => -1, // smarty default
     'smarty_cachemodules' => 0, // CSMS2-compatible
@@ -211,19 +211,19 @@ verbose_msg(lang('install_initsiteperms'));
 //$all_perms = [];
 foreach ([
     'Clear Admin Log',
-//	'Add Pages', >CM
-//	'Add Templates', //TODO migrate to 'Modify Templates'
-//	'Manage All Content', >CM
-//	'Manage Designs', >DM
+//    'Add Pages', >CM
+//    'Add Templates', //TODO migrate to 'Modify Templates'
+//    'Manage All Content', >CM
+//    'Manage Designs', >DM
     ['Manage Groups', 'Manage user-group existence, properties, membership'],
-//	['Manage Jobs', 'Manage asynchronous jobs'],
+//    ['Manage Jobs', 'Manage asynchronous jobs'],
     'Manage My Account',
     'Manage My Bookmarks',
     'Manage My Settings',
     'Manage Stylesheets',
     'Manage Users',
     'Manage User Plugins', // TODO description
-//	'Modify Any Page', >CM
+//    'Modify Any Page', >CM
     ['Modify Database', 'Change database tables existence, structure'],
     ['Modify Database Content', 'Modify recorded data via SSH'], // add/remove/update stored data - for remote management, sans admin console
     'Modify Events',
@@ -231,17 +231,17 @@ foreach ([
     'Modify Modules',
     'Modify Permissions',
     ['Modify Restricted Files', 'Modify site-operation files'], // i.e. outside the uploade tree
-//	'Modify Site Assets', no deal !!
+//    'Modify Site Assets', no deal !!
     'Modify Site Preferences',
     'Modify Templates',
     'Modify Themes', //>TM ?
     ['Remote Administration', 'Site administration via SSH'],  //for remote management, sans admin console kinda Modify Database Content + Modify Restricted Files
-//	'Remove Pages', >CM
-//	'Reorder Content', >CM
+//    'Remove Pages', >CM
+//    'Reorder Content', >CM
     'View Admin Log',
     ['View Restricted Files', 'Inspect site-operation files'],
     'View Tag Help',
-	'View UserTag Help',
+    'View UserTag Help',
     ] as $one_perm) {
     $permission = new Permission();
     if (is_array($one_perm)) {
@@ -252,7 +252,7 @@ foreach ([
     }
     try {
         $permission->save();
-        //		$all_perms[$one_perm] = $permission;
+//        $all_perms[$one_perm] = $permission;
     } catch (Throwable $t) {
         // nothing here
     }
@@ -335,6 +335,8 @@ $admin_user->Save();
 
 $ops->AddMemberGroup($admin_user->id, $gid1);
 UserParams::set_for_user($admin_user->id, 'wysiwyg', 'MicroTiny'); // TODO if MicroTiny present - the only user-preference we need now
+//UserParams::set_for_user($admin_user->id, 'wysiwyg_type', '');
+//UserParams::set_for_user($admin_user->id, 'wysiwyg_theme', '');
 
 //
 // standard events

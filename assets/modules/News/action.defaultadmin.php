@@ -19,7 +19,6 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AdminUtils;
 use CMSMS\Utils;
 use News\AdminOperations;
 use function CMSMS\log_notice;
@@ -27,9 +26,10 @@ use function CMSMS\log_notice;
 //if( some worthy test fails ) exit;
 $papp = $this->CheckPermission('Approve News');
 $pmod = $this->CheckPermission('Modify News');
+$pprop = $this->CheckPermission('Propose News');
 $pdel = $this->CheckPermission('Delete News');
 $pset = $this->CheckPermission('Modify News Preferences');
-if( !($papp || $pmod || $pdel || $pset) ) exit;
+if( !($papp || $pmod || $pprop || $pdel || $pset) ) exit;
 
 if( isset($params['bulk_action']) ) {
     if( empty($params['sel']) ) {
@@ -68,21 +68,31 @@ WHERE news_id IN ('.implode(',',$sel).')';
             break;
 
         case 'setpublished':
-            $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?, modified_date = ?
+            if( $papp || $pmod ) {
+                $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?, modified_date = ?
 WHERE news_id IN ('.implode(',',$sel).')';
-            $longnow = $db->DbTimeStamp(time(),false);
-            $db->execute($query,['published',$longnow]);
-            log_notice($this->GetName().'::defaultadmin','Published status set for '.count($sel).' articles');
-            $this->ShowMessage($this->Lang('msg_success'));
+                $longnow = $db->DbTimeStamp(time(),false);
+                $db->execute($query,['published',$longnow]);
+                log_notice($this->GetName().'::defaultadmin','Published status set for '.count($sel).' articles');
+                $this->ShowMessage($this->Lang('msg_success'));
+            }
+            else {
+                $this->ShowErrors($this->Lang('needpermission','Approve News')); // TODO or modify
+            }
             break;
 
         case 'setdraft':
-            $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?, modified_date = ?
+            if( $papp || $pmod ) {
+                $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?, modified_date = ?
 WHERE news_id IN ('.implode(',',$sel).')';
-            $longnow = $db->DbTimeStamp(time(),false);
-            $db->execute($query,['draft',$longnow]);
-            log_notice($this->GetName().'::defaultadmin','Draft status set for '.count($sel).' articles');
-            $this->ShowMessage($this->Lang('msg_success'));
+                $longnow = $db->DbTimeStamp(time(),false);
+                $db->execute($query,['draft',$longnow]);
+                log_notice($this->GetName().'::defaultadmin','Draft status set for '.count($sel).' articles');
+                $this->ShowMessage($this->Lang('msg_success'));
+            }
+            else {
+                $this->ShowErrors($this->Lang('needpermission','Approve News')); // TODO or modify
+            }
             break;
 
         default:
@@ -90,13 +100,6 @@ WHERE news_id IN ('.implode(',',$sel).')';
         }
     }
 }
-
-$tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);
-$tpl->assign('can_add',$pmod)
- ->assign('can_mod',$pmod)
- ->assign('can_del',$pmod && $pdel)
- ->assign('can_set',$pset)
- ->assign('tab',$params['activetab'] ?? false);
 
 $baseurl = $this->GetModuleURLPath();
 $out = <<<EOS
@@ -136,7 +139,14 @@ var SSsopts = {
 EOS;
 add_page_foottext($js);
 
-//variables in scope for inclusions
+$tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);
+$tpl->assign('can_add',$pmod || $pprop)
+ ->assign('can_mod',$pmod)
+ ->assign('can_del',$pmod && $pdel)
+ ->assign('can_set',$pset)
+ ->assign('tab',$params['activetab'] ?? false);
+
+//other variables in scope for inclusions
 $userid = get_userid();
 $themeObj = Utils::get_theme_object();
 
@@ -146,30 +156,7 @@ if( $pmod ) {
 }
 if( $pset ) {
     require_once __DIR__.DIRECTORY_SEPARATOR.'function.categoriestab.php';
-    // module settings
-    $str = AdminUtils::CreateHierarchyDropdown(0,(int)$this->GetPreference('detail_returnid',-1),'detail_returnid');
-    $tpl
- ->assign('detail_returnid',$str)
- ->assign('label_alert_drafts',$this->Lang('alert_drafts'))
-//->assign('label_allowed_upload_types',$this->Lang('allowed_upload_types'))
- ->assign('label_date_format',$this->Lang('date_format'))
- ->assign('label_default_category',$this->Lang('default_category'))
- ->assign('label_detail_returnid',$this->Lang('detail_returnid'))
- ->assign('label_expired_searchable',$this->Lang('expired_searchable'))
- ->assign('label_expired_viewable',$this->Lang('expired_viewable'))
- ->assign('label_expiry_interval',$this->Lang('expiry_interval'))
-
- ->assign('alert_drafts',$this->GetPreference('alert_drafts',false))
-//->assign('allowed_upload_types',$this->GetPreference('allowed_upload_types'))
- ->assign('date_format',$this->GetPreference('date_format'))
- ->assign('default_category',$this->GetPreference('default_category',1))
-//->assign('email_subject',$this->GetPreference(email_subject))
-//->assign('email_template',$this->GetPreference(email_template))
-//->assign('formsubmit_emailaddress',$this->GetPreference('formsubmit_emailaddress'))
- ->assign('expired_searchable',$this->GetPreference('expired_searchable',false))
- ->assign('expired_viewable',$this->GetPreference('expired_viewable',false))
- ->assign('expiry_interval',$this->GetPreference('expiry_interval',30))
-;
+    require_once __DIR__.DIRECTORY_SEPARATOR.'function.settingstab.php';
 }
 
 $tpl->display();

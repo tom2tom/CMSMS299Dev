@@ -48,29 +48,30 @@ else {
     $template = $tpl->get_name();
 }
 
-$detailpage = '';
-$tmp = $this->GetPreference('detail_returnid', -1);
-if( $tmp > 0 ) $detailpage = $tmp;
+$detailpage = 0; // falsy
+$tmp = $this->GetPreference('detail_returnid', -1); // WHAT ???
+if( $tmp > 0 ) {
+    $detailpage = $tmp;
+}
 if( isset($params['detailpage']) ) {
     $hm = $gCms->GetHierarchyManager();
-    $id = $hm->find_by_identifier($params['detailpage'], FALSE);
-    if( $id ) {
-        $params['detailpage'] = $id;
+    $tmp = $hm->find_by_identifier($params['detailpage'], false);
+    if( $tmp ) {
+        $detailpage = $tmp;
+        $params['detailpage'] = $tmp;
     }
     else {
-       // the page is not known
+        // the page is not known
         unset($params['detailpage']);
     }
 }
 
-$tbl = 'module_news';
-$grptbl = 'module_news_categories';
 $pref = CMS_DB_PREFIX;
 $query1 = <<<EOS
 SELECT N.*,G.news_category_name,G.long_name,U.username,U.first_name,U.last_name
-FROM {$pref}{$tbl} N
-LEFT OUTER JOIN {$pref}{$grptbl} G ON N.news_category_id = G.news_category_id
-LEFT OUTER JOIN {$pref}users U ON U.user_id = N.author_id
+FROM {$pref}module_news N
+LEFT JOIN {$pref}module_news_categories G ON N.news_category_id = G.news_category_id
+LEFT JOIN {$pref}users U ON U.user_id = N.author_id
 WHERE status = 'published' AND
 
 EOS;
@@ -102,8 +103,8 @@ elseif( !empty($params['category']) ) {
     $query1 .= ' (';
     $count = 0;
     foreach( $categories as $onecat ) {
-        if ($count > 0) $query1 .= ' OR ';
-        if (strpos($onecat, '|') !== FALSE || strpos($onecat, '*') !== FALSE) {
+        if( $count > 0 ) { $query1 .= ' OR '; }
+        if( strpos($onecat, '|') !== false || strpos($onecat, '*') !== false ) {
             $query1 .= 'G.long_name LIKE ?'; // table field is _ci so this is caseless
             $tmp = $db->qStr(trim(str_replace(['*', '?', "'"], ['%', '_', '_'], $onecat))); // '_' is wildcard here
             $args[] = '%'.$tmp.'%';
@@ -169,10 +170,11 @@ if( !$sortrandom ) {
     }
 }
 
-if( isset( $params['pagelimit'] ) ) {
+//TODO maybe an optional parameter to disable pagination?
+if( isset($params['pagelimit']) ) {
     $pagelimit = (int)$params['pagelimit'];
 }
-elseif( isset( $params['number'] ) ) {
+elseif( isset($params['number']) ) {
     $pagelimit = (int)$params['number'];
 }
 else {
@@ -190,7 +192,7 @@ if( !empty($params['pagenumber']) ) {
     $pagenumber = (int)$params['pagenumber'];
     $startelement = ($pagenumber-1) * $pagelimit;
 }
-if( isset( $params['start'] ) ) {
+if( isset($params['start']) ) {
     // given a start element, determine a page number
     $startelement = $startelement + (int)$params['start'];
 }
@@ -199,15 +201,14 @@ $rst = $db->SelectLimit($query1, $pagelimit, $startelement, $args);
 $entryarray = [];
 if( $rst ) {
     $dopretty = $config['url_rewriting'] != 'none';
-
-    // build a list of news id's so we can preload stuff from other tables
+/*
+    // grab all news id's so we can preload stuff from other tables
     $result_ids = [];
     while( !$rst->EOF() ) {
         $result_ids[] = $rst->fields['news_id'];
         $rst->MoveNext();
     }
-
-    $fmt = $this->GetDateFormat();
+*/
     $rst->MoveFirst();
     while( !$rst->EOF() ) {
         $row = $rst->fields;
@@ -227,7 +228,7 @@ if( $rst ) {
         $onerow->title = $row['news_title'];
         $onerow->content = $row['news_data'];
         $onerow->summary = (trim($row['summary'])!='<br />'?$row['summary']:'');
-        if( !empty($row['news_extra']) ) $onerow->extra = $row['news_extra'];
+        if( !empty($row['news_extra']) ) { $onerow->extra = $row['news_extra']; }
         $onerow->startdate = $this->FormatforDisplay($row['start_time']);
         $onerow->postdate = $onerow->startdate; //deprecated since 3.0
         $onerow->enddate = $this->FormatforDisplay($row['end_time']);
@@ -235,7 +236,14 @@ if( $rst ) {
         $onerow->modified = $this->FormatforDisplay($row['modified_date']);
         if( !$onerow->modified ) { $onerow->modified = $onerow->created; }
         $onerow->category = $row['news_category_name'];
-
+        if( $row['image_url'] ) {
+            $onerow->image = CMS_UPLOADS_URL.'/'.trim($row['image_url'], ' /'); // TODO support other places as full URL
+            $onerow->imagealt = basename($row['image_url']); // TODO lazy crapola
+        }
+        else {
+            $onerow->image = null;
+            $onerow->imagealt = null;
+        }
         $urlparms = ['articleid'=>$row['news_id']];
         if( isset($params['category_id']) ) { $urlparms['category_id'] = $params['category_id']; }
         if( isset($params['detailpage']) ) { $urlparms['origid'] = $returnid; }
@@ -252,8 +260,9 @@ if( $rst ) {
         if( $dopretty ) {
             $prettyurl = $row['news_url'];
             if( !$prettyurl ) {
-                $aliased_title = munge_string_to_url($row['news_title']);
-                $prettyurl = 'News/'.$row['news_id'].'/'.($detailpage!=''?$detailpage:$returnid)."/$aliased_title";
+                $val = munge_string_to_url($row['news_title']);
+//              $val = Utils::condense($row['news_title',true); // CHECKME recoverable?
+                $prettyurl = $me.'/'.$row['news_id'].'/'.($detailpage ? $detailpage : $returnid).'/'.$val;
                 if( !empty($urlparms['detailtemplate']) ) {
                     $prettyurl .= '/d, ' . $urlparms['detailtemplate'];
                 }
@@ -290,9 +299,13 @@ if( $rst ) {
 
     // determine number of pages
     $ecount = count($entryarray);
-    if( isset( $params['start'] ) ) { $ecount -= (int)$params['start']; }
+    if( isset($params['start']) ) {
+        $ecount -= (int)$params['start'];
+    }
     $pagecount = (int)($ecount / $pagelimit);
-    if( ($ecount % $pagelimit) != 0 ) { $pagecount++; }
+    if( ($ecount % $pagelimit) != 0 ) {
+        $pagecount++;
+    }
 } // resultset
 else {
     $ecount = 0;
@@ -308,7 +321,7 @@ if( $pagenumber == 1 ) {
       ->assign('firstpage', $this->Lang('firstpage'));
 }
 else {
-    $params['pagenumber'] = $pagenumber-1;
+    $params['pagenumber'] = $pagenumber - 1;
     $tpl->assign('prevpage', $this->CreateFrontendLink($id, $returnid, 'default', $this->Lang('prevpage'), $params))
       ->assign('prevurl', $this->CreateFrontendLink($id, $returnid, 'default', '', $params, '', true));
     $params['pagenumber'] = 1;
@@ -321,7 +334,7 @@ if( $pagenumber >= $pagecount ) {
       ->assign('lastpage', $this->Lang('lastpage'));
 }
 else {
-    $params['pagenumber'] = $pagenumber+1;
+    $params['pagenumber'] = $pagenumber + 1;
     $tpl->assign('nextpage', $this->CreateFrontendLink($id, $returnid, 'default', $this->Lang('nextpage'), $params))
       ->assign('nexturl', $this->CreateFrontendLink($id, $returnid, 'default', '', $params, '', true));
     $params['pagenumber'] = $pagecount;
@@ -339,8 +352,9 @@ $tpl->assign('pagenumber', $pagenumber)
  ->assign('author_label', $this->Lang('author_label'));
 
 foreach( $params as $key => $value ) {
-    if( $key == 'mact' || $key == 'action' ) continue;
-    $tpl->assign('param_'.$key, $value);
+    if( !($key == 'mact' || $key == 'action') ) {
+        $tpl->assign('param_'.$key, $value);
+    }
 }
 unset($params['pagenumber']);
 
@@ -357,9 +371,10 @@ elseif( isset($params['category_id']) && $items ) {
             break;
         }
     }
-//  $catName = $db->getOne('SELECT news_category_name FROM '.CMS_DB_PREFIX . 'module_news_categories where news_category_id=?', array($params['category_id']));
+//  $catName = $db->getOne('SELECT news_category_name FROM '.CMS_DB_PREFIX . 'module_news_categories WHERE news_category_id=?', array($params['category_id']));
 }
 
+// categories data deprecated in this context
 $tpl->assign('category_name', $catName)
  ->assign('cats', $items)
  ->assign('count', $c);

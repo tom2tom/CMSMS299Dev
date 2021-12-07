@@ -72,7 +72,7 @@ class TranslatableAlert extends Alert
     /**
      * Constructor
      *
-     * @param mixed $perms A single permission name, or an An array of permission names, or null.
+     * @param mixed $perms A single permission name, or array of permission name(s), or null.
      * @throws InvalidArgumentException
      */
     public function __construct($perms = null)
@@ -155,7 +155,7 @@ class TranslatableAlert extends Alert
     }
 
     /**
-     * Givent he admin_uid, check if the specified uid has at least one of the permissions specified in the perms array.
+     * Check whether the specified admin user id has at least one of the permissions specified in the perms array.
      *
      * @param int $admin_uid
      * @return bool;

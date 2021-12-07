@@ -1,6 +1,6 @@
 <?php
 /*
-Add item action for CMSMS News module.
+CMSMS News module add-item action.
 Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminUtils;
 use CMSMS\Events;
+use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\RouteOperations;
 use CMSMS\SingleItem;
@@ -31,86 +32,69 @@ use News\AdminOperations;
 use function CMSMS\de_specialize_array;
 use function CMSMS\log_error;
 use function CMSMS\log_info;
-use function CMSMS\specialize;
-//use function CMSMS\de_specialize;
+use function CMSMS\specialize_array;
 //use function CMSMS\sanitizeVal;
 
 //if (some worthy test fails) exit;
-if (!$this->CheckPermission('Modify News')) exit;
-if (isset($params['cancel'])) { $this->Redirect($id, 'defaultadmin', $returnid); }
 
-// TODO icon/image handling
+$pmod = $this->CheckPermission('Modify News');
+$pprop = $this->CheckPermission('Propose News'); // pre-publication approval needed
+if (!($pmod || $pprop)) exit;
+if (isset($params['cancel'])) {
+    $this->Redirect($id, 'defaultadmin', $returnid);
+}
 
-$cz = $config['timezone'];
-$tz = new DateTimeZone($cz);
-$dt = new DateTime(null, $tz);
-$toffs = $tz->getOffset($dt);
+$me = $this->GetName();
+$dt = new DateTime(null, new DateTimeZone('UTC'));
 
-$useexp = $params['inputexp'] ?? 1;
+$query = 'SELECT news_category_id,long_name FROM ' . CMS_DB_PREFIX . 'module_news_categories ORDER BY hierarchy';
+$categorylist = $db->getAssoc($query);
 
 if (isset($params['submit']) || isset($params['apply'])) {
     de_specialize_array($params); // TODO sanitizeVal() some of these
-    $articleid    = $params['articleid']; //-1 before save, >0 after 'apply'
+    $articleid    = (int)$params['articleid']; //-1 before save, >0 after 'apply'
     $author_id    = $params['author_id'] ?? 0;
     $content      = $params['content'];
-    $extra        = trim($params['extra']);
-    $news_url     = $params['news_url'];
+    $extra        = (!empty($params['extra'])) ? trim($params['extra']) : null;
+    $image_url    = $params['image_url'];
+    $news_url     = (!empty($params['news_url'])) ? trim($params['news_url']) : null;
     $searchable   = $params['searchable'] ?? 0;
     $status       = $params['status'];
-    $summary      = $params['summary'];
-    $title        = $params['title'];
-    $usedcategory = $params['category'];
+    $summary      = (!empty($params['summary'])) ? trim($params['summary']) : null;
+    $title        = (!empty($params['title'])) ? trim($params['title']) : null;
+    $usedcategory = (int)$params['category'];
 
+    if ($params['fromdate']) {
+        $tmp = trim($params['fromdate'].' '.$params['fromtime']);
+        $dt->modify($tmp);
+        $longstart = $dt->format('Y-m-d H:i:s');
+        $fst = (int)$dt->format('U');
+    }
+    else {
+        $longstart = null;
+        $fst = 0;
+    }
+
+    if ($params['todate']) {
+        $tmp = trim($params['todate'].' '.$params['totime']);
+        $dt->modify($tmp);
+        $longend = $dt->format('Y-m-d H:i:s');
+        $tst = (int)$dt->format('U');
+    }
+    else {
+        $longend = null;
+        $tst = 0;
+    }
+
+    // validation
     $error = false;
 
-    $st = strtotime($params['fromdate']);
-    if ($st !== false) {
-        if (isset($params['fromtime'])) {
-            $stt = strtotime($params['fromtime'], 0);
-            if ($stt !== false) {
-                $st += $stt + $toffs;
-            }
-        }
-        $startdate = $st;
-    } elseif ($params['fromdate'] === '') {
-        $startdate = 0;
-    } else {
-        $this->ShowErrors($this->Lang('error_invaliddates'));
-        $error = true;
-        $startdate = 0;
-    }
-
-    if ($useexp == 0) {
-        $enddate = 0;
-    } else {
-        $st = strtotime($params['todate']);
-        if ($st !== false) {
-            if (isset($params['totime'])) {
-                $stt = strtotime($params['totime'], 0);
-                if ($stt !== false) {
-                    $st += $stt + $toffs;
-                }
-            }
-            $enddate = $st;
-        } elseif ($params['todate'] === '') {
-            $useexp = 0;
-            $enddate = 0;
-        } else {
-            if (!$error) {
-                $this->ShowErrors($this->Lang('error_invaliddates'));
-                $error = true;
-            }
-            $enddate = 0;
-        }
-    }
-
-    // Validation
-    if ($startdate && $enddate && $enddate <= $startdate) {
+    if ($longstart && $longend && $tst <= $fst) {
         $this->ShowErrors($this->Lang('error_invaliddates'));
         $error = true;
     }
 
-    if (empty($title)) {
+    if (!$title) {
         $this->ShowErrors($this->Lang('notitlegiven'));
         $error = true;
     } elseif (empty($content)) {
@@ -118,12 +102,23 @@ if (isset($params['submit']) || isset($params['apply'])) {
         $error = true;
     }
 
-    if ($news_url) {
-        // check for starting or ending slashes
-        if (($news_url[0] == '/') || substr_compare($news_url, '/', -1, 1) == 0) {
-            $this->ShowErrors($this->Lang('error_invalidurl'));
-            $error = true;
+    if (!empty($params['generate_url'])) {
+        if ($title) {
+            $str = $title;
+        } elseif ($summary) {
+            $str = $summary;
+        } else {
+            $str = 'newsitem'.mt_rand(10000, 99999);
         }
+        $news_url = Utils::condense($str, true);
+    }
+
+    if ($news_url) {
+        // remove any adjacent slash
+        if ($news_url[0] == '/' || substr_compare($news_url, '/', -1, 1) == 0) {
+            $news_url = trim($news_url, '/ ');
+        }
+        //TODO etc other cleanup
 
         // check for invalid chars
         $tmp = (new Url())->sanitize($news_url);
@@ -132,14 +127,23 @@ if (isset($params['submit']) || isset($params['apply'])) {
             $error = true;
         }
 
-        // check this url isn't a duplicate.
-        // we're adding an article, not editing... any matching route is bad
-        RouteOperations::load_routes(); // populate module's intra-request routes
+        // check this URL isn't a duplicate
+        RouteOperations::load_routes();
         $route = RouteOperations::find_match($news_url);
         if ($route) {
-            $this->ShowErrors($this->Lang('error_invalidurl'));
-            $error = true;
+            $dest = $route->get_dest();
+            $dflts = $route->get_defaults();
+            if ($dest != $me || !isset($dflts['articleid']) || $dflts['articleid'] != $articleid) {
+                $this->ShowErrors($this->Lang('error_invalidurl'));
+                $error = true;
+            }
         }
+    }
+
+    if ($image_url) {
+        // TODO validate, cleanup this
+    } else {
+        $image_url = null;
     }
 
     if (!$error) {
@@ -148,81 +152,96 @@ if (isset($params['submit']) || isset($params['apply'])) {
         //
         $now = time();
         $longnow = $db->DbTimeStamp($now, false);
-
         if ($articleid < 0) {
-            $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'module_news (
-news_id,
-news_title,
-news_data,
-summary,
+            $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'module_news
+(news_id,
 news_category_id,
+news_title,
 status,
-searchable,
+news_data,
+news_extra,
+summary,
+news_url,
+image_url,
 start_time,
 end_time,
 create_date,
 author_id,
-news_extra,
-news_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
+searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
             $articleid = $db->genID(CMS_DB_PREFIX . 'module_news_seq');
-            $longstart = $db->DbTimeStamp($startdate, false);
-            $longend = ($useexp == 1) ? $db->DbTimeStamp($enddate, false) : null;
-            $stsave = ($status == 'final' && $startdate > 0 && $startdate < $now && ($enddate == 0 || $enddate > $now)) ? 'published' : $status;
+            if ($pmod) {
+                $stsave = ($status == 'final' && $startdate > 0 && $startdate < $now && ($enddate == 0 || $enddate > $now)) ? 'published' : $status;
+            } else { // $pprop
+                $stsave = $status;
+            }
             $args = [
              $articleid,
-             $title,
-             $content,
-             $summary,
              $usedcategory,
+             $title,
              $stsave,
-             $searchable,
+             $content,
+             $extra,
+             $summary,
+             $news_url,
+             $image_url,
              $longstart,
              $longend,
              $longnow,
              $author_id,
-             $extra,
-             $news_url,
+             $searchable,
             ];
             $dbr = $db->execute($query, $args);
             if (!$dbr) {
-                echo 'DEBUG: SQL = ' . $db->sql . '<br />';
-                throw new Exception($db->errorMsg());
+                // TODO handle error
+                $this->ShowErrors($db->errorMsg());
+               $error = true;
             }
 
             if (!$error) {
-                if (($status == 'publishedfinal' || $status == 'final') && $news_url) {
+                if (($status == 'published' || $status == 'final') && $news_url) {
                     // TODO: && not expired
                     // [re]register the route
                     AdminOperations::delete_static_route($articleid);
-                    AdminOperations::register_static_route($news_url, $articleid);
+                    try {
+                        AdminOperations::register_static_route($news_url, $articleid);
+                    } catch(Throwable $t) {
+                        $this->ShowErrors($t->getMessage());
+                        $error = true;
+                    }
                 }
+            }
 
+            if (!$error) {
                 if (($status == 'published' || $status == 'final') && $searchable) {
-                    //Update search index
-                    $module = AppUtils::get_search_module();
-                    if (is_object($module)) {
+                    // update search index
+                    $search = AppUtils::get_search_module();
+                    if (is_object($search)) {
                         $text = $content . ' ' . $summary . ' ' . $title . ' ' . $title;
-                        $until = ($useexp && $this->GetPreference('expired_searchable', 0) == 0) ? $enddate : NULL;
-                        $module->AddWords($this->GetName(), $articleid, 'article', $text, $until);
+//                        $until = ($useexp && $this->GetPreference('expired_searchable', 0) == 0) ? $enddate : NULL;
+                        $until = ($enddate && $this->GetPreference('expired_searchable', 0) == 0) ? $enddate : NULL;
+                        $search->AddWords($me, $articleid, 'article', $text, $until);
                     }
                 }
 
-                Events::SendEvent('News', 'NewsArticleAdded', [
-                    'news_id' => $articleid,
-                    'category_id' => $usedcategory,
-                    'title' => $title,
-                    'content' => $content,
-                    'summary' => $summary,
-                    'status' => $status,
-                    'post_time' => $startdate, //deprecated
-                    'start_time' => $startdate,
-                    'end_time' => $enddate,
-                    'extra' => $extra,
-                    'useexp' => $useexp,
-                    'news_url' => $news_url
-                ]);
+                if ($pmod) {
+                    Events::SendEvent($me, 'NewsArticleAdded', [
+                     'news_id' => $articleid,
+                     'category_id' => $usedcategory,
+                     'title' => $title,
+                     'summary' => $summary,
+                     'content' => $content,
+                     'status' => $status,
+                     'news_url' => $news_url,
+                     'post_time' => $longstart, //deprecated
+                     'start_time' => $longstart,
+                     'end_time' => $longend,
+                     'extra' => $extra,
+                    ]);
+                } elseif ($status == 'final') { // $pprop
+                    require_once __DIR__.DIRECTORY_SEPARATOR.'function.requestapproval.php'; // send notices
+                }
                 // put mention into the admin log
-                log_info($articleid, 'News: ' . $title, 'Article added');
+                log_info($articleid,  $me.': ' . $title, 'Article added');
                 $this->SetMessage($this->Lang('articleadded'));
                 if (!isset($params['apply'])) {
                     $this->Redirect($id, 'defaultadmin', $returnid);
@@ -230,36 +249,41 @@ news_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
             } // !$error
         } else { // articleid >= 0 after apply
             $query = 'UPDATE ' . CMS_DB_PREFIX . 'module_news SET
-news_title=?,
-news_data=?,
-summary=?,
 news_category_id=?,
+news_title=?,
 status=?,
-searchable=?,
+news_data=?,
+news_extra=?,
+summary=?,
+news_url=?,
+image_url=?,
 start_time=?,
 end_time=?,
 modified_date=?,
-news_extra=?,
-news_url= ?
+searchable=?
 WHERE news_id=?';
-            $longstart = $db->DbTimeStamp($startdate, false);
-            $longend = ($useexp == 1) ? $db->DbTimeStamp($enddate, false) : null;
             $stsave = ($status == 'final' && $startdate > 0 && $startdate < $now && ($enddate == 0 || $enddate > $now)) ? 'published' : $status;
             $args = [
-             $title,
-             $content,
-             $summary,
              $usedcategory,
+             $title,
              $stsave,
-             $searchable,
+             $content,
+             $extra,
+             $summary,
+             $news_url,
+             $image_url,
              $longstart,
              $longend,
              $longnow,
-             $extra,
-             $news_url,
+             $searchable,
              $articleid
             ];
             $db->execute($query, $args);
+            if ($db->errorNo() > 0) {
+                // TODO handle error
+                $this->ShowErrors($db->errorMsg());
+                $error = true;
+            }
         }
     } // outer !$error
 
@@ -269,18 +293,20 @@ WHERE news_id=?';
     $totime = $params['totime'] ?? '';
 // end submit
 } elseif (!isset($params['preview'])) {
+    // new item
     $articleid    = -1;
-    $title        = '';
+    $author_id    = get_userid(false);
     $content      = '';
-    $summary      = '';
-    $status       = 'draft';
+    $enddate      = '';
+    $extra        = '';
+    $image_url    = '';
+    $news_url     = '';
     $searchable   = 1;
     $startdate    = '';
-    $enddate      = '';
+    $status       = 'draft';
+    $summary      = '';
+    $title        = '';
     $usedcategory = '';
-    $author_id    = get_userid(false);
-    $extra        = '';
-    $news_url     = '';
 
     $fromdate = '';
     $fromtime = '';
@@ -288,23 +314,23 @@ WHERE news_id=?';
     $totime = '';
 } else {
     // save data for preview
-    unset($params['apply']);
-    unset($params['preview']);
-    unset($params['submit']);
-    unset($params['cancel']);
-    unset($params['ajax']);
+    unset($params['apply'],
+        $params['preview'],
+        $params['submit'],
+        $params['cancel'],
+        $params['ajax']);
 
-    $tmpfname = tempnam(PUBLIC_CACHE_LOCATION, $this->GetName() . '_preview');
+    $tmpfname = tempnam(TMP_CACHE_LOCATION, $me . '_preview');
     file_put_contents($tmpfname, serialize($params));
 
     $detail_returnid = $this->GetPreference('detail_returnid', -1);
     if ($detail_returnid <= 0) {
-        // now get the default content id.
+        // get the default content id
         $detail_returnid = SingleItem::ContentOperations()->GetDefaultContent();
     }
-    if (isset($params['previewpage']) && (int)$params['previewpage'] > 0)
+    if (isset($params['previewpage']) && (int)$params['previewpage'] > 0) {
         $detail_returnid = (int)$params['previewpage'];
-
+    }
     $_SESSION['news_preview'] = [
         'fname' => basename($tmpfname),
         'checksum' => md5_file($tmpfname)
@@ -338,27 +364,19 @@ WHERE news_id=?';
 $block = $this->GetPreference('timeblock', News::HOURBLOCK);
 $withtime = ($block == News::DAYBLOCK) ? 0:1;
 
-$categorylist = [];
-$query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_categories ORDER BY hierarchy';
-$rst = $db->execute($query);
-if ($rst) {
-    while (($row = $rst->FetchRow())) {
-        $categorylist[$row['news_category_id']] = specialize($row['long_name']);
-    }
-    $rst->Close();
-}
+specialize_array($categorylist);
+$parms = $params + ['articleid'=>$articleid, 'author_id'=>$author_id];
+unset($parms['action']); // ??
+specialize_array($parms);
 
-/*--------------------
+/*-----------------------
  Pass everything to smarty
- ---------------------*/
-
-$parms = array_merge($params, ['articleid'=>$articleid, 'author_id'=>$author_id]);
-unset($parms['action']);
+ ------------------------*/
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('editarticle.tpl')); //,null,null,$smarty);
 
 $tpl->assign('formaction', 'addarticle')
-    ->assign('formparms', $parms);
+  ->assign('formparms', $parms);
 
 if ($author_id > 0) {
     $theuser = SingleItem::UserOperations()->LoadUserById($author_id);
@@ -372,18 +390,23 @@ if ($author_id > 0) {
 }
 
 if ($this->GetPreference('allow_summary_wysiwyg', 1)) {
-    $tpl->assign('hide_summary_field', false)
-     ->assign('inputsummary', FormUtils::create_textarea([
+    $tpl->assign('inputsummary', FormUtils::create_textarea([
         'enablewysiwyg' => 1,
         'getid' => $id,
         'name' => 'summary',
-        'class' => 'pageextrasmalltextarea',
+        'class' => 'pageextrasmalltextarea newssummary',
         'value' => $summary,
-        'addtext' => 'style="height:3em;"',
     ]));
 } else {
-     $tpl->assign('hide_summary_field', true);
+    // TODO element size etc
+    $tpl->assign('inputsummary', FormUtils::create_input([
+        'getid' => $id,
+        'name' => 'summary',
+        'class' => 'newssummary',
+        'value' => $summary,
+    ]));
 }
+
 $tpl->assign('inputcontent', FormUtils::create_textarea([
     'enablewysiwyg' => 1,
     'getid' => $id,
@@ -405,16 +428,22 @@ $tpl->assign([
  'todate' => $todate,
  'totime' => $totime,
  'withtime' => $withtime,
-// 'inputexp' => $this->CreateInputCheckbox($id, 'useexp', '1', $useexp, 'class="pagecheckbox"'),
-// 'useexp' => $useexp,
 ]);
+
+// related image, if any
+if ($image_url) {
+    $tpl->assign('image_url', CMS_UPLOADS_URL.'/'.trim($image_url, ' /'));
+}
+else {
+   $tpl->assign('image_url', $image_url);
+}
 
 if ($this->CheckPermission('Approve News')) {
     $choices = [
-        $this->Lang('draft')=>'draft',
-        $this->Lang('final')=>'final',
+        $this->Lang('draft') => 'draft',
+        $this->Lang('final') => 'final',
     ];
-//    $statusradio = $this->CreateInputRadioGroup($id,'status',$choices,$status,'','  ');
+//  $statusradio = $this->CreateInputRadioGroup($id,'status',$choices,$status,'','  ');
     $statusradio = FormUtils::create_select([ // DEBUG
         'type' => 'radio',
         'name' => 'status',
@@ -428,9 +457,17 @@ if ($this->CheckPermission('Approve News')) {
 //   ->assign('statustext', lang('status'));
 }
 
+$picker = SingleItem::ModuleOperations()->GetFilePickerModule();
+$dir = $config['uploads_path'];
+$userid = get_userid(false);
+$tmp = $picker->get_default_profile($dir, $userid);
+$profile = $tmp->overrideWith(['top'=>$dir, 'type'=>FileType::IMAGE]);
+$text = $picker->get_html($id.'image_url', $image_url, $profile);
+$tpl->assign('filepicker', $text);
+
 // get the detail templates, if any
 try {
-    $type = TemplateType::load($this->GetName() . '::detail');
+    $type = TemplateType::load($me . '::detail');
     $templates = $type->get_template_list();
     $list = [];
     if ($templates) {
@@ -445,12 +482,12 @@ try {
          ->assign('preview', true)
          ->assign('preview_returnid', $str);
     }
-} catch( Throwable $t ) {
-    log_error('No detail templates available for preview', $this->GetName().'::addarticle');
+} catch (Throwable $t) {
+    log_error('No detail-template available for preview', $me.'::addarticle');
     $this->ShowErrors($t->GetMessage());
 }
 
 // page resources
-include __DIR__.DIRECTORY_SEPARATOR.'method.articlescript.php';
+require_once __DIR__.DIRECTORY_SEPARATOR.'method.articlescript.php';
 
 $tpl->display();

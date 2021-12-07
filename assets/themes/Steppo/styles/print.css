@@ -1,0 +1,24 @@
+body {
+    font-family: 'Noto Serif', 'Times New Roman', serif;
+    /* reset body background and color, just in case */
+    background: #fff;
+    color: #000;
+    font-size: 12pt
+}
+/* any element with class noprint or visuallyhidden should not be printed */
+.noprint,
+.visuallyhidden {
+    display: none
+}
+/* display image as block */
+img {
+    display: block;
+    float: none
+}
+/* links aren't clickable on paper, let's display their url */
+a:link:after {
+    content: " ("attr(href)")"
+}
+a {
+    text-decoration: underline
+}

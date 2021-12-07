@@ -143,7 +143,7 @@ try {
 
     // don't care about users' active-state
     // or admin_access=1 if that still exists
-    $sql = 'SELECT user_id,first_name,last_name FROM '.CMS_DB_PREFIX.'users WHERE WHERE user_id > 1 ORDER BY last_name, first_name';
+    $sql = 'SELECT user_id,first_name,last_name FROM '.CMS_DB_PREFIX.'users WHERE user_id > 1 ORDER BY last_name, first_name';
     $rows = $db->getArray($sql);
     if ($rows) {
         $users = [-1 => _ld('controlsets', 'all_users')];
@@ -197,7 +197,7 @@ try {
     }
 
     // don't care about groups' active-state
-    $sql = 'SELECT group_id,group_name FROM '.CMS_DB_PREFIX.'groups WHERE group_id > 1 ORDER BY group_name';
+    $sql = 'SELECT group_id,group_name FROM `'.CMS_DB_PREFIX.'groups` WHERE group_id > 1 ORDER BY group_name';
     $rows = $db->getAssoc($sql);
     if ($rows) {
         $grps = [-1 => _ld('controlsets', 'all_groups')] + $rows;

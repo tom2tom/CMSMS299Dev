@@ -957,7 +957,12 @@ class Template
 	{
 		if( empty($this->props['name']) ) return '';
 		$type = $this->get_type();
-		return ( $type ) ? $type->get_usage_string($this->props['name']) : '';
+		if ( $type ) {
+			// deal with possible null from downstream
+			$str = $type->get_usage_string($this->props['name']);
+			if ($str) { return $str; }
+		}
+		return '';
 	}
 
 	/**

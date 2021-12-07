@@ -39,7 +39,7 @@ final class AdminOperations
     /**
      *
      * @since 2.90
-     * @param int $articleid Or numeric string
+     * @param mixed $articleid int | numeric string
      * @return boolean
      */
     public static function copy_article($articleid)
@@ -50,44 +50,45 @@ final class AdminOperations
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
         $row = $db->getRow($query, [$articleid]);
         if ($row) {
-            $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news (
-news_id,
+            //image_url is skipped
+            $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news
+(news_id,
 news_category_id,
 news_title,
 news_data,
+news_extra,
 summary,
+news_url,
 start_time,
 end_time,
 status,
 create_date,
 modified_date,
 author_id,
-news_extra,
-news_url,
 searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
             $row['news_id'] = $db->genID(CMS_DB_PREFIX.'module_news_seq');
             $row['news_title'] .= ' : Copy';
+            $row['news_url'] .= 'copy';
             $row['start_time'] = null;
             $row['end_time'] = null;
             $row['status'] = 'draft';
             $row['create_date'] = $db->DbTimeStamp(time(),false);
             $row['modified_date'] = null;
             $row['author_id'] = get_userid(false);
-//            $row['news_url'] = ?;
             if ($db->execute($query, [
                 $row['news_id'],
                 $row['news_category_id'],
                 $row['news_title'],
                 $row['news_data'],
+                $row['news_extra'],
                 $row['summary'],
+                $row['news_url'],
                 $row['start_time'],
                 $row['end_time'],
                 $row['status'],
                 $row['create_date'],
                 $row['modified_date'],
                 $row['author_id'],
-                $row['news_extra'],
-                $row['news_url'],
                 $row['searchable'] ])) {
                 //TODO related stuff c.f. addarticle action
                 Events::SendEvent('News', 'NewsArticleAdded', $row);
@@ -99,7 +100,31 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
     /**
      *
-     * @param int $articleid Or numeric string
+     * @since 3.1
+     * @param mixed $articleid int | numeric string
+     * @param mixed $categoryid int | numeric string
+     * @return boolean
+     */
+    public static function move_article($articleid, $categoryid)
+    {
+        if (!$articleid) return false;
+        $db = SingleItem::Db();
+        $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET
+news_category_id = ?,
+modified_date = ?
+WHERE news_id = ?';
+        $longnow = $db->DbTimeStamp(time(),false);
+        $db->execute($query, [$categoryid, $longnow, $articleid]);
+        if ($db->errorNo() > 0) {
+            // TODO handle error
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     *
+     * @param mixed $articleid int | numeric string
      * @return boolean
      */
     public static function delete_article($articleid)
@@ -182,7 +207,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     }
 */
    /**
-    *
+    * Supports up to 999 children of each node (tho. recorded order <= 255)
     */
     public static function UpdateHierarchyPositions()
     {
@@ -201,7 +226,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
                 $query = 'SELECT news_category_id, item_order, news_category_name, parent_id FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id = ?';
                 $row2 = $db->getRow($query, [$current_parent_id]);
                 if ($row2) {
-                    $current_hierarchy_position = str_pad($row2['item_order'], 4, '0', STR_PAD_LEFT) . '.' . $current_hierarchy_position;
+                    $current_hierarchy_position = str_pad($row2['item_order'], 3, '0', STR_PAD_LEFT) . '.' . $current_hierarchy_position;
                     $current_long_name = $row2['news_category_name'] . ' | ' . $current_long_name;
                     $current_parent_id = $row2['parent_id'];
                     $count++;
@@ -216,7 +241,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
             }
 
             if (strlen($current_long_name) > 0) {
-                $current_long_name = substr($current_long_name, 0, -3);
+                $current_long_name = substr($current_long_name, 0, -3); // omit trailing separator
             }
 
             $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET hierarchy = ?, long_name = ? WHERE news_category_id = ?';
@@ -228,8 +253,8 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
     /**
      *
-     * @param type $news_article_id
-     * @return type
+     * @param int $news_article_id
+     * @return bool indicating success
      */
     public static function delete_static_route($news_article_id)
     {
@@ -237,11 +262,13 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     }
 
     /**
+     * Create and register a 'detail' route
      *
-     * @param type $news_url
-     * @param type $news_article_id
-     * @param type $detailpage
-     * @return type
+     * @param string $news_url
+     * @param int $news_article_id
+     * @param mixed $detailpage int | numeric string | falsy
+     * @return bool indicating success
+     * @throws Exception if registration fails
      */
     public static function register_static_route($news_url,$news_article_id,$detailpage = '')
     {

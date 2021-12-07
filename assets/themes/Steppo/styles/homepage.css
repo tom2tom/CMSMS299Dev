@@ -1,0 +1,1436 @@
+/*! Steppo theme general-page styles */
+
+/* Smarty-variable assignments */
+[[$theme_root = $_site_themes_url|cat:'/Steppo']]
+[[$orange = '#ffa041']]
+[[$white = '#fff']]
+[[$lightgrey = '#b2b3b4']]
+[[$midgrey = '#7d7f82']]
+[[$darkgrey = '#595a5c']]
+
+@font-face {
+	font-family: icons;
+	src: url([[$theme_root]]/fonts/icons.woff2?64118046) format("woff2"),
+	 url([[$theme_root]]/fonts/icons.woff?64118046) format("woff"),
+	 url([[$theme_root]]/fonts/icons.ttf?64118046) format("truetype");
+	font-weight: normal;
+	font-style: normal;
+}
+
+html {
+	height: 100%;
+	padding: 1em 0 1.5em;
+}
+
+body {
+	display: -webkit-box;
+	display: -moz-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-box-direction: normal;
+	-ms-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-webkit-box-orient: vertical;
+	-moz-box-direction: normal;
+	-moz-box-orient: vertical;
+	-webkit-flex-direction: column;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	height: 100%;
+	margin: 0 auto;
+	padding: 0;
+	color: [[$darkgrey]];
+	background-color: [[$white]];
+	font: 1.01em/1.6 "Noto Sans", Arial, sans-serif;
+	-moz-hyphens: auto;
+	-webkit-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
+	transition-property: color, background-color;
+	transition-duration: .75s;
+}
+
+body > header {
+	-webkit-box: 0;
+	-moz-box: 0;
+	-webkit-flex: 0 1 auto;
+	-ms-flex: 0 1 auto;
+	flex: 0 1 auto;
+/*	padding: 1em 0; */
+/*	position: relative; */
+	min-height: 4em;
+	background-color: [[$white]];
+	-moz-hyphens: manual;
+	-webkit-hyphens: manual;
+	-ms-hyphens: manual;
+	hyphens: manual;
+}
+
+body > header .logo {
+	margin-left: 3%;
+}
+
+body > header .logo img {
+	max-height: 3em;
+}
+
+body > header > input {
+	position: absolute;
+	left: -9999em;
+}
+
+body > header > input:checked + label {
+/*	&::before {
+		font-family: icons;
+		content: '\e901';
+	}
+	&:hover::before {
+		color: [[$orange]];
+	}
+*/
+}
+
+body > header > input:checked + label::after {
+	background-size: .125em 100%, 100% .125em, 0 0;
+	background-position: center;
+	height: .875em;
+	transform: translateY(-50%) rotate(45deg);
+	transition: none;
+}
+
+body > header > input:checked + label:hover::after {
+	transform: translateY(-50%) rotate(45deg) scale(1.15);
+}
+
+body > header > input:checked ~ #nav {
+	position: static;
+}
+
+body > header > label {
+	position: absolute;
+	line-height: 1;
+	color: [[$white]];
+	cursor: pointer;
+	top: 1.375em;
+	right: 3%;
+}
+
+body > header > label::before {
+	position: absolute;
+/*	font: .875em/1 icons;
+	content: '\e900';
+*/
+	content: 'Menu';
+	right: 1.267em;
+	top: 50%;
+	transform: translateY(-50%);
+	color: [[$darkgrey]];
+	transition: color .25s;
+}
+
+body > header > label::after {
+	position: absolute;
+	content: '';
+	width: .875em;
+	height: .75em;
+	right: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	background: linear-gradient([[$orange]], [[$orange]]) 0 0/.813em 0.125em,
+	 linear-gradient([[$orange]], [[$orange]]) 0 50%/100% 0.125em,
+	 linear-gradient([[$orange]], [[$orange]]) 0 100%/.75em 0.125em;
+	background-repeat: no-repeat;
+}
+
+body > header > label:hover::before {
+	color: [[$orange]];
+}
+
+body > header > label:hover::after {
+	background-size: 100% .125em, .75em .125em, .813em .125em;
+}
+
+body > main {
+	-webkit-box: 1;
+	-moz-box: 1;
+	-webkit-flex: 1 1 auto;
+	-ms-flex: 1 1 auto;
+	flex: 1 1 auto;
+/*	padding: 0 3%; */;
+}
+
+body > footer {
+	-webkit-box: 0;
+	-moz-box: 0;
+	-webkit-flex: 0 0 auto;
+	-ms-flex: 0 0 auto;
+	flex: 0 0 auto;
+	display: -webkit-box;
+	display: -moz-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-align-items: flex-start;
+	align-items: flex-start;
+	-ms-box-pack: justify;
+	-webkit-box-pack: justify;
+	-moz-box-pack: justify;
+	-ms-flex-pack: justify;
+	-webkit-justify-content: space-between;
+	justify-content: space-between;
+	margin: 1.2em 1em 0;
+	border-top: 2px solid [[$orange]];
+	position: relative;
+	text-align: center;
+	padding: 1.2em 0 0;
+}
+
+body > footer::before {
+	content: '\e902';
+	font: 2.5rem/1 icons;
+	position: absolute;
+	color: [[$orange]];
+	left: 50%;
+	top: 0;
+	margin-top: -1px;
+	transform: translate(-50%, -50%);
+	border: 2px solid [[$white]];
+	border-radius: 100%;
+	background-color: [[$white]];
+}
+
+body > footer > * {
+	margin: 0;
+	font-size: .825em;
+	line-height: 1.6;
+}
+
+body > footer a {
+/*	color: inherit; */
+	text-decoration: underline 0.15em [[$orange]];
+}
+
+body > footer .back-top {
+	position: absolute;
+	left: -9999em;
+}
+
+body > footer .social {
+	display: -webkit-box;
+	display: -moz-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+}
+
+body > footer .social li {
+	-webkit-box: 0;
+	-moz-box: 0;
+	-webkit-flex: 0 0 auto;
+	-ms-flex: 0 0 auto;
+	flex: 0 0 auto;
+	margin-left: 1em;
+}
+
+body > footer .social li:first-child {
+	margin-left: 0;
+}
+
+body > footer .social a {
+	color: [[$lightgrey]];
+	text-decoration: none;
+}
+
+body > footer .social a:hover {
+	color: [[$orange]];
+}
+
+body > footer .social a::before {
+	font: 2.5rem/1 icons;
+	display: block;
+}
+
+body > footer .social a span {
+	position: absolute;
+	left: -9999em;
+}
+
+body > footer .social .twitter a::before {
+	content: '\e903';
+	color: #1da1f2;
+}
+
+body > footer .social .linkedin a::before {
+	content: '\e904';
+	color: #0a66c2;
+}
+
+body > footer .social .pinterest a::before {
+	content: '\e905';
+	color: #e5021a;
+}
+
+body > footer .social .youtube a::before {
+	content: '\e906';
+	color: #ff0000;
+}
+
+body > footer .social .facebook a::before {
+	content: '\e907';
+	color: #3b5998;
+}
+
+body > footer .social .twitter a:hover::before,
+body > footer .social .linkedin a:hover::before,
+body > footer .social .pinterest a:hover::before,
+body > footer .social .youtube a:hover::before,
+body > footer .social .facebook a:hover::before {
+	color: [[$orange]];
+}
+
+a {
+	color: inherit;
+	text-decoration: underline 0.125em [[$orange]];
+}
+
+a:hover {
+	text-decoration: none;
+	color: [[$orange]];
+}
+
+a img {
+	border: none;
+}
+
+address {
+	font-style: normal;
+}
+
+fieldset {
+	margin: 0;
+	padding: 0;
+	border: none;
+}
+
+figure {
+	margin: 0;
+}
+
+form label {
+	font-style: italic;
+	display: table;
+}
+
+h1 {
+	font-family: "Noto Serif", "Times New Roman", serif;
+	font-weight: bold;
+	margin-top: 0;
+	font-size: 2em;
+	line-height: 1.5;
+	margin-bottom: .75em;
+}
+
+h2 {
+	font-family: "Noto Serif", "Times New Roman", serif;
+	font-weight: bold;
+	margin-top: 0;
+	font-size: 1.625em;
+	line-height: 1.5;
+	margin-bottom: 1em;
+}
+
+h3 {
+	font-family: "Noto Serif", "Times New Roman", serif;
+	font-weight: bold;
+	margin-top: 0;
+	font-size: 1.25em;
+	line-height: 1.5;
+	margin-bottom: 1.25em;
+}
+
+h4 {
+	font-size: inherit;
+	line-height: inherit;
+	margin-bottom: 1.5em;
+}
+
+img {
+	vertical-align: middle;
+	margin: 0;
+	box-sizing: border-box;
+	max-width: 100%;
+	line-height: inherit;
+	color: inherit;
+	height: auto;
+}
+
+input {
+	vertical-align: middle;
+	margin: 0;
+	box-sizing: border-box;
+	max-width: 100%;
+	line-height: inherit;
+	color: inherit;
+	border: 2px solid [[$lightgrey]];
+	padding: .25em .5em;
+}
+
+input:focus {
+	border-color: [[$orange]];
+	outline-style: none;
+}
+
+input:invalid:focus {
+	box-shadow: none;
+}
+
+button {
+	border: 2px solid [[$orange]];
+	background-color: [[$white]];
+	cursor: pointer;
+	padding: .25em 1em;
+	color: inherit;
+	font-weight: bold;
+	line-height: inherit;
+	vertical-align: middle;
+}
+
+button:hover {
+	background-color: [[$orange]];
+	color: [[$white]];
+}
+
+button:focus {
+	background-color: [[$orange]];
+	color: [[$white]];
+}
+
+button:active {
+	background-color: [[$darkgrey]];
+	color: [[$white]];
+	border-color: currentcolor;
+}
+
+input[type=submit] {
+	border: 2px solid [[$orange]];
+	background-color: [[$white]];
+	cursor: pointer;
+	padding: .25em 1em;
+	color: inherit;
+	font-weight: bold;
+	line-height: inherit;
+	vertical-align: middle;
+}
+
+input[type=submit]:hover {
+	background-color: [[$orange]];
+	color: [[$white]];
+}
+
+input[type=submit]:focus {
+	background-color: [[$orange]];
+	color: [[$white]];
+	outline-style: dotted;
+}
+
+input[type=submit]:active {
+	background-color: [[$darkgrey]];
+	color: [[$white]];
+	border-color: currentcolor;
+}
+
+input[type=checkbox] {
+	border: none;
+	padding: 0;
+}
+
+input[type=checkbox]:focus {
+	outline-style: dotted;
+}
+
+input[type=radio] {
+	border: none;
+	padding: 0;
+}
+
+input[type=radio]:focus {
+	outline-style: dotted;
+}
+
+select {
+	vertical-align: middle;
+	margin: 0;
+	box-sizing: border-box;
+	max-width: 100%;
+	line-height: inherit;
+	color: inherit;
+	border: 2px solid [[$lightgrey]];
+	padding: .25em .5em;
+}
+
+select:focus {
+	border-color: [[$orange]];
+	outline-style: none;
+}
+
+select:invalid:focus {
+	box-shadow: none;
+}
+
+textarea {
+	vertical-align: middle;
+	margin: 0;
+	box-sizing: border-box;
+	max-width: 100%;
+	line-height: inherit;
+	color: inherit;
+	border: 2px solid [[$lightgrey]];
+	padding: .25em .5em;
+	resize: vertical;
+}
+
+textarea:focus {
+	border-color: [[$orange]];
+	outline-style: none;
+}
+
+textarea:invalid:focus {
+	box-shadow: none;
+}
+
+ol {
+	padding-left: 0;
+	margin-left: 0;
+	list-style: none;
+	counter-reset: ol;
+	margin-top: 0;
+	margin-bottom: 1.5em;
+}
+
+ol ol {
+	margin-bottom: 0;
+}
+
+ol li {
+	margin-left: 1.5em;
+	position: relative;
+}
+
+ol li::before {
+	counter-increment: ol;
+	content: counter(ol) ".";
+	color: [[$orange]];
+	margin-right: .25em;
+	position: absolute;
+	right: 100%;
+}
+
+ul {
+	padding-left: 0;
+	margin-left: 0;
+	list-style: none;
+	margin-top: 0;
+	margin-bottom: 1.5em;
+}
+
+ul ul {
+	margin-bottom: 0;
+}
+
+main ul li {
+	margin-left: 1em;
+}
+
+main ul li::before {
+	content: '';
+	width: .438em;
+	height: .438em;
+	background-color: [[$orange]];
+	position: absolute;
+	margin-left: -1em;
+	border-radius: 100%;
+	margin-top: .5em;
+	box-sizing: border-box;
+}
+
+main ul ul ul li::before {
+	background-color: [[$orange]];
+	border-width: 0;
+	border-radius: 0;
+}
+
+main ul ul ul ul li::before {
+	background-color: transparent;
+	border-width: 1px;
+}
+
+main ul ul li::before {
+	background-color: transparent;
+	border: 1px solid [[$orange]];
+}
+
+p {
+	margin-top: 0;
+	margin-bottom: 1.5em;
+}
+
+table {
+	margin-top: 0;
+	margin-bottom: 1.5em;
+}
+
+pre {
+	font-family: "Noto Sans Mono", "Courier New", monospace;
+	border: 1px solid [[$darkgrey]];
+	background-color: [[$lightgrey]];
+	margin: 0 1em 1em;
+	padding: 0.5em;
+	line-height: 1.5;
+}
+
+pre code {
+	color: [[$darkgrey]];
+	line-height: 1.5;
+	font-size: 1em;
+}
+
+code {
+	font-family: "Noto Sans Mono", "Courier New", monospace;
+}
+
+.accessibility {
+	position: absolute;
+	left: -9999em;
+}
+
+.section-group {
+	margin-top: 4em;
+}
+
+.section-group > section {
+	margin: 2.5em auto 0;
+	text-align: center;
+	max-width: 20em;
+}
+
+.section-group > section img {
+	margin-bottom: 0.5em;
+	width: auto;
+	height: 3em;
+}
+
+.section-group > section h2 {
+	border-bottom: 2px solid [[$orange]];
+}
+
+.section-group > section p {
+	text-align: justify;
+}
+
+#nav {
+	position: absolute;
+	right: 9999em;
+	top: -9999em;
+	margin-top: 1em;
+	padding-top: .5em;
+	overflow: auto;
+}
+
+#nav nav {
+	padding-bottom: 1em;
+}
+
+#nav nav ul {
+	margin: 0;
+}
+
+#nav nav ul ul {
+	position: absolute;
+	left: -9999em;
+	top: -9999em;
+	z-index: 110;
+}
+
+#nav nav ul input:checked ~ ul {
+	position: static;
+}
+
+#nav nav a {
+	text-decoration: none;
+	display: block;
+	position: relative;
+	line-height: 1.333;
+}
+
+#nav nav a::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: .188em;
+}
+
+#nav nav li > label {
+	display: block;
+	position: relative;
+	line-height: 1.333;
+	cursor: pointer;
+}
+
+#nav nav li > label::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: .188em;
+}
+
+#nav nav li > label::after {
+	content: '';
+	display: inline-block;
+	width: .375em;
+	height: .375em;
+	border: solid [[$orange]];
+	border-width: 0 2px 2px 0;
+	transform: rotate(-45deg);
+	margin: .458em 0 0 .292em;
+	position: absolute;
+	transition-property: transform, margin-top;
+	transition-duration: .25s;
+}
+
+#nav nav li > input {
+	position: absolute;
+	left: -9999em;
+}
+
+#nav nav li > input:checked + label::after {
+	transform: rotate(45deg);
+	margin-top: .333em;
+}
+
+#nav nav li li > a {
+	font-size: 1.25em;
+	padding: .3em 7.5% .3em 5%;
+}
+
+#nav nav li li > a::before {
+	width: .15em;
+}
+
+#nav nav li li > label {
+	font-size: 1.25em;
+	padding: .3em 7.5% .3em 5%;
+}
+
+#nav nav li li label::before {
+	width: .15em;
+}
+
+#nav nav li li label::after {
+	margin-top: .4em;
+	margin-left: .35em;
+	width: .438em;
+	height: .438em;
+}
+
+#nav nav li li li > a {
+	font-size: 1em;
+	padding: .375em 7.5% .375em 10%;
+}
+
+#nav nav li li li > label {
+	font-size: 1em;
+	padding: .375em 7.5% .375em 10%;
+}
+
+#nav nav li li li li > a {
+	padding-left: 15%;
+}
+
+#nav nav li li li li > label {
+	padding-left: 15%;
+}
+
+#nav nav li li li li li > a {
+	padding-left: 20%;
+}
+
+#nav nav li li li li li > label {
+	padding-left: 20%;
+}
+
+#nav nav li li li label::after {
+	margin-top: .375em;
+	width: .375em;
+	height: .375em;
+	margin-left: .375em;
+}
+
+#nav nav li li li input:checked + label::after {
+	margin-top: .25em;
+}
+
+#nav nav .current > a::before {
+	background-color: [[$orange]];
+}
+
+#nav nav .current > label::before {
+	background-color: [[$orange]];
+}
+
+#nav nav > ul > li {
+	border: dotted [[$orange]];
+	border-width: 1px 0 0;
+}
+
+#nav nav > ul > li:last-child {
+	border-bottom-width: 1px;
+}
+
+#nav nav > ul > li > a {
+	font-size: 1.5em;
+	font-weight: bold;
+	padding: .25em 7.5% .25em 5%;
+}
+
+#nav nav > ul > li > a::before {
+	width: .125em;
+}
+
+#nav nav > ul > li > label {
+	font-size: 1.5em;
+	font-weight: bold;
+	padding: .25em 7.5% .25em 5%;
+}
+
+#nav nav > ul > li > label::before {
+	width: .125em;
+}
+
+#nav nav label:hover {
+	color: [[$orange]];
+}
+
+#nav nav .parent > ::before {
+	content: none;
+}
+
+#nav form {
+	padding: 0 5% .75em;
+	position: relative;
+}
+
+#nav form input {
+	width: 100%;
+	padding-right: 10%;
+}
+
+#nav form button {
+	padding: .25em;
+	border: none;
+	background-color: transparent;
+	position: absolute;
+	right: 6.25%;
+	margin-top: 1px;
+}
+
+#nav form button:hover {
+	background-color: transparent;
+	color: [[$orange]];
+}
+
+#nav form button:active {
+	background-color: transparent;
+	color: [[$orange]];
+}
+
+#nav form button:focus {
+	background-color: transparent;
+	color: [[$orange]];
+}
+
+#nav form button::before {
+	content: '\e908';
+	font: 1.5em/1 icons;
+	display: block;
+}
+
+#nav form button span {
+	position: absolute;
+	left: -9999em;
+}
+
+#nav form .focus label {
+	background-color: [[$white]];
+	font-size: .75em;
+	margin-top: -1em;
+	padding-left: .25em;
+	padding-right: .25em;
+	margin-left: .417em;
+	color: [[$orange]];
+}
+
+#nav form .val label {
+	background-color: [[$white]];
+	font-size: .75em;
+	margin-top: -1em;
+	padding-left: .25em;
+	padding-right: .25em;
+	margin-left: .417em;
+}
+
+#nav li li input:checked + label::after {
+	margin-top: .3em;
+}
+
+.nav_active {
+	overflow: hidden;
+/*	body {
+	overflow: hidden;
+	> header {
+		@include flexbox;
+		@include flex-direction(column);
+		height: 100vh;
+		box-sizing: border-box;
+		padding-bottom: 0;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		z-index: 100;
+	}
+}
+*/
+}
+
+.nav_active #nav {
+	display: -webkit-box;
+	display: -moz-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-box-direction: normal;
+	-ms-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-webkit-box-orient: vertical;
+	-moz-box-direction: normal;
+	-moz-box-orient: vertical;
+	-webkit-flex-direction: column;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	-webkit-box: 0;
+	-moz-box: 0;
+	-webkit-flex: 0 1 100%;
+	-ms-flex: 0 1 100%;
+	flex: 0 1 100%;
+}
+
+.nav_active #nav.scrolled {
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.jsenabled #nav form label {
+	position: absolute;
+	margin-top: .25em;
+	margin-left: .5em;
+	padding: 0 .5em;
+	cursor: text;
+	transition-property: font-size, padding, margin, background-color, opacity, left;
+	transition-duration: .25s;
+	border: 2px solid transparent;
+	background-clip: padding-box;
+}
+
+@media screen and (min-width: 40em) {
+	body > header {
+		display: -webkit-box;
+		display: -moz-box;
+		display: -webkit-flex;
+		display: -ms-flexbox;
+		display: flex;
+		-webkit-flex-wrap: wrap;
+		-ms-flex-wrap: wrap;
+		flex-wrap: wrap;
+		-webkit-align-items: center;
+		align-items: center;
+		margin: 0 3%;
+/*		min-height: 0; */
+/*		margin-bottom: 0; / *2.5em;*/
+		z-index: 100;
+	}
+
+	body > header .logo {
+		margin: 0 1.5em 0 0;
+/*		img {
+			max-width: 28.125vw;
+		}
+*/
+	}
+
+	body > header > label {
+		right: 9999em;
+	}
+
+	body > header > input:checked ~ #nav {
+		position: relative;
+	}
+
+	body > main {
+		margin-left: 3%;
+		margin-right: 3%;
+	}
+
+	body > footer {
+		display: -webkit-box;
+		display: -moz-box;
+		display: -webkit-flex;
+		display: -ms-flexbox;
+		display: flex;
+		-webkit-align-items: start;
+		align-items: start;
+		margin-left: 3%;
+		margin-right: 3%;
+		text-align: left;
+		padding-top: .5em;
+	}
+
+	body > footer .social {
+		margin: 0 0 0 auto;
+	}
+
+	.nav_active {
+		overflow: auto;
+	}
+
+	.nav_active body {
+		overflow: auto;
+	}
+
+	.nav_active body > header {
+		position: static;
+		height: auto;
+	}
+
+	.nav_active #nav {
+		-webkit-box: 0;
+		-moz-box: 0;
+		-webkit-flex: 0 1 auto;
+		-ms-flex: 0 1 auto;
+		flex: 0 1 auto;
+	}
+
+	.nav_active #nav.scrolled {
+		border: none;
+	}
+
+	#nav {
+		position: relative;
+		right: auto;
+		top: auto;
+		overflow: visible;
+		margin: 1.5em 0 1.5em auto;
+		padding: 0 2em 0 0;
+	}
+
+	#nav form {
+		position: absolute;
+		top: 50%;
+		right: 0;
+		z-index: 1;
+		padding: 0;
+		transform: translateY(-50%);
+		margin-right: -.25em;
+		white-space: nowrap;
+		margin-top: -2px;
+	}
+
+	#nav form label {
+		position: absolute;
+		left: -9999em;
+		opacity: .01;
+		transition: opacity .5s;
+		display: inline;
+		z-index: 1;
+	}
+
+	#nav form:hover label {
+		position: static;
+		opacity: 1;
+	}
+
+	#nav form:hover input {
+		width: 20em;
+		padding-left: .5em;
+		padding-right: .5em;
+		margin-right: 0;
+		opacity: 1;
+		transition-duration: .5s;
+		transition-delay: 0s;
+	}
+
+	#nav form:hover + nav {
+		opacity: 0;
+		transition-delay: 0s;
+	}
+
+	#nav form:focus-within label {
+		position: static;
+		opacity: 1;
+	}
+
+	#nav form:focus-within input {
+		width: 20em;
+		padding-left: .5em;
+		padding-right: .5em;
+		margin-right: 0;
+		opacity: 1;
+		transition-duration: .5s;
+		transition-delay: 0s;
+	}
+
+	#nav form:focus-within + nav {
+		opacity: 0;
+		transition-delay: 0s;
+	}
+
+	#nav form input {
+		width: 0;
+		padding: .125em 0;
+		margin-right: -4px;
+		opacity: 0;
+		transition-property: width, padding, margin, opacity;
+		transition-duration: .5s, .5s, .5s, .25s;
+		transition-delay: 0s, 0s, 0s, .25s;
+	}
+
+	#nav form button {
+		position: static;
+	}
+
+	#nav form button::before {
+		font-size: 1.5em;
+	}
+
+	#nav form .focus label {
+		margin-top: -1em;
+	}
+
+	#nav form .val label {
+		margin-top: -1em;
+	}
+
+	#nav nav {
+		padding: 0;
+		transition: opacity .5s .25s;
+	}
+
+	#nav nav li > label::before {
+		content: none;
+	}
+
+	#nav nav li > label::after {
+		width: .313em;
+		height: .313em;
+		transform: rotate(45deg);
+		margin-top: .313em;
+	}
+
+	#nav nav li li > a {
+		font-size: 1em;
+		padding-left: 0;
+		padding-right: 1.25em;
+	}
+
+	#nav nav li li > label {
+		font-size: 1em;
+		padding-left: 0;
+		padding-right: 1.25em;
+	}
+
+	#nav nav li li > label::after {
+		right: auto;
+	}
+
+	#nav nav li li li > a {
+		padding-left: 0;
+		padding-right: 1.25em;
+	}
+
+	#nav nav li li li > label {
+		padding-left: 0;
+		padding-right: 1.25em;
+	}
+
+	#nav nav li li li li > a {
+		padding-left: 0;
+		padding-right: 1.25em;
+	}
+
+	#nav nav li li li li > label {
+		padding-left: 0;
+		padding-right: 1.25em;
+	}
+
+	#nav nav li li input:checked + label::after {
+		width: .313em;
+		height: .313em;
+		transform: rotate(-45deg);
+	}
+
+	#nav nav li .parent > ul {
+		left: -9999em;
+		top: -9999em;
+		z-index: 1;
+	}
+
+	#nav nav li .parent:hover > ul {
+		left: 100%;
+		top: 0;
+	}
+
+	#nav nav li .parent:hover > .outside {
+		left: auto;
+		right: 100%;
+	}
+
+	#nav nav li:hover > label {
+		color: [[$orange]];
+	}
+
+	#nav nav > ul {
+		display: -webkit-box;
+		display: -moz-box;
+		display: -webkit-flex;
+		display: -ms-flexbox;
+		display: flex;
+	}
+
+	#nav nav > ul > li {
+		border: none;
+		margin-left: 1.5em;
+		position: relative;
+	}
+
+	#nav nav > ul > li:first-child {
+		margin-left: 0;
+	}
+
+	#nav nav > ul > li > a {
+		font-size: 1em;
+		padding: 0;
+	}
+
+	#nav nav > ul > li > label {
+		font-size: 1em;
+		padding: 0;
+		padding-right: .75em;
+	}
+
+	#nav nav > ul > li > ul > li label::after {
+		width: .313em;
+		height: .313em;
+		transform: rotate(-45deg);
+	}
+
+	#nav nav > ul > li > ul > li input:checked + label::after {
+		margin-top: .438em;
+	}
+
+	#nav nav > ul > .parent:hover {
+		padding-bottom: .5em;
+		margin-bottom: -.5em;
+	}
+
+	#nav nav > ul > .parent:hover > ul {
+		left: 50%;
+		top: 100%;
+		transform: translateX(-50%);
+	}
+
+	#nav nav > ul > .parent:hover > .outside {
+		left: auto;
+		right: 0;
+		transform: none;
+	}
+
+	#nav nav > ul > .parent > ul::before {
+		content: '';
+		position: absolute;
+		left: 50%;
+		top: 0;
+		width: .75em;
+		height: .75em;
+		background-color: [[$white]];
+		transform: rotate(45deg) translate(-50%, -25%);
+		box-shadow: -1px -1px 2px -1px rgba(0, 0, 0, 0.4);
+	}
+
+	#nav nav > ul > .parent > .outside::before {
+		left: auto;
+		right: 1em;
+	}
+
+	#nav nav .current > a {
+		text-decoration: underline 0.188em [[$orange]];
+	}
+
+	#nav nav .current > label {
+		text-decoration: underline 0.188em [[$orange]];
+	}
+
+	#nav nav .parent {
+		position: relative;
+	}
+
+	#nav nav .parent > ul {
+		min-width: 10em;
+		padding: 1em;
+		background-color: [[$white]];
+		box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
+	}
+
+	#nav nav a::before {
+		content: none;
+	}
+
+	#nav nav ul input:checked ~ ul {
+		position: absolute;
+	}
+
+	.section-group {
+		display: -webkit-box;
+		display: -moz-box;
+		display: -webkit-flex;
+		display: -ms-flexbox;
+		display: flex;
+		-ms-box-pack: justify;
+		-webkit-box-pack: justify;
+		-moz-box-pack: justify;
+		-ms-flex-pack: justify;
+		-webkit-justify-content: space-between;
+		justify-content: space-between;
+	}
+
+	.section-group > * {
+		-webkit-box: 0;
+		-moz-box: 0;
+		-webkit-flex: 0 1 30%;
+		-ms-flex: 0 1 30%;
+		flex: 0 1 30%;
+	}
+
+	.section-group > section {
+		padding: 0;
+		margin: 0;
+	}
+
+	.jsenabled #nav form label {
+		margin-top: .125em;
+		transition-delay: 0s, 0s, 0s, 0s, 0s, .15s;
+		transition-duration: .25s, .25s, .25s, .25s, .25s, 0s;
+	}
+
+	.jsenabled #nav form:hover label {
+		left: 0;
+		position: absolute;
+		transition-delay: 0s, 0s, 0s, 0s, .1s, .2s;
+		transition-duration: .25s, .25s, .25s, .25s, .25s, 0s;
+	}
+
+	.jsenabled #nav form:focus-within label {
+		left: 0;
+		position: absolute;
+		transition-delay: 0s, 0s, 0s, 0s, .1s, .2s;
+		transition-duration: .25s, .25s, .25s, .25s, .25s, 0s;
+	}
+}
+
+/*
+@media screen and(min-width: 50em) {
+	header .logo img {
+		max-width: 50%;
+	}
+}
+*/
+@media screen and (prefers-color-scheme: dark) {
+	body {
+		color: [[$white]];
+		background-color: [[$darkgrey]];
+	}
+
+	body > header {
+		background-color: [[$darkgrey]];
+	}
+
+	body > header > label {
+		color: [[$darkgrey]];
+	}
+
+	body > header > label::before {
+		color: [[$white]];
+	}
+
+	body > footer::before {
+		border-color: [[$darkgrey]];
+	}
+
+	body > footer .social .twitter a::before,
+	body > footer .social .linkedin a::before,
+	body > footer .social .pinterest a::before,
+	body > footer .social .youtube a::before,
+	body > footer .social .facebook a::before {
+		color: [[$white]];
+	}
+
+	input {
+		background-color: [[$darkgrey]];
+	}
+
+	select {
+		background-color: [[$darkgrey]];
+	}
+
+	textarea {
+		background-color: [[$darkgrey]];
+	}
+
+	pre {
+		border: 1px solid [[$lightgrey]];
+		background-color: [[$midgrey]];
+	}
+
+	#nav form .focus label {
+		background-color: [[$darkgrey]];
+	}
+
+	#nav form .val label {
+		background-color: [[$darkgrey]];
+	}
+
+	#nav nav .parent > ul {
+		background-color: [[$darkgrey]];
+	}
+
+	#nav nav > ul > .parent > ul::before {
+		background-color: [[$darkgrey]];
+	}
+
+	.nav_active #nav.scrolled {
+		border-color: rgba(255, 255, 255, 0.2);
+	}
+}
+
+@media screen and (prefers-color-scheme: dark) and (min-width: 40em) {
+	#nav nav .parent > ul {
+		border: 1px solid [[$orange]];
+	}
+
+	#nav nav > ul > .parent > ul::before {
+		border: 1px solid [[$orange]];
+		border-width: 1px 0 0 1px;
+	}
+}

@@ -11,11 +11,14 @@ $lang['anonymous'] = 'Anonymous';
 $lang['apply'] = 'Apply';
 $lang['approve'] = 'Set status to \'final\'';
 $lang['archived'] = 'Archived';
+$lang['article_pagelimit'] = 'Listed-items page-length';
 $lang['article'] = 'Article';
 $lang['articleadded'] = 'The news item has been added.';
 $lang['articlecopied'] = 'The news item has been cloned.';
 $lang['articledeleted'] = 'The news item has been deleted.';
+$lang['articlemoved'] = 'The news item has been moved to the selected category.';
 $lang['articles'] = 'News Items';
+$lang['articlesubmitted'] = 'The news item has been submitted.'; // TODO useless
 $lang['articleupdated'] = 'The news item has been updated.';
 $lang['at'] = 'at'; //at a time
 $lang['author_label'] = 'Posted by:';
@@ -33,7 +36,9 @@ $lang['category'] = 'Category';
 $lang['categoryadded'] = 'The category was successfully added.';
 $lang['categorydeleted'] = 'The category was successfully deleted.';
 $lang['categoryupdated'] = 'The category was successfully updated.';
+$lang['clear_image'] = 'Remove current image';
 $lang['close'] = 'Close';
+$lang['clear_category'] = 'Empty deleted categories';
 $lang['confirm_bulk'] = 'Are you sure you want to perform this action on multiple items?';
 $lang['confirm_delete'] = 'Are you sure you want to delete?';
 //$lang['confirm_deletebulk'] = 'Are you sure you want to delete multiple items';
@@ -41,9 +46,11 @@ $lang['confirm_tpldefault'] = 'Are you sure you want to make this the default?';
 $lang['content'] = 'Content';
 $lang['copy'] = 'Clone';
 $lang['created'] = 'Created';
+$lang['cat_image'] = 'Associated image';
 
 //$lang['dateformat'] = '%s not in a valid yyyy-mm-dd hh:mm:ss format';
 $lang['date_format'] = 'Displayed date-value format';
+$lang['day'] = '1 Day'; // selector value
 $lang['default_category'] = 'Item default category';
 $lang['default_templates'] = 'Default Templates';
 $lang['delete_article'] = 'Delete Item';
@@ -52,7 +59,7 @@ $lang['delete'] = 'Delete';
 $lang['deprecated'] = 'unsupported';
 $lang['desc_adminsearch'] = 'Search all news items (regardless of status or expiry)';
 $lang['desc_news_settings'] = 'Adjust settings for the News module';
-$lang['description'] = 'Add, change or remove news items';
+$lang['description'] = 'Information for the world';
 $lang['detail_page'] = 'Detail Page';
 $lang['detail_returnid'] = 'Detail views default page';
 $lang['detail_template'] = 'Detail Template';
@@ -61,10 +68,12 @@ $lang['detailtemplate'] = 'Detail Templates';
 $lang['displaytemplate'] = 'Display Template';
 $lang['down'] = 'Down';
 $lang['draft'] = 'Draft';
-$lang['dropdown'] = 'Dropdown';
 
 $lang['edit'] = 'Edit';
 $lang['editthis'] = 'Edit this item';
+$lang['email_subject'] = 'Email subject for approval requests';
+$lang['email_to'] = 'Email address(es) to receive approval requests';
+$lang['email_template'] = 'Email body template';
 $lang['enddate'] = 'Expire';
 $lang['endrequiresstart'] = 'Entering an end date requires a start date also';
 $lang['entries'] = '%s Entries';
@@ -72,15 +81,15 @@ $lang['error_categorynotfound'] = 'The category specified was not found';
 $lang['error_categoryparent'] = 'Invalid category parent';
 $lang['error_detailed'] = 'Error: %s';
 $lang['error_duplicatename'] = 'An item with that name already exists';
-$lang['error_filesize'] = 'An uploaded file exceeded the maximum allowed size';
+//$lang['error_filesize'] = 'An uploaded file exceeded the maximum allowed size';
 $lang['error_insufficientparams'] = 'Insufficient (or empty) parameters';
 $lang['error_invaliddates'] = 'One or both of the entered dates were invalid';
-$lang['error_invalidfiletype'] = 'Cannot upload this type of file';
+//$lang['error_invalidfiletype'] = 'Cannot upload this type of file';
 $lang['error_invalidurl'] = 'Invalid URL <em>(maybe it is already used, or there are invalid characters)</em>';
 $lang['error_noarticlesselected'] = 'No item was selected';
 $lang['error_templatenamexists'] = 'A template with that name already exists';
 $lang['error_unknown'] = 'An unknown error occurred';
-$lang['error_upload'] = 'Problem occurred uploading a file';
+//$lang['error_upload'] = 'Problem occurred uploading a file';
 $lang['expired_searchable'] = 'Expired items are searchable';
 $lang['expired_viewable'] = 'Expired items are viewable';
 $lang['expired'] = 'Expired';
@@ -89,42 +98,52 @@ $lang['expiry'] = 'Expiry';
 $lang['extra_label'] = 'Extra:';
 $lang['extra'] = 'Extra';
 
-$lang['file'] = 'Uploaded File';
 $lang['filter'] = 'Filter Items';
 $lang['final'] = 'Final';
 $lang['first'] = 'First';
 $lang['firstpage'] = '&lt;&lt;';
-$lang['formtemplate'] = 'Form Templates';
 
+$lang['generateurl'] = 'Generate URL';
+
+$lang['halfday'] = 'Half-Day'; // selector value
 $lang['help_alert_drafts'] = 'If enabled, an admin-console notice will be created when there are news item(s) which have not been published, and might be waiting on pre-publication review.';
 $lang['help_article_category'] = 'For organization purposes, you may select a category';
-$lang['help_article_content'] = 'Enter the main news item content here';
+$lang['help_article_content'] = 'Enter the main news content here';
 $lang['help_article_enddate'] = 'If use expiry is enabled, this date specifies when the news item will be hidden from view';
 $lang['help_article_expire'] = "Enter the date, and if relevant the time on that date, when the news item will cease to be displayed. Or an empty date will be regarded as 'forever' i.e. manual expiry is needed.";
-$lang['help_article_extra'] = 'This is extra data to associate with the news item. It might be used for a sort-order, or any other purpose. Consult the site developer about how this field is used (if at all)';
+$lang['help_article_extra'] = 'This is extra data to associate with the news item. It might be used for a sort-order, or any other purpose. Consult the site developer about how this field is used (if at all).';
 $lang['help_article_publish'] = 'Enter the date, and if relevant the time on that date, when the news item will [re]start being displayed. Or an empty date will be regarded as when-final (which may be immediate).';
 $lang['help_article_searchable'] = 'This field indicates whether this news item should be indexed by the search module';
 $lang['help_article_status'] = 'If the news item is ready to be displayed on the website, then select status final (and the publish-date will come into play). If this news item needs more work, select draft. If this news item is to be removed from display, select archived.';
-$lang['help_article_summary'] = 'Enter a brief paragraph to describe the news item. This summary might be used when displaying views of a number of items';
+$lang['help_article_summary'] = 'Enter a brief paragraph to describe the news item. This summary might be used when displaying views of a number of items.';
 $lang['help_article_title'] = 'Enter the news item title. It should be brief, and not include any html tags.';
-$lang['help_article_url'] = 'An optional URL-suffix <em>(some other platforms call this a slug)</em> to access this news item. Users can navigate to &lt;site_root&gt;/&lt;item_url&gt; to view this news item.';
-$lang['help_article_useexpiry'] = 'This checkbox toggles the expiry date behavior. Expiry date behavior dictates when a news item becomes visible on the website, and when it subsequently becomes invisible.';
+//$lang['help_article_url'] = 'A unique identifier used in the \'pretty-URL\' for accessing the item\'s detail view.';
+$lang['help_article_url'] = 'An URL-path <em>(some other platforms call this a slug)</em> to access this news item. Users can navigate to &lt;site_root&gt;/&lt;item_url&gt; to view this news item.<br />As for all URLs, it is case-insensitive, and for operational purposes, better without url-encodable characters i.e. with only ASCII letters, numbers, and/or these four "-._~".';
+$lang['help_article_useexpiry'] = 'This checkbox toggles the expiry-date behavior. That dictates when a news item becomes visible on the website, and when it subsequently becomes invisible.';
 $lang['help_articleid'] = 'This parameter is only applicable to the detail view. It allows specifying which news item to display in detail mode. If the special value -1 is used, the system will display the newest, published, non expired news item.';
 $lang['help_articles_filtercategory'] = 'Optionally filter the list of displayed items in this list by those that belong to the selected category';
 $lang['help_articles_filterchildcats'] = 'If enabled, items in the selected category, and their child categories will be displayed.';
-$lang['help_articles_pagelimit'] = 'Select the number of items to show in one page. For sites with a large number of items specifying a page limit between 10 and 100 will significantly improve performance';
+$lang['help_articles_pagelimit'] = 'Select the number of items to show in one page. For sites with a large number of items specifying a page limit between 10 and 100 will significantly improve performance.';
 $lang['help_bulk'] = 'Perform selected operation on all selected news item(s) at once';
-$lang['help_category_name'] = 'Enter a name for this category. Characters in the name and which are invalid in URL\'s will be removed. It is helpful to avoid characters which need url-endcoding.';
+$lang['help_category_name'] = 'Enter a name for this category. Characters in the name and which are invalid in URLs will be removed. It is helpful to avoid characters which need url-encoding.';
 $lang['help_category_parent'] = 'Optionally specify a parent category to build a hierarchy of categories.';
-$lang['help_date_format'] = 'Enter a format string recognizable by <a href="https://www.php.net/manual/function.date.php" class="external" target="_blank"><u>PHP date</u></a>. Best if the format suits useful sorting. Or if empty, the site-default setting will be used.';
-$lang['help_detail_returnid'] = 'This preference specifies a site page (and therefore a template) to use for displaying news items in detail-format. Custom news-detail URL\'s will not work if this parameter is not set to a valid page. Additionally, if this preference is set, and no detailpage parameter is provided on the news tag, then this value will be used for detail links';
+$lang['help_category_url'] = 'A unique identifier for use in any \'pretty-URL\' involving the category. As for all URLs, it is case-insensitive, and for operational purposes, better without url-encodable characters i.e. with only ASCII letters, numbers, and/or these four "-._~".';
+$lang['help_clear_category'] = 'If enabled, delete all articles in a category when the category itself is deleted. Otherwise, move them to the default category.';
+$lang['help_date_format'] = 'Enter a format string recognizable by <a href="https://www.php.net/manual/en/datetime.format.php#refsect1-datetime.format-parameters" class="external" target="_blank"><u>PHP date</u></a>. Best if the format suits useful sorting. Or if empty, the site-default setting will be used.';
+$lang['help_detail_returnid'] = 'This preference specifies a site page (and therefore a template) to use for displaying news items in detail-format. Custom news-detail URL\'s will not work if this parameter is not set to a valid page. Additionally, if this preference is set, and no detailpage parameter is provided on the news tag, then this value will be used for detail links.';
 $lang['help_dflt_category'] = 'This option allows specifying the default category for new news-items.';
+$lang['help_email_subject'] = 'The subject to be used in publication-approval emails';
+$lang['help_email_to'] = 'Enter one, or a comma-separated series of, email address(es) to which messages will be sent after an article is finalised by a user who is not authorised to self-publish';
+$lang['help_email_template'] = 'Select the template to be used for generating the detail of approval-request messages';
 $lang['help_expired_searchable'] = 'If enabled, expired items might continue to be indexed by the search module, and appear in search results';
-$lang['help_expired_viewable'] = 'If enabled, expired items can be viewed in detail mode (this is reproducing older functionality). Also, the showall parameter can be included in the URL (when not using pretty urls) to indicate that expired items can be viewed';
+$lang['help_expired_viewable'] = 'If enabled, expired items can be viewed in detail mode (this is reproducing older functionality). Also, the showall parameter can be included in the URL (when not using pretty URLs) to indicate that expired items can be viewed.';
 $lang['help_expiry_interval'] = 'Set the default lifetime (days, minimum 1) for news items flagged to expire. This is ignored for non-expiring items. The expiry date can be adjusted when adding or editing a news item';
-
 $lang['help_idlist'] = 'Applicable only to the default action (summary view). A comma-separated sequence of numeric news-item id(s). It allows filtering items to specific item(s). The actual list of items output is still subject to news item status, expiry date, and other parameters.';
 $lang['help_pagelimit'] = 'Maximum number of items to display per page. If this parameter is not supplied, all matching items will be displayed. If it is, and there are more items available than specified in the parameter, text and links will be supplied to allow scrolling through the results. The maximum value for this parameter is 1000.';
+$lang['help_summary_wysiwyg'] = 'If disabled, the article summary field will be a simple text input.';
+$lang['help_time_format'] = 'Enter a format string recognizable by <a href="https://www.php.net/manual/en/datetime.format.php#refsect1-datetime.format-parameters" class="external" target="_blank"><u>PHP date</u></a>.';
+$lang['help_timeblock'] = 'The minimum interval between specific start and end times';
+
 // plugin parameters advice
 $lang['helpbrowsecat'] = 'Shows a browsable category list.';
 $lang['helpbrowsecattemplate'] = 'Use the named template for displaying the category browser. If this parameter is not specified, the default template of the "browsecat" type will be used if needed.';
@@ -140,22 +159,25 @@ $lang['helpsortby'] = 'Field to sort displayed item by. Options are: "news_date"
 $lang['helpstart'] = 'Start at the nth item -- leaving empty will start at the first item.';
 $lang['helpsummarytemplate'] = 'Use the named template for displaying the news items summary view. If this parameter is not specified, the default template of the "summary" type will be used if needed.';
 
+$lang['hour'] = '1 Hour'; // selector value
+
 $lang['info_categories'] = 'To assist access and comprehension, news items can be organized into a hierarchy of categories.';
 //$lang['info_notemplate'] = 'Cannot find any template that you are authorized to modify';
+$lang['info_notified'] = 'A notice will be posted, requesting approval to publish this article.';
 $lang['info_reorder_categories'] = 'Drag and drop each item into the correct order to change category relationships';
 $lang['info_sysdefault'] = '(the content used by default when a new template is created)';
 $lang['info_sysdefault2'] = '<strong>Note:</strong> This tab contains text areas to allow you to edit a set of templates that are displayed when you create a \'new\' summary, detail, or form template. Changing content in this tab, and clicking \'submit\' will <strong>not affect any current displays</strong>.';
+$lang['item_image'] = 'Associated image';
 
 $lang['last'] = 'Last';
 $lang['lastpage'] = '&gt;&gt;';
 $lang['lbl_adminsearch'] = 'News Items'; //no preceeding 'Search'
-$lang['linkedfile'] = 'Linked File';
 
-$lang['maxlength'] = 'Maximum Length';
 $lang['modified'] = 'Modified';
 $lang['moreprompt'] = 'more ...';
 $lang['more'] = 'More';
 $lang['moretext'] = 'More Text';
+$lang['move'] = 'Relocate';
 $lang['msg_cancelled'] = 'Operation cancelled';
 $lang['msg_categoriesreordered'] = 'Category order updated';
 $lang['msg_contenttype_removed'] = 'The news content type has been removed. Please place {News} tags with appropriate parameters into your page template or into your page content to replace this functionality.';
@@ -189,7 +211,11 @@ $lang['optionsupdated'] = 'The settings were successfully updated.';
 $lang['pageof'] = 'Page %s of %s';
 $lang['pagerows'] = 'rows per page';
 $lang['parent'] = 'Parent';
-$lang['postinstall'] = 'Make sure to set the "Modify News" permission for users who will be administering news-items.';
+$lang['pending'] = 'Pending';
+$lang['postinstall_notice'] = 'The News module relies on site-page(s) for article display and suitable display templates. Deploy user-groups with news-related permissions e.g. to create | modify | approve articles.';
+$lang['postinstall_title'] = 'Setup for News Module Operations';
+$lang['postinstall'] = 'Make sure to deploy site-pages for article display and suitable display templates, and relevant permissions e.g. "Modify News Items" for users who will be administering news-items.';
+$lang['prettyurl'] = 'URL for direct access';
 $lang['preview'] = 'Preview';
 $lang['previous'] = 'Previous';
 $lang['prevpage'] = '&lt;';
@@ -199,7 +225,6 @@ $lang['print'] = 'Print';
 //$lang['prompt_desc'] = 'Title Descending';
 //$lang['prompt_form_sysdefault'] = 'Default Form Template';
 //$lang['prompt_form_template'] = 'Form Template Editor';
-//$lang['type_browsecat'] = 'Browse Category';
 
 $lang['prompt_addarticle'] = 'Add News Item';
 $lang['prompt_addcategory'] = 'Add News Category';
@@ -259,15 +284,16 @@ $lang['selector_months'] = 'January,February,March,April,May,June,July,August,Se
 $lang['selector_shortdays'] = 'Sun,Mon,Tue,Wed,Thu,Fri,Sat';
 $lang['selector_shortmonths'] = 'Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec';
 $lang['selector_times'] = 'am,pm,AM,PM,.,mins,hr,hrs';
-$lang['settings_title'] = 'News Settings';
+$lang['settings_title'] = 'News Settings'; // see also 'prompt_news_settings'
 $lang['showchildcategories'] = 'With All Descendants';
 $lang['startdate'] = 'Publish';
 $lang['startdatetoolate'] = 'The start date is too late (after end date?)';
 $lang['startoffset'] = 'Start displaying at the nth item';
 $lang['startrequiresend'] = 'If a start date is specified, an end date must also be specified';
 $lang['status'] = 'Status';
-$lang['subject_newnews'] = 'A news-item has been submitted';
+$lang['subject_newnews'] = 'News item needs publication approval'; //'A news-item has been submitted';
 $lang['summary'] = 'Summary';
+$lang['summary_wysiwyg'] = 'WYSYWIG editor for item summary';
 $lang['summarytemplate'] = 'Summary Templates';
 //$lang['summarytemplateupdated'] = 'The News Summary Template was successfully updated.';
 $lang['sysdefaults'] = 'Restore to defaults';
@@ -277,6 +303,7 @@ $lang['templateadded'] = 'The template was successfully added.';
 $lang['templatedeleted'] = 'The template was successfully deleted.';
 $lang['templateupdated'] = 'The template was successfully updated.';
 $lang['time_format'] = 'Displayed time-value format';
+$lang['timeblock'] = 'Time granularity';
 $lang['tip_addcategory'] = 'Add new category';
 $lang['tip_bulk'] = 'Select this item for bulk processing';
 $lang['tip_copy_template'] = 'Clone this template';
@@ -287,14 +314,15 @@ $lang['tip_tpl_type'] = 'This column indicates whether the template is the defau
 $lang['tip_typedefault'] = 'Set this as the default for its type';
 $lang['tip_viewfilter'] = 'Display filters dialog';
 $lang['title'] = 'Title';
+
+$lang['type_approvalmessage'] = 'Approval-Needed Email Body'; //template-type public name component
 $lang['type_browsecat'] = 'Categories Browser'; //template-type public name component
+$lang['type_category'] = 'News Category'; // typed-string %s replacement
 $lang['type_detail'] = 'Detail'; //template-type public name component
-$lang['type_form'] = 'Frontend Form (abandonware)'; //abandoned template-type public name component
+//$lang['type_form'] = 'Frontend Form (abandonware)'; //abandoned template-type public name component
+$lang['type_item'] = 'News Item'; // typed-string %s replacement
 $lang['type_News'] = 'News'; //template-type public name component
 $lang['type_summary'] = 'Summary'; //template-type public name component
-
-$lang['type_item'] = 'News Item'; // typed-string %s replacement
-$lang['type_category'] = 'News Category'; // typed-string %s replacement
 $lang['type_template'] = 'Template'; // typed-string %s replacement
 $lang['type'] = 'Type';
 
@@ -431,13 +459,12 @@ Override the default action. Possible values are:
 </ul>
 EOF;
 
-
 $lang['help'] = <<<'EOF'
 <h3>What does this do?</h3>
-<p>News is a module for displaying news items on a website page, similar to a blog, but with more features.</p>
+<p>News is a module for displaying news items on a website page.</p>
 <h3>How is it used?</h3>
 <p>Include a {News} tag&nbsp; in relevant page(s) and/or template(s). The tag would be something like:</p>
-<pre>{News number='5'}</pre>
+<pre>{News number=5}</pre>
 <p>Each such tag will display news items in accord with the tag parameters.</p>
 <h3>Features</h3>
 <p>Each news item can have a summary, for display where space is restricted.</p>
@@ -487,7 +514,6 @@ For each relevant news item, the following properties are provided for use in te
 <br/><br />
 The parameters which may validly be submitted from a frontend-displayed news item are:<br />
 <ul>
-<li>articleid</li>
 <li>assign</li>
 <li>browsecat</li>
 <li>browsecattemplate</li>
@@ -495,7 +521,6 @@ The parameters which may validly be submitted from a frontend-displayed news ite
 <li>category_id</li>
 <li>detailpage</li>
 <li>detailtemplate</li>
-<li>formtemplate</li>
 <li>idlist</li>
 <li>inline</li>
 <li>moretext</li>
@@ -516,14 +541,16 @@ The provided news-item property <code>-&gt;postdate</code> is deprecated. Templa
 <br />
 Reminder: the <code>-&gt;formatpostdate</code> and <code>-&gt;dateformat</code> properties are long-gone (News 2.9?).
 <h3>Permissions</h3>
-<p>To add or edit news items, the user must belong to a group with the 'Modify News' permission.
+<p>To add or edit news items, the user must belong to a group having 'Propose News' or 'Modify News' permission.
 <br />
-To delete news items, the user must <strong>also</strong> belong to a group with the 'Delete News' permission.
+<p>To self-publish news items, the user must belong to a group having 'Modify News' permission.
 <br />
-To approve news items for display, the user must belong to a group with the 'Approve News' permission.
+To approve news items for publication, the user must belong to a group having 'Approve News' permission.
 <br />
-To modify news item templates, the user must belong to a group with the 'Modify News Preferences' permission, or if authorized, may process the templates via the site-wide templates interface.
+To delete news items, the user must <strong>also</strong> belong to a group having 'Delete News' permission.
 <br />
-To modify news categories or News-module preferences, the user must belong to a group with the 'Modify News Preferences' permission.
+To modify news item templates, the user must belong to a group having 'Modify News Preferences' permission, or if authorized, may process the templates via the site-wide templates interface.
+<br />
+To modify news categories or News-module preferences, the user must belong to a group having 'Modify News Preferences' permission.
 </p>
 EOF;

@@ -1,3 +1,4 @@
+{if empty($_module)}{$_module='ContentManager'}{/if}
 {if $sheets}
 <table id="allsheets" class="pagetable" style="width:auto;">
  <thead>

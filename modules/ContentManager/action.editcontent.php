@@ -72,7 +72,7 @@ try {
     // load or create the initial content object
     if( $content_id === 0 && isset($_SESSION['__cms_copy_obj__']) ) {
         // we're copying a content object
-        $content_obj = unserialize($_SESSION['__cms_copy_obj__']);
+        $content_obj = unserialize($_SESSION['__cms_copy_obj__']); // IContentEditor-compatible
         if( isset($params['content_type']) ) {
             $content_type = trim($params['content_type']);
         }
@@ -135,7 +135,7 @@ try {
     }
     else {
         // we're editing an existing content object
-        $content_obj = $this->GetContentEditor($content_id);
+        $content_obj = $contentops->LoadEditableContentFromId($content_id);
         if( isset($params['content_type']) ) {
             // maybe the user wants to change type ...
             $content_type = trim($params['content_type']);
@@ -457,7 +457,7 @@ EOS;
 if ($preview_url) {
     $js .= <<<EOS
   $('#_preview_').on('click', function() {
-    if (typeof tinyMCE !== 'undefined') { tinyMCE.triggerSave(); } //TODO a general API, to migrate editor-content into an input-element to be saved
+    if (typeof tinyMCE !== 'undefined') { tinyMCE.triggerSave(); } //TODO setpagecontent() to migrate editor-content into an input-element to be saved
     var params = [{
       name: '{$id}ajax',
       value: 1
@@ -545,7 +545,7 @@ EOS;
   // handle apply (via ajax)
   $('[name$="apply"]').on('click', function() {
     // apply does not do an unlock
-    if (typeof tinyMCE !== 'undefined') { tinyMCE.triggerSave(); } //TODO a general API, to migrate editor-content into an input-element to be saved
+    if (typeof tinyMCE !== 'undefined') { tinyMCE.triggerSave(); } //TODO setpagecontent() to migrate editor-content into an input-element to be saved
     var params = [{
       name: '{$id}ajax',
       value: 1

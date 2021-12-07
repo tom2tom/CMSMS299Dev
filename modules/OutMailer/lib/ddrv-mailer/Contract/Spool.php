@@ -2,6 +2,8 @@
 
 namespace Ddrv\Mailer\Contract;
 
+use Ddrv\Mailer\Message;
+
 interface Spool
 {
 

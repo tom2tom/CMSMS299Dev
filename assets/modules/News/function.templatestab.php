@@ -99,8 +99,8 @@ if( $dbr ) {
 	}
 
 	$tpl->assign('tpllist', $templates)
-		->assign('tplcount', $numrows)
-		->assign('tplpages', $tplpages);
+	 ->assign('tplcount', $numrows)
+	 ->assign('tplpages', $tplpages);
 
 	$s1 = json_encode($this->Lang('confirm_delete'));
 	$s2 = json_encode($this->Lang('confirm_tpldefault'));

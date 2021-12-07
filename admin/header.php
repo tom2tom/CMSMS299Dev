@@ -101,7 +101,7 @@ if ($list) {
 	foreach ($list as $modname => $info) {
 		$mod = Utils::get_module($modname);
 		if (!is_object($mod)) {
-			log_error('Rich-text editor module could not be instantiated', $modname);
+			log_error('Content editor module could not be instantiated', $modname);
 			continue;
 		}
 
@@ -119,7 +119,9 @@ if ($list) {
 				$tmpnames = [];
 				foreach ($cssobs as $stylesheet) {
 					$name = $stylesheet->get_name();
-					if (!in_array($name,$tmpnames)) { $tmpnames[] = $name; }
+					if (!in_array($name, $tmpnames)) {
+						$tmpnames[] = $name;
+					}
 				}
 				$cssnames = $tmpnames;
 			} else {
@@ -129,41 +131,54 @@ if ($list) {
 
 		// initialize each 'specialized' textarea
 		$need_generic = false;
+
 		foreach ($info as $rec) {
 			$selector = $rec['id'];
-			$cssname = $rec['stylesheet'];
+			$cssname = $rec['stylesheet'] ?? null;
 
-			if ($cssname == FormUtils::NONE) { $cssname = null; }
+			if ($cssname == FormUtils::NONE) {
+				$cssname = null;
+			}
 			if (!$cssname || !is_array($cssnames) || !in_array($cssname, $cssnames) || $selector == FormUtils::NONE) {
 				$need_generic = true;
 				continue;
 			}
 
-			$selector = 'textarea#'.$selector;
-			try {
-				$out = $mod->WYSIWYGGenerateHeader($selector, $cssname); //deprecated API
-				if ($out) { add_page_headtext($out); }
-			} catch (Throwable $t) {
-				log_error('Rich-text editor module '.$modname.' error',$t->getMessage());
-			}
-			$n++;
-		}
-		// do we need a generic textarea ?
-		if ($need_generic) {
-/* TODO		$params = [
+			$selector = '#'.$selector;
+			$params = [
 				'htmlclass' => $rec['class'] ?? '',
 				'htmlid' => $rec['id'] ?? '',
 				'workid' => 'edit_work'.$n,
 				'edit' => true,
 				'handle' => 'editor'.$n,
-				'stylesheet' => $rec['stylesheet'] ?? ''
+				'stylesheet' => $cssname
 			];
-*/
+
 			try {
-				$out = $mod->WYSIWYGGenerateHeader(/*$params*/); //deprecated API
-				if ($out) { add_page_headtext($out); }
+				$out = $mod->WYSIWYGGenerateHeader($selector, $cssname, $params);
+				// module may do direct-header/footer injection, in which case nothing returned here
+				if ($out) {
+					add_page_headtext($out);
+				}
 			} catch (Throwable $t) {
-				log_error('Rich-text editor module '.$modname.' error',$t->getMessage());
+				log_error("'$modname' content editor error'", $t->getMessage());
+			}
+			$n++;
+		}
+		// do we need a generic textarea ?
+		if ($need_generic) {
+			$params = [
+				'workid' => 'edit_work'.$n,
+				'edit' => true,
+				'handle' => 'editor'.$n,
+			];
+			try {
+				$out = $mod->WYSIWYGGenerateHeader('', '', $params); // default selector, no styling
+				if ($out) {
+					add_page_headtext($out);
+				}
+			} catch (Throwable $t) {
+				log_error("'$modname' content editor error'", $t->getMessage());
 			}
 		}
 		$n++;
@@ -191,15 +206,17 @@ if ($list) {
 //				'theme' => '',
 			];
 			try {
-				$out = $mod->SyntaxGenerateHeader($params); //deprecated API
+				$out = $mod->SyntaxGenerateHeader($params);
 				// module may do direct-header/footer injection, in which case nothing returned here
-				if ($out) { add_page_headtext($out); }
+				if ($out) {
+					add_page_headtext($out);
+				}
 				$n++;
 			} catch (Throwable $t) {
-				log_error('Syntax hilight module '.$module_name.' error',$t->getMessage());
+				log_error("'$modname' syntax editor error'", $t->getMessage());
 			}
 		} else {
-			log_error('Syntax hilight module '.$module_name.' could not be instantiated');
+			log_error('Syntax editor module could not be instantiated', $modname);
 		}
 	}
 }
@@ -219,10 +236,10 @@ if (!isset($USE_THEME) || $USE_THEME) {
 	if (!AppState::test(AppState::LOGIN_PAGE)) {
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
 
-		$notify = UserParams::get_for_user($userid,'enablenotifications', 1);
+		$notify = UserParams::get_for_user($userid, 'enablenotifications', 1);
 		// display notification stuff from modules
 		// TODO this should be controlled by $notify
-		$ignoredmodules = explode(',',UserParams::get_for_user($userid,'ignoredmodules'));
+		$ignoredmodules = explode(',', UserParams::get_for_user($userid, 'ignoredmodules'));
 
 		if( $notify && AppParams::get('enablenotifications', 1) ) {
 			// display a sitedown warning

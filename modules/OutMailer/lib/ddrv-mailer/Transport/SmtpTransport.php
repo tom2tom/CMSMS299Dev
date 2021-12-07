@@ -8,10 +8,9 @@ use Ddrv\Mailer\Message;
 
 final class SmtpTransport implements Transport
 {
-
     const ENCRYPTION_TLS = 'tls';
-
-    const ENCRYPTION_SSL = 'ssl';
+    const ENCRYPTION_STARTTLS = 'stls';
+    const ENCRYPTION_SSL = 'ssl'; // aka ENCRYPTION_SMTPS (PHPMailer)
 
     /**
      * @var resource
@@ -76,11 +75,11 @@ final class SmtpTransport implements Transport
      * @param Associative array of all interface-parameters
      * OR (old API) individual parameter-values, as many of the following as needed:
      * @param string $host
-     * @param int $port default 587
+     * @param int $port default 587 (for SmtpTransport::ENCRYPTION_STARTTLS)
      * @param string $user
      * @param string $pass
      * @param string $sender email address
-     * @param string $encryption optional default 'tls'
+     * @param string $encryption optional, default SmtpTransport::ENCRYPTION_STARTTLS
      * @param string $domain optional default same as $host
      * @param int $timeout since 5.1 optional 0 OR 5..120 seconds, default 25
      */
@@ -92,7 +91,7 @@ final class SmtpTransport implements Transport
          'user' => '',
          'pass' => '',
          'sender' => '',
-         'encryption' => self::ENCRYPTION_TLS,
+         'encryption' => self::ENCRYPTION_STARTTLS,
          'domain'  => '',
          'timeout' => 25,
         );
@@ -113,22 +112,26 @@ final class SmtpTransport implements Transport
         }
 
         $host = (string)$vals['host'];
-        $port = (int)$vals['port'];
+        $port = (int)$vals['port']; // TODO check 465 / 587 / whatever
         if ($host && $port) {
             $encryption = trim(strtolower($vals['encryption']));
             switch ($encryption) {
                 case self::ENCRYPTION_TLS:
-                    $this->transport = $encryption;
-                    break;
                 case self::ENCRYPTION_SSL:
                     $this->transport = $encryption;
+                    $prefix = $encryption . '://';
+                    break;
+                case self::ENCRYPTION_STARTTLS:
+                    $this->transport = $encryption;
+                    $prefix = 'tcp://'; // initial
                     break;
                 default:
                     $this->transport = 'tcp';
+                    $prefix = 'tcp://';
                     break;
             }
             $this->sender = (string)$vals['sender'];
-            $this->connectHost = $this->transport . '://' . $host;
+            $this->connectHost = $prefix . $host;
             $this->connectPort = $port;
             $this->connectUser = (string)$vals['user'];
             $this->connectPassword = (string)$vals['pass'];
@@ -154,6 +157,10 @@ final class SmtpTransport implements Transport
         return null;
     }
 */
+    /**
+     * @see https://www.samlogic.net/articles/smtp-commands-reference.htm
+     * @throws TransportException
+     */
     private function connect()
     {
         if (is_resource($this->socket)) {
@@ -169,7 +176,7 @@ final class SmtpTransport implements Transport
                 case self::ENCRYPTION_TLS:
                     $opts = ['tls' => [
 //                    'allow_self_signed' => true,
-                      'verify_host' => false,
+//                    'verify_host' => false,
                       'verify_peer' => false,
                       ],
                     ];
@@ -178,22 +185,24 @@ final class SmtpTransport implements Transport
                 case self::ENCRYPTION_SSL:
                     $opts = ['ssl' => [
 //                    'allow_self_signed' => true,
-                      'verify_host' => false,
+//                    'verify_host' => false,
                       'verify_peer' => false,
                       ],
                     ];
                     $context = stream_context_create($opts); //, $params);
                     break;
+//              case self::ENCRYPTION_STARTTLS:
 //              case 'tcp':
                 default:
                     $context = stream_context_create();
                     break;
             }
-            //TODO mailer persistent-connection setting
-            $this->socket = stream_socket_client($addr, $errCode, $errMessage, $this->responseTimeout, STREAM_CLIENT_CONNECT, $context);
+            //TODO mailer persistent-connection setting maybe use STREAM_CLIENT_PERSISTENT
+            $this->socket = stream_socket_client($addr, $errCode, $errMessage, $this->responseTimeout, STREAM_CLIENT_CONNECT, $context); // 'tls://smtp.vic.exemail.com.au:587'
         } else { //stream_socket_client() N/A
             //NOTE blocking connection
             $this->socket = fsockopen($this->connectHost, $this->connectPort, $errCode, $errMessage, $this->responseTimeout);
+            //TODO any other specific params
         }
         if (!is_resource($this->socket)) {
             throw new TransportException('Connection Error: ' . $errCode . ' ' . $errMessage, 1);
@@ -203,23 +212,24 @@ final class SmtpTransport implements Transport
         $test = $this->readStream();
         //TODO handle error
 /*          foreach ($test as $response) {
-            $response['code'];
-            $response['message'];
-            $response['option'];
+            $response['code']; want 220
+            $response['message']; want $this->connectDomain . ' ' . stuff ...
+            $response['option']; want false
         }
 */
         unset($test);
-
         $options = $this->options();
-        if ($this->transport == self::ENCRYPTION_TLS && array_key_exists('STARTTLS', $options)) {
+        if (($this->transport == self::ENCRYPTION_TLS || $this->transport == self::ENCRYPTION_STARTTLS) && array_key_exists('STARTTLS', $options)) {
             /*$res = */$this->smtpSend('STARTTLS');
-            $mask = STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT
-                | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT | STREAM_CRYPTO_METHOD_SSLv23_CLIENT;
+            $mask = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+            if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) {
+               $mask |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT;
+            }
             stream_socket_enable_crypto($this->socket, true, $mask);
             $options = $this->options();
         }
         $supported = array_key_exists('AUTH', $options) ? $options['AUTH'] : array();
-        $types = array_intersect(array('PLAIN', 'LOGIN'), $supported);
+        $types = array_intersect($supported, array('PLAIN', 'LOGIN', 'CRAM-MD5'));
         if ($types) {
             $this->auth(reset($types));
         }
@@ -237,10 +247,12 @@ final class SmtpTransport implements Transport
                     base64_encode($this->connectPassword),
                 );
                 break;
+            case 'CRAM-MD5':
+                break;
             default:
                 throw new TransportException('Unsupported auth type ' . $type, 3);
         }
-        $this->smtpSend('AUTH ' . $type);
+        $response = $this->smtpSend('AUTH ' . $type); // expect 334 for CRAM-MD5
 /*      $response = array(
             array(
                 'code' => 500,
@@ -248,8 +260,20 @@ final class SmtpTransport implements Transport
             )
         );
 */
-        foreach ($commands as $command) {
-            $response = $this->smtpSend($command);
+        if ($type == 'CRAM-MD5') {
+            if ($response[0]['code'] !== 334) {
+                throw new TransportException('TODO err msg', $response[0]['code']);
+            }
+            // get the challenge
+            $challenge = base64_decode($response[0]['message']);
+            // build the response
+            $command = $this->connectUser . ' ' . hash_hmac('md5', $challenge, $this->connectPassword);
+            // send encoded credentials
+            $response = $this->smtpSend(base64_encode($command));
+        } else {
+            foreach ($commands as $command) {
+                $response = $this->smtpSend($command);
+            }
         }
         if ($response[0]['code'] !== 235) {
             throw new TransportException($response[0]['message'], $response[0]['code']);
@@ -370,6 +394,7 @@ final class SmtpTransport implements Transport
     }
 
     /**
+     * Send a EHLO or HELO command, process the returned value.
      * @return array
      */
     private function options()

@@ -2,8 +2,8 @@
 
 namespace Ddrv\Mailer\Spool;
 
-use Ddrv\Mailer\Contract\Message;
 use Ddrv\Mailer\Contract\Spool;
+use Ddrv\Mailer\Message;
 
 final class FileSpool implements Spool
 {

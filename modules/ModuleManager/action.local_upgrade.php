@@ -28,19 +28,21 @@ use CMSMS\SingleItem;
 if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 
-$mod = $params['mod'] ?? '';
-if( !$mod ) {
+$modname = $params['mod'] ?? '';
+if( !$modname ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->RedirectToAdminTab();
 }
 
-$result = SingleItem::ModuleOperations()->UpgradeModule($mod);
-if( !is_array($result) || !isset($result[0]) ) $result = [FALSE, $this->Lang('error_moduleupgradefailed')];
-
-if( $result[0] == FALSE ) {
-    $this->SetError($result[1]);
-    $this->RedirectToAdminTab();
+$result = SingleItem::ModuleOperations()->UpgradeModule($modname);
+if( !is_array($result) || !isset($result[0]) ) {
+    $result = [FALSE, $this->Lang('error_moduleupgradefailed')];
 }
 
-$this->SetMessage($this->Lang('msg_module_upgraded', $mod));
+if( $result[0] !== FALSE ) {
+    $this->SetMessage($this->Lang('msg_module_upgraded', $modname));
+}
+else {
+    $this->SetError($result[1]);
+}
 $this->RedirectToAdminTab();

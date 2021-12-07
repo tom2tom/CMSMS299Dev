@@ -495,7 +495,7 @@ final class Connection
      */
     public function QMagic($str)
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','qStr'));
+        assert(!CMS_DEPREC, new DeprecationNotice('method','qStr'));
         return $this->qStr($str);
     }
 
@@ -571,30 +571,46 @@ final class Connection
      * Return the SQL for a string concatenation.
      * This function accepts a variable number of string arguments.
      *
-     * @param $str   First string to concatenate
-     * @param $str,. Any number of strings to concatenate
+     * @param $str,... Any number (incl. 0) of strings to concatenate
      * @return string
      */
     public function concat()
     {
         $arr = func_get_args();
-        $list = implode(', ', $arr);
-
-        if (strlen($list) > 0) {
-            return "CONCAT($list)";
+        if ($arr) {
+            if (count($arr) > 1) {
+                $list = implode(', ', $arr);
+                return "CONCAT($list)";
+            }
+            return (string)$arr[0];
         }
+        return '';
     }
 
     /**
-     * Return the SQL for testing whether a value is null.
+     * Return the SQL for replacing a null value.
+     * @since 2.99 if the supplied $altvalue is a string, and not (single or double) quoted,
+     * it will be surrounded by single-quotes
      *
      * @param string $field  The field to test
-     * @param string $ifNull The value to use if $field is null
+     * @param mixed $altvalue The value to use if $field has a null value
      * @return string
      */
-    public function ifNull($field, $ifNull)
+    public function ifNull($field, $altvalue)
     {
-        return "IFNULL($field, $ifNull)";
+        // TODO support varargs and COALESCE() when relevant
+        if (is_string($altvalue)) {
+            if (trim($altvalue, '\'"') === $altvalue) {
+                return "IFNULL($field, '$altvalue')";
+            }
+            return "IFNULL($field, $altvalue)";
+        }
+        if (is_bool($altvalue)) {
+            $usealt = ($altvalue) ? 1 : 0;
+        } else {
+            $usealt = (string)$altvalue;
+        }
+        return "IFNULL($field, $usealt)";
     }
 
     /**
@@ -893,7 +909,7 @@ final class Connection
      */
     public function getAll($sql, $bindvars = false, $nrows = 0, $offset = 0)
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','getArray'));
+        assert(!CMS_DEPREC, new DeprecationNotice('method','getArray'));
         return $this->getArray($sql, $bindvars, $nrows, $offset);
     }
 
@@ -1366,7 +1382,7 @@ final class Connection
      */
     public function Time()
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','unixTimeStamp'));
+        assert(!CMS_DEPREC, new DeprecationNotice('method','unixTimeStamp'));
         return $this->unixTimeStamp();
     }
 
@@ -1417,7 +1433,7 @@ final class Connection
      */
     public function Date()
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','unixDate'));
+        assert(!CMS_DEPREC, new DeprecationNotice('method','unixDate'));
         return $this->unixDate();
     }
 

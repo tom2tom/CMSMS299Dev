@@ -65,7 +65,7 @@ if( is_object($search) ) {
             $t_end = $now + 3600; // just for the math
 	    }
 
-        if( $t_end > $now || $this->GetPreference('expired_searchble',1) == 1 ) {
+        if( $t_end > $now || $this->GetPreference('expired_searchable',1) == 1 ) {
             $text = $article['news_data'] . ' ' . $article['summary'] . ' ' . $article['news_title'] . ' ' . $article['news_title'];
             $search->AddWords($this->GetName(), $articleid, 'article', $text,
 		     ($useexp && $this->GetPreference('expired_searchable',0) == 0) ? $t_end : NULL);

@@ -23,6 +23,7 @@ namespace CMSMS; //2.99+
 
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
+use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
 use CMSMS\SingleItem;
@@ -31,6 +32,7 @@ use CMSMS\UserParams;
 use const CMS_ADMIN_PATH;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
+use function _la;
 use function check_permission;
 use function cms_installed_jquery;
 use function cms_join_path;
@@ -51,7 +53,7 @@ class LTETheme extends AdminTheme
         list($vars, $add_list) = parent::AdminHeaderSetup();
 
 		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
-		$rel_url = strtr($rel,DIRECTORY_SEPARATOR,'/');
+		$rel_url = strtr($rel, DIRECTORY_SEPARATOR, '/');
 		$fn = 'style';
 		if (NlsOperations::get_language_direction() == 'rtl') {
 			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {

@@ -24,9 +24,9 @@ use CMSMS\Database\DataDictionary;
 use CMSMS\Events;
 use CMSMS\Group;
 
-if (!isset($gCms)) {
-	exit;
-}
+if (empty($this) || !($this instanceof DesignManager)) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
 $dict = new DataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii'];

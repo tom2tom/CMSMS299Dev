@@ -90,7 +90,8 @@ class FormUtils
     protected static function splitaddtext(&$addtext, &$converted)
     {
         if ($addtext) {
-            $patn = '~([[:alnum:]]*?)\s*=\s*(["\'])([[:alnum:][:punct:] \\/]*?)\2~u';
+            // see https://www.w3.org/TR/2011/WD-html5-20110525/syntax.html#attributes-0
+            $patn = '~([^\x00-\x1f />"\'=]*?)\s*=\s*(["\'])([[:alnum:][:punct:] \\/]*?)\2~u';
             if (preg_match_all($patn, $addtext, $matches)) {
                 foreach ($matches[1] as $i => $key) {
                     if (isset($converted[$key])) {
@@ -591,6 +592,10 @@ class FormUtils
                     break;
                 }
 
+                if (isset($value) && !$value) { // silly but possible choice for a checkbox
+                    $value = 0;
+                    $parms['value'] = 0; // don't ignore '' value
+                }
                 if (isset($selectedvalue) && $selectedvalue == $value) {
                     $parms['checked'] = 'checked';
                 }
@@ -610,6 +615,8 @@ class FormUtils
 
                 $each = '<input' . self::join_attrs($parms, [
                  'id',
+                 'getid',
+                 'htmlid',
                  'selectedvalue',
                  'delimiter',
                 ]);
@@ -617,11 +624,11 @@ class FormUtils
                 $count = count($options);
                 $out = '';
                 foreach ($options as $key=>$val) {
-                    $out .= $each . ' id="'.$getid.$name.$i.'" value="'.$val.'"';
+                    $out .= $each . ' id="'.$name.$i.'" value="'.$val.'"';
                     if ($val == $selectedvalue) {
                         $out .= ' checked="checked"';
                     }
-                    $out .= ' /><label for="'.$getid.$name.$i.'">'.$key .'</label>';
+                    $out .= ' /><label for="'.$name.$i.'">'.$key.'</label>';
                     if ($i < $count && $delimiter) {
                         $out .= $delimiter;
                     }
@@ -1168,6 +1175,10 @@ class FormUtils
      */
     public static function create_action_link($mod, array $parms) : string
     {
+		if (isset($parms['id']) && !isset($parms['getid'])) {
+			$parms['getid'] = $parms['id'];
+			unset($parms['id']);
+		}
         //must have these $parms, each with a usable value
         $err = self::must_attrs($parms, ['action' => 'c','getid' => 'c']);
         if (!$err) {

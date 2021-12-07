@@ -1,0 +1,31 @@
+<h2>Detail-Template Help</h2>
+
+<p>The News module&apos;s &apos;detail&apos; action exports the following variables:</p>
+<ul class="helptext">
+  <li>$category_link (string) - (deprecated) A link to a summary view for articles in the category</li>
+  <li>$category_name (string) - The internal-name of the category that the article belongs to</li>
+  <li>$entry (object) - a PHP object that contains information about one article</li>
+  <li>$return_url (string) - Page content (xhtml) representing a link to the site-page specified for returning to after reading the article</li>
+</ul>
+
+<h3>$entry Object Properties</h3>
+<ul class="helptext">
+  <li>author (string) - The username of the article&apos;s creator</li>
+  <li>author_id (int) - The userid of the article&apos;s creator</li>
+  <li>authorname (string) - The full name of the article&apos;s creator. Only applicable if that information exists in the admin data.</li>
+  <li>canonical (string) - A full URL (prettified) to the article&apos;s detail view using defaults if necessary</li>
+  <li>category (string) - The name of the category that the article resides in (might be empty or unset)</li>
+  <li>category_id (int) - The unique id of the category that the article resides in (might be empty or unset)</li>
+  <li>enddate (string) - The date/time when the article should cease appearing on the site (might be empty or unset)</li>
+  <li>extra (string) - The "extra" data associated with the article (might be empty or unset)</li>
+  <li>id (int) - The unique article id</li>
+  <li>image_url (string) - The uploads-folder-relative URL of an associated image (might be empty or unset)</li>
+  <li>news_url (string) - URL-slug (pretty) for displaying a detail view of the article</li>
+  <li>returnid (string) - The id of the page to return to when finished reading the news-page</li>
+  <li>startdate (string) - The date/time when the article should begin to appear (might be empty or unset)</li>
+  <li>status (string) - Either &apos;draft&apos; or &apos;published&apos; indicating the status of the article</li>
+  <li>summary (string) - The article summary-text (might be empty or unset)</li>
+  <li>title (string) - The title of the article</li>
+</ul>
+
+<p>Object members can be displayed by the following syntax: <code>{$entry->membername}</code> or assigned to a Smarty variable using <code>{$foo = $entry->membername}</code>.</p>

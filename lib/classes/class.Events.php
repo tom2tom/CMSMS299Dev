@@ -231,7 +231,7 @@ EOS;
 		$pref = CMS_DB_PREFIX;
 		$sql = <<<EOS
 SELECT e.*, COALESCE(times,0) AS usage_count FROM {$pref}events e
-LEFT OUTER JOIN (SELECT event_id, COUNT(event_id) AS times FROM {$pref}event_handlers GROUP BY event_id) es
+LEFT JOIN (SELECT event_id, COUNT(event_id) AS times FROM {$pref}event_handlers GROUP BY event_id) es
 ON e.event_id=es.event_id
 ORDER BY originator,event_name
 EOS;

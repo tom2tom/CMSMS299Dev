@@ -26,7 +26,9 @@ use CMSMS\TemplateType;
 use Search\Utils;
 use function CMSMS\log_error;
 
-//if (some worthy test fails) exit;
+if (empty($this) || !($this instanceof Search)) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
 if (version_compare($oldversion,'1.50') < 0) {
     $this->RegisterModulePlugin(true);

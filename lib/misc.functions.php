@@ -781,6 +781,7 @@ function get_page_content(bool $top)
 /**
  * Return the accumulated content to be inserted into the head section
  * of the output page
+ * For direct use in admin scripts, and via plugins e.g. {syntax_area}, {header_includes}, {add_headcontent/}
  * @since 2.99
  * @internal
  *
@@ -794,6 +795,7 @@ function get_page_headtext() : string
 /**
  * Return the accumulated content to be inserted toward the bottom of
  * the output page
+ * For direct use in admin scripts, and via plugins e.g. {syntax_area}, {bottom_includes}, {add_bottomcontent/}
  * @since 2.99
  * @internal
  *
@@ -839,7 +841,7 @@ function get_page_foottext() : string
  * CMSSAN_PHPSTRING
  *  replicates the deprecated filter FILTER_SANITIZE_STRING, without any additional filter-flags
  * CMSSAN_FILE
- *  remove non-printable chars plus these: * ? \ / and substitute '_' for each space
+ *  remove non-printable chars plus these: * ? \ /
  *    (e.g. for file names, modules, plugins, UDTs, templates, stylesheets, admin themes, frontend themes)
  * CMSSAN_PATH
  *  as for CMSSAN_FILE, but allow \ / (e.g. for file paths)
@@ -932,11 +934,10 @@ function sanitizeVal(string $str, int $scope = CMSSAN_PURE, string $ex = '') : s
             $patn = '/[\x00-\x1f"\';=?^`<>\x7f]/';
             break;
         case CMSSAN_FILE:
-            $str = preg_replace('~\s+~', '_', $str);
             $patn = '~[\x00-\x1f*?\\/\x7f]~';
             break;
         case CMSSAN_PATH:
-            $str = preg_replace(['~[\\/]+~', '~\s+~'], [DIRECTORY_SEPARATOR, '_'], $str);
+            $str = preg_replace('~[\\/]+~', DIRECTORY_SEPARATOR, $str);
             $patn = '/[\x00-\x1f*?\x7f]/';
             break;
         case CMSSAN_PURESPC:

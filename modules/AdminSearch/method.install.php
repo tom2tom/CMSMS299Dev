@@ -22,7 +22,9 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\SingleItem;
 
-if (!function_exists('cmsms')) exit;
+if (empty($this) || !($this instanceof AdminSearch)) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
 $this->CreatePermission('Use Admin Search',$this->Lang('perm_Use_Admin_Search'));
 

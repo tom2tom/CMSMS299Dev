@@ -19,7 +19,9 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-if (empty($smarty)) { 
+use CMSMS\SingleItem;
+
+if (empty($smarty)) {
 	$smarty = SingleItem::Smarty();
 }
 
@@ -35,8 +37,8 @@ foreach ([
 }
 $smarty->assign($tplvars);
 $content = $smarty->fetch('error.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+$pref = __DIR__.DIRECTORY_SEPARATOR;
+require "{$pref}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require "{$pref}footer.php";
 exit;

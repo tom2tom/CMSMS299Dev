@@ -34,6 +34,7 @@ use CMSMS\Utils;
 use const CMS_ADMIN_PATH;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
+use function _la;
 use function check_permission;
 use function cms_installed_jquery;
 use function cms_join_path;
@@ -41,7 +42,6 @@ use function cms_path_to_url;
 use function CMSMS\get_page_foottext;
 use function CMSMS\get_page_headtext;
 use function get_userid;
-use function lang;
 use function munge_string_to_url;
 
 class GhostgumTheme extends AdminTheme

@@ -44,9 +44,11 @@ $lang = [
 'friendlyname' => 'File Picker',
 
 //M
+'mkdir' => 'Create New Directory',
 'moddescription' => 'File selection and upload capabilities for the website',
 
 // N
+'name' => 'Name',
 'no' => 'No',
 
 // O
@@ -69,6 +71,7 @@ $lang = [
 'select_file' => 'Select File', //popup dialog title
 'select_upload_files' => 'Select file(s) to upload to here', //tooltip
 'size' => 'Size',
+'sizecodes' => 'Bytes,kB,MB', //comma-separated 'titles' for filesizes: bytes, kilobytes, megabytes
 'switcharchive' => 'Only show archive files',
 'switchaudio' => 'Only show audio files',
 'switchfiles' => 'Only show regular files',
@@ -86,15 +89,15 @@ $lang = [
 'youareintext' => 'The current working directory (relative to the top of the installation)',
 
 'help' => <<<'EOT'
-<h3>What does this do?</h3>
-<p>This module provides infrastructure for use by other parts of CMSMS. Specifically, it supports selection and uploading of files.</p>
+<h3>What does the FilePicker module do?</h3>
+<p>It provides infrastructure for use by other parts of CMSMS. Specifically, it supports selection and uploading of files.</p>
 <h3>How is it used?</h3>
 <p>This module can be used by other modules via various API's, or via the {cms_filepicker} plugin.</p>
 <p>Additionally, this module can be called directly via the <code>{cms_module module=FilePicker action=select name=string [profile=string] [type=string] [value=string]}</code> tag, but this is not recommended. Refer to the {cms_filepicker} plugin for information about the parameters.</p>
 <h3>Support</h3>
 <p>As per the license, this software is provided as-is. Please read the text of the license for the full disclaimer.</p>
 <h3>Copyright and License</h3>
-<p>Copyright &copy; 2017-2018, Fernando Morgado and Robert Campbell, &copy; 2019-2021, CMSMS Foundation. All rights reserved.</p>
+<p>Copyright &copy; 2017-2018, Fernando Morgado and Robert Campbell, &copy; 2019-2021, CMS Made Simple Foundation. All rights reserved.</p>
 <p>This module has been released under the <a href="http://www.gnu.org/licenses/licenses.html#GPL">GNU Public License</a>. The module must not be used otherwise than in accordance with that license, or a later version of that licence granted by the module distributor.</p>
 EOT
 ,

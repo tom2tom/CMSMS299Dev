@@ -24,8 +24,9 @@ use CMSMS\Events;
 use CMSMS\Group;
 use CMSMS\SingleItem;
 
-//if (some worthy test fails) exit;
-if (!function_exists('cmsms')) exit;
+if (empty($this) || !($this instanceof ContentManager)) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
 $group = new Group();
 $group->name = 'Editor';

@@ -29,7 +29,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Crypto;
 use CMSMS\FileType;
-use CMSMS\FolderContolOperations;
+use CMSMS\FolderControlOperations;
 use CMSMS\FSControlValue;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
@@ -47,9 +47,10 @@ for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 // initialization
 //
 if( !empty($params['_enc']) ) {
-    $eparms = json_decode(base64_decode($params['_enc']), true); //'seldir'|'subdir','inst' no sanitize, rely on obfuscation to protect
-    if( $eparms ) { // TODO maybe CMSMS\sanitizeVal(each member) ?
+    $eparms = json_decode(base64_decode($params['_enc']), true); //has 'seldir'|'subdir', 'inst' no sanitize, rely on obfuscation to protect
+    if( $eparms ) {
         $params = array_merge($params, $eparms);
+//        unset($params['_enc']);
     }
 }
 
@@ -70,7 +71,7 @@ try {
     $save = false;
     $inst = $params['inst'] ?? '';
     if( $inst ) {
-        $profile = FolderContolOperations::get_cached($inst);
+        $profile = FolderControlOperations::get_cached($inst);
     }
     else {
         $profile = null;
@@ -110,15 +111,17 @@ try {
     }
 
     if( $save ) {
-        $inst = FolderContolOperations::store_cached($profile);
+        $inst = FolderControlOperations::store_cached($profile);
     }
 
     $assistant = new PathAssistant($config, $topdir);
     $sesskey = Crypto::hash_string(__FILE__);
 
-    $cwd = $params['seldir'] ?? '';
-    if( $cwd ) {
-        $cwd = trim($cwd);
+    if( isset($params['seldir']) ) {
+        $cwd = $params['seldir'];
+        if( $cwd ) {
+            $cwd = trim($cwd);
+        }
     }
     else {
         // get our current working directory relative to $topdir
@@ -151,11 +154,15 @@ try {
     $starturl = $assistant->relative_path_to_url($cwd);
     $startdir = $assistant->to_absolute($cwd);
     //
-    // get file list c.f. Utils::get_file_list($profile,$startdir)
+    // get file list c.f. Utils::get_file_list($profile, $startdir)
     //
     $files = $thumbs = [];
     $dosize = function_exists('getimagesize'); // GD extension present
-    $filesizename = [' Bytes', ' kB', ' MB'];
+    $parts = explode(',', $this->Lang('sizecodes'));
+    if( count($parts) !== 3 ) {
+        $parts = ['Bytes', 'kB', 'MB'];
+    }
+    $filesizename = [' '.$parts[0], ' '.$parts[1], ' '.$parts[2]];
     $items = scandir($startdir, SCANDIR_SORT_NONE);
     for( $name = reset($items); $name !== false; $name = next($items) ) {
         if( $name == '.' || $name == '..' ) { // i.e. no .. (parent) item in list
@@ -164,11 +171,11 @@ try {
         if( !$profile->show_hidden && ($name[0] == '.' || $name[0] == '_') ) {
             continue;
         }
-        $fullname = cms_join_path($startdir,$name);
+        $fullname = cms_join_path($startdir, $name);
         if( is_dir($fullname) ) {
             // anything here?
         }
-        elseif( !$this->is_acceptable_filename( $profile, $fullname ) ) {
+        elseif( !$this->is_acceptable_filename($profile, $fullname) ) {
             continue;
         }
         $data = ['name' => $name, 'fullpath' => $fullname];
@@ -189,27 +196,26 @@ try {
             $data['ext'] = '';
             $data['is_image'] = false;
             $data['is_thumb'] = false;
-/*
-            if( $name == '..' ) {
+/*          if( $name == '..' ) {
                 $t = 'up'; //TODO or 'home'
             }
             else {
                 $t = '';
             }
-            $data['icon'] = Utils::get_file_icon($t,TRUE);
+            $data['icon'] = Utils::get_file_icon($t, true);
 */
-            $data['icon'] = Utils::get_file_icon('',TRUE);
+            $data['icon'] = Utils::get_file_icon('', true);
 
-            $parms = [ 'subdir'=>$name, 'inst'=>$inst ];
+            $parms = ['subdir'=>$name, 'inst'=>$inst];
             $up = base64_encode(json_encode($parms,
                 JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE));
-            $url = $this->create_action_url($id, 'filepicker', ['_enc'=>$up,CMS_JOB_KEY=>1]); // come back here
+            $url = $this->create_action_url($id, 'filepicker', ['_enc'=>$up, CMS_JOB_KEY=>1]); // come back here
             $data['chdir_url'] = $url;
         }
         else {
             $data['isparent'] = false;
             $data['relurl'] = $assistant->to_relative($fullname);
-            $data['ext'] = strtolower(substr($name,strrpos($name,'.')+1));
+            $data['ext'] = strtolower(substr($name, strrpos($name, '.') + 1));
             $itype = $this->_typehelper->get_file_type($fullname);
             $stype = FileType::getName($itype);
             $data['filetype'] = $stype;
@@ -231,7 +237,7 @@ try {
                     $data['is_thumb'] = $this->_typehelper->is_thumb($name);
                     $imagepath = $startdir.DIRECTORY_SEPARATOR.'thumb_'.$name;
                     $data['thumbnail'] = is_file($imagepath);
-                    $data['icon'] = Utils::get_file_icon($data['ext'],false); // in case we're not showing thumbnails
+                    $data['icon'] = Utils::get_file_icon($data['ext'], false); // in case we're not showing thumbnails
                 }
                 $thumbs[] = 'thumb_'.$name;
             }
@@ -246,14 +252,16 @@ try {
         }
     }
     // done the loop, now sort
-    usort($files, function($file1,$file2) use ($profile) {
+    usort($files, function($file1, $file2) use ($profile) {
         if( $file1['isdir'] && !$file2['isdir'] ) { return -1; }
         if( !$file1['isdir'] && $file2['isdir'] ) { return 1; }
-        if( $profile->sort ) { return strnatcmp($file1['name'],$file2['name']); }
+        if( $profile->sort ) {
+            return strnatcmp($file1['name'], $file2['name']);
+        }
         return 0;
     });
 
-    $assistant2 = new PathAssistant($config,CMS_ROOT_PATH);
+    $assistant2 = new PathAssistant($config, CMS_ROOT_PATH);
     $t = $assistant2->to_relative($startdir);
     if( strpos($t, DIRECTORY_SEPARATOR) > 0 ) {
         $parts = explode(DIRECTORY_SEPARATOR, $t);
@@ -281,7 +289,7 @@ try {
         $parms = ['seldir'=>$parent, 'inst'=>$inst];
         $up = base64_encode(json_encode($parms,
             JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE));
-        $upurl = $this->create_action_url($id, 'filepicker', ['_enc'=>$up,CMS_JOB_KEY=>1]); // come back here
+        $upurl = $this->create_action_url($id, 'filepicker', ['_enc'=>$up, CMS_JOB_KEY=>1]); // come back here
     }
     else {
         $upurl = '';
@@ -306,9 +314,9 @@ try {
     // i.e. also needs at least: admin + theme js & admin + theme css
 
     $incs = cms_installed_jquery(true, true, true, true);
-    // don't bother with a StylessMerger
+    // don't bother with a StylessMerger BUT TODO CSP support ??
     $url = cms_path_to_url($incs['jquicss']);
-	$url2 = cms_get_css('filepicker.css');
+    $url2 = cms_get_css('filepicker.css');
     $headinc = <<<EOS
 <link rel="stylesheet" type="text/css" href="$url" />
 <link rel="stylesheet" type="text/css" href="$url2" />
@@ -366,7 +374,7 @@ $(function() {
 
 EOS;
     // this template generates a full html page
-    $tpl = $smarty->createTemplate($this->GetTemplateResource('filepicker.tpl')); //,null,null,$smarty);
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('filepicker.tpl')); //, null, null, $smarty);
     $tpl->assign([
      'bottomcontent' => $footinc,
      'cwd_for_display' => $cwd_for_display,
@@ -381,6 +389,6 @@ EOS;
     $tpl->display();
 }
 catch (Throwable $t) {
-    log_error($t->GetMessage(),'FilePicker::filepicker');
+    log_error($t->GetMessage(), 'FilePicker::filepicker');
     $this->ShowErrorPage($t->GetMessage());
 }

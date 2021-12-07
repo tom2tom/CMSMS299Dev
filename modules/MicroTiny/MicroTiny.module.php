@@ -44,11 +44,6 @@ class MicroTiny extends CMSModule
   public function MinimumCMSVersion() { return '2.99'; }
   public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
-  public function WYSIWYGGenerateHeader($selector = '',$cssname = '')
-  {
-    return Utils::WYSIWYGGenerateHeader($selector, $cssname);
-  }
-
   public function HasCapability($capability, $params=[])
   {
     switch ($capability) {
@@ -57,9 +52,9 @@ class MicroTiny extends CMSModule
       case CoreCapabilities::WYSIWYG_MODULE:
       case CoreCapabilities::SITE_SETTINGS:
       case CoreCapabilities::USER_SETTINGS:
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
   }
 
   public function InitializeAdmin()
@@ -71,7 +66,8 @@ class MicroTiny extends CMSModule
   /**
    * Hook function to populate 'centralised' site settings UI
    * @internal
-   * @since 2.3
+   * @ignore
+   * @since 2.3 / CMSMS 2.99
    * @return array
    */
   public function ExtraSiteSettings()
@@ -85,10 +81,39 @@ class MicroTiny extends CMSModule
     ];
   }
 
-  //TODO hook function to populate 'centralised' user-settings UI
+  /**
+   * UNUSED Hook function to populate 'centralised' user settings UI
+   * @internal
+   * @ignore
+   * @since 2.3 / CMSMS 2.99
+   * @return array
+   */
   public function ExtraUserSettings()
   {
     return []; //TODO
+  }
+
+  /**
+   * Return the 'public' name of the backend editor
+   * @since 2.3 / CMSMS 2.99
+   */ 
+  public function GetEditorName() : string
+  {
+    return $this->Lang('editor_publicname');
+  }
+
+  /**
+   * Return and/or populate page-header content (js and/or css) needed to use this WYSIWYG.
+   * Module-API method, used during post-action page-processing and/or by cms_init_editor plugin.
+   *
+   * @param string $selector Optional .querySelector()-compatible CSS selector
+   * @param string $cssname Optional stylesheet name
+   * @param array $params Optional expanded setup parameters
+   * @return string, empty for admin pages (for which the header is populated directly)
+   */
+  public function WYSIWYGGenerateHeader($selector = '', $cssname = '', $params = [])
+  {
+    return Utils::WYSIWYGGenerateHeader($selector, $cssname, $params);
   }
 } // class
 

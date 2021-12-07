@@ -1,6 +1,6 @@
 <?php
 /*
-Class for handling generic layout templates as a resource
+Class for handling layout templates as a resource
 Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -26,10 +26,11 @@ use function CMSMS\log_error;
 use function CMSMS\sanitizeVal;
 
 /**
- * A class for handling generic db- and file-stored layout templates as a resource.
+ * A class for handling layout templates as a Smarty resource.
  *
  * Handles file- and database-sourced content, numeric and string template identifiers,
- * suffixes ;top ;head and/or ;body (whether or not such sections are relevant to the template).
+ * with or without related originator i.e. 'originator;name' or just 'name'.
+ * Ignores formerly-deployed page-partition suffixes ';top', ';head', ';body'.
  *
  * @package CMS
  * @internal
@@ -45,18 +46,18 @@ class Smarty_Resource_cms_template extends Smarty_Resource_Custom
      * @param Smarty_Template_Source   $source    source object
      * @param Smarty_Internal_Template $_template template object
      */
-    public function populate(Smarty_Template_Source $source, Smarty_Internal_Template $_template = null)
+    public function populate(Smarty_Template_Source $source,Smarty_Internal_Template $_template = null)
     {
-        parent::populate($source, $_template);
+        parent::populate($source,$_template);
         if ($source->exists) {
             if (!is_numeric($source->name)) {
-                $source->filepath = $source->type . ':' . sanitizeVal($source->name, CMSSAN_FILE);
+                $source->filepath = $source->type . ':' . sanitizeVal($source->name,CMSSAN_FILE);
             }
         }
     }
 
     /**
-     * @param string $name  template identifier, numeric id (i.e. whole-page) or name (probably a page-component)
+     * @param string $name  template identifier, numeric id (i.e. whole-page) or string name (possibly with originator or a deprecated page-component)
      * @param mixed $source store for retrieved template content, if any
      * @param int $mtime    store for retrieved template modification timestamp, if $source is populated
      */
@@ -82,14 +83,52 @@ class Smarty_Resource_cms_template extends Smarty_Resource_Custom
             return;
         }
 
-        //TODO get content from relevant theme template(s) if relevant
-        //TODO support stylesheet templates
-        //TODO support inherited/extended templates
+        if( strpos($name,';') !== false ) {
+            $parts = explode(';',$name);
+            if( count($parts) != 2 || !$parts[1] ) {
+                log_error('Unrecognized template',$name);
+                return;
+            }
+            if( !($parts[1] == 'top' || $parts[1] == 'head' || $parts[1] == 'body') ) {
+                $name = $parts[1];
+                $orig = $parts[0];
+                if ($orig === '' || strcasecmp($orig,'Core') == 0) {
+                    $orig = '__CORE__';
+                }
+                $so = ' originator=? AND';
+                $args = [$orig,$name,$name];
+            }
+            else { // ignore deprecated pseudo-partitions
+                $name = $parts[0];
+                $orig = false;
+                $so = '';
+                $args = [$name,$name];
+            }
+        }
+        elseif (strpos($name,'::') !== false ) {
+            $parts = explode('::',$name);
+            if( count($parts) != 2 || !$parts[1] ) {
+                log_error('Unrecognized template',$name);
+                return;
+            }
+            $name = $parts[1];
+            $orig = $parts[0];
+            if ($orig === '' || strcasecmp($orig,'Core') == 0) {
+                $orig = '__CORE__';
+            }
+            $so = ' originator=? AND';
+            $args = [$orig,$name,$name];
+        }
+        else {
+            $orig = false;
+            $so = '';
+            $args = [$name,$name];
+        }
 
         // here we replicate CMSMS\Template::get_content() without the overhead of loading that class
         $db = SingleItem::Db();
-        $sql = 'SELECT id,name,content,contentfile,COALESCE(modified_date,create_date,\'2000-1-1 00:00:01\') AS modified FROM '.CMS_DB_PREFIX.'layout_templates WHERE id=? OR name=?';
-        $data = $db->getRow($sql,[$name,$name]);
+        $sql = 'SELECT id,name,content,contentfile,COALESCE(modified_date,create_date,\'2000-1-1 00:00:01\') AS modified FROM '.CMS_DB_PREFIX.'layout_templates WHERE'.$so.' (id=? OR name=?)';
+        $data = $db->getRow($sql,$args);
         if( $data ) {
             if( $data['contentfile'] ) {
                 $fp = cms_join_path(CMS_ASSETS_PATH,'templates',$data['content']);
@@ -98,37 +137,39 @@ class Smarty_Resource_cms_template extends Smarty_Resource_Custom
                         $data['content'] = file_get_contents($fp);
                     } catch( Throwable $t ) {
 //                      trigger_error('cms_template resource: '.$t->getMessage());
-                        log_error('Failed to load template file', basename($fp).','.$t->getMessage());
+                        log_error('Failed to load template file',basename($fp).','.$t->getMessage());
                         return;
                     }
                 }
                 else {
-                    log_error('Missing template file', basename($fp));
+                    log_error('Missing template file',basename($fp));
                     return;
                 }
             }
             //sanitize, in case some malicious content was stored
             // munge PHP tags TODO ok if these tags are already obfuscated ?
             //TODO maybe disable SmartyBC-supported {php}{/php} in $text BUT actual current smarty delim's
-            $text = preg_replace(['/<\?php/i','/<\?=/','/<\?(\s|\n)/','~\{/?php\}~'], ['&#60;&#63;php','&#60;&#63;=','&#60;&#63; ',''], $data['content']);
-            $data['content'] = str_replace('`', '&#96;', $text);
+            $text = preg_replace(['/<\?php/i','/<\?=/','/<\?(\s|\n)/','~\{/?php\}~'],['&#60;&#63;php','&#60;&#63;=','&#60;&#63; ',''],$data['content']);
+            $data['content'] = str_replace('`','&#96;',$text);
         }
         else {
-            log_error('Missing template',$name);
+            log_error('Missing template',($orig) ? $orig.';'.$name : $name);
             return;
         }
 
-        if( strpos($data['content'], '<body>') === FALSE ) {
+        if( strpos($data['content'],'<body>') === false ) {
             $source = $data['content'];
             $mtime = ( $data['modified'] ) ? cms_to_stamp($data['modified']) : time() - 86400;
             return;
         }
 
         // out-of-order processing to allow header tailoring
+        // NOTE this content-parsing ignores optional content per
+        // https://www.w3.org/TR/2011/WD-html5-20110525/syntax.html#optional-tags
         $content = $data['content'];
         $pos1 = stripos($content,'<head');
         $pos2 = stripos($content,'<header',(int)$pos1);
-        if( $pos1 === FALSE || $pos1 == $pos2 ) {
+        if( $pos1 === false || $pos1 == $pos2 ) {
             $topcontent = '';
         }
         else {
@@ -136,14 +177,14 @@ class Smarty_Resource_cms_template extends Smarty_Resource_Custom
         }
 
         $pos3 = stripos($content,'</head>',(int)$pos1);
-        if( $pos1 === FALSE || $pos1 == $pos2 || $pos3 === FALSE ) {
+        if( $pos1 === false || $pos1 == $pos2 || $pos3 === false ) {
             $headercontent = '';
         }
         else {
             $headercontent = trim(substr($content,$pos1,$pos3-$pos1+7));
         }
 
-        if( $pos3 !== FALSE ) {
+        if( $pos3 !== false ) {
             $bodycontent = trim(substr($content,$pos3+7));
         }
         else {

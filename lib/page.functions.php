@@ -806,7 +806,7 @@ function _get_value_with_default($value, $default = '', $session_key = '')
  */
 function get_parameter_value(array $parameters, string $key, $default = '', string $session_key = '')
 {
-	assert(empty(CMS_DEPREC), new DeprecationNotice('php', 'like $parameters[$key] ?? $default'));
+	assert(!CMS_DEPREC, new DeprecationNotice('php', 'like $parameters[$key] ?? $default'));
 
 	if ($session_key) {
 		if (isset($_SESSION['parameter_values'][$session_key])) {
@@ -948,7 +948,7 @@ function cms_relative_path(string $in, string $relative_to = null) : string
  */
 function cms_htmlentities($val, int $flags = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
 {
-	assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\entitize'));
+	assert(!CMS_DEPREC, new DeprecationNotice('function', 'CMSMS\entitize'));
 	return entitize($val, $flags, $charset, $convert_single_quotes);
 }
 
@@ -971,7 +971,7 @@ function cms_htmlentities($val, int $flags = 0, string $charset = 'UTF-8', bool 
  */
 function cms_html_entity_decode($val, int $flags = 0, string $charset = 'UTF-8') : string
 {
-	assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\de_entitize'));
+	assert(!CMS_DEPREC, new DeprecationNotice('function', 'CMSMS\de_entitize'));
 	return de_entitize($val, $flags, $charset);
 }
 
@@ -1151,7 +1151,7 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
  */
 function cms_get_jquery(string $exclude = '', bool $ssl = false, bool $cdn = false, string $append = '', string $custom_root = '', bool $include_css = true)
 {
-	assert(empty(CMS_DEPREC), new DeprecationNotice('Gather page content via hook function or smarty tag', ''));
+	assert(!CMS_DEPREC, new DeprecationNotice('Gather page content via hook function or smarty tag', ''));
 
 	$incs = cms_installed_jquery(true, false, true, $include_css);
 	if ($include_css) {
@@ -1322,7 +1322,7 @@ function cms_get_css(string $filename, bool $as_url = true, $custompaths = '')
 	if ($target == $filename) {
 		$places = [
 		 CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'styles',
-		 CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets',
+		 CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'styles',
 		 CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'styles',
 		 CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery',
 		 CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui',
@@ -1394,7 +1394,7 @@ function create_textarea(
 	string $wantedsyntax = '',
 	string $addtext = ''
 ) {
-	assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'FormUtils::create_textarea'));
+	assert(!CMS_DEPREC, new DeprecationNotice('method', 'FormUtils::create_textarea'));
 	$parms = func_get_args() + [
 		'height' => 15,
 		'width' => 80,
@@ -1512,35 +1512,29 @@ function get_richeditor_setup(array $params) : array
 		}
 	}
 	if ($val) {
-		$vars = explode('::', $val, 2);
-		$modname = $vars[0] ?? '';
+		$parts = explode('::', $val, 2);
+		$modname = $parts[0] ?? '';
 		if ($modname) {
 			$mod = Utils::get_module($modname);
 			if ($mod) {
-				if ($mod instanceof RichEditor) {
-					$edname = $params['editor'] ?? $vars[1] ?? $modname;
-					if (empty($params['theme'])) {
-						$val = UserParams::get_for_user($userid, 'richeditor_theme');
-						if (!$val) {
-							$val = AppParams::get('richeditor_theme');
-						}
-						if ($val) {
-							$params['theme'] = $val;
-						}
-					}
-					return $mod->GetEditorSetup($edname, $params);
-				} elseif ($mod->HasCapability(CoreCapabilities::WYSIWYG_MODULE)) {
-					if (empty($params['editor'])) {
-						$params['editor'] = $vars[1] ?? $modname;
-					}
-					// NOTE old/standard API is WYSIWYGGenerateHeader($selector, $cssname);
-					//$params[] will be ignored by modules without relevant capability
-					$out = $mod->WYSIWYGGenerateHeader($params);
-					if ($out) {
-						return ['head' => $out];
-					}
-					return [1]; //anything not falsy
+				//$params[] will be ignored by modules without relevant capability
+				if (empty($params['editor'])) {
+					$params['editor'] = $parts[1] ?? $modname;
 				}
+				if (empty($params['theme'])) {
+					$val = UserParams::get_for_user($userid, 'wysiwyg_theme');
+					if (!$val) {
+						$val = AppParams::get('wysiwyg_theme');
+					}
+					if ($val) {
+						$params['theme'] = $val;
+					}
+				}
+				$out = $mod->WYSIWYGGenerateHeader('', '', $params);
+				if ($out) {
+					return ['head' => $out];
+				}
+				return [1]; //anything not falsy
 			}
 		}
 	}
@@ -1579,35 +1573,29 @@ function get_syntaxeditor_setup(array $params) : array
 		$val = AppParams::get('syntaxhighlighter');
 	}
 	if ($val) {
-		$vars = explode('::', $val, 2);
-		$modname = $vars[0] ?? '';
+		$parts = explode('::', $val, 2);
+		$modname = $parts[0] ?? '';
 		if ($modname) {
 			$mod = Utils::get_module($modname);
 			if ($mod) {
-				if ($mod instanceof IMultiEditor) {
-					$edname = $params['editor'] ?? $vars[1] ?? $modname;
-					if (empty($params['theme'])) {
-						$val = UserParams::get_for_user($userid, 'syntax_theme');
-						if (!$val) {
-							$val = AppParams::get('syntax_theme');
-						}
-						if ($val) {
-							$params['theme'] = $val;
-						}
-					}
-					return $mod->GetEditorSetup($edname, $params);
-				} elseif ($mod->HasCapability(CoreCapabilities::SYNTAX_MODULE)) {
-					if (empty($params['editor'])) {
-						$params['editor'] = $vars[1] ?? $modname;
-					}
-					// NOTE old/standard API is SyntaxGenerateHeader();
-					//$params[] will be haandled only by modules with relevant capability
-					$out = $mod->SyntaxGenerateHeader($params);
-					if ($out) {
-						return ['head' => $out];
-					}
-					return [1]; //anything not falsy
+				//$params[] will be handled only by modules with relevant capability
+				if (empty($params['editor'])) {
+					$params['editor'] = $parts[1] ?? $parts[0];
 				}
+				if (empty($params['theme'])) {
+					$val = UserParams::get_for_user($userid, 'syntax_theme');
+					if (!$val) {
+						$val = AppParams::get('syntax_theme');
+					}
+					if ($val) {
+						$params['theme'] = $val;
+					}
+				}
+				$out = $mod->SyntaxGenerateHeader($params);
+				if ($out) {
+					return ['head' => $out];
+				}
+				return [1]; //anything not falsy
 			}
 		}
 	}
@@ -1859,7 +1847,7 @@ function debug_buffer($var, string $title = '')
  */
 function audit($itemid, string $subject, string $msg = '')
 {
-	assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\log_info()'));
+	assert(!CMS_DEPREC, new DeprecationNotice('function', 'CMSMS\log_info()'));
 	SingleItem::LogOperations()->info($msg, $subject, $itemid);
 }
 
@@ -1870,7 +1858,7 @@ function audit($itemid, string $subject, string $msg = '')
  */
 function chmod_r(string $path, int $mode) : bool
 {
-	assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'recursive_chmod()'));
+	assert(!CMS_DEPREC, new DeprecationNotice('function', 'recursive_chmod()'));
 	return recursive_chmod($path, $mode, 0);
 }
 
@@ -1890,7 +1878,7 @@ function chmod_r(string $path, int $mode) : bool
  */
 function cleanValue($val)
 {
-	assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\specialize'));
+	assert(!CMS_DEPREC, new DeprecationNotice('function', 'CMSMS\specialize'));
 	return specialize((string)$val, 0, '', true);
 }
 

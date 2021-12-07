@@ -28,9 +28,9 @@ use CMSMS\DeprecationNotice;
 use CMSMS\SingleItem;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
+use function _ld;
 use function cms_join_path;
 use function cms_module_path;
-use function lang_by_realm;
 use function startswith;
 
 /**
@@ -142,8 +142,8 @@ class ContentTypeOperations
 				$modops = SingleItem::ModuleOperations();
 				foreach( $modnames as $name ) {
 					$mod = $modops->get_module_instance($name);
-					$mod = null; // help the garbage-collector
 				}
+				$mod = null; // help the garbage-collector
 			}
 		}
 

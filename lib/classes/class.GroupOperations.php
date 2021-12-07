@@ -117,7 +117,7 @@ final class GroupOperations
 	public function LoadGroups()
 	{
 		$db = SingleItem::Db();
-		$query = 'SELECT group_id,group_name,group_desc,active FROM '.CMS_DB_PREFIX.'groups ORDER BY group_id';
+		$query = 'SELECT group_id,group_name,group_desc,active FROM `'.CMS_DB_PREFIX.'groups` ORDER BY group_id';
 		$list = $db->getArray($query);
 		$out = [];
 		for( $i = 0, $n = count($list); $i < $n; ++$i ) {
@@ -145,7 +145,7 @@ final class GroupOperations
 		if( $id < 1 ) throw new DataException(lang('missingparams'));
 
 		$db = SingleItem::Db();
-		$query = 'SELECT group_name,group_desc,active FROM '.CMS_DB_PREFIX.'groups WHERE group_id = ?';
+		$query = 'SELECT group_name,group_desc,active FROM `'.CMS_DB_PREFIX.'groups` WHERE group_id = ?';
 		$row = $db->getRow($query, [$id]);
 
 		if( $row ) {
@@ -170,7 +170,7 @@ final class GroupOperations
 	{
 		if( !$name ) throw new DataException(lang('missingparams'));
 		$db = SingleItem::Db();
-		$query = 'SELECT group_id,group_desc,active FROM '.CMS_DB_PREFIX.'groups WHERE group_name = ?';
+		$query = 'SELECT group_id,group_desc,active FROM `'.CMS_DB_PREFIX.'groups` WHERE group_name = ?';
 		$row = $db->getRow($query, [$name]);
 		if( $row ) {
 			$obj = new Group();
@@ -192,14 +192,14 @@ final class GroupOperations
 		$id = $group->id;
 		if( $id < 1 ) {
 			//setting create_date should be redundant with DT setting
-			$query = 'INSERT INTO '.CMS_DB_PREFIX.'groups
+			$query = 'INSERT INTO `'.CMS_DB_PREFIX.'groups`
 (group_name,group_desc,active,create_date)
 VALUES (?,?,?,NOW())';
 			$dbr = $db->execute($query, [$group->name, $group->description, $group->active]);
 			return ($dbr) ? $db->Insert_ID() : -1;
 		}
 		else {
-			$query = 'UPDATE '.CMS_DB_PREFIX.'groups SET group_name = ?,group_desc = ?,active = ?,modified_date = NOW() WHERE group_id = ?';
+			$query = 'UPDATE `'.CMS_DB_PREFIX.'groups` SET group_name = ?,group_desc = ?,active = ?,modified_date = NOW() WHERE group_id = ?';
 //			$dbr = useless for update
 			$db->execute($query, [$group->name,$group->description,$group->active,$id]);
 //			return $dbr != FALSE; useless - post-update result on MySQL is always unreliable
@@ -253,11 +253,11 @@ VALUES (?,?,?,NOW())';
 		if( $id < 1 ) throw new DataException(lang('missingparams'));
 		if( $id == 1 ) throw new LogicException(lang('error_deletespecialgroup'));
 		$db = SingleItem::Db();
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups where group_id = ?';
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id = ?';
 		$dbr = $db->execute($query, [$id]);
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms where group_id = ?';
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ?';
 		if( $dbr ) $dbr = $db->execute($query, [$id]);
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.'groups where group_id = ?';
+		$query = 'DELETE FROM `'.CMS_DB_PREFIX.'groups` WHERE group_id = ?';
 		if( $dbr ) $dbr = $db->execute($query, [$id]);
 		return $dbr;
 // TODO SingleItem::LoadedData()->delete('menu_modules' for all users in group, if not installing?

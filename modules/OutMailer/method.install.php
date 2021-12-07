@@ -5,25 +5,30 @@ Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org
 
 This file is a component of CMS Made Simple module OutMailer.
 
-This OutMailer module is free software; you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published
-by the Free Software Foundation; either version 3 of that license, or
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-This OutMailer module is distributed in the hope that it will be useful,
+CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-See the GNU Affero General Public License
-<http://www.gnu.org/licenses/licenses.html#AGPL> for more details.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AdminAlerts\TranslatableAlert;
 use CMSMS\AppParams;
+use CMSMS\AppState;
 use CMSMS\Crypto;
 use CMSMS\SingleItem;
 use OutMailer\PrefCrypter;
 
-//if (some worthy test fails) exit;
+if (empty($this) || !($this instanceof OutMailer)) exit;
+$installer_working = AppState::test(AppState::INSTALL);
+if (!($installer_working || $this->CheckPermission('Modify Modules'))) exit;
 
 $dict = $db->NewDataDictionary(); //old NewDataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE MyISAM CHARACTER SET utf8mb4'];
@@ -87,7 +92,7 @@ $mailprefs = [
     'host' => 'mail.'.$host,
     'port' => 25,
     'from' => 'donotreply@'.$host,
-    'fromuser'  =>  'Do Not Reply',
+    'fromuser'  => 'Do Not Reply',
     'sendmail' => $path,
     'smtpauth' => false,
     'username' => '',
@@ -124,3 +129,12 @@ $this->CreateEvent('EmailDeliveryReported');
 // semi-permanent alias for back-compatibility
 $ops = SingleItem::ModuleOperations();
 $ops->set_module_classname('CMSMailer', get_class($this));
+
+if( $installer_working && 1 ) { // TODO && is new site
+    $alert = new TranslatableAlert('Modify Site Preferences');
+    $alert->name = 'Email Setup Needed';
+    $alert->module = 'OutMailer';
+    $alert->titlekey = 'postinstall_title';
+    $alert->msgkey = 'postinstall_notice';
+    $alert->save();
+}

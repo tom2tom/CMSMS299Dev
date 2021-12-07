@@ -30,15 +30,13 @@ if (!$this->CheckPermission('Modify News')) {
     return;
 }
 
-// TODO icon/image handling
-
 $articleid = $params['articleid'] ?? '';
-
-if (AdminOperations::copy_article($articleid)) {
+if (!$articleid) {
+    $this->SetError($this->Lang('error_detailed', 'TBA')); //TODO informative message
+} elseif (AdminOperations::copy_article((int)$articleid)) {
     $this->SetMessage($this->Lang('articlecopied'));
-}
-else {
-    $this->SetError($this->Lang('error_unknown')); //TODO informative message
+} else {
+    $this->SetError($this->Lang('error_detailed', 'TBA')); //TODO informative message
 }
 
 $this->RedirectToAdminTab('articles');

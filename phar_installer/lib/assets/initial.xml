@@ -80,8 +80,7 @@
 			<owner_id>1</owner_id>
 			<listable>1</listable>
 			<contentfile>0</contentfile>
-			<content><![CDATA[{strip} {process_pagedata} {/strip}
-&lt;!doctype html&gt;
+			<content><![CDATA[&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;{cms_get_language}&quot;&gt;
 &lt;head&gt;
   &lt;title&gt;{title} - {sitename}&lt;/title&gt;
@@ -128,7 +127,8 @@
 		<property>
 			<content_id>1</content_id>
 			<prop_name>content_en</prop_name>
-			<content><![CDATA[&lt;p&gt;This is a minimal but fully functional installation of CMS Made Simple.&lt;/p&gt;&lt;p&gt;To get to the site&apos;s Administration Console, log in as the administrator (with the username/password supplied during the installation process) at http://yourwebsite.com/cmsmspath/admin. If this is your site click &lt;a title=&quot;CMSMS Demo Admin Panel&quot; href=&quot;admin&quot;&gt;here&lt;/a&gt; to log in.&lt;/p&gt;&lt;p&gt;Read about how to use CMS Made Simple in the &lt;a class=&quot;external&quot; href=&quot;http://docs.cmsmadesimple.org/&quot; title=&quot;CMS Made Simple Documentation&quot; target=&quot;_blank&quot;&gt;documentation&lt;/a&gt;. If you need any help, the community is always at your service in the  &lt;a class=&quot;external&quot; href=&quot;http://forum.cmsmadesimple.org&quot; title=&quot;CMS Made Simple Forum&quot; target=&quot;_blank&quot;&gt;forum&lt;/a&gt;, and some of them are regularly available at &lt;a class=&quot;external&quot; href=&quot;https://cms-made-simple.slack.com&quot; title=&quot;The CMS Made Simple live-interaction channel&quot; target=&quot;_blank&quot;&gt;Slack&lt;/a&gt;.&lt;/p&gt;&lt;h3&gt;License&lt;/h3&gt;&lt;p&gt;CMS Made Simple is released under the &lt;a class=&quot;external&quot; href=&quot;http://www.gnu.org/licenses/licenses.html#GPL&quot; title=&quot;General Public License&quot; target=&quot;_blank&quot;&gt;GPL&lt;/a&gt; license and as such the site doesn&apos;t have to include a link back to CMSMS, as much as we would welcome such acknowledgement.&lt;/p&gt;&lt;p&gt; Some third party add-on modules may have a different (compatible) license.&lt;/p&gt;]]></content>
+			<content><![CDATA[&lt;p&gt;This is a minimal but fully functional installation of CMS Made Simple.&lt;/p&gt;
+&lt;p&gt;To get to the site&apos;s Administration Console, log in as the administrator (with the username/password supplied during the installation process) at https://yourwebsite.com/cmsmspath/admin. If this is your site click &lt;a title=&quot;CMSMS Demo Admin Panel&quot; href=&quot;admin&quot;&gt;here&lt;/a&gt; to log in.&lt;/p&gt;&lt;p&gt;Read about how to use CMS Made Simple in the &lt;a class=&quot;external&quot; href=&quot;https://docs.cmsmadesimple.org/&quot; title=&quot;CMS Made Simple Documentation&quot; target=&quot;_blank&quot;&gt;documentation&lt;/a&gt;. If you need help, the CMSMS community is at your service in the  &lt;a class=&quot;external&quot; href=&quot;https://forum.cmsmadesimple.org&quot; title=&quot;CMS Made Simple Forum&quot; target=&quot;_blank&quot;&gt;forum&lt;/a&gt;, and some of them are regularly available at &lt;a class=&quot;external&quot; href=&quot;https://cms-made-simple.slack.com&quot; title=&quot;the CMS Made Simple live-interaction channel&quot; target=&quot;_blank&quot;&gt;Slack&lt;/a&gt;.&lt;/p&gt;&lt;h3&gt;License&lt;/h3&gt;&lt;p&gt;CMS Made Simple is released under the &lt;a class=&quot;external&quot; href=&quot;https://www.gnu.org/licenses/licenses.html#GPL&quot; title=&quot;General Public License&quot; target=&quot;_blank&quot;&gt;GPL&lt;/a&gt; license.&lt;/p&gt;&lt;p&gt; Some third party add-on modules may have a different (compatible) license.&lt;/p&gt;]]></content>
 		</property>
 	</properties>
 </cmsmsinstall>

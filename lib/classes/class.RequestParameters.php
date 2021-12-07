@@ -153,7 +153,8 @@ class RequestParameters
             while (1) {
                 $key = str_shuffle($chars);
                 $subkey = substr($key, 0, 10);
-                $subkey = strtr($subkey, '%+\'"?&;', $swaps); // replace chars which crap on url-decoding or SQL
+                $subkey = strtr($subkey, '%+"?&;', $swaps); // replace chars which crap on url-decoding or SQL
+                $subkey = strtr($subkey, "'", $swaps[7]); // must do this separately ? (escaping ' fails for strtr?)
                 // NOTE $subkey might be encoded in create_action_params() >> clean1()
                 $val = hash('tiger128,3', $subkey.$str); // 32-hexits
                 $sql = sprintf($tmpl, $subkey, $val);

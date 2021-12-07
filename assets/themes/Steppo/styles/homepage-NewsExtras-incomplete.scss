@@ -1,0 +1,297 @@
+
+/*
+<!-- Start News Display Template -->
+<article class="pressroom summary">
+  <img src="http://cmsms.netzgestalter.com/uploads/alpha_theme/img/alpha_hero.svg" alt="alpha_theme/img/alpha_hero.svg" />
+  <div>
+    <h1><a href="http://cmsms.netzgestalter.com/news/2/2/Look-at-my-cool-new-site" title="Look at my cool new site!">Look at my cool new site!</a></h1>
+    <div class="post-meta">
+      <time class="date" datetime="2021-06-15 17:09:29">Jun 15, 2021</time>
+      <div class="author"> Posted by: admin </div>
+      <div class="category"> Category: General </div>
+    </div>
+    <div class="summary">
+      <p>This is the latest entry in the news module.</p>
+      <a href="http://cmsms.netzgestalter.com/news/2/2/Look-at-my-cool-new-site" class="more" aria-label="Read more: Look at my cool new site!">Read more</a>
+    </div>
+  </div>
+</article>
+<!-- End News Display Template -->
+*/
+/*
+.pressroom {
+	&.summary {
+		text-align: center;
+		margin: 0 -5%;
+		> img {
+			margin-bottom: 1.5em;
+		}
+		> div {
+			padding: 0 5%;
+			> * {
+				font-size: 1.25em;
+				line-height: 1.55;
+			}
+			> h1 {
+				font-size: 2em;
+				line-height: 1.5;
+			}
+			> p {
+				margin-bottom: 1.25em;
+			}
+		}
+		.more {
+			color: #{$orange};
+			font-weight: bold;
+			text-decoration-color: transparent;
+			transition: text-decoration-color .5s;
+			&:hover {
+				text-decoration: underline;
+				text-decoration-color: currentcolor;
+				&:after {
+					margin-left: .5em;
+				}
+			}
+			&:after {
+				content: '\2026';
+				text-decoration: none;
+				display: inline-block;
+				transition: margin .5s;
+				margin-left: .25em;
+			}
+		}
+	}
+	&.detail {
+		.post_image {
+			margin: 0 -5% 1.5em;
+			img {
+				width: 100%;
+			}
+		}
+		> header {
+			text-align: center;
+			margin-bottom: 1.5em;
+			@include hyphens(manual);
+		}
+		h1 {
+			margin-bottom: .273em;
+		}
+		.date {
+			font-weight: bold;
+			color: #{$orange};
+		}
+		#post_summary {
+			text-align: center;
+			font-style: italic;
+			border-bottom: 2px solid #{$orange};
+			margin-bottom: 1.5em;
+			p {
+				margin-bottom: 1.25em;
+				font-size: 1.25em;
+				line-height: 1.55;
+			}
+		}
+	}
+}
+*/
+/*
+<article class="news summary">
+  <img src="https://localhost/cmsms-23DEV/assets/themes/Steppo/media/new_hero.svg" alt="news item image">
+  <!-- Start News Display -->
+  <!-- Start News Display Template -->
+  <ul class="list1">
+    <li class="firstnewscat">
+      <a href="<!-- ERROR: a valid " getid " parameter is required for CMSMS\FormUtils::create_action_link -->">General</a></li>
+  </ul>
+  <div class="NewsSummary">
+    <div class="NewsSummaryLink">
+      <a href="<!-- ERROR: a valid " getid " parameter is required for CMSMS\FormUtils::create_action_link -->">Look at my cool new site!</a>
+    </div>
+    <div class="NewsSummaryCategory">
+      Category: General
+    </div>
+    <div class="NewsSummaryAuthor">
+      Posted by: tomphan
+    </div>
+    <div class="NewsSummaryContent">
+      This is the latest entry in the news module.
+    </div>
+  </div>
+  <!-- End News Display Template -->
+*/
+.news {
+	&.summary {
+		text-align: center;
+		margin: 0 -5%;
+		> img {
+			margin-bottom: 1.5em;
+		}
+		> div {
+			padding: 0 5%;
+			> * {
+				font-size: 1.25em;
+				line-height: 1.55;
+			}
+			> h1 {
+				font-size: 2em;
+				line-height: 1.5;
+			}
+			> p {
+				margin-bottom: 1.25em;
+			}
+		}
+		.more {
+			color: #{$orange};
+			font-weight: bold;
+			text-decoration-color: transparent;
+			transition: text-decoration-color .5s;
+			&:hover {
+				text-decoration: underline;
+				text-decoration-color: currentcolor;
+				&:after {
+					margin-left: .5em;
+				}
+			}
+			&:after {
+				content: '\2026';
+				text-decoration: none;
+				display: inline-block;
+				transition: margin .5s;
+				margin-left: .25em;
+			}
+		}
+	}
+	&.detail {
+		.post_image {
+			margin: 0 -5% 1.5em;
+			img {
+				width: 100%;
+			}
+		}
+		> header {
+			text-align: center;
+			margin-bottom: 1.5em;
+			@include hyphens(manual);
+		}
+		h1 {
+			margin-bottom: .273em;
+		}
+		.date {
+			font-weight: bold;
+			color: #{$orange};
+		}
+		#post_summary {
+			text-align: center;
+			font-style: italic;
+			border-bottom: 2px solid #{$orange};
+			margin-bottom: 1.5em;
+			p {
+				margin-bottom: 1.25em;
+				font-size: 1.25em;
+				line-height: 1.55;
+			}
+		}
+	}
+}
+
+
+/*
+	.pressroom {
+		&.summary {
+			@include flexbox;
+			@include flex-direction(row-reverse);
+			@include align-items(flex-start);
+			margin: 0;
+			text-align: left;
+			> img {
+				width: 60%;
+				position: relative;
+				right: -4%;
+				margin-bottom: 0;
+			}
+			> div {
+				padding: 0;
+				@include flex(0, 1, 40%);
+				@include align-self(center);
+				> h1 {
+					font-size: 2em;
+					line-height: 1.5;
+					margin-bottom: .625em;
+				}
+			}
+		}
+		&.detail {
+			.post_image {
+				margin: 0 -4% 2.5em;
+			}
+			> header {
+				max-width: 50em;
+				margin-left: auto;
+				margin-right: auto;
+			}
+			#post_summary {
+				max-width: 50em;
+				margin-left: auto;
+				margin-right: auto;
+				max-width: 60%;
+			}
+			#post_content {
+				max-width: 50em;
+				margin-left: auto;
+				margin-right: auto;
+			}
+		}
+	}
+*/
+
+@media screen and(min-width: 40em) {
+	.news {
+		&.summary {
+			@include flexbox;
+			@include flex-direction(row-reverse);
+			@include align-items(flex-start);
+			margin: 0;
+			text-align: left;
+			> img {
+				width: 60%;
+				position: relative;
+				right: -4%;
+				margin-bottom: 0;
+			}
+			> div {
+				padding: 0;
+				@include flex(0, 1, 40%);
+				@include align-self(center);
+				> h1 {
+					font-size: 2em;
+					line-height: 1.5;
+					margin-bottom: .625em;
+				}
+			}
+		}
+		&.detail {
+			.post_image {
+				margin: 0 -4% 2.5em;
+			}
+			> header {
+				max-width: 50em;
+				margin-left: auto;
+				margin-right: auto;
+			}
+			#post_summary {
+				max-width: 50em;
+				margin-left: auto;
+				margin-right: auto;
+				max-width: 60%;
+			}
+			#post_content {
+				max-width: 50em;
+				margin-left: auto;
+				margin-right: auto;
+			}
+		}
+	}
+}
+
+
+

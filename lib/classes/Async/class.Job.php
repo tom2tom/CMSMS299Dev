@@ -92,7 +92,7 @@ abstract class Job
             return ''; // not used now SingleItem::App()->GetJobManager();
 
         default:
-            return (isset($this->_data[$key])) ? $this->_data[$key] : null;
+            return $this->_data[$key] ?? null;
         }
     }
 

@@ -1,11 +1,8 @@
 @font-face {
-  font-family: 'sorts';
-  src: url('./font/sorts.eot?50053385');
-  src: url('./font/sorts.eot?50053385#iefix') format('embedded-opentype'),
-       url('./font/sorts.woff2?50053385') format('woff2'),
-       url('./font/sorts.woff?50053385') format('woff'),
-       url('./font/sorts.ttf?50053385') format('truetype'),
-       url('./font/sorts.svg?50053385#sorts') format('svg');
+  font-family: sorts;
+  src: url(./fonts/sorts.woff2?50053385) format('woff2'),
+    url(./fonts/sorts.woff?50053385) format('woff'),
+    url(./fonts/sorts.ttf?50053385) format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -14,8 +11,8 @@
 /*
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
-    font-family: 'sorts';
-    src: url('./font/sorts.svg?50053385#sorts') format('svg');
+    font-family: sorts;
+    src: url(./fonts/sorts.svg?50053385#sorts) format('svg');
   }
 }
 */
@@ -24,7 +21,7 @@
 table.table_sort th.SortAble:before,
 table.table_sort th.SortDown:before,
 table.table_sort th.SortUp:before {
-  font-family: "sorts";
+  font-family: sorts;
   font-style: normal;
   font-weight: normal;
   speak: none;

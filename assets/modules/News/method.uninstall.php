@@ -24,7 +24,9 @@ use CMSMS\RouteOperations;
 use CMSMS\TemplateType;
 use function CMSMS\log_error;
 
-if( !isset($gCms) ) exit;
+if( empty($this) || !($this instanceof News) ) exit;
+//$installing = AppState::test(AppState::INSTALL);
+//if( !($installing || $this->CheckPermission('Modify Modules')) ) exit;
 
 $dict = new DataDictionary($db);
 
@@ -53,22 +55,23 @@ $this->RemoveEvent('NewsArticleDeleted');
 $this->RemoveEvent('NewsCategoryAdded');
 $this->RemoveEvent('NewsCategoryEdited');
 $this->RemoveEvent('NewsCategoryDeleted');
+$this->RemoveEventHandler('Core','DeleteUserPre');
 
 $me = $this->GetName();
 
 // And uploads
 $fp = $config['uploads_path'];
-if ($fp && is_dir($fp)) {
-  $fp2 = $fp.DIRECTORY_SEPARATOR.$me;
-  if( is_dir($fp2) ) {
-    recursive_delete($fp2);
-  }
-  else {
-    $fp2 = $fp.DIRECTORY_SEPARATOR.'news';
+if( $fp && is_dir($fp) ) {
+    $fp2 = $fp.DIRECTORY_SEPARATOR.$me;
     if( is_dir($fp2) ) {
-      recursive_delete($fp2);
+        recursive_delete($fp2);
     }
-  }
+    else {
+        $fp2 = $fp.DIRECTORY_SEPARATOR.'news';
+        if( is_dir($fp2) ) {
+            recursive_delete($fp2);
+        }
+    }
 }
 
 $this->RemoveSmartyPlugin();
@@ -81,19 +84,19 @@ $this->DeleteTemplate();
 //$this->DeleteTemplate('displaydetail');
 
 try {
-  $types = TemplateType::load_all_by_originator($me);
-  if( $types ) {
-    foreach( $types as $type ) {
-      $templates = $type->get_template_list();
-      if( $templates ) {
-        foreach( $templates as $template ) {
-          $template->delete();
+    $types = TemplateType::load_all_by_originator($me);
+    if( $types ) {
+        foreach( $types as $type ) {
+            $templates = $type->get_template_list();
+            if( $templates ) {
+                foreach( $templates as $template ) {
+                    $template->delete();
+                }
+            }
+            $type->delete();
         }
-      }
-      $type->delete();
     }
-  }
 }
 catch (Throwable $t) {
-  log_error($me,'Uninstall error: '.$t->getMessage());
+    log_error($me,'Uninstall error: '.$t->getMessage());
 }

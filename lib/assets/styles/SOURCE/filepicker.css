@@ -1,7 +1,8 @@
 @font-face {
 	font-family: "cmsms-filepicker";
-	src: url("../font/cmsms-filepicker.eot?44234");
-	src: url("../font/cmsms-filepicker.eot?44234#iefix") format("embedded-opentype"), url("../font/cmsms-filepicker.woff2?44234") format("woff2"), url("../font/cmsms-filepicker.woff?44234") format("woff"), url("../font/cmsms-filepicker.ttf?44234") format("truetype"), url("../font/cmsms-filepicker.svg?44234#cmsms-filepicker") format("svg");
+	src: url(../fonts/cmsms-filepicker.woff2?44234) format("woff2"),
+		url(../fonts/cmsms-filepicker.woff?44234) format("woff"),
+		url(../fonts/cmsms-filepicker.ttf?44234) format("truetype");
 	font-weight: normal;
 	font-style: normal;
 }

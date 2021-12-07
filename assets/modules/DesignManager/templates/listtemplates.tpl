@@ -52,14 +52,12 @@
     {form_start id="addtemplate_form"}
     <input type="hidden" name="{$actionid}submit_create" value="1" />
     <div class="pageoverflow">
-    <p class="pagetext">
-      <label for="tpl_import_type">{_ld($_module,'tpl_type')}:</label>
-    </p>
-    <p class="pageinput">
-      <select name="{$actionid}import_type" id="tpl_import_type" title="{_ld($_module,'title_tpl_import_type')}">
-      {html_options options=$list_types}
-      </select>
-    </p>
+      <label class="pagetext" for="tpl_import_type">{_ld($_module,'tpl_type')}:</label>
+      <div class="pageinput">
+        <select name="{$actionid}import_type" id="tpl_import_type" title="{_ld($_module,'title_tpl_import_type')}">
+        {html_options options=$list_types}
+        </select>
+      </div>
     </div>
     </form>
   </div>{* #addtemplatedialog *}

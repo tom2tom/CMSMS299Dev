@@ -28,16 +28,16 @@ function smarty_function_cms_init_editor($params, $template)
 {
 	$wysiwyg = $params['wysiwyg'] ?? '';
 	if( $wysiwyg ) {
-		// we specified a wysiwyg, so we're gonna override every wysiwyg area on this page.
-		$selector = 'textarea.cmsms_wysiwyg';
+		// we specified a wysiwyg, so we're gonna override every wysiwyg area on the page
+		$selector = '.cmsms_wysiwyg';
 	}
 	else {
 		// we're gonna poll the wysiwygs
 		$wysiwygs = FormUtils::get_requested_wysiwyg_modules();
 		if( !$wysiwygs || !is_array($wysiwygs) ) return '';
 		$tmp = array_keys($wysiwygs);
-		$wysiwyg = $tmp[0]; // first wysiwyg only, for now.
-		$selector = null;
+		$wysiwyg = $tmp[0]; // use first of them
+		$selector = '';
 	}
 
 //	$force = cms_to_bool($params['force'] ?? false);
@@ -45,7 +45,7 @@ function smarty_function_cms_init_editor($params, $template)
 	if( !is_object($mod) ) return '';
 
 	// get the output
-	$output = $mod->WYSIWYGGenerateHeader($selector); // old API
+	$output = $mod->WYSIWYGGenerateHeader($selector); // no styling or $params
 	if( !$output ) return '';
 
 	if( !empty($params['assign']) ) {

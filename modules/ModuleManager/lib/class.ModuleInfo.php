@@ -134,8 +134,8 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
 
     /**
      *
-     * @param type $can_check_forge
-     * @return type
+     * @param bool $can_check_forge Default true
+     * @return array
      */
     public static function get_all_module_info($can_check_forge = true)
     {
@@ -168,7 +168,7 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
 
     /**
      *
-     * @param type $modname
+     * @param string $modname
      * @return array maybe empty
      */
     public static function get_module_info($modname)

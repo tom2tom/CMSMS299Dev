@@ -880,7 +880,7 @@ final class JobOperations
             case 'ModuleUninstalled':
                 $module_name = trim($params['name']);
                 if ($module_name) {
-                    $obj->delete_jobs_by_module($module_name);
+                    $obj->unload_jobs_by_module($module_name);
                     break;
                 }
             // no break here
