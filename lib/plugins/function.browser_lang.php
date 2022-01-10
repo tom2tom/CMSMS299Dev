@@ -2,8 +2,8 @@
 /*
 Plugin to retrieve the highest-priority language that's consistent with
 the supplied params and browser capabilities
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -80,25 +80,19 @@ function smarty_function_browser_lang($params, $template)
 	}
 	return $res;
 }
-
+/*
 function smarty_cms_about_function_browser_lang()
 {
-	echo <<<'EOS'
-<p>Author: Robert Campbell</p>
-<p>For CMSMS 1.9</p>
-<p>Change History:</p>
-<ul><li>
-None
-</li></ul>
-EOS;
-}
-/*
-function smarty_cms_help_function_browser_lang()
-{
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'browser_lang ...',  <<<'EOS'
-<li>default</li>
-<li>accepted</li>
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Robert Campbell Nov 2010', <li>$n</li>");
 }
 */
+function smarty_cms_help_function_browser_lang()
+{
+	echo _ld('tags', 'help_generic',
+	'This plugin retrieves the highest-priority language that\'s consistent with the supplied params and browser capabilities',
+	'browser_lang ...',
+	'<li>(optional) default: Default language</li>
+<li>(optional) accepted: Comma-separated list of acceptable translations</li>'
+	);
+}

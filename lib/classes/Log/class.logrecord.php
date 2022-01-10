@@ -1,7 +1,7 @@
 <?php
 /*
 Class to populate and validate the constents of a record to be added to the admin log.
-Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -72,7 +72,7 @@ class logrecord
         // check for valid timestamp and severity, and a message.
         if ($this->timestamp < 1) throw new InvalidArgumentException('Invalid timestamp in '.__CLASS__);
         if ($this->severity < self::TYPE_MSG || $this->severity > self::TYPE_ERROR) throw new InvalidArgumentException('Invalid severity value in '.__CLASS__);
-        if (!$this->message) throw new InvalidArgumentException('The message in '.__CLASS__.' cannot be empty');
+        if (!($this->message || $this->subject)) throw new InvalidArgumentException('Message and/or subject is required in '.__CLASS__);
     }
 
     public function __get( $key)

@@ -109,7 +109,7 @@
 
   {if isset($statuses)}
     <div class="pageoverflow">
-      {$t=_ld('admin','status')}<label class="pagetext">* {$t}:</label>
+      {$t=_la('status')}<label class="pagetext">* {$t}:</label>
       {cms_help 0=$_module key='help_article_status' title=$t}
       <div class="pageinput">
         {$statuses}{* radio group *}

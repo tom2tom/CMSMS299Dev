@@ -14,7 +14,7 @@
     <tr>
 {*      <th>{_ld($_module,'prompt_id')}</th> *}
       <th>{_ld($_module,'prompt_name')}</th>
-{*      <th class="pageicon"><span title="{_ld($_module,'title_designs_default')}">{_ld('admin','default')}</span></th> *}
+{*      <th class="pageicon"><span title="{_ld($_module,'title_designs_default')}">{_la('default')}</span></th> *}
       <th class="pageicon"></th>
     </tr>
   </thead>

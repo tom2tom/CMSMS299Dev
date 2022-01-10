@@ -120,19 +120,14 @@ function smarty_function_get_template_vars($params, $template)
 
 function smarty_cms_about_function_get_template_vars()
 {
-	echo <<<'EOS'
-<p>Author: Robert Campbell</p>
-<p>Version: 1.0</p>
-<p>
-Change History:<br />
-None
-</p>
-EOS;
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Robert Campbell', "<li>$n</li>");
 }
 /*
 function smarty_cms_help_function_get_template_vars()
 {
-	echo _ld('tags', 'generic_help', 'This plugin does ...', 'get_template_vars', none);
+	$n = _la('none');
+	echo _ld('tags', 'help_generic', 'This plugin display all template variables in a pretty format', 'get_template_vars', none);
 }
 */
 

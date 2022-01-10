@@ -28,4 +28,4 @@ for l in $_lang_entries ; do
   if [ $_x = 0 ]; then
     echo $l
   fi
-done 
+done

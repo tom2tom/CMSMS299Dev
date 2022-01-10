@@ -24,7 +24,7 @@ table.table_sort th.SortUp:before {
   font-family: sorts;
   font-style: normal;
   font-weight: normal;
-  speak: none;
+  speak: never;
 
   display: inline-block;
   text-decoration: inherit;

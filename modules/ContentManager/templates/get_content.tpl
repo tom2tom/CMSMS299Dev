@@ -49,7 +49,7 @@
          {capture assign='tooltip_lockinfo'}{strip}
        {if $row.can_steal}<strong>{_ld($_module,'locked_steal')}:</strong><br />{/if}
       <strong>{_ld($_module,'locked_by')}:</strong> {$row.lockuser}<br />
-      <strong>{_ld($_module,'locked_since')}:</strong> {$row.lock.created|date_format:'%x %H:%M'}<br />
+      <strong>{_ld($_module,'locked_since')}:</strong> {$row.lock.created|cms_date_format:'timed'}<br />
       {if $row.lock.expires < $smarty.now}
        <span style="color:red;"><strong>{_ld($_module,'lock_expired')}:</strong> {$row.lock.expires|relative_time}</span>
       {else}

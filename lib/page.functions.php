@@ -1,7 +1,7 @@
 <?php
 /*
 Miscellaneous CMSMS-dependent support functions (not only 'page'-related).
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -25,12 +25,10 @@ use CMSMS\App;
 use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\LogOperations;
-use CMSMS\CoreCapabilities;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use CMSMS\FileTypeHelper;
 use CMSMS\FormUtils;
-use CMSMS\IMultiEditor;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\NlsOperations;
 use CMSMS\RequestParameters;
@@ -222,9 +220,9 @@ function is_sitedown() : bool
  */
 function get_userid(bool $redirect = true)
 {
-//	$config = SingleItem::Config();
-//	if (!$config['app_mode']) { MAYBE IN FUTURE
-/* MAYBE IN FUTURE		if (cmsms()->is_cli()) {
+//  $config = SingleItem::Config();
+//  if (!$config['app_mode']) { MAYBE IN FUTURE
+/* MAYBE IN FUTURE      if (cmsms()->is_cli()) {
 		$uname = get_cliuser();
 		if ($uname) {
 			$user = SingleItem::UserOperations()->LoadUserByUsername($uname);
@@ -241,8 +239,8 @@ function get_userid(bool $redirect = true)
 		redirect(SingleItem::Config()['admin_url'].'/login.php');
 	}
 	return $userid;
-//	}
-//	return 1; //CHECKME is the super-admin the only possible user in app mode ? if doing remote admin?
+//  }
+//  return 1; //CHECKME is the super-admin the only possible user in app mode ? if doing remote admin?
 }
 
 /**
@@ -255,9 +253,9 @@ function get_userid(bool $redirect = true)
  */
 function get_username(bool $redirect = true)
 {
-//	$config = SingleItem::Config();
-//	if (!$config['app_mode']) { MAYBE IN FUTURE
-/* MAYBE IN FUTURE		if (cmsms()->is_cli()) {
+//  $config = SingleItem::Config();
+//  if (!$config['app_mode']) { MAYBE IN FUTURE
+/* MAYBE IN FUTURE      if (cmsms()->is_cli()) {
 			return get_cliuser();
 		}
 */
@@ -267,8 +265,8 @@ function get_username(bool $redirect = true)
 		redirect(SingleItem::Config()['admin_url'].'/login.php');
 	}
 	return $uname;
-//	}
-//	return ''; //no username in app mode
+//  }
+//  return ''; //no username in app mode
 }
 
 /**
@@ -603,7 +601,7 @@ function get_pageid_or_alias_from_url()
 			// get a decent returnid
 			if ($arr['returnid']) {
 				$page = (int) $arr['returnid'];
-//				unset($arr['returnid']);
+//              unset($arr['returnid']);
 			} else {
 				$page = SingleItem::ContentOperations()->GetDefaultContent();
 			}
@@ -981,12 +979,14 @@ function cms_html_entity_decode($val, int $flags = 0, string $charset = 'UTF-8')
  *
  * @param string $tmpfile The temporary file specification
  * @param string $destination The destination file specification
- * @return bool
+ * @return bool indicating success
  */
 function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
 {
+	$helper = new FileTypeHelper();
 	// check e.g. image files for malicious content
-	if ((new FileTypeHelper())->is_image($tmpfile)) {
+	$cleaned = $helper->clean_filepath($destination, true);
+	if ($helper->is_image($cleaned)) {
 		$p = file_get_contents($tmpfile); // TODO if compressed image?
 		$s = execSpecialize($p);
 		if ($s != $p) {
@@ -995,9 +995,13 @@ function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
 		}
 	}
 	if (@move_uploaded_file($tmpfile, $destination)) {
+		if ($cleaned != $destination) {
+			rename($destination, $cleaned);
+			$destination = $cleaned;
+		}
 		return @chmod($destination, octdec(SingleItem::Config()['default_upload_permission']));
 	} else {
-		//TODO report error or throw new Exception(lang(''))
+		//TODO report error or throw new Exception(lang('TODO'))
 	}
 	return false;
 }
@@ -1008,16 +1012,16 @@ function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
  * The supplied parameter is not validated, apart from ignoring a falsy value.
  * @since 2.99
  *
- * @param mixed $datetime normally a string reported by a query on a database datetime field
- * @param bool  $is_utc Optional flag whether $datetime is for the UTC timezone. Default false.
+ * @param mixed $datevar normally a string reported by a query on a database datetime field
+ * @param bool  $is_utc Optional flag whether $datevar is for the UTC timezone. Default false.
  * @return int Default 1 (not false)
  */
-function cms_to_stamp($datetime, bool $is_utc = false) : int
+function cms_to_stamp($datevar, bool $is_utc = false) : int
 {
 	static $dt = null;
 	static $offs = null;
 
-	if ($datetime) {
+	if ($datevar) {
 		if ($dt === null) {
 			$dt = new DateTime('@0', null);
 		}
@@ -1028,7 +1032,7 @@ function cms_to_stamp($datetime, bool $is_utc = false) : int
 			}
 		}
 		try {
-			$dt->modify($datetime);
+			$dt->modify($datevar);
 			if (!$is_utc) {
 				return $dt->getTimestamp() - $offs;
 			}
@@ -1038,6 +1042,19 @@ function cms_to_stamp($datetime, bool $is_utc = false) : int
 		}
 	}
 	return 1; // anything not falsy
+}
+
+/**
+ * Gets a formatted date/time. Replacement for deprecated strftime().
+ * @since 2.99
+ *
+ * @param string $format strftime()- and/or date()-compatible format definition
+ * @param mixed $datevar optional timestamp | DateTime object | datetime string parsable by strtotime() | empty
+ * @return string
+ */
+function locale_ftime(string $format, $datevar = null) : string
+{
+	return Utils::dt_format($datevar, $format);
 }
 
 /**
@@ -1285,24 +1302,6 @@ function cms_get_script(string $filename, bool $as_url = true, $custompaths = ''
 }
 
 /**
- * Sends 'Content-Type' header.
- * Intended mainly for admin pages, but not restricted to such.
- * @since 2.99 (migrated from include.php)
- *
- * @param string $media_type optional page-content MIME-type. Default 'text/html'.
- *  Use 'application/xml' to enable XML’s strict parsing rules, <![CDATA[…]]> sections,
- *  or elements that aren't from the HTML|SVG|MathML namespaces.
- * @param string $charset optional default ''. Hence system default value.
- */
-function cms_admin_sendheaders($media_type = 'text/html', $charset = '')
-{
-	if (!$charset) {
-		$charset = NlsOperations::get_encoding();
-	}
-	header("Content-Type: $media_type; charset=$charset");
-}
-
-/**
  * Gets the filepath or URL of a wanted css file, if found in any of the
  * standard locations for such files (or any other provided location).
  * Intended mainly for non-jQuery styles, but it will try to find those those too.
@@ -1439,7 +1438,7 @@ function create_file_dropdown(
 	if ($sortresults) {
 		natcasesort($files);
 	}
-/*	$out = "<select name=\"{$name}\" id=\"{$name}\" {$extratext}>\n";
+/*  $out = "<select name=\"{$name}\" id=\"{$name}\" {$extratext}>\n";
 	if ($allownone) {
 		$txt = '';
 		if (empty($value)) {
@@ -1909,6 +1908,124 @@ static $defenc = '';
 // custom bitflag to trigger execSpecialize() during CMSMS\entitize() and CMSMS\specialize()
 define('ENT_EXEC', 2 << 15); //something compatible with PHP's ENT_* enum values
 
+/**
+ * @var array Accumulator for admin-page headers
+ * Each member like [$name, $value]
+ * Any members may have the same name
+ */
+$HEADERS = [];
+
+/**
+ * Cache a header to be sent before the current page content
+ * @internal
+ * @since 2.99
+ *
+ * @global array $HEADERS
+ * @param mixed $name string | strings[]
+ * @param mixed $value string | strings[]
+ * @param bool $replace whether to replace existing header(s) Default false
+ * @param bool $after whether to append provided data Default true
+ */
+function add_page_header($name, $value, bool $replace = false, bool $after = true)
+{
+	global $HEADERS;
+
+	if (!is_array($name)) {
+		$name = [$name];
+		$value = [$value];
+	}
+	if (!$replace && !$after && count($name) > 1) {
+		$name = array_reverse($name);
+		$value = array_reverse($value);
+	}
+	foreach ($name as $i => $key) {
+		if ($replace) {
+			foreach ($HEADERS as $j => $one) {
+				if ($one[0] == $key) {
+					$HEADERS[$j][1] = $value[$i];
+				}
+			}
+		} elseif ($after) {
+		   $HEADERS[] = [$key, $value[$i]];
+		} else {
+			array_unshift($HEADERS, [$key, $value[$i]]);
+		}
+	}
+	//TODO remove duplicates
+}
+
+/**
+ * Uncache a header from those to be sent before the current page content
+ * @internal
+ * @since 2.99
+ *
+ * @global array $HEADERS
+ * @param mixed $name string | strings[]
+ * @param mixed $value string | strings[] | null (hence any value(s))
+ */
+function remove_page_header($name, $value = null)
+{
+	global $HEADERS;
+
+	if (!is_array($name)) {
+		$name = [$name];
+		if ($value !== null) $value = [$value];
+	}
+	foreach ($name as $i => $key) {
+		foreach ($HEADERS as $j => $one) {
+			if ($one[0] == $key) {
+				if ($value === null || $value[$i] == $one[1]) {
+					$HEADERS[$j] = null;
+				}
+			}
+		}
+	}
+	$HEADERS = array_filter($HEADERS);
+}
+
+/**
+ * Get data for headers to be sent before the current page content
+ * @internal
+ * @since 2.99
+ * @see also sendheaders()
+ *
+ * @global array $HEADERS
+ * @return array each member like "name: value". Includes a dummy 'Content-Type' header
+ */
+function get_page_headers() : array
+{
+	global $HEADERS;
+	$ret = ["Content-Type: TBA; charset=TBA"];
+	foreach ($HEADERS as $one) {
+		$ret[] = "{$one[0]}: {$one[1]}";
+	}
+	return $ret;
+}
+
+/**
+ * Sends a 'Content-Type' header, and then any others which have been recorded.
+ * Intended mainly for admin pages, but not restricted to such.
+ * @since 2.99 (migrated from include.php)
+ * @see also add_page_header()
+ *
+ * @global array $HEADERS
+ * @param string $media_type optional page-content MIME-type. Default 'text/html'.
+ *  Use 'application/xml' to enable XML’s strict parsing rules, <![CDATA[…]]> sections,
+ *  or elements that aren't from the HTML|SVG|MathML namespaces.
+ * @param string $charset optional default ''. Hence system default value.
+ */
+function sendheaders($media_type = 'text/html', $charset = '')
+{
+	global $HEADERS;
+
+	if (!$charset) {
+		$charset = NlsOperations::get_encoding();
+	}
+	header("Content-Type: $media_type; charset=$charset");
+	foreach ($HEADERS as $one) {
+		header("{$one[0]}: {$one[1]}");
+	}
+}
 
 /**
  * @ignore

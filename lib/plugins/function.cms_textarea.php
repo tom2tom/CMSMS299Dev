@@ -35,16 +35,22 @@ function smarty_function_cms_textarea($params, $template)
 	return $out;
 }
 
+function smarty_cms_about_function_cms_textarea()
+{
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004',
+	'<li>May 2019 Adapted to work with CMSMS 2.99 FormUtils::create_textarea()</li>'
+	);
+}
+
 function smarty_cms_help_function_cms_textarea()
 {
-	echo <<<'EOS'
-<h3>What does it do?</h3>
+	echo '<h3>What does it do?</h3>
 Generates html for a textarea element.
 <h4>Parameters:</h4>
 As for <code>FormUtils::create_textarea()</code><br />
 <ul>
 <li>name: element name (mandatory, but only relevant for form submission)</li>
-<li>getid: submitted-parameter prefix ('m1_' etc)</li>
+<li>getid: submitted-parameter prefix (\'m1_\' etc)</li>
 <li>prefix: alias for getid</li>
 <li>id: id for the created element id="whatever"</li>
 <li>htmlid: alias for id</li>
@@ -60,18 +66,5 @@ As for <code>FormUtils::create_textarea()</code><br />
 <li>addtext: additional attribute(s) for the element e.g. style="whatever" cms-data-X="whatever" readonly</li>
 </ul>
 <br />
-And/or Smarty generic parameters: nocache, assign etc
-EOS;
-}
-
-function smarty_cms_about_function_cms_textarea()
-{
-	echo <<<'EOS'
-<p>Initial release 2004</p>
-<p>Change History:<br />
-<ul>
-<li>Adapted to work with CMSMS 2.99 FormUtils::create_textarea() May 2019</li>
-</ul>
-</p>
-EOS;
+And/or Smarty generic parameters: nocache, assign etc';
 }

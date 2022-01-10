@@ -288,9 +288,9 @@ EOS;
 			$mod = SingleItem::ModuleOperations()->get_module_instance($auth_module, '', true);
 			if ($mod) {
 				$data = $mod->fetch_login_panel();
-				if (isset($data['infomessage'])) $data['message'] = $data['infomessage'];
-				if (isset($data['warnmessage'])) $data['warning'] = $data['warnmessage'];
-				if (isset($data['errmessage'])) $data['error'] = $data['errmessage'];
+                if (isset($data['infomessage'])) { $data['message'] = $data['infomessage']; unset($data['infomessage']); }
+                if (isset($data['warnmessage'])) { $data['warning'] = $data['warnmessage']; unset($data['warnmessage']); }
+                if (isset($data['errmessage'])) { $data['error'] = $data['errmessage']; unset($data['errmessage']); }
 			} else {
 				exit('System error');
 			}

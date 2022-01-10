@@ -20,4 +20,3 @@
   <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{_ld($_module,'cancel')}</button>
 </div>
 </form>
-

@@ -174,15 +174,12 @@ function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
 
 function smarty_cms_about_modifier_cms_escape()
 {
-	echo _ld('tags', 'about_generic',
-	'Smarty escape-modifier by Monte Ohrt <monte at ohrt dot com><br />supplemented by CMSMS-extensions. 2004',
-	<<<'EOS'
-<li>change default charset to UTF-8</li>
+	echo _ld('tags', 'about_generic', 'Monte Ohrt &lt;monte at ohrt dot com&gt;<br />supplemented by CMSMS-extensions. 2004',
+	'<li>change default charset to UTF-8</li>
 <li>change html processor to CMSMS\specialize</li>
 <li>change htmlall processor to CMSMS\entitize</li>
 <li>support Smarty2 php tags removal</li>
-<li>support textarea-tag escaping, for e.g. a template to be edited using a textarea</li>
-EOS
+<li>support textarea-tag escaping, for e.g. a template to be edited using a textarea</li>'
 	);
 }
 
@@ -191,8 +188,7 @@ function smarty_cms_help_modifier_cms_escape()
 	echo _ld('tags', 'help_generic2',
 	'This plugin converts some or all of the content of a string variable, to tailor it for its context e.g. URL-capable or more secure',
 	'$somevar|cms_escape:\'type\'}<br />{$somevar|cms_escape:\'type\':\'charset\'',
-	<<<'EOS'
-<li>type: one of
+	'<li>type: one of
 <ul>
 <li>decentity: substitute &#N;</li>
 <li>hex: substitute %H</li>
@@ -209,10 +205,9 @@ function smarty_cms_help_modifier_cms_escape()
 <li>urlpathinfo: apply rawurlencode to appropriate chars except for '/'</li>
 </ul>
 </li>
-<li>charset: the variable's encoding (optional, <em>default UTF-8</em>)</li>
-EOS
+<li>charset: the variable\'s encoding (optional, <em>default UTF-8</em>)</li>'
 	);
-	echo 'See also: <a href="https://www.smarty.net/docs/en/language.modifier.escape.tpl">Smarty native escaping</a>';
+	echo 'See also: <a href="https://www.smarty.net/docs/en/language.modifier.escape.tpl" target="_blank">Smarty native escaping</a>';
 }
 
 //} //global namespace

@@ -56,12 +56,6 @@ function smarty_cms_help_function_cms_render_css()
 
 function smarty_cms_about_function_cms_render_css()
 {
-	echo _ld('tags', 'about_generic',
-	<<<EOS
-<p>Author: Robert Campbell</p>
-<p>Version: 1.0</p>
-EOS
-	,
-	lang('none')
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Robert Campbell Dec 2019', "<li>$n</li>");
 }

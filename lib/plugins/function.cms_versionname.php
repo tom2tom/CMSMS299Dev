@@ -38,20 +38,17 @@ function smarty_function_cms_versionname($params, $template)
 	}
 	return $val;
 }
-
+/*
 function smarty_cms_about_function_cms_versionname()
 {
-	echo <<<'EOS'
-<p>Author: Ted Kulp &lt;ted@smsmadesimple.org&gt;</p>
-<p>Version: 1.0</p>
-<p>Change History:<br/>
-None
-</p>
-EOS;
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
+*/
 /*
 D function smarty_cms_help_function_cms_versionname()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'cms_versionname', "<li>none</li>");
+	$n = _la('none');
+	echo _ld('tags', 'help_generic', 'This plugin gets the release-name of the current version of CMSMS', 'cms_versionname', "<li>$n</li>");
 }
 */

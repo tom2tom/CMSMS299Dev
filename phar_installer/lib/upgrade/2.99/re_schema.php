@@ -608,9 +608,10 @@ MODIFY first_name C(64) CHARACTER SET utf8mb4,
 MODIFY last_name C(64) CHARACTER SET utf8mb4,
 MODIFY modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 MODIFY password C(128),
-ADD tailor B(16384),
 MODIFY user_id I UNSIGNED,
 MODIFY username C(80) CHARACTER SET utf8mb4 NOTNULL UNIQUE,
+ADD pwreset I1 UNSIGNED DEFAULT 0 AFTER active,
+ADD tailor B(16384),
 ';
 $tabopts = '
 CHARACTER SET ascii,

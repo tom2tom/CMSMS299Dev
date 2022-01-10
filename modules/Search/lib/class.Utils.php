@@ -59,7 +59,7 @@ class Utils
         }, $phrase);
 
         // split into words
-        $words = preg_split('/[\s,!.;:\?()+-\/\\\\]+/u', $phrase);
+        $words = preg_split('/[\s,!.;:\?()+\-\/\\\\]+/u', $phrase);
 
         // ignore 1-char number and anything else 2 chars or less
         $words = array_filter($words, function($a) {
@@ -146,14 +146,14 @@ class Utils
                 $itemid = (int)$row['id'];
             } else {
                 $itemid = $db->genID(CMS_DB_PREFIX.'module_search_items_seq');
-                $until = ($expires) ? $db->DbTimeStamp($expires,false) : null;
+                $until = ($expires) ? $db->DbTimeStamp($expires, false) : null;
                 $db->execute('INSERT INTO '.CMS_DB_PREFIX.'module_search_items
 (id,
 module_name,
 content_id,
 extra_attr,
 expires)
-VALUES (?,?,?,?,?)',[
+VALUES (?,?,?,?,?)', [
 $itemid,
 $modname,
 $id,
@@ -166,7 +166,7 @@ $until,
             }
 //TODO LOCK CMS_DB_PREFIX.'module_search_index' (no InnoDB >> no transactions
             foreach ($words as $row) {
-                $stmt->Execute([$itemid,$row[0],$row[1]]);
+                $stmt->Execute([$itemid, $row[0], $row[1]]);
             }
 //TODO UNLOCK CMS_DB_PREFIX.'module_search_index'
             $stmt->close();
@@ -195,11 +195,18 @@ $until,
         $db->BeginTrans(); // hence prefer InnoDB tables
         $scrubs = $db->getCol($q, $parms);
         if ($scrubs) {
-            $in = '('.implode(',', $scrubs).')';
-            $db->execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_items WHERE id IN '.$in);
-            //Ruud suggestion: migrate this to async task
-//          $db->execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_index WHERE item_id NOT IN (SELECT id FROM '.CMS_DB_PREFIX.'module_search_items)');
-            $db->execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_index WHERE item_id IN '.$in);
+          /* dB-server max_allowed_packet value will be >= 1 MB, which
+             is sufficient for commands with say 125,000 record-ids in
+             a 9999999-record table
+             but we will limit here to 1000-record batches */
+            $batches = array_chunk($scrubs, 1000, true);
+            foreach ($batches as &$one) {
+                $in = implode(',', $one).')';
+                $db->execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_items WHERE id IN ('.$in);
+                //Ruud suggestion: migrate this to async task
+                $db->execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_index WHERE item_id IN ('.$in);
+            }
+            unset($one);
         }
         $db->CommitTrans();
 
@@ -260,8 +267,8 @@ $until,
             foreach ($idlist as $one) {
                 $content_obj = $contentops->LoadContentFromId($one); //TODO ensure relevant content-object?
                 $parms = ['content' => $content_obj];
-//                self::DoEvent($module,'Core','ContentEditPost',$parms); //WHAAT ? not changed
-//                $cache->delete($one,'tree_pages'); RUBBISH
+//                self::DoEvent($module, 'Core', 'ContentEditPost', $parms); //WHAAT ? not changed
+//                $cache->delete($one, 'tree_pages'); RUBBISH
             }
         }
 

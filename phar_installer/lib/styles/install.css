@@ -173,21 +173,21 @@ p {
 }
 
 .cmsms-ui a {
-	color: #F79838;
+	color: #f79838;
 	text-decoration: none;
 	outline: 0
 }
 
 .cmsms-ui a:hover,
 .cmsms-ui a:active {
-	color: #EC7A06
+	color: #ec7a06
 }
 
 @font-face {
-  font-family: 'cmsms-ui';
-  src: url(../fonts/cmsms-ui.woff2?54387041) format('woff2'),
-    url(../fonts/cmsms-ui.woff?54387041) format('woff'),
-    url(../fonts/cmsms-ui.ttf?54387041) format('truetype');
+  font-family: installer;
+  src: url(../fonts/installer.woff2?41107636) format('woff2'),
+    url(../fonts/installer.woff?41107636) format('woff'),
+    url(../fonts/installer.ttf?41107636) format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -196,17 +196,17 @@ p {
 /*
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
-    font-family: 'cmsms-ui';
-    src: url(../fonts/cmsms-ui.svg?54387041#cmsms-ui) format('svg');
+    font-family: 'installer';
+    src: url(../fonts/installer.svg?41107636#installer) format('svg');
   }
 }
 */
 
  [class^="icon-"]:before, [class*=" icon-"]:before, h4.step-title:after {
-  font-family: 'cmsms-ui';
+  font-family: installer;
   font-style: normal;
   font-weight: normal;
-  speak: none;
+  speak: never;
 
   display: inline-block;
   text-decoration: inherit;
@@ -243,10 +243,31 @@ p {
 .icon-cancel:before { content: '\e603'; } /* '' */
 .icon-info:before { content: '\e604'; } /* '' */
 .icon-refresh:before { content: '\e605'; } /* '' */
-.icon-cog:before { content: '\e607'; } /* '' */
-.icon-asterisk:before { content: '\e608'; } /* '' */
+.icon-cog:before { content: '\e606'; } /* '' */
+.icon-asterisk:before { content: '\e607'; } /* '' */
+.icon-cmsms:before { content: '\e608'; } /* '' */
+.icon-facebook:before { content: '\e609'; } /* '' */
+.icon-twitter:before { content: '\e60a'; } /* '' */
+.icon-youtube:before { content: '\e60b'; } /* '' */
+.icon-linkedin:before { content: '\e60c'; } /* '' */
+.icon-pinterest:before { content: '\e60d'; } /* '' */
+.icon-cmsms-circled:before { content: '\e618'; } /* '' */
+.icon-facebook-circled:before { content: '\e619'; } /* '' */
+.icon-twitter-circled:before { content: '\e61a'; } /* '' */
+.icon-youtube-circled:before { content: '\e61b'; } /* '' */
+.icon-linkedin-circled:before { content: '\e61c'; } /* '' */
+.icon-pinterest-circled:before { content: '\e61d'; } /* '' */
 
 /* --- Colours --- */
+.icon-cmsms-circled:before { color: #ff9e3d }
+.icon-twitter-circled:before { color: #1da1f2 }
+.icon-linkedin-circled:before { color: #0077b5 }
+.icon-pinterest-circled:before { color: #e5021a }
+.icon-youtube-circled:before { color: #ff0000 }
+.icon-facebook-circled:before { color: #3b5998 }
+/*TODO white 'core' for each circled icon
+.social [class^="icon-"]:before, .social [class*=" icon-"]:before { background-color: #fff }
+*/
 
 .cmsms-ui .red {
 	color: #993333
@@ -510,10 +531,10 @@ p {
 .cmsms-ui .installer-form input[type="password"].form-field:focus,
 .cmsms-ui .installer-form textarea.form-field:focus,
 .cmsms-ui .installer-form input[type="email"].form-field:focus {
-	border-color: #FDA66B;
+	border-color: #fda66b;
 	-webkit-appearance: none;
-	-webkit-box-shadow: .3em 0 0 0 #FDA66B inset;
-	box-shadow: .3em 0 0 0 #FDA66B inset
+	-webkit-box-shadow: .3em 0 0 0 #fda66b inset;
+	box-shadow: .3em 0 0 0 #fda66b inset
 }
 
 .cmsms-ui .bigtext {
@@ -558,45 +579,60 @@ p {
 }
 
 .cmsms-ui .action-button.positive {
-	background-color: #5BBD72 !important;
-	color: #FFF
+	background-color: #5bbd72 !important;
+	color: #fff
 }
 
 .cmsms-ui .action-button.negative {
-	background-color: #D95C5C !important;
-	color: #FFF
+	background-color: #d95c5c !important;
+	color: #fff
 }
 
 .cmsms-ui .action-button.blue {
-	background-color: #6ECFF5 !important;
-	color: #FFF
+	background-color: #6ecff5 !important;
+	color: #fff
 }
 
 .cmsms-ui .action-button.orange {
-	background-color: #E96633 !important;
-	color: #FFF
+	background-color: #e96633 !important;
+	color: #fff
+}
+
+/* --- Step 9 help links --- */
+
+.social {
+	display: inline-block;
+	margin: 0 1em;
 }
 /*
 .cmsms-ui .action-button.social {
-	color: #FFF;
+	color: #fff;
 	font-weight: 700;
-	text-transform: uppercase
+	text-transform: uppercase;
 }
 
-.cmsms-ui .action-button.google {
-	background-color: #D34836
+.cmsms-ui .action-button.cmsms{
+	background-color: #ff9e3d;
 }
 
 .cmsms-ui .action-button.facebook {
-	background-color: #3B579D
+	background-color: #3b5998;
 }
 
 .cmsms-ui .action-button.twitter {
-	background-color: #4092CC
+	background-color: #1da1f2;
 }
 
 .cmsms-ui .action-button.linkedin {
-	background-color: #1F88BE
+	background-color: #0077b5;
+}
+
+.cmsms-ui .action-button.youtube {
+	background-color: #ff0000;
+}
+
+.cmsms-ui .action-button.pinterest {
+	background-color: #e5021a;
 }
 */
 .cmsms-ui .action-button:hover,
@@ -606,26 +642,26 @@ p {
 
 .cmsms-ui .action-button.positive:hover,
 .cmsms-ui .action-button.positive:active {
-	background-color: #58CB73 !important;
-	color: #FFF
+	background-color: #58cb73 !important;
+	color: #fff
 }
 
 .cmsms-ui .action-button.negative:hover
 .cmsms-ui .action-button.negative:active {
-	background-color: #D24B4C !important;
-	color: #FFF
+	background-color: #d24b4c !important;
+	color: #fff
 }
 
 .cmsms-ui .action-button.blue:hover,
 .cmsms-ui .action-button.blue:active {
-	background-color: #1AB8F3 !important;
-	color: #FFF
+	background-color: #1ab8f3 !important;
+	color: #fff
 }
 
 .cmsms-ui .action-button.orange:hover,
 .cmsms-ui .action-button.orange:active {
-	background-color: #FF7038;
-	color: #FFF
+	background-color: #ff7038;
+	color: #fff
 }
 
 /* --- Tables --- */

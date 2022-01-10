@@ -14,7 +14,7 @@
  </a>
  {if $depth == 0}
   {if !empty($navitem.children)}
-  <span class="open-nav" title="{_ld('admin','togglemenu', {$navitem.title|strip_tags})}">{$navitem.title}</span>
+  <span class="open-nav" title="{_la('togglemenu', {$navitem.title|strip_tags})}">{$navitem.title}</span>
   {else}
 {*TODO replace onclick handler*}
   <a href="{$navitem.url}"{if isset($navitem.target)} target="_blank"{/if} class="no-nav" title="{if !empty($navitem.description)}{$navitem.description|strip_tags}{else}{$navitem.title|strip_tags}{/if}" {if substr($navitem.url,0,6) == 'logout' && isset($is_sitedown)}onclick="cms_confirm_linkclick(this,'{$prompt}');return false;"{/if}>

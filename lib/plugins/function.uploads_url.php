@@ -29,22 +29,18 @@ function smarty_function_uploads_url($params, $template)
 	}
 	return CMS_UPLOADS_URL;
 }
-
+/*
 function smarty_cms_about_function_uploads_url()
 {
-	$n = lang('none');
-	echo <<<EOS
-<p>Author: Nuno Costa &ltnuno.mfcosta@sapo.pt&gt;</p>
-<p>Change History:</p>
-<ul>
-<li>$n</li>
-</ul>
-EOS;
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Nuno Costa &ltnuno.mfcosta@sapo.pt&gt; 2004',
+	"<li>$n</li>"
+	);
 }
-
+*/
 function smarty_cms_help_function_uploads_url()
 {
-	$n = lang('none');
+	$n = _la('none');
 	echo _ld('tags', 'help_generic',
 	'This plugin retrieves the site-URL representing the topmost/base location of uploaded files',
 	'uploads_url',

@@ -1392,15 +1392,15 @@ final class Connection
      * @param mixed $date string date | integer timestamp | DateTime object
      * @return quoted, date('Y-m-d')-formatted string representing server/local date, or 'NULL'
      */
-    public function dbDate($date)
+    public function dbDate($date, $quoted = true)
     {
         if (empty($date) && !is_numeric($date)) {
-            return 'NULL';
+            return ($quoted) ? 'NULL' : null;
         }
 
         if (is_string($date) && !is_numeric($date)) {
             if (strcasecmp($date, 'NULL') == 0) {
-                return 'NULL';
+                return ($quoted) ? 'NULL' : null;
             }
             $lvl = error_reporting(0);
             $date = strtotime($date);
@@ -1410,9 +1410,10 @@ final class Connection
         }
 
         if ($date > 0) {
-             return $this->qStr(date('Y-m-d', $date));
+            $str = date('Y-m-d', $date);
+            return ($quoted) ? $this->qStr($str) : $this->addQ($str);
         }
-        return 'NULL';
+        return ($quoted) ? 'NULL' : null;
     }
 
     /**

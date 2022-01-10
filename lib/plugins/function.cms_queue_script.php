@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin which accumulates javascript to be included in a page or template
+Plugin which records a javascript file to be accumulated for inclusion in a page or template
 Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -37,25 +37,16 @@ function smarty_function_cms_queue_script($params, $template)
 D function smarty_cms_help_function_cms_queue_script()
 {
 	echo _ld('tags', 'help_generic',
-	'This plugin records a javascript-file for later accumulation into a single script element for a page.
-',
+	'This plugin records a javascript-file for later accumulation into a single link element for a page-head.',
 	'cms_queue_script file=&quot;path/to/whatever.js&quot;',
-	<<<'EOS'
-	<li>file: full filesystem path of a .js file</li>
-	<li>priority: optional integer 0(use default priority) or 1(highest)...3</li>
-EOS
+	'<li>file: full filesystem path of a .js file</li>
+<li>priority: optional integer 0 (use default priority) or 1 (highest)...3</li>'
 	);
 	echo 'See also the complementary {cms_render_scripts} tag.';
 }
 */
 function smarty_cms_about_function_cms_queue_script()
 {
-	echo _ld('tags', 'about_generic',
-	<<<EOS
-<p>Author: Robert Campbell</p>
-<p>Version: 1.0</p>
-EOS
-	,
-	lang('none')
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Robert Campbell Dec 2019', "<li>$n</li>");
 }

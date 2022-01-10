@@ -1,7 +1,7 @@
 <?php
 /*
 File identification class
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -21,11 +21,13 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
+use const CMSSAN_FILE;
+use function fnmatch;
 use function mime_content_type;
 use function startswith;
 
 /**
- * A class to identify file type.
+ * A class to identify and work with file type.
  *
  * @package CMS
  * @license GPL
@@ -271,6 +273,7 @@ class FileTypeHelper
     {
         $p = strrpos($filename, '.');
         if( !$p ) { return ''; } // none or at start
+        if( $filename[$p-1] == '/' || $filename[$p-1] == '\\' ) { return ''; } // only hidden folder name
         $ext = substr($filename, $p + 1);
         if( !$ext ) { return ''; } // at end
         if( function_exists('mb_strtolower') ) {
@@ -595,7 +598,7 @@ class FileTypeHelper
             $parts = $haystack;
         }
         else {
-            //TODO throw new Exception()
+            // TODO throw new Exception()
             return FALSE;
         }
         $t1 = trim($fileext, ' .');
@@ -616,5 +619,49 @@ class FileTypeHelper
             }
         }
         return FALSE;
+    }
+
+    /**
+     * Get a sanitized variant of the supplied $filename.
+     * The sanitized extension, if any, will be lower-cased, scrubbed of
+     * spaces as well as other unwanted filename-chars, and if needed,
+     * somewhat corrected to match an extension among this class's properties
+     * @since 2.99
+     *
+     * @param string $filename File path or just base-name
+     * @param bool $image optional Flag whether to repair only image-types Default false
+     * @return string with cleaned base and lowercase cleaned extension
+     */
+    public function clean_filepath(string $filename, bool $image = FALSE) : string
+    {
+        $ext = $this->get_extension($filename);
+        if( $ext ) {
+            $base = substr($filename, 0, strlen($filename) - strlen($ext));
+            $base = sanitizeVal($base, CMSSAN_FILE);
+            $ext = preg_replace('~[\x00-\x20*?\\/\x7f]~', '', $ext); //not sanitizeVal(... CMSSAN_FILE), which allows spaces
+            if( $image ) {
+                $haystack = $this->_image_extensions;
+            } else {
+                // check all known extensions
+                $haystack = array_merge(
+                $this->_image_extensions,
+                $this->_text_extensions,
+                $this->_archive_extensions,
+                $this->_audio_extensions,
+                $this->_video_extensions,
+                $this->_document_extensions,
+                $this->_xml_extensions);
+            }
+            if( !in_array($ext, $haystack, TRUE) ) {
+                // adjust $ext if it's quite like a recognised extension
+                foreach( $haystack as $match ) {
+                    if( levenshtein($ext, $match, 2, 1, 2) < 3 ) {
+                        return $base.$match;
+                    }
+                }
+            }
+            return $base.$ext;
+        }
+        return $filename;
     }
 } // class

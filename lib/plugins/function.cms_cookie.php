@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to operate on a secure cookie
-Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -74,9 +74,8 @@ function smarty_function_cms_cookie($params, $template)
 /*
 function smarty_cms_about_function_cms_cookie()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', '2021', "<li>$n</li>");
 }
 */
 function smarty_cms_help_function_cms_cookie()
@@ -84,12 +83,10 @@ function smarty_cms_help_function_cms_cookie()
 	echo _ld('tags', 'help_generic',
 	'This plugin performs a specified action on a CMSMS secure-cookie',
 	'cms_cookie action=... name=...',
-	<<<'EOS'
-<li>action: optional action, one of 'set' (default if 'value' is present), 'get' (default if no 'value'), 'erase', 'exists'</li>
+	"<li>action: optional action, one of 'set' (default if 'value' is present), 'get' (default if no 'value'), 'erase', 'exists'</li>
 <li>name: cookie identifier</li>
 <li>value (when setting): cookie value, a non-empty scalar or json-encodable non-scalar</li>
-<li>expires (when setting): optional expiry timestamp, default 0 hence a session-cookie</li>
-EOS
+<li>expires (when setting): optional expiry timestamp, default 0 hence a session-cookie</li>"
 	);
 	echo "For actions other than 'get', returns '' or a html comment reflecting failure";
 }

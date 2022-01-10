@@ -28,7 +28,7 @@ function smarty_function_cms_set_language($params, $template)
 		$lang = trim($params['lang']);
 	}
 	else {
-		$lang = null;
+		$lang = '';
 	}
 //$res =
 	NlsOperations::set_language($lang);
@@ -36,16 +36,15 @@ function smarty_function_cms_set_language($params, $template)
 }
 /*
 function smarty_about_function_cms_set_language() {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', Initial release Ted Kulp 2004', "<li>$n</li>");
 }
 */
 function smarty_help_function_cms_set_language()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'cms_set_language ...', <<<'EOS'
-<li>lang: optional </li>
-EOS
+	echo _ld('tags', 'help_generic',
+	'This plugin sets the current language/translation',
+	'cms_set_language ...',
+	'<li>lang: optional translation name Default empty, hence try to interpret an appropriate language</li>'
 	);
 }

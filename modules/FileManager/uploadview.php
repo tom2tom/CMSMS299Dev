@@ -43,7 +43,7 @@ $post_max_size = Utils::str_to_bytes(ini_get('post_max_size'));
 $upload_max_filesize = Utils::str_to_bytes(ini_get('upload_max_filesize'));
 $max_chunksize = min($upload_max_filesize, $post_max_size - 1024);
 if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) {
-	//some things are not supported on IE browsers
+    //some things are not supported on IE browsers
     $tpl->assign('is_ie', 1);
 }
 $tpl->assign('ie_upload_message', $this->Lang('ie_upload_message'));
@@ -87,10 +87,10 @@ $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
 function barValue(total, str) {
-  $("#progressarea").progressbar({
+  $('#progressarea').progressbar({
     value: parseInt(total)
   });
-  $(".ui-progressbar-value").html(str);
+  $('.ui-progressbar-value').html(str);
 }
 
 $(function() {
@@ -111,8 +111,9 @@ $(function() {
       ul._trigger('fail', e, data);
     }
   });
-  // create our file upload area.
-  $('#fileupload').fileupload({
+  // create our file upload area
+  //TODO disable $.ajax cacheing in uploader
+   $('#fileupload').fileupload({
     add: function(e, data) {
       _files.push(data.files[0].name);
       _jqXHR.push(data.submit());
@@ -124,9 +125,12 @@ $(function() {
       $('#cancel').show();
       $('#progressarea').show();
     },
+//  TODO handler for start of all uploads, to confirm any file/folder replacement
+//  send: function (e, data) {}, TODO handler for start of each upload, to confirm any replacement file
     done: function(e, data) {
       _files = [];
       _jqXHR = [];
+      //TODO force-redisplay without using browser cache
     },
     fail: function(e, data) {
       $.each(_jqXHR, function(index, obj) {
@@ -143,6 +147,7 @@ $(function() {
       });
       _jqXHR = [];
       _files = [];
+      //TODO force-redisplay without using browser cache
     },
     progressall: function(e, data) {
       // overall progress callback
@@ -154,7 +159,8 @@ $(function() {
       barValue(total, str);
     },
     stop: function(e, data) {
-	  $('#filesarea').load('$refresh_url');
+      //TODO force-redisplay without using browser cache
+      $('#filesarea').load('$refresh_url');
       $('#cancel').fadeOut();
       $('#progressarea').fadeOut();
     }

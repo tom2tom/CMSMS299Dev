@@ -297,15 +297,7 @@ class News extends CMSModule
 
     public function GetDateFormat() : string
     {
-        $fmt = $this->GetPreference('date_format');
-        if( $fmt ) {
-            $fmt .= ' '.$this->GetPreference('time_format');
-        }
-        else {
-            $fmt = AppParams::get('date_format', 'Y-m-d');
-            $fmt .= ' H:i';
-        }
-        return $fmt;
+        return $this->GetPreference('date_format', '%e %B %Y %l:%M %p');
     }
 
     /**
@@ -320,7 +312,7 @@ class News extends CMSModule
         if( $datetime ) {
             $fmt = $this->GetDateFormat();
             $t = strtotime($datetime);
-            return date($fmt, $t);
+            return locale_ftime($fmt, $t);
         }
         return ''.$datetime;
     }

@@ -76,6 +76,11 @@ class wizard_step3 extends wizard_step
         $obj->fail_key = 'fail_multibyte_support';
         $tests[] = $obj;
 
+        // recommended test ... IntlDateFormatter class (intl extension)
+        $obj = new boolean_test('intl_extension', extension_loaded('intl') && class_exists('IntlDateFormatter'));
+        $obj->fail_key = 'fail_intl_extension';
+        $tests[] = $obj;
+
         // required test ... xml extension
         $obj = new boolean_test('xml_functions', extension_loaded('xml'));
         $obj->required = 1;
@@ -491,8 +496,10 @@ class wizard_step3 extends wizard_step
         $smarty->assign('tests', $tests)
          ->assign('tests_failed', $tests_failed)
          ->assign('can_continue', $can_continue)
-         ->assign('verbose', $verbose)
-         ->assign('retry_url', $_SERVER['REQUEST_URI']);
+         ->assign('verbose', $verbose);
+        if ($tests_failed) {
+            $smarty->assign('retry_url', $_SERVER['REQUEST_URI']);
+        }
         if ($verbose) {
             $smarty->assign('information', $informational); //assume specialize() not needed
         }

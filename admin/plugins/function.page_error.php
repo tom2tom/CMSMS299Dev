@@ -45,10 +45,8 @@ function smarty_function_page_error($params, $template)
 /*
 function smarty_cms_about_function_page_error()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR _la('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
 */
 function smarty_cms_help_function_page_error()
@@ -56,6 +54,6 @@ function smarty_cms_help_function_page_error()
 	echo _ld('tags', 'help_generic',
 	'This plugin generates content for a styled error-message on an admin page',
 	'page_error msg=...',
-    '<li>msg: the content to be displayed</li>'
+	'<li>msg: the content to be displayed</li>'
 	);
 }

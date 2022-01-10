@@ -74,11 +74,11 @@ class wizard_step2 extends wizard_step
 
             $empty_dir = $this->is_dir_empty($rpwd, $app->get_phar());
             $existing_files = $this->list_files($rpwd);
-            $smarty->assign('install_empty_dir', $empty_dir);
-            $smarty->assign('existing_files', $existing_files);
+            $smarty->assign('install_empty_dir', $empty_dir)
+             ->assign('existing_files', $existing_files)
+             ->assign('retry_url', $_SERVER['REQUEST_URI']); // TODO only if problem occurred
         }
 
-        $smarty->assign('retry_url', $_SERVER['REQUEST_URI']);
         $smarty->display('wizard_step2.tpl');
         $this->finish();
     }

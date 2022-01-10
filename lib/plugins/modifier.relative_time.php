@@ -65,15 +65,13 @@ function smarty_modifier_relative_time($timestamp)
 /*
 function smarty_cms_about_modifier_relative_time()
 {
-    echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-    );
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Robert Campbell 2013', "<li>$n</li>");
 }
 */
 function smarty_cms_help_modifier_relative_time()
 {
-    $n = lang('none');
+    $n = _la('none');
     echo _ld('tags', 'help_generic2',
     'This plugin converts a date-time value to a corresponding low-resolution description relative to the current time',
     '$datevar|relative_time',

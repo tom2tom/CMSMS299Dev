@@ -13,6 +13,7 @@ $lang['error_nofield'] = 'No %s given!';
 $lang['error_nomatch'] = 'Passwords do not match';
 $lang['error_nouser'] = 'User not found';
 $lang['error_passwordinvalid'] = 'The password is not suitable';
+$lang['error_passwordsame'] = 'The password must be changed';
 $lang['error_sendemail'] = 'There was an error sending the email. Please notify the site\'s administrator about this.';
 $lang['goto'] = 'Go to: %s';
 $lang['info_recover'] = 'Enter your admin username. After submitting, an email containing new login information will be sent to the address associated with the entered username.';
@@ -33,8 +34,8 @@ $lang['loginto'] = 'Log in to %s';
 $lang['lostpw'] = 'Forgot your password?';
 $lang['lostpwemail'] = '
 <h3>Hello</h3>
-<p>You have received this email because a request has been made to change the (%s) password associated with a user account (%s).
-To proceed to reset the password, paste the recovery link (below) into the address field of your favorite browser.</p>
+<p>You have received this email because a notice has been submitted to website \'%s\', about a forgotten password for user account \'%s\'.
+To intiate credentials repair, click the link (below) or paste it into the address field of your favorite browser.</p>
 <p>%s</p>
 <p>If you consider this is incorrect, ignore this email.</p>';
 $lang['lostpwemailsubject'] = '[%s] Password Recovery';
@@ -57,6 +58,6 @@ $lang['recoveryemailsent'] = 'An email has been sent to the recorded address. Pl
 $lang['submit'] = 'Submit';
 
 $lang['title_recover'] = 'Recover login credentials for<br />%s';
-$lang['title_replace'] = 'Renew password for<br />%s'; // see also 'renewpwtitle'
+$lang['title_replace'] = 'Renew password for<br />%s'; // see also lang('renewpwtitle')
 
 $lang['username'] = 'Username';

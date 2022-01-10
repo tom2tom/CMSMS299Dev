@@ -33,8 +33,8 @@ function smarty_function_site_mapper($params, $template)
 /*
 function smarty_cms_about_function_site_mapper()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004',
+	'<li>detail</li>' ... OR '<li>'.lang('none').'</li>'
 	);
 }
 */
@@ -44,9 +44,7 @@ D function smarty_cms_help_function_site_mapper()
 	echo _ld('tags', 'help_generic',
 	'This plugin generates a site navigation-menu using the 'Navigator' module and a specified or default template',
 	'site_mapper template=whatever',
-	<<<'EOS'
-<li>template: optional name of Navigator-module template</li>
-EOS
+	'<li>template: optional name of Navigator-module template</li>'
 	);
 }
 */

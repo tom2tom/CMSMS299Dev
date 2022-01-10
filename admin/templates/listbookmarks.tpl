@@ -2,20 +2,20 @@
 <br />
 <div class="pageoptions">
   <a href="{$addurl}{$urlext}">{$iconadd}</a>
-  <a href="{$addurl}{$urlext}" class="pageoptions">{_ld('admin','addbookmark')}</a>
+  <a href="{$addurl}{$urlext}" class="pageoptions">{_la('addbookmark')}</a>
 </div>
 <br />
 {/if}
 {if $pagination}
-<div class="pagewarn">{_ld('admin','show_shortcuts_message')}</div>
+<div class="pagewarn">{_la('show_shortcuts_message')}</div>
 <br />
 <p class="pageshowrows">{$pagination}</p>
 {/if}
 <table class="pagetable">
   <thead>
     <tr>
-      <th class="pagew60">{_ld('admin','name')}</th>
-      <th class="pagew60">{_ld('admin','url')}</th>
+      <th class="pagew60">{_la('name')}</th>
+      <th class="pagew60">{_la('url')}</th>
       {if $access}
       <th class="pageicon">&nbsp;</th>
       <th class="pageicon">&nbsp;</th>
@@ -40,7 +40,7 @@
       </td>
       <td>
 {*TODO replace onclick handler*}
-        <a href="{$deleteurl}{$urlext}&amp;bookmark_id={$one->bookmark_id}" onclick="cms_confirm_linkclick(this,'{cms_html_entity_decode(_ld('admin','deleteconfirm', $one->title))}');return false;">{$icondel}</a>
+        <a href="{$deleteurl}{$urlext}&amp;bookmark_id={$one->bookmark_id}" onclick="cms_confirm_linkclick(this,'{cms_html_entity_decode(_la('deleteconfirm', $one->title))}');return false;">{$icondel}</a>
       </td>
       {/if}
 {/strip}
@@ -52,6 +52,6 @@
 <br />
 <div class="pageoptions">
   <a href="{$addurl}{$urlext}">{$iconadd}</a>
-  <a href="{$addurl}{$urlext}" class="pageoptions">{_ld('admin','addbookmark')}</a>
+  <a href="{$addurl}{$urlext}" class="pageoptions">{_la('addbookmark')}</a>
 </div>
 {/if}

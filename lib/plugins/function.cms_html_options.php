@@ -20,6 +20,8 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\FormUtils;
+
 function smarty_function_cms_html_options($params, $template)
 {
 	if( isset($params['options']) ) {
@@ -44,7 +46,7 @@ function smarty_function_cms_html_options($params, $template)
 			$selected = $params['selected'];
 			if( !is_array($selected) ) $selected = explode(',', $selected);
 		}
-		$out = CMSMS\FormUtils::create_option($params['options'], $selected);
+		$out = FormUtils::create_option($params['options'], $selected);
 	}
 
 	if( !empty($params['assign']) ) {
@@ -56,23 +58,21 @@ function smarty_function_cms_html_options($params, $template)
 /*
 function smarty_cms_about_function_cms_html_options()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Robert Campbell 2013', "<li>$n</li>");
 }
 */
-/*
 function smarty_cms_help_function_cms_html_options()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'cms_html_options ...', <<<'EOS'
-<li>options</li>
-<li>value</li>
-<li>label</li>
-<li>title</li>
-<li>class</li>
-<li>selected</li>
-EOS
+	//TODO missing param descriptors
+	echo _ld('tags', 'help_generic',
+	'This plugin generates a single- or multi-select element',
+	'cms_html_options ...',
+	'<li>options: optional array of parameters to pass to FormUtils::create_option()</li>
+<li>value: </li>
+<li>label: </li>
+<li>title: optional element title-attribute</li>
+<li>class: optional element class(es)-attribute</li>
+<li>selected: optional array or comma-separated string of value(s) to be initially selected</li>'
 	);
 }
-*/

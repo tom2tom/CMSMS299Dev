@@ -58,7 +58,7 @@ if ($pclear && isset($_GET['clear'])) {
         $format = trim(UserParams::get_for_user($userid, 'datetime_format'));
         if (!$format) $format = trim(AppParams::get('datetime_format'));
         if (!$format) $format = 'Y-m-d H:i';
-        header('Content-type: text/plain');
+        header('Content-type: text/plain'); // TODO reconcile with sendheaders()
         header('Content-Disposition: attachment; filename="adminlog.txt"');
         do {
             $row = $query->GetObject(); // timestamp severity user_id username item_id subject message ip_addr
@@ -134,7 +134,7 @@ if ($results) {
     if (!$format) $format = trim(AppParams::get('datetime_format'));
     if (!$format) $format = 'Y-m-d H:i';
     foreach ($results as &$one) {
-        $one['when'] = date($format, $one['timestamp']);
+        $one['when'] = locale_ftime($format, $one['timestamp']);
         unset($one['timestamp']);
     }
     unset($one);

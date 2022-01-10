@@ -70,10 +70,10 @@ function writeCache(string $filename, $list, bool $trimbackground, bool $min, \S
 		// Scrub background styles
 		$content = preg_replace(
 		[
-		'/(\w*?background\-image.*?\:\w*?).*?(;.*?)/',
-		'/\w*?(background[\-image]*[\s\w]*\:[\#\s\w]*)url\(.*\)/',
-		'/\w*?(background[\-image]*[\s\w]*\:[\s]*\;)/',
-		'/(\w*?background\-color.*?\:\w*?).*?(;.*?)/',
+		'/(\w*?background-image.*?\:\w*?).*?(;.*?)/',
+		'/\w*?(background(-image)?[\s\w]*\:[\#\s\w]*)url\(.*\)/',
+		'/\w*?(background(-image)?[\s\w]*\:[\s]*\;)/',
+		'/(\w*?background-color.*?\:\w*?).*?(;.*?)/',
 		'/(\w*?background.*?\:\w*?).*?(;.*?)/'
 		],
 		[
@@ -376,30 +376,28 @@ function smarty_function_cms_stylesheet($params, $template)
 
 function smarty_cms_about_function_cms_stylesheet()
 {
-	echo <<<'EOS'
-<p>Author: jeff&lt;jeff@ajprogramming.com&gt;</p>
-<p>Change History:</p>
-<ul>
- <li>Rework from {stylesheet}</li>
- <li>(Stikki and Calguy1000) Code cleanup, added grouping by media type / media query, fixed cache issues</li>
- <li>Added optional 'min' parameter (default true)</li>
-</ul>
-EOS;
+	echo _ld('tags', 'about_generic', 'jeff &lt;jeff@ajprogramming.com&gt;',
+	'<li>Rework from {stylesheet}</li>
+<li>(Stikki and Calguy1000) Code cleanup, added grouping by media type / media query, fixed cache issues</li>
+<li>Added optional \'min\' parameter (default true)</li>'
+	);
 }
 /*
 D function smarty_cms_help_function_cms_stylesheet()
 {
 	//TODO support <li>templatetype</li>  related to a theme
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'cms_stylesheet ...', <<<'EOS'
-<li>name</li>
-<li>styles</li>
-<li>designid</li>
-<li>media</li>
-<li>min</li>
-<li>nocombine</li>
-<li>nolinks</li>
-<li>stripbackground</li>
-EOS
+	// TODO parameter details
+	echo _ld('tags', 'help_generic',
+	'This plugin minimizes and merges contents of stylesheets for frontend pages',
+	'cms_stylesheet ...',
+	'<li>name: </li>
+<li>styles: </li>
+<li>designid: </li>
+<li>media: </li>
+<li>min: </li>
+<li>nocombine: </li>
+<li>nolinks: </li>
+<li>stripbackground: </li>'
 	);
 }
 */

@@ -15,7 +15,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
@@ -42,30 +42,24 @@ function smarty_function_edit_template($params, $template)
 	require_once __DIR__.DIRECTORY_SEPARATOR.'function.syntax_area.php';
 	return smarty_function_syntax_area($params, $template);
 }
-
-function smarty_cms_help_function_edit_template()
-{
-	echo <<<'EOS'
-<h3>What does it do?</h3>
-Generates html and js for a syntax-highlight textarea to edit a template.
-<h4>Parameters:</h4>
-template (identifier)<br />
-<ul>
-<li>not provided: new template</li>
-<li>number < 1: new template</li>
-<li>number > 0: template id</li>
-<li>non-numeric string: template name</li>
-</ul>
-<br />
-Other parameters as for the syntax_area plugin.
-EOS;
-}
-
+/*
 function smarty_cms_about_function_edit_template()
 {
 	$n = _la('none');
-	echo _ld('tags', 'about_generic',
-	'Initial release May 2019',
-	"<li>$n</li>"
+	echo _ld('tags', 'about_generic', 'May 2019', "<li>$n</li>");
+}
+*/
+function smarty_cms_help_function_edit_template()
+{
+	echo _ld('tags', 'help_generic',
+	'This plugin generates html and javascript for a syntax-highlight textarea to edit a template',
+	'<li>template (identifier)
+<ul>
+<li>not provided: New template</li>
+<li>number < 1: New template</li>
+<li>number > 0: Template id</li>
+<li>non-numeric string: Template name</li>
+</ul></li>
+<li>Other parameters as for the syntax_area plugin</li>'
 	);
 }

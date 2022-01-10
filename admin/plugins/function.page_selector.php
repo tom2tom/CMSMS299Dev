@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
@@ -40,26 +40,23 @@ function smarty_function_page_selector($params, $template)
 /*
 function smarty_cms_about_function_page_selector()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR _la('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Robert Campbell 2006', "<li>$n</li>");
 }
 */
 /*
 D function smarty_cms_help_function_page_selector()
 {
+	TODO parameter details
 	echo _ld('tags', 'help_generic',
 	'This plugin generates html & js for a website-page-selector',
-	'page_selector params',
-	<<<'EOS'
-<li>allowall: </li>
+	'page_selector ...',
+	'<li>allowall: </li>
 <li>allowcurrent: </li>
 <li>for_child: </li>
 <li>name: </li>
 <li>selected: </li>
-<li>value: </li>
-EOS
+<li>value: </li>'
 	);
 }
 */

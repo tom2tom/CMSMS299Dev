@@ -57,10 +57,8 @@ final class Cookies implements ICookieManager
         if (!is_array(self::$_parts)) {
             self::$_parts = parse_url(CMS_ROOT_URL);
         }
-        if (!isset(self::$_parts['path']) || self::$_parts['path'] == '') {
-            self::$_parts['path'] = '/';
-        }
-        return self::$_parts['path'];
+        if (!empty(self::$_parts['path'])) return self::$_parts['path'];
+        return '/'; // default to whole domain
     }
 
     /**
@@ -72,10 +70,8 @@ final class Cookies implements ICookieManager
         if (!is_array(self::$_parts)) {
             self::$_parts = parse_url(CMS_ROOT_URL);
         }
-        if (!isset(self::$_parts['host']) || self::$_parts['host'] == '') {
-            self::$_parts['host'] = CMS_ROOT_URL;
-        }
-        return self::$_parts['host'];
+        if (!empty(self::$_parts['host'])) return self::$_parts['host'];
+        return CMS_ROOT_URL; // default to whole domain (including all subdomains)
     }
 
     /**

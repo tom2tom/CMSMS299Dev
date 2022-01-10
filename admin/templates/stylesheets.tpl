@@ -93,7 +93,7 @@
         <option value="import">{_ld('layout','import')}</option>
 *}
       </select>
-     <button type="submit" name="bulk_submit" id="bulk_submit" class="adminsubmit icon check action">{_ld('admin','submit')}</button>
+     <button type="submit" name="bulk_submit" id="bulk_submit" class="adminsubmit icon check action">{_la('submit')}</button>
     </div>
   </div>
   {/if}{* manage *}

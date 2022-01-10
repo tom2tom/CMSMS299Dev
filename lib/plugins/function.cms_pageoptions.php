@@ -81,22 +81,20 @@ function smarty_function_cms_pageoptions($params, $template)
 /*
 function smarty_cms_about_function_cms_pageoptions()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004',
+	'<li>detail</li>' ... OR '<li>'._la('none').'</li>'
 	);
 }
 */
-/*
 function smarty_cms_help_function_cms_pageoptions()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'cms_pageoptions ...', <<<'EOS'
-<li>numpages:</li>
-<li>curpage:</li>
-<li>surround:</li>
-<li>elipsis:</li>
-<li>bare:</li>
-EOS
+	echo _ld('tags', 'help_generic',
+	'This plugin generates the content for a page-selector element',
+	'cms_pageoptions ...',
+	'<li>numpages: Number of wanted pages > 0</li>
+<li>curpage: Page id of the page to be \'focused\'</li>
+<li>surround: Number of wanted pages surrounding the current page 3..20</li>
+<li>elipsis: Indicator of omitted text Default &amp;#8230;</li>
+<li>bare: Whether to return data array or a html string for a selector Default false</li>'
 	);
 }
-*/

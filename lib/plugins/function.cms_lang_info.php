@@ -41,18 +41,15 @@ function smarty_function_cms_lang_info($params, $template)
 /*
 function smarty_cms_about_function_cms_lang_info()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', '2004',"<li>$n</li>");
 }
 */
-/*
 function smarty_cms_help_function_cms_lang_info()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'cms_lang_info ...', <<<'EOS'
-<li>lang: optional language/translation identifier</li>
-EOS
+	echo _ld('tags', 'help_generic',
+	'This plugin retrieves information (if any) about the specified or default language/translation',
+	'cms_lang_info ...',
+	'<li>lang: optional language/translation identifier</li>'
 	);
 }
-*/

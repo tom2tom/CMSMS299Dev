@@ -35,14 +35,14 @@
       {if $num_alerts > 0}
         {if $num_alerts > 10}{$txt='&#2295'}{else}{$txt=$num_alerts}{/if}
          <li class="notifications">
-        <a id="alerts" title="{_ld('admin','notifications_to_handle2',$num_alerts)}">
+        <a id="alerts" title="{_la('notifications_to_handle2',$num_alerts)}">
           <i class="fa fa-bell"></i><span class="bubble">{$txt}</span></a>
         </li>
       {/if}
         {/if}
     <li class="logout">
 {*TODO replace onclick handler*}
-      <a href="logout.php?{$secureparam}" title="{'logout'|lang}" {if isset($is_sitedown)}onclick="return confirm('{'maintenance_warning'|lang|escape:'javascript'}')"{/if}><i class="fa fa-sign-out"></i></a>
+      <a href="logout.php?{$secureparam}" title="{'logout'|lang}"{if isset($is_sitedown)} onclick="return confirm('{"maintenance_warning"|lang|escape:"javascript"}');"{/if}><i class="fa fa-sign-out"></i></a>
     </li>
   </ul>
 </div>
@@ -67,25 +67,25 @@
 
 {if !empty($my_alerts)}
 <!-- alerts go here -->
-<div id="alert-dialog" role="dialog" title="{_ld('admin','alerts')}" style="display: none;">
+<div id="alert-dialog" role="dialog" title="{_la('alerts')}" style="display: none;">
   <ul>
   {foreach $my_alerts as $one}
   <li class="alert-box" data-alert-name="{$one->get_prefname()}">
     <div class="alert-head ui-corner-all {if $one->priority == '_high'}ui-state-error red{elseif $one->priority == '_normal'}ui-state-highlight orange{else}ui-state-highlightblue{/if}">
      {$icon=$one->get_icon()}
      {if $icon}
-     <img class="alert-icon ui-icon" alt="" src="{$icon}" title="{_ld('admin','remove_alert')}"/>
+     <img class="alert-icon ui-icon" alt="" src="{$icon}" title="{_la('remove_alert')}"/>
      {else}
-     <span class="alert-icon ui-icon {if $one->priority != '_low'}ui-icon-alert{else}ui-icon-info{/if}" title="{_ld('admin','remove_alert')}"></span>
+     <span class="alert-icon ui-icon {if $one->priority != '_low'}ui-icon-alert{else}ui-icon-info{/if}" title="{_la('remove_alert')}"></span>
      {/if}
-     <span class="alert-title">{$one->get_title()|default:_ld('admin','alert')}</span>
-     <span class="alert-remove ui-icon ui-icon-close" title="{_ld('admin','remove_alert')}"></span>
+     <span class="alert-title">{$one->get_title()|default:_la('alert')}</span>
+     <span class="alert-remove ui-icon ui-icon-close" title="{_la('remove_alert')}"></span>
      <div class="alert-msg">{$one->get_message()}</div>
   </div>
   </li>
   {/foreach}
   </ul>
-  <div id="alert-noalerts" class="information" style="display: none;">{_ld('admin','info_noalerts')}</div>
+  <div id="alert-noalerts" class="information" style="display: none;">{_la('info_noalerts')}</div>
 </div>
 {/if}
 <!-- alerts-end -->

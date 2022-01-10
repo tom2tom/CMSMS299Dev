@@ -6,7 +6,7 @@
 {*
 {if $entry->start}
   <div id="NewsPostDetailDate">
-    {$entry->start|cms_date_format:'timed'}
+    {$entry->start|localedate_format}
   </div>
 {/if}
 *}

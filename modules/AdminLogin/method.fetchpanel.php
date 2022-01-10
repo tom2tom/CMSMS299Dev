@@ -1,7 +1,7 @@
 <?php
 /*
 AdminLogin module method to generate login-panel content
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -39,12 +39,12 @@ $tpl->assign([
 	'actionid' => '',
 	'loginurl' => 'login.php',
 	'forgoturl' => 'login.php?forgotpw=1',
-	'csrf' => ($csrf ?? null),
-	'changepwhash' => ($changepwhash ?? ''),
+	'csrf' => $csrf,
+	'changepwhash' => $changepwhash ?? '',
 	'iserr' => !empty($errmessage),
 ]);
 if (!empty($tplvars)) { $tpl->assign($tplvars); }
-$data = ['form' => $tpl->fetch()];
+$data = ['form' => $tpl->fetch(),'csrf' => $csrf];
 //some results from the included method also for upstream
 if (!empty($tplvars)) { $data += $tplvars; }
 if (!empty($infomessage)) { $data['infomessage'] = $infomessage; }

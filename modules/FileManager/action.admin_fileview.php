@@ -2,7 +2,7 @@
 /*
 FileManager module action: display list of files
 Copyright (C) 2006-2018 Morten Poulsen <morten@poulsen.org>
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -153,6 +153,7 @@ if (!empty($params['viewfile'])) {
                 }
                 echo $data;
             } elseif (in_array('image', $file->type)) {
+                //TODO $data = $themeObject->DisplayImage(fullpath-to-image,$file->name,'','','',$attrs = []);
                 $data = '<img src="'.$file->url.'" alt="'.$file->name.'" />';
                 echo $data;
             }

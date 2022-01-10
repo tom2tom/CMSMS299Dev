@@ -55,10 +55,8 @@ function smarty_function_tab_header($params, $template)
 /*
 function smarty_cms_about_function_tab_header()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR _la('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
 */
 /*
@@ -67,11 +65,9 @@ D function smarty_cms_help_function_tab_header()
 	echo _ld('tags', 'help_generic',
 	'This plugin generates page content for a tab-header',
 	'tab_header name=... label=... active=true',
-	<<<'EOS'
-<li>name: internal identifier of the tab</li>
+	'<li>name: internal identifier of the tab</li>
 <li>label: public identifier of the tab</li>
-<li>active: optional whether the tab is to be initially displayed</li>
-EOS
+<li>active: optional flag whether the tab is to be initially displayed</li>'
 	);
 }
 */

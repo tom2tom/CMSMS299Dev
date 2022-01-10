@@ -969,4 +969,3 @@ Dual licensed: MIT and GPL
     return p;
   }
 })(jQuery);
-

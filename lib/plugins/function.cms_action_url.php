@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin to...
+Plugin to get an action-URL
 Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -114,25 +114,20 @@ function smarty_function_cms_action_url($params, $template)
 /*
 function smarty_cms_about_function_cms_action_url()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Robert Campbell 2013', "<li>$n</li>");
 }
 */
-/*
 function smarty_cms_help_function_cms_action_url()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'action_url ...',  <<<'EOS'
-<li>param</li>
-<li>module</li>
-<li>action</li>
-<li>returnid</li>
-<li>mid</li>
-<li>jobtype</li>
-<li>forjs</li>
-<li>_*</li>
-EOS
+	echo _ld('tags', 'help_generic', 'This plugin generates nn action-URL',
+	'action_url ...',
+	'<li>module: Name of module where the action exists</li>
+<li>action: Name of action</li>
+<li>returnid: Page ID to return to, or falsy for admin</li>
+<li>mid: Action-parameters prefix Default \'m1_\' or \'cntnt01\'</li>
+<li>jobtype: CMS_JOB_KEY 0..2 to include in the URL</li>
+<li>forjs: Whether to format the URL suited to javascript</li>
+<li>_*: other URL parameter keys and values</li>'
 	);
 }
-*/

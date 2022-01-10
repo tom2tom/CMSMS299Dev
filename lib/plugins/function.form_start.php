@@ -140,7 +140,7 @@ function smarty_function_form_start($params, $template)
 	if( $mactparms['module'] && $mactparms['action'] ) {
 		$mact = $mactparms['module'].','.$mactparms['mid'].','.$mactparms['action'].','.(int)$mactparms['inline'];
 		$out .= '<input type="hidden" name="mact" value="'.$mact.'" />';
-		if( $mactparms['returnid'] != '' ) {
+		if( $mactparms['returnid'] ) {
 			$out .= '<input type="hidden" name="'.$mactparms['mid'].'returnid" value="'.$mactparms['returnid'].'" />';
 		}
 	}
@@ -166,18 +166,21 @@ function smarty_function_form_start($params, $template)
 /*
 function smarty_cms_about_function_form_start()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-	);
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004','<li>'._la('none').'</li>');
 }
 */
 /*
 function smarty_cms_help_function_form_start()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'form_start ...', <<<'EOS'
-<li>param</li>
-EOS
+	TODO parameter details
+	echo _ld('tags', 'help_generic',
+	'This plugin generates html for the elements comprising a CMSMS form start',
+	'form_start ...',
+	'<li>module: Name of module which includes the action to process the submitted form</li>
+<li>mid: Action-parameter-names prefix Default \'m1_\'</li>
+<li>returnid: </li>
+<li>inline: </li>
+<li>[others]: Action parameter names and values</li>
 	);
 }
 */

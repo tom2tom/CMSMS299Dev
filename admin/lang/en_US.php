@@ -128,7 +128,7 @@ $lang = [
 'clearadminlog' => 'Clear Admin Log',
 'clearcache_taskname' => 'Clear Cached Files',
 'clearcache' => 'Clear Cache',
-'clearusersettings' => 'Reset',
+'clearusersettings' => 'Reset Settings',
 'close' => 'Close',
 'cms_forums' => 'CMSMS Forums',
 'cms_home' => 'CMSMS Home',
@@ -589,10 +589,11 @@ $lang = [
 'lostpw' => 'Forgot your password?',
 'lostpwemail' => '
 <h3>Hello</h3>
-<p>You have received this e-mail because a request has been made to change the (%s) password associated with a website user account (%s).  If you would like to reset the password for this account, paste the recovery link (below) into the URL field of your web browser.</p>
-<p>%s</p>
-<p>If you consider this is incorrect or made in error, simply ignore this email and nothing will change.</p>',
-'lostpwemailsubject' => '[%s] Password Recovery',
+<p>You have received this message because a request has been made to recover the password for website \'%s\' user account \'%s\'.</p>
+<p>If you consider this is incorrect or sent to you in error, simply ignore this email.</p>
+<p>Password recovery is not possible as such, instead a replacement password must be recorded. To initiate that, click the link (below) or paste it into the URL field of your web browser.</p>
+<p>%s</p>',
+'lostpwemailsubject' => '%s Password Recovery',
 
 // M
 //N/A PHP7+'magic_quotes_gpc_on' => 'Single-quote, double quote and backslash are escaped automatically. You can experience problems when saving templates',
@@ -675,6 +676,7 @@ $lang = [
 'msg_usersedited' => '%d users were modified',
 'msg_usersettingscleared' => 'User settings cleared',
 'msg_usersettingscopied' => 'User settings copied from template user account',
+'msg_usersrepass' => '%d user-passwords were flagged for replacement',
 'myaccount' => 'Account',
 'myaccountdescription' => 'Update the details of your own admin account',
 'mybookmarks' => 'Bookmarks',
@@ -723,6 +725,7 @@ $lang = [
 'off' => 'Off',
 'ok' => 'Ok',
 'on' => 'On',
+'onetimepassword' => 'Onetime Password',
 'open_basedir_active' => 'No check because open basedir active',
 'open_basedir' => 'PHP Open Basedir',
 'open' => 'Open',
@@ -843,8 +846,16 @@ $lang = [
 'renewpwtitle' => 'Renew password for<br />%s',
 'reorder' => 'Reorder',
 'reorderpages' => 'Reorder Pages',
+'replacepwemail' => '
+<h3>Hello</h3>
+<p>You have received this message because the password associated with website (%s) user account \'%s\' has been flagged for mandatory replacement.</p>
+<p>If you consider this is sent to you in error, simply ignore this email.</p>
+<p>To initiate replacement, click the link (below) or paste it into the URL field of your web browser.</p>
+<p>%s</p>',
+'replacepwemailsubject' => '%s Password Replacement',
 'reset' => 'Reset',
 'results' => 'Results',
+'retirepass' => 'Force password replacement',
 'revert' => 'Revert all changes',
 'root' => 'Root',
 'routesrebuilt' => 'The logged routes have been rebuilt',

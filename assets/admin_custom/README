@@ -4,4 +4,3 @@ Such data must be in a subfolder conforming to the corresponding admin-folder st
 <thisfolder>/lang/en_US.php
 and/or
 <thisfolder>/lang/ext/whatever.php
-

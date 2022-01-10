@@ -1,7 +1,7 @@
 <?php
 /*
 Class Mailer - a wrapper around an external backend mailer system
-Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple module OutMailer.
 
@@ -116,7 +116,7 @@ class Mailer implements IMailer
 		$mailprefs = [
 			'mailer' => 1,
 			'from' => 1,
-			'fromuser'  => 1,
+			'fromuser' => 1,
 			'charset' => 1,
 			'host' => 1,
 			'port' => 1,
@@ -197,6 +197,7 @@ class Mailer implements IMailer
 	 * @since 6.3
 	 *
 	 * @param string $to one or more destination(s) (comma-separated if multiple)
+	 *  Any or all of them may be like "addr <name>"
 	 * @param string $subject plaintext
 	 * @param string $message plaintext or html
 	 * @param mixed $additional_headers optional array | string (CRLF-separated if multiple)
@@ -204,7 +205,7 @@ class Mailer implements IMailer
 	 * @return bool indicating message was accepted for delivery
 	 */
 	public function send_simple(string $to, string $subject, string $message,
-	    $additional_headers = [], string $additional_params = '') : bool
+		$additional_headers = [], string $additional_params = '') : bool
 	{
 		$this->reset();
 		if (strpos($to, ',') !== false) {
@@ -222,6 +223,8 @@ class Mailer implements IMailer
 			$flag = ($message != strip_tags($message));
 		}
 		$this->IsHTML($flag);
+        $this->SetBody($message);
+        $this->SetAltBody($message);
 		//TODO somewhere enforce CRLF linebreaks in the body, and line-length <= 70 chars, if using sendmail at least
 		if ($additional_headers) {
 			if (is_array($additional_headers)) {
@@ -250,7 +253,7 @@ class Mailer implements IMailer
 			}
 		}
 		$this->Send();
-		$ret = $this->IsError();
+		$ret = !$this->IsError();
 		$this->reset();
 		return $ret;
 	}
@@ -337,12 +340,15 @@ class Mailer implements IMailer
 
 	/**
 	 * Add a "To" address.
-	 * @param string $email The email address
-	 * @param string $name  The sender's name
+	 * @param string $email The email address, which may be like "addr <name>"
+	 * @param string $name Optional distinct recipient's name Default empty
 	 * @return bool true on success, false if address already used
 	 */
 	public function AddAddress($email, $name = '') //: bool
 	{
+		if (!$name) {
+			list($email, $name) = $this->ParseAddress($email);
+		}
 		$this->message->addRecipient($email, $name);
 		return true;
 	}
@@ -367,12 +373,15 @@ class Mailer implements IMailer
 
 	/**
 	 * Add a "CC" address.
-	 * @param string $email The email address
-	 * @param string $name  The recipient's name
+	 * @param string $email The email address, which may be like "addr <name>"
+	 * @param string $name Optional distinct recipient's name Default empty
 	 * @return bool true on success, false if address already used
 	 */
 	public function AddCC($email, $name = '') //: bool
 	{
+		if (!$name) {
+			list($email, $name) = $this->ParseAddress($email);
+		}
 		$this->message->addRecipient($email, $name, Message::RECIPIENT_CC);
 		return true;
 	}
@@ -397,12 +406,15 @@ class Mailer implements IMailer
 
 	/**
 	 * Add a "BCC" address.
-	 * @param string $email The email address
-	 * @param string $name  The real name
+	 * @param string $email The email address, which may be like "addr <name>"
+	 * @param string $name Optional distinct recipient's name Default empty
 	 * @return bool true on success, false if address already used
 	 */
 	public function AddBCC($email, $name = '') //: bool
 	{
+		if (!$name) {
+			list($email, $name) = $this->ParseAddress($email);
+		}
 		$this->message->addRecipient($email, $name, Message::RECIPIENT_BCC);
 		return true;
 	}
@@ -427,7 +439,7 @@ class Mailer implements IMailer
 
 	/**
 	 * Set the (initial) "Reply-to" address.
-	 * @param string $email
+	 * @param string $email, which may be like "addr <name>
 	 */
 	public function SetReplyTo($email)
 	{
@@ -435,7 +447,7 @@ class Mailer implements IMailer
 	}
 
 	/**
-	 *
+	 * Remove the/all "Reply-to" address(es).
 	 */
 	public function RemoveReplyTo()
 	{
@@ -616,7 +628,7 @@ class Mailer implements IMailer
 		switch ($this->single) {
 			case 1: // always
 			case 2: // if no copies
-			    if ($this->transport['object'] instanceof SmtpTransport) {
+				if ($this->transport['object'] instanceof SmtpTransport) {
 					// TODO keep smtp connection alive
 				}
 				$allto = $this->GetAddresses();
@@ -672,9 +684,9 @@ class Mailer implements IMailer
 						}
 						$this->RemoveAddress($addr);
 					}
- 					$this->SetBody($body); // reinstate
+					$this->SetBody($body); // reinstate
 				}
-			    if ($this->transport['object'] instanceof SmtpTransport) {
+				if ($this->transport['object'] instanceof SmtpTransport) {
 					// TODO quit smtp connection if still open
 				}
 //				$this->errmsg = 'Not yet supported';
@@ -743,8 +755,8 @@ TEXT;
 		//OR
 		$path = '/home/tyler/docs/projects/mayhem/rules.txt';
 		$message->attachFromFile(
-			'project-mayhem.txt',  // attachment name
-			 $path                 // path to attached file
+			'project-mayhem.txt', // attachment name
+			 $path                // path to attached file
 		);
 */
 	protected function AdjustBody($mode)
@@ -763,6 +775,25 @@ TEXT;
 		$sep = ($this->ishtml) ? '<br/>' : "\r\n"; // TODO generalise e.g. $this->transport->$eol
 		$body = $this->GetBody();
 		$this->SetBody($pref . $sep . $sep . $body);
+	}
+
+	/**
+	 * Parse supplied $email in case it's like "addr <name>"
+	 * But "<name> addr" is not supported
+	 * @param string $email
+	 * @return 2-member array [0] = email, [1] = name or ''
+	 */
+	protected function ParseAddress(string $email) //: array
+	{
+		$s = trim($email);
+		if (($p = strpos($s, '<')) !== false) {
+			if (($q = strpos($s, '>', $p+1)) !== false) {
+				$email = trim(substr($s, $p+1, $q-$p-1));
+				$name = rtrim(substr($s, 0, $p));
+				return [$email, $name];
+			}
+		}
+		return [$s, ''];
 	}
 
 	// ============= OLD-CLASS METHODS =============
@@ -800,14 +831,22 @@ TEXT;
 		$this->AddAttach($name, $string, '');
 	}
 
+	//deprecated alias
 	public function AddReplyTo($email, $name = '')
 	{
-		//TODO add comma-separated $email
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'SetReplyTo'));
+		$s = trim($name);
+		if ($s !== '') {
+			$s = trim($email).' <'.$s.'>';
+		}
+		$this->SetReplyTo($s);
 	}
 
+	//deprecated alias
 	public function ClearAddresses()
 	{
-		//TODO alias for ClearAllRecipients() ??
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'ClearAllRecipients'));
+		$this->message->removeRecipients('');
 	}
 
 	public function ClearAllRecipients()

@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to retrieve all inside<header></header> positioned page content
-Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -31,19 +31,16 @@ function smarty_function_header_includes($params, $template)
 
 function smarty_cms_about_function_header_includes()
 {
-	$n = lang('none');
-	echo _ld('tags', 'about_generic',
-	'Initial release May 2021',
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'May 2021', "<li>$n</li>");
+}
+
+function smarty_cms_help_function_header_includes()
+{
+	$n = _la('none');
+	echo _ld('tags', 'help_generic',
+	'This plugin retrieves all page-header positioned page content',
+	'header_includes',
 	"<li>$n</li>"
 	);
 }
-/*
-function smarty_cms_help_function_header_includes()
-{
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'function_header_hint ...', <<<'EOS'
-<li>something</li>
-<li>anything else</li>
-EOS
-	); 
-}
-*/

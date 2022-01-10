@@ -8,7 +8,7 @@
  <thead>
   <tr>
    <th>{_ld('controlsets','set_id')}</th>
-   <th>{_ld('admin','name')}</th>
+   <th>{_la('name')}</th>
    <th>{_ld('controlsets','reltop2')}</th>
    <th>{_ld('controlsets','default')}</th>
    {if $pmod}

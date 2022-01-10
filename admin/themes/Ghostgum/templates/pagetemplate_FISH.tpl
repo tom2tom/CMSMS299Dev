@@ -28,7 +28,7 @@
   <div id="ggp_header">{*h container*}
 
      <div id="site-logo">{*h boxchild *}
-      <a href="{root_url}/index.php" rel="external" target="_blank" title="{_ld('admin','viewsite')}">
+      <a href="{root_url}/index.php" rel="external" target="_blank" title="{_la('viewsite')}">
       {if isset($sitelogo)}
        <img src="{$sitelogo}" alt="{sitename}" />
       {else}
@@ -36,16 +36,16 @@
       {/if}
       </a>
       {if isset($sitelogo)}
-       <span id="site-text">{_ld('admin','adminpaneltitle')}</span>
+       <span id="site-text">{_la('adminpaneltitle')}</span>
       {else}
-       <span id="site-text">- {_ld('admin','adminpaneltitle')}</span>
+       <span id="site-text">- {_la('adminpaneltitle')}</span>
       {/if}
      </div>
 
      <div id="system-logo">{*h boxchild *}
-       <span id="system-text">{_ld('admin','power_by')}</span>
+       <span id="system-text">{_la('power_by')}</span>
        <span id="cms-logo">
-        <a href="http://www.cmsmadesimple.org" rel="external" title="{_ld('admin','cms_home')}"></a>
+        <a href="http://www.cmsmadesimple.org" rel="external" title="{_la('cms_home')}"></a>
        </span>
      </div>
 
@@ -65,7 +65,7 @@
        {strip}{if !empty($pageicon) || !empty($pagetitle)}<h1>
        {if !empty($pageicon)}<span class="headericon">{$pageicon}</span> {/if}{$pagetitle|default:''}
        </h1>{/if}
-      {if !empty($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{_ld('admin','module_help')}</a></span>{/if}
+      {if !empty($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{_la('module_help')}</a></span>{/if}
       {if !empty($pagetitle) && !empty($subtitle)}
        <div class="subheader">
         <h3 class="subtitle">{$subtitle}</h3>

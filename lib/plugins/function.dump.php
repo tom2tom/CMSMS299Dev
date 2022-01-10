@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin to display an object in a friendly fashion
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -57,7 +57,7 @@ function smarty_function_dump($params, $template)
 	$done = false;
 //	$tmpobj =& $baseobj->modules['Album'];
 	$count = 0;
-	while( $done == false ) {
+	while( $done == FALSE ) {
 		$count++;
 		$pos1 = strpos($work,'->');
 		$pos2 = strpos($work,'.');
@@ -118,23 +118,25 @@ function smarty_function_dump($params, $template)
 
 function smarty_cms_about_function_dump()
 {
-	echo <<<'EOS'
-<p>Author: Robert Campbell</p>
-<p>Change History:</p>
-<ul>
- <li>None</li>
-</ul>
-EOS;
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Robert Campbell 2012',"<li>$n</li>");
 }
-/*
+
 function smarty_cms_help_function_dump()
 {
-	echo _ld('tags, 'help_generic', 'This plugin does ...', 'dump', TODO);
-<li>item
-<li>see dump_object()
-<li>dump_array()
+	//TODO parameter descriptions
+	echo _ld('tags', 'help_generic',
+	'This plugin displays an object in a friendly fashion',
+	'dump ...',
+	'<li>item: </li>
+<li>nomethods: </li>
+<li>novars: </li>
+<li>recurse: </li>
+<li>maxlevel: </li>'
+	);
+//	echo 'See dump_object(), dump_array()';
 }
-*/
+
 
 } //namespace
 

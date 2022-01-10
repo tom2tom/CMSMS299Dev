@@ -205,4 +205,3 @@ $(function() {
 </script>
 EOS;
 add_page_foottext($js);
-

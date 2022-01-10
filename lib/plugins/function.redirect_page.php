@@ -27,18 +27,18 @@ function smarty_function_redirect_page($params, $template)
 /*
 function smarty_cms_about_function_redirect_page()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004','
+	<li>detail</li> OR <li>._la('none').</li>
 	);
 }
 */
 /*
 D function smarty_cms_help_function_redirect_page()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'redirect_page ...', <<<'EOS'
-<li>page</li>
-EOS
+	echo _ld('tags', 'help_generic',
+	'This plugin initiates redirection to a specified site-page',
+	'redirect_page ...',
+	'<li>page: Page alias</li>'
 	);
 }
 */

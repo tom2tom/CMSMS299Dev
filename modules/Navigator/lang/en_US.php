@@ -92,4 +92,3 @@ $lang['type_navigation'] = 'Navigation';
 
 //Y
 $lang['youarehere'] = 'You are here';
-

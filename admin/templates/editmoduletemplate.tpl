@@ -5,11 +5,11 @@
   <div class="pageoverflow postgap">
     <div class="pageinput">
     {if $can_manage}
-    <button type="submit" id="submitbtn" name="{$actionid}submit" class="adminsubmit icon check">{_ld('admin','submit')}</button>
-{if !empty($withcancel)}<button type="submit" id="cancelbtn" name="{$actionid}cancel" class="adminsubmit icon cancel" formnovalidate>{_ld('admin','cancel')}</button>{/if}
-{if $tid > 0} <button type="submit" id="applybtn" name="{$actionid}apply" class="adminsubmit icon apply">{_ld('admin','apply')}</button>{/if}
+    <button type="submit" id="submitbtn" name="{$actionid}submit" class="adminsubmit icon check">{_la('submit')}</button>
+{if !empty($withcancel)}<button type="submit" id="cancelbtn" name="{$actionid}cancel" class="adminsubmit icon cancel" formnovalidate>{_la('cancel')}</button>{/if}
+{if $tid > 0} <button type="submit" id="applybtn" name="{$actionid}apply" class="adminsubmit icon apply">{_la('apply')}</button>{/if}
     {else}
-    <button type="submit" id="cancelbtn" name="{$actionid}cancel" class="adminsubmit icon close" formnovalidate>{_ld('admin','close')}</button>
+    <button type="submit" id="cancelbtn" name="{$actionid}cancel" class="adminsubmit icon close" formnovalidate>{_la('close')}</button>
     {/if}
     </div>
   </div>
@@ -71,7 +71,7 @@
   {/if}{* edit_meta *}
 
   <div class="pageoverflow">
-    {$t=_ld('admin','content')}<label class="pagetext" for="edit_area">{$t}:</label>
+    {$t=_la('content')}<label class="pagetext" for="edit_area">{$t}:</label>
     {cms_help 0='layout' key='help_template_contents' title=$t}
     <div class="pageinput">
       <textarea id="edit_area" name="{$actionid}content" data-cms-lang="smarty" rows="10" cols="40" style="width:40em;min-height:2em;"{if !$can_manage} readonly="readonly"{/if}>{$tpl_obj->get_content()}</textarea>
@@ -81,11 +81,11 @@
   <div class="pageoverflow pregap">
     <div class="pageinput">
     {if $can_manage}
-    <button type="submit" id="submitbtn" name="{$actionid}submit" class="adminsubmit icon check">{_ld('admin','submit')}</button>
-{if !empty($withcancel)}<button type="submit" id="cancelbtn" name="{$actionid}cancel" class="adminsubmit icon cancel" formnovalidate>{_ld('admin','cancel')}</button>{/if}
-{if $tid > 0} <button type="submit" id="applybtn" name="{$actionid}apply" class="adminsubmit icon apply">{_ld('admin','apply')}</button>{/if}
+    <button type="submit" id="submitbtn" name="{$actionid}submit" class="adminsubmit icon check">{_la('submit')}</button>
+{if !empty($withcancel)}<button type="submit" id="cancelbtn" name="{$actionid}cancel" class="adminsubmit icon cancel" formnovalidate>{_la('cancel')}</button>{/if}
+{if $tid > 0} <button type="submit" id="applybtn" name="{$actionid}apply" class="adminsubmit icon apply">{_la('apply')}</button>{/if}
     {else}
-    <button type="submit" id="cancelbtn" name="{$actionid}cancel" class="adminsubmit icon close" formnovalidate>{_ld('admin','close')}</button>
+    <button type="submit" id="cancelbtn" name="{$actionid}cancel" class="adminsubmit icon close" formnovalidate>{_la('close')}</button>
     {/if}
     </div>
   </div>

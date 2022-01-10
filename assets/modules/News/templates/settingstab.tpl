@@ -22,14 +22,7 @@
     <label class="pagetext" for="dformat">{$label_date_format}:</label>
     {cms_help 0=$_module key='help_date_format' title=$label_date_format}
     <div class="pageinput">
-      <input type="text" id="dformat" name="{$actionid}date_format" value="{$date_format}" size="20" maxlength="24" />
-    </div>
-  </div>
-  <div class="pageoverflow postgap">
-    <label class="pagetext" for="tformat">{$label_time_format}:</label>
-    {cms_help 0=$_module key='help_time_format' title=$label_time_format}
-    <div class="pageinput">
-      <input type="text" id="tformat" name="{$actionid}time_format" value="{$time_format}" size="12" maxlength="24" />
+      <input type="text" id="dformat" name="{$actionid}date_format" value="{$date_format}" size="30" maxlength="36" />
     </div>
   </div>
   <div class="pageoverflow postgap">
@@ -121,7 +114,7 @@
   </div>
   </fieldset>
   <div class="pregap pageinput">
-    <button type="submit" name="{$actionid}apply" class="adminsubmit icon check">{_ld('admin','apply')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon undo">{_ld('admin','revert')}</button>
+    <button type="submit" name="{$actionid}apply" class="adminsubmit icon check">{_la('apply')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon undo">{_la('revert')}</button>
   </div>
 </form>

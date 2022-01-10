@@ -26,27 +26,19 @@ function smarty_function_breadcrumbs($params, $template)
 {
 	// put mention into the admin log
 	log_error('Plugin is non-functional','{breadcrumbs}');
-
-	return <<<'EOT'
-<span style="font-weight:bold;color:#f00;">
-ERROR:<br />
-The &#123breadcrumbs&#125 plugin is non-functional.<br />
-</span>
-EOT;
+	return '<span style="font-weight:bold;color:#f00;">
+ERROR:<br />The &#123;breadcrumbs&#125; plugin is non-functional.
+</span>';
 }
 /*
 function smarty_cms_about_function_breadcrumbs()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
 */
 
 function smarty_cms_help_function_breadcrumbs()
 {
-	echo <<<'EOT'
-The {breadcrumbs} plugin is non-functional, and will be removed from CMSMS.
-EOT;
+	echo 'The {breadcrumbs} plugin is non-functional, and will be removed from CMSMS.';
 }

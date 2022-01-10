@@ -34,20 +34,14 @@ function smarty_function_gather_content($params, $template)
 	}
 	return $out;
 }
-
+/*
+function smarty_cms_about_function_gather_content()
+{
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', '2018', "<li>$n</li>");
+}
+*/
 function smarty_cms_help_function_gather_content()
 {
 	echo _ld('tags', 'help_function_gather_content');
-}
-
-function smarty_cms_about_function_gather_content()
-{
-	echo <<<'EOS'
-<p>Author: CMSMS Dev Team &lt;foundation@cmsmadesimple.org&gt;</p>
-<p>Version: 1.0</p>
-<p>
-Change History:<br />
-None
-</p>
-EOS;
 }

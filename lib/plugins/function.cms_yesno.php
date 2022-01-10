@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 function smarty_function_cms_yesno($params, $template)
 {
-	$opts = [lang('no'),lang('yes')];
+	$opts = [_la('no'),_la('yes')];
 
 	$out = '';
 	foreach( $opts as $k => $v ) {
@@ -40,18 +40,15 @@ function smarty_function_cms_yesno($params, $template)
 /*
 function smarty_cms_about_function_cms_yesno()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', '2018',"<li>$n</li>");
 }
 */
-/*
 function smarty_cms_help_function_cms_yesno()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'cms_yesno ...', <<<'EOS'
-<li>selected</li>
-EOS
+	echo _ld('tags', 'help_generic',
+	'This plugin generates html representing a 2-item selector element',
+	'cms_yesno ...',
+	'<li>selected: 0 or 1 to initially select \'no\' or \'yes\' option</li>'
 	);
 }
-*/

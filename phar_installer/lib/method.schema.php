@@ -527,6 +527,7 @@ first_name C(64) CHARACTER SET utf8mb4,
 last_name C(64) CHARACTER SET utf8mb4,
 email C(255) CHARACTER SET utf8mb4,
 active I1 UNSIGNED DEFAULT 1,
+pwreset I1 UNSIGNED DEFAULT 0,
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 tailor B(16384)

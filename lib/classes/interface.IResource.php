@@ -1,7 +1,7 @@
 <?php
 /*
 An interface to define methods in light modules.
-Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

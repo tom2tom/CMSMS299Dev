@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to re-scope specified Smarty variables according to supplied params.
-Copyright (C) 2009-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2015-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -47,7 +47,12 @@ function smarty_function_share_data($params, $template)
 		$fn = 'assignGlobal';
 		break;
 
-	default: /* parent scope */
+/*	case 'root': TODO N/A
+		$scope = ;
+		$fn = 'assign';
+		break;
+*/
+	default: // parent scope
 		$scope = $template->parent;
 		if( !is_object($scope) ) return;
 		if( $scope !== $template->smarty ) {
@@ -62,7 +67,7 @@ function smarty_function_share_data($params, $template)
 	}
 
 	foreach( $vars as $one ) {
-		$var = $template->getVariable($one, null, false, false);
+		$var = $template->getTemplateVars($one, null, false);
 		if( !($var instanceof Smarty_Undefined_Variable) ) {
 			$scope->$fn($one, $var->value);
 		} else {
@@ -73,19 +78,16 @@ function smarty_function_share_data($params, $template)
 /*
 function smarty_cms_about_function_share_data()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', '2015', "<li>$n</li>");
 }
 */
-/*
 function smarty_cms_help_function_share_data()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'share_data ...', <<<'EOS'
-<li>vars: comma-separated string, or array, of variable names</li>
+	echo _ld('tags', 'help_generic', 'This plugin re-scopes specified Smarty variable(s)',
+	'share_data ...',
+	'<li>vars: comma-separated string, or array, of variable names</li>
 <li>data: alias for vars</li>
-<li>scope: parent (default), global</li>
-EOS
+<li>(optional) scope: parent (default) or  global</li>'
 	);
 }
-*/

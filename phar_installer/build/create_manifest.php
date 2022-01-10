@@ -141,21 +141,21 @@ if ($_configfile && $_configfile != '-') {
             if (strcasecmp($ext, '.DAT') != 0) {
                 $outfile = substr($outfile, 0, $p);
             }
-            if ($_compress) {
-                switch ($pack_type) {
-                    case 'gzip':
-                    $_outfile = $outfile.'.gz';
-                    break;
-                    case 'bzip2':
-                    $_outfile = $outfile.'.bzip2';
-                    break;
-                    case 'zip':
-                    $_outfile = $outfile.'.zip';
-                    break;
-                    default:
-                    $_outfile = $outfile;
-                }
-            } else {
+            switch ($pack_type) {
+                case 'zlib':
+                $_compress = true;
+                $_outfile = $outfile.'.gz';
+                break;
+                case 'bzip2':
+                $_compress = true;
+                $_outfile = $outfile.'.bzip2';
+                break;
+                case 'zip':
+                $_compress = true;
+                $_outfile = $outfile.'.zip';
+                break;
+                default:
+                $_compress = false;
                 $_outfile = $outfile;
             }
         }
@@ -223,6 +223,7 @@ if ($_cli) {
 
             case 'n':
             case 'nocompress':
+                $_outfile = OUTBASE; // TODO robust
                 $_compress = false;
                 break;
 
@@ -599,7 +600,7 @@ if ($_writecfg) {
         if (!$uninstallmodules) {
             unset($parms['uninstallmodules[]']);
         }
-        if ($pack_type == 'zlib') {
+        if ($pack_type == '') { // 'zlib' c.f. original $pack_type
             unset($parms['pack_type']);
         }
         if ($svn_root == SVNROOT || $svn_root == SVNROOT.'/') {
@@ -817,7 +818,6 @@ function write_config_file(array $config_data, string $filename)
         }
         fwrite($fh, "$key = $val\n");
     }
-    fwrite($fh, "\n");
     fclose($fh);
     chmod($filename, 0666); // generic perms pending installation
 }

@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin to retrieve an uploaded thumbnail- or image-object associated with the current page
+Plugin to retrieve xhtml representing an uploaded image or image-thumbnail associated with the current page
 Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
@@ -28,7 +28,7 @@ function smarty_function_page_image($params, $template)
 	$thumbnail = cms_to_bool($params['thumbnail'] ?? false);
 	$tag = cms_to_bool($params['tag'] ?? false);
 	$full = ( $tag ) ? true : cms_to_bool($params['full'] ?? false);
-//	$assign = trim($params['assign'] ?? '');
+	$assign = trim($params['assign'] ?? '');
 	unset($params['full'], $params['thumbnail'], $params['tag'], $params['assign']);
 
 	$val = null;
@@ -61,8 +61,8 @@ function smarty_function_page_image($params, $template)
 		}
 	}
 
-	if( !empty($params['assign']) ) {
-		$template->assign(trim($params['assign']), $out);
+	if( $assign ) {
+		$template->assign($assign, $out);
 		return '';
 	}
 	return $out;
@@ -70,26 +70,20 @@ function smarty_function_page_image($params, $template)
 
 function smarty_cms_about_function_page_image()
 {
-	echo <<<'EOS'
-<p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
-<p>Change History:</p>
-<ul>
-<li>Fix for CMSMS 1.9</li>
-<li>Jan 2016 <em>(Robert Campbell)</em> - Add the full param for CMSMS 2.2</li>
-</ul>
-EOS;
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004',
+	'<li>Fix for CMSMS 1.9</li>
+<li>Jan 2016 Add the \'full\' param (Robert Campbell)</li>'
+	);
 }
 
 function smarty_cms_help_function_page_image()
 {
 	echo _ld('tags', 'help_generic',
-	'This plugin retrieves an uploaded thumbnail- or image-object associated with the current page',
+	'This plugin retrieves xhtml representing an uploaded image or image-thumbnail associated with the current page',
 	'page_image ...',
-	<<<'EOS'
-<li>thumbnail: optional boolean get the thumbnail image</li>
-<li>tag: optional boolean if false, get just the URL</li>
-<li>full: </li>
-<li>others suitable for image-element attributes</li>
-EOS
+	'<li>(optional)thumbnail: Whetherto get the thumbnail. Default false</li>
+<li>(optional)tag: Whether to get just the URL. Default false</li>
+<li>(optional)full: Whether to use an absolute URL. Default false</li>
+<li>others suitable for image-element attributes</li>'
 	);
 }

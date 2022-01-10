@@ -1,15 +1,15 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
  <head>
   <title>{['loginto',{sitename}]|lang}</title>
+  <base href="{$admin_url}/" />
   <meta charset="{$encoding}" />
   <meta name="generator" content="CMS Made Simple" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
   <meta name="HandheldFriendly" content="true" />
   <meta name="msapplication-TileColor" content="#f89938" />
-  <meta name="msapplication-TileImage" content="{$admin_url}/themes/OneEleven/images/favicon/ms-application-icon.png" />
-  <base href="{$admin_url}/" />
+  <meta name="msapplication-TileImage" content="themes/OneEleven/images/favicon/ms-application-icon.png" />
   <link rel="shortcut icon" href="themes/OneEleven/images/favicon/cmsms-favicon.ico" />
   {$header_includes|default:''}
  </head>
@@ -32,38 +32,25 @@
      </aside>
      <a href="javascript:void()" title="{'open'|lang}/{'close'|lang}" class="toggle-info">{'open'|lang}/{'close'|lang}</a>
      </div>
-     <header>
-      <h1>{['login_sitetitle',{sitename}]|lang}</h1>
+     <header>{assign var='lost' value=isset($smarty.get.forgotpw)}
+      <h1>{if $lost}{['forgotpwtitle',{sitename}]|lang}
+      {elseif isset($renewpw)}{['renewpwtitle',{sitename}]|lang}
+      {elseif !empty($sitelogo)}{'login_admin'|lang}
+      {else}{['login_sitetitle',{sitename}]|lang}{/if}</h1>
      </header>
      {if isset($form)}{$form}{else}{include file='form.tpl'}{block name=form}{/block}{/if}
-     {if !empty($smarty.get.forgotpw)}
-      <div class="message warning">
-       {'forgotpwprompt'|lang}
-      </div>
-     {/if}
-     {if !empty($error)}
-      <div class="message error">
-       {$error}
-      </div>
-     {/if}
-     {if !empty($warning)}
-      <div class="message warning">
-       {$warning}
-      </div>
-     {/if}
-     {if !empty($message)}
-      <div class="message success">
-       {$message}
-      </div>
-     {/if}
-     {if !empty($changepwhash)}
-      <div class="warning message">
-       {'passwordchange'|lang}
-      </div>
-     {/if} <a href="{root_url}" title="{['goto',{sitename}]|lang}"><img class="goback" width="16" height="16" src="themes/OneEleven/images/layout/goback.png" alt="{['goto',{sitename}]|lang}" /></a>
-     <p class="forgotpw">
+     {if $lost}<div class="message information">{'forgotpwprompt'|lang}</div>
+     {elseif isset($renewpw)}<div class="message warning">{'renewpwprompt'|lang}
+{*   {elseif !empty($changepwhash)}<div class="message information">{'passwordchange'|lang}</div>*}{/if}
+     {if !empty($error)}<div class="message error">{$error}</div>{/if}
+     {if !empty($warning)}<div class="message warning">{$warning}</div>{/if}
+     {if !empty($message)}<div class="message information">{$message}</div>{/if}
+     <a href="{root_url}" title="{['goto',{sitename}]|lang}"><img class="goback" width="16" height="16" src="themes/OneEleven/images/layout/goback.png" alt="{['goto',{sitename}]|lang}" /></a>
+     {if !($lost || isset($renewpw))}
+     <div class="forgotpw">
       <a href="login.php?forgotpw=1" title="{'recover_start'|lang}">{'lostpw'|lang}</a>
-     </p>
+     </div>
+     {/if}
     </div>
    </div>
   </div>

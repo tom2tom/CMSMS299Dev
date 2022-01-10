@@ -34,15 +34,13 @@ function smarty_function_cms_get_language($params, $template)
 /*
 function smarty_cms_about_function_cms_get_language()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
 */
 function smarty_cms_help_function_cms_get_language()
 {
-	$n = lang('none');
+	$n = _la('none');
 	echo _ld('tags', 'help_generic',
 	'This plugin retrieves the identifier of the current language/translation',
 	'cms_get_language',

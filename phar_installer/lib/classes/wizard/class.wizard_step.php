@@ -162,8 +162,8 @@ class wizard_step
     // Display the (<div/>) element whose id is 'bottom_nav', with $html included
     protected function alldone($html)
     {
-        $html = addslashes($html);
-        echo '<script type="text/javascript">alldone(\''.$html.'\');</script>'.PHP_EOL;
+        $html = json_encode($html);
+        echo '<script type="text/javascript">alldone('.$html.');</script>'.PHP_EOL;
         flush();
     }
 

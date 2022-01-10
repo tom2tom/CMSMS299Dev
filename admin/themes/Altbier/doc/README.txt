@@ -25,4 +25,3 @@ Altbier uses HTML5 and attempts to be 'responsive' to some level, so
 it should work on mobile devices.
 
 Have fun using it!
-

@@ -146,9 +146,9 @@ foreach ([
     'cms_version_name' => $sysname, // public identifier for CMSMS version
     'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
     'current_theme' => '', // frontend theme name
-    'date_format' => 'j F Y',
-    'datetime_format' => 'j F Y g:i a',
-    'defaultdateformat' => '%e %B %Y', // deprecated since 2.99 strftime()-compatible format
+    'date_format' => 'j %B Y', // mixed format
+    'datetime_format' => 'j %B Y g:i %P', // ditto
+    'defaultdateformat' => '%e %B %Y %l:%M %P', // localizable strftime()-compatible format OR %#e ... on Windows ?
     'enablesitedownmessage' => 0, // deprecated since 2.99 use site_downnow
     'frontendlang' => 'en_US',
     'global_umask' => $global_umask,

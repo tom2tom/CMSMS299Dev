@@ -311,123 +311,286 @@ final class Utils
 	}
 
 	/**
-	 * Convert a strftime()-compatible display format to a date()-compatible format
-	 * Deals with (most) date and/or time formats
-	 * @since 2.99
-	 * @deprecated since 2.99 instead use date()-compatible formats
-	 *
-	 * @param string $fmt
-	 * @param bool $withtime Default true UNUSED
-	 * @return string
+	 *@ignore
 	 */
-	public static function convert_dt_format(string $fmt) : string
+	private static function swap($fmt) : string
 	{
-		if (!$fmt) return $fmt;
-
+		if (!$fmt) {
+			return ''.$fmt;
+		}
 		$from = [
-		'%a',
-		'%A',
+		'%a', // \1
+		'%A', // \2
 		'%d',
 		'%e',
+		'%j',
 		'%u',
 		'%w',
-		'%W',
-		'%b',
-		'%h',
-		'%B',
+		'%W', // \10
+		'%b', // \3
+		'%h', // \3
+		'%B', // \4
 		'%m',
 		'%y',
 		'%Y',
 		'%D',
 		'%F',
-		'%x',
+		'%x', // \6
 		'%H',
 		'%k',
 		'%I',
 		'%l',
 		'%M',
-		'%p',
-		'%P',
+		'%p', // \0e
+		'%P', // \0f
 		'%r',
 		'%R',
 		'%S',
 		'%T',
-		'%X',
+		'%X', // \7
 		'%z',
 		'%Z',
-		'%c',
+		'%c', // \8
 		'%s',
 		'%n',
 		'%t',
 		'%%',
-		'%C',
-		'%g',
+		'%C', // \11
+		'%g', // \12
 		'%G',
-		'%U',
+		'%U', // \13
 		'%V',
 		];
 
 		$to = [
-		'D',
-		'l',
+		"\1",
+		"\2",
 		'd',
-		'j',
+		'j', // interim
+		'z',
 		'N',
 		'w',
-		'W',
-		'M',
-		'M',
-		'F',
+		"\x10",
+		"\3",
+		"\3",
+		"\4",
 		'm',
 		'y',
 		'Y',
 		'm/d/y',
 		'Y-m-d',
-		'123', // dummy [15]
+		"\6",
 		'H',
 		'G',
 		'h',
 		'g',
 		'i',
-		'A',
-		'a',
+		"\x0e",
+		"\x0f",
 		'h:i:s A',
 		'H:i',
 		's',
 		'H:i:s',
-		'456', // dummy [27]
+		"\7",
 		'O',
 		'T',
-		'789', // dummy [30]
+		"\x8",
 		'U',
 		"\n",
 		"\t",
-		'&#37;', // '%' chars are valid but confuse Smarty date-munger plugin
-		'', // floor(date('Y') / 100)
-		'', // date('y') per ISO
-		'', // date('Y') per ISO
-		'', // full(Sunday-start)-week number W-weeks=Monday-start
-		'', // 4+-day week-number 01..53
+		'&#37;', // '%' chars are valid but may confuse e.g. Smarty date-munger
+		"\x11",
+		"\x12",
+		'o',
+		"\x13",
+		'W',
 		];
-
-		if (strncasecmp(PHP_OS, 'WIN', 3) !==0) {
-			$localD = nl_langinfo(D_FMT);
-			$localT = nl_langinfo(T_FMT);
-			$localDT = nl_langinfo(D_T_FMT);
-		}
-		else {
+		if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
+	// TODO robustly derive values for Windows OS
+	/* see
+	https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/strftime-wcsftime-strftime-l-wcsftime-l?redirectedfrom=MSDN&view=msvc-170
+	re other uses of '#' modifier
+	*/
 			$to[3] = '#d'; // per php.net: correctly relace %e on Windows
-			// TODO derive $localD etc for Windows OS
-			$localD = 'm/d/Y TODO'; // dummy value pending a proper solution
-			$localT = 'H:i:s TODO';
-			$localDT = 'd M Y H:i TODO';
 		}
-		$to[15] = str_replace($from, $to, $localD); //format date in a locale-specific way
-		$to[27] = str_replace($from, $to, $localT); //format time in a locale-specific way
-		$to[30] = str_replace($from, $to, $localDT); //format date and time in a locale-specific way
 		return str_replace($from, $to, $fmt);
-		//TODO if (!$withtime) {
-		// preg_replace('/[aABgGhHiIsuveOpPTZ]/', '', $fmt);
-		// return trim($fmt, ' :');
+	}
+
+	/**
+	 *@ignore
+	 */
+	private static function custom(int $st, string $mode) : string
+	{
+		if (extension_loaded('Intl')) {
+			$zone = SingleItem::Config()['timezone'];
+			$dt = new \DateTime(null, new \DateTimeZone($zone));
+			$dt->setTimestamp($st);
+			$locale = NlsOperations::get_current_language();
+			switch ($mode) {
+			case "\1": // short day name
+				return datefmt_format_object($dt, 'EEE', $locale);
+			case "\2": // normal day name
+				return datefmt_format_object($dt, 'EEEE', $locale);
+			case "\3": // short month name
+				return datefmt_format_object($dt, 'MMM', $locale);
+			case "\4": // normal month name
+				return datefmt_format_object($dt, 'MMMM', $locale);
+			case "\6": // date only
+				return datefmt_format_object($dt,
+					[IntlDateFormatter::FULL, IntlDateFormatter::NONE], $locale);
+			case "\7": // time only
+				return datefmt_format_object($dt,
+					[IntlDateFormatter::NONE, IntlDateFormatter::MEDIUM], $locale);
+			case "\x8": // date and time
+				return datefmt_format_object($dt,
+					[IntlDateFormatter::FULL, IntlDateFormatter::MEDIUM], $locale);
+			case "\x0e": // am/pm, upper-case
+			case "\x0f": // am/pm, lower-case
+				$s = datefmt_format_object($dt, 'a', $locale);
+				if ($mode == "\x0e") {
+					// force upper-case, any charset
+					if (!preg_match('/[\x80-\xff]/',$s)) { return strtoupper($s); }
+					elseif (function_exists('mb_strtoupper')) { return mb_strtoupper($s); }
+				}
+				else {
+					// force lower-case, any charset
+					if (!preg_match('/[\x80-\xff]/',$s)) { return strtolower($s); }
+					elseif (function_exists('mb_strtolower')) { return mb_strtolower($s); }
+				}
+				return $s;
+			default:
+				return 'Unknown Format';
+			}
+		} elseif (function_exists('nl_langinfo')) { // not Windows OS
+			switch ($mode) {
+			case "\1": // short day name
+				$n = date('w', $st) + 1;
+				$fmt = constant('ABDAY_'.$n);
+				return nl_langinfo($fmt);
+			case "\2": // normal day name
+				$n = date('w', $st) + 1;
+				$fmt = constant('DAY_'.$n);
+				return nl_langinfo($fmt);
+			case "\3": // short month name
+				$n = date('n', $st);
+				$fmt = constant('ABMON_'.$n);
+				return nl_langinfo($fmt);
+			case "\4": // normal month name
+				$n = date('n', $st);
+				$fmt = constant('MON_'.$n);
+				return nl_langinfo($fmt);
+			case "\6": // date without time
+				$fmt = nl_langinfo(D_FMT);
+				$fmt = self::swap($fmt);
+				return date($fmt);
+			case "\7": // time without date
+				$fmt = nl_langinfo(T_FMT);
+				$fmt = self::swap($fmt);
+				return date($fmt);
+			case "\x8": // date and time
+				$fmt = nl_langinfo(D_T_FMT);
+				$fmt = self::swap($fmt);
+				return date($fmt);
+			case "\x0e": // am/pm, upper-case
+			case "\x0f": // am/pm, lower-case
+				$s = date('A', $st);
+				$fmt = ($s == 'AM') ? AM_STR : PM_STR;
+				$s = nl_langinfo($fmt);
+				if ($mode == "\x0e") {
+					// force upper-case, any charset
+					if (!preg_match('/[\x80-\xff]/',$s)) { return strtoupper($s); }
+					elseif (function_exists('mb_strtoupper')) { return mb_strtoupper($s); }
+				} else {
+					// force lower-case, any charset
+					if (!preg_match('/[\x80-\xff]/',$s)) { return strtolower($s); }
+					elseif (function_exists('mb_strtolower')) { return mb_strtolower($s); }
+				}
+				return $s;
+			default:
+				return 'Unknown Format';
+			}
+		} else {
+	// TODO robustly derive values for Windows OS
+			switch ($mode) {
+			case "\1": // short day name
+				return date('D', $st);
+			case "\2": // normal day name
+				return date('l', $st);
+			case "\3": // short month name
+				return date('M', $st);
+			case "\4": // normal month name
+				return date('F', $st);
+			case "\6": // date only
+				return date('j F Y', $st);
+			case "\7": // time only
+				return date('H:i:s', $st);
+			case "\x8": // date and time
+				return date('j F Y h:i a', $st);
+			case "\x0e": // am/pm, upper-case
+				return date('A', $st);
+			case "\x0f": // am/pm, lower-case
+				return date('a', $st);
+			default:
+				return 'Unknown Format';
+			}
+		}
+	}
+
+	/**
+	 * Return a formatted date/time representation
+	 * @since 2.99
+	 *
+	 * @param mixed $datevar timestamp | DateTime object | datetime string parsable by strtotime()
+	 * @param string $format strftime()- and/or date()-compatible format definition
+	 * @param mixed $default_date fallback to use if $datevar is empty. Same types as $datevar
+	 * @return string
+	 */
+	public static function dt_format($datevar, string $format = '%b %e, %Y', $default_date = '') : string
+	{
+		if (empty($datevar) && $default_date) {
+			$datevar = $default_date;
+		}
+		if (empty($datevar)) {
+			$st = time();
+		} elseif (is_numeric($datevar)) {
+			$st = (int)$datevar;
+		} elseif ($datevar instanceof DateTime
+		  || (interface_exists('DateTimeInterface', false) && $datevar instanceof DateTimeInterface)
+		) {
+			$st = $datevar->format('U');
+		} else {
+			$st = strtotime($datevar);
+			if ($st === -1 || $st === false) {
+				$st = time();
+			}
+		}
+
+		$outfmt = self::swap($format);
+		$tmp = date($outfmt, $st);
+		$text = preg_replace_callback_array([
+			'~[\x01-\x08\x0e\x0f]~' => function($m) use($st) {
+				return self::custom($st, $m[0]);
+			},
+			'~\x11~' => function($m) use($st) { // two-digit century
+				return floor(date('Y', $st) / 100);
+			},
+			'~\x12~' => function($m) use($st) { // week of year, per ISO8601
+				return substr(date('o', $st), -2);
+			},
+			'~\x10~' => function($m) use($st) { // week of year, assuming the first Monday is day 0
+				 $n1 = date('Y', $st);
+				 $n2 = date('z', strtotime('first monday of january '.$n1));
+				 $n1 = date('z', $st);
+				 return floor(($n2-$n1) / 7) + 1;
+			 },
+			'~\x13~' => function($m) use($st) { // week of year, assuming the first Sunday is day 0
+				$n1 = date('Y', $st);
+				$n2 = date('z', strtotime('first sunday of january '.$n1));
+				$n1 = date('z', $st);
+				return floor(($n2-$n1) / 7) + 1;
+			}
+		], $tmp);
+
+		return $text;
 	}
 } // class

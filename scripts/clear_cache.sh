@@ -13,4 +13,3 @@ fi
 rm -rf tmp/cache tmp/templates_c && mkdir -p tmp/cache && touch tmp/cache/index.html && mkdir -p tmp/templates_c && touch tmp/cache/index.html
 
 echo "DONE";
-

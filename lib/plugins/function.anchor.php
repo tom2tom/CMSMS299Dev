@@ -56,23 +56,20 @@ function smarty_function_anchor($params, $template)
 /*
 function smarty_cms_about_function_anchor()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
 */
-/*
 function smarty_cms_help_function_anchor()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'anchor ...', <<<'EOS'
-<li>class</li>
-<li>title</li>
-<li>tabindex</li>
-<li>accesskey</li>
-<li>onlyhref</li>
-<li>text</li>
-EOS
+	echo _ld('tags', 'help_generic',
+	'This plugin generates an anchor-element, or an URL-only, for a fragment on the current page',
+	'anchor ...',
+	'<li>(optional)class: name of class(es) to be applied to the element</li>
+<li>(optional)title: title attribute of the element</li>
+<li>(optional)tabindex: tabindex attribute for the element</li>
+<li>(optional)accesskey: access key attribute for the element</li>
+<li>(optional)onlyhref: whether to get only the href Default false</li>
+<li>text: Displayed link text</li>'
 	);
 }
-*/

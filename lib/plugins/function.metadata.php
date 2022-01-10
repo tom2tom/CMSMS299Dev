@@ -71,23 +71,18 @@ function smarty_function_metadata($params, $template)
 	}
 	return $result;
 }
-
+/*
 function smarty_cms_about_function_metadata()
 {
-	echo <<<'EOS'
-<p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
-<p>Change History:</p>
-<ul>
-<li>None</li>
-</ul>
-EOS;
-}
-/*
-function smarty_cms_help_function_metadata()
-{
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'metadata ...', <<<'EOS'
-<li>showbase</li>
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic','Ted Kulp 2004',"<li>$n</li>");
 }
 */
+function smarty_cms_help_function_metadata()
+{
+	echo _ld('tags', 'help_generic',
+	'This plugin retrieves the site metadata property',
+	'metadata ...',
+	'<li>(optional)showbase: whether to include a &lt;base href%gt; item</li>'
+	);
+}

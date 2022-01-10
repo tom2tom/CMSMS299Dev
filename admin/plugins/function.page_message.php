@@ -46,10 +46,8 @@ function smarty_function_page_message($params, $template)
 /*
 function smarty_cms_about_function_page_message()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR _la('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
 */
 function smarty_cms_help_function_page_message()
@@ -57,6 +55,6 @@ function smarty_cms_help_function_page_message()
 	echo _ld('tags', 'help_generic',
 	'This plugin generates content for a styled information-message on an admin page',
 	'page_message msg=...',
-    '<li>msg: the content to be displayed</li>'
+	'<li>msg: the content to be displayed</li>'
 	);
 }

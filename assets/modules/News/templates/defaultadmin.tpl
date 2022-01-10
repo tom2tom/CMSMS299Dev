@@ -1,11 +1,11 @@
 {if $can_set}
 {tab_header name='articles' label=_ld($_module,'articles') active=$tab}
 {tab_header name='groups' label=_ld($_module,'categories') active=$tab}
-{tab_header name='templates' label=_ld('admin','templates') active=$tab}
-{tab_header name='settings' label=_ld('admin','settings') active=$tab}
-{$xcats = !empty($catcount) && $catcount > 1}
+{tab_header name='templates' label=_la('templates') active=$tab}
+{tab_header name='settings' label=_la('settings') active=$tab}
 {tab_start name='articles'}
 {/if}
+{$xcats = !empty($catcount) && $catcount > 1}
 <div class="rowbox expand">
   <div class="pageoptions boxchild">
     {if $can_add}
@@ -40,8 +40,8 @@
       <th{if $itemcount > 1} class="nosort"{/if}>#</th>
       <th{if $itemcount > 1} class="{ldelim}sss:'text'{rdelim}"{/if}>{$titletext}</th>
       <th{if $itemcount > 1} class="{ldelim}sss:'text'{rdelim}"{/if}>{$categorytext}</th>
-      <th{if $itemcount > 1} class="{ldelim}sss:'publishat'{rdelim}"{/if}>{$startdatetext}</th>
-      <th{if $itemcount > 1} class="{ldelim}sss:'publishat'{rdelim}"{/if}>{$enddatetext}</th>
+      <th{if $itemcount > 1} class="{ldelim}sss:'stamp'{rdelim}"{/if}>{$startdatetext}</th>
+      <th{if $itemcount > 1} class="{ldelim}sss:'stamp'{rdelim}"{/if}>{$enddatetext}</th>
       <th class="pageicon{if $itemcount > 1} {ldelim}sss:'icon'{rdelim}{/if}">{$statustext}</th>{*if papp*}
       <th class="pageicon{if $itemcount > 1} nosort{/if}">&nbsp;</th>{*if pmod &|| $pdel*}
       <th class="pageicon{if $itemcount > 1} nosort{/if}"><input type="checkbox" id="selectall" value="1" title="{_ld($_module,'selectall')}" /></th>{*if pANY*}
@@ -53,8 +53,8 @@
       <td>{$entry->id}</td>
       <td>{$entry->title}</td>
       <td>{$entry->category}</td>
-      <td>{$entry->startdate}</td>
-      <td>{if $entry->expired}
+      <td>{if $itemcount > 1}<span style="display:none">{$entry->start}</span>{/if}{$entry->startdate}</td>
+      <td>{if $itemcount > 1}<span style="display:none">{$entry->end}</span>{/if}{if $entry->expired}
         <div class="important">{$entry->enddate}</div>
         {else}
           {$entry->enddate}
@@ -86,18 +86,12 @@
     {cms_help 0=$_module key='help_bulk' title=_ld($_module,'prompt_bulk')}
     <label class="boxchild" for="bulk_action">{_ld($_module,'with_selected')}:</label>&nbsp;
     <select id="bulk_action" name="{$actionid}bulk_action">
-      <option value="setpublished">{_ld($_module,'bulk_setpublished')}</option>
-      <option value="setdraft">{_ld($_module,'bulk_setdraft')}</option>
-      {if $xcats}<option value="setcategory">{_ld($_module,'bulk_setcategory')}</option>{/if}
-      {if isset($submit_massdelete)}
-      <option value="delete">{_ld($_module,'bulk_delete')}</option>
-      {/if}
-    </select>
+      {html_options options=$bulkactions}    </select>
     <div id="category_box" style="display:inline-block;">
       <select id="bulk_category" name="{$actionid}bulk_category">
-        {html_options options=$bulkcategories selected=$curcategory}    </select>
+        {html_options options=$bulkcategories selected=$curcategory}      </select>
     </div>
-    <button type="submit" id="bulk_submit" class="adminsubmit icon do">{_ld('admin','submit')}</button>
+    <button type="submit" id="bulk_submit" class="adminsubmit icon do">{_la('submit')}</button>
   </div>{*boxchild*}
 {/if}{*$itemcount > 0*}
 </div>{*rowbox*}
@@ -111,7 +105,7 @@
     {cms_help 0=$_module key='help_articles_filtercategory' title=$label_filtercategory}
     <div class="pageinput postgap">
       <select id="selcat" name="{$actionid}filter_category">
-        {html_options options=$categorylist selected=$curcategory}     </select>
+        {html_options options=$categorylist selected=$curcategory}      </select>
     </div>
     <label class="pagetext" for="childcats">{$label_filterinclude}:</label>
     {cms_help 0=$_module key='help_articles_filterchildcats' title=$label_filterinclude}

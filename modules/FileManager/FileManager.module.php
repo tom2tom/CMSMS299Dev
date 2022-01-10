@@ -2,7 +2,7 @@
 /*
 FileManager: a module for CMS Made Simple to allow website file placement, viewing etc
 Copyright (C) 2006-2018 Morten Poulsen <morten@poulsen.org>
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -192,6 +192,7 @@ final class FileManager extends CMSModule
         $imagepath=cms_join_path(CMS_ROOT_PATH, $path, 'thumb_'.$file['name']);
         if (file_exists($imagepath)) {
             $imageurl=CMS_ROOT_URL.'/'.$this->Slashes($path).'/thumb_'.$file['name'];
+            //TODO $image=$themeObject->DisplayImage(fullpath-to-image,$file['name'],'','','listicon',$attrs = []);
             $image='<img src="'.$imageurl.'" class="listicon" alt="'.$file['name'].'" title="'.$file['name'].'" />';
             $url = $this->create_action_url($id, 'view', ['file'=>$this->encodefilename($file['name'])]);
             //$result="<a href=\"".$file['url']."\" target=\"_blank\">";

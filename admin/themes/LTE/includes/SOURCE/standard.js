@@ -35,7 +35,7 @@
      */
     var OE = global.OE = {};
 
-    $(document).ready(function() {
+    $(function() {
         OE.helper.init();
         OE.view.init();
     });
@@ -313,7 +313,7 @@
         toggleSubMenu: function(obj, duration) {
             var _this = this;
             obj.find('li.current span').addClass('open-sub');
-            obj.find('> li > span').click(function() {
+            obj.find('> li > span').on('click', function() {
                 var ul = $(this).next();
 
                 var _p = [];
@@ -343,7 +343,7 @@
 
             // pagewarning status hidden?
             var key = $('body').attr('id') + '_notification';
-            $('.pagewarning .close-warning').click(function() {
+            $('.pagewarning .close-warning').on('click', function() {
                 OE.helper.setStorageValue(key, 'hidden', 60);
             });
 
@@ -351,7 +351,7 @@
                 $('.pagewarning').addClass('hidden');
             }
 
-            $('.message:not(.no-slide)').click(function() {
+            $('.message:not(.no-slide)').on('click', function() {
                 $('.message').slideUp();
             });
 
@@ -448,6 +448,7 @@
          * @function updateDisplay()
          */
         updateDisplay: function() {
+/* #oe_menu N/A
             var $menu = $('#oe_menu');
             var $alert_box = $('#admin-alerts');
             //var $header = $('header.header');
@@ -470,6 +471,7 @@
                     }, 1000);
                 }
             }
+*/
         },
 
         /**
@@ -503,7 +505,7 @@
         },
 
         _handleAlert: function(target) {
-    	        var _row = $(target).closest('.alert-box');
+            var _row = $(target).closest('.alert-box');
             var _alert_name = _row.data('alert-name');
             if( ! _alert_name ) return;
             return $.ajax({
@@ -528,21 +530,21 @@
         },
 
         /**
-                * @description Handles popping up the notification area
-                * @private
-                * @function _showAlerts()
-                */
+         * @description Handles popping up the notification area
+         * @private
+         * @function _showAlerts()
+         */
         setupAlerts: function() {
             var _this = this;
-            $('a#alerts').click(function(ev){
+            $('a#alerts').on('click', function(ev){
                 ev.preventDefault();
                 $('#alert-dialog').dialog();
             });
-            $('.alert-msg a').click(function(ev){
+            $('.alert-msg a').on('click', function(ev){
                 ev.preventDefault();
                 OE.view.handleAlert(ev.target);
             });
-            $('.alert-icon,.alert-remove').click(function(ev){
+            $('.alert-icon,.alert-remove').on('click', function(ev){
                 ev.preventDefault();
                 _this._handleAlert(ev.target);
             });

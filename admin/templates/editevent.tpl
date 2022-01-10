@@ -1,28 +1,28 @@
-<h3>{_ld('admin','modifyeventhandlers')}</h3>
+<h3>{_la('modifyeventhandlers')}</h3>
 <fieldset>
-  <legend><strong>{_ld('admin','event')}</strong></legend>
+  <legend><strong>{_la('event')}</strong></legend>
   <div class="pageoverflow">
-    <p class="pagetext">{_ld('admin','name')}:</p>
+    <p class="pagetext">{_la('name')}:</p>
     <p class="pageinput">{$event}</p>
   </div>
   <div class="pageoverflow">
-    <p class="pagetext">{_ld('admin','originator')}:</p>
+    <p class="pagetext">{_la('originator')}:</p>
     <p class="pageinput">{$originname}</p>
   </div>
   <div class="pageoverflow">
-    <p class="pagetext">{_ld('admin','description')}:</p>
+    <p class="pagetext">{_la('description')}:</p>
     <p class="pageinput">{$description}</p>
   </div>
 </fieldset>
 <br />
-<h4>{_ld('admin','eventhandlers')}</h3>
+<h4>{_la('eventhandlers')}</h3>
 {if $handlers}
   <table class="pagetable">
   <thead>
     <tr>
-      <th>{_ld('admin','order')}</th>
-      <th>{_ld('admin','tag')}</th>
-      <th>{_ld('admin','originator')}</th>
+      <th>{_la('order')}</th>
+      <th>{_la('tag')}</th>
+      <th>{_la('originator')}</th>
       <th class="pageicon">&nbsp;</th>
       <th class="pageicon">&nbsp;</th>
       <th class="pageicon">&nbsp;</th>
@@ -47,7 +47,7 @@
       <td>
       {if $one.removable}{if $one.tag_name}{$myname=$one.tag_name}{else}{$myname=$one.module_name}{/if}
 {*TODO replace link onclick handler*}
-      <a href="{$selfurl}{$urlext}&amp;event={$event}&amp;originator={$originator}&amp;action=delete&amp;handler={$one.handler_id}" onclick="cms_confirm_linkclick(this,'{_ld('admin','deleteconfirm', $myname)}');return false;">{$icondel}</a>
+      <a href="{$selfurl}{$urlext}&amp;event={$event}&amp;originator={$originator}&amp;action=delete&amp;handler={$one.handler_id}" onclick="cms_confirm_linkclick(this,'{_la('deleteconfirm', $myname)}');return false;">{$icondel}</a>
       {/if}
       </td>
 {/strip}
@@ -55,12 +55,12 @@
   {/foreach}</tbody>
   </table>
 {else}
-{_ld('admin','none')}<br />
+{_la('none')}<br />
 {/if}
 
 {if $allhandlers}
 <div class="pageinput pregap">
- <p class="pageinfo">{_ld('admin','info_handlers')}</p>
+ <p class="pageinfo">{_la('info_handlers')}</p>
  <form action="{$selfurl}" enctype="multipart/form-data" method="post">
   <div class="hidden">
    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
@@ -73,7 +73,7 @@
   <option value="{$value}">{$key}</option>
   {/foreach}
   </select>
-  <button type="submit" name="add" class="adminsubmit icon add" title="{_ld('admin','addhandler')}">{_ld('admin','add')}</button>
+  <button type="submit" name="add" class="adminsubmit icon add" title="{_la('addhandler')}">{_la('add')}</button>
  </form>
 </div>
 {/if}

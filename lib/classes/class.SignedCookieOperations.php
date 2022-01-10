@@ -1,7 +1,7 @@
 <?php
 /*
 Secure cookie operations class
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -58,11 +58,11 @@ final class SignedCookieOperations implements ICookieManager
     public function __construct($app = null)
     {
         $this->_parts = parse_url(CMS_ROOT_URL);
-        if (!isset($this->_parts['host']) || $this->_parts['host'] == '') {
-            $this->_parts['host'] = CMS_ROOT_URL;
+        if (empty($this->_parts['host'])) {
+            $this->_parts['host'] = CMS_ROOT_URL; // default to whole domain (including all subdomains)
         }
-        if (!isset($this->_parts['path']) || $this->_parts['path'] == '') {
-            $this->_parts['path'] = '/';
+        if (empty($this->_parts['path'])) {
+            $this->_parts['path'] = '/'; // default to entire domain
         }
         if (!$app) {
             $app = SingleItem::App();
@@ -85,7 +85,7 @@ final class SignedCookieOperations implements ICookieManager
         $key = $this->get_key($okey);
         if (!empty($_COOKIE[$key])) {
             list($sig, $val) = explode(':::', $_COOKIE[$key], 2);
-            if (hash('sha3-224', $val.$this->_uuid.$okey) == $sig) {
+            if (hash('sha3-224', $val.$this->_uuid.$okey) == $sig) { // no compare-timing risk
                 return $val;
             }
         }

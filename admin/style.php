@@ -1,6 +1,6 @@
 <?php
 /*
-Style retriever used by some admin-themes
+Styles retriever used by some admin-themes
 Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
@@ -28,6 +28,7 @@ Slow and inefficient, avoid using it if possible.
 use CMSMS\AppState;
 use CMSMS\NlsOperations;
 use CMSMS\SingleItem;
+use function CMSMS\sendheaders;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 AppState::set(AppState::STYLESHEET | AppState::ADMIN_PAGE);
@@ -35,29 +36,26 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 
 $cms_readfile = function($filename)
 {
-  ob_start();
-  echo file_get_contents($filename);
-  $result = ob_get_contents();
-  ob_end_clean();
-  if( !empty($result) ) {
+  $result = file_get_contents($filename);
+  if( $result ) {
     echo $result;
     return TRUE;
   }
   return FALSE;
 };
 
-$theme = SingleItem::Theme()->themeName;
-$style = 'style';
-cms_admin_sendheaders('text/css');
+sendheaders('text/css','utf-8');
 
+$style = 'style';
 $dir = NlsOperations::get_language_direction();
 if( $dir == 'rtl' ) $style .= '-rtl';
 if( isset($_GET['ie']) ) $style .= '_ie';
 $style .= '.css';
 
-$fn = __DIR__.'/themes/'.$theme.'/css/'.$style;
+$theme = SingleItem::Theme()->themeName;
+$fn = cms_join_path(__DIR__,'themes',$theme,'css',$style);
 if( is_file($fn) ) $cms_readfile($fn);
-$fn = __DIR__.'/themes/'.$theme.'/extcss/'.$style;
+$fn = cms_join_path(__DIR__,'themes',$theme,'extcss',$style);
 if( is_file($fn) ) $cms_readfile($fn);
 
 // this is crappily slow and inefficient !!

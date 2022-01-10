@@ -63,10 +63,8 @@ function smarty_function_cms_admin_user($params, $template)
 /*
 function smarty_cms_about_function_cms_admin_user()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR _la('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
 */
 function smarty_cms_help_function_cms_admin_user()
@@ -74,9 +72,7 @@ function smarty_cms_help_function_cms_admin_user()
 	echo _ld('tags', 'help_generic',
 	'This plugin retrieves information about the current user',
 	'cms_admin_user uid=N mode=fullname',
-	<<<'EOS'
-<li>uid: user identifier (integer)</li>
-<li>mode: optional property wanted, one of: username (default), email, firstname, lastname or fullname</li>
-EOS
+	'<li>uid: user identifier (integer)</li>
+<li>mode: optional property wanted, one of: username (default), email, firstname, lastname or fullname</li>'
 	);
 }

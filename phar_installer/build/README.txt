@@ -61,7 +61,7 @@ Building the files manifest
     be the case), the manifest is automatically copied to the right place.
 
 -----------------------------
-Building release packages
+Building the release packages
 -----------------------------
 
 1.  Change dir into the <installer-root>/build directory
@@ -127,4 +127,3 @@ solutions for that:
       <FilesMatch "\.ph(ar|p3?|tml)$">
         SetHandler application/x-httpd-php
       </FilesMatch>
-

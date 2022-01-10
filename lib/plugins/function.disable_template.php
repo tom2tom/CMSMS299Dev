@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin to disable template processing
+Plugin to disable template processing during the rest of the current request
 Copyright (C) 2017-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -30,18 +30,16 @@ function smarty_function_disable_template($params, $template)
 /*
 function smarty_cms_about_function_disable_template()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', '2017', "<li>$n</li>");
 }
 */
 function smarty_cms_help_function_disable_template()
 {
-	$n = lang('none');
+	$n = _la('none');
 	echo _ld('tags', 'help_generic',
-	'This plugin disables Smarty-template processing',
+	'This plugin disables Smarty-template processing during the rest of the current request',
 	'disable_template',
-    "<li>$n</li>"
+	"<li>$n</li>"
 	);
 }

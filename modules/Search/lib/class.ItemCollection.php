@@ -73,4 +73,3 @@ class ItemCollection
         });
     }
 } // class
-

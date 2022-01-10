@@ -38,20 +38,19 @@ function smarty_function_menu_text($params, $template)
 	}
 	return $result;
 }
-
+/*
 function smarty_cms_about_function_menu_text()
 {
-	echo <<<'EOS'
-<p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
-<p>Change History:</p>
-<ul>
-<li>None</li>
-</ul>
-EOS;
-}
-/*
-function smarty_cms_help_function_menu_text()
-{
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'menu_text', "<li>none</li>");
+	$n = _la('none');
+	echo _ld('tags', 'about_generic','Ted Kulp 2004',"<li>$n</li>");
 }
 */
+function smarty_cms_help_function_menu_text()
+{
+	$n = _la('none');
+	echo _ld('tags', 'help_generic',
+	'This plugin retrieves the menu-item label for the current page',
+	'menu_text',
+	"<li>$n</li>"
+	);
+}

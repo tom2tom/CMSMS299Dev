@@ -1,4 +1,5 @@
 <?php
+use FileManager\UploadHandler;
 
 //if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
@@ -7,7 +8,7 @@ $fullpath = cms_join_path(CMS_ROOT_PATH, $params['path']);
 $real = stream_resolve_include_path($fullpath);
 if (!$real) exit;
 
-$UploadHandler = new FilePicker\UploadHandler(['upload_dir'=>$real, 'param_name'=>$id.'files']);
+$UploadHandler = new UploadHandler(['upload_dir'=>$real, 'param_name'=>$id.'files']);
 
 header('Pragma: no-cache');
 header('Cache-Control: private, no-cache');
@@ -18,8 +19,6 @@ header('Access-Control-Allow-Methods: OPTIONS, HEAD, GET, POST, DELETE');
 header('Access-Control-Allow-Headers: X-File-Name, X-File-Type, X-File-Size');
 
 switch ($_SERVER['REQUEST_METHOD']) {
-    case 'OPTIONS':
-        break;
     case 'HEAD':
     case 'GET':
         $UploadHandler->get();
@@ -30,8 +29,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
     case 'DELETE':
         $UploadHandler->delete();
         break;
+    case 'OPTIONS':
+        break;
     default:
-        header('HTTP/1.1 405 Method Not Allowed');
+        $proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0';
+        header($proto.' 405 Method Not Allowed');
 }
 
 exit;

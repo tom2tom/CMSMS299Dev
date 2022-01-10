@@ -12,10 +12,10 @@
 <div class="rowbox">
   <div class="boxchild">
     <div class="pageinput postgap">
-      <button type="submit" name="dosubmit" id="submitbtn" class="adminsubmit icon check" {$disable|strip}>{_ld('admin','submit')}</button>
-      <button type="submit" name="cancel" id="cancelbtn" class="adminsubmit icon cancel" formnovalidate>{_ld('admin','cancel')}</button>
+      <button type="submit" name="dosubmit" id="submitbtn" class="adminsubmit icon check" {$disable|strip}>{_la('submit')}</button>
+      <button type="submit" name="cancel" id="cancelbtn" class="adminsubmit icon cancel" formnovalidate>{_la('cancel')}</button>
       {if $tpl.id > 0}
-      <button type="submit" name="apply" id="applybtn" class="adminsubmit icon apply" {$disable|strip}>{_ld('admin','apply')}</button>
+      <button type="submit" name="apply" id="applybtn" class="adminsubmit icon apply" {$disable|strip}>{_la('apply')}</button>
       {/if}
     </div>
 
@@ -79,10 +79,10 @@
    </div>
  </div>
  <div class="pageinput pregap">
-   <button type="submit" name="dosubmit" id="submitbtn" class="adminsubmit icon check" {$disable|strip}>{_ld('admin','submit')}</button>
-   <button type="submit" name="cancel" id="cancelbtn" class="adminsubmit icon cancel" formnovalidate>{_ld('admin','cancel')}</button>
+   <button type="submit" name="dosubmit" id="submitbtn" class="adminsubmit icon check" {$disable|strip}>{_la('submit')}</button>
+   <button type="submit" name="cancel" id="cancelbtn" class="adminsubmit icon cancel" formnovalidate>{_la('cancel')}</button>
    {if $tpl.id > 0}
-   <button type="submit" name="apply" id="applybtn" class="adminsubmit icon apply" {$disable|strip}>{_ld('admin','apply')}</button>
+   <button type="submit" name="apply" id="applybtn" class="adminsubmit icon apply" {$disable|strip}>{_la('apply')}</button>
    {/if}
  </div>
 

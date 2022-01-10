@@ -50,9 +50,10 @@ catch( Throwable $t ) {
     $handlers = ob_list_handlers();
     for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
-    $msg = $t->GetMessage();
-    header('HTTP/1.0 500 '.$msg);
+    $protocol = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0';
+    header($protocol.' 500 Internal Server Error');
     header('Status: 500 Server Error');
-    echo $msg;
+    header('Content-type: text/plain');
+    echo $t->GetMessage()."\n";
 }
 exit;

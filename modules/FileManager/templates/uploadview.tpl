@@ -24,3 +24,6 @@
   </div>
  </div>
 </form>
+<div id="replacedialog" title="" style="display:none;min-width:15em;">
+{* TODO content for a popup overwrite-confirmation dialog *}
+</div>

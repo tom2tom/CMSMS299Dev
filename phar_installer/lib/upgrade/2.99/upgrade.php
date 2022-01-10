@@ -8,7 +8,6 @@ use CMSMS\Group;
 use CMSMS\Permission;
 use CMSMS\SingleItem;
 use CMSMS\TemplateType;
-use CMSMS\Utils;
 use function cms_installer\endswith;
 use function cms_installer\get_server_permissions;
 use function cms_installer\joinpath;
@@ -550,7 +549,7 @@ foreach ($arr as $name => $val) {
 $arr = [
     'backendwysiwyg',
     'cms_is_uptodate',
-    'nogcbwysiwyg', 
+    'nogcbwysiwyg',
     'pseudocron_granularity',
     'pseudocron_lastrun',
     'useadvancedcss',
@@ -621,16 +620,17 @@ try {
 */
 
 // 11A. Alternative displayed-value formats
-$val = AppParams::get('defaultdateformat'); //deprecated strftime()-compatible format
+$val = AppParams::get('defaultdateformat'); // strftime()-compatible format
 if ($val) {
-    $s = Utils::convert_dt_format($val);
-    $s = preg_replace(['/[aABgGhHiIsuveOpPTZ]/', '/%(?!%)/'], ['', ''], $s);
-    $val = trim($s, ' :');
+    $s = preg_replace('/%[HIklMpPrRSTXzZ]/', '', $val);
+    $val2 = trim($s, ' :');
 } else {
-    $val = 'j F Y';
+    AppParams::set('defaultdateformat', '%e %B %Y %l:%M %P'); // deprecated
+    $val = 'j %B Y h:i a';
+    $val2 = 'j %B Y';
 }
-AppParams::set('date_format', $val); // date()-compatible format
-AppParams::set('datetime_format', $val.' h:i a');
+AppParams::set('datetime_format', $val); // mixed format, for locale_ftime()
+AppParams::set('date_format', $val2); // ditto
 
 // 12. Update user preferences
 
@@ -674,25 +674,25 @@ $db->execute($sql);
 
 // 12.4
 // replicate 'date_format_string' parameter (deprecated strftime()-compatible format)
-//  as 'date_format' and 'datetime_format' parameters in date()-compatible format
+// as 'datetime_format' and 'date_format' parameters in mixed strftime()- and/or date()-compatible format
 $sql = 'SELECT user_id,value FROM '.CMS_DB_PREFIX."userprefs WHERE preference='date_format_string'";
 $data = $db->getArray($sql);
 if ($data) {
-    $sql = 'INSERT INTO '.CMS_DB_PREFIX."userprefs (user_id,preference,`value`) VALUES(?,'date_format',?)";
-    $sql2 = 'INSERT INTO '.CMS_DB_PREFIX."userprefs (user_id,preference,`value`) VALUES(?,'datetime_format',?)";
+    $sql = 'INSERT INTO '.CMS_DB_PREFIX."userprefs (user_id,preference,`value`) VALUES(?,'datetime_format',?)";
+    $sql2 = 'INSERT INTO '.CMS_DB_PREFIX."userprefs (user_id,preference,`value`) VALUES(?,'date_format',?)";
     $sql3 = 'UPDATE '.CMS_DB_PREFIX."userprefs SET `value`=? WHERE user_id=? AND preference='date_format_string'"; // deprecated
     foreach ($data as $row) {
         $val = (string)$row['value'];
         if ($val) {
-            $s = Utils::convert_dt_format($val);
-            $s = preg_replace(['/[aABgGhHiIsuveOpPTZ]/','/%(?!%)/'], ['',''], $s);
-            $val = trim($s, ' :');
+            $s = preg_replace('/%[HIklMpPrRSTXzZ]/', '', $val);
+            $val2 = trim($s, ' :');
         } else {
-            $val = 'j F Y';
+            $val = 'j %B Y h:i %P'; // mixed format, for locale_ftime()
+            $val2 = 'j %B Y';
+            $db->execute($sql3, [$val, $row['user_id']]);
         }
         $db->execute($sql, [$row['user_id'], $val]);
-        $db->execute($sql2, [$row['user_id'], $val.' h:i a']);
-        $db->execute($sql3, [$val, $row['user_id']]);
+        $db->execute($sql2, [$row['user_id'], $val2]);
     }
 }
 

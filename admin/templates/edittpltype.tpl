@@ -28,13 +28,13 @@
     <div class="pageoverflow">
       {$t=_ld('layout','prompt_has_dflt')}<label class="pagetext" for="hasdflt">{$t}:</label>
       {cms_help 0='layout' key=help_has_dflt title=$t}
-      <p id="hasdflt" class="pageinput">{if $type && $type->get_dflt_flag()}{_ld('admin','yes')}{else}{_ld('admin','no')}{/if}</p>
+      <p id="hasdflt" class="pageinput">{if $type && $type->get_dflt_flag()}{_la('yes')}{else}{_la('no')}{/if}</p>
     </div>
 
     <div class="pageoverflow">
       {$t=_ld('layout','prompt_requires_content_blocks')}<label class="pagetext" for="rcb">{$t}:</label>
       {cms_help 0='layout' key='help_type_reqcontentblocks' title=$t}
-      <p id="rcb" class="pageinput">{if $type->get_content_block_flag()}{_ld('admin','yes')}{else}{_ld('admin','no')}{/if}</p>
+      <p id="rcb" class="pageinput">{if $type->get_content_block_flag()}{_la('yes')}{else}{_la('no')}{/if}</p>
     </div>
 
     <div class="pageoverflow">
@@ -81,7 +81,7 @@
 {tab_end}
 {/if}
 <div class="pageinput pregap">
-  <button type="submit" name="dosubmit" class="adminsubmit icon check">{_ld('admin','submit')}</button>
-  <button type="submit" name="cancel" class="adminsubmit icon cancel">{_ld('admin','cancel')}</button>
+  <button type="submit" name="dosubmit" class="adminsubmit icon check">{_la('submit')}</button>
+  <button type="submit" name="cancel" class="adminsubmit icon cancel">{_la('cancel')}</button>
 </div>
 </form>

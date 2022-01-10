@@ -28,6 +28,7 @@ function smarty_function_syntax_area($params, $template)
 	$parms = array_intersect_key($params, [
 		'name'=>1,
 		'getid'=>1,
+		'actionid'=>1,
 		'prefix'=>1,
 		'id'=>1,
 		'htmlid'=>1,
@@ -47,6 +48,8 @@ function smarty_function_syntax_area($params, $template)
 	$elemid = $parms['id'] ?? $parms['htmlid'] ?? 'work_area';
 	unset($parms['id']);
 	$parms['htmlid'] = $elemid;
+	if (!empty($parms['actionid'])) $parms['getid'] = $parms['actionid'];
+	unset($parms['actionid']);
 	$s = '';
 	if( !empty($parms['rows']) ) $s .= 'height:'.(int)$parms['rows'].'em;';
 	elseif( !empty($parms['height']) )$s .= 'height:'.(int)$parms['height'].'em;';
@@ -114,16 +117,22 @@ EOS;
 	return $out;
 }
 
+function smarty_cms_about_function_syntax_area()
+{
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'May 2019', "<li>$n</li>");
+}
+
 function smarty_cms_help_function_syntax_area()
 {
-	echo <<<'EOS'
-<h3>What does it do?</h3>
-Generates html and js for a syntax-highlight textarea element.
+	echo '<h3>What does it do?</h3>
+This plugin generates html and javascript for a syntax-highlight textarea element.
 <h4>Parameters:</h4>
 As for <code>FormUtils::create_textarea()</code><br />
 <ul>
 <li>name: element name (only relevant for form submission, but the backend method always wants it)</li>
-<li>getid: submitted-parameter prefix ('m1_' etc)</li>
+<li>getid: submitted-parameter prefix (\'m1_\' etc)</li>
+<li>actionid: alias for getid</li>
 <li>prefix: alias for getid</li>
 <li>id: id for the created element id="whatever"</li>
 <li>htmlid: alias for id</li>
@@ -149,15 +158,5 @@ As for <code>get_syntaxeditor_setup()</code><br />
 <li>workid: div-tag id (optional, internal use)</li>
 </ul>
 <br />
-and/or any of Smarty's generic parameters (nocache, assign etc)
-EOS;
-}
-
-function smarty_cms_about_function_syntax_area()
-{
-	$n = _la('none');
-	echo _ld('tags', 'about_generic',
-	'Initial release May 2019',
-	"<li>$n</li>"
-	);
+and/or any of Smarty\'s generic parameters (nocache, assign etc)';
 }

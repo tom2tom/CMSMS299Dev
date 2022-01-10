@@ -32,16 +32,14 @@ function smarty_function_root_url($params, $template)
 /*
 function smarty_cms_about_function_root_url()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
 */
 
 function smarty_cms_help_function_root_url()
 {
-	$n = lang('none');
+	$n = _la('none');
 	echo _ld('tags', 'help_generic',
 	'This plugin retrieves the base/root URL of the website',
 	'root_url',

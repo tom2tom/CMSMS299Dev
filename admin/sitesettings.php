@@ -232,10 +232,24 @@ if (isset($_POST['submit'])) {
                 $val = (!empty($_POST['logintheme'])) ? sanitizeVal($_POST['logintheme'], CMSSAN_FILE) : ''; // consistent with theme folder-name
                 AppParams::set('logintheme', $val);
                 $val = $_POST['date_format'];
-                if ($val) { $val = preg_replace('~[^a-zA-Z0-9,.\-:#\\/ ]~', '', trim($val)); } // date()-only formats 2.99 breaker? no '%' - tho' valid, it confuses smarty
+                if ($val) {
+                    // mixed date()- and/or strftime()-formats
+                    // strip any time-formatting
+                    $s = preg_replace('/%[HIklMpPrRSTXzZ]/', '', $val);
+                    if ($s == $val) {
+                        $s = preg_replace('/(?<!\\\\)[aABgGhHisuv]/', '', $val);
+                    }
+                    if ($s == $val) {
+                        $val = trim($s);
+                    } else {
+                        $val = trim($s, ' :');
+                    }
+                    $val = sanitizeVal($val, CMSSAN_NONPRINT); // TODO cleaner e.g. all '%' ? - tho' valid, it confuses smarty
+                }
                 AppParams::set('date_format', $val);
                 $val = $_POST['datetime_format'];
-                if ($val) { $val = preg_replace('~[^a-zA-Z0-9,.\-:#\\/ ]~', '', trim($val)); } // no '%' here either
+                // mixed date()- and/or strftime()-formats
+                if ($val) { $val = sanitizeVal(trim($val), CMSSAN_NONPRINT); } // TODO cleaner
                 AppParams::set('datetime_format', $val);
                 AppParams::set('thumbnail_width', filter_input(INPUT_POST, 'thumbnail_width', FILTER_SANITIZE_NUMBER_INT));
                 AppParams::set('thumbnail_height', filter_input(INPUT_POST, 'thumbnail_height', FILTER_SANITIZE_NUMBER_INT));

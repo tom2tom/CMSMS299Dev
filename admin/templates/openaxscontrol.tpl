@@ -17,12 +17,12 @@
 <div class="colbox">
  <fieldset style="border-width:0;">
  <div class="rowbox flow">
-  {$t=_ld('admin','name')}<div class="boxchild"><label for="set_name" class="required">* {$t}:</label>
+  {$t=_la('name')}<div class="boxchild"><label for="set_name" class="required">* {$t}:</label>
   {cms_help 0='controlsets' key='help_set_name' title=$t}</div>
   {if $pmod}
   <input class="boxchild" type="text" size="40" maxlength="80" id="set_name" name="name" value="{$cset.name}" required="required" />
   {else}
-  <p class="boxchild" id="set_name">{if $cset.name}{$cset.name}{else}{_ld('admin','none')}{/if}</p>
+  <p class="boxchild" id="set_name">{if $cset.name}{$cset.name}{else}{_la('none')}{/if}</p>
   {/if}
  </div>
  <div class="rowbox flow">
@@ -34,7 +34,7 @@
   <button class="adminsubmit icon do" id="selectbtn" title="{_ld('controlsets','title_select')}">{_ld('controlsets','select')}</button>
   </div>
   {else}
-  <p class="boxchild" id="reldir">{if $cset.reltop}{$cset.reltop}{else}{_ld('admin','none')}{/if}</p>
+  <p class="boxchild" id="reldir">{if $cset.reltop}{$cset.reltop}{else}{_la('none')}{/if}</p>
   {/if}
  </div>
  </fieldset>
@@ -185,10 +185,10 @@
 </div>{*colbox*}
 <div class="pageinput pregap">
 {if $pmod}
- <button type="submit" class="adminsubmit icon check" id="submit" name="submit">{_ld('admin','submit')}</button>
- <button type="submit" class="adminsubmit icon cancel" id="cancel" name="cancel" formnovalidate>{_ld('admin','cancel')}</button>
+ <button type="submit" class="adminsubmit icon check" id="submit" name="submit">{_la('submit')}</button>
+ <button type="submit" class="adminsubmit icon cancel" id="cancel" name="cancel" formnovalidate>{_la('cancel')}</button>
 {else}
- <button type="submit" class="adminsubmit icon close" id="close" name="cancel" formnovalidate>{_ld('admin','close')}</button>
+ <button type="submit" class="adminsubmit icon close" id="close" name="cancel" formnovalidate>{_la('close')}</button>
 {/if}
 </div>
 </form>

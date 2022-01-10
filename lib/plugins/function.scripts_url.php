@@ -32,15 +32,13 @@ function smarty_function_scripts_url($params, $template)
 /*
 function smarty_cms_about_function_scripts_url()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', Initial release 2018', "<li>$n</li>");
 }
 */
 function smarty_cms_help_function_scripts_url()
 {
-	$n = lang('none');
+	$n = _la('none');
 	echo _ld('tags', 'help_generic',
 	'This plugin retrieves an URL representing the topmost/base website-folder where jquery scripts &amp; related styles are located',
 	'scripts_url',

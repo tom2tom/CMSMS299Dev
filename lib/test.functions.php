@@ -73,7 +73,7 @@ function getSupportedDBDriver()
 function getTestValues( string $property ) : array
 {
 	$range = [
-		'php_version'			=> ['minimum'=>'7.1', 'recommended'=>'7.3'], // PHP 7.1 EOL late 2019, 7.3 EOL late 2021
+		'php_version'			=> ['minimum'=>'7.2', 'recommended'=>'7.4'], // PHP 7.2 EOL late 2020, 7.3 EOL late 2021
 		'gd_version'			=> ['minimum'=>2],
 		'memory_limit'			=> ['minimum'=>'16M', 'recommended'=>'24M'],
 		'max_execution_time'	=> ['minimum'=>30, 'recommended'=>60],
@@ -1576,4 +1576,3 @@ function GDVersion()
 
 	return $gd_version_number;
 }
-

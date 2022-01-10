@@ -54,7 +54,7 @@ function smarty_function_thumbnail_url($params, $template)
 		$out .= $file;
 	}
 	else {
-		//TODO try for fallback non-thumb version of the file 
+		//TODO try for fallback non-thumb version of the file
 		trigger_error("thumbnail_url plugin: invalid file $fullpath specified");
 	}
 
@@ -67,9 +67,8 @@ function smarty_function_thumbnail_url($params, $template)
 /*
 function smarty_cms_about_function_thumbnail_url()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
+	echo _ld('tags', 'about_generic', 'who ... 2008',
+	'<li>detail</li>' ... OR '<li>'.lang('none').'</li>'
 	);
 }
 */
@@ -79,10 +78,8 @@ D function smarty_cms_help_function_thumbnail_url()
 	echo _ld('tags', 'help_generic',
 	'This plugin retrieves the URL of an uploaded thumbnail file',
 	'thumbnail_url file=whatever',
-	<<<'EOS'
-<li>file: name of wanted file</li>
-<li>dir: optional uploads-folder-relative filepath where the file is stored</li>
-EOS
+	'<li>file: name of wanted file</li>
+<li>dir: optional uploads-folder-relative filepath where the file is stored</li>'
 	);
 }
 */

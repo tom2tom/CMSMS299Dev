@@ -1,7 +1,7 @@
 <?php
 /*
 Filepicker module: utility-methods class
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -60,6 +60,7 @@ class Utils
             $mod = AppUtils::get_module('FilePicker');
         }
         $baseurl = $mod->GetModuleURLPath();
+        //TODO $themeObject=;
 
         if ($isdir) {
             switch ($extension) {
@@ -74,6 +75,7 @@ class Utils
                     break;
 
             }
+            //TODO return $themeObject->DisplayImage(fullpath-to-image,'directory','','','listicon',$attrs = []);
             return '<img src="'.$baseurl.'/images/types/'.$lcext.'.png" class="listicon" alt="directory" />';
         }
 
@@ -92,11 +94,12 @@ class Utils
         if (!is_file($path)) {
             static $getem = true;
             if ($getem) {
-                require_once cms_join_path(dirname(__DIR__),'images','types','typealias.php');
+                require_once __DIR__.DIRECTORY_SEPARATOR.'typealias.php';
                 $getem = false;
             }
             $lcext = $dups[$lcext] ?? '0';
         }
+        //TODO return $themeObject->DisplayImage(fullpath-to-image,$ext.'-file','','','listicon',$attrs = []);
         return '<img src="'.$baseurl.'/images/types/'.$lcext.'.png" class="listicon" alt="'.$ext.'-file" />';
     }
 
@@ -271,7 +274,7 @@ class Utils
 
     /**
      * Return data for relevant files/sub-folders in folder $dirpath
-     * @param mixed $profile Optional CMSMS\FolderControls object | name of one-such | falsy. Default null
+     * @param mixed $profile Optional FolderControls object | name of one-such | falsy. Default null
      * @param string $dirpath Optional absolute or appropriate-root-relative
      *  filesystem-path of folder to be reported. Default '' (hence use relevant root)
      * @return array (maybe empty)

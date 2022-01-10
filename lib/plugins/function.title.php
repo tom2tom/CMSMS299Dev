@@ -29,7 +29,7 @@ function smarty_function_title($params, $template)
 	else {
 		$result = $contentobj->Name();
 	}
-    //TODO maybe disable SmartyBC-supported {php}{/php} in $result
+	//TODO maybe disable SmartyBC-supported {php}{/php} in $result
 
 	if( !empty($params['assign']) ) {
 		$template->assign(trim($params['assign']), $result);
@@ -37,22 +37,16 @@ function smarty_function_title($params, $template)
 	}
 	return $result;
 }
-
+/*
 function smarty_cms_about_function_title()
 {
-	$n = lang('none');
-	echo <<<EOS
-<p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
-<p>Change History:</p>
-<ul>
-<li>$n</li>
-</ul>
-EOS;
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
-
+*/
 function smarty_cms_help_function_title()
 {
-	$n = lang('none');
+	$n = _la('none');
 	echo _ld('tags', 'help_generic',
 	'This plugin retrieves the name of the current page',
 	'title',

@@ -1,7 +1,7 @@
 <?php
 /*
 Admin-user class for CMSMS
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -51,10 +51,16 @@ use CMSMS\SingleItem;
 	public $password;
 
 	/**
-	 * @var bool $repass Flag whether the password property has been validly changed
+	 * @var bool $newpass Flag whether the password property has been validly changed
 	 * @since 2.99
 	 */
-	public $repass;
+	public $newpass;
+
+	/**
+	 * @var bool $pwreset Flag whether the current password needs to be reset
+	 * @since 2.99
+	 */
+	public $pwreset;
 
 	/**
 	 * @var string $firstname User's 'first' name, if any
@@ -100,7 +106,8 @@ use CMSMS\SingleItem;
 		$this->id = 0;
 		$this->username = '';
 		$this->password = '';
-		unset($this->repass);
+		$this->newpass = false;
+		$this->pwreset = false;
 		$this->firstname = '';
 		$this->lastname = '';
 		$this->email = '';
@@ -130,13 +137,13 @@ use CMSMS\SingleItem;
 	{
 		$userops = SingleItem::UserOperations();
 		if ($userops->PasswordCheck($this, $password)) {
-			$this->repass = true;
+			$this->newpass = true;
 			$this->password = $userops->PreparePassword($password);
 		} else {
-			$this->repass = false;
-			//TODO interpret problem, advise caller
+			$this->newpass = false;
+			//TODO interpret problem, advise upstream
 		}
-		return $this->repass;
+		return $this->newpass;
 	}
 
 	/**
@@ -159,7 +166,8 @@ use CMSMS\SingleItem;
 	/**
 	 * Saves the user to the database.  If no user_id is set, then a new record
 	 * is created.  If the user_id is set, then the record is updated to all
-	 * values in the User object.
+	 * values in the User object. If $newpass property id true, the password
+     * value is also updated.
 	 * @since 0.6.1
 	 *
 	 * @return bool indicating success

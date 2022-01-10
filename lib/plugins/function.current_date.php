@@ -27,16 +27,38 @@ function smarty_function_current_date($params, $template)
 {
 	if( !empty($params['format']) ) {
 		$format = trim($params['format']);
-		if( strpos($format, '%') !== false ) {
-			$format = Utils::convert_dt_format($format); // migrate strftime format
-		}
 	}
 	else {
-		$format = AppParams::get('date_format', 'Y-m-d');
+		$format = AppParams::get('date_format', '%b j, Y');
 	}
-	// TODO handled 'timed' format
-
-	$out = date($format, time());
+	if( strpos($format, 'timed') !== false ) {
+		$format = str_replace(['timed', '  '], ['', ' '], $format);
+		//ensure time will be displayed
+		if( strpos($format, '%') !== false ) {
+			if( !preg_match('/%[HIklMpPrRSTXzZ]/', $format) ) {
+				if( strpos($format, '-') !== false || strpos($format, '/') !== false ) {
+					$format .= ' %k:%M';
+				}
+				else {
+					$format .= ' %l:%M %P';
+				}
+			}
+		}
+		elseif( !preg_match('/(?<!\\\\)[aABgGhHisuv]/', $format)) {
+			if( strpos($format, '-') !== false || strpos($format, '/') !== false ) {
+				$format .= ' H:i';
+			}
+			else {
+				$format .= ' g:i a';
+			}
+		}
+	}
+	if( strpos($format, '%') !== false ) {
+		$out = Utils::dt_format(time(), $format);
+	}
+	else {
+		$out = date($format, time());
+	}
 	if( !empty($params['ucwords']) ) {
 		$out = ucwords($out);
 	}
@@ -47,26 +69,24 @@ function smarty_function_current_date($params, $template)
 	}
 	return $out;
 }
-/*
-D function smarty_cms_help_function_current_date()
+
+function smarty_cms_help_function_current_date()
 {
 	echo _ld('tags', 'help_generic',
 	'This plugin retrieves the current date in a specified or site-default format',
 	'current_date ucwords=1',
-<li>format: optional formatter recognized by PHP date()</li>
-<li>ucwords: optional boolean, trueish to apply PHP ucwords() to the result</li>
-EOS
+	'<li>(optional) format: PHP date()- and/or strftime()-compatible format. It may be, or include, the special-case \'timed\'. Default site \'date_format\' setting</li>
+<li>ucwords: optional boolean, trueish to apply PHP ucwords() to the result</li>'
 	);
 }
-*/
+
 function smarty_cms_about_function_current_date()
 {
-	echo <<<'EOS'
-<p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
-<p>Change History:</p>
-<ul>
-<li>Sept 2021 generate output using date() instead of deprecated strftime()</li>
-<li>Sept 2021 Revert to date()-compatible site setting 'date_format' if no 'format' parameter is supplied</li>
-</ul>
-EOS;
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004',
+	'<li>Dec 2021<ul>
+<li>Use site setting \'date_format\' if no \'format\' parameter is supplied</li>
+<li>Support \'timed\' in the format parameter</li>
+<li>If appropriate, generate output using replacement for deprecated strftime()</li>
+</ul></li>'
+	);
 }

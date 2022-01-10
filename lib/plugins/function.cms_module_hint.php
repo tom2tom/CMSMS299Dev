@@ -45,19 +45,17 @@ function smarty_function_cms_module_hint($params, $template)
 /*
 function smarty_cms_about_function_cms_module_hint()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Robert Campbell 2013', "<li>$n</li>");
 }
 */
-/*
+
 function smarty_cms_help_function_cms_module_hint()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'cms_module_hint ...', <<<'EOS'
-<li>module</li>
-<li>anything else to be cached</li>
-EOS
+	echo _ld('tags', 'help_generic',
+	'This plugin updates intra-request cached \'MODULE_HINT\' property-values',
+	'cms_module_hint ...',
+	'<li>module: Name of module</li>
+<li>all properties and their values to be cached</li>'
 	);
 }
-*/

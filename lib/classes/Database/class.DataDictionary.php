@@ -241,7 +241,9 @@ class DataDictionary
 
     /**
      * Return $name quoted (if necessary) in a manner suitable for the database.
-     * Name content is not checked here (reserved-word management is left to the user)
+     * Arguably this method is counter-productive. Any correction here will
+     * probably not be replicated at runtime, and better to fail during installation.
+     * Name content is not checked here for reserved-words.
      * From MySQL documentation:
      * Permitted characters in unquoted identifiers:
      * ASCII: [0-9,a-z,A-Z$_] (basic Latin letters, digits 0-9, dollar, underscore)
@@ -266,12 +268,12 @@ class DataDictionary
             return '';
         }
 
-        $name = rtrim($name);
-
-        // if name is already quoted, do nothing
-        if (preg_match('/^`.+`$/', $name)) {
-            return $name;
+        // if name is already quoted, just trim
+        if (preg_match('/^\s*`.+`\s*$/', $name)) {
+            return trim($name);
         }
+
+        $name = rtrim($name);
         // if name contains special characters, quote it
         $patn = ($allowBrackets) ? '\w$()\x80-\xff' : '\w$\x80-\xff';
         if (preg_match('/[^'.$patn.']/', $name)) {

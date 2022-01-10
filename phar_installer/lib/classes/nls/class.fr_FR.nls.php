@@ -14,4 +14,4 @@ final class fr_FR_nls extends nls
         $this->_encoding = 'UTF-8';
         $this->_aliases = 'french,fre,fr_BE,fr_CA,fr_LU,fr_CH,fr_FR.ISO8859-1';
     }
-} // class
+}

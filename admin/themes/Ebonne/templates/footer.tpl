@@ -6,23 +6,23 @@
   <div class="footer-right cf">
     <ul class="links">
       <li>
-        <a href="https://docs.cmsmadesimple.org/" rel="external" title="{_ld('admin','documentationtip')}">{_ld('admin','documentation')}</a>
+        <a href="https://docs.cmsmadesimple.org/" rel="external" title="{_la('documentationtip')}">{_la('documentation')}</a>
       </li>
       <li>
-        <a href="https://forum.cmsmadesimple.org/" rel="external" title="{_ld('admin','forums')}">{_ld('admin','forums')}</a>
+        <a href="https://forum.cmsmadesimple.org/" rel="external" title="{_la('forums')}">{_la('forums')}</a>
       </li>
       <li>
       {if isset($site_help_url)}
-        <a href="{$site_help_url}" title="{_ld('admin','site_support')}">{_ld('admin','site_support')}</a>
+        <a href="{$site_help_url}" title="{_la('site_support')}">{_la('site_support')}</a>
       {else}
-        <a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{_ld('admin','site_support')}">{_ld('admin','site_support')}</a>
+        <a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{_la('site_support')}">{_la('site_support')}</a>
       {/if}
       </li>
       <li>
-        <a href="http://www.cmsmadesimple.org/about-link/" rel="external" title="{_ld('admin','about')}">{_ld('admin','about')}</a>
+        <a href="http://www.cmsmadesimple.org/about-link/" rel="external" title="{_la('about')}">{_la('about')}</a>
       </li>
       <li>
-        <a href="http://www.cmsmadesimple.org/about-link/about-us/" rel="external" title="{_ld('admin','team')}">{_ld('admin','team')}</a>
+        <a href="http://www.cmsmadesimple.org/about-link/about-us/" rel="external" title="{_la('team')}">{_la('team')}</a>
       </li>
     </ul>
   </div>

@@ -49,7 +49,7 @@ $lang['created'] = 'Created';
 $lang['cat_image'] = 'Associated image';
 
 //$lang['dateformat'] = '%s not in a valid yyyy-mm-dd hh:mm:ss format';
-$lang['date_format'] = 'Displayed date-value format';
+$lang['date_format'] = 'Displayed date/time-value format';
 $lang['day'] = '1 Day'; // selector value
 $lang['default_category'] = 'Item default category';
 $lang['default_templates'] = 'Default Templates';
@@ -129,7 +129,7 @@ $lang['help_category_name'] = 'Enter a name for this category. Characters in the
 $lang['help_category_parent'] = 'Optionally specify a parent category to build a hierarchy of categories.';
 $lang['help_category_url'] = 'A unique identifier for use in any \'pretty-URL\' involving the category. As for all URLs, it is case-insensitive, and for operational purposes, better without url-encodable characters i.e. with only ASCII letters, numbers, and/or these four "-._~".';
 $lang['help_clear_category'] = 'If enabled, delete all articles in a category when the category itself is deleted. Otherwise, move them to the default category.';
-$lang['help_date_format'] = 'Enter a format string recognizable by <a href="https://www.php.net/manual/en/datetime.format.php#refsect1-datetime.format-parameters" class="external" target="_blank"><u>PHP date</u></a>. Best if the format suits useful sorting. Or if empty, the site-default setting will be used.';
+$lang['help_date_format'] = 'Enter a format string recognizable by <a href="https://www.php.net/manual/en/datetime.format.php#refsect1-datetime.format-parameters" class="external" target="_blank"><u>PHP date</u></a> and/or by <a href="https://www.php.net/manual/en/function.strftime#refsect1-function.strftime-parameters" class="external" target="_blank"><u>PHP strftime</u></a>. Or if empty, the site-default setting will be used.';
 $lang['help_detail_returnid'] = 'This preference specifies a site page (and therefore a template) to use for displaying news items in detail-format. Custom news-detail URL\'s will not work if this parameter is not set to a valid page. Additionally, if this preference is set, and no detailpage parameter is provided on the news tag, then this value will be used for detail links.';
 $lang['help_dflt_category'] = 'This option allows specifying the default category for new news-items.';
 $lang['help_email_subject'] = 'The subject to be used in publication-approval emails';
@@ -141,7 +141,6 @@ $lang['help_expiry_interval'] = 'Set the default lifetime (days, minimum 1) for 
 $lang['help_idlist'] = 'Applicable only to the default action (summary view). A comma-separated sequence of numeric news-item id(s). It allows filtering items to specific item(s). The actual list of items output is still subject to news item status, expiry date, and other parameters.';
 $lang['help_pagelimit'] = 'Maximum number of items to display per page. If this parameter is not supplied, all matching items will be displayed. If it is, and there are more items available than specified in the parameter, text and links will be supplied to allow scrolling through the results. The maximum value for this parameter is 1000.';
 $lang['help_summary_wysiwyg'] = 'If disabled, the article summary field will be a simple text input.';
-$lang['help_time_format'] = 'Enter a format string recognizable by <a href="https://www.php.net/manual/en/datetime.format.php#refsect1-datetime.format-parameters" class="external" target="_blank"><u>PHP date</u></a>.';
 $lang['help_timeblock'] = 'The minimum interval between specific start and end times';
 
 // plugin parameters advice
@@ -302,7 +301,6 @@ $lang['template'] = 'Template';
 $lang['templateadded'] = 'The template was successfully added.';
 $lang['templatedeleted'] = 'The template was successfully deleted.';
 $lang['templateupdated'] = 'The template was successfully updated.';
-$lang['time_format'] = 'Displayed time-value format';
 $lang['timeblock'] = 'Time granularity';
 $lang['tip_addcategory'] = 'Add new category';
 $lang['tip_bulk'] = 'Select this item for bulk processing';

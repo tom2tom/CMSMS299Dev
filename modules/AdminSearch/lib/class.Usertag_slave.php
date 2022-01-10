@@ -1,7 +1,7 @@
 <?php
 /*
 Class which supports searching in UDT's.
-Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 See license details at the top of file AdminSearch.module.php
 */
 namespace AdminSearch;

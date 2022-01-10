@@ -1,7 +1,7 @@
 <?php
 /*
 Add a new admin user
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -29,7 +29,9 @@ use CMSMS\SingleItem;
 use CMSMS\User;
 use CMSMS\UserParams;
 use function CMSMS\de_specialize_array;
+use function CMSMS\log_error;
 use function CMSMS\log_info;
+use function CMSMS\log_notice;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
@@ -125,6 +127,7 @@ if (isset($_POST['submit'])) {
     if (!$errors) {
         if ($userobj->SetPassword($password)) {
             $userobj->active = $active;
+            $userobj->pwreset = (!empty($_POST['pwreset'])) ? 1 : 0;
             Events::SendEvent('Core', 'AddUserPre', ['user' => $userobj]);
 
             $result = $userobj->save();
@@ -170,6 +173,13 @@ if (isset($_POST['submit'])) {
 
                 // put mention into the admin log
                 log_info($userobj->id, 'Admin User ' . $userobj->username, 'Added');
+                if ($userobj->pwreset && $userobj->email) {
+                    if ($userops->Send_replacement_email($userobj)) {
+                        log_notice('', 'Sent replace-password email to '.$user->username);
+                    } else {
+                        log_error('', 'Failed to send replace-password email to '.$user->username);
+                    }
+                }
                 redirect('listusers.php'.$urlext);
             } else {
                 $errors[] = _la('errorinsertinguser');
@@ -216,7 +226,7 @@ if ($out) {
 }
 
 if ($errors) {
-	SingleItem::Theme()->RecordNotice('error', $errors);
+    SingleItem::Theme()->RecordNotice('error', $errors);
 }
 
 //data for user-selector
@@ -229,10 +239,10 @@ foreach ($userlist as $one) {
 if ($manage_groups) {
     $groups = $groupops->LoadGroups();
     if ($groups) {
-		foreach ($groups as $obj) {
+        foreach ($groups as $obj) {
             $obj->name = specialize($obj->name);
-			$obj->description = specialize($obj->description);
-		}
+            $obj->description = specialize($obj->description);
+        }
     }
 } else {
     $groups = null;
@@ -247,19 +257,19 @@ $smarty->assign([
     'active' => $active,
     'copyusersettings' => $copyusersettings,
     'email' => $email,
+    'extraparms' => $extras,
     'firstname' => $firstname,
+    'groups' => $groups,
     'lastname' => $lastname,
     'password' => $password,
     'passwordagain' => $passagain,
+    'perm1grp' => $supergrp, //group 1 removal allowed
+    'perm1usr' => $superusr,  //group 1 addition|removal allowed
     'sel_groups' => $sel_groups,
     'selfurl' => $selfurl,
-    'extraparms' => $extras,
     'urlext' => $urlext,
     'user' => $username,
     'users' => $sel,
-    'groups' => $groups,
-    'perm1usr' => $superusr,  //group 1 addition|removal allowed
-    'perm1grp' => $supergrp, //group 1 removal allowed
 ]);
 
 $content = $smarty->fetch('adduser.tpl');

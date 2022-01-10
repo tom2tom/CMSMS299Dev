@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton class of login methods
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -269,7 +269,7 @@ final class LoginOperations
 	}
 
 	/**
-	 * validate the user
+	 * Validate the user, using a custom P/W hash, not PHP's P/W hashing
 	 * @param int $uid
 	 * @param string $hash
 	 * @return boolean

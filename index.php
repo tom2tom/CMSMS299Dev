@@ -53,7 +53,8 @@ AppState::set(AppState::FRONT_PAGE);
 require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 if (!is_writable(TMP_TEMPLATES_C_LOCATION) || !is_writable(TMP_CACHE_LOCATION)) {
-	header('HTTP/1.0 500 Internal Server Error');
+	$proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0';
+	header($proto.' 500 Internal Server Error');
 	header('Status: 500 Internal Server Error');
 	echo '<!DOCTYPE html>
 <html><head><title>Error</title></head><body>
@@ -183,7 +184,8 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 
 		// specified page not found, load the 404 error page, if any
 		$contentobj = ($showtemplate) ? PageLoader::LoadContent($page) : null;
-		header('HTTP/1.0 404 Not Found');
+		$proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0';
+		header($proto.' 404 Not Found');
 		header('Status: 404 Not Found');
 		if (!$showtemplate || !is_object($contentobj)) {
 			// default
@@ -206,10 +208,11 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 		if (!$msg) $msg = 'You do not have the appropriate permission to view the requested page.';
 		// specified page blocked, load the 403 error page, if any
 		$contentobj = ($showtemplate) ? PageLoader::LoadContent($page) : null;
-		header('Expires: Wed, 29 Dec 2010 05:00:00 GMT');
+		$proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0';
+		header('Expires: 0');
 		header('Cache-Control: no-store, no-cache, must-revalidate');
 		header('Cache-Control: post-check=0, pre-check=0', false);
-		header('HTTP/1.0 403 Forbidden');
+		header($proto.' 403 Forbidden');
 		header('Status: 403 Forbidden');
 		if (!$showtemplate || !is_object($contentobj)) {
 			// default
@@ -247,10 +250,11 @@ EOS;
 		//TODO c.f. AppParams::get('sitedownmessage')
 		// specified page not available, load the 503 error page, if any
 		$contentobj = ($showtemplate) ? PageLoader::LoadContent($page) : null;
-		header('Expires: Wed, 29 Dec 2010 05:00:00 GMT');
+		$proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0';
+		header('Expires: 0');
 		header('Cache-Control: no-store, no-cache, must-revalidate');
 		header('Cache-Control: post-check=0, pre-check=0', false);
-		header('HTTP/1.0 503 Temporarily unavailable');
+		header($proto.' 503 Temporarily unavailable');
 		header('Status: 503 Temporarily unavailable');
 //TODO	header('Retry-After: e.g. Wed, 21 Oct 2015 07:28:00 GMT');
 		if (!$showtemplate || !is_object($contentobj)) {
@@ -277,7 +281,7 @@ EOS;
 		} else {
 			$msg = $t->GetMessage();
 			if (!$msg) $msg = 'The cause was not reported.';
-			header('Expires: Wed, 29 Dec 2010 05:00:00 GMT');
+			header('Expires: 0');
 			header('Cache-Control: no-store, no-cache, must-revalidate');
 			header('Cache-Control: post-check=0, pre-check=0', false);
 			echo '<!DOCTYPE html>

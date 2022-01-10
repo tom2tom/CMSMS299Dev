@@ -123,7 +123,9 @@ if( $rst ) {
             $onerow->title = $row['news_title'];
         }
 
+        $onerow->start = (int)$row['start_time'];
         $onerow->startdate = $this->FormatforDisplay($row['start_time']);
+        $onerow->end = (int)$row['end_time'];
         $onerow->enddate = $this->FormatforDisplay($row['end_time']);
         $onerow->category = $row['long_name'];
         $onerow->expired = $row['end_time'] && strtotime($row['end_time']) < $now; // don't care about timezones
@@ -191,6 +193,7 @@ if( $rst ) {
 
     if( $pdel ) {
         $tpl->assign('submit_massdelete', 1);
+        $massdelete = true;
     }
 
     $query = 'SELECT news_category_id, long_name FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
@@ -201,7 +204,14 @@ if( $rst ) {
     $bulkcategories = Utils::get_category_list(); //different order
     specialize_array($bulkcategories);
 
+    $bulkactions = [];
+    $bulkactions['setpublished'] = $this->Lang('bulk_setpublished');
+    $bulkactions['setdraft'] = $this->Lang('bulk_setdraft');
+    if( count($categorylist ) > 1) { $bulkactions['setcategory'] = $this->Lang('bulk_setcategory'); }
+    if( !empty($massdelete) ) { $bulkactions['delete'] = $this->Lang('bulk_delete'); }
+
     $tpl->assign([
+     'bulkactions' => $bulkactions,
      'bulkcategories' => array_flip($bulkcategories),
      'categorylist' => $categorylist,
      'categorytext' => $this->Lang('category'),
@@ -238,25 +248,25 @@ $(function() {
  $.fn.SSsort.addParser({
   id: 'icon',
   is: function(s,node) {
-  var \$i = $(node).find('img');
-  return \$i.length > 0;
+   var \$el = $(node).find('img');
+   return \$el.length > 0;
   },
   format: function(s,node) {
-  var \$i = $(node).find('img');
-  return \$i[0].src;
+   var \$el = $(node).find('img');
+   return \$el[0].src;
   },
   watch: false,
   type: 'text'
  });
  $.fn.SSsort.addParser({
-  id: 'publishat',
-  is: function(s) {
-  return true;
+  id: 'stamp',
+  is: function(s,node) {
+   var \$el = $(node).find('span');
+   return \$el.length > 0;
   },
   format: function(s,node) {
-  var o = new Date(s),
-   u = o ? o.valueOf() : 0;
-  return u;
+   var \$el = $(node).find('span');
+   return (\$el.length > 0) ? parseInt(\$el[0].innerText) : 0;
   },
   watch: false,
   type: 'numeric'
@@ -366,8 +376,8 @@ EOS;
     add_page_foottext($js);
 }
 else { //no rows
-     $tpl->assign('items', [])
-      ->assign('itemcount', 0);
+    $tpl->assign('items', [])
+     ->assign('itemcount', 0);
 }
 
 if( $pmod || $pprop ) {

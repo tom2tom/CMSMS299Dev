@@ -29,6 +29,7 @@ use CMSMS\StylesheetOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
 use function CMSMS\log_error;
+use function CMSMS\sendheaders;
 
 // variables needed here and in-scope for hook-functions
 if (!AppState::test(AppState::LOGIN_PAGE)) {
@@ -222,7 +223,7 @@ if ($list) {
 }
 
 if (SingleItem::App()->JOBTYPE == 0) {
-	cms_admin_sendheaders();
+	sendheaders();
 }
 
 if (isset($config['show_performance_info'])) {

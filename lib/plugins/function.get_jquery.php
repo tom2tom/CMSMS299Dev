@@ -1,7 +1,7 @@
 <?php
 /*
 Function to get includable jquery-related style and/or scripts
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -27,7 +27,7 @@ function smarty_function_get_jquery($params, $template)
 	$core = cms_to_bool($params['core'] ?? true);
 	$migrate = cms_to_bool($params['migrate'] ?? false);
 	$ui = cms_to_bool($params['ui'] ?? true);
-	$uicss = $ui || cms_to_bool($params['uicss'] ?? false);
+	$uicss = cms_to_bool($params['uicss'] ?? $ui);
 	$append = trim($params['append'] ?? ''); // deprecated since 2.99
 
 	$incs = cms_installed_jquery($core, $migrate, $ui, $uicss);
@@ -65,17 +65,13 @@ EOS;
 	return $out;
 }
 
+function smarty_cms_about_function_get_jquery()
+{
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', '2019', "<li>$n</li>");
+}
+
 function smarty_cms_help_function_get_jquery()
 {
 	echo _ld('tags', 'help_function_get_jquery');
-}
-
-function smarty_cms_about_function_get_jquery()
-{
-	echo <<<'EOS'
-<p>Version: 1.0</p>
-<p>Change History:<br />
-None
-</p>
-EOS;
 }

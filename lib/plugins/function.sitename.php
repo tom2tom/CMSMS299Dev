@@ -32,24 +32,19 @@ function smarty_function_sitename($params, $template)
 	}
 	return $result;
 }
-
+/*
 function smarty_cms_about_function_sitename()
 {
-	$n = lang('none');
-	echo <<<EOS
-<p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
-<p>Change History:</p>
-<ul>
- <li>$n</li>
-</ul>
-EOS;
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
-
+*/
 function smarty_cms_help_function_sitename()
 {
-	$n = lang('none');
+	$n = _la('none');
 	echo _ld('tags', 'help_generic',
 	'This plugin retrieves the name of the website',
 	'sitename',
-	"<li>$n</li>");
+	"<li>$n</li>"
+	);
 }

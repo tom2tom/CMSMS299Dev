@@ -21,49 +21,50 @@
 	{* +++++ Bootstrap Start +++++ *}
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
-		{cms_queue_css file="{$theme_path}/plugins/fontawesome-free/css/all.min.css"} {* Font Awesome *}
-		<link rel="stylesheet" href="//code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"> {* Ionicons *}
-		{cms_queue_css file="{$theme_path}/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css"} {* Tempusdominus Bbootstrap 4 *}
-		{cms_queue_css file="{$theme_path}/plugins/icheck-bootstrap/icheck-bootstrap.min.css"} {* iCheck *}
-		{cms_queue_css file="{$theme_path}/plugins/jqvmap/jqvmap.min.css"} {* JQVMap *}
-		{cms_queue_css file="{$theme_path}/dist/css/adminlte.min.css"} {* Theme style *}
-		{cms_queue_css file="{$theme_path}/plugins/overlayScrollbars/css/OverlayScrollbars.min.css"} {* overlayScrollbars *}
-		{cms_queue_css file="{$theme_path}/plugins/daterangepicker/daterangepicker.css"} {* Daterange picker *}
-		{cms_queue_css file="{$theme_path}/plugins/summernote/summernote-bs4.css"} {* summernote *}
-		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700"> {* Google Font: Source Sans Pro *}
+		{cms_queue_css file="{$theme_path}/UNUSED-plugins/fontawesome-free/css/all.min.css"}{* Font Awesome *}
+		<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"> {* Ionicons *}
+		{cms_queue_css file="{$theme_path}/UNUSED-plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css"} {* Tempusdominus Bbootstrap 4 *}
+		{cms_queue_css file="{$theme_path}/UNUSED-plugins/icheck-bootstrap/icheck-bootstrap.min.css"} {* iCheck *}
+		{cms_queue_css file="{$theme_path}/UNUSED-plugins/jqvmap/jqvmap.min.css"}{* JQVMap *}
+		{cms_queue_css file="{$theme_path}/css/adminlte.min.css"}{* Theme style *}
+		{cms_queue_css file="{$theme_path}/css/OverlayScrollbars.min.css"}{* overlayScrollbars *}
+		{cms_queue_css file="{$theme_path}/UNUSED-plugins/daterangepicker/daterangepicker.css"} {* Daterange picker *}
+		{cms_queue_css file="{$theme_path}/UNUSED-plugins/summernote/summernote-bs4.css"} {* summernote *}
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700"> {* Google Font: Source Sans Pro *}
 
 		{cms_render_css}
-		{* <script src="{$theme_url}/plugins/jquery/jquery.min.js"></script> {* jQuery *}
-		{cms_queue_script file="{$theme_path}/plugins/jquery/jquery.min.js"} {* jQuery *}
-		{cms_queue_script file="{$theme_path}/plugins/jquery-ui/jquery-ui.min.js"} {* jQuery UI 1.11.4 *}
-		{cms_queue_script file="{$theme_path}/plugins/bootstrap/js/bootstrap.bundle.min.js"} {* Bootstrap 4 *}
-		{cms_queue_script file="{$theme_path}/plugins/chart.js/Chart.min.js"} {* ChartJS *}
-		{cms_queue_script file="{$theme_path}/plugins/sparklines/sparkline.js"} {* Sparkline *}
-		{cms_queue_script file="{$theme_path}/plugins/jqvmap/jquery.vmap.min.js"} {* JQVMap *}
-		{cms_queue_script file="{$theme_path}/plugins/jqvmap/maps/jquery.vmap.usa.js"}
-		{cms_queue_script file="{$theme_path}/plugins/jquery-knob/jquery.knob.min.js"} {* jQuery Knob Chart *}
-		{cms_queue_script file="{$theme_path}/plugins/moment/moment.min.js"}
-		{cms_queue_script file="{$theme_path}/plugins/daterangepicker/daterangepicker.js"} {* daterangepicker *}
-		{cms_queue_script file="{$theme_path}/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"} {* Tempusdominus Bootstrap 4 *}
-		{cms_queue_script file="{$theme_path}/plugins/summernote/summernote-bs4.min.js"} {* Summernote *}
-		{cms_queue_script file="{$theme_path}/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"} {* overlayScrollbars *}
-		{cms_queue_script file="{$theme_path}/dist/js/adminlte.js"} {* AdminLTE App *}
+		{* <script src="{$theme_url}/UNUSED-plugins/jquery/jquery.min.js"></script> {* jQuery *}
+		{cms_queue_script file="{$theme_path}/UNUSED-plugins/jquery/jquery.min.js"} {* jQuery *}
+		{cms_queue_script file="{$theme_path}/UNUSED-plugins/jquery-ui/jquery-ui.min.js"} {* jQuery UI 1.11.4 *}
+		{cms_queue_script file="{$theme_path}/UNUSED-plugins/bootstrap/js/bootstrap.bundle.min.js"} {* Bootstrap 4 *}
+		{cms_queue_script file="{$theme_path}/UNUSED-plugins/chart.js/Chart.min.js"} {* ChartJS *}
+		{cms_queue_script file="{$theme_path}/UNUSED-plugins/sparklines/sparkline.js"} {* Sparkline *}
+		{cms_queue_script file="{$theme_path}/UNUSED-plugins/jqvmap/jquery.vmap.min.js"} {* JQVMap *}
+		{cms_queue_script file="{$theme_path}/UNUSED-plugins/jqvmap/maps/jquery.vmap.usa.js"}
+		{cms_queue_script file="{$theme_path}/UNUSED-plugins/jquery-knob/jquery.knob.min.js"} {* jQuery Knob Chart *}
+		{cms_queue_script file="{$theme_path}/UNUSED-plugins/moment/moment.min.js"}
+		{cms_queue_script file="{$theme_path}/UNUSED-plugins/daterangepicker/daterangepicker.js"} {* daterangepicker *}
+		{cms_queue_script file="{$theme_path}/UNUSED-plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"} {* Tempusdominus Bootstrap 4 *}
+		{cms_queue_script file="{$theme_path}/UNUSED-plugins/summernote/summernote-bs4.min.js"} {* Summernote *}
+		{cms_queue_script file="{$theme_path}/UNUSED-plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"} {* overlayScrollbars *}
+		{cms_queue_script file="{$theme_path}/includes/adminlte.js"}{* AdminLTE App *}
 		{cms_render_scripts defer=0}
-		<script>$.widget.bridge('uibutton', $.ui.button)</script> {* Resolve conflict in jQuery UI tooltip with Bootstrap tooltip *}
 	{* +++++ Bootstrap End +++++ *}
 
 		<script src="{$admin_url}/cms_js_setup.php?{$secureparam}"></script>
 
-	{* TODO - Move to external file... *}
+{* Moved to ...
 		<script>
 			$(function() {
+				// resolve conflict between jQueryUI tooltip and Bootstrap tooltip
+				$.widget.bridge('uibutton', $.ui.button);
 				// text blocks
 				$(".pagewarning").addClass("callout callout-danger");
 				$(".text").addClass("callout callout-warning");
 				$(".quote").addClass("callout callout-info");
 				$(".note").addClass("callout callout-info");
 
-				$(".red").addClass("alert alert-danger alert-dismissible");
+//				$(".red").addClass("alert alert-danger alert-dismissible");
 
 				// tabs
 				$("#page_tabs").addClass("card-header");
@@ -84,7 +85,7 @@
 				$(".dashboard-inner").addClass("card-body");
 			} );
 		</script>
-
+*}
 	 	{$headertext|default:''}
 	</head>
 
@@ -101,7 +102,7 @@
         				<a href="{$admin_url}/index.php?{$secureparam}" class="nav-link">Home</a>
       				</li>
       				<li class="nav-item d-none d-sm-inline-block">
-        				<a href="{$admin_url}/myaccount.php?{$secureparam}" class="nav-link">Account</a>
+        				<a href="{$admin_url}/useraccount.php?{$secureparam}" class="nav-link">Account</a>
       				</li>
     			</ul>
     			{include file='shortcuts.tpl'}
@@ -172,7 +173,7 @@
 				<div class="header-bottom cf">
 					<div class="welcome" data-username="{$user->username}">
 						{if isset($myaccount)}
-							<span><a class="welcome-user" href="myaccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa fa-user"></i></a> {'welcome_user'|lang}: <a href="myaccount.php?{$secureparam}">{$user->username}</a></span>
+							<span><a class="welcome-user" href="useraccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa fa-user"></i></a> {'welcome_user'|lang}: <a href="useraccount.php?{$secureparam}">{$user->username}</a></span>
 						{else}
 							<span><a class="welcome-user"><i class="fa fa-user"></i></a> {'welcome_user'|lang}: <span data-username="{$user->username}">{$user->username}</span></span>
 						{/if}

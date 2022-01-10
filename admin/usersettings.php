@@ -65,21 +65,36 @@ if (isset($_POST['submit'])) {
     $bookmarks = (isset($_POST['bookmarks'])) ? 1 : 0;
     $ce_navdisplay = sanitizeVal($_POST['ce_navdisplay']); //'title' | 'menutext' | ''
     $val = $_POST['date_format'];
-    // date()-only formats 2.99 breaker?
-    $date_format = ($val) ? preg_replace('~[^a-zA-Z0-9,.\-:#\\/ ]~', '', trim($val)) : ''; // no '%' - tho' valid, it confuses smarty
+    if ($val) {
+        // mixed date()- and/or strftime()-formats for locale_ftime() use
+        // strip any time-formatting
+        $s = preg_replace('/%[HIklMpPrRSTXzZ]/', '', $val);
+        if ($s == $val) {
+            $s = preg_replace('/(?<!\\\\)[aABgGhHisuv]/', '', $val);
+        }
+        if ($s == $val) {
+            $val = trim($s);
+        } else {
+            $val = trim($s, ' :');
+        }
+        $date_format = sanitizeVal($val, CMSSAN_NONPRINT); // TODO cleaner e.g. all '%' ? - tho' valid, it confuses smarty
+    } else {
+        $date_format = '';
+    }
     $val = $_POST['datetime_format'];
-    // date()-only formats 2.99 breaker?
-    $datetime_format = ($val) ? preg_replace('~[^a-zA-Z0-9,.\-:#\\/ ]~', '', trim($val)) : ''; // no '%' here either
+    // mixed date()- and/or strftime()-formats for locale_ftime() use
+    //$datetime_format = ($val) ? preg_replace('~[^a-zA-Z0-9,.\-:#\\/ ]~', '', trim($val)) : ''; // no '%' here either
+    $datetime_format = sanitizeVal(trim($val), CMSSAN_NONPRINT); // TODO cleaner
     // see http://www.unicode.org/reports/tr35/#Identifiers
     $default_cms_language = sanitizeVal($_POST['default_cms_language'], CMSSAN_NONPRINT);
     $old_default_cms_lang = sanitizeVal($_POST['old_default_cms_lang'], CMSSAN_NONPRINT);
     $default_parent = (int)$_POST['parent_id'];
     $hide_help_links = (isset($_POST['hide_help_links'])) ? 1 : 0;
     // empty or relative-URL of an admin-page
-    $homepage = (!empty($_POST['homepage']) ?
+    $homepage = (!empty($_POST['homepage'])) ?
         filter_var(rtrim($_POST['homepage'], ' /'), FILTER_SANITIZE_URL) : // allows letters, digits, $-_.+!*'(),{}|\\^~[]`<>#%";/?:@&=
 //        sanitizeVal($_POST['homepage'], CMSSAN_NONPRINT) : // no entirely relevant CMSSAN_*
-        '');
+        '';
     $indent = (isset($_POST['indent'])) ? 1 : 0;
     $paging = (isset($_POST['paging'])) ? 1 : 0;
     $syntaxer = isset($_POST['syntaxtype']) ? sanitizeVal($_POST['syntaxtype'], CMSSAN_PUNCTX, ':') : null; // allow '::'

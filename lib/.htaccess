@@ -1,0 +1,2 @@
+RedirectMatch 403 \.htaccess
+RedirectMatch 403 (?i)^((?!moduleinterface).)*\.php$

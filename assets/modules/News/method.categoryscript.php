@@ -1,7 +1,7 @@
 <?php
 /*
 Page-resources generator for category add/edit actions
-Copyright (C) 2021 CMS Made Simple Foundation News module installation <foundation@cmsmadesimple.org>
+Copyright (C) 2022 CMS Made Simple Foundation News module installation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

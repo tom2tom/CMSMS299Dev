@@ -29,17 +29,16 @@ function smarty_function_tabs_restart($params, $template)
 /*
 function smarty_cms_about_function_tabs_restart()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR _la('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', '2020', "<li>$n</li>");
 }
 */
 function smarty_cms_help_function_tabs_restart()
 {
 	$n = _la('none');
 	echo _ld('tags', 'help_generic2',
-	'This plugin resets background data for tabs-layout back to vanilla',
+	'This plugin resets background data for admin-page tabs-layout back to vanilla',
 	'tabs_restart',
-	"<li>$n</li>");
+	"<li>$n</li>"
+	);
 }

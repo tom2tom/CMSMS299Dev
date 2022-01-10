@@ -35,24 +35,21 @@ function smarty_function_cms_help($params, $template)
 /*
 function smarty_cms_about_function_cms_help()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR _la('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
 */
 function smarty_cms_help_function_cms_help()
 {
 	echo _ld('tags', 'help_generic',
 	'This plugin generates page elements and script which enable popup help',
-	'cms_help params...',
-	<<<'EOS'
-<li>key1: lang/translation realm for the strings used</li>
+	'cms_help ...',
+	'<li>key1: lang/translation realm for the strings used</li>
 <li>realm: alias for key1</li>
+<li>0: alias for key1 if used as the first-provided param</li>
 <li>key2: lang key for help body-content</li>
 <li>key:  alias for key2</li>
 <li>title: lang key for help title</li>
-<li>titlekey: alias for title</li>
-EOS
+<li>titlekey: alias for title</li>'
 	);
 }

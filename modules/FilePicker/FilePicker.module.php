@@ -21,12 +21,11 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\contenttypes\ContentBase;
+//use CMSMS\FolderControls;
 use CMSMS\CoreCapabilities;
 use CMSMS\FileType;
 use CMSMS\FileTypeHelper;
 use CMSMS\FolderControlOperations;
-//use CMSMS\FolderControls;
 use CMSMS\IFilePicker;
 use CMSMS\SingleItem;
 use FilePicker\Utils;

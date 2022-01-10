@@ -1,0 +1,3070 @@
+//colors
+/*
+original
+$white: #fff;
+$alabaster: #fafafa;
+$seashell: #f1f1f1;
+$mercury: #e5e5e5;
+$color_silver_approx: #ccc;
+$concrete: #f2f2f2;
+$color_white_approx: #fefefe;
+$color_gallery_approx: #eee;
+$color_wild_sand_approx: #f6f6f6;
+$color_alto_approx: #cecece;
+$color_silver_chalice_approx: #aaa;
+
+$white_66: rgba(255,255,255,0.66);
+
+$color_martini_approx: #999;
+$color_gray_approx: #838282;
+$color_dorado_approx: #585858;
+$color_big_stone_approx: #1f2d3d;
+$color_mine_shaft_approx: #232323;
+$color_cod_gray_approx: #0f0f0f;
+
+$black_5: rgba(0,0,0,.05);
+$black_40: rgba(0,0,0,0.4);
+
+$color_sorbus_approx: #fa8004;
+$red: #f00;
+$color_amaranth_approx: #dc3545;
+$color_torch_red_approx: #f32035;
+$color_red_berry_approx: #990000;
+$color_sea_green_approx: #28a745;
+$color_malachite_approx: #0ac736;
+$color_amber_approx: #ffc107;
+$color_ecstasy_approx: #fd7e14;
+$color_mango_tango_approx: #e87602;
+$color_buttercup_approx: #f3ba12;
+$color_caramel_approx: #ffd8b0;
+$pale_canary: #ff9;
+$color_cerulean_approx: #0aaec7;
+$color_eastern_blue_approx: #17a2b8;
+$color_azure_radiance_approx: #007bff;
+$color_congress_blue_approx: #054882;
+$color_wisp_pink_approx: #fdf2f3;
+$color_early_dawn_approx: #fffaeb;
+$color_foam_approx: #edfbfd;
+$color_ottoman_approx: #eefbf2;
+*/
+$white_66: rgba(255,255,255,0.66);
+
+$white: #fff;
+$alabaster: #e5e5e5;
+$seashell: #e5e5e5;
+$mercury: #e5e5e5;
+$color_silver_approx: #e5e5e5;
+$concrete: #e5e5e5;
+$color_white_approx: #e5e5e5;
+$color_gallery_approx: #e5e5e5;
+$color_wild_sand_approx: #e5e5e5;
+$color_alto_approx: #e5e5e5;
+$color_silver_chalice_approx: #999;
+$color_martini_approx: #999;
+$color_gray_approx: #999;
+$color_dorado_approx: #999;
+$color_big_stone_approx: #1f2d3d;
+$color_mine_shaft_approx: #1f2d3d;
+$color_cod_gray_approx: #0f0f0f;
+
+$black_5: rgba(0,0,0,.05);
+$black_40: rgba(0,0,0,0.4);
+
+$color_sorbus_approx: #fa8004;
+$red: #f32035;
+$color_torch_red_approx: #f32035;
+$color_amaranth_approx: #f32035;
+$color_red_berry_approx: #990000;
+$color_sea_green_approx: #28a745;
+$color_malachite_approx: #0ac736;
+$color_amber_approx: #ffc107;
+$color_buttercup_approx: #ffc107;
+$color_ecstasy_approx: #fd7e14;
+$color_mango_tango_approx: #fd7e14;
+$color_caramel_approx: #ffd8b0;
+$pale_canary: #ff9;
+$color_cerulean_approx: #17a2b8;
+$color_eastern_blue_approx: #17a2b8;
+$color_azure_radiance_approx: #007bff;
+$color_congress_blue_approx: #054882;
+$color_wisp_pink_approx: #fdf2f3;
+$color_early_dawn_approx: #fffaeb;
+$color_foam_approx: #edfbfd;
+$color_ottoman_approx: #eefbf2;
+
+
+//fonts
+$font_0: Consolas;
+$font_1: Andale Mono WT;
+$font_2: Andale Mono;
+$font_3: Lucida Console;
+$font_4: Lucida Sans Typewriter;
+$font_5: Courier New;
+$font_6: monospace;
+$font_7: Open Sans;
+$font_8: Helvetica Neue;
+$font_9: Helvetica;
+$font_10: Arial;
+$font_11: sans-serif;
+$font_12: Font Awesome 5 Free;
+
+//urls
+$url_0: url(../admin/themes/AdminLTE/images/icons/system/external-small.png);
+$url_1: url(../admin/themes/AdminLTE/images/icons/system/document-list.png);
+$url_2: url(../admin/themes/AdminLTE/css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png);
+$url_3: url(../admin/themes/AdminLTE/images/icons/extra/warning.png);
+$url_4: url(../admin/themes/AdminLTE/images/icons/extra/block.png);
+$url_5: url(../admin/themes/AdminLTE/images/icons/extra/accept.png);
+$url_6: url(../admin/themes/AdminLTE/images/icons/extra/info.png);
+$url_7: url(../admin/themes/AdminLTE/images/icons/extra/spinner.gif);
+$url_8: url(../admin/themes/AdminLTE/images/icons/extra/close.png);
+$url_9: url(../admin/themes/AdminLTE/images/layout/sprite_repeatx.png);
+$url_10: url(../admin/themes/AdminLTE/images/layout/cms-logo-bg.gif);
+$url_11: url(../admin/themes/AdminLTE/images/layout/welcome-bg.gif);
+$url_12: url(../admin/themes/AdminLTE/images/layout/sidebar-shadow.png);
+$url_13: url(../admin/themes/AdminLTE/images/layout/navigation-bg.gif);
+$url_14: url(../admin/themes/AdminLTE/images/icons/system/info-external.gif);
+$url_15: url(../admin/themes/AdminLTE/images/icons/system/info.gif);
+$url_16: url(../admin/themes/AdminLTE/images/icons/system/bookmark.png);
+$url_17: url(../admin/themes/AdminLTE/images/layout/tab-active.png);
+$url_18: url(../admin/themes/AdminLTE/images/icons/extra/reorder.gif);
+$url_19: url(../admin/themes/AdminLTE/images/layout/input-bg.gif);
+$url_20: url(../admin/themes/AdminLTE/images/layout/input-hover-bg.gif);
+$url_21: url(../admin/themes/AdminLTE/images/layout/information.png);
+$url_22: url(../admin/themes/AdminLTE/images/layout/help.png);
+
+//@extend-elements
+//original selectors
+//input, textarea, select, menu
+%extend_1 {
+	font-family: $font_7, $font_8, $font_9, $font_10, $font_11;
+	font-size: 14px;
+	margin: 2px 5px 2px 0;
+	padding: 4px 5px;
+	border: 1px solid $color_silver_chalice_approx;
+	border-bottom: 1px solid $color_alto_approx;
+	border-right: 1px solid $color_alto_approx;
+	background: $color_gallery_approx;
+}
+
+//original selectors
+//aside.message, .pagemcontainer, .pageerrorcontainer, .pageerrorinstalldir
+%extend_2 {
+	position: fixed;
+	z-index: 9999;
+	border-top: none;
+	width: 30%;
+	font-size: 12px;
+	-webkit-border-radius: 0 0 4px 4px;
+	-moz-border-radius: 0 0 4px 4px;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 0 0 4px 4px;
+	-webkit-box-shadow: 4px 4px 4px 1px $black_40;
+	//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+	box-shadow: 4px 4px 4px 1px $black_40;
+	top: 0;
+	margin: 0;
+	left: 35%;
+}
+
+//original selectors
+//aside .no-slide, .no-slide
+%extend_3 {
+	position: inherit;
+	left: auto;
+	top: auto;
+	border: 1px solid $color_amaranth_approx;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 4px;
+	-webkit-box-shadow: none;
+	//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+	box-shadow: none;
+	background-image: none;
+	width: auto;
+	display: block;
+	z-index: 0;
+}
+
+//original selectors
+//#cms_busy, .busy
+%extend_4 {
+	position: fixed;
+	z-index: 999;
+	height: 50px;
+	width: 50px;
+	overflow: show;
+	margin: auto;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	background: transparent $url_7 no-repeat;
+	background-size: 50px 50px;
+	cursor: wait;
+}
+
+//original selectors
+//#login input[type="text"]:focus, #login input[type="password"]:focus
+%extend_5 {
+	margin: 5px 0;
+	border: 1px solid $color_azure_radiance_approx;
+	-webkit-box-shadow: 0 0 5px $color_azure_radiance_approx;
+	//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+	box-shadow: 0 0 5px $color_azure_radiance_approx;
+	-webkit-transition: all 200ms ease-in-out;
+	-moz-transition: all 200ms ease-in-out;
+	-o-transition: all 200ms ease-in-out;
+	//Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+	transition: all 0.2s ease-in-out;
+}
+
+
+* {
+	html .cf {
+		height: 1%;
+		overflow: visible;
+	}
+	+ html .cf {
+		min-height: 1%;
+	}
+}
+.cf::after {
+	clear: both;
+	content: ".";
+	display: block;
+	height: 0;
+	visibility: hidden;
+}
+.clear {
+	clear: both;
+	height: 0;
+}
+.clearb {
+	clear: both;
+}
+html {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	min-height: 100%;
+	height: 100%;
+}
+body {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	min-height: 100%;
+	height: 100%;
+	min-width: 900px;
+	color: $color_mine_shaft_approx;
+	line-height: 1.4;
+	font-size: 14px;
+	background: $color_wild_sand_approx;
+}
+ins {
+	background-color: $pale_canary;
+	color: $color_mine_shaft_approx;
+	text-decoration: none;
+}
+mark {
+	font-style: italic;
+	font-weight: bold;
+}
+del {
+	text-decoration: line-through;
+}
+abbr[title] {
+	border-bottom: 1px dotted;
+	cursor: help;
+}
+dfn[title] {
+	border-bottom: 1px dotted;
+	cursor: help;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+	text-align: left;
+	&.pagetable {
+		border-collapse: inherit;
+		font-size: 14px;
+		border: 1px solid $color_alto_approx;
+		width: 100%;
+		margin: 5px 0;
+		a {
+			color: $color_mine_shaft_approx;
+			&.text-red {
+				color: $color_amaranth_approx;
+			}
+			&.tooltip span {
+			}
+		}
+		caption {
+			color: $color_dorado_approx;
+			text-align: left;
+			font-weight: bold;
+			font-size: 12px;
+			padding: 5px 0;
+		}
+		th {
+			color: $color_mine_shaft_approx;
+			background: $white;
+			height: 45px;
+			text-align: left;
+			white-space: nowrap;
+			padding-left: 5px;
+			padding-right: 5px;
+			a {
+				color: $color_mine_shaft_approx;
+				&:hover {
+					color: $color_mine_shaft_approx;
+					text-decoration: underline;
+				}
+			}
+			&.active {
+				color: $color_mine_shaft_approx;
+				a {
+					color: $color_mine_shaft_approx;
+					text-decoration: underline;
+				}
+			}
+			&.pagepos {
+				text-align: center;
+			}
+			&.pageicon {
+				min-width: 16px;
+				width: 1%;
+			}
+			input:focus {
+				outline: 2px solid $color_sorbus_approx;
+			}
+		}
+		tr {
+			height: 36px;
+		}
+		td {
+			color: $color_dorado_approx;
+			vertical-align: middle;
+			a:focus {
+				color: $color_mine_shaft_approx;
+			}
+		}
+		thead tr {
+			color: $color_mine_shaft_approx;
+			background: $white;
+			height: 45px;
+			text-align: left;
+			white-space: nowrap;
+			padding-left: 5px;
+			padding-right: 5px;
+		}
+	}
+	th {
+		&:first-child {
+			//Instead of the line below you could use @include border-top-left-radius($radius)
+			border-top-left-radius: 4px;
+		}
+		&:last-child {
+			//Instead of the line below you could use @include border-top-right-radius($radius)
+			border-top-right-radius: 4px;
+		}
+	}
+	tr:last-child td {
+		&:first-child {
+			//Instead of the line below you could use @include border-bottom-left-radius($radius)
+			border-bottom-left-radius: 4px;
+		}
+		&:last-child {
+			//Instead of the line below you could use @include border-bottom-right-radius($radius)
+			border-bottom-right-radius: 4px;
+		}
+	}
+}
+hr {
+	display: block;
+	height: 1px;
+	border: 0;
+	border-top: 1px solid $color_alto_approx;
+	margin: 10px 0;
+	padding: 0;
+}
+ul {
+	&.sortableList {
+		list-style-type: none;
+		width: 450px;
+		margin: 0;
+		padding: 0;
+		li {
+			list-style-type: none;
+			display: block;
+			margin: 10px 0;
+			div.label em {
+				display: block;
+				text-indent: 10px;
+				font-weight: normal;
+				color: $color_azure_radiance_approx;
+				font-size: 12px;
+			}
+		}
+		div.label {
+			border: solid 1px $color_alto_approx;
+			word-wrap: break-word;
+			//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+			border-radius: 4px;
+			cursor: move;
+			padding: 11px 10px 10px 10px;
+			background: $color_gallery_approx;
+			//Instead of the line below you could use @include text-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+			text-shadow: 0 1px 0 $white;
+			font-weight: bold;
+			color: $color_dorado_approx;
+		}
+	}
+	&.sortable .placeholder {
+		border: 2px dashed $color_alto_approx;
+		background: $concrete;
+	}
+}
+ol {
+}
+#oe_mainarea {
+	margin: 0 0 0 249px;
+	ul {
+		margin: 10px 0 10px 25px;
+		list-style: square;
+		&.sortable-list {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+			max-height: 321px;
+			overflow: auto;
+			min-height: 25px;
+		}
+	}
+	ol {
+		margin: 10px 0 10px 25px;
+		li {
+			list-style: decimal;
+		}
+	}
+	li {
+		line-height: 1.5;
+	}
+	.content-inner {
+		padding: 0 20px 0 25px;
+		position: relative;
+		overflow: hidden;
+	}
+	header {
+		&.pageheader {
+			max-height: 63px;
+			margin-bottom: 15px;
+			position: relative;
+			border-bottom: 1px solid $color_sorbus_approx;
+			h1 {
+				font-size: 18px;
+				line-height: 63px;
+				font-weight: normal;
+				width: auto;
+				margin: 0;
+				padding: 0;
+				float: left;
+				display: inline;
+				color: $color_azure_radiance_approx;
+			}
+			.module-icon {
+				vertical-align: middle;
+				margin-right: 15px;
+				max-height: 32px;
+			}
+			span.helptext {
+				display: inline;
+				line-height: 63px;
+				float: right;
+				width: auto;
+				color: $color_mine_shaft_approx;
+				font-size: 12px;
+				em {
+					display: none;
+				}
+			}
+			&.drop-hidden span.helptext {
+				margin-right: 0;
+			}
+		}
+		&.subheader h3 {
+			color: $color_azure_radiance_approx;
+		}
+	}
+	.sortable-list {
+		li {
+			list-style: none;
+			padding: 4px 12px;
+			margin-bottom: 1px;
+			display: block;
+			position: relative;
+			cursor: move;
+			.sortable-remove {
+				float: right;
+				display: inline-block;
+			}
+		}
+		> li.ui-state-highlight {
+			padding: 14px 0;
+		}
+	}
+	.sortable-table {
+		cursor: move;
+	}
+	.options-menu {
+		margin: 0;
+		padding: 0;
+		height: 35px;
+		z-index: 999;
+		list-style-type: none;
+		> li {
+			line-height: 35px;
+			float: left;
+			display: block;
+			padding: 0 1em;
+			position: relative;
+		}
+		li {
+			ul {
+				position: absolute;
+				left: -999em;
+				top: 0;
+				margin: 0;
+				padding: 15px;
+			}
+			li {
+				display: block;
+				cursor: pointer;
+			}
+			&.parent:hover {
+				background: $alabaster;
+				cursor: pointer;
+			}
+			&:hover ul {
+				left: 0;
+				top: 32px;
+				width: 240px;
+				background: $alabaster;
+				border: 1px solid $color_alto_approx;
+			}
+		}
+	}
+	a.helpicon {
+		display: none;
+	}
+	.available-templates li .sortable-remove {
+		display: none;
+	}
+	.available-stylesheets li .sortable-remove {
+		display: none;
+	}
+	.dashboard-box ul.subitems {
+		margin: 0;
+		padding: 0;
+	}
+}
+h1 {
+	color: $color_dorado_approx;
+	font-size: 20px;
+}
+h2 {
+	color: $color_dorado_approx;
+	font-size: 18px;
+}
+h3 {
+	color: $color_dorado_approx;
+	font-size: 16px;
+	&.main::before {
+		font-family: $font_12;
+		content: '\f015';
+		margin-right: 15px;
+		font-size: 1.2em;
+		width: 10px;
+		font-weight: normal;
+	}
+	&.content::before {
+		font-family: $font_12;
+		content: '\f15c';
+		margin-right: 15px;
+		font-size: 1.2em;
+		width: 10px;
+		font-weight: normal;
+	}
+	&.files::before {
+		font-family: $font_12;
+		content: '\f0c5';
+		margin-right: 15px;
+		font-size: 1.2em;
+		width: 10px;
+		font-weight: normal;
+	}
+	&.layout::before {
+		font-family: $font_12;
+		content: '\f00a';
+		margin-right: 15px;
+		font-size: 1.2em;
+		width: 10px;
+		font-weight: normal;
+	}
+	&.usersgroups::before {
+		font-family: $font_12;
+		content: '\f0c0';
+		margin-right: 15px;
+		font-size: 1.2em;
+		width: 10px;
+		font-weight: normal;
+	}
+	&.extensions::before {
+		font-family: $font_12;
+		content: '\f12e';
+		margin-right: 15px;
+		font-size: 1.2em;
+		width: 10px;
+		font-weight: normal;
+	}
+	&.siteadmin::before {
+		font-family: $font_12;
+		content: '\f013';
+		margin-right: 15px;
+		font-size: 1.2em;
+		width: 10px;
+		font-weight: normal;
+	}
+	&.myprefs::before {
+		font-family: $font_12;
+		content: '\f007';
+		margin-right: 15px;
+		font-size: 1.2em;
+		width: 10px;
+		font-weight: normal;
+	}
+	&.ecommerce::before {
+		font-family: $font_12;
+		content: '\f07a';
+		margin-right: 15px;
+		font-size: 1.2em;
+		width: 10px;
+		font-weight: normal;
+	}
+	&.dashboard-icon::before {
+	}
+}
+h4 {
+	color: $color_dorado_approx;
+	font-size: 14px;
+}
+h5 {
+	color: $color_dorado_approx;
+	font-size: 13px;
+}
+h6 {
+	color: $color_dorado_approx;
+	font-size: 12px;
+}
+p {
+	font-size: 14px;
+	margin: 2px 0 10px;
+	&.pageoptions {
+		padding: 2px 0;
+		a {
+			padding: 2px 0;
+			color: $color_dorado_approx;
+			display: inline;
+			cursor: pointer;
+		}
+	}
+	&.pageinputwysiwyg {
+		padding-top: 5px;
+	}
+	&.pagemessage {
+		margin-bottom: 0;
+		padding: 5px;
+		font-weight: bold;
+	}
+}
+a {
+	outline: none;
+	color: $color_azure_radiance_approx;
+	text-decoration: none;
+	cursor: pointer;
+	&:link {
+		color: $color_azure_radiance_approx;
+		text-decoration: none;
+		cursor: pointer;
+	}
+	&:visited {
+		color: $color_azure_radiance_approx;
+		text-decoration: none;
+		cursor: pointer;
+	}
+	&:hover {
+		color: $color_sorbus_approx;
+		text-decoration: underline;
+	}
+	&:active {
+		color: $color_sorbus_approx;
+		text-decoration: underline;
+	}
+	&.external {
+		background: $url_0 no-repeat right;
+		padding-right: 20px;
+	}
+	&.tooltip {
+		cursor: pointer;
+	}
+	&.text-red {
+		color: $color_amaranth_approx;
+	}
+	&.pageoptions {
+		padding: 2px 0;
+		color: $color_dorado_approx;
+		display: inline;
+		cursor: pointer;
+	}
+	&.pageback {
+		display: inline-block;
+		position: relative;
+		margin: 10px 0;
+		line-height: 26px;
+		color: $color_mine_shaft_approx;
+		text-decoration: none;
+		padding: 0 8px 0 20px;
+		.ui-icon {
+			position: absolute;
+			left: 0;
+			top: 6px;
+		}
+		&:hover {
+			color: $white;
+		}
+	}
+}
+span {
+	outline: none;
+	&.helptext a {
+		display: inline-block;
+		width: auto;
+		padding-right: 20px;
+		margin-left: 8px;
+		background: $url_14 no-repeat right;
+		background: $url_15 no-repeat right;
+		&.external {
+			display: inline-block;
+			width: auto;
+			padding-right: 20px;
+			margin-left: 8px;
+			background: $url_14 no-repeat right;
+		}
+	}
+}
+td {
+	text-align: left;
+	&.pagew30 {
+		width: 30%;
+		width: auto;
+		padding: 0;
+		max-width: 30px;
+		word-wrap: break-word;
+		text-overflow: elipsis;
+	}
+	&.pagepos {
+		text-align: center;
+	}
+	&.pageicon {
+		background: $concrete !important;
+	}
+	&.icons_wide {
+		width: 25px;
+	}
+}
+tr {
+	text-align: left;
+	&.row1 {
+		background: $black_5;
+		&:hover {
+			background: $color_alto_approx;
+		}
+	}
+	&.row2 {
+		background: $white;
+		&:hover {
+			background: $color_alto_approx;
+		}
+	}
+	&.row1hover {
+		background: $color_alto_approx;
+	}
+	&.row2hover {
+		background: $color_alto_approx;
+	}
+}
+form {
+	margin: 0;
+	display: inline;
+}
+.alert-dialog {
+	margin: 0;
+	padding: 0;
+	a {
+		text-decoration: underline;
+	}
+	.jqtoast {
+		position: relative;
+		margin: 0;
+		padding-left: 10px;
+		padding-right: 10px;
+		font-size: 0.9em;
+		&.error {
+			background: $color_wisp_pink_approx;
+		}
+		&.warn {
+			background: $color_early_dawn_approx;
+		}
+		&.info {
+			background: $color_foam_approx;
+		}
+		&.success {
+			background: $color_ottoman_approx;
+		}
+		> span {
+			font-size: 0.8em;
+		}
+		> .jqt-heading {
+			margin-right: 32px;
+		}
+	}
+}
+.file {
+	background: $url_1 no-repeat left;
+	padding-left: 25px;
+}
+.important {
+	color: $red;
+	font-weight: normal;
+}
+.smallgrey {
+	font-weight: normal;
+	font-size: 10px;
+	margin: 10px 0 0;
+}
+div {
+	&.pagecontainer {
+		.h-inside {
+			float: left;
+			padding-top: 8px;
+			padding-right: 10px;
+			margin-left: 10%;
+			width: 18em;
+			margin-bottom: 0.5em;
+			text-align: right;
+		}
+		fieldset {
+			border: 1px solid $color_alto_approx;
+			margin: 10px 0;
+		}
+		.pagetext {
+			color: $color_dorado_approx;
+			margin: 10px 0 5px;
+			padding: 0;
+			width: auto;
+			font-weight: bold;
+		}
+		.pageshowrows {
+			color: $color_dorado_approx;
+			font-size: 14px;
+			text-align: right;
+			margin-bottom: 5px;
+		}
+		.pageinput {
+			padding: 0;
+			margin: 0;
+			width: auto;
+			text-align: left;
+			label {
+				font-size: 14px;
+			}
+		}
+		legend {
+			font-weight: bold;
+			color: $color_dorado_approx;
+			padding: 0 5px;
+			font-size: 14px;
+		}
+		span.helptext {
+			display: inline-block;
+		}
+		p.pageinput {
+			font-size: 14px;
+		}
+	}
+	&.pageoverflow {
+		clear: left;
+		padding-top: 1px;
+		width: auto;
+		overflow: hidden;
+		img {
+			border: 0;
+		}
+	}
+	&.pageoptions {
+		padding: 2px 0;
+		a {
+			padding: 2px 0;
+			color: $color_dorado_approx;
+			display: inline;
+			cursor: pointer;
+		}
+	}
+	&.alert-dialog {
+		.alert-icon {
+			float: left;
+			cursor: pointer;
+			margin-right: 4px;
+		}
+		.alert-remove {
+			float: right;
+			cursor: pointer;
+			margin-left: 4px;
+		}
+		ul li {
+			margin: 10px 0;
+		}
+		span.ui-icon {
+		}
+	}
+	&.dialog {
+		h3 {
+			margin: 5px 0;
+			color: $color_azure_radiance_approx;
+			font-size: 14px;
+		}
+		a.bookmark {
+			padding-left: 20px;
+			line-height: 20px;
+			background: $url_16 no-repeat left;
+		}
+		form#chdir_form {
+			display: block;
+			select {
+				width: 200px;
+			}
+		}
+	}
+}
+.visible {
+	position: static;
+}
+.invisible {
+	position: absolute;
+	left: -9999em;
+	top: auto;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+.hidden {
+	display: none !important;
+}
+pre {
+	font-family: $font_0, $font_1, $font_2, $font_3, $font_4, $font_5, $font_6;
+	text-align: left;
+	color: $color_mine_shaft_approx;
+	height: auto;
+	font-size: 14px;
+	padding: 5px 20px;
+	border-left: 10px solid $color_alto_approx;
+	background: $color_gallery_approx;
+	margin: 5px;
+	overflow: auto;
+	display: inline-block;
+	width: auto;
+	code {
+	}
+}
+code {
+	font-family: $font_0, $font_1, $font_2, $font_3, $font_4, $font_5, $font_6;
+	text-align: left;
+	color: $color_mine_shaft_approx;
+	height: auto;
+	font-size: 14px;
+}
+samp {
+	font-family: $font_0, $font_1, $font_2, $font_3, $font_4, $font_5, $font_6;
+	text-align: left;
+	color: $color_mine_shaft_approx;
+	height: auto;
+	font-size: 14px;
+}
+kbd {
+	font-family: $font_0, $font_1, $font_2, $font_3, $font_4, $font_5, $font_6;
+	text-align: left;
+	color: $color_mine_shaft_approx;
+	height: auto;
+	font-size: 14px;
+}
+input {
+	@extend %extend_1;
+	text-indent: 5px;
+	margin-right: 5px;
+	&:hover {
+		border: 1px solid $color_silver_chalice_approx;
+		outline: 0;
+		background: $white;
+	}
+	&:focus {
+		border: 1px solid $color_silver_chalice_approx;
+		outline: 0;
+		background: $white;
+	}
+	&.pagecheckbox {
+		border: none;
+	}
+}
+textarea {
+	@extend %extend_1;
+	resize: both;
+	min-width: 10em;
+	min-height: 3em;
+	&:hover {
+		border: 1px solid $color_silver_chalice_approx;
+		outline: 0;
+		background: $white;
+	}
+	&:focus {
+		border: 1px solid $color_silver_chalice_approx;
+		outline: 0;
+		background: $white;
+	}
+	&.pagesmalltextarea {
+		height: 15em;
+		width: 90%;
+	}
+	&.pageextrasmalltextarea {
+		height: 8em;
+		width: 90%;
+	}
+}
+select {
+	@extend %extend_1;
+	&:hover {
+		border: 1px solid $color_silver_chalice_approx;
+		outline: 0;
+		background: $white;
+	}
+	&:focus {
+		border: 1px solid $color_silver_chalice_approx;
+		outline: 0;
+		background: $white;
+	}
+}
+menu {
+	@extend %extend_1;
+	&:focus {
+		border: 1px solid $color_silver_chalice_approx;
+		outline: 0;
+		background: $white;
+	}
+}
+.group_memberships {
+	margin: 0;
+	height: 1%;
+	padding: 5px 10px;
+	background: $color_white_approx;
+	border: 1px solid $color_alto_approx;
+}
+.dashboard-box {
+	min-height: 100px;
+	width: 31.513%;
+	float: left;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 4px;
+	margin-right: 2.29%;
+	margin-bottom: 10px;
+	background: $color_alto_approx $url_9 214px -339px repeat-x;
+	border: 1px solid $color_alto_approx;
+	float: none;
+	width: auto;
+	margin: 10px 0;
+	img {
+		max-height: 48px;
+		padding: 20px;
+		-webkit-box-shadow: inset 0 1px 15px 1px $color_alto_approx;
+		//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+		box-shadow: inset 0 1px 15px 1px $color_alto_approx;
+		margin-right: 10px;
+		float: left;
+		border: 1px solid $color_alto_approx;
+		background: $white;
+	}
+	&.last {
+		margin-right: 0;
+	}
+	nav {
+		padding: 10px;
+	}
+	h3 {
+		//Instead of the line below you could use @include text-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+		text-shadow: 0 1px 0 $white;
+		margin: 0 0 5px 0;
+		a:focus {
+			border: 1px solid $color_azure_radiance_approx;
+		}
+	}
+	h4 {
+		margin: 5px 0;
+		font-size: 13px;
+		color: $color_mine_shaft_approx;
+	}
+	&:hover img {
+		//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+		box-shadow: inset 0 1px 15px 1px $color_caramel_approx;
+		-webkit-box-shadow: inset 0 1px 15px 1px $color_caramel_approx;
+		-webkit-transition: all 600ms ease-in-out;
+		-moz-transition: all 600ms ease-in-out;
+		-o-transition: all 600ms ease-in-out;
+		//Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+		transition: all 600ms ease-in-out;
+	}
+	span.description {
+		color: $color_dorado_approx;
+		font-style: italic;
+	}
+	ul.subitems li {
+		list-style: none;
+		margin: 0 4px;
+		line-height: 1.4;
+		float: left;
+		a {
+			font-size: 13px;
+			text-decoration: underline;
+		}
+	}
+}
+.warning {
+	p {
+	}
+	h3 {
+	}
+}
+.error {
+	&.jqtoast {
+		background-color: $color_wisp_pink_approx;
+	}
+	.jqt-close::before {
+		color: $color_torch_red_approx;
+	}
+	.jqt-heading {
+		background-color: $color_amaranth_approx;
+		color: $white;
+	}
+}
+.information {
+}
+.message {
+	&:hover {
+		cursor: help;
+	}
+	p {
+	}
+}
+.success {
+	&.jqtoast {
+		background-color: $color_ottoman_approx;
+	}
+	.jqt-close::before {
+		color: $color_malachite_approx;
+	}
+	.jqt-heading {
+		background-color: $color_sea_green_approx;
+		color: $color_big_stone_approx;
+	}
+}
+.pagewarning {
+	&.hidden {
+		display: none;
+	}
+	p {
+	}
+	h3 {
+	}
+}
+.green {
+	padding: 10px;
+	color: $color_sea_green_approx;
+}
+.red {
+	padding: 10px;
+	color: $color_amaranth_approx;
+}
+.yellow {
+	padding: 10px;
+	color: $color_amber_approx;
+}
+.resize-horizontal {
+	resize: horizontal;
+}
+.resize-vertical {
+	resize: vertical;
+}
+input[type='text'] {
+	&#in_title {
+		min-width: 30%;
+	}
+	&#in_menutext {
+		min-width: 30%;
+	}
+}
+input[type="text"] {
+	padding: 5px;
+}
+input[type="password"] {
+	padding: 5px;
+}
+input[type="button"] {
+	border: 1px solid $color_alto_approx;
+	font-weight: normal;
+	cursor: pointer;
+	height: 28px;
+	font-size: 13px;
+	&:hover {
+		cursor: pointer;
+	}
+}
+input[type="submit"] {
+	border: 1px solid $color_alto_approx;
+	font-weight: normal;
+	cursor: pointer;
+	height: 28px;
+	font-size: 13px;
+	&:hover {
+		cursor: pointer;
+	}
+}
+.ui-button {
+	border: 1px solid $color_alto_approx;
+	font-weight: normal;
+	cursor: pointer;
+	height: 28px;
+	font-size: 13px;
+	margin: 4px 0;
+}
+.ui-button-text {
+	font-size: 12px;
+	margin-left: 2px;
+}
+input[type="checkbox"] {
+	background: $white;
+	border: none;
+}
+.tooltip {
+	cursor: help;
+}
+.ui-tooltip {
+	font-family: $font_7, $font_8, $font_9, $font_10, $font_11;
+	font-size: 13px;
+}
+.text-red {
+	color: $color_amaranth_approx;
+}
+.pagemcontainer {
+	@extend %extend_2;
+}
+.pageerrorcontainer {
+	@extend %extend_2;
+	ul {
+		border: none;
+		margin-left: 25px;
+		background: none;
+	}
+}
+.pageerrorinstalldir {
+	@extend %extend_2;
+}
+.dialog {
+	.green {
+		display: block;
+	}
+	.red {
+		display: block;
+	}
+	.yellow {
+		display: block;
+	}
+	.orange {
+		display: block;
+	}
+}
+.orange {
+	padding: 10px;
+	color: $color_ecstasy_approx;
+}
+.blue {
+	color: $color_azure_radiance_approx;
+}
+.block {
+	display: block;
+}
+aside {
+	&.message {
+		@extend %extend_2;
+	}
+	.no-slide {
+		@extend %extend_3;
+	}
+}
+.no-slide {
+	@extend %extend_3;
+}
+.errorDialog {
+	border: 1px solid $red;
+	color: $red;
+	height: 100%;
+	line-height: 100%;
+}
+#cms_busy {
+	@extend %extend_4;
+}
+.busy {
+	@extend %extend_4;
+}
+.jqtoast {
+	display: block;
+	position: fixed;
+	border-width: 1px;
+	border-style: solid;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 4px;
+	margin: 0;
+	padding: 10px 3em;
+	max-width: 40em;
+	line-height: 1.2;
+	letter-spacing: normal;
+	font-size: 0.9em;
+	pointer-events: all !important;
+	z-index: 9000 !important;
+	&.bottom-left {
+		bottom: 20px;
+		left: 2.5em;
+	}
+	&.bottom-right {
+		bottom: 20px;
+		right: 40px;
+	}
+	&.top-left {
+		top: 70px;
+		left: 2.5em;
+	}
+	&.top-right {
+		top: 70px;
+		right: 40px;
+	}
+	&.bottom-center {
+		bottom: 20px;
+	}
+	&.top-center {
+		top: 70px;
+	}
+	* {
+		margin: 0;
+		padding: 0;
+	}
+	ul {
+		background: none;
+		margin-left: 15px;
+		padding: 0;
+		li {
+			list-style-type: disc !important;
+			background: none;
+			padding: 0;
+			letter-spacing: normal;
+		}
+	}
+}
+.jqt-heading {
+	margin-bottom: 10px;
+	padding: 10px;
+	font-size: 1em;
+	font-weight: bold;
+	text-align: center;
+}
+.jqt-close {
+	position: absolute;
+	width: 1.6em;
+	height: 1.6em;
+	top: 10px;
+	right: 10px;
+	cursor: pointer;
+}
+.jqt-close::before {
+	content: '\f410';
+	font-family: $font_12;
+	font-weight: 900;
+	font-size: 1.6em;
+}
+.jqt-loader {
+	display: block;
+	position: absolute;
+	top: -2px;
+	height: 5px;
+	width: 0;
+	left: 0;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 5px;
+	background: $red;
+}
+.jqt-loaded {
+	width: 100%;
+}
+.jqt-icon-error::before {
+	content: '\f05e';
+	color: $color_torch_red_approx;
+}
+.warn {
+	&.jqtoast {
+		background-color: $color_early_dawn_approx;
+	}
+	.jqt-close::before {
+		color: $color_buttercup_approx;
+	}
+	.jqt-heading {
+		background-color: $color_amber_approx;
+		color: $color_big_stone_approx;
+	}
+}
+.jqt-icon-warning::before {
+	content: '\f071';
+	color: $color_buttercup_approx;
+}
+.info {
+	&.jqtoast {
+		background-color: $color_foam_approx;
+	}
+	.jqt-close::before {
+		color: $color_cerulean_approx;
+	}
+	.jqt-heading {
+		background-color: $color_eastern_blue_approx;
+		color: $white;
+	}
+}
+.jqt-icon-info::before {
+	content: '\f05a';
+	color: $color_cerulean_approx;
+}
+.jqt-icon-success::before {
+	content: '\f058';
+	color: $color_malachite_approx;
+}
+.close-warning {
+	float: right;
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	text-indent: -9999em;
+	background: transparent $url_8 no-repeat;
+	cursor: pointer;
+	margin: 5px;
+}
+.colbox {
+	display: -webkit-box;
+	display: -moz-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-box-direction: normal;
+	-ms-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-webkit-box-orient: vertical;
+	-moz-box-direction: normal;
+	-moz-box-orient: vertical;
+	-webkit-flex-direction: column;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	&.expand {
+		-webkit-box-pack: justify;
+		-moz-box-pack: justify;
+		-ms-flex-pack: justify;
+		-webkit-justify-content: space-between;
+		justify-content: space-between;
+	}
+	&.flow {
+		-webkit-flex-wrap: wrap;
+		-ms-flex-wrap: wrap;
+		flex-wrap: wrap;
+	}
+	.boxchild {
+		margin-bottom: 10px;
+	}
+}
+.rowbox {
+	display: -webkit-box;
+	display: -moz-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	&.expand {
+		-webkit-box-pack: justify;
+		-moz-box-pack: justify;
+		-ms-flex-pack: justify;
+		-webkit-justify-content: space-between;
+		justify-content: space-between;
+	}
+	&.flow {
+		-webkit-flex-wrap: wrap;
+		-ms-flex-wrap: wrap;
+		flex-wrap: wrap;
+	}
+	.boxchild {
+		margin-right: 10px;
+	}
+}
+.boxchild {
+	-webkit-box: 0;
+	-moz-box: 0;
+	-webkit-flex: 0 1 auto;
+	-ms-flex: 0 1 auto;
+	flex: 0 1 auto;
+	&.fill {
+		-webkit-box: 1;
+		-moz-box: 1;
+		-webkit-flex: 1 1 auto;
+		-ms-flex: 1 1 auto;
+		flex: 1 1 auto;
+	}
+}
+#oe_container {
+	position: relative;
+	height: auto !important;
+	height: 100%;
+	margin: 0 0 -30px 0;
+	min-height: 100%;
+	&.sidebar-off {
+		#oe_sidebar {
+			overflow: hidden;
+			width: 40px;
+		}
+		#oe_mainarea {
+			margin: 0 0 0 40px;
+		}
+		.footer-left {
+			margin: 0 0 0 60px;
+		}
+		nav ul#oe_pagemenu li span.open-nav {
+			display: none;
+		}
+	}
+	&.sidebar-on nav ul#oe_pagemenu li {
+		zoom: 1;
+		&.current ul {
+			display: block;
+		}
+	}
+}
+.spacer {
+	height: 30px;
+	clear: both;
+}
+#oe_admin-content {
+	height: 100%;
+	.shadow {
+		background: transparent $url_9 831px -148px repeat-x;
+		z-index: 50;
+		position: absolute;
+		top: 100px;
+		left: 0;
+		width: 100%;
+		height: 7px;
+	}
+}
+.headericon {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 0 1em 0 0;
+	height: 2em;
+	width: 2em;
+	img {
+		max-height: 2em;
+		max-width: 2em;
+	}
+}
+header {
+	&.header {
+		height: 100px;
+		background: $color_alto_approx;
+	}
+	.header-top {
+		height: 69px;
+		border-bottom: 1px solid $color_alto_approx;
+		background: $color_gallery_approx $url_9 831px -10px repeat-x;
+		overflow: hidden;
+	}
+	.cms-logo {
+		width: 240px;
+		height: 70px;
+		padding-left: 10px;
+		float: left;
+	}
+	.admin-title {
+		text-align: right;
+		max-width: 70%;
+		overflow: hidden;
+		display: inline-block;
+		height: 70px;
+		font: bold 14px/70px $font_11;
+		margin-right: 20px;
+		color: $color_dorado_approx;
+		//Instead of the line below you could use @include text-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+		text-shadow: 1px 1px 0 $white_66;
+		float: right;
+		font-size: 12px;
+	}
+	.header-bottom {
+		height: 29px;
+		line-height: 29px;
+		border-bottom: 1px solid $color_cod_gray_approx;
+		position: relative;
+		width: 100%;
+		background: $color_mine_shaft_approx $url_9 831px -99px repeat-x;
+	}
+	.welcome {
+		width: 250px;
+		overflow: hidden;
+		float: left;
+		color: $white;
+		background: transparent $url_11 no-repeat top right;
+		span {
+			display: inline-block;
+			width: auto;
+			font-size: 11px;
+			line-height: 18px;
+			margin-left: 10px;
+		}
+		a {
+			color: $white;
+			i {
+				color: $color_sorbus_approx;
+				font-size: 1.2em;
+			}
+		}
+	}
+	.shortcuts {
+		line-height: 25px;
+		float: right;
+		ul {
+			width: auto;
+			text-align: left;
+			margin-right: 20px;
+		}
+		li {
+			padding: 0 12px;
+			display: inline-block;
+			float: left;
+			&:last-child {
+				padding: 0 0 0 12px;
+			}
+			&.last {
+				padding: 0 0 0 12px;
+			}
+			i {
+				font-size: 1.2em;
+				padding-top: 0.35em;
+			}
+			a {
+				cursor: pointer;
+				color: $color_sorbus_approx;
+				&:hover {
+					color: $color_azure_radiance_approx;
+				}
+			}
+			&.notifications {
+				position: relative;
+				span.bubble {
+					position: absolute;
+					top: 1px;
+					right: 0;
+					margin-right: 0;
+					text-align: center;
+					width: 1.2em;
+					height: 1.2em;
+					-moz-border-radius: 0.8em;
+					-webkit-border-radius: 0.8em;
+					//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+					border-radius: 0.8em;
+					background: $color_red_berry_approx;
+					font-size: .8em;
+					line-height: 1.2em;
+					font-weight: bold;
+					text-indent: initial;
+					color: $white;
+				}
+			}
+		}
+	}
+	a.welcome-user {
+		height: 18px;
+		width: 18px;
+		display: inline-block;
+		margin-right: 10px;
+	}
+}
+#oe_sidebar {
+	width: 249px;
+	border-right: 1px solid $white;
+	background: $color_alto_approx $url_12 repeat-y right;
+	position: absolute;
+	left: 0;
+	top: 100px;
+	bottom: 0;
+	bottom: 30px;
+	aside {
+		padding-bottom: 30px;
+		position: relative;
+		padding: 0;
+	}
+	.toggle-button {
+		z-index: 99;
+		display: block;
+		cursor: pointer;
+		width: 24px;
+		height: 25px;
+		position: absolute;
+		right: -1px;
+		top: 12px;
+		font-family: $font_12;
+		font-size: 1.2em;
+		&.top {
+			top: -33px;
+		}
+	}
+	nav.navigation {
+		height: auto;
+		margin-top: 45px;
+		position: relative;
+		.box-shadow {
+			width: 11px;
+			z-index: 10;
+			position: absolute;
+			right: 0;
+			top: 0;
+			bottom: 0;
+			background: $url_12 repeat-y right;
+		}
+	}
+}
+.sidebar-on {
+	#oe_sidebar {
+		.toggle-button::before {
+			content: "\f100";
+		}
+		nav.navigation {
+			width: 249px;
+		}
+	}
+	#page_tabs div {
+		text-align: left;
+		//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+		border-radius: 0;
+		margin-right: 0;
+		&.active {
+			color: $white;
+			background: $color_azure_radiance_approx;
+		}
+	}
+}
+nav {
+	ul#oe_pagemenu {
+		border-bottom: 1px solid $color_silver_chalice_approx;
+		li {
+			position: relative;
+			zoom: 1;
+			background: $url_13 repeat-x top;
+			line-height: 35px;
+			padding: 0;
+			&.current {
+				span {
+					&.open-nav {
+						cursor: pointer;
+						cursor: pointer;
+					}
+					&.open-nav::before {
+						font-family: $font_12;
+						float: right;
+						margin-right: 0.8em;
+						content: "\f0d7";
+						font-family: $font_12;
+						float: right;
+						margin-right: 0.8em;
+						content: "\f0d7";
+					}
+				}
+				a {
+					color: $color_azure_radiance_approx;
+				}
+				&:hover span {
+					&.open-nav {
+						cursor: pointer;
+					}
+					&.open-nav::before {
+						font-family: $font_12;
+						float: right;
+						margin-right: 0.8em;
+						content: "\f0d7";
+					}
+				}
+				li a {
+					color: $color_mine_shaft_approx;
+					color: $color_azure_radiance_approx;
+					height: auto;
+					line-height: 1.3;
+					white-space: pre-line;
+					//Instead of the line below you could use @include word-break($value)
+					word-break: normal;
+					padding: 5px 5px 5px 30px;
+					color: $color_mine_shaft_approx;
+					font-weight: normal;
+					&:hover {
+						color: $color_azure_radiance_approx;
+						padding-left: 30px;
+					}
+					&:active {
+						color: $color_azure_radiance_approx;
+						padding-left: 30px;
+					}
+				}
+			}
+			&:hover {
+				span {
+					&.open-nav {
+						cursor: pointer;
+					}
+					&.open-nav::before {
+						font-family: $font_12;
+						float: right;
+						margin-right: 0.8em;
+						content: "\f0d7";
+					}
+				}
+				a {
+					color: $color_azure_radiance_approx;
+				}
+				li a {
+					height: auto;
+					line-height: 1.3;
+					white-space: pre-line;
+					//Instead of the line below you could use @include word-break($value)
+					word-break: normal;
+					padding: 5px 5px 5px 30px;
+					color: $color_mine_shaft_approx;
+					font-weight: normal;
+				}
+			}
+			a {
+				color: $color_mine_shaft_approx;
+				outline: 0;
+				margin-left: 9px;
+				height: 33px;
+				font-weight: bold;
+				display: block;
+				//Instead of the line below you could use @include text-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+				text-shadow: 1px 1px 0 $white;
+				text-decoration: none;
+				border: 1px solid transparent;
+				span {
+					&:hover {
+						cursor: pointer;
+					}
+					&:hover::before {
+						font-family: $font_12;
+						float: right;
+						margin-right: 0.8em;
+						content: "\f0d7";
+					}
+				}
+				&:hover {
+					color: $color_azure_radiance_approx;
+				}
+				&:active {
+					color: $color_azure_radiance_approx;
+				}
+				&:focus {
+					color: $color_azure_radiance_approx !important;
+					border: 1px solid $color_azure_radiance_approx;
+					margin-right: 10px;
+				}
+				&.main::before {
+					font-family: $font_12;
+					content: '\f015';
+					margin-right: 15px;
+					font-size: 1.2em;
+					width: 10px;
+					font-weight: normal;
+				}
+				&.content::before {
+					font-family: $font_12;
+					content: '\f15c';
+					margin-right: 15px;
+					font-size: 1.2em;
+					width: 10px;
+					font-weight: normal;
+				}
+				&.files::before {
+					font-family: $font_12;
+					content: '\f0c5';
+					margin-right: 15px;
+					font-size: 1.2em;
+					width: 10px;
+					font-weight: normal;
+				}
+				&.layout::before {
+					font-family: $font_12;
+					content: '\f00a';
+					margin-right: 15px;
+					font-size: 1.2em;
+					width: 10px;
+					font-weight: normal;
+				}
+				&.usersgroups::before {
+					font-family: $font_12;
+					content: '\f0c0';
+					margin-right: 15px;
+					font-size: 1.2em;
+					width: 10px;
+					font-weight: normal;
+				}
+				&.extensions::before {
+					font-family: $font_12;
+					content: '\f12e';
+					margin-right: 15px;
+					font-size: 1.2em;
+					width: 10px;
+					font-weight: normal;
+				}
+				&.siteadmin::before {
+					font-family: $font_12;
+					content: '\f013';
+					margin-right: 15px;
+					font-size: 1.2em;
+					width: 10px;
+					font-weight: normal;
+				}
+				&.myprefs::before {
+					font-family: $font_12;
+					content: '\f007';
+					margin-right: 15px;
+					font-size: 1.2em;
+					width: 10px;
+					font-weight: normal;
+				}
+				&.ecommerce::before {
+					font-family: $font_12;
+					content: '\f07a';
+					margin-right: 15px;
+					font-size: 1.2em;
+					width: 10px;
+					font-weight: normal;
+				}
+				&.parent::before {
+					width: 1em;
+					display: inline-block;
+					text-align: center;
+				}
+			}
+			ul {
+				display: none;
+			}
+			li {
+				background: none;
+				line-height: 1;
+				a {
+					height: auto;
+					line-height: 1.3;
+					white-space: pre-line;
+					//Instead of the line below you could use @include word-break($value)
+					word-break: normal;
+					padding: 5px 5px 5px 30px;
+					color: $color_mine_shaft_approx;
+					font-weight: normal;
+					&:hover {
+						color: $color_azure_radiance_approx;
+						color: $color_azure_radiance_approx;
+						padding-left: 30px;
+					}
+					&:active {
+						padding-left: 30px;
+					}
+				}
+				&.module {
+					background-color: $mercury;
+					border-bottom: 1px dotted $color_gallery_approx;
+				}
+				&.current a {
+					color: $color_azure_radiance_approx;
+				}
+			}
+			span.open-nav {
+				display: block;
+				width: 210px;
+				height: 35px;
+				z-index: 50;
+				position: absolute;
+				right: 5px;
+				top: 0;
+				&.open-sub {
+					cursor: pointer;
+				}
+				&.open-sub::before {
+					font-family: $font_12;
+					float: right;
+					margin-right: 0.8em;
+					content: "\f0d7";
+				}
+				&.open-sub::after {
+				}
+			}
+		}
+		ul {
+			padding: 8px 0;
+			background: $color_gallery_approx;
+		}
+	}
+	> ul > li li {
+		margin-left: .75rem;
+	}
+}
+.cms_helpicon {
+	cursor: pointer;
+}
+#oe_footer {
+	small {
+		font-size: 11px;
+		color: $white;
+	}
+	.footer-left {
+		width: 450px;
+		padding: 10px;
+		line-height: 15px;
+		float: left;
+		margin-left: 0;
+	}
+	.footer-right {
+		float: right;
+		padding: 10px;
+		line-height: 15px;
+		display: inline;
+		width: auto;
+	}
+	ul.links {
+		display: inline-block;
+		margin-right: 20px;
+		font-size: 12px;
+		width: auto;
+		li {
+			display: block;
+			padding: 0 8px;
+			float: left;
+			&:last-child {
+				padding: 0 0 0 8px;
+			}
+			&.last {
+				padding: 0 0 0 8px;
+			}
+		}
+	}
+}
+.footer-left {
+	margin: 0 0 0 260px;
+}
+.pageheader {
+	font-size: 18px;
+	font-weight: normal;
+	margin: 0;
+	padding: 0;
+	color: $color_azure_radiance_approx;
+	span.helptext {
+		display: inline;
+		line-height: 63px;
+		float: right;
+		width: auto;
+		color: $color_mine_shaft_approx;
+		font-size: 12px;
+		display: inline-block;
+		line-height: 1.3;
+		padding-right: 0;
+		margin-left: 8px;
+		background: none;
+		a img {
+			margin-right: 10px;
+		}
+	}
+}
+#copy_paste_in_forum {
+	width: 80%;
+	margin: 0 10%;
+}
+.pagerows {
+	a {
+		display: inline-block;
+		background: $color_gallery_approx;
+		padding: 2px 4px;
+		margin: 2px 1px;
+		color: $color_dorado_approx;
+		border: 1px solid $color_silver_approx;
+	}
+	strong {
+		background: $color_azure_radiance_approx;
+		padding: 2px 4px;
+		margin: 0 1px;
+		color: $white;
+		border: 1px solid $color_azure_radiance_approx;
+	}
+}
+.move {
+	width: 60px;
+	text-align: left;
+	padding-left: 5px;
+	width: auto;
+	padding: 0;
+	max-width: 16px;
+	width: auto;
+	padding: 0;
+	max-width: 30px;
+	word-wrap: break-word;
+	text-overflow: elipsis;
+}
+.checkbox {
+	padding-left: 10px;
+	padding-left: 0;
+}
+th {
+	&.pagew10 {
+		width: 10%;
+		width: auto;
+		padding: 0;
+		max-width: 30px;
+		word-wrap: break-word;
+		text-overflow: elipsis;
+	}
+	&.pagew25 {
+		width: 25%;
+		width: auto;
+		padding: 0;
+		max-width: 30px;
+		word-wrap: break-word;
+		text-overflow: elipsis;
+	}
+	&.pagew50 {
+		width: 50%;
+		width: auto;
+		padding: 0;
+		max-width: 30px;
+		word-wrap: break-word;
+		text-overflow: elipsis;
+	}
+	&.pagew60 {
+		width: 60%;
+		width: auto;
+		padding: 0;
+		max-width: 30px;
+		word-wrap: break-word;
+		text-overflow: elipsis;
+	}
+	&.pagew70 {
+		width: 70%;
+		width: auto;
+		padding: 0;
+		max-width: 30px;
+		word-wrap: break-word;
+		text-overflow: elipsis;
+	}
+}
+.pointer {
+	cursor: pointer;
+}
+iframe {
+	&.imageframe {
+		margin-top: 10px;
+		border: none;
+		width: 100%;
+	}
+	&.preview {
+		background-color: $white;
+		margin: 10px 0;
+		border: solid 1px $color_alto_approx;
+		width: 95%;
+		height: 400px;
+	}
+}
+.pageback {
+	clear: both;
+	text-align: left;
+}
+.pageinput {
+	img {
+		line-height: 28px;
+		vertical-align: middle;
+	}
+	input {
+		margin-bottom: 4px;
+	}
+	textarea {
+		margin-bottom: 4px;
+		width: 90%;
+		font-family: $font_0, $font_1, $font_2, $font_3, $font_4, $font_5, $font_6;
+		font-size: 13px;
+		line-height: 1.6;
+	}
+	select {
+		margin-bottom: 4px;
+	}
+	menu {
+		margin-bottom: 4px;
+	}
+}
+.group {
+	padding-right: 3px;
+	padding-bottom: 3px;
+	padding-top: 3px;
+}
+#page_tabs {
+	overflow: hidden;
+	margin: 20px 0;
+	div {
+		color: $color_dorado_approx;
+		//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+		border-radius: 4px 4px 0 0;
+		//Instead of the line below you could use @include text-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+		text-shadow: -1px 1px 0 $white_66;
+		background: $color_alto_approx;
+		font-weight: bold;
+		text-align: center;
+		float: left;
+		cursor: pointer;
+		white-space: nowrap;
+		padding: 11px;
+		margin-top: 1px;
+		margin-right: 1px;
+		img {
+			height: 14px;
+			margin-top: 2px;
+			margin-left: 5px;
+			margin-right: 5px;
+		}
+		&:hover {
+			color: $color_azure_radiance_approx;
+		}
+		&:focus {
+			color: $color_azure_radiance_approx;
+		}
+		&.active {
+			color: $white;
+			//Instead of the line below you could use @include text-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+			text-shadow: -1px -1px 0 $color_congress_blue_approx;
+			background: $color_azure_radiance_approx $url_17 no-repeat center bottom;
+		}
+	}
+}
+#page_content {
+	background: $white;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 0 0 4px 4px;
+	padding: 20px 10px;
+	border: 1px solid $color_alto_approx;
+	border-top: 3px solid $color_alto_approx;
+}
+#topcontent_wrap {
+	display: flex;
+	flex-wrap: wrap;
+}
+.reorder-pages {
+	margin: 20px 0;
+	ul {
+		list-style-type: none;
+		width: 450px;
+		margin: 0;
+		padding: 0;
+	}
+}
+.version {
+	background: $seashell;
+	border: 1px solid $color_alto_approx;
+	margin: 15px 0;
+	padding: 20px;
+	font-family: $font_0, $font_1, $font_2, $font_3, $font_4, $font_5, $font_6;
+	line-height: 1.5;
+	h3 {
+		text-transform: uppercase;
+		color: $color_azure_radiance_approx;
+		margin: 0;
+		padding: 0;
+		font-family: $font_7, $font_8, $font_9, $font_10, $font_11;
+	}
+}
+#login {
+	#wrapper {
+		padding-top: 10%;
+	}
+	div {
+		&.login-container {
+			width: 352px;
+			padding-top: 36px;
+			margin: auto;
+			&#error {
+				width: 352px;
+				padding-top: 36px;
+				margin: auto;
+			}
+		}
+		&.login-box {
+			background: $color_alto_approx $url_9 214px -339px repeat-x;
+			position: relative;
+			//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+			border-radius: 4px 4px 0 4px;
+			border: 1px solid $color_silver_chalice_approx;
+			//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+			box-shadow: $color_martini_approx 0 0 6px;
+			-webkit-box-shadow: $color_martini_approx 0 0 6px;
+			margin: 0 auto;
+			padding: 10px 20px;
+			width: 310px;
+		}
+		&.info-wrapper {
+			position: absolute;
+			width: 25px;
+			left: -27px;
+			top: 10px;
+			&.open {
+				left: -302px;
+				padding-left: 25px;
+				width: 275px;
+			}
+			h2 {
+				font-size: 12px;
+				margin: 5px 0 10px;
+			}
+		}
+	}
+	.logo {
+		width: 180px;
+		height: 36px;
+		position: absolute;
+		right: 10px;
+		top: -29px;
+	}
+	h1 {
+		color: $color_dorado_approx;
+		margin-bottom: 20px;
+		font-size: 12px;
+		//Instead of the line below you could use @include text-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+		text-shadow: 0 1px 0 $white;
+	}
+	fieldset {
+		margin: 0 0 10px 0;
+		padding: 0;
+		border: none;
+	}
+	label {
+		color: $color_dorado_approx;
+		font-size: 13px;
+	}
+	input[type="text"] {
+		margin: 5px 0;
+		border-bottom: 1px solid $white;
+		border-right: 1px solid $white;
+		width: 300px;
+		&:focus {
+			@extend %extend_5;
+		}
+	}
+	input[type="password"] {
+		margin: 5px 0;
+		border-bottom: 1px solid $white;
+		border-right: 1px solid $white;
+		width: 300px;
+		&:focus {
+			@extend %extend_5;
+		}
+	}
+	.copyright {
+		margin: 5px auto;
+		text-align: center;
+	}
+	small {
+		text-align: center;
+		font-size: 12px;
+		color: $color_dorado_approx;
+		display: block;
+		a {
+			color: $color_sorbus_approx;
+			text-decoration: none;
+			font-weight: bold;
+		}
+	}
+	.message {
+		display: block;
+	}
+	aside.info {
+		display: none;
+		font-size: 12px;
+		color: $color_dorado_approx;
+		background: $color_gallery_approx;
+		width: 255px;
+		padding: 0 10px 10px;
+		border: 1px solid $color_silver_chalice_approx;
+		border-right: none;
+		//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+		border-radius: 0 0 0 4px;
+		p {
+			font-size: 12px;
+			&.warning {
+				background-image: none;
+				margin-top: 5px;
+				padding: 5px;
+			}
+		}
+		ol {
+			margin-bottom: 0;
+			list-style: decimal;
+		}
+	}
+	input.loginsubmit {
+		border: 1px solid $color_gray_approx;
+		color: $white;
+		text-indent: 0;
+		line-height: 28px;
+		height: 28px;
+		width: auto;
+		padding: 0 14px;
+		margin-top: 15px;
+		background: $color_gray_approx $url_19 repeat-x top;
+		&:hover {
+			border: 1px solid $color_mango_tango_approx;
+			background: $color_sorbus_approx $url_20 repeat-x top;
+		}
+		&:focus {
+			border: 1px solid $color_mango_tango_approx;
+			background: $color_sorbus_approx $url_20 repeat-x top;
+		}
+	}
+	a.toggle-info {
+		width: 25px;
+		outline: none;
+		//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+		border-radius: 4px 0 0 4px;
+		position: absolute;
+		top: 0;
+		left: 0;
+		border: 1px solid $color_silver_chalice_approx;
+		border-right: none;
+		height: 25px;
+		display: block;
+		text-indent: -9999em;
+		background: $color_gallery_approx $url_21 no-repeat center;
+	}
+	img.goback {
+		padding-top: 2px;
+		float: left;
+	}
+	p.forgotpw {
+		display: inline-block;
+		width: auto;
+		float: right;
+		margin-bottom: 0;
+		a {
+			padding-left: 20px;
+			background: $url_22 left 50% no-repeat;
+			color: $color_dorado_approx;
+			//Instead of the line below you could use @include text-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+			text-shadow: 0 1px 0 $white;
+			font-size: 12px;
+			text-decoration: none;
+		}
+	}
+}
+.row {
+	width: 100%;
+	margin: 0 auto;
+	position: relative;
+}
+.row::before {
+	content: " ";
+	display: table;
+}
+.row::after {
+	content: " ";
+	display: table;
+	clear: both;
+}
+.half {
+	width: 50%;
+	float: left;
+}
+.options-form {
+	text-align: right;
+}
+#templatetable {
+	.col_dflt {
+		padding-left: 2px;
+		padding-right: 2px;
+	}
+	.col_edit {
+		padding-left: 2px;
+		padding-right: 2px;
+	}
+	&.col_copy {
+		padding-left: 2px;
+		padding-right: 2px;
+	}
+	&.col_delete {
+		padding-left: 2px;
+		padding-right: 2px;
+	}
+}
+@media screen and(max-width: 1024px) {
+	@-ms-viewport {
+		width: device-width;
+	}
+	@-o-viewport {
+		width: device-width;
+	}
+	@-moz-viewport {
+		width: device-width;
+	}
+	@-webkit-viewport {
+		width: device-width;
+	}
+	@viewport {
+		width: device-width;
+	}
+}
+@media screen and(max-width: 992px) {
+	body {
+		margin: 0;
+		min-width: 100%;
+		padding: 0;
+	}
+	a {
+		outline: 0;
+	}
+	img {
+		float: none;
+	}
+	#oe_container {
+		margin: 0;
+		float: none;
+		display: block;
+		height: 100%;
+		width: 100%;
+		padding: 0;
+		position: static;
+		height: auto;
+	}
+	.header {
+		margin: 0;
+		float: none;
+		display: block;
+		height: 100%;
+	}
+	#oe_mainarea {
+		margin: 0;
+		float: none;
+		display: block;
+		height: 100%;
+		width: auto;
+		display: block;
+		.content-inner {
+			padding: 0 5px 20px;
+		}
+		header.pageheader {
+			max-height: 50px;
+			margin-bottom: 15px;
+			border-bottom: 0;
+			h1 {
+				line-height: 50px;
+			}
+			span.helptext {
+				line-height: 50px;
+				margin-right: 0;
+			}
+		}
+	}
+	#oe_sidebar {
+		margin: 0;
+		float: none;
+		display: block;
+		height: 100%;
+		border: none;
+		width: 100%;
+		background: $color_alto_approx;
+		//Instead of the line below you could use @include box-sizing($bs)
+		box-sizing: border-box;
+		.toggle-button {
+			display: none;
+		}
+		aside {
+			padding: 0;
+		}
+		div.notification .box-shadow {
+			display: none;
+		}
+		nav.navigation .box-shadow {
+			display: none;
+		}
+	}
+	#oe_admin-content {
+		margin: 0;
+		float: none;
+		display: block;
+		height: 100%;
+		height: auto;
+		.shadow {
+			display: none;
+		}
+	}
+	.spacer {
+		display: none;
+	}
+	header {
+		.breadcrumbs {
+			display: none;
+		}
+		.admin-title {
+			display: none;
+		}
+		.welcome {
+			width: auto;
+		}
+		&.header {
+			overflow: hidden;
+		}
+		.cms-logo {
+			background: none;
+			width: 100%;
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			//Instead of the line below you could use @include box-sizing($bs)
+			box-sizing: border-box;
+		}
+		.shortcuts li {
+			padding: 0 5px;
+			&:last-child {
+				padding: 0 0 0 5px;
+			}
+			&.last {
+				padding: 0 0 0 5px;
+			}
+		}
+	}
+	#oe_footer {
+		.footer-right {
+			display: none;
+		}
+		.footer-left {
+			float: none;
+			margin: 0;
+			padding: 0;
+			width: 100%;
+			text-align: center;
+			display: block;
+		}
+		small {
+			padding: 10px 0 0;
+			margin: 0;
+			display: block;
+			font-size: .7em;
+		}
+	}
+	.drop {
+		display: none;
+	}
+	.dashboard-box {
+		float: none;
+		width: 100%;
+		max-width: 95%;
+		margin: 10px 0 10px 10px;
+		img {
+			display: inline;
+		}
+	}
+	fieldset {
+		max-width: 90%;
+	}
+	form {
+		max-width: 90%;
+	}
+	input {
+		max-width: 90%;
+		height: auto;
+	}
+	textarea {
+		max-width: 90%;
+		min-width: auto;
+		max-width: 40em;
+		height: auto;
+	}
+	select {
+		max-width: 90%;
+		height: auto;
+		-webkit-appearance: listbox;
+		-moz-appearance: listbox;
+	}
+	menu {
+		max-width: 90%;
+		height: auto;
+	}
+	iframe {
+		max-width: 90%;
+	}
+	.sidebar-on #oe_sidebar nav.navigation {
+		width: auto;
+	}
+	.sidebar-off #oe_sidebar nav.navigation {
+		width: 40px;
+		overflow: hidden;
+		position: static;
+		top: initial;
+		margin-top: auto;
+	}
+	table.pagetable {
+		border-collapse: collapse;
+		width: 100%;
+		margin: 5px 0 1rem;
+		overflow-x: auto;
+		display: block;
+		padding-bottom: 2rem;
+	}
+	footer#oe_footer {
+		clear: both;
+		overflow: hidden;
+		line-height: 20px;
+	}
+	#login #wrapper {
+		padding-top: 2%;
+	}
+}
+@media screen and(max-width: 600px) {
+	#page_tabs {
+		margin-top: 0;
+		div {
+			width: 100%;
+			float: none;
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			//Instead of the line below you could use @include box-sizing($bs)
+			box-sizing: border-box;
+		}
+	}
+	header .shortcuts {
+		ul {
+			margin-right: 8px;
+		}
+		li {
+			padding: 0 8px;
+			i {
+				font-size: 1.25rem;
+				padding-top: 0.235em;
+			}
+		}
+	}
+	nav ul#oe_pagemenu {
+		border-bottom: 0;
+		li {
+			background: $color_alto_approx;
+			line-height: 45px;
+			padding: 2px;
+			text-align: center;
+			border-bottom: 1px solid $color_silver_chalice_approx;
+			a {
+				margin-left: 0;
+				height: 45px;
+				text-align: center;
+				&:focus {
+					margin-right: 0;
+				}
+				&.parent::before {
+					margin-right: 0;
+					font-size: 1.35rem;
+				}
+			}
+		}
+	}
+	#oe_mainarea .pageoptions.options-menu.half {
+		height: auto;
+		width: 100% !important;
+		a {
+			width: 100%;
+			display: block;
+		}
+	}
+	#template_area .pagetable {
+		display: table;
+		tr {
+			th {
+				display: none;
+				&:nth-child(3) {
+					display: table-cell;
+					width: 100%;
+				}
+			}
+			td {
+				display: none;
+				&:nth-child(3) {
+					display: table-cell;
+					width: 100%;
+				}
+			}
+		}
+	}
+	#stylesheet_area .pagetable {
+		display: table;
+		tr {
+			th {
+				display: none;
+				&:nth-child(3) {
+					display: table-cell;
+					width: 100%;
+				}
+			}
+			td {
+				display: none;
+				&:nth-child(3) {
+					display: table-cell;
+					width: 100%;
+				}
+			}
+		}
+	}
+	#designs_c .pagetable {
+		display: table;
+		tr {
+			th {
+				display: none;
+				&:nth-child(2) {
+					display: table-cell;
+					width: 100%;
+				}
+			}
+			td {
+				display: none;
+				&:nth-child(2) {
+					display: table-cell;
+					width: 100%;
+				}
+			}
+		}
+	}
+	#types_c .pagetable {
+		display: table;
+		tr {
+			th {
+				display: none;
+				&:nth-child(2) {
+					display: table-cell;
+					width: 100%;
+				}
+			}
+			td {
+				display: none;
+				&:nth-child(2) {
+					display: table-cell;
+					width: 100%;
+				}
+			}
+		}
+	}
+	#contenttable tr {
+		th {
+			&:nth-child(2) {
+				display: none;
+			}
+			&:nth-child(7) {
+				display: none;
+			}
+			&:nth-child(8) {
+				display: none;
+			}
+			&:nth-child(9) {
+				display: none;
+			}
+			&:nth-child(12) {
+				display: none;
+			}
+			&:nth-child(13) {
+				display: none;
+			}
+		}
+		td {
+			&:nth-child(2) {
+				display: none;
+			}
+			&:nth-child(7) {
+				display: none;
+			}
+			&:nth-child(8) {
+				display: none;
+			}
+			&:nth-child(9) {
+				display: none;
+			}
+			&:nth-child(12) {
+				display: none;
+			}
+			&:nth-child(13) {
+				display: none;
+			}
+		}
+	}
+}
+@media screen and(max-width: 480px) {
+	.pagemcontainer {
+		left: 5%;
+		right: 5%;
+		width: auto;
+	}
+	.pageerrorcontainer {
+		left: 5%;
+		right: 5%;
+		width: auto;
+	}
+	.pageerrorinstalldir {
+		left: 5%;
+		right: 5%;
+		width: auto;
+	}
+	textarea {
+		min-width: auto;
+		max-width: 23em;
+	}
+	select {
+		min-width: auto;
+		max-width: 23em;
+	}
+	#login {
+		div {
+			&.login-container {
+				width: 302px;
+				&#error {
+					width: 302px;
+				}
+			}
+			&.login-box {
+				width: 260px;
+			}
+			&.info-wrapper {
+				display: none;
+			}
+		}
+		input[type="text"] {
+			width: 250px;
+		}
+		input[type="password"] {
+			width: 250px;
+		}
+	}
+	aside.message {
+		left: 5%;
+		right: 5%;
+		width: auto;
+	}
+	#oe_mainarea header.pageheader span.helptext {
+		display: none;
+	}
+}
+.cmsfp_dlg {
+	padding: 0 !important;
+	iframe {
+		width: 100% !important;
+		height: 100% !important;
+		max-width: none !important;
+		border: none;
+	}
+}
+.ui-widget {
+	font-family: $font_7, $font_8, $font_9, $font_10, $font_11;
+	input {
+		font-family: $font_7, $font_8, $font_9, $font_10, $font_11;
+	}
+	select {
+		font-family: $font_7, $font_8, $font_9, $font_10, $font_11;
+	}
+	textarea {
+		font-family: $font_7, $font_8, $font_9, $font_10, $font_11;
+	}
+	button {
+		font-family: $font_7, $font_8, $font_9, $font_10, $font_11;
+	}
+	.ui-widget {
+		font-size: .85em;
+	}
+}
+checkbox:hover {
+	border: 1px solid $color_silver_chalice_approx;
+	outline: 0;
+	background: $white;
+}
+button.ui-button.ui-state-active {
+	border: 1px solid $color_alto_approx;
+	font-weight: normal;
+	color: $color_azure_radiance_approx;
+}
+.sidebar-off #oe_sidebar {
+	.toggle-button::before {
+		content: "\f101";
+	}
+	nav.navigation {
+		width: 40px;
+		overflow: hidden;
+	}
+}
+footer#oe_footer {
+	width: 100%;
+	z-index: 50;
+	height: 30px;
+	background: transparent $url_9 829px -259px repeat-x;
+	padding-top: 5px;
+	position: fixed;
+	bottom: 0;
+	clear: both;
+	overflow: hidden;
+	line-height: 20px;
+	a {
+		text-decoration: none;
+		color: $color_azure_radiance_approx;
+		&:hover {
+			color: $color_sorbus_approx;
+		}
+		&:active {
+			color: $color_sorbus_approx;
+		}
+	}
+}
+img.systemicon {
+	border: none;
+	vertical-align: top;
+}
+#filesarea img {
+	max-width: 32px;
+}
+.cms_helptext ul {
+	padding: 0 10px;
+	list-style: disc;
+	li {
+		margin-bottom: 8px;
+	}
+}
+.mce-container-body iframe {
+	max-width: none !important;
+}
+li.alert-box {
+	list-style-type: none;
+	list-style-position: inside;
+}
+#alert-dialog ul {
+	padding-left: 0;
+}

@@ -382,7 +382,7 @@ $this->SetPreference('allow_summary_wysiwyg',1);
 $this->SetPreference('article_pagelimit',10); //default 10 articles per displayed (expandable) page
 $this->SetPreference('clear_category',0); //don't delete articles in category when category is deleted
 $this->SetPreference('current_detail_template',''); //no preferred 'News::detail'-type template for news-item previews (TODO never changed)
-$this->SetPreference('date_format','Y-n-j');
+$this->SetPreference('date_format','%e %B %Y %l:%M %p');
 $this->SetPreference('default_category',1);
 $this->SetPreference('detail_returnid',-1); //no default post-detail page
 $this->SetPreference('email_subject',$this->Lang('subject_newnews'));
@@ -391,7 +391,6 @@ $this->SetPreference('email_to','');
 $this->SetPreference('expired_searchable',1);
 $this->SetPreference('expired_viewable',0);
 $this->SetPreference('expiry_interval',30); //default 30-days lifetime
-$this->SetPreference('time_format','G:i');
 $this->SetPreference('timeblock',News::HOURBLOCK);
 
 // Events

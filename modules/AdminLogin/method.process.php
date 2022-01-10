@@ -1,7 +1,7 @@
 <?php
 /*
 admin-login module inclusion - does $_POST processing and provides related methods
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -19,9 +19,6 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-//use AdminLogin; global namespace module
-//TODO if no OutMailer-module is present, revert to mail()
-use CMSMS\AppParams;
 use CMSMS\Events;
 use CMSMS\SingleItem;
 use CMSMS\User;
@@ -45,28 +42,7 @@ $salt = $login_ops->get_salt();
 $usecsrf = true;
 $csrf_key = hash('tiger128,3', $salt); // 32 hexits
 $userops = SingleItem::UserOperations();
-$infomessage = $warnmessage = $errmsg = $changepwhash = null;
-
-/**
- * Send lost-password recovery email to a specified admin user
- *
- * @param object $user user data
- * @param object $mod current module-object
- * @return bool result from the attempt to send the message
- */
-$send_recovery_email = function(User $user, AdminLogin $mod) use ($config, $login_ops): bool
-{
-    $to = trim($user->firstname . ' ' . $user->lastname . ' <' . $user->email . '>');
-    if ($to[0] == '<') {
-        $to = $user->email;
-    }
-    $name = AppParams::get('sitename', 'CMSMS Site');
-    $subject = $mod->Lang('lostpwemailsubject', $name);
-    $salt = $login_ops->get_salt();
-    $url = $config['admin_url'] . '/login.php?recoverme=' . hash('sha3-224', $user->username . $salt . $user->password);
-    $message = $mod->Lang('lostpwemail', $name, $user->username, $url);
-    return Utils::send_email($to, $subject, $message);
-};
+$infomessage = $warnmessage = $errmessage = $changepwhash = '';
 
 /**
  * Find the user corresponding to the given identity-token
@@ -74,11 +50,10 @@ $send_recovery_email = function(User $user, AdminLogin $mod) use ($config, $logi
  * @param string $hash the token
  * @return mixed The matching User object if found, or null otherwise.
  */
-$find_recovery_user = function(string $hash) use ($login_ops, $userops)
+$find_recovery_user = function(string $hash) use ($salt, $userops)
 {
-    $salt = $login_ops->get_salt();
     foreach ($userops->LoadUsers() as $user) {
-        if ($hash == hash('sha3-224', $user->username . $salt . $user->password)) {
+        if ($hash == hash_hmac('tiger128,3', $user->password, $salt ^ $user->username)) { // no compare-timing risk
             return $user;
         }
     }
@@ -108,12 +83,12 @@ $check_secure_param = function(string $clue, AdminLogin $mod) use ($id, $csrf_ke
  * @param object $mod current module-object
  * $return bool indicating all ok
  */
-$check_passwords = function(User $user, AdminLogin $mod) use ($infomessage, $errmsg, $changepwhash, $userops) : bool
+$check_passwords = function(User $user, AdminLogin $mod) use ($id, $errmessage, $userops) : bool
 {
     $tmp = $_REQUEST[$id.'password'];
     $password = sanitizeVal($tmp, CMSSAN_NONPRINT);
     if ($password != $tmp) {
-        $errmsg = $mod->Lang('error_badchars', $mod->Lang('password')); // OR Lang('error_badfield'), Lang('password'));
+        $errmessage = $mod->Lang('error_badchars', $mod->Lang('password')); // OR Lang('error_badfield'), Lang('password'));
         return false;
     } elseif (!$password) {
         $errmessage = $mod->Lang('error_nofield', $mod->Lang('password'));
@@ -122,16 +97,13 @@ $check_passwords = function(User $user, AdminLogin $mod) use ($infomessage, $err
     $tmp = $_REQUEST[$id.'passwordagain'];
     $again = sanitizeVal($tmp, CMSSAN_NONPRINT);
     if ($password == $again) {
-        if ($userops->PasswordCheck($user->id, $password)) {
-            $user->Save();
-            // put mention into the admin log
-            $ip_passw_recovery = Utils::get_real_ip();
-            log_notice('', 'Completed lost password recovery for: '.$user->username.' (IP: '.$ip_passw_recovery.')');
-            Events::SendEvent('Core', 'LostPasswordReset', ['uid'=>$user->id, 'username'=>$user->username, 'ip'=>$ip_passw_recovery]);
-            $infomessage = $mod->Lang('passwordchangedlogin');
-            $changepwhash = '';
-        } else {
-           //TODO some feedback from checker
+        if ($user->pwreset) {
+            if (password_verify($password, $user->password)) {
+                $errmessage = $mod->Lang('error_passwordsame');
+                return false;
+            }
+        }
+        if (!$userops->PasswordCheck($user->id, $password)) {
             $errmessage = $mod->Lang('error_passwordinvalid');
             return false;
         }
@@ -143,7 +115,7 @@ $check_passwords = function(User $user, AdminLogin $mod) use ($infomessage, $err
 };
 
 // redirect to the normal login form if the user cancels on the forgot p/w form
-if ((isset($_REQUEST[$id.'forgotpwform']) || isset($_REQUEST[$id.'forgotpwchangeform'])) && isset($_REQUEST[$id.'logincancel'])) {
+if ((isset($_REQUEST[$id.'lostpwform']) || isset($_REQUEST[$id.'renewpwform'])) && isset($_REQUEST[$id.'cancel'])) {
     redirect($login_url.get_secure_param($login_url));
 }
 
@@ -162,7 +134,33 @@ if (isset($_SESSION[$id.'logout_user_now'])) {
     log_info($userid, 'Admin User '.$username, 'Logged Out');
     // do any module-specific logout stuff here
     // slide through to 'submit' processing
-} elseif (isset($_REQUEST[$id.'forgotpwform']) && isset($_REQUEST[$id.'forgottenusername'])) { // check for a forgot-pw job
+} elseif (isset($_GET[$id.'repass'])) {
+    $hash = sanitizeVal($_GET[$id.'repass']); //should be a hexits hash
+    $user = $find_recovery_user($hash);
+    if ($user) {
+        $changepwhash = $hash;
+//      $changepwtoken = true;
+    } else {
+        $errmessage = $this->Lang('error_nouser');
+    }
+    return;
+} elseif (isset($_GET[$id.'onepass'])) {
+    $hash = sanitizeVal($_REQUEST[$id.'onepass']); //should be a hexits hash
+    $user = $find_recovery_user($hash);
+    if ($user) {
+        $changepwhash = $hash;
+//      $changepwtoken = true;
+        // initiate renewal
+        $tplvars += [
+            'renewpw' => true,
+            'username' => $user->username,
+        ];
+    } else {
+        $errmessage = $this->Lang('error_nouser');
+    }
+    return;
+} elseif (isset($_REQUEST[$id.'lostpwform'])) {
+    // submitted a form having smarty.get.forgotpw i.e. after processing repass
     $forgot_username = $_REQUEST[$id.'forgottenusername']; //might be empty
     unset($_REQUEST[$id.'forgottenusername'], $_POST[$id.'forgottenusername']);
     if ($forgot_username) {
@@ -174,7 +172,7 @@ if (isset($_SESSION[$id.'logout_user_now'])) {
         if ($user != null) {
             if (!$user->email) {
                 $errmessage = $this->Lang('norecoveryaddress');
-            } elseif ($send_recovery_email($user, $this)) { // careful about $this
+            } elseif ($userops->Send_recovery_email($user)) {
                 log_notice('', 'Sent lost-password email for '.$user->username);
                 $infomessage = $this->Lang('recoveryemailsent');
             } else {
@@ -187,57 +185,96 @@ if (isset($_SESSION[$id.'logout_user_now'])) {
         }
     }
     return;
-} elseif (!empty($_REQUEST[$id.'recoverme'])) { //should be a hexits hash
-    $user = $find_recovery_user(sanitizeVal($_REQUEST[$id.'recoverme']));
-    if ($user != null) {
-        $changepwtoken = true;
-        $changepwhash = sanitizeVal($_REQUEST[$id.'recoverme']);
-    } else {
-        $errmessage = $this->Lang('error_nouser');
-    }
-    return;
-} elseif (!empty($_REQUEST[$id.'forgotpwchangeform'])) {
+} elseif (!empty($_REQUEST[$id.'renewpwform'])) {
+    // submitted a form having $renewpw i.e. after processing onepass
     if ($usecsrf) {
         try {
             $check_secure_param('003', $this); // careful about $this
             $usecsrf = false; //another check not necessary or possible
         } catch (Throwable $t) {
-            die('Invalid recovery request - 003');
+            exit('Invalid reset request - 003');
         }
     }
-    $changepwhash = sanitizeVal($_REQUEST[$id.'changepwhash']); //should be a hexits hash
-    $user = $find_recovery_user($changepwhash);
-    if ($user == null) {
-        $errmessage = $this->Lang('error_nouser');
-    } elseif (isset($_REQUEST[$id.'password'])) {
-        if (!$check_passwords($user, $this)) {
-            return; // abort
-        }
-    }
-} elseif (!empty($_REQUEST[$id.'renewpwform'])) {
-    if (!isset($_POST[$id.'cancel'])) {
-        $username = sanitizeVal($_POST[$id.'username'], CMSSAN_ACCOUNT);
-        $user = $userops->GetRecoveryData($username);
-        if ($user) {
-            if ($check_passwords($user, $this)) {
-                $login_ops->save_authentication($user);
-                // find the user's homepage, if any
-                $url = UserParams::get_for_user($user->id, 'homepage');
-                if (!$url) {
-                    $url = $config['admin_url'].'/menu.php';
-                } elseif (!startswith($url, 'http') && !startswith($url, '//') && startswith($url, '/')) {
-                    //TODO generally support the websocket protocol 'wss' : 'ws'
-                    $url = CMS_ROOT_URL.$url;
-                }
-                $url .= get_secure_param($url);
-                redirect($url);
+    $username = sanitizeVal($_POST[$id.'username'], CMSSAN_ACCOUNT);
+    $user = $userops->GetRecoveryData($username);
+    if ($user) {
+        if ($check_passwords($user, $this)) {
+            $tmp = $_REQUEST[$id.'password'];
+            $password = sanitizeVal($tmp, CMSSAN_NONPRINT);
+            $user->password = $userops->PreparePassword($password);
+            $user->newpass = true;
+            $user->pwreset = 0;
+            $user->Save();
+            //TODO clear any other table data which triggered reset
+/*              // put mention into the admin log
+            $ip_passw_recovery = Utils::get_real_ip();
+            log_notice('', 'Completed lost password recovery for: '.$user->username.' (IP: '.$ip_passw_recovery.')');
+            Events::SendEvent('Core', 'LostPasswordReset', ['uid'=>$user->id, 'username'=>$user->username, 'ip'=>$ip_passw_recovery]);
+            $infomessage = $mod->Lang('passwordchangedlogin');
+*/
+            $login_ops->save_authentication($user);
+            // find the user's homepage, if any
+            $url = UserParams::get_for_user($user->id, 'homepage');
+            if (!$url) {
+                $url = $config['admin_url'].'/menu.php';
+            } elseif (!startswith($url, 'http') && !startswith($url, '//') && startswith($url, '/')) {
+                //TODO generally support the websocket protocol 'wss' : 'ws'
+                $url = CMS_ROOT_URL.$url;
             }
+            $url .= get_secure_param($url);
+            redirect($url);
         } else {
-            $errmessage = $this->Lang('error_nouser');
+            // rerun as for isset($_GET[$id.'onepass'])
+            $changepwhash = sanitizeVal($_REQUEST[$id.'changepwhash']); //should be a hexits hash
+            $tplvars += [
+                'renewpw' => true,
+                'username' => $user->username,
+            ];
+            $errmessage = $this->Lang('error_passwordinvalid');
+            return;
         }
-        redirect($login_url.get_secure_param($login_url));
+    } else {
+        $errmessage = $this->Lang('error_nouser');
+    }
+   // slide into normal login processing
+}
+/* TODO reconcile with above
+      elseif (!empty($_REQUEST[$id.'renewpwform'])) {
+    // submitted the form without $renewpw i.e. after processing repass
+    if ($usecsrf) {
+        try {
+            $check_secure_param('004', $this); // careful about $this
+            $usecsrf = false; //another check not necessary or possible
+        } catch (Throwable $t) {
+            exit('Invalid recovery request - 004');
+        }
+    }
+    $hash = sanitizeVal($_REQUEST[$id.'changepwhash']); //should be a hexits hash
+    $user = $find_recovery_user($hash);
+    if ($user) {
+        if (isset($_REQUEST[$id.'password'])) {
+            if (!$check_passwords($user, $this)) {
+                return; // abort
+            }
+            $tmp = $_REQUEST[$id.'password'];
+            $password = sanitizeVal($tmp, CMSSAN_NONPRINT);
+            $user->password = $userops->PreparePassword($password);
+            $user->newpass = true;
+            $user->pwreset = 0;
+            $user->Save();
+/*          // put mention into the admin log
+            $ip_passw_recovery = Utils::get_real_ip();
+            log_notice('', 'Completed lost password recovery for: '.$user->username.' (IP: '.$ip_passw_recovery.')');
+            Events::SendEvent('Core', 'LostPasswordReset', ['uid'=>$user->id, 'username'=>$user->username, 'ip'=>$ip_passw_recovery]);
+            $infomessage = $mod->Lang('passwordchangedlogin');
+* /
+            // slide into normal login processing
+        }
+    } else {
+        $errmessage = $this->Lang('error_nouser');
     }
 }
+*/
 
 if (isset($_POST[$id.'cancel'])) {
     redirect($login_url.get_secure_param($login_url));
@@ -245,7 +282,7 @@ if (isset($_POST[$id.'cancel'])) {
     // 'initial' login form submitted
     $login_ops->deauthenticate();
     $username = $_POST[$id.'username'] ?? null; //no pre-evaluation cleanup - if wrong, too bad
-    $password = $_POST[$id.'password'] ?? null; //ditto
+    $password = $_POST[$id.'password'] ?? null; //ditto TODO wrong after reset !!!
 
     try {
         if ($usecsrf) {
@@ -261,12 +298,12 @@ if (isset($_POST[$id.'cancel'])) {
         if (!$user->Authenticate($password)) {
             throw new Exception($this->Lang('error_invalid'));
         }
-//        if (!$userops->PasswordExpired($user)) { expiry not supported
+        if (!$userops->PasswordExpired($user)) {
             $login_ops->save_authentication($user);
             $_SESSION[CMS_USER_KEY] = $login_ops->create_csrf_token();
 
             // put mention into the admin log
-            if (isset($_REQUEST[$id.'renewpwform'])) {
+            if (isset($_REQUEST[$id.'renewpwform'])) { // after a P/W recovery or refresh
                 log_info($user->id, 'Admin User '.$user->username, 'Password Renewed');
                 unset($_POST[$id.'renewpwform']);
             } else {
@@ -295,14 +332,13 @@ if (isset($_POST[$id.'cancel'])) {
             }
             $url .= get_secure_param($url);
             redirect($url);
-/*        } else { // expired P/W
+        } else { // P/W no-longer valid
             // initiate renewal
             $tplvars += [
             'renewpw' => true,
             'username' => $username,
             ];
         }
-*/
     } catch (Throwable $t) {
         $errmessage = $t->GetMessage();
         debug_buffer('Login failed.  Error is: ' . $errmessage);

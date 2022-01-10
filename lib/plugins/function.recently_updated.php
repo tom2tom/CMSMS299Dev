@@ -24,6 +24,7 @@ use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\SingleItem;
 use CMSMS\UserParams;
+use CMSMS\Utils;
 
 function smarty_function_recently_updated($params, $template)
 {
@@ -44,10 +45,29 @@ function smarty_function_recently_updated($params, $template)
 	if( !$format ) {
 		$format = AppParams::get('date_format', 'Y-m-d');
 	}
-	elseif( strpos($format, '%') !== false ) {
-		$format = Utils::convert_dt_format($format); // migrate strftime format
+	if( strpos($format, 'timed') !== false ) {
+		$format = str_replace(['timed', '  '], ['', ' '], $format);
+		//ensure time is displayed
+		if( strpos($format, '%') !== false ) {
+			if( !preg_match('/%[HIklMpPrRSTXzZ]/', $format) ) {
+				if( strpos($format, '-') !== false || strpos($format, '/') !== false ) {
+					$format .= ' %k:%M';
+				}
+				else {
+					$format .= ' %l:%M %P';
+				}
+			}
+		}
+		elseif( !preg_match('/(?<!\\\\)[aABgGhHisuv]/', $format) ) {
+			if( strpos($format, '-') !== false || strpos($format, '/') !== false ) {
+				$format .= ' H:i';
+			}
+			else {
+				$format .= ' g:i a';
+			}
+		}
 	}
-	// TODO handle 'timed' format
+
 	$css_class = $params['css_class'] ?? '';
 
 	if( $css_class ) {
@@ -84,7 +104,13 @@ ORDER BY IF(modified_date, modified_date, create_date) DESC LIMIT ".((int)$numbe
 		}
 		$output .= '<br />';
 		$output .= $leadin;
-		$output .= date($format, strtotime($updated_page['modified_date']));
+		$datevar = strtotime($updated_page['modified_date']);
+		if( strpos($format, '%') !== false ) {
+			$output .= Utils::dt_format($datevar, $format);
+		}
+		else {
+			$output .= date($format, $datevar);
+		}
 		$output .= '</li>';
 	}
 	$rst->Close();
@@ -99,31 +125,32 @@ ORDER BY IF(modified_date, modified_date, create_date) DESC LIMIT ".((int)$numbe
 
 function smarty_cms_about_function_recently_updated()
 {
-	echo <<<'EOS'
-<p>Authors: Elijah Lofgren &lt;elijahlofgren@elijahlofgren.com&gt; Olaf Noehring &lt;http://www.team-noehring.de&gt;</p>
+	echo '<p>Authors: Elijah Lofgren &lt;elijahlofgren@elijahlofgren.com&gt; Olaf Noehring &lt;http://www.team-noehring.de&gt;</p>
 <p>Change History:</p>
 <ul>
- <li>added new parameters:<br />
-  &lt;leadin&gt;. The contents of leadin will be shown before the modified date. Default is &lt;Modified:&gt;<br />
-  $showtitle='true' - if non-falsy, the title attribute of the page will be shown if it exists<br />
+ <li>Added optional parameters:<br />
+  leadin<br />
+  $showtitle<br />
   css_class<br />
-  dateformat - default is the system setting or d.m.y h:m, use the (PHP date()) format you want
+  dateformat
  </li>
- <li>Sept 2021 generate output using date() instead of deprecated strftime()</li>
- <li>Sept 2021 Revert to date()-compatible site setting 'date_format' if no 'format' parameter is supplied</li>
-</ul>
-EOS;
+ <li>Dec 2021<ul>
+  <li>Use site setting \'date_format\' if no \'format\' parameter is supplied</li>
+  <li>Support \'timed\' in the format parameter</li>
+  <li>If appropriate, generate output using replacement for deprecated strftime()</li>
+  </ul></li>
+</ul>';
 }
-/*
+
 function smarty_cms_help_function_recently_updated()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'recently_updated ...', <<<'EOS'
-<li>number</li>
-<li>leadin</li>
-<li>showtitle</li>
-<li>dateformat</li>
-<li>css_class</li>
-EOS
+	echo _ld('tags', 'help_generic',
+	'This plugin retrieves a nested list of recently-updated site pages',
+	'recently_updated ...',
+	'<li>number: Number of returned pages. Default 10</li>
+<li>leadin: Text displayed before the modified date. Default \'Modified:\' (translated)</li>
+<li>showtitle: If it exists, display the title attribute of the page. Default true</li>
+<li>css_class: Name of class(es) to be applied to a &lt;div/&gt; enclosing the results. Default empty</li>
+<li>dateformat: PHP date() and/or strftime()-compatible format for displayed modification times. It may be, or include, the special-case \'timed\'. Default site setting</li>'
 	);
 }
-*/

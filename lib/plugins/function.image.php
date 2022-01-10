@@ -73,25 +73,23 @@ function smarty_function_image($params, $template)
 
 function smarty_cms_about_function_image()
 {
-	echo <<<'EOS'
-<p>Author: Robert Campbell</p>
-<p>Change History</p>
-<ul>
-<li>Added alt param and removed the &lt;/img&gt;</li>
-<li>Added default width, height and alt <small>(contributed by Walter Wlodarski)</small></li>
-</ul>
-EOS;
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004',
+	'<li>Added \'alt\' param and removed the &lt;/img&gt;</li>
+<li>Added default width, height and alt <small>(contributed by Walter Wlodarski)</small></li>'
+	);
 }
 /*
 D function smarty_cms_help_function_image()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'image ...', TODO);
-<li>addtext</li>
-<li>alt</li>
-<li>class</li>
-<li>height</li>
-<li>src</li>
-<li>title</li>
-<li>width</li>
+	TODO parameter details
+	echo _ld('tags', 'help_generic', 'This plugin retrieves xhtml representing an uploaded image', 'image ...',
+<li>addtext: </li>
+<li>alt: </li>
+<li>class: </li>
+<li>height: </li>
+<li>src: </li>
+<li>title: </li>
+<li>width: </li>
+	);
 }
 */

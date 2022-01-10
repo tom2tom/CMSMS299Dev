@@ -122,4 +122,3 @@ function GetFileInfo(string $filename, string $ext, bool $dir=false) : string
   }
   return $result;
 }
-

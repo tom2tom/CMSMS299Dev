@@ -53,23 +53,15 @@ D function smarty_cms_help_function_cms_render_scripts()
 	echo _ld('tags', 'help_generic',
 	'This plugin generates a script tag for retrieving the result of merging queued script-files',
 	'cms_render_scripts',
-	<<<EOS
-<li>force: optional flag. If true, re-create the package even if its content seems unchanged</li>
+	'<li>force: optional flag. If true, re-create the package even if its content seems unchanged</li>
 <li>defer: optional flag. If true, defer package download</li>
-<li>async: optional flag. If true, do async download</li>
-EOS
+<li>async: optional flag. If true, do async download</li>'
 	);
 	echo 'See also the complementary {cms_queue_script} tag.';
 }
 */
 function smarty_cms_about_function_cms_render_scripts()
 {
-	echo _ld('tags', 'about_generic',
-	<<<EOS
-<p>Author: Robert Campbell</p>
-<p>Version: 1.0</p>
-EOS
-	,
-	lang('none')
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Robert Campbell Dec 2019', "<li>$n</li>");
 }

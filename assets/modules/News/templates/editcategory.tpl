@@ -35,7 +35,7 @@
     </div>
   </div>
   <div class="pageinput pregap">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{_ld('admin','submit')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel" formnovalidate>{_ld('admin','cancel')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{_la('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel" formnovalidate>{_la('cancel')}</button>
   </div>
 </form>

@@ -27,7 +27,7 @@
    <input type="text" id="skinurl" name="{$actionid}skin_url" value="{$skin_url}" size="50" maxlength="80" />
   </div>
   <div class="pageinput pregap">
-   <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply ">{_la('apply')}</button>
+   <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{_la('apply')}</button>
    <button  type="submit" name="{$actionid}cancel" class="adminsubmit icon undo" formnovalidate>{_la('cancel')}</button>
   </div>
  </fieldset>

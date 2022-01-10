@@ -62,10 +62,10 @@
     {if isset($list_types.$type_id)}
      <span class="tooltip" data-cms-description="{type_info}">{$list_types.$type_id}</span>
     {else}
-     {_ld('admin','none')}
+     {_la('none')}
     {/if}
    {else}
-     {_ld('admin','none')}
+     {_la('none')}
    {/if}
     </td>
     {* default column *}
@@ -113,14 +113,14 @@
     {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
     {/foreach}
     {cms_help 0='layout' key='help_bulk_templates' title=_ld('layout','prompt_bulk')}
-    <label for="bulk_action">{_ld('layout','prompt_with_selected')}:</label>&nbsp;
-    <select name="bulk_action" id="bulk_action" class="action" title="{_ld('layout','title_tpl_bulkaction')}">
+    <label for="bulkaction">{_ld('layout','prompt_with_selected')}:</label>&nbsp;
+    <select name="bulk_action" id="bulkaction" class="action" title="{_ld('layout','title_tpl_bulkaction')}">
     <option value="delete">{_ld('layout','prompt_delete')}</option>
 {*    <option value="export">{_ld('layout','export')}</option>
     <option value="import">{_ld('layout','import')}</option>
 *}
     </select>
-    <button type="submit" name="bulk_submit" id="bulk_submit" class="adminsubmit icon check action">{_ld('admin','submit')}</button>
+    <button type="submit" name="bulk_submit" id="bulk_submit" class="adminsubmit icon check action">{_la('submit')}</button>
     </form>
   </div>
 </div>

@@ -1,7 +1,7 @@
 <?php
 /*
 List templates and groups and types.
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -369,8 +369,8 @@ $(function() {
    });
     $(tpltable).SSsort(xopts);
     $('#pagerows').on('change',function() {
-      l = parseInt(this.value);
-      if(l == 0) {
+      var l = parseInt(this.value);
+      if(l === 0) {
        //TODO hide move-links, 'rows per page', show 'rows'
       } else {
         //TODO show move-links, 'rows per page', hide 'rows'
@@ -380,16 +380,16 @@ $(function() {
   } else {
     $(tpltable).SSsort(opts);
   }
-  $('#bulk_action').prop('disabled',true);
+  $('#bulkaction').prop('disabled',true);
   cms_button_able($('#bulk_submit'),false);
   $('#tpl_selall').cmsms_checkall();
   $('#tpl_selall,.tpl_select').on('click',function() {
-    l = $('.tpl_select:checked').length;
+    var l = $('.tpl_select:checked').length;
     if(l === 0) {
-      $('#bulk_action').prop('disabled',true);
+      $('#bulkaction').prop('disabled',true);
       cms_button_able($('#bulk_submit'),false);
     } else {
-      $('#bulk_action').prop('disabled', false);
+      $('#bulkaction').prop('disabled', false);
       cms_button_able($('#bulk_submit'),true);
     }
   });
@@ -415,8 +415,8 @@ $(function() {
    });
    $(typetable).SSsort(xopts);
    $('#typepagerows').on('change',function() {
-    l = parseInt(this.value);
-    if(l == 0) {
+    var l = parseInt(this.value);
+    if(l === 0) {
      //TODO hide move-links, 'rows per page', show 'rows'
     } else {
      //TODO show move-links, 'rows per page', hide 'rows'

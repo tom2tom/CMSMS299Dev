@@ -34,12 +34,12 @@
     {if $num_alerts > 0}
        {if $num_alerts > 10}{$txt='&#2295'}{else}{$num=$num_alerts}{$txt="{$num}"}{/if}
       <li class="notifications">
-      <a id="alerts" tabindex="0" title="{_ld('admin','notifications_to_handle2',$num_alerts)}"><i aria-hidden="true" class="fas fa-bell"></i><span class="bubble">{$txt}</span></a>
+      <a id="alerts" tabindex="0" title="{_la('notifications_to_handle2',$num_alerts)}"><i aria-hidden="true" class="fas fa-bell"></i><span class="bubble">{$txt}</span></a>
        </li>
     {/if}
     <li class="logout">
 {*TODO replace onclick handler*}
-      <a href="logout.php?{$secureparam}" title="{'logout'|lang}" {if isset($is_sitedown)}onclick="return confirm('{'maintenance_warning'|lang|escape:'javascript'}')"{/if}><i aria-hidden="true" class="fas fa-sign-out-alt"></i></a>
+      <a href="logout.php?{$secureparam}" title="{'logout'|lang}"{if isset($is_sitedown)} onclick="return confirm('{"maintenance_warning"|lang|escape:"javascript"}');"{/if}><i aria-hidden="true" class="fas fa-sign-out-alt"></i></a>
     </li>
   </ul>
 </div>
@@ -63,18 +63,18 @@
 {/if}
 {if !empty($my_alerts)}
 <!-- alerts go here -->
-<div id="alert-dialog" class="alert-dialog" role="dialog" title="{_ld('admin','alerts')}" style="padding:0; display: none;">
+<div id="alert-dialog" class="alert-dialog" role="dialog" title="{_la('alerts')}" style="padding:0; display: none;">
     {foreach $my_alerts as $one}
     <div class="alert-box jqtoast {if $one->priority == '_high'}error{elseif $one->priority != '_low'}warn{else}info{/if}" data-alert-name="{$one->get_prefname()}">
-        <div class="jqt-heading">{$one->get_title()|default:_ld('admin','alert')}
-        <span class="jqt-close alert-remove" title="{_ld('admin','remove_alert')}"></span>
+        <div class="jqt-heading">{$one->get_title()|default:_la('alert')}
+        <span class="jqt-close alert-remove" title="{_la('remove_alert')}"></span>
         </div>
         <span>{$one->get_message()}</span>
     </div>
     {/foreach}
 </div>
 {/if}
-{*<div id="alert-noalerts" class="jqtoast info" style="display:none;">{_ld('admin','info_noalerts')}</div>*}
+{*<div id="alert-noalerts" class="jqtoast info" style="display:none;">{_la('info_noalerts')}</div>*}
 <!-- alerts-end -->
 {/strip}
 {/block}

@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin to retrieve the value of a specified property of the current page.
+Plugin to retrieve the value of a specified property of the current page or a specified page.
 Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
@@ -112,22 +112,18 @@ function smarty_function_page_attr($params, $template)
 
 function smarty_cms_about_function_page_attr()
 {
-	echo <<<'EOS'
-<p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
-<p>Change History:</p>
-<ul>
- <li>2015-06-02 - Added page parameter (Robert Campbell)</li>
-</ul>
-EOS;
-}
-/*
-function smarty_cms_help_function_page_attr()
-{
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'page_attr ...', <<<'EOS'
-<li>page</li>
-<li>key</li>
-<li>inactive</li>
-EOS
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004',
+	'<li>2015-06-02 - Added page parameter (Robert Campbell)</li>'
 	);
 }
-*/
+
+function smarty_cms_help_function_page_attr()
+{
+	echo _ld('tags', 'help_generic',
+	'This plugin retrieves the value of a specified property of the current page or a specified page',
+	'page_attr ...',
+	'<li>key: Name of wanted property. May be \'_dflt_\' to get the content</li>
+<li>(optional)page: Numeric id or alias of a specific page to be processed instead of the current page</li>
+<li>(optional)inactive: Whether to report even if page is inactive. Default false</li>'
+	);
+}

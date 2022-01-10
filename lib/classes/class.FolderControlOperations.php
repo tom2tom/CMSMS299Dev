@@ -1,7 +1,7 @@
 <?php
 /*
 FolderControls utility-methods class
-Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -368,7 +368,7 @@ class FolderControlOperations
      * Check whether $filename accords with relevant conditions among
      * the profile properties
      *
-	 * @param FolderControls $cset
+     * @param FolderControls $cset
      * @param string $filename Absolute|relative filesystem path, or
      *  just basename, of a file
      * @return boolean

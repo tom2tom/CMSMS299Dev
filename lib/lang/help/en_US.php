@@ -36,8 +36,9 @@ EOS
 'user_lastname' => 'Optionally specify your surname. This might be used in the Admin theme, or to personally address emails to you',
 //'user_login' => 'If disabled, the user will be prevented from logging in to the admin console', //for adminaccess
 'user_name' => 'The username field must consist of alphanumeric characters, dot(.), underscore, or space',
-'user_password' => 'Please enter a secure password for this website. The password must be eight or more characters long, and must comply with the site\'s passwords-policy (content, repetition). Please leave this field blank if you do no wish to change your password.',
-'user_passwordagain' => 'To reduce errors, please enter your password again. Leave this field empty if you do not wish to change your password.',
+'user_password' => 'Please enter a secure password for accessing this site\'s admin console. The password must be eight or more characters long, and must comply with the site\'s passwords-policy (content, repetition). Please leave this field blank if you do no wish to change your password.',
+'user_passwordagain' => 'To reduce errors, please enter the password again. Leave this field empty if you do not wish to change the password.',
+'user_repass' => 'If this option is selected, the current or here-specified password will be valid for the next login only, and the user will then be required to replace the password. If appropriate, a message about this will immediately be emailed to the user.',
 'user_syntax' => 'Select which syntax highlighting module to use when editing stylesheets, templates, or smarty code. The list of available modules might change depending on what your site administrator has configured',
 'user_syntaxtheme' => 'If the selected editor supports theming, enter here the name of your preferred theme.',
 'user_username' => 'Your username is your unique name for the CMSMS Admin panel. Please use only alphanumeric characters and the underscore',

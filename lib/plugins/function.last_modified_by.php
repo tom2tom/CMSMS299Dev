@@ -26,9 +26,9 @@ function smarty_function_last_modified_by($params, $template)
 {
 	$out = lang('unknown');
 	$content_obj = SingleItem::App()->get_content_object();
-    if( is_object($content_obj) ) {
+	if( is_object($content_obj) ) {
 		$id = $content_obj->LastModifiedBy();
-	    if( $id > 0) {
+		if( $id > 0) {
 			$thisuser = SingleItem::UserOperations()->LoadUserByID($id);
 			if( $thisuser ) {
 				if( !empty($params['format']) ) {
@@ -63,26 +63,16 @@ function smarty_function_last_modified_by($params, $template)
 
 function smarty_cms_help_function_last_modified_by()
 {
-	echo <<<'EOS'
-<h3>What does it do?</h3>
-Retrieves information about the most-recent editor/modifier of the current page.
-<h4>Parameters:</h4>
-<ul>
-<li>format: optional, 'id'(default) | 'username' | 'fullname'</li>
-</ul>
-<br />
-And/or Smarty generic parameters: nocache, assign etc
-EOS;
+	echo _ld('tags', 'help_generic',
+	'This plugin retrieves information about the most-recent editor/modifier of the current page',
+	'last_modified_by ...',
+	'<li>(optional)format: \'id\'(default) | \'username\' | \'fullname\'</li>'
+	);
 }
 
 function smarty_cms_about_function_last_modified_by()
 {
-	echo <<<'EOS'
-<p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
-<ul>Change History:</p>
-<ul>
-<li>Added assign parameter (Calguy)</li>
-</ul>
-</p>
-EOS;
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004',
+	'<li>Added \'assign\' parameter (Calguy)</li>'
+	);
 }

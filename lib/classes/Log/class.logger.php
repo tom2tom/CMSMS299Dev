@@ -1,7 +1,7 @@
 <?php
 /*
 Class to construct and save an admin log record.
-Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -100,7 +100,7 @@ class logger implements ILogManager
             $rec = new logrecord($parms);
             $this->_storage->save($rec);
         } catch (Throwable $t) {
-            //TODO
+            $here = 1; //TODO
         }
     }
 

@@ -20,13 +20,11 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 //use CMSMS\Database\DataDictionary;
-//use CMSMS\SingleItem;
 use CMSMS\AdminUtils;
 use CMSMS\AppState;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
-use CMSMS\Utils;
 use function CMSMS\log_error;
 
 if( empty($this) || !($this instanceof News) ) exit;
@@ -266,17 +264,34 @@ if( version_compare($oldversion,'3.1') < 0 ) {
     $this->SetPreference('email_to','');
 
     $fmt = $this->GetPreference('date_format');
-    if ($fmt) {
-        $str = Utils::convert_dt_format($fmt);
-        $str = preg_replace('/[aABgGhHiIsuveOpPTZ]/','',$str); // no time
-        $fmt = trim($str,' :');
+    if( $fmt ) {
+        //ensure time is normally included in datevar display
+        if( strpos($fmt, '%') !== false ) {
+            if( !preg_match('/%[HIklMpPrRSTXzZ]/', $fmt) ) {
+                if( strpos($fmt, '-') !== false || strpos($fmt, '/') !== false ) {
+                    $fmt .= ' %k:%M';
+                }
+                else {
+                    $fmt .= ' %l:%M %P';
+                }
+                $this->SetPreference('date_format', $fmt);
+            }
+        }
+        elseif( !preg_match('/(?<!\\\\)[aABgGhHisuv]/', $fmt) ) {
+            if( strpos($fmt, '-') !== false || strpos($fmt, '/') !== false ) {
+                $fmt .= ' H:i';
+            }
+            else {
+                $fmt .= ' g:i a';
+            }
+            $this->SetPreference('date_format', $fmt);
+        }
     }
     else {
-        $fmt = 'Y-m-j';
+        $this->SetPreference('date_format', '%e %B %Y %l:%M %p');
     }
-    $this->SetPreference('date_format', $fmt);
 
-    foreach ([
+    foreach( [
      ['alert_drafts',1],
      ['allow_summary_wysiwyg',1],
      ['article_pagelimit',10],
@@ -287,9 +302,8 @@ if( version_compare($oldversion,'3.1') < 0 ) {
      ['expired_searchable',1],
      ['expired_viewable',0],
      ['expiry_interval',30],
-     ['time_format','G:i'],
      ['timeblock',News::HOURBLOCK],
-    ] as $row) {
+    ] as $row ) {
         $val = $this->GetPreference($row[0],-22);
         if ($val === -22) {
             $this->SetPreference($row[0],$row[1]);

@@ -1,6 +1,6 @@
 <div class="pageinfo">
-  {_ld('admin','info_changeusergroup')}
-  {cms_help 0='help' key='help_group_permissions' title=_ld('admin','grouppermissions')}
+  {_la('info_changeusergroup')}
+  {cms_help 0='help' key='help_group_permissions' title=_la('grouppermissions')}
 </div>
 {*
 <div id="admin_group_warning" style="display:none">
@@ -12,13 +12,13 @@
   <form action="{$selfurl}" enctype="multipart/form-data" method="post">
     {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
 {/foreach}
-    <strong>{_ld('admin','selectgroup')}:</strong>&nbsp;
+    <strong>{_la('selectgroup')}:</strong>&nbsp;
     <select name="groupsel" id="groupsel">
     {foreach $group_list as $thisgroup}
       <option value="{$thisgroup->id}"{if $thisgroup->id == $disp_group} selected="selected"{/if}>{$thisgroup->name}</option>
     {/foreach}
     </select>&nbsp;
-    <button type="submit" name="filter" class="adminsubmit icon do">{_ld('admin','apply')}</button>
+    <button type="submit" name="filter" class="adminsubmit icon do">{_la('apply')}</button>
   </form>
 </div>
 {if $displaygroups && $users}{$group_count=count($displaygroups)}
@@ -27,8 +27,8 @@
 {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
 {/foreach}
 <div class="pageoptions postgap">
-  <button type="submit" name="submit" class="adminsubmit icon check">{_ld('admin','submit')}</button>
-  <button type="submit" name="cancel" class="adminsubmit icon cancel">{_ld('admin','cancel')}</button>
+  <button type="submit" name="submit" class="adminsubmit icon check">{_la('submit')}</button>
+  <button type="submit" name="cancel" class="adminsubmit icon cancel">{_la('cancel')}</button>
 </div>
 <table class="pagetable" id="permtable">
   <thead>
@@ -39,11 +39,11 @@
       {if $thisgroup->active}
         >{$thisgroup->name}
       {else}
-        title="{_ld('admin','info_group_inactive')}">
+        title="{_la('info_group_inactive')}">
         {if $group_count >= 5}
           {$text=$thisgroup->name|cat:'!'}
         {else}
-          {$text=$thisgroup->name|cat:'&nbsp;({_ld('admin',"inactive")})'}
+          {$text=$thisgroup->name|cat:'&nbsp;({_la("inactive")})'}
         {/if}
         <em>{$text}</em>
       {/if}
@@ -77,12 +77,12 @@
 </table>
 {if count($users) > 10}
 <div class="pageinput pregap">
-  <button type="submit" name="submit" class="adminsubmit icon check">{_ld('admin','submit')}</button>
-  <button type="submit" name="cancel" class="adminsubmit icon cancel">{_ld('admin','cancel')}</button>
+  <button type="submit" name="submit" class="adminsubmit icon check">{_la('submit')}</button>
+  <button type="submit" name="cancel" class="adminsubmit icon cancel">{_la('cancel')}</button>
 </div>
 {/if}
 </form>
 {/if}{*$displaygroups && $users*}
 {else}
-{_ld('admin','TODO no relevant group and/or user')}
+{_la('TODO no relevant group and/or user')}
 {/if}{*$group_list*}

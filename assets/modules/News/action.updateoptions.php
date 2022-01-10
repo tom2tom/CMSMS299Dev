@@ -61,7 +61,6 @@ $this->SetPreference('expiry_interval',$t);
 $this->SetPreference('expired_searchable',!empty($params['expired_searchable']));
 $this->SetPreference('expired_viewable',!empty($params['expired_viewable']));
 
-$this->SetPreference('time_format',trim($params['time_format']));
 $this->SetPreference('timeblock',(int)$params['timeblock']);
 
 $this->CreateStaticRoutes(); // ??

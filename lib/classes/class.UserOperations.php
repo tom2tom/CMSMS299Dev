@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton class of user-related functions
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -26,10 +26,12 @@ use CMSMS\DeprecationNotice;
 use CMSMS\Events;
 use CMSMS\SingleItem;
 use CMSMS\User;
+use CMSMS\Utils;
 use Throwable;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use const CMSSAN_NONPRINT;
+use function _la;
 use function CMSMS\sanitizeVal;
 use function get_userid;
 
@@ -229,7 +231,7 @@ EOS;
 
 		$result = false;
 		$db = SingleItem::Db();
-		$query = 'SELECT username, password, active, first_name, last_name, email FROM '.
+		$query = 'SELECT username, password, active, pwreset, first_name, last_name, email FROM '.
 			CMS_DB_PREFIX.'users WHERE user_id = ?';
 		$row = $db->getRow($query, [$uid]);
 		if ($row) {
@@ -241,6 +243,7 @@ EOS;
 			$userobj->lastname = $row['last_name'];
 			$userobj->email = $row['email'];
 			$userobj->active = $row['active'];
+			$userobj->pwreset = $row['pwreset'];
 			$result = $userobj;
 		}
 
@@ -261,8 +264,8 @@ EOS;
 		//just in case username is not unique-indexed by the db
 		$query = <<<EOS
 INSERT INTO {$pref}users
-(user_id,username,password,active,first_name,last_name,email,create_date)
-SELECT ?,?,?,?,?,?,?,? FROM (SELECT 1 AS dmy) Z
+(user_id,username,password,active,first_name,last_name,email,pwreset,create_date)
+SELECT ?,?,?,?,?,?,?,?,? FROM (SELECT 1 AS dmy) Z
 WHERE NOT EXISTS (SELECT 1 FROM {$pref}users T WHERE T.username=?) LIMIT 1
 EOS;
 		$db = SingleItem::Db();
@@ -278,6 +281,7 @@ EOS;
 			$db->addQ($user->firstname),
 			$db->addQ($user->lastname),
 			$db->addQ($user->email),
+			(int)$user->pwreset,
 			$longnow,
 			$nm
 		];
@@ -303,16 +307,20 @@ EOS;
 		}
 
 		$longnow = $db->DbTimeStamp(time());
-		$query = 'UPDATE '.CMS_DB_PREFIX.'users SET username = ?, first_name = ?, last_name = ?, email = ?, active = ?, modified_date = '.$longnow.' WHERE user_id = ?';
+		$query = 'UPDATE '.CMS_DB_PREFIX.'users SET username = ?, first_name = ?, last_name = ?, email = ?, active = ?, pwreset = ?, modified_date = '.$longnow.' WHERE user_id = ?';
 //		$dbr = useless for update
-		$db->execute($query, [$user->username, $user->firstname, $user->lastname, $user->email, $user->active, $user->id]);
-		if (($n = $db->errorNo()) === 0 && !empty($user->repass)) {
+		$db->execute($query, [$user->username, $user->firstname, $user->lastname, $user->email, $user->active, $user->pwreset, $user->id]);
+		if (($n = $db->errorNo()) === 0 && $user->newpass) {
 			$query = 'UPDATE '.CMS_DB_PREFIX.'users SET password = ? WHERE user_id = ?';
 //			$dbr =
 			$db->execute($query, [$user->password, $user->id]);
-			$n =  $db->errorNo();
+			$n = $db->errorNo();
 		}
-		return ($n === 0);
+		if ($n === 0) {
+			unset($this->_saved_users[$user->id]); // ensure fresh report
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -350,7 +358,11 @@ EOS;
 //		$dbr3 =
 		$db->execute($query, [$uid]);
 
-		return $res != false;
+		if ($res != false) {
+			unset($this->_saved_users[$uid]); // ensure not loadable
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -547,6 +559,40 @@ EOS;
 	}
 
 	/**
+	 * Report whether the password of the specified user has expired.
+	 * We do not support P/W lifetime/timeout (per NIST recommendation),
+	 * but there may have been a system-flag or a onetime-password applied
+	 * @since 2.99
+	 *
+	 * @param mixed $user User object | null to process current user
+	 * return bool indicating expiry
+	 */
+	public function PasswordExpired($user = null) : bool
+	{
+//		$val = AppParams::get('password_life', 0);
+//		if ($val > 0) {
+			if ($user) {
+				$uid = $user->id;
+			} else {
+				$uid = (SingleItem::LoginOperations())->get_loggedin_uid();
+			}
+			if ($uid < 1) {
+				return true;
+			}
+			$db = SingleItem::Db();
+//			$stamp = $db->GetOne('SELECT UNIX_TIMESTAMP(passmodified_date) FROM '.CMS_DB_PREFIX.'users WHERE user_id = ?', [$uid]);
+//			if ((int)$stamp + $val * 86400 < time()) {
+//				return true;
+//			}
+			$flag = $db->GetOne('SELECT pwreset FROM '.CMS_DB_PREFIX.'users WHERE user_id = ?', [$uid]);
+			if ($flag) {
+				return true;
+			}
+//		}
+ 		return false;
+	}
+
+	/**
 	 * Check validity of a posited password for the specified user
 	 * @since 2.99
 	 *
@@ -677,7 +723,7 @@ EOS;
 		]);
 		if ($username && !$this->UsernameAvailable($user, $username, $update)) {
 			if ($msg) { $msg .= '<br />'; }
-			$msg .= lang('errorusernameexists', $username);
+			$msg .= _la('errorusernameexists', $username);
 		}
 		return $msg;
 	}
@@ -755,6 +801,47 @@ EOS;
 		$hash = $this->PreparePassword($password);
 		$query = 'UPDATE '.CMS_DB_PREFIX.'users SET password = ? WHERE user_id = ?';
 		$db->execute($query, [$hash, $uid]);
+	}
+
+	/**
+	 * Send lost-password recovery email to a specified admin user
+	 *
+	 * @param object $user user data
+	 * @return bool result from the attempt to send the message
+	 */
+	public function Send_recovery_email(User $user) : bool
+	{
+		$to = trim($user->firstname . ' ' . $user->lastname . ' <' . $user->email . '>');
+		if ($to[0] == '<') {
+			$to = $user->email;
+		}
+		$name = AppParams::get('sitename', 'CMSMS Site');
+		$subject = _la('lostpwemailsubject', $name);
+		$salt = SingleItem::LoginOperations()->get_salt();
+		$url = SingleItem::Config()['admin_url'] . '/login.php?repass=' . hash_hmac('tiger128,3', $user->password, $salt ^ $user->username);
+		$message = _la('lostpwemail', $name, $user->username, $url);
+		return Utils::send_email($to, $subject, $message);
+	}
+
+	/**
+	 * Send replace-password email to a specified admin user
+	 *
+	 * @param object $user user data
+	 * @param object $mod current module-object
+	 * @return bool result from the attempt to send the message
+	 */
+	public function Send_replacement_email(User $user) : bool
+	{
+		$to = trim($user->firstname . ' ' . $user->lastname . ' <' . $user->email . '>');
+		if ($to[0] == '<') {
+			$to = $user->email;
+		}
+		$name = AppParams::get('sitename', 'CMSMS Site');
+		$subject = _la('replacepwemailsubject', $name);
+		$salt = SingleItem::LoginOperations()->get_salt();
+		$url = SingleItem::Config()['admin_url'] . '/login.php?onepass=' . hash_hmac('tiger128,3', $user->password, $salt ^ $user->username);
+		$message = _la('replacepwemail', $name, $user->username, $url);
+		return Utils::send_email($to, $subject, $message);
 	}
 } //class
 

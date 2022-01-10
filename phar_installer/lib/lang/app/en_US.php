@@ -145,7 +145,7 @@ $lang['fail_cache_extension'] = 'No such cache extension was found. If possible,
 on the website';
 
 $lang['fail_config_writable'] = 'The webserver cannot modify the /lib/config.php file. Please try to change the permissions on that file to 0666 until this installer session is finished.';
-$lang['fail_curl_extension'] = 'The curl extension was not found. Though not a critical issue, this might cause problems with some non-core modules';
+$lang['fail_curl_extension'] = 'The cURL extension was not found. Not a critical absence, but it might cause problems with some non-core modules';
 $lang['fail_cryption_functions'] = 'No such support was found. If possible, enable the operation of either of
 <ul>
 <li>Sodium</li>
@@ -162,6 +162,7 @@ $lang['fail_func_tempnam'] = 'The tempnam function does not exist. It is require
 $lang['fail_func_ziparchive'] = 'ZipArchive functionality was not found.  This might limit some modules\' functionality';
 $lang['fail_ini_set'] = 'It appears that we cannot change ini settings. This could cause problems in non-core (independently-developed) modules (or when enabling debug mode)';
 //N/A PHP7+  $lang['fail_magic_quotes_runtime'] = 'It appears that magic quotes are enabled in the site configuration. Please disable them and retry';
+$lang['fail_intl_extension'] = 'The Intl extension was not found. Not a critical absence, but it might cause problems with some presentation and formatting if this is to be a non-English-language site';
 $lang['fail_max_execution_time'] = 'The current max execution time (%s) is too low. At least %s is required, and %s or greater is recommend';
 $lang['fail_memory_limit'] = 'The current memory limit value (%s) is too low. At least %s is required, and %s or greater is recommended';
 $lang['fail_multibyte_support'] = 'Multibyte support is not enabled in the site configuration';
@@ -187,6 +188,10 @@ $lang['failed'] = 'failed';
 $lang['file_get_contents'] = 'file_get_contents() method is available ?';
 $lang['file_installed'] = 'Install %s';
 $lang['file_uploads'] = 'File upload functionality is available ?';
+$lang['finish_1'] = 'You might like to make note of the following links, for CMSMS-related advice and assistance';
+$lang['finish_2'] = 'Support channels'; //link-text
+$lang['finish_3'] = 'contributions'; //link-text
+$lang['finish_4'] = 'CMSMS always welcomes %s from fans.';
 $lang['finished_custom_freshen_msg'] = 'The installation has been freshened. Please visit the website to check that everything is functioning correctly.';
 $lang['finished_custom_install_msg'] = 'Done! Please visit the website and log in to its <a href="%s">Admin Console</a>.';
 $lang['finished_custom_upgrade_msg'] = 'Done! Check that everything is working properly. Log in to the site\'s <a href="%s">Admin Console</a>. Among other things, look out for modules which need to be upgraded. Visit <a href="%s">the website</a>.<br /><strong>Hint:</strong> Now is a good time to create another backup.';
@@ -272,6 +277,7 @@ $lang['install_updateseq'] = 'Update sequence for %s';
 $lang['install_usertags'] = 'Install user-defined-tags';
 $lang['installer_language'] = 'Use this language';
 $lang['installer_ver'] = 'Installer Version';
+$lang['intl_extension'] = 'PHP Internationalization extension is available ?';
 
 // J
 
@@ -375,8 +381,8 @@ $lang['step2_cmsmsfound'] = 'An installation of CMS Made Simple was found. It is
 $lang['step2_cmsmsfoundnoupgrade'] = 'Although an installation of CMS Made Simple was found, it is not possible to upgrade this version using this application. The version might be too old.';
 $lang['step2_confirminstall'] = 'Are you sure you would like to install CMS Made Simple';
 $lang['step2_confirmupgrade'] = 'Are you sure you would like to upgrade CMS Made Simple';
-$lang['step2_errorsamever'] = 'The selected directory appears to contain a CMSMS installation with the same version that is included in this script. Continuing will freshen the installation.';
-$lang['step2_errortoonew'] = 'The selected directory appears to contain a CMSMS installation with a newer version that is included in this script. Unable to proceed';
+$lang['step2_errorsamever'] = 'The selected directory appears to contain a CMSMS installation with the same version that is included in this assistant. Continuing will freshen the installation.';
+$lang['step2_errortoonew'] = 'The selected directory appears to contain a CMSMS installation with a newer version that is included in this assistant. Cannot proceed';
 $lang['step2_info_freshen'] = 'Freshening the installation involves replacing all core files. The database will not be touched.';
 $lang['step2_installdate'] = 'Approximate installation date';
 $lang['step2_install_dirnotempty2'] = 'The installation folder already contains some files and/or folders.  Although it is possible to install CMSMS here, doing so might corrupt something else already there.  Please double check the contents of this folder.  For reference some of the files are listed below.  Please ensure that this is correct.';

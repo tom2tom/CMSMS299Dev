@@ -37,10 +37,8 @@ function smarty_function_tab_start($params, $template)
 /*
 function smarty_cms_about_function_tab_start()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR _la('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
 */
 /*
@@ -49,9 +47,7 @@ D function smarty_cms_help_function_tab_start()
 	echo _ld('tags', 'help_generic',
 	'This plugin generates page content for the start of a tab',
 	'tab_start name=...',
-	<<<'EOS'
-<li>name: the internal name of the tab (consistent with a tab header name)</li>
-EOS
+	'<li>name: the internal name of the tab (consistent with a tab header name)</li>'
 	);
 }
 */

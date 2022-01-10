@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to retrieve an url representing the site's top/base assets folder.
-Copyright (C) 2021 CMS Made Simnple Foundation <foundatio@cmsmadesimple.org>
+Copyright (C) 2022 CMS Made Simnple Foundation <foundatio@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -33,15 +33,13 @@ function smarty_function_assets_url($params, $template)
 /*
 function smarty_cms_about_function_assets_url()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Dec 2021', "<li>$n</li>");
 }
 */
 function smarty_cms_help_function_assets_url()
 {
-	$n = lang('none');
+	$n = _la('none');
 	echo _ld('tags', 'help_generic',
 	'This plugin retrieves an URL representing the site\'s topmost/base folder where assets are stored.',
 	'assets_url',

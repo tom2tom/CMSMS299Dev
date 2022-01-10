@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to list all admin console users
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -26,7 +26,9 @@ use CMSMS\Events;
 use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use function CMSMS\de_specialize;
+use function CMSMS\log_error;
 use function CMSMS\log_info;
+use function CMSMS\log_notice;
 use function CMSMS\sanitizeVal;
 
 $dsep = DIRECTORY_SEPARATOR;
@@ -72,7 +74,7 @@ if (isset($_GET['switchuser'])) {
         $themeObject->RecordNotice('error', _la('permissiondenied'));
     }
 } elseif (isset($_GET['toggleactive'])) {
-	$to_uid = (int)$_GET['toggleactive'];
+    $to_uid = (int)$_GET['toggleactive'];
     if ($to_uid == 1) {
         $themeObject->RecordNotice('error', _la('errorupdatinguser'));
     } else {
@@ -95,28 +97,25 @@ if (isset($_GET['switchuser'])) {
     }
 } elseif (isset($_POST['bulk']) && !empty($_POST['multiselect'])) {
 //   CMSMS\de_specialize_array($_POST);
-	$action = sanitizeVal($_POST['bulkaction'], CMSSAN_PURE); //letters only, specific values
+    $action = sanitizeVal($_POST['bulk_action'], CMSSAN_PURE); //letters only, specific values
     switch ($action) {
         case 'delete':
             $ndeleted = 0;
             foreach ($_POST['multiselect'] as $uid) {
-                $uid = (int)$uid;
+                $uid = (int)$uid; // minimal sanitize needed
                 if ($uid <= 1) {
-                    continue; // can't delete the magic user...
+                    continue; // can't delete the super user
                 }
-
                 if ($uid == $userid) {
                     continue; // can't delete self
                 }
-
                 $oneuser = $userops->LoadUserById($uid);
                 if (!is_object($oneuser)) {
                     continue; // invalid user
                 }
-
                 $ownercount = $userops->CountPageOwnershipById($uid);
                 if ($ownercount > 0) {
-                    continue; // can't delete user who owns pages.
+                    continue; // can't delete user who owns pages
                 }
 
                 // ready to delete.
@@ -136,13 +135,12 @@ if (isset($_GET['switchuser'])) {
             foreach ($_POST['multiselect'] as $uid) {
                 $uid = (int)$uid;
                 if ($uid <= 1) {
-                    continue;
-                } // can't edit the magic user...
-
+                    continue; // can't edit the super user
+                }
                 $oneuser = $userops->LoadUserById($uid);
                 if (!is_object($oneuser)) {
-                    continue;
-                } // invalid user
+                    continue; // invalid user
+                }
 
                 Events::SendEvent('Core', 'EditUserPre', ['user'=>&$oneuser]);
                 UserParams::remove_for_user($uid);
@@ -165,11 +163,10 @@ if (isset($_GET['switchuser'])) {
                         foreach ($_POST['multiselect'] as $uid) {
                             $uid = (int)$uid;
                             if ($uid <= 1) {
-                                continue; // can't edit the magic user...
+                                continue; // can't change the super user
                             }
-
                             if ($uid == $fromuser) {
-                                continue; // can't overwrite the same users prefs.
+                                continue; // can't overwrite the same users prefs
                             }
                             $oneuser = $userops->LoadUserById($uid);
                             if (!is_object($oneuser)) {
@@ -198,13 +195,11 @@ if (isset($_GET['switchuser'])) {
             foreach ($_POST['multiselect'] as $uid) {
                 $uid = (int)$uid;
                 if ($uid <= 1) {
-                    continue; // can't disable the magic user...
+                    continue; // can't disable the super user
                 }
-
                 if ($uid == $userid) {
-                    continue; // can't disable self.
+                    continue; // can't disable self
                 }
-
                 $oneuser = $userops->LoadUserById($uid);
                 if (!is_object($oneuser)) {
                     continue; // invalid user
@@ -229,13 +224,11 @@ if (isset($_GET['switchuser'])) {
             foreach ($_POST['multiselect'] as $uid) {
                 $uid = (int)$uid;
                 if ($uid <= 1) {
-                    continue; // can't disable the magic user...
+                    continue; // super user always enabled
                 }
-
                 if ($uid == $userid) {
-                    continue; // can't disable self
+                    continue; // can't enable self
                 }
-
                 $oneuser = $userops->LoadUserById($uid);
                 if (!is_object($oneuser)) {
                     continue; // invalid user
@@ -252,6 +245,44 @@ if (isset($_GET['switchuser'])) {
             }
             if ($nusers > 0) {
                 $message = _la('msg_usersedited', $nusers);
+            }
+            break;
+
+        case 'retire':
+            $adjust = [];
+            $ids = [];
+            foreach ($_POST['multiselect'] as $uid) {
+                $uid = (int)$uid;
+                if ($uid <= 1) {
+                    continue; // no password reset for the super user
+                }
+                if ($uid == $userid) {
+                    continue; // no point in self-reset
+                }
+                $oneuser = $userops->LoadUserById($uid);
+                if (!is_object($oneuser)) {
+                    continue; // invalid user
+                }
+                $adjust[] = $oneuser;
+                $ids[] = $uid;
+            }
+            if ($adjust) {
+                $sql = 'UPDATE '.CMS_DB_PREFIX.'users SET pwreset = 1 WHERE user_id IN ('.implode(',', $ids).')';
+                $dbr = $db->Execute($sql);
+                if ($dbr) {
+                    $nusers = 0;
+                    foreach ($adjust as $oneuser) {
+                        if ($oneuser->email) {
+                            if ($userops->Send_replacement_email($oneuser)) {
+                                log_notice('', 'Sent replace-password email for '.$oneuser->username);
+                                $nusers++;
+                            } else {
+                                log_error('', 'Failed to send replace-password email for '.$oneuser->username);
+                            }
+                        }
+                    }
+                    $message = _la('msg_usersrepass', $nusers);
+                }
             }
             break;
     }
@@ -336,8 +367,17 @@ if (!empty($message)) {
     $themeObject->RecordNotice('success', specialize($message));
 }
 
+// bulk-user action selections
+$bulkactions = [];
+$bulkactions['clearoptions'] = _la('clearusersettings');
+$bulkactions['copyoptions'] = _la('copyusersettings2');
+$bulkactions['disable'] = _la('disable');
+$bulkactions['enable'] = _la('enable');
+$bulkactions['delete'] = _la('usersdelete');
+$bulkactions['retire'] = _la('retirepass');
+
 $userlist = [];
-$offset   = ((int)$page - 1) * $limit;
+$offset = ((int)$page - 1) * $limit;
 $users = $userops->LoadUsers($limit, $offset);
 $is_admin = $userops->UserInGroup($userid, 1);
 
@@ -375,6 +415,7 @@ $smarty->assign([
     'selfurl' => $selfurl,
     'extraparms' => $extras,
     'urlext' => $urlext,
+    'bulkactions' => $bulkactions,
     'userlist' => $userlist,
 ]);
 

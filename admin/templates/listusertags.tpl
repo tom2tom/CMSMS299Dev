@@ -8,16 +8,16 @@
 <br />
 {if $pmod && count($tags) > 20}
 <div class="pageoptions">
-  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{_ld('admin','add_usrplg')}">{$iconadd}</a>
-  <a href="{$addurl}{$urlext}&amp;tagname=-1">{_ld('admin','add_usrplg')}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{_la('add_usrplg')}">{$iconadd}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1">{_la('add_usrplg')}</a>
 </div>
 <br />
 {/if}
 <table class="pagetable">
   <thead>
     <tr>
-      <th>{_ld('admin','name')}</th>
-      <th>{_ld('admin','description')}</th>
+      <th>{_la('name')}</th>
+      <th>{_la('description')}</th>
       {if $pmod}
       <th class="pageicon"></th>
       <th class="pageicon"></th>
@@ -30,7 +30,7 @@
       {strip}{$n=$tag.name}
       <td>
        {if $pmod}
-        <a href="{$editurl}{$urlext}&amp;tagname={$n}" title="{_ld('admin','edit_usrplg', {$n})}">{$n}</a>
+        <a href="{$editurl}{$urlext}&amp;tagname={$n}" title="{_la('edit_usrplg', {$n})}">{$n}</a>
        {else}
         {$n}
        {/if}
@@ -53,13 +53,13 @@
 {if $pmod}
 <br />
 <div class="pageoptions">
-  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{_ld('admin','add_usrplg')}">{$iconadd}</a>
-  <a href="{$addurl}{$urlext}&amp;tagname=-1">{_ld('admin','add_usrplg')}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{_la('add_usrplg')}">{$iconadd}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1">{_la('add_usrplg')}</a>
 </div>
 {/if}
 
 <div id="params_dlg" title="{_ld('tags','user_tag')}" style="display:none;">
 <h4 id="namer" style="text-align:center;"></h4>
-<h4>{_ld('admin','parameters')}:</h4>
+<h4>{_la('parameters')}:</h4>
 <p id="params"></p>
 </div>

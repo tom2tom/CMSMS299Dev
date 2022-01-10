@@ -17,7 +17,7 @@
 			{foreach $node.children as $one}
 			 	<li><a href="{$one.url}"{if isset($one.target)} target="{$one.target}"{/if}
 {*TODO replace onclick handler*}
-                {if strncmp($one.url,'logout',6 == 0) && isset($is_sitedown)} onclick="return confirm('{'maintenance_warning'|lang|escape:'javascript'}')"{/if}>{$one.title}</a></li>
+                {if strncmp($one.url,'logout',6 == 0) && isset($is_sitedown)} onclick="return confirm('{"maintenance_warning"|lang|escape:"javascript"}');"{/if}>{$one.title}</a></li>
 			{/foreach}
 			</ul>
 			{/if}

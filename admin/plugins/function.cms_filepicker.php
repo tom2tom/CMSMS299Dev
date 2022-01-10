@@ -58,25 +58,21 @@ function smarty_function_cms_filepicker($params, $template)
 /*
 function smarty_cms_about_function_cms_filepicker()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR _la('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
 */
 function smarty_cms_help_function_cms_filepicker()
 {
 	echo _ld('tags', 'help_generic',
 	'This plugin generates a file-selector element for uploading a file',
-	'cms_filepicker params',
-	<<<'EOS'
-<li>name: the name-attribute of the element</li>
+	'cms_filepicker ...',
+	'<li>name: the name-attribute of the element</li>
 <li>prefix: optional string to prepend to the element-name</li>
 <li>profile: name of a file-system profile specifying permissions etc</li>
 <li>required: optional flag, whether a file must be selected</li>
 <li>top: topmost/base website folder from which the file may be selected</li>
 <li>type: optional FileType identifier (e.g. 0 == FileType::NONE)</li>
-<li>value: optional initial value of the element</li>
-EOS
+<li>value: optional initial value of the element</li>'
 	);
 }

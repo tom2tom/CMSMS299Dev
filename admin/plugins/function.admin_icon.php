@@ -76,19 +76,17 @@ function smarty_function_admin_icon($params, $template)
 /*
 function smarty_cms_about_function_admin_icon()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR _la('none') ... OR _la('none')
-EOS
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
 */
 function smarty_cms_help_function_admin_icon()
 {
+	//TODO property details
 	echo _ld('tags', 'help_generic',
 	'This plugin generates page-content representing an icon for display in an admin page',
 	'admin_icon icon= ...',
-	<<<'EOS'
-<li>icon: admin-theme relative filesystem path of &quot;standard&quot; admin icon file (extension absent or ignored)</li>
+	'<li>icon: admin-theme relative filesystem path of &quot;standard&quot; admin icon file (extension absent or ignored)</li>
 <li>module: (instead of icon) name of the module whose representative icon is wanted</li>
 <li>optional element properties:
 <ul>
@@ -101,7 +99,6 @@ function smarty_cms_help_function_admin_icon()
 <li>rel: </li>
 <li>title: </li>
 <li>width: </li>
-</ul></li>
-EOS
+</ul></li>'
 	);
 }

@@ -33,7 +33,7 @@ jQuery 2.2.4 (effective upgrades from 1.x to the current 3.x need to be in two s
 jQuery migrate 1.4.1
 jQuery-UI & jQuery-UI-css 1.13.0
 support-js (cookies, sortable, uploads etc) latest releases as of 1/9/2018
-Smarty 3.1.39
+Smarty 3.1.40
 replacement for the OutMailer (formerly CMSMailer) module backend PHPMailer class (due to license incompatibility)
 TinyMCE (MicroTiny module) 4.9.11 Now has incompatible license, so a replacement editor is needed
 
@@ -94,6 +94,7 @@ edit_template
 gather_content
 get_jquery
 header_includes
+localedate_format (modifier)
 scripts_url
 syntax_area
 tabs_restart
@@ -102,7 +103,7 @@ theme_root
 NOTE: The 'main' function in each function-type plugin is like
    smarty_function_my_name($params, $smarty-object)
 Smarty will not recognise a plugin whose function is named with an extra 'cms_'
-i.e. the name MUST now be 'smarty_function_my_name', NOT 'smarty_cms_function_my_name'.    
+i.e. the name MUST now be 'smarty_function_my_name', NOT 'smarty_cms_function_my_name'.
 The 2nd argument (whatever named) will be a Smarty Internal Template-class
 object, and (for Smarty 3.1.32+) MUST NOT be a reference to such obect.
 The installer remedies those breakages as best it can, but might miss some cases.
@@ -125,7 +126,7 @@ changed
 cms_textarea  adapted to work with updated FormUtils::create_textarea()
 all date-formatters expect date()-compatible formats, but will convert deprecated strftime()-compatible formats if possible
 current_date  if no format is given, site-preference 'defaultdateformat' is used
-cms_stylesheet  min, styles parameters added, automatic sorting of output media-types 
+cms_stylesheet  min, styles parameters added, automatic sorting of output media-types
 
 LOCATIONS
 
@@ -182,6 +183,7 @@ DETAILS
          register_endsession_function(),
          set_session_value(),get_session_value()
          restricted_cms_permissions(),
+         CMSMS\add_page_header(), CMSMS\remove_page_header(), CMSMS\get_page_headers(), CMSMS\sendheaders()
          add_page_headtext(),remove_page_headtext()
          add_page_foottext(),remove_page_foottext()
          CMSMS\get_page_headtext(),CMSMS\get_page_foottext()

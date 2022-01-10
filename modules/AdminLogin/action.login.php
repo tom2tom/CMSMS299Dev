@@ -108,7 +108,7 @@ $tpl->assign([
  'start_form' => $start_form,
  'admin_url' => $config['admin_url'],
  'module_url' => $baseurl,
- 'forgot_url' => 'login.php?forgotpw=1', // TODO
+ 'forgot_url' => 'login.php?forgotpw=1',
  'csrf' => $csrf ?? null,
  'changepwhash' => $changepwhash ?? null,
  'username' => $username ?? null,

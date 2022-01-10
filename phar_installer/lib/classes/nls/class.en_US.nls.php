@@ -8,7 +8,6 @@ class en_US_nls extends nls
     public function __construct()
     {
         $this->_fullname = 'English';
-
         $this->_isocode = 'en';
         $this->_locale = 'en_US';
         $this->_encoding = 'UTF-8';
@@ -19,4 +18,4 @@ class en_US_nls extends nls
     {
         return 1;
     }
-} // class
+}

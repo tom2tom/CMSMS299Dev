@@ -1,7 +1,7 @@
 <?php
 /*
 Base class for CMSMS admin themes
-Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -396,10 +396,24 @@ abstract class AdminTheme
         SingleItem::LoadedData()->add_type($obj);
     }
 
+    /* *
+     * @aince 2.99
+     * @abstract
+     */
+//    public function install() {}
+
+
+    /* *
+     * @aince 2.99
+     * @abstract
+     */
+//    public function uninstall() {}
+
     /**
      * Helper for constructing js data
      * @ignore
      * @since 2.99
+     *
      * @param array $strings
      * @return mixed string | false
      */
@@ -422,6 +436,7 @@ abstract class AdminTheme
      * This will normally be sub-classed by specific themes, and such methods
      * should call here (their parent) as well as their own specific setup
      * @since 2.99
+     *
      * @return 2-member array (not typed to support back-compatible themes)
      * [0] = array of data for js vars, members like varname=>varvalue
      * [1] = array of [x]html string(s) which the browser will interpret
@@ -504,8 +519,8 @@ abstract class AdminTheme
     /**
      * Return information about available modules for populating the
      * current user's admin menu
-     *
      * @since 1.10
+     *
      * @access private
      * @ignore
      * @return array
@@ -523,8 +538,8 @@ abstract class AdminTheme
     /**
      * Setup data structures to place modules in the appropriate
      * menu-sections for display on section pages and menus.
-     *
      * @since 1.10
+     *
      * @access private
      * @ignore
      */
@@ -718,8 +733,8 @@ abstract class AdminTheme
      * Set the page title.
      * This is used in the admin to set the title for the page, and for the visible page header.
      * Note: if no title is specified, the theme will try to calculate one automatically.
-     *
      * @since 2.0
+     *
      * @param string $str The page title.
      */
     public function SetTitle($str)
@@ -732,8 +747,8 @@ abstract class AdminTheme
      * Set the page subtitle.
      * This is used in the admin to set the title for the page, and for the visible page header.
      * Note: if no title is specified, the theme will try to calculate one automatically.
-     *
      * @since 2.0
+     *
      * @param string $str The page subtitle.
      */
     public function SetSubTitle($str)
@@ -856,8 +871,8 @@ abstract class AdminTheme
      * Populate the admin navigation tree (if not done before), and
      * return some or all of it.
      * This might be called directly from a template.
-     *
      * @since 1.11
+     *
      * @param mixed $parent    Optional name of the wanted root section/node,
      *  or null for actual root node. The formerly-used -1 is also
      *  recognized as an indicator of the root node. Default null
@@ -963,8 +978,8 @@ abstract class AdminTheme
 
     /**
      * Set the current action module
-     *
      * @since 2.0
+     *
      * @param string $module_name the module name.
      */
     public function set_action_module($module_name)
@@ -975,8 +990,8 @@ abstract class AdminTheme
 
     /**
      * Determine the module name (if any) associated with the current request.
-     *
      * @since 2.0
+     *
      * @access protected
      * @return string the module name for the current request, if any.
      */
@@ -988,8 +1003,8 @@ abstract class AdminTheme
 
     /**
      * Get the help URL for a module.
-     *
      * @since 2.0
+     *
      * @access protected
      * @param string $modname module name
      * @return mixed url-string | null
@@ -1130,6 +1145,35 @@ abstract class AdminTheme
     public function get_value($key)
     {
         if (is_array($this->_data) && isset($this->_data[$key])) return $this->_data[$key];
+    }
+
+    /**
+     * Record a theme-specific parameter value
+     * @aince 2.99
+     *
+     * @param string $key value identifier
+     * @param mixed $value value to be stored
+     * @return void
+     */
+    public function set_preference($key, $value)
+    {
+        $name = $this->themeName.'Theme'.AppParams::NAMESPACER.$key;
+        AppParams::set($name, $value);
+    }
+
+    /**
+     * Retreive a theme-specific parameter value
+     * @aince 2.99
+     *
+     * @param string $key value identifier
+     * @param mixed $defaultvalue optional value to be returned in the
+     * absence of a stored value for $key
+     * @return mixed
+     */
+    public function get_preference($key, $defaultvalue = '')
+    {
+        $name = $this->themeName.'Theme'.AppParams::NAMESPACER.$key;
+        return AppParams::get($name, $defaultvalue);
     }
 
     /**
@@ -1305,7 +1349,7 @@ EOS;
                 $fn .= '.';
             }
 
-            $exts = ['i','svg','avif','png','gif','jpg','jpeg']; // TODO recently: .avif .jpx
+            $exts = ['i','svg','avif','png','gif','jpx','jpg','jpeg'];
             if (!$this->_fontimages) {
                 unset($exts[0]);
             }
@@ -1534,7 +1578,6 @@ EOS;
 
     /**
      * Retrieve message(s) that were logged during a prior request, to be shown in a notification-dialog
-     *
      * @since 2.99
      */
     protected function UnParkNotices($type = null)
@@ -1569,8 +1612,8 @@ EOS;
 
     /**
      * Cache message(s) to be shown in a notification-dialog
-     *
      * @since 2.99
+     *
      * @param string $type Message-type indicator 'error','warn','success' or 'info'
      * @param mixed $message The error message(s), string|strings array
      * @param string $title Optional title for the message(s)
@@ -1887,12 +1930,11 @@ EOS;
 
     /**
      * Accumulate content to be inserted in the head section of the output
-     *
      * The CMSMS core code calls this method to add text and javascript to output in the head section required for various functionality.
+     * @since 2.2
      *
      * @param string $txt The text to add to the head section.
      * @param bool   $after Since 2.99 Optional flag whether to append (instead of prepend) default true
-     * @since 2.2
      * @deprecated since 2.99 instead use add_page_headtext()
      */
     public function add_headtext($txt, $after = true)
@@ -1909,12 +1951,11 @@ EOS;
 
     /**
      * Get text that needs to be inserted into the head section of the output.
-     *
      * This method is typically called by the admin theme itself to get the text to render.
-     *
-     * @return mixed string | null
      * @since 2.2
      * @deprecated since 2.99 instead use CMSMS\get_page_headtext()
+     *
+     * @return mixed string | null
      */
     public function get_headtext()
     {
@@ -1924,11 +1965,11 @@ EOS;
 
     /**
      * Accumulate content to be inserted at the bottom of the output, immediately before the </body> tag.
+     * @since 2.2
+     * @deprecated since 2.99 instead use add_page_foottext()
      *
      * @param string $txt The text to add to the end of the output.
      * @param bool   $after Since 2.99 Optional flag whether to append (instead of prepend) default true
-     * @since 2.2
-     * @deprecated since 2.99 instead use add_page_foottext()
      */
     public function add_footertext($txt, $after = true)
     {
@@ -1944,12 +1985,11 @@ EOS;
 
     /**
      * Get text that needs to be inserted into the bottom of the output.
-     *
      * This method is typically called by the admin theme itself to get the text to render.
-     *
-     * @return string | null
      * @since 2.2
      * @deprecated since 2.99 instead use CMSMS\get_page_foottext()
+     *
+     * @return string | null
      */
     public function get_footertext()
     {
@@ -1977,8 +2017,8 @@ EOS;
      * Cache the content of a 'minimal' page.
      * CHECKME can the subsequent processing of such content be a security risk?
      * Hence maybe some sanitize here?
-     *
      * @since 2.99
+     *
      * @param string $content the entire displayable content
      * @see AdminTheme::get_content(), AdminTheme::fetch_minimal_page()
      */
@@ -1989,8 +2029,8 @@ EOS;
 
     /**
      * Retrieve the cached content of a 'minimal' page
-     *
      * @since 2.99
+     *
      * @see AdminTheme::set_content(), AdminTheme::fetch_minimal_page()
      */
     public function get_content() : string
@@ -2001,12 +2041,12 @@ EOS;
     /**
      * Optional method to display a customized theme-specific login page.
      *   public function display_login_page() {}
+     * @since 2.99. Formerly the mandatory method do_login, which took
+     *   parameters and displayed content directly.
      *
      * To be implemented by themes which support such operation,
      * including all themes which support CMSMS 2.2 and below (often
      * via a method-alias)
-     * @since 2.99. Formerly the mandatory method do_login, which took
-     *   parameters and displayed content directly.
      */
 
     /**
@@ -2100,9 +2140,9 @@ EOS
      * Return page content representing the start of tab headers
      * e.g. echo $this->StartTabHeaders();
      * This infills related page-elements which are not explicitly created.
-     *
      * @final
      * @deprecated since 2.99. Instead use CMSMS\AdminTabs::start_tab_headers()
+     *
      * @return string
      */
     final public function StartTabHeaders() : string
@@ -2115,12 +2155,12 @@ EOS
      * Return page content representing a specific tab header
      * e.g.  echo $this->SetTabHeader('preferences',$this->Lang('preferences'));
      * This infills related page-elements which are not explicitly created.
-     *
      * @final
+     * @deprecated since 2.99 Use CMSMS\AdminTabs::set_tab_header()
+     *
      * @param string $tabid The tab id
      * @param string $title The tab title
      * @param bool $active Optional flag indicating whether this tab is active. Default false
-     * @deprecated since 2.99 Use CMSMS\AdminTabs::set_tab_header()
      * @return string
      */
     final public function SetTabHeader(string $tabid, string $title, bool $active = false) : string
@@ -2132,9 +2172,9 @@ EOS
     /**
      * Return page content representing the end of tab headers.
      * This infills related page-elements which are not explicitly created.
-     *
      * @final
      * @deprecated since 2.99 Use CMSMS\AdminTabs::end_tab_headers()
+     *
      * @return string
      */
     final public function EndTabHeaders() : string
@@ -2146,9 +2186,9 @@ EOS
     /**
      * Return page content representing the start of XHTML areas for tabs.
      * This infills related page-elements which are not explicitly created.
-     *
      * @final
      * @deprecated since 2.99 Use CMSMS\AdminTabs::start_tab_content()
+     *
      * @return string
      */
     final public function StartTabContent() : string
@@ -2160,9 +2200,9 @@ EOS
     /**
      * Return page content representing the end of XHTML areas for tabs.
      * This infills related page-elements which are not explicitly created.
-     *
      * @final
      * @deprecated since 2.99 Use CMSMS\AdminTabs::end_tab_content()
+     *
      * @return string
      */
     final public function EndTabContent() : string
@@ -2174,10 +2214,10 @@ EOS
     /**
      * Return page content representing the start of a specific tab.
      * This infills related page-elements which are not explicitly created.
-     *
      * @final
-     * @param string $tabid The tabid (see SetTabHeader)
      * @deprecated since 2.99 Use CMSMS\AdminTabs::start_tab()
+     *
+     * @param string $tabid The tabid (see SetTabHeader)
      * @return string
      */
     final public function StartTab(string $tabid) : string
@@ -2189,9 +2229,9 @@ EOS
     /**
      * Return page content representing the end of a specific tab.
      * This infills related page-elements which are not explicitly created.
-     *
      * @final
      * @deprecated since 2.99 Use CMSMS\AdminTabs::end_tab()
+     *
      * @return string
      */
     final public function EndTab() : string

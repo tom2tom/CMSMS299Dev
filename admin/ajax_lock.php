@@ -178,13 +178,13 @@ try {
 if ($out['status'] != 'error') {
     $out['locked'] = (isset($out['lock_id']) && $out['lock_id'] !== 0) ? 1 : 0;
 }
-
-header('Expires: Tue, 01 Jan 2000 00:00:00 GMT');
+//TODO reconcile with CMSMS\sendheaders() and headers sent
+header('Content-Type: application/json');
+header('Expires: 0');
 header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Cache-Control: post-check=0, pre-check=0', false);
 header('Pragma: no-cache');
-header('Content-Type: application/json');
 
 echo json_encode($out);
 exit;

@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to modify an existing admin user's account data
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -26,7 +26,9 @@ use CMSMS\ScriptsMerger;
 use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use function CMSMS\de_specialize_array;
+use function CMSMS\log_error;
 use function CMSMS\log_info;
+use function CMSMS\log_notice;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
@@ -146,51 +148,69 @@ if (isset($_POST['submit'])) {
     }
 
     if (!$errors) {
+        $userobj->active = $active;
+        if ($selfedit) {
+            $userobj->pwreset = 0;
+        } else {
+            $userobj->pwreset = (!empty($_POST['pwreset'])) ? 1 : 0;
+        }
+
         // save data
         $result = false;
-        if ($userobj) {
-            if ($password && $userobj->SetPassword($password)) {
-                $userobj->active = $active;
-                Events::SendEvent('Core', 'EditUserPre', ['user' => &$userobj]);
+        if (!$password || $userobj->SetPassword($password)) {
+            Events::SendEvent('Core', 'EditUserPre', ['user' => &$userobj]);
 
-                $result = $userobj->Save();
-                if ($result) {
-                    if ($manage_groups && isset($_POST['groups'])) {
-                        $db = SingleItem::Db();
-                        $stmt1 = $db->prepare('DELETE FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=? AND group_id=?');
-                        $stmt2 = $db->prepare('SELECT 1 FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=? AND group_id=?');
-                        $stmt3 = $db->prepare('INSERT INTO ' . CMS_DB_PREFIX . 'user_groups (user_id,group_id) VALUES (?,?)');
-                        foreach ($group_list as $thisGroup) {
-                            $gid = $thisGroup->id;
-                            if (isset($_POST['g' . $gid])) {
-                                $uid = $userobj->id;
-                                if ($_POST['g' . $gid] == 0) {
-                                    $db->execute($stmt1, [$uid, $gid]); // fails if already absent
-                                } elseif ($_POST['g' . $gid] == 1) {
-                                    $rst = $db->execute($stmt2, [$uid, $gid]);
-                                    if (!$rst || $rst->EOF) {
-                                        $db->execute($stmt2, [$uid, $gid]);
-                                    }
-                                    if ($rst) {
-                                        $rst->Close();
-                                    }
+            $result = $userobj->Save();
+            if ($result) {
+                if ($manage_groups && isset($_POST['groups'])) {
+                    $db = SingleItem::Db();
+//* TODO manage warning "property access is not allowed yet"
+//                  $stmt1 = $db->prepare('DELETE FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=? AND group_id=?');
+//                  $stmt2 = $db->prepare('SELECT 1 FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=? AND group_id=?');
+//                  $stmt3 = $db->prepare('INSERT INTO ' . CMS_DB_PREFIX . 'user_groups (user_id,group_id) VALUES (?,?)');
+                    $sql1 = 'DELETE FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=? AND group_id=?';
+                    $sql2 = 'SELECT 1 FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=? AND group_id=?';
+                    $sql3 = 'INSERT INTO ' . CMS_DB_PREFIX . 'user_groups (user_id,group_id) VALUES (?,?)';
+                    // TODO consider a transaction for this lot
+                    foreach ($group_list as $thisGroup) {
+                        $gid = $thisGroup->id;
+                        if (isset($_POST['g' . $gid])) {
+                            $uid = $userobj->id;
+                            if ($_POST['g' . $gid] == 0) {
+                                $db->execute($sql1, [$uid, $gid]); // fails if already absent
+                            } elseif ($_POST['g' . $gid] == 1) {
+                                $rst = $db->execute($sql2, [$uid, $gid]);
+                                $tmp = !$rst || $rst->EOF;
+                                if ($rst) {
+                                    $rst->Close();
+                                }
+                                if (!$tmp) {
+                                    $db->execute($sql3, [$uid, $gid]);
                                 }
                             }
                         }
-                        $stmt1->close();
-                        $stmt2->close();
-                        $stmt3->close();
                     }
-                    // put mention into the admin log
-                    log_info($userid, 'Admin User ' . $userobj->username, ' Edited');
-                    Events::SendEvent('Core', 'EditUserPost', ['user' => &$userobj]);
-                    $themeObject->RecordNotice('success', _la('accountupdated'));
-                } else {
-                    $errors[] = _la('error_internal');
+//                  $stmt1->close();
+//                  $stmt2->close();
+//                  $stmt3->close();
+//*/
                 }
-            } elseif ($password) {
-                $errors[] = _la('error_passwordinvalid');
+                // put mention into the admin log
+                log_info($userid, 'Admin User ' . $userobj->username, ' Edited');
+                Events::SendEvent('Core', 'EditUserPost', ['user' => &$userobj]);
+                $themeObject->RecordNotice('success', _la('accountupdated'));
+                if ($userobj->pwreset && $userobj->email) {
+                    if ($userops->Send_replacement_email($userobj)) {
+                        log_notice('', 'Sent replace-password email for '.$userobj->username);
+                    } else {
+                        log_error('', 'Failed to send replace-password email to '.$userobj->username);
+                    }
+                }
+            } else {
+                $errors[] = _la('error_internal');
             }
+        } elseif ($password) {
+            $errors[] = _la('error_passwordinvalid');
         }
 
         if ($result) {
@@ -211,7 +231,7 @@ if (isset($_POST['submit'])) {
                 } else {
                     $errors[] = _la('errorupdatinguser'); // TODO better advice
                 }
-            } elseif (isset($_POST['clearusersettings'])) {
+            } elseif (isset($_POST['clearusersettings']) && $_POST['clearusersettings'] > 0) {
                 if ($user_id > 1) {
                     // clear all preferences for this user.
                     log_info($user_id, 'Admin User ' . $userobj->username, ' Settings cleared');
@@ -223,12 +243,12 @@ if (isset($_POST['submit'])) {
             }
 
             Events::SendEvent('Core', 'EditUserPost', ['user' => &$userobj]);
-//            AdminUtils::clear_cached_files();
-//            SingleItem::LoadedData()->refresh('IF ANY');
+//          AdminUtils::clear_cached_files();
+//          SingleItem::LoadedData()->refresh('IF ANY');
             if ($message) {
                 $themeObject->ParkNotice('success', $message);
             }
-            redirect('listusers.php?'.$urlext);
+            redirect('listusers.php'.$urlext);
         } else {
             $errors[] = _la('errorupdatinguser');
         }
@@ -236,26 +256,21 @@ if (isset($_POST['submit'])) {
     $email = specialize($userobj->email);
     $firstname = specialize($userobj->firstname);
     $lastname = specialize($userobj->lastname);
-//    $password = $password ? specialize($password) : '';
-//    $passagain = $passagain ? specialize($passagain) : '';
+    $pwreset = (int)$userobj->pwreset;
     $username = specialize($username);
 } elseif ($user_id != -1) {
-    $active = $userobj->active;
-//    $adminaccess   = $userobj->adminaccess;
+    $active = (int)$userobj->active;
     $email = specialize($userobj->email);
     $firstname = specialize($userobj->firstname);
     $lastname = specialize($userobj->lastname);
-//    $password      = '';
-//    $passagain = '';
+    $pwreset = (int)$userobj->pwreset;
     $username = specialize($userobj->username);
 } else { //should never happen when editing
     $active = 1;
-//    $adminaccess   = 1;
     $email = '';
     $firstname = '';
     $lastname = '';
-//    $password      = '';
-//    $passagain = '';
+    $pwreset = 0;
     $username = '';
 }
 
@@ -319,30 +334,31 @@ $smarty = SingleItem::Smarty();
 
 if ($manage_groups) {
     $smarty->assign('groups', $group_list)
-        ->assign('membergroups', $userops->GetMemberGroups($user_id));
+     ->assign('membergroups', $userops->GetMemberGroups($user_id));
 }
 
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
 $smarty->assign([
+    'access_user' => $selfedit,
     'active' => $active,
     'copyusersettings' => $copyusersettings,
     'email' => $email,
+    'extraparms' => $extras,
     'firstname' => $firstname,
     'lastname' => $lastname,
     'manage_users' => $manage_users,
     'my_userid' => $userid,
-//    'tplmaster' => $tplmaster, TODO
+    'perm1grp' => $supergrp, //group 1 removal allowed
+    'perm1usr' => $superusr,  //group 1 addition|removal allowed
+    'pwreset' => $pwreset,
     'selfurl' => $selfurl,
-    'extraparms' => $extras,
+//  'tplmaster' => $tplmaster, TODO
     'urlext' => $urlext,
     'user_id' => $user_id,
-    'users' => $sel,
     'user' => $username,
-    'access_user' => $selfedit,
-    'perm1usr' => $superusr,  //group 1 addition|removal allowed
-    'perm1grp' => $supergrp, //group 1 removal allowed
+    'users' => $sel,
 ]);
 
 $content = $smarty->fetch('edituser.tpl');

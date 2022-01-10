@@ -28,20 +28,17 @@ function smarty_function_cms_version($params, $template)
 	}
 	return CMS_VERSION;
 }
-
+/*
 function smarty_cms_about_function_cms_version()
 {
-	echo <<<'EOS'
-<p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
-<p>Change History:</p>
-<ul>
-<li>None</li>
-</ul>
-EOS;
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
 }
+*/
 /*
 D function smarty_cms_help_function_cms_version()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'cms_version', "<li>none</li>");
+	$n = _la('none');
+	echo _ld('tags', 'help_generic', 'This plugin gets a string identifying the current version of CMSMS', 'cms_version', "<li>none</li>");
 }
 */

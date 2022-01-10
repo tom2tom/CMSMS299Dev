@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin to...
+Plugin to generate the URL of an uploaded file.
 Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
@@ -59,22 +59,18 @@ function smarty_function_file_url($params, $template)
 	}
 	return $out;
 }
-/*
+
 function smarty_cms_about_function_file_url()
 {
-	echo _ld('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
-<li>detail</li> ... OR lang('none')
-EOS
-	);
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004','<li>'._la('none').'</li>');
 }
-*/
-/*
-D function smarty_cms_help_function_file_url()
+
+function smarty_cms_help_function_file_url()
 {
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'file_url ...', <<<'EOS'
-<li>file</li>
-<li>dir</li>
-EOS
+	echo _ld('tags', 'help_generic',
+	'This plugin retrieves the URL of an uploaded file',
+	'file_url ...',
+	'<li>file: name of wanted file</li>
+<li>dir: optional uploads-folder-relative filepath of directory containing the wanted file</li>'
 	);
 }
-*/

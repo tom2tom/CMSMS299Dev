@@ -29,7 +29,7 @@ function smarty_function_description($params, $template)
 	else {
 		$out = $content_obj->TitleAttribute();
 	}
-    //TODO maybe disable SmartyBC-supported {php}{/php} in $out
+	//TODO maybe disable SmartyBC-supported {php}{/php} in $out
 
 	if( !empty($params['assign']) ) {
 		$template->assign(trim($params['assign']), $out);
@@ -40,19 +40,14 @@ function smarty_function_description($params, $template)
 
 function smarty_cms_about_function_description()
 {
-	$n = lang('none');
-	echo <<<EOS
-<p>Author: Elijah Lofgren &lt;elijahlofgren@elijahlofgren.com&gt;</p>
-<p>Change History:</p>
-<ul>
-<li>$n</li>
-</ul>
-EOS;
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Elijah Lofgren &lt;elijahlofgren@elijahlofgren.com&gt; 2004',
+	"<li>$n</li>"
+	);
 }
-/*
+
 function smarty_cms_help_function_description()
 {
-	$n = lang('none');
-	echo _ld('tags', 'help_generic', 'This plugin does ...', 'description', "<li>$n</li>");
+	$n = _la('none');
+	echo _ld('tags', 'help_generic', 'This plugin retrieves the title of the current page', "<li>$n</li>");
 }
-*/

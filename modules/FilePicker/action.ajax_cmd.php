@@ -122,13 +122,19 @@ try {
         default:
             throw new RuntimeException('Invalid command ' . $cmd);
         }
-    }
-    catch (Throwable $t) {
-        debug_to_log('Exception: ' . $t->GetMessage());
-//      if (CMS_DEBUG) {
-        debug_to_log($t->GetTraceAsString());
-//      }
-        // throw a 500 error
-        header('HTTP/1.1 500 ' . $t->GetMessage());
-    }
+}
+catch (Throwable $t) {
+    debug_to_log('Exception: ' . $t->GetMessage());
+//  if (CMS_DEBUG) {
+    debug_to_log($t->GetTraceAsString());
+//  }
+    // throw a 500 error
+    $handlers = ob_list_handlers();
+    for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
+
+    $proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0';
+    header($proto . ' 500 Internal Server Error');
+    header('Content-type: text/plain');
+    echo $t->getMessage() . "\n";
+}
 exit;

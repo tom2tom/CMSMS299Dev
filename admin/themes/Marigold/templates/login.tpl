@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
  <head>
   <title>{['loginto',{sitename}]|lang}</title>
@@ -33,26 +33,19 @@
      </div>
      <header>
       <a style="float:right;" href="{root_url}" title="{['goto',{sitename}]|lang}"><img class="goback" width="16" height="16" src="themes/Marigold/images/layout/goback.png" alt="{['goto',{sitename}]|lang}" /></a>
-      <h1>{['login_sitetitle',{sitename}]|lang}</h1>
+      {$lost=isset($smarty.get.forgotpw)}
+      <h1>{if $lost}{['forgotpwtitle',{sitename}]|lang}
+      {elseif isset($renewpw)}{['renewpwtitle',{sitename}]|lang}
+      {elseif !empty($sitelogo)}{'login_admin'|lang}
+      {else}{['login_sitetitle',{sitename}]|lang}{/if}</h1>
      </header>
      {$form}
-     {if !empty($smarty.get.forgotpw)}
-      <div class="message warning">{'forgotpwprompt'|lang}</div>
-     {elseif isset($renewpw)}
-      <div class="message information">{'renewpwprompt'|lang}</div>
-     {/if}
-     {if !empty($errmessage)}
-      <div class="message error">{$errmessage}</div>
-     {/if}
-     {if !empty($warnmessage)}
-      <div class="message warning">{$warnmessage}</div>
-     {/if}
-     {if !empty($infomessage)}
-      <div class="message success">{$infomessage}</div>
-     {/if}
-     {if !empty($changepwhash)}
-      <div class="message warning">{'passwordchange'|lang}</div>
-     {/if}
+     {if $lost}<div class="message information">{'forgotpwprompt'|lang}</div>
+     {elseif isset($renewpw)}<div class="message warning">{'renewpwprompt'|lang}</div>
+{*   {elseif !empty($changepwhash)}<div class="message information">{'passwordchange'|lang}</div>*}{/if}
+     {if !empty($errmessage)}<div class="message error">{$errmessage}</div>{/if}
+     {if !empty($warnmessage)}<div class="message warning">{$warnmessage}</div>{/if}
+     {if !empty($infomessage)}<div class="message information">{$infomessage}</div>{/if}
     </div>
    </div>
   </div>

@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin which accumulates stylesheet files to be included in a page or template
+Plugin which records a stylesheet file to be accumulated for inclusion in a page or template
 Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -35,25 +35,16 @@ function smarty_function_cms_queue_css($params, $template)
 function smarty_cms_help_function_cms_queue_css()
 {
 	echo _ld('tags', 'help_generic',
-	'This plugin records a styles-file for later accumulation into a single link element for a page-head.
-',
+	'This plugin records a styles-file for later accumulation into a single link element for a page-head.',
 	'cms_queue_css file=&quot;path/to/whatever.css&quot;',
-	<<<'EOS'
-	<li>file: full filesystem path of a .css file</li>
-	<li>priority: optional integer 0(use default priority) or 1(highest)...3</li>
-EOS
+	'<li>file: full filesystem path of a .css file</li>
+<li>priority: optional integer 0 (use default priority) or 1 (highest)...3</li>'
 	);
 	echo 'See also the complementary {cms_render_css} tag.';
 }
 
 function smarty_cms_about_function_cms_queue_css()
 {
-	echo _ld('tags', 'about_generic',
-	<<<EOS
-<p>Author: Robert Campbell</p>
-<p>Version: 1.0</p>
-EOS
-	,
-	lang('none')
-	);
+	$n = _la('none');
+	echo _ld('tags', 'about_generic', 'Robert Campbell Dec 2019', "<li>$n</li>");
 }

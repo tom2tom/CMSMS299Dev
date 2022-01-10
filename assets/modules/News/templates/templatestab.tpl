@@ -22,9 +22,9 @@
 <table id="tpltable" class="pagetable{if $tplcount > 1} table_sort{/if}" style="width:auto;">
  <thead>
   <tr>
-    <th{if $tplcount > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{_ld('admin','name')}</th>
-    <th{if $tplcount > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{_ld('admin','type')}</th>
-    <th{if $tplcount > 1} class="{literal}{sss:'icon'}{/literal}"{/if} title="{_ld($_module,'tip_tpl_type')}">{_ld('admin','default')}</th>
+    <th{if $tplcount > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{_la('name')}</th>
+    <th{if $tplcount > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{_la('type')}</th>
+    <th{if $tplcount > 1} class="{literal}{sss:'icon'}{/literal}"{/if} title="{_ld($_module,'tip_tpl_type')}">{_la('default')}</th>
     <th class="pageicon{if $tplcount > 1} nosort{/if}"></th>{/strip}
   </tr>
  </thead>
