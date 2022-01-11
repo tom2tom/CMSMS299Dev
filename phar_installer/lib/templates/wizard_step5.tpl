@@ -57,7 +57,7 @@
   {/if}
   {if empty($error)}
   <div id="bottom_nav">
-   <button class="action-button positive" type="submit" name="next"><i class='icon-cog'></i> {'next'|tr}</button>
+   <button class="action-button positive" type="submit" name="next"><i class='icon-next-{if empty($lang_rtl)}right{else}left{/if}'></i> {'next'|tr}</button>
   </div>
   {/if}
  </form>

@@ -79,7 +79,7 @@
         <a href="https://forum.cmsmadesimple.org" target="_blank">{'title_forum'|tr}</a> &bull; <a href="https://docs.cmsmadesimple.org" target="_blank">{'title_docs'|tr}</a> &bull; <a href="http://apidoc.cmsmadesimple.org" target="_blank">{'title_api_docs'|tr}</a>
       </div>*}
       <span class="shrimp">
-        Copyright &copy; 2004-{$smarty.now|date_format:'Y'} <a href="http://www.cmsmadesimple.org">CMS Made Simple</a>&trade;. All rights reserved.{if isset($installer_version)}&nbsp;{'installer_ver'|tr}:&nbsp;{$installer_version}{/if}
+        Copyright &copy; 2004-{$smarty.now|date_format:'Y'} <a href="http://www.cmsmadesimple.org">CMS Made Simple Foundation</a>. All rights reserved.{if isset($installer_version)}&nbsp;{'installer_ver'|tr}:&nbsp;{$installer_version}{/if}
       </span>
     </footer>
   {block name='javascript'}

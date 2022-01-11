@@ -2679,16 +2679,6 @@ body &gt; footer .social .linkedin a::before {
 	color: #0a66c2;
 }
 
-body &gt; footer .social .pinterest a::before {
-	content: &apos;\e905&apos;;
-	color: #e5021a;
-}
-
-body &gt; footer .social .youtube a::before {
-	content: &apos;\e906&apos;;
-	color: #ff0000;
-}
-
 body &gt; footer .social .facebook a::before {
 	content: &apos;\e907&apos;;
 	color: #3b5998;
@@ -2696,8 +2686,6 @@ body &gt; footer .social .facebook a::before {
 
 body &gt; footer .social .twitter a:hover::before,
       body &gt; footer .social .linkedin a:hover::before,
-      body &gt; footer .social .pinterest a:hover::before,
-      body &gt; footer .social .youtube a:hover::before,
       body &gt; footer .social .facebook a:hover::before {
 	color: [[$orange]];
 }
@@ -3793,8 +3781,6 @@ code {
 
 	body &gt; footer .social .twitter a::before,
     body &gt; footer .social .linkedin a::before,
-    body &gt; footer .social .pinterest a::before,
-    body &gt; footer .social .youtube a::before,
     body &gt; footer .social .facebook a::before {
 		color: [[$white]];
 	}
@@ -4178,16 +4164,6 @@ body&gt;footer .social .linkedin a::before {
 	color: #0a66c2;
 }
 
-body&gt;footer .social .pinterest a::before {
-	content: &apos;\e905&apos;;
-	color: #e5021a;
-}
-
-body&gt;footer .social .youtube a::before {
-	content: &apos;\e906&apos;;
-	color: #ff0000;
-}
-
 body&gt;footer .social .facebook a::before {
 	content: &apos;\e907&apos;;
 	color: #3b5998;
@@ -4195,8 +4171,6 @@ body&gt;footer .social .facebook a::before {
 
 body&gt;footer .social .twitter a:hover::before,
 body&gt;footer .social .linkedin a:hover::before,
-body&gt;footer .social .pinterest a:hover::before,
-body&gt;footer .social .youtube a:hover::before,
 body&gt;footer .social .facebook a:hover::before {
 	color: [[$orange]];
 }
@@ -5295,8 +5269,6 @@ code {
 
 	body&gt;footer .social .twitter a::before,
 	body&gt;footer .social .linkedin a::before,
-	body&gt;footer .social .pinterest a::before,
-	body&gt;footer .social .youtube a::before,
 	body&gt;footer .social .facebook a::before {
 		color: [[$white]];
 	}
@@ -5681,11 +5653,9 @@ a {
 			<content><![CDATA[&lt;span class=&quot;back-top&quot;&gt;&lt;a href=&quot;#&quot;&gt;Skip to top&lt;/a&gt;&lt;/span&gt;
 &lt;p class=&quot;copyright-info&quot;&gt;Copyright &amp;copy; {custom_copyright} &lt;a href=&quot;https://www.cmsmadesimple.org&quot;&gt;CMS&amp;nbsp;Made&amp;nbsp;Simple&amp;nbsp;Foundation&lt;/a&gt;&lt;/p&gt;
 &lt;ul class=&quot;social&quot;&gt;
- &lt;li class=&quot;twitter&quot;&gt;&lt;a title=&quot;Twitter&quot; href=&quot;https://twitter.com/#!/cmsms&quot;&gt;&lt;span&gt;Twitter&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
  &lt;li class=&quot;facebook&quot;&gt;&lt;a title=&quot;Facebook&quot; href=&quot;https://www.facebook.com/cmsmadesimple&quot;&gt;&lt;span&gt;Facebook&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
  &lt;li class=&quot;linkedin&quot;&gt;&lt;a title=&quot;LinkedIn&quot; href=&quot;http://www.linkedin.com/groups?gid=1139537&quot;&gt;&lt;span&gt;LinkedIn&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
- &lt;li class=&quot;youtube&quot;&gt;&lt;a title=&quot;YouTube&quot; href=&quot;http://www.youtube.com/user/cmsmadesimple&quot;&gt;&lt;span&gt;YouTube&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
- &lt;li class=&quot;pinterest&quot;&gt;&lt;a title=&quot;Pinterest&quot; href=&quot;http://www.pinterest.com/cmsmadesimple/&quot;&gt;&lt;span&gt;Pinterest&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+ &lt;li class=&quot;twitter&quot;&gt;&lt;a title=&quot;Twitter&quot; href=&quot;https://twitter.com/#!/cmsms&quot;&gt;&lt;span&gt;Twitter&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 ]]></content>
 		</template>
@@ -5835,8 +5805,7 @@ a {
     {include file=&apos;cms_template:Footer&apos;}
     &lt;/footer&gt;
   &lt;/body&gt;
-&lt;/html&gt;
-]]></content>
+&lt;/html&gt;]]></content>
 		</template>
 		<template>
 			<id>8</id>
@@ -5935,7 +5904,7 @@ a {
 			<content_id>1</content_id>
 			<content_name>Home</content_name>
 			<type>content</type>
-			<default_content>1</default_content>
+			<default_content>0</default_content>
 			<show_in_menu>1</show_in_menu>
 			<active>1</active>
 			<cachable>1</cachable>
@@ -6286,6 +6255,46 @@ A &lt;code&gt;{ldelim}Navigator{rdelim}&lt;/code&gt; tag is inserted twice in th
 			<prop_name>Sidebar</prop_name>
 			<content><![CDATA[&lt;h4&gt;Filler Text&lt;/h4&gt;&lt;p&gt;Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Cras sodales gravida est. Nullam enim ipsum, convallis quis, iaculis quis, facilisis eu, felis. Proin euismod hendrerit tortor. Aliquam erat volutpat. Morbi tempus diam sit amet neque. Sed sem metus, sagittis vel, lobortis ac, tempus sit amet, wisi. Phasellus in diam. Maecenas ultrices rutrum mauris. Vestibulum dolor justo, blandit a, posuere quis, varius at, tellus. Vestibulum convallis. Nulla ut leo sed elit eleifend varius. Aenean eget est id lorem posuere laoreet.&lt;/p&gt;]]></content>
 		</property>
+		<property>
+			<content_id>1</content_id>
+			<prop_name>pagedata</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>1</content_id>
+			<prop_name>disable_wysiwyg</prop_name>
+			<content>0</content>
+		</property>
+		<property>
+			<content_id>1</content_id>
+			<prop_name>extra1</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>1</content_id>
+			<prop_name>extra2</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>1</content_id>
+			<prop_name>extra3</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>1</content_id>
+			<prop_name>image</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>1</content_id>
+			<prop_name>thumbnail</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>1</content_id>
+			<prop_name>target</prop_name>
+			<content></content>
+		</property>
 	</properties>
 	<usertags>
 		<tag>
@@ -6317,11 +6326,6 @@ if($thisYear == $startCopyRight){
 		</tag>
 	</usertags>
 	<uploadfiles>
-		<file>
-			<name>demo-image.svg</name>
-			<relto>News</relto>
-			<relfrom>News</relfrom>
-		</file>
 	</uploadfiles>
 	<usertagfiles>
 		<file>
@@ -6342,7 +6346,13 @@ if($thisYear == $startCopyRight){
 			<relfrom>templates</relfrom>
 		</file>
 	</templatefiles>
-	<stylefiles/>
+	<stylefiles>
+		<file>
+			<name>EXAMPLE-stylesheet-file-header.xml</name>
+			<relto></relto>
+			<relfrom>styles</relfrom>
+		</file>
+	</stylefiles>
 	<themefiles>
 		<file>
 			<name>Theme.manifest</name>

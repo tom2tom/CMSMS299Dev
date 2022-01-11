@@ -188,10 +188,8 @@ $lang['failed'] = 'failed';
 $lang['file_get_contents'] = 'file_get_contents() method is available ?';
 $lang['file_installed'] = 'Install %s';
 $lang['file_uploads'] = 'File upload functionality is available ?';
-$lang['finish_1'] = 'You might like to make note of the following links, for CMSMS-related advice and assistance';
-$lang['finish_2'] = 'Support channels'; //link-text
-$lang['finish_3'] = 'contributions'; //link-text
-$lang['finish_4'] = 'CMSMS always welcomes %s from fans.';
+$lang['finished_all_msg1'] = 'You are most welcome to participate in the CMSMS community. If you\'re not already doing that, here are some starting points';
+$lang['finished_all_msg2'] = '<strong>Please remember:</strong> the CMS Made Simple Foundation always appreciates %s from CMSMS fans.'; // will include a payment-link
 $lang['finished_custom_freshen_msg'] = 'The installation has been freshened. Please visit the website to check that everything is functioning correctly.';
 $lang['finished_custom_install_msg'] = 'Done! Please visit the website and log in to its <a href="%s">Admin Console</a>.';
 $lang['finished_custom_upgrade_msg'] = 'Done! Check that everything is working properly. Log in to the site\'s <a href="%s">Admin Console</a>. Among other things, look out for modules which need to be upgraded. Visit <a href="%s">the website</a>.<br /><strong>Hint:</strong> Now is a good time to create another backup.';
@@ -400,6 +398,8 @@ $lang['step3_passed'] = 'The installer has performed numerous tests of the site\
 $lang['step9_removethis'] = '<strong>Warning</strong> For security, it is important that the installation file be removed from the root directory of the website, after verification that everything is working as expected.';
 $lang['symbol'] = 'Symbol';
 $lang['social_message'] = 'I have successfully installed CMS Made Simple!';
+$lang['support_channels'] = 'Support channels'; //finished-message link-text
+$lang['support_payments'] = 'contributions'; //finished-message link-text
 
 // T
 $lang['test_failed'] = 'A required test failed';

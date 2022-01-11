@@ -1,7 +1,7 @@
-/* ======================================================
+/* ==================================================
  * CMSMS installer styles - Version 2.0
- * Copyright: 2014-2021 CMS Made Simple Foundation
- ======================================================== */
+ * Copyright: 2014-2022 CMS Made Simple Foundation
+ ==================================================== */
 
 /* ------------------------------------------------------
  * Browser consistency - normalize.css v8.0.1 | MIT license | github.com/necolas/normalize.css
@@ -93,13 +93,13 @@ body {
 
 .row {
 	width: 100%;
-	max-width: 1140px;
+	max-width: 80em;
 	margin: 0 auto;
 	position: relative
 }
 
 .form-row {
-	margin-bottom: 0.7em
+	margin-bottom: .7em
 }
 
 .row > .col {
@@ -185,9 +185,9 @@ p {
 
 @font-face {
   font-family: installer;
-  src: url(../fonts/installer.woff2?41107636) format('woff2'),
-    url(../fonts/installer.woff?41107636) format('woff'),
-    url(../fonts/installer.ttf?41107636) format('truetype');
+  src: url(../font/installer.woff2?3976476) format('woff2'),
+    url(../font/installer.woff?3976476) format('woff'),
+    url(../font/installer.ttf?3976476) format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -197,7 +197,7 @@ p {
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'installer';
-    src: url(../fonts/installer.svg?41107636#installer) format('svg');
+    src: url(../fonts/installer.svg?3976476#installer) format('svg');
   }
 }
 */
@@ -242,32 +242,26 @@ p {
 .icon-warning:before { content: '\e602'; } /* '' */
 .icon-cancel:before { content: '\e603'; } /* '' */
 .icon-info:before { content: '\e604'; } /* '' */
-.icon-refresh:before { content: '\e605'; } /* '' */
-.icon-cog:before { content: '\e606'; } /* '' */
-.icon-asterisk:before { content: '\e607'; } /* '' */
-.icon-cmsms:before { content: '\e608'; } /* '' */
-.icon-facebook:before { content: '\e609'; } /* '' */
-.icon-twitter:before { content: '\e60a'; } /* '' */
-.icon-youtube:before { content: '\e60b'; } /* '' */
+.icon-asterisk:before { content: '\e605'; } /* '' */
+.icon-refresh:before { content: '\e606'; } /* '' */
+.icon-next-right:before { content: '\e607'; } /* '' */
+.icon-next-left:before { content: '\e608'; } /* '' */
+.icon-cmsms:before { content: '\e60a'; } /* '' */
+.icon-facebook:before { content: '\e60b'; } /* '' */
 .icon-linkedin:before { content: '\e60c'; } /* '' */
-.icon-pinterest:before { content: '\e60d'; } /* '' */
-.icon-cmsms-circled:before { content: '\e618'; } /* '' */
-.icon-facebook-circled:before { content: '\e619'; } /* '' */
-.icon-twitter-circled:before { content: '\e61a'; } /* '' */
-.icon-youtube-circled:before { content: '\e61b'; } /* '' */
-.icon-linkedin-circled:before { content: '\e61c'; } /* '' */
-.icon-pinterest-circled:before { content: '\e61d'; } /* '' */
+.icon-twitter:before { content: '\e60d'; } /* '' */
+.icon-circle:before { content: '\e60e'; } /* '' */
+.icon-blank:before { content: '\e60f'; } /* '' */
+.icon-pay:before { content: '\e610'; } /* '' */
 
-/* --- Colours --- */
-.icon-cmsms-circled:before { color: #ff9e3d }
-.icon-twitter-circled:before { color: #1da1f2 }
-.icon-linkedin-circled:before { color: #0077b5 }
-.icon-pinterest-circled:before { color: #e5021a }
-.icon-youtube-circled:before { color: #ff0000 }
-.icon-facebook-circled:before { color: #3b5998 }
-/*TODO white 'core' for each circled icon
-.social [class^="icon-"]:before, .social [class*=" icon-"]:before { background-color: #fff }
-*/
+/* --- Colors --- */
+.icon-cmsms::before { color: #ff9e3d }
+.icon-facebook::before { color: #3b5998 }
+.icon-linkedin::before { color: #0077b5 }
+.icon-twitter::before { color: #1da1f2 }
+/* TODO deploy white 'core' for each social icon */
+.icon-circle::before { color: #fff }
+.icon-blank::before { color: #fff }
 
 .cmsms-ui .red {
 	color: #993333
@@ -291,7 +285,8 @@ p {
 
 /* --- Messages --- */
 
-.cmsms-ui .message, #bottom_nav.complete {
+.cmsms-ui .message,
+#bottom_nav > #complete {
 /*	position: relative; */
 	min-height: 18px;
 	margin: 0 0 1em 0;
@@ -338,7 +333,8 @@ p {
 	color: #DC6FDC
 }
 
-.cmsms-ui .message.green, #bottom_nav.complete {
+.cmsms-ui .message.green,
+#bottom_nav > #complete {
 	background-color: #DEFCD5;
 	color: #1F7A22
 }
@@ -556,7 +552,7 @@ p {
 	color: #666;
 	border: none;
 	white-space: nowrap;
-	padding: 6px 18px;
+	padding: 6px 12px;
 	font-size: .875em;
 	line-height: 1.42857143;
 	text-decoration: none;
@@ -600,10 +596,16 @@ p {
 
 /* --- Step 9 help links --- */
 
-.social {
+#social {
 	display: inline-block;
 	margin: 0 1em;
 }
+#social [class^="icon-"]:before  {
+	vertical-align: middle;
+	font-size: 2.2rem;
+	font-weight: bold
+}
+
 /*
 .cmsms-ui .action-button.social {
 	color: #fff;

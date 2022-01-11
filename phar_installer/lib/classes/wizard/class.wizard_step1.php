@@ -1,6 +1,7 @@
 <?php
 namespace cms_installer\wizard;
 
+use cms_installer\nlstools;
 use cms_installer\wizard\wizard_step;
 use Exception;
 use const cms_installer\ICMSSAN_NONPRINT;
@@ -23,6 +24,11 @@ class wizard_step1 extends wizard_step
             $lang = sanitizeVal($_POST['lang'], ICMSSAN_NONPRINT);
             if ($lang) {
                 translator()->set_selected_language($lang);
+                $obj = (new nlstools())->find($lang);
+                if ($obj) {
+                    $v = $obj->direction();
+                    $this->set_langdir($v);
+                }
             }
         }
 

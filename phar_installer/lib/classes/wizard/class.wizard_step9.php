@@ -80,24 +80,6 @@ class wizard_step9 extends wizard_step
 
             sleep(3); //time to absorb this page as is
 
-            $s1 = lang('finish_1');
-            $s2 = lang('finish_2');
-            $s3 = lang('finish_3');
-            $s4 = '<a href="https://www.cmsmadesimple.org/donations" target="_blank">'.$s3.'</a>';
-            $s5 = lang('finish_4', $s4);
-            // TODO migrate this content into a template, get white 'core' for icons
-            $msg .= <<<EOS
-<br /><br />$s1:<br />
-<span class="social">
-<a href="https://www.cmsmadesimple.org/support/options" target="_blank"><i class="icon-cmsms-circled"></i> $s2</a><br />
-<a href="https://www.youtube.com/user/cmsmadesimple" target="_blank"><i class="icon-youtube-circled"></i> YouTube</a><br />
-<a href="https://www.facebook.com/cmsmadesimple" target="_blank"><i class="icon-facebook-circled"></i> Facebook</a><br />
-<a href="https://www.linkedin.com/groups/1139537" target="_blank"><i class="icon-linkedin-circled"></i> LinkedIn</a><br />
-<a href="https://www.pinterest.com/cmsmadesimple/" target="_blank"><i class="icon-pinterest-circled"></i> Pinterest</a><br />
-<a href="https://twitter.com/#!/cmsms" target="_blank"><i class="icon-twitter-circled"></i> Twitter</a>
-</span><br /><br />
-$s5
-EOS;
             $this->alldone($msg); //show 'finished' message and links
             $app->cleanup(); //no more me
         } catch (Throwable $t) {

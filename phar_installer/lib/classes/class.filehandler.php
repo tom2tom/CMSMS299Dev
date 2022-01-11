@@ -164,8 +164,8 @@ abstract class filehandler
 
         $nls = get_app()->get_nls();
         if (!is_array($nls)) {
-            return false;
-        } // problem
+            return false; // problem
+        }
 
         $bn = substr($bn, 0, strpos($bn, '.'));
         foreach ($nls['alias'] as $alias => $code) {

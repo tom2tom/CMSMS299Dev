@@ -35,7 +35,6 @@ final class nlstools
             }
         }
         unset($nls);
-        return null;
     }
 
 //  private function __construct() {}

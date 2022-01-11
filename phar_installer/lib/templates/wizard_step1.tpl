@@ -62,7 +62,7 @@ $(function() {
   </div>
 {if empty($error)}
  <div id="bottom_nav">
-    <button type="submit" class="action-button positive" name="next"><i class='icon-cog'></i> {'next'|tr}</button>
+    <button type="submit" class="action-button positive" name="next"><i class='icon-next-{if empty($lang_rtl)}right{else}left{/if}'></i> {'next'|tr}</button>{*TODO lang(direction) selected on this page *}
   </div>
 {/if}
  </form>

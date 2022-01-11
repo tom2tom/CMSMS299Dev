@@ -4,7 +4,7 @@ jQuery(function($) {
     // toggle info window
     $('.info-wrapper').removeClass('open');
     // focus input with class focus
-    $('input:first.focus').triggger('focus');
+    $('input:first.focus').trigger('focus');
     // shake on error
     $('#error').effect('shake', {
         times: 6,

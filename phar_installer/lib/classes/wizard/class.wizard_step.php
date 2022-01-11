@@ -15,6 +15,7 @@ class wizard_step
     // default installer bug-report URL @ CMSMS forge for core
     const FORGE_URL = 'http://dev.cmsmadesimple.org/bug/list/6';
     protected $forge_url;
+    protected static $_langdir = 'ltr';
 
     private static $_registered = 0;
 
@@ -38,13 +39,14 @@ class wizard_step
         $smarty->assign('version', $app->get_dest_version())
          ->assign('version_name', $app->get_dest_name())
          ->assign('dir', $dir)
+         ->assign('lang_rtl', self::$_langdir == 'rtl')
          ->assign('in_phar', $app->in_phar())
          ->assign('cur_step', $this->cur_step());
     }
 
     public function get_name()
     {
-        return get_class($this);
+        return get_called_class();
     }
 
     /**
@@ -157,6 +159,13 @@ class wizard_step
                 $str = '';
         }
         return $str;
+    }
+
+    protected function set_langdir($val)
+    {
+        $s = strtolower($val);
+        if (!($s == 'rtl' || $s == 'ltr')) { $s = 'ltr'; }
+        self::$_langdir = $s;
     }
 
     // Display the (<div/>) element whose id is 'bottom_nav', with $html included

@@ -10,7 +10,7 @@
   <div id="inner"></div>
   {if !empty($next_url) && empty($error)}
   <div id="bottom_nav">
-    <a class="action-button positive" href="{$next_url}" title="{'next'|tr}"><i class='icon-cog'></i> {'next'|tr}</a>
+    <a class="action-button positive" href="{$next_url}" title="{'next'|tr}"><i class='icon-next-{if empty($lang_rtl)}right{else}left{/if}'></i> {'next'|tr}</a>
   </div>
   {/if}
 {/block}

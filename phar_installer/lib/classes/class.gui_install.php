@@ -95,20 +95,21 @@ class gui_install extends installer_base
 
     public function run()
     {
-        // set the languages we're going to support.
-        $list = translator()->get_available_languages();
-        translator()->set_allowed_languages($list);
+        $ops = translator();
+        // set the supported languages
+        $list = $ops->get_available_languages();
+        $ops->set_allowed_languages($list);
 
         // the default language
-        translator()->set_default_language('en_US');
+        $ops->set_default_language('en_US');
 
-        // get the language preferred by the user (either in the request, in a cookie, or in the session, or in custom config)
-        $lang = translator()->get_selected_language();
+        // get the language preferred by the user (in the request, a cookie, the session, or custom config)
+        $lang = $ops->get_selected_language();
 
         if (!$lang) {
-            $lang = translator()->get_default_language(); // get a preferred language (presumably still en_US)
+            $lang = $ops->get_default_language(); // get a preferred language (presumably still en_US)
             // set it for use
-            translator()->set_selected_language($lang);
+            $ops->set_selected_language($lang);
         }
 
         // and do our stuff

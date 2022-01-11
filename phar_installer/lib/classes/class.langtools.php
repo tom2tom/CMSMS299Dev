@@ -5,7 +5,6 @@ namespace cms_installer;
 use cms_installer\request;
 use cms_installer\session;
 use Exception;
-use function cms_installer\nls;
 
 class langtools_Exception extends Exception
 {
@@ -150,9 +149,10 @@ final class langtools
             for ($i = 0; $i < $n; ++$i) {
                 $obj = $ops->find($langs[$i]['lang']); // does alias lookup.
                 if ($obj) {
-                    // it's available, check if it's allowed
-                    if ($this->language_allowed($obj->name())) {
-                        return $obj->name();
+                    // it's available, check if also allowed
+                    $str = $obj->name();
+                    if ($this->language_allowed($str)) {
+                        return $str;
                     }
                 }
             }
@@ -265,8 +265,9 @@ final class langtools
     public function get_language_list($langs)
     {
         $outp = null;
+        $ops = new nlstools();
         foreach ($langs as $one) {
-            $tmp = nls()->find($one);
+            $tmp = $ops->find($one);
             if (!is_object($tmp)) {
                 continue;
             }
@@ -343,7 +344,7 @@ final class langtools
     /**
      * Load a language realm
      *
-     * @param string, The realm name.    If empty the default realm is assumed.
+     * @param string, The realm name. If empty the default realm is assumed.
      * @return array of translated lang strings.
      */
     public function load_realm($realm = '')

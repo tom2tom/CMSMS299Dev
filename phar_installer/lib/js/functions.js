@@ -33,8 +33,9 @@ function set_block_html(id, html) {
 function alldone(html) {
   var listRoot = document.getElementById("installer-indicator"),
    theNode = listRoot.getElementsByClassName("current-step")[0],
-   theDiv = document.getElementById("bottom_nav");
-  theDiv.innerHTML = html;
+   theDiv = document.getElementById("bottom_nav"),
+   thePlace = document.getElementById("complete");
+  thePlace.innerHTML = html;
   theDiv.style.display = "block";
   if (theNode) {
     theNode.classList.remove("current-step");
