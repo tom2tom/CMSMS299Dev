@@ -36,10 +36,12 @@ function alldone(html) {
    theDiv = document.getElementById("bottom_nav"),
    thePlace = document.getElementById("complete");
   thePlace.innerHTML = html;
-  theDiv.style.display = "block";
+  theDiv.style.display = "inline-block";
   if (theNode) {
-    theNode.classList.remove("current-step");
+    theNode.classList.remove("current-step"); // li hence heading
     theNode.classList.add("done-step");
+    theNode = theNode.getElementsByClassName("current-step")[0],
+    theNode.classList.remove("current-step"); // description
   }
 }
 

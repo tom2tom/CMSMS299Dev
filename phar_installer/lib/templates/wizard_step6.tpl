@@ -38,9 +38,9 @@
       <div class="cell cols_4">
         <label for="name">{'username'|tr}</label>
       </div>
-      <div class="cell cols_8">
-        <input class="form-field required full-width" type="text" id="name" name="username" value="{$account.username}" required="required" />
-        <div class="corner red">
+      <div class="cell cols_8 must">
+        <input type="text" class="form-field full-width max20 mustchild" id="name" name="username" value="{$account.username}" required="required" />
+        <div class="corner red mustchild">
           <i class="icon-asterisk"></i>
         </div>
       </div>
@@ -49,9 +49,9 @@
       <div class="cell cols_4">
         <label for="pass">{'password'|tr}</label>
       </div>
-      <div class="cell cols_8">
-        <input class="form-field required full-width" type="password" id="pass" name="password" value="{$account.password}" required="required" autocomplete="off" />
-        <div class="corner red">
+      <div class="cell cols_8 must">
+        <input type="password" class="form-field full-width max40 mustchild" id="pass" name="password" value="{$account.password}" required="required" autocomplete="off" />
+        <div class="corner red mustchild">
           <i class="icon-asterisk"></i>
         </div>
       </div>
@@ -60,9 +60,9 @@
       <div class="cell cols_4">
         <label for="again">{'repeatpw'|tr}</label>
       </div>
-      <div class="cell cols_8">
-        <input class="form-field required full-width" type="password" id="again" name="repeatpw" value="{$account.password}" required="required" autocomplete="off" />
-        <div class="corner red">
+      <div class="cell cols_8 must">
+        <input type="password" class="form-field full-width max40 mustchild" id="again" name="repeatpw" value="{$account.password}" required="required" autocomplete="off" />
+        <div class="corner red mustchild">
           <i class="icon-asterisk"></i>
         </div>
       </div>
@@ -71,12 +71,12 @@
       <div class="cell cols_4">
         <label for="email">{'emailaddr'|tr}</label>
       </div>
-      <div class="cell cols_8">
+      <div class="cell cols_8{* must*}">
 {*      {if $verbose} *}
-        <input class="form-field full-width" type="email" id="email" name="emailaddr" value="{$account.emailaddr}" />
+        <input type="email" class="form-field full-width max40" id="email" name="emailaddr" value="{$account.emailaddr}" />
 {*      {else}
-        <input class="form-field required full-width" type="email" id="email" name="emailaddr" value="{$account.emailaddr}" required="required" />
-        <div class="corner red">
+        <input type="email" class="form-field full-width max40 mustchild" id="email" name="emailaddr" value="{$account.emailaddr}" required="required" />
+        <div class="corner red mustchild">
           <i class="icon-asterisk"></i>
         </div>
       {/if} *}
@@ -84,8 +84,9 @@
     </div>
   {if empty($error)}
   <div id="bottom_nav">
-    <button class="action-button positive" type="submit" name="next"><i class='icon-next-{if empty($lang_rtl)}right{else}left{/if}'></i> {'next'|tr}</button>
+    <button type="submit" class="action-button positive" name="next">{if empty($lang_rtl)}<i class="icon-next-right"></i> {'next'|tr}{else}{'next'|tr} <i class="icon-next-left"></i>{/if}</button>
   </div>
+{*  {else}<a href="{$retry_url}" class="action-button negative" title="{'retry'|tr}">{if !empty($lang_rtl)}<i class="icon-refresh"></i> {'retry'|tr}{else}{'retry'|tr} <i class="icon-refresh"></i>{/if}</a>*}
   {/if}
  </form>
 </div>

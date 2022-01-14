@@ -38,7 +38,6 @@ $(function() {
       {html_options options=$dirlist selected=$destdir|default:''}
     </select>
     </div>
-    <hr />
   {/if}
 
   <h3>{'step1_language'|tr}</h3>
@@ -50,8 +49,6 @@ $(function() {
     </select>
   </div>
 
-  <hr />
-
   <h3>{'step1_advanced'|tr}</h3>
   <p>{'info_advanced'|tr}</p>
   <div class="row">
@@ -62,7 +59,7 @@ $(function() {
   </div>
 {if empty($error)}
  <div id="bottom_nav">
-    <button type="submit" class="action-button positive" name="next"><i class='icon-next-{if empty($lang_rtl)}right{else}left{/if}'></i> {'next'|tr}</button>{*TODO lang(direction) selected on this page *}
+    <button type="submit" class="action-button positive" name="next">{if empty($lang_rtl)}<i class="icon-next-right"></i> {'next'|tr}{else}{'next'|tr} <i class="icon-next-left"></i>{/if}</button>{*TODO lang(direction) selected on this page *}
   </div>
 {/if}
  </form>

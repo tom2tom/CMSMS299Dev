@@ -24,7 +24,7 @@
     <link rel="icon" type="image/ico" href="lib/images/favicon.ico" />
   </head>
   {strip}{block name='logic'}{/block}{/strip}
-  <body class="cmsms-ui">
+  <body>
     <div class="row header-section">
       <a href="http://www.cmsmadesimple.org" rel="external" target="_blank" class="cmsms-logo" title="CMS Made Simple&trade;">
        <img class="cmslogo" src="lib/images/cmsms-logo.svg" onerror="this.onerror=null;this.src='lib/images/cmsms-logo.png';" alt="CMS Made Simple" title="CMS Made Simple" />
@@ -40,7 +40,7 @@
             <ol id="installer-indicator">
               {foreach $wizard_steps as $classname => $step}
               {strip}
-              <li class="step {if $step.active} current-step{/if}{if isset($current_step) && $current_step > $step@iteration} done-step{/if}">
+              <li class="step{if $step.active} current-step{/if}{if isset($current_step) && $current_step > $step@iteration} done-step{/if}">
                 <h4 class="step-title">{$step.classname|tr}</h4>
                 <p class="step-description">{'desc_'|cat:$step.classname|tr}</p>
               </li>

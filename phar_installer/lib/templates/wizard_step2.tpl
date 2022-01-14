@@ -110,12 +110,11 @@
 
   <div id="bottom_nav">
     {if !isset($cmsms_info)}{*installing, no error*}
-     {* if isset($retry_url)}<a class="action-button orange" href="{$retry_url}" title="{'retry'|tr}"><i class="icon-refresh"></i> {'retry'|tr}</a>{/if} CHECKME *}
-     <button class="action-button positive" id="install" type="submit" name="install"><i class="icon-next-{if empty($lang_rtl)}right{else}left{/if}"></i> {'install'|tr}</button>
-    {elseif !isset($cmsms_info.error_status)}
-     <button class="action-button positive" id="upgrade" type="submit" name="upgrade"><i class="icon-next-{if empty($lang_rtl)}right{else}left{/if}"></i> {'upgrade'|tr}</button>
+     <button type="submit" class="action-button positive" id="install" name="install">{if empty($lang_rtl)}<i class="icon-next-right"></i> {'install'|tr}{else}{'install'|tr} <i class="icon-next-left"></i>{/if}</button>
+     {elseif !isset($cmsms_info.error_status)}
+     <button type="submit" class="action-button positive" id="upgrade" name="upgrade">{if empty($lang_rtl)}<i class="icon-next-right"></i> {'upgrade'|tr}{else}{'upgrade'|tr} <i class="icon-next-left"></i>{/if}</button>
     {elseif $cmsms_info.error_status == 'same_ver'}
-     <button class="action-button positive" id="freshen" type="submit" name="freshen"><i class="icon-next-{if empty($lang_rtl)}right{else}left{/if}"></i> {'freshen'|tr}</button>
+     <button type="submit" class="action-button positive" id="freshen" name="freshen">{if empty($lang_rtl)}<i class="icon-next-right"></i> {'freshen'|tr}{else}{'freshen'|tr} <i class="icon-next-left"></i>{/if}</button>
     {/if}
   </div>
  </form>

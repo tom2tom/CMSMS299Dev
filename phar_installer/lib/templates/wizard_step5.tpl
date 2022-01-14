@@ -12,10 +12,12 @@
   {if $action == 'install'}
     <h3>{'prompt_sitename'|tr}</h3>
     <p>{'info_sitename'|tr}</p>
-    <div class="row">
-      <input class="form-field required half-width" type="text" name="sitename" value="{$sitename}" placeholder="{'ph_sitename'|tr}" required="required" />
-      <div class="corner red">
-        <i class="icon-asterisk"></i>
+    <div class="flexrow form-row">
+      <div class="cell cols_8 must">
+        <input type="text" class="form-field half-width max40 mustchild" name="sitename" value="{$sitename}" placeholder="{'ph_sitename'|tr}" required="required" />
+        <div class="corner red mustchild">
+          <i class="icon-asterisk"></i>
+        </div>
       </div>
     </div>
   {/if}
@@ -24,7 +26,7 @@
     <h3{if !$verbose} class="disabled"{/if}>{'prompt_supporturl'|tr}</h3>
     {if $verbose}<p>{'info_supporturl'|tr}</p>{/if}
     <div class="row">
-      <input class="form-field half-width{if !$verbose} disabled{/if}" type="text" name="supporturl" value="{$supporturl}"{if $verbose} placeholder="{'ph_supporturl'|tr}"{else} disabled="disabled"{/if} />
+      <input type="text" class="form-field half-width max40{if !$verbose} disabled{/if}" name="supporturl" value="{$supporturl}"{if $verbose} placeholder="{'ph_supporturl'|tr}"{else} disabled="disabled"{/if} />
     </div>
   {/if}
 
@@ -57,8 +59,9 @@
   {/if}
   {if empty($error)}
   <div id="bottom_nav">
-   <button class="action-button positive" type="submit" name="next"><i class='icon-next-{if empty($lang_rtl)}right{else}left{/if}'></i> {'next'|tr}</button>
+   <button type="submit" class="action-button positive" name="next">{if empty($lang_rtl)}<i class="icon-next-right"></i> {'next'|tr}{else}{'next'|tr} <i class="icon-next-left"></i>{/if}</button>
   </div>
+{*  {else}<a href="{$retry_url}" class="action-button negative" title="{'retry'|tr}">{if !empty($lang_rtl)}<i class="icon-refresh"></i> {'retry'|tr}{else}{'retry'|tr} <i class="icon-refresh"></i>{/if}</a>*}
   {/if}
  </form>
 </div>

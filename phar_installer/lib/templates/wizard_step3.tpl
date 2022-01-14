@@ -18,7 +18,7 @@
 
 {if $tests_failed || $verbose}
   {if isset($information)}
-  <table class="table bordered-table shrimp">
+  <table class="bordered-table shrimp">
     <caption>
       {'server_info'|tr}
     </caption>
@@ -32,7 +32,7 @@
     </tbody>
   </table>
   {/if}
-  <table class="table bordered-table installer-test-legend shrimp">
+  <table class="bordered-table installer-test-legend shrimp">
     <caption>
       {'legend'|tr}
     </caption>
@@ -58,7 +58,7 @@
     </tbody>
   </table>
   <br />
-  <table class="table zebra-table bordered-table installer-test-information">
+  <table class="bordered-table installer-test-information">
     <thead class="tbhead">
       <tr>
         <th>{'th_status'|tr}</th>
@@ -91,8 +91,9 @@
 
 {if $can_continue}{wizard_form_start}{/if}
 <div id="bottom_nav">
-{if $tests_failed}<a href="{$retry_url}" class="action-button orange" title="{'retry'|tr}"><i class="icon-refresh"></i> {'retry'|tr}</a>{/if}
-{if ($can_continue && empty($error))} <button class="action-button positive" type="submit" name="next"><i class="icon-next-{if empty($lang_rtl)}right{else}left{/if}"></i> {'next'|tr}</button>{/if}
+{if !empty($lang_rtl)}{if ($can_continue && empty($error))} <button type="submit" class="action-button positive" name="next">{'next'|tr} <i class="icon-next-left"></i></button>{/if}{/if}
+{if $tests_failed}<a href="{$retry_url}" class="action-button negative" title="{'retry'|tr}">{if !empty($lang_rtl)}<i class="icon-refresh"></i> {'retry'|tr}{else}{'retry'|tr} <i class="icon-refresh"></i>{/if}</a>{/if}
+{if empty($lang_rtl)}{if ($can_continue && empty($error))} <button type="submit" class="action-button positive" name="next"><i class="icon-next-right"></i> {'next'|tr}</button>{/if}{/if}
 </div>
 {if $can_continue}</form>{/if}
 {/block}
