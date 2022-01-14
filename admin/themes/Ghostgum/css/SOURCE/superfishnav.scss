@@ -1,24 +1,24 @@
 $leftwards: true; // or false for rtl styling
 
 @if $leftwards {
-    $start-side: left !global;
-    $end-side: right !global;
+	$start-side: left !global;
+	$end-side: right !global;
 } @else {
-    $start-side: right !global;
-    $end-side: left !global;
+	$start-side: right !global;
+	$end-side: left !global;
 }
 
 @function sidedValues($top, $right, $bottom, $left:$right) {
-    @if $left != null {
-        @if $leftwards {
-            @return $top $right $bottom $left;
-        } @else {
-            @return $top $left $bottom $right;
-        }
-    }
-    @else {
-        @return $top $right $bottom $left;
-    }
+	@if $left != null {
+		@if $leftwards {
+			@return $top $right $bottom $left;
+		} @else {
+			@return $top $left $bottom $right;
+		}
+	}
+	@else {
+		@return $top $right $bottom $left;
+	}
 }
 
 //colors
@@ -145,7 +145,7 @@ $back-color: #fcf9f3;
 
 #burger {
 	display: none;
-    width: calc(1.5rem + 4px); //match svg width + right-padding
+	width: calc(1.5rem + 4px); //match svg width + right-padding
 	background-color: $accent2;
 	padding: sidedValues(4px, 0, 0, 4px);
 	z-index: 50;
@@ -173,7 +173,7 @@ $back-color: #fcf9f3;
 		z-index: 60;
 	}
 	a {
-        padding: 0; //sidedValues(0.12rem, 4px, 0.3rem, 4px);
+		padding: 0; //sidedValues(0.12rem, 4px, 0.3rem, 4px);
 		text-decoration: none;
 		color: $back-color;
 		&:link,
@@ -182,61 +182,61 @@ $back-color: #fcf9f3;
 		}
 	}
 	li {
-        position: relative;
+		position: relative;
 		margin: 0;
-        padding-#{$start-side}: 4px;
+		padding-#{$start-side}: 4px;
 		background-color: $accent2;
 		color: $back-color;
 		font-size: 0.95em; // NOT rem
-        &.descend.subsub::after {
-        	margin-#{$end-side}: 8px;
-            margin-top: calc(0.65em - 4px); // line-height-related : (1.3em + 4px pad - 12px img ht) / 2
-        	background-position: 24px 0; // right-arrow
-        }
-        &.descend.subsubL::after {
-        	margin-#{$end-side}: 8px;
-            margin-top: calc(0.65em - 4px); // line-height-related : (1.3em + 4px pad - 12px img ht) / 2
-        	background-position: 12px 0; // left-arrow
-        }
-        > svg, > a > svg, > img, > a > img {
-            height: 1.3em;
-            width: 1.3em;
-            padding: 2px;
-            margin-#{$start-side}: 0;
-            margin-bottom: -0.5em;
-        }
-        > span, > a > span {
-            display: inline-block;
-            height: 1.3em;
-            padding: 2px 4px;
+		&.descend.subsub::after {
+			margin-#{$end-side}: 8px;
+			margin-top: calc(0.65em - 4px); // line-height-related : (1.3em + 4px pad - 12px img ht) / 2
+			background-position: 24px 0; // right-arrow
+		}
+		&.descend.subsubL::after {
+			margin-#{$end-side}: 8px;
+			margin-top: calc(0.65em - 4px); // line-height-related : (1.3em + 4px pad - 12px img ht) / 2
+			background-position: 12px 0; // left-arrow
+		}
+		> svg, > a > svg, > img, > a > img {
+			height: 1.3em;
+			width: 1.3em;
+			padding: 2px;
+			margin-#{$start-side}: 0;
+			margin-bottom: -0.5em;
+		}
+		> span, > a > span {
+			display: inline-block;
+			height: 1.3em;
+			padding: 2px 4px;
 			font-size: 0.95em; // NOT rem
-            vertical-align: middle;
-            cursor: pointer;
+			vertical-align: middle;
+			cursor: pointer;
 		}
 	}
 	> li {
 		font-size: 1.1rem;
-        > svg, > a > svg, > img, > a > img {
+		> svg, > a > svg, > img, > a > img {
 			width: 1.5rem;
 			height: 1.5rem;
 			margin-bottom: -0.5rem;
 		}
-        > span, > a > span {
-            height: 1.5rem;
-            font-size: 1.1rem;
+		> span, > a > span {
+			height: 1.5rem;
+			font-size: 1.1rem;
 		}
-        > ul {
+		> ul {
 			margin-top: 4px;
 		}
-        &.descend::after {
-    		margin-#{$end-side}: 4px;
-    		margin-top: calc(0.75rem - 4px); // line-height-related :: (1.5rem + 4px pad - 12px img ht) / 2
-    		background-position: 48px 0; // down arrow
-    	}
+		&.descend::after {
+			margin-#{$end-side}: 4px;
+			margin-top: calc(0.75rem - 4px); // line-height-related :: (1.5rem + 4px pad - 12px img ht) / 2
+			background-position: 48px 0; // down arrow
+		}
 	}
 	ul {
-        @include flexbox;
-        @include flex-direction(column);
+		@include flexbox;
+		@include flex-direction(column);
 		margin: sidedValues(2px, 0, 0, 0);
 		position: absolute;
 		z-index: 50;
