@@ -11,44 +11,54 @@
   <meta name="msapplication-TileColor" content="#f89938" />
   <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
   <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" />
  {$font_includes}
  {$header_includes|default:''}
  </head>
  <body id="login">
-  <div id="wrapper">
-   <div class="login-container">
-    <div class="login-box cf"{if !empty($error)} id="error"{/if}>
-     <div class="logo">
-      <img src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" style="height:36px" alt="CMS Made Simple" />
+   <div id="login-wrapper">
+     <div id="login-container">
+       <div id="login-box" class="cf{if isset($error)} error{/if}">
+         <noscript>
+           <div class="message error">{'login_info_needjs'|lang}</div>
+         </noscript>
+         {if !empty($sitelogo)}
+           <img id="sitelogo" src="{$sitelogo}" title="{sitename}" alt="{sitename}" />
+         {/if}
+         <header>{$lost=isset($smarty.get.forgotpw)}
+           <h1>{if $lost}{['forgotpwtitle',{sitename}]|lang}
+           {elseif isset($renewpw)}{['renewpwtitle',{sitename}]|lang}
+           {else}{['login_sitetitle',{sitename}]|lang}{/if}</h1>
+         </header>
+         <div>
+           {if isset($form)}{$form}{else}{include file='form.tpl'}{block name=form}{/block}{/if}
+         </div>
+         {if $lost}<div class="message information">{'forgotpwprompt'|lang}</div>
+         {elseif isset($renewpw)}<div class="message warning">{'renewpwprompt'|lang}</div>
+         {/if}
+         {if !empty($error)}<div class="message error">{$error}</div>{/if}
+         {if !empty($warning)}<div class="message warning">{$warning}</div>{/if}
+         {if !empty($message)}<div class="message information">{$message}</div>{/if}
+         {if !$lost}
+         <a id="toggle-info" href="javascript:void()" title="{'open'|lang}/{'close'|lang}"><i class="fa fa-info" aria-hidden="true"></i> {'login_info_title'|lang}</a>
+         <br />
+         {/if}
+         <a id="goto" href="{root_url}" title="{['goto',{sitename}]|lang}"><i class="cfi-mainsite" aria-hidden="true"></i> {'viewsite'|lang}</a>
+         {if !$lost}
+         <div id="info-wrapper" class="information">
+{*         <p>{['login_info_params',"<strong>{$smarty.server.HTTP_HOST}</strong>"]|lang}</p>*}
+           <p>{'login_info_params'|lang}</p>
+           <p>{'info_cookies'|lang}</p>
+         </div>
+         {/if}
+       </div>
      </div>
-     <div class="info-wrapper open">
-     <aside class="info">
-     <h2>{'login_info_title'|lang}</h2>
-      <p>{'login_info'|lang}</p>
-       {'login_info_params'|lang}
-       <p><strong>({$smarty.server.HTTP_HOST})</strong></p>
-      <p class="warning">{'warn_admin_ipandcookies'|lang}</p>
-     </aside>
-     <a href="javascript:void()" title="{'open'|lang}/{'close'|lang}" class="toggle-info">{'open'|lang}/{'close'|lang}</a>
-     </div>
-     <header>
-      <a style="float:right;" href="{root_url}" title="{['goto',{sitename}]|lang}"><img class="goback" width="16" height="16" src="themes/Marigold/images/layout/goback.png" alt="{['goto',{sitename}]|lang}" /></a>
-      {$lost=isset($smarty.get.forgotpw)}
-      <h1>{if $lost}{['forgotpwtitle',{sitename}]|lang}
-      {elseif isset($renewpw)}{['renewpwtitle',{sitename}]|lang}
-      {elseif !empty($sitelogo)}{'login_admin'|lang}
-      {else}{['login_sitetitle',{sitename}]|lang}{/if}</h1>
-     </header>
-     {$form}
-     {if $lost}<div class="message information">{'forgotpwprompt'|lang}</div>
-     {elseif isset($renewpw)}<div class="message warning">{'renewpwprompt'|lang}</div>
-{*   {elseif !empty($changepwhash)}<div class="message information">{'passwordchange'|lang}</div>*}{/if}
-     {if !empty($errmessage)}<div class="message error">{$errmessage}</div>{/if}
-     {if !empty($warnmessage)}<div class="message warning">{$warnmessage}</div>{/if}
-     {if !empty($infomessage)}<div class="message information">{$infomessage}</div>{/if}
-    </div>
+     <a id="cms-logo" href="http://www.cmsmadesimple.org" rel="external">
+       <img src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" alt="CMS Made Simple" />
+     </a>
    </div>
-  </div>
-  {$bottom_includes|default:''}
+ {$bottom_includes|default:''}
  </body>
 </html>

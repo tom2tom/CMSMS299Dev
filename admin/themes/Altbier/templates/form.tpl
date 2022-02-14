@@ -32,11 +32,11 @@
  </div>
  {/if}
  <div class="row">
-  <div class="mt-3 col-12 col-sm-6 p-0 text-left">
+  <div class="cell col-12 small mt-3 p-0">
   <button type="submit" class="loginsubmit" name="submit">{'submit'|lang}</button>
   </div>
  {if ($lost || isset($renewpw))}
-  <div class="mt-3 col-12 col-sm-6 p-0 text-left text-sm-right">
+  <div class="cell col-12 small mt-3 p-0">
   <button type="submit" class="loginsubmit" name="cancel">{'cancel'|lang}</button>
   </div>
  {/if}

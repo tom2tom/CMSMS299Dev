@@ -7,7 +7,7 @@ This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of that license, or
+the Free Software Foundation; either version 3 of that license, or
 (at your option) any later version.
 
 CMS Made Simple is distributed in the hope that it will be useful,
@@ -65,7 +65,7 @@ if ($pmod) {
 
     $formstart = $this->CreateFormStart($id,'defaultadmin');
     $hash = $this->GetPreference('source_sri'); //e.g. 'hashtype-base64string'
-    $url = $this->GetPreference('source_url'); //e.g. 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.9.11'
+    $url = $this->GetPreference('source_url'); //e.g. 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.9.11' TODO support preconnection, SRI hash
     $url2 = $this->GetPreference('skin_url'); // c.f. App/User Params:: ['wysiwyg_theme']
 
     $tpl->assign('form_start',$formstart)

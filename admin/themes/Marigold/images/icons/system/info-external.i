@@ -1,1 +1,2 @@
-class="fa fa-question-circle"
+class="cli-info"
+style="color:#449fee"

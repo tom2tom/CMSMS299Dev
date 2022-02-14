@@ -186,7 +186,7 @@
  {/function}
 {/if}{* $content_list *}
 
-<div class="rowbox flow">
+<div class="rowbox flow" style="align-items:center;">
   <div class="pageoptions boxchild">
     {if $can_add_content}
     <a href="{cms_action_url action=editcontent}" accesskey="n" title="{_ld($_module,'prompt_addcontent')}" class="pageoptions">{$t=_ld($_module,'addcontent')}{admin_icon icon='newobject.gif' alt=$t}&nbsp;{$t}</a>
@@ -201,7 +201,7 @@
     <a id="clearlocks" href="{cms_action_url action=clearlocks}" accesskey="l" title="{_ld($_module,'prompt_clearlocks')}">{$t=_ld($_module,'title_clearlocks')}{admin_icon icon='run.gif' alt=$t}&nbsp;{$t}</a>
     {/if}
     {/if}
-    <a id="filterdisplay" accesskey="f" title="{_ld($_module,'prompt_filter')}">{$t=_ld($_module,'filter')}{admin_icon icon=$filterimage alt=$t}&nbsp;{$t}</a>
+    <a id="filterdisplay" accesskey="f" title="{_ld($_module,'prompt_filter')}">{$t=_ld($_module,'filter')}{admin_icon icon='icons/extra/filter' alt=$t}&nbsp;{$t}</a>
     {if !empty($have_filter)}<span style="color: red;"><em>({_ld($_module,'filter_applied')})</em></span>{/if}
   </div>{*boxchild*}
 

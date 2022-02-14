@@ -1,1 +1,1 @@
-class="mgfa-import"
+class="cfi-import"

@@ -1,1 +1,2 @@
-class="fa fa-bookmark red"
+class="fa fa-bookmark-o"
+style="color:#d3403c"

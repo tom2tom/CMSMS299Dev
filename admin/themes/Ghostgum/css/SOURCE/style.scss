@@ -1,11 +1,13 @@
 // TODOs
-// resolve colors
+// resolve rest of colors
 // finish styling for dark theme
 // correct outlining
 // migrate to css-grid with fallback to flexbox
 
-$lighttheme: true;
-$leftwards: true; // or false for rtl styling
+$lighttheme: true; // false for Ebonne
+$leftwards: true; // false for rtl styling
+$deepcontext: false; // true to support multi-level menus
+$withnav: true; // false if standalone scss/css used for navigation styling
 
 @if $leftwards {
     $start-side: left !global;
@@ -53,16 +55,39 @@ $leftwards: true; // or false for rtl styling
     }
 }
 
+@mixin border-radius($property) {
+    -webkit-border-radius: $property;
+    -moz-border-radius: $property;
+    border-radius: $property;
+}
+
 @mixin box-shadow($horz: 0, $vert: 0, $color: $accent-focus, $blur: 0, $spread: 0, $inset: false) {
-  @if ($horz == 'none') or ($horz == 'initial') or ($horz == 'inherit') {
+  @if $lighttheme {
+    @if ($horz == 'none') or ($horz == 'initial') or ($horz == 'inherit') {
     -webkit-box-shadow: $horz;
     -moz-box-shadow: $horz;
     box-shadow: $horz;
-  } @else {
+    } @else {
     -webkit-box-shadow: sidedSingle($horz) $vert if($blur != 0, $blur, null) if($spread != 0, $spread,null) $color if($inset, inset, null);
     -moz-box-shadow: sidedSingle($horz) $vert if($blur != 0, $blur, null) if($spread != 0, $spread, null) $color if($inset, inset, null);
     box-shadow: sidedSingle($horz) $vert if($blur != 0, $blur, null) if($spread != 0, $spread, null) $color if($inset, inset, null);
+    }
   }
+}
+
+@mixin panel-shadow($shadow_color,  $default_color) {
+    @if $lighttheme {
+        $horz: -.06em;
+        $vert: -.06em;
+        $blur: .2em;
+    } @else {
+        $horz: 0;
+        $vert: .06em;
+        $blur: .1em;
+    }
+    -webkit-box-shadow: sidedSingle($horz) $vert $blur $shadow_color inset, sidedSingle($horz) $vert $blur $default_color inset;
+    -moz-box-shadow: sidedSingle($horz) $vert $blur $shadow_color inset, sidedSingle($horz) $vert $blur $default_color inset;
+    box-shadow: sidedSingle($horz) $vert $blur $shadow_color inset, sidedSingle($horz) $vert $blur $default_color inset;
 }
 
 @mixin transition($property: all, $duration: 200, $function:'' , $delay: 0) {
@@ -213,28 +238,16 @@ $leftwards: true; // or false for rtl styling
   align-items: $value;
 }
 
-// converted colors to be rationalized
-$color_gallery_approx: #eee;
-$color_silver_approx: #ccc;
-$color_bright_sun_approx: #f7ce3e;
-$concrete: #f2f2f2;
-$color_congress_blue_approx: #054882;
-/*
-$solid-color: #ccc; // two anchor borders
+// TODO converted colors to be rationalized
+$color_gallery_approx: #eee; // several backgrounds
+$color_silver_approx: #ccc; // various borders
+//$color_bright_sun_approx: #f7ce3e;
+$concrete: #f2f2f2; // td pageicon background c.f. $back-rowxsort, $back-rowsort
 
-$solid-color: #585858; //one pagerows a
-$solid-color: #eee; // one background pagerows a
-
-$solid-color: #f2f2f2; // one td back
-$solid-color: #f7ce3e; // one th focus outline
-$solid-color: #ff9; // abandoned ins background
-*/
 @if $lighttheme {
-/*!
- * Theme: Ghostgum 2018-2020
- */
+/*! CMSMS admin theme styling: Ghostgum 2018-2022 */
 
-// Colors:
+// Pallette
 // #fcf9f3 Body/Content background, foreground on contrasting items e.g. buttons very pale cream
 // #cbd4cb Accent1 titles etc light greenish grey
 // #58814c Accent2 olivish/leafy green
@@ -261,15 +274,23 @@ $solid-color: #ff9; // abandoned ins background
     $accent-focus: lighten($accent2, 15%);
     $accent-fore: #21301c; // something dark, contrast with accents
 
-    $button-color: $fore-color;
+    $button-color: $back-color;
     $button-back: #8da989; // between accent1 & 2
     $button-disabled: #959e94; //$button-back unsaturated way down
 
     $focustext-shadow: #238005;
     $msgbox-shadow: #444;
-    $box-shadow: rgba(0, 0, 0, 0.25);
+    $box-shadow: rgba(0, 0, 0, 0.4);
     $box-shadow-default: #f5faeb; // pale olive
     $popup-shadow: $msgbox-shadow;
+
+    $link-color: $accent2;
+    $link-focus: $accent-focus;
+    $nav-back: $accent2;
+    $nav-focus: $accent-focus;
+
+    $spinner-prime: accent2;
+    $spinner-second: rgba(88, 129, 76, 0.4); //translucent $accent2
 
     $info-color: #0e2a42; // deep blue
     $info-back: #dbe7f0; // pale
@@ -314,40 +335,46 @@ $solid-color: #ff9; // abandoned ins background
 //~~~~~~~~~~~~~~~
     $alert-overlay: rgba(0, 0, 0, 0.4);
 
-    $logotext_png: url('../../assets/images/CMSMS-logotext-dark.png');
-    $logotext_svg: url('../../assets/images/CMSMS-logotext-dark.svg');
+    $logotext_png: url(../../assets/images/cmsms-logotext-dark.png);
+    $logotext_svg: url(../../assets/images/cmsms-logotext-dark.svg);
 
 } @else {
-/*!
- * Theme: Ebonne 2019-2020
- */
+/*! CMSMS admin theme styling: Ebonne 2019-2022 */
 
     $back-color: #2e2f38;
     $back-most: #000;
-    $back-focus: lighten($back-color, 15%);
-    $back-xfocus: lighten($back-color, 35%);
+    $back-focus: #44454b;
+    $back-xfocus: lighten($back-color, 15%); //#505262
     $back-rowsort: saturate($back-focus, 30%); //TODO
     $back-rowxsort: saturate($back-xfocus, 30%); //TODO
     $back-rowfocus: lighten($back-color, 20%);
     $focus-disabled: darken($back-focus, 10%);
 
-    $fore-color: #eef0f7;
+    $fore-color: #fef9ec;
     $fore-most: #fff;
 
     $accent1: #414658;
-    $accent2: #4d5880;
-    $accent-focus: lighten($accent2, 20%);
+    $accent2: #657098;
+    $accent-focus: lighten($accent2, 12%); //#8b93b1
     $accent-fore: #e2e3e9; // something light, contrast with accents
 
     $button-color: $fore-color;
-    $button-back: #474f6b; // between accent1 & 2
-    $button-disabled: #55575e; //$button-back unsaturated way down
+    $button-back: $back-focus; // between accent1 & 2
+    $button-disabled: #595959; //$button-back unsaturated way down
 
     $focustext-shadow: #054882;
     $msgbox-shadow: #ccc;
-    $box-shadow: rgba(255, 255, 255, 0.25);
+    $box-shadow: rgba(255, 255, 255, 0.3);
     $box-shadow-default: #0f253d;
     $popup-shadow: $msgbox-shadow;
+
+    $link-color: #a4abc1; //akin to normal button bg
+    $link-focus: #b3b9cb; //akin to hovered button bg
+    $nav-back: $accent1;
+    $nav-focus: $accent2;
+
+    $spinner-prime: $fore-color;
+    $spinner-second: rgba(101, 112, 152, 0.5); //translucent $accent2
 
     $info-color: #bcd8f1; // blue
     $info-back: #031a30; // dark hsl(209, 88%, 10%)
@@ -393,69 +420,65 @@ $solid-color: #ff9; // abandoned ins background
 // ~~~~~~~~~~~~~~~~
     $alert-overlay: rgba(255, 255, 255, 0.4);
 
-    $logotext_png: url('../../assets/images/CMSMS-logotext-light.png');
-    $logotext_svg: url('../../assets/images/CMSMS-logotext-light.svg');
+    $logotext_png: url(../../assets/images/cmsms-logotext-light.png);
+    $logotext_svg: url(../../assets/images/cmsms-logotext-light.svg);
 }
 
 //urls
-$url_0: url('../images/icons/system/external-small.png');
-$url_1: url('../images/icons/system/sprite.svg#document-list');
-$url_2: url('../images/submit-bg.png');
-$url_3: url('../images/buttonssprite.png');
-$url_4: url('../images/icons/extra/warn.svg');
-$url_5: url('../images/icons/extra/error.svg');
-$url_6: url('../images/icons/extra/success.svg');
-$url_7: url('../images/icons/extra/info.svg');
-$url_8: url('../images/closesprite.png');
-$url_9: url('../images/icons/extra/accept.svg');
-$url_10: url('../images/spinner.gif');
-$url_11: url('../images/icons/extra/close.svg');
-//$url_12: url('../images/layout/ui-bg_highlight-soft_75_cecece_1x100.png'); // TODO if jqUi icons used, select for light or dark?
-$url_13: url('../images/navigation-bg.gif');
-$url_14: url('../images/navindicators.png');
-$url_15: url('../images/icons/system/sprite.svg#help');
-$url_16: url('../images/icons/system/sprite.svg#info');
-$url_17: url('../images/icons/extra/red.svg');
-$url_18: url('../images/icons/system/sprite.svg#bookmark');
-$url_19: url('../images/icons/extra/sortable.svg');
-$url_20: url('../images/icons/extra/sort-up.svg');
-$url_21: url('../images/icons/extra/sort-down.svg');
-$url_22: url('../images/icons/extra/reorder.svg');
-$url_23: url('../images/icons/extra/toggle-dropzone.png');
-$url_24: url('../images/folder-horizontal-open.png');
-$url_25: url('../images/go-rtl.png');
-$logo_png: url('../../assets/images/CMSMS-logo.png');
-$logo_svg: url('../../assets/images/CMSMS-logo.svg');
+$url_0: url(../images/icons/system/external-small.png);
+$url_1: url(../images/icons/system/sprite.svg#document-list);
+$url_2: url(../images/submit-bg.png);
+$url_3: url(../images/buttonssprite.png);
+$url_4: url(../images/icons/extra/warn.svg);
+$url_5: url(../images/icons/extra/error.svg);
+$url_6: url(../images/icons/extra/success.svg);
+$url_7: url(../images/icons/extra/info.svg);
+$url_8: url(../images/closesprite.png);
+$url_9: url(../images/icons/extra/accept.svg);
+$url_10: url(../images/spinner.gif);
+$url_11: url(../images/icons/extra/close.svg);
+//$url_12: url(../images/layout/button-bg-tall.png); // TODO if jqUi icons used, select for light or dark?
+$url_13: url(../images/navigation-bg.gif);
+$url_14: url(../images/navindicators.png);
+$url_15: url(../images/icons/system/sprite.svg#help);
+$url_16: url(../images/icons/system/sprite.svg#info);
+$url_17: url(../images/icons/extra/red.svg);
+$url_18: url(../images/icons/system/sprite.svg#bookmark);
+$url_19: url(../images/icons/extra/sortable.svg);
+$url_20: url(../images/icons/extra/sort-up.svg);
+$url_21: url(../images/icons/extra/sort-down.svg);
+$url_22: url(../images/icons/extra/reorder.svg);
+$url_23: url(../images/icons/extra/toggle-dropzone.png);
+$url_24: url(../images/folder-horizontal-open.png);
+$url_25: url(../images/go-rtl.png);
+$logo_png: url(../../assets/images/cmsms-logo.png);
+$logo_svg: url(../../assets/images/cmsms-logo.svg);
 
 // CONTENT START
 
-/*** clearfix ***/
-
-* {
-    html .cf {
-        height: 1%;
-        overflow: visible;
+html {
+    height: 100%;
+    width: 100%;
+}
+body {
+    @if not $leftwards {
+        direction: rtl; // supplement the inline html style
     }
-    + html .cf {
-        min-height: 1%;
-    }
+    @include flexbox;
+    @include flex-direction(column);
+    height: 100%;
+    min-height: 8em;
+    width: 100%;
+    min-width: 8em;
+    margin: 0;
+    padding: 0;
+    background-color: $back-color;
+    color: $fore-color;
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 1.1em;
+    line-height: 1.3;
+    overflow: hidden;
 }
-.cf::after {
-    clear: both;
-    content: ".";
-    display: block;
-    height: 0;
-    visibility: hidden;
-}
-
-.clear {
-    clear: both;
-    height: 0;
-}
-.clearb {
-    clear: both;
-}
-
 :active {
     outline: 0;
 }
@@ -475,43 +498,13 @@ audio,
 [contenteditable="true"],
 [tabindex|="-1"] {
     &:active {
-        outline: 2px solid invert; // or $orange-color
-        outline-offset: 2px;
+        outline: 1px solid $fore-color;
+        outline-offset: 0;
     }
     &:focus {
-        outline: 2px solid invert; // or $orange-color
-        outline-offset: 2px;
+        outline: 1px solid $fore-color;
+        outline-offset: 0;
     }
-}
-
-html {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    min-height: 100%;
-    height: 100%;
-    font-family: 'Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif';
-}
-body {
-    @if $leftwards {
-        direction: ltr;
-    } @else {
-        direction: rtl;
-    }
-    @include flexbox;
-    @include flex-direction(column);
-    overflow: hidden;
-    width: 100%;
-    min-width: 8em;
-    height: 100%;
-    min-height: 8em;
-    margin: 0;
-    padding: 0;
-    background-color: $back-color;
-    color: $fore-color;
-    line-height: 1.3;
-    font-family: 'Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif';
-    font-size: 1.21em;
 }
 ins {
     color: $fore-color;
@@ -580,7 +573,7 @@ ul {
             font-size: 0.8em;
             color: $fore-color;
             word-wrap: break-word;
-            border-radius: 4px;
+            @include border-radius(.25rem);
             cursor: move;
         }
         span.haschildren.expanded {
@@ -646,25 +639,25 @@ form {
 }
 a {
 //  outline: 0;
-    color: $accent2;
+    color: $link-color;
     text-decoration: none;
     cursor: pointer;
     &:link {
-        color: $accent2;
+        color: $link-color;
         text-decoration: none;
         cursor: pointer;
     }
     &:visited {
-        color: $accent2;
+        color: $link-color;
         text-decoration: none;
         cursor: pointer;
     }
     &:hover {
-        color: $accent-focus;
+        color: $link-focus;
         text-decoration: underline;
     }
     &:active {
-        color: $accent-focus;
+        color: $link-focus;
         text-decoration: underline;
     }
     &.external {
@@ -674,14 +667,14 @@ a {
     &.link_button {
         margin: 0.1em;
         border-width: 0;
-        border-radius: 4px;
+        @include border-radius(.25rem);
         padding: 0.4em 0.5em;
-        background: $accent2 $url_2 top;
+        background: $link-color $url_2 top;
         -webkit-background-size: cover;
         -o-background-size: cover;
         -ms-background-size: cover;
         background-size: cover;
-        color: $back-color;
+        color: $button-color; //TODO
         height: auto;
         text-indent: 0;
         text-decoration: none;
@@ -690,14 +683,14 @@ a {
         &:visited {
             margin: 0.1em;
             border-width: 0;
-            border-radius: 4px;
+            @include border-radius(.25rem);
             padding: 0.4em 0.5em;
-            background: $accent2 $url_2 top;
+            background: $link-color $url_2 top;
             -webkit-background-size: cover;
             -o-background-size: cover;
             -ms-background-size: cover;
             background-size: cover;
-            color: $back-color;
+            color: $button-color; // TODO
             height: auto;
             text-indent: 0;
             text-decoration: none;
@@ -717,7 +710,6 @@ a {
             width: 1em;
             height: 1em;
             content: ' ';
-            z-index: 20;
         }
         &.icon.before {
             background-image: $url_3;
@@ -729,7 +721,6 @@ a {
             width: 1em;
             height: 1em;
             content: ' ';
-            z-index: 20;
         }
     }
     &.tooltip {
@@ -804,14 +795,14 @@ div {
         form#chdir_form {
             display: block;
             select {
-                width: 200px;
+                width: 12.625em;
                 width: calc(12em + 10px);
             }
         }
     }
 }
 pre {
-    font-family: 'Consolas', 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', 'monospace';
+    font-family: 'Red Hat Mono', Courier, monospace;
     text-align: $start-side;
     color: $fore-color;
     height: auto;
@@ -827,21 +818,21 @@ pre {
     }
 }
 code {
-    font-family: 'Consolas', 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', 'monospace';
+    font-family: 'Red Hat Mono', Courier, monospace;
     text-align: $start-side;
     color: $fore-color;
     height: auto;
     font-size: 0.9em;
 }
 samp {
-    font-family: 'Consolas', 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', 'monospace';
+    font-family: 'Red Hat Mono', Courier, monospace;
     text-align: $start-side;
     color: $fore-color;
     height: auto;
     font-size: 0.9em;
 }
 kbd {
-    font-family: 'Consolas', 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', 'monospace';
+    font-family: 'Red Hat Mono', Courier, monospace;
     text-align: $start-side;
     color: $fore-color;
     height: auto;
@@ -852,7 +843,7 @@ table {
     border-spacing: 0;
     text-align: $start-side;
     &.pagetable {
-        border-radius: 4px;
+        @include border-radius(.25rem);
         border-collapse: inherit;
         border: 1px solid $accent1;
         width: auto;
@@ -902,6 +893,12 @@ table {
                 background-repeat: no-repeat;
                 background-position: $start-side center;
                 cursor: pointer;
+            }
+            &.SortAble::before,
+            &.SortDown::before,
+            &.SortUp::before {
+                content: '';
+                display: none;
             }
 /*            input:focus {
                 outline: 2px solid #f7ce3e; //TODO DISABLED intra table input
@@ -975,6 +972,23 @@ tr {
         }
     }
 }
+th {
+    &.pagew10 {
+        width: 10%;
+    }
+    &.pagew25 {
+        width: 25%;
+    }
+    &.pagew50 {
+        width: 50%;
+    }
+    &.pagew60 {
+        width: 60%;
+    }
+    &.pagew70 {
+        width: 70%;
+    }
+}
 td {
     text-align: $start-side;
     &.row1s {
@@ -996,26 +1010,9 @@ td {
         width: 25px;
     }
 }
-th {
-    &.pagew10 {
-        width: 10%;
-    }
-    &.pagew25 {
-        width: 25%;
-    }
-    &.pagew50 {
-        width: 50%;
-    }
-    &.pagew60 {
-        width: 60%;
-    }
-    &.pagew70 {
-        width: 70%;
-    }
-}
 
 input {
-    border-radius: 4px;
+    @include border-radius(.25rem);
     border: 1px solid;
     background-color: $back-focus;
     font-size: 1em;
@@ -1038,7 +1035,7 @@ input {
 }
 input[type="text"] {
     margin-#{$start-side}: 4px;
-    border-radius: 4px;
+    @include border-radius(.25rem);
     border-color: $accent1;
     padding: sidedValues(0.6em, 0.6em, 0.4em, 0.6em);
     &#in_title {
@@ -1054,7 +1051,7 @@ input[type="text"] {
 }
 input[type="password"] {
     margin-#{$start-side}: 4px;
-    border-radius: 4px;
+    @include border-radius(.25rem);
     border-color: $accent1;
     padding: sidedValues(0.6em, 0.6em, 0.4em, 0.6em);
 }
@@ -1068,7 +1065,11 @@ input[type="button"] {
     color: $button-color;
     cursor: pointer;
     &:hover {
-        cursor: pointer;
+/*        cursor: pointer;*/
+        background-color: $accent-focus;
+    }
+    &:active {
+        background-color: $accent-focus;
     }
 }
 input[type="submit"] {
@@ -1081,7 +1082,11 @@ input[type="submit"] {
     color: $button-color;
     cursor: pointer;
     &:hover {
-        cursor: pointer;
+/*        cursor: pointer;*/
+        background-color: $accent-focus;
+    }
+    &:active {
+        background-color: $accent-focus;
     }
 }
 input[type="checkbox"] {
@@ -1107,7 +1112,7 @@ select {
     font-size: 1em;
     margin-#{$start-side}: 4px;
     border-color: $accent1;
-    border-radius: sidedValues(4px, 0, 0, 4px);
+    @include border-radius(sidedValues(.25rem, 0, 0, .25rem));
     padding: 0.5em;
     &:hover {
         @include box-shadow(0, 0, $accent-focus, 5px);
@@ -1123,7 +1128,7 @@ select {
     }
 }
 textarea {
-    border-radius: 4px;
+    @include border-radius(.25rem);
     border: 1px solid;
     background-color: $back-focus;
     font-size: 1em;
@@ -1162,28 +1167,53 @@ textarea {
     }
 }
 fieldset {
-    margin-#{$end-side}: 10px;
+    margin: sidedValues(0, 2px, 0.75em);
+    padding: 0.5em;
     border: 1px solid $accent1;
-    border-radius: 4px;
+    @include border-radius(0.25rem);
 }
 .checkbox {
     padding-#{$start-side}: 10px;
 }
 
+/*** clearfix ***/
+
+* + .cf {
+    min-height: 1%;
+}
+.cf {
+    height: 1%;
+}
+.cf::after {
+    clear: both;
+    content: ' ';
+    display: block;
+    height: 0;
+    visibility: hidden;
+}
+.clear {
+    clear: both;
+    height: 0;
+}
+.clearb {
+    clear: both;
+}
+
 .adminsubmit {
     margin: 0.1em;
     border-width: 0;
-    border-radius: 4px;
+    @include border-radius(0.25rem);
     padding: 0.4em 0.5em;
-    background: $accent2 $url_2 top;
+    background: $button-back $url_2 top;
     -webkit-background-size: cover;
     -o-background-size: cover;
     -ms-background-size: cover;
     background-size: cover;
-    color: $back-color;
+    color: $button-color;
     height: auto;
     font-weight: 600;
     font-size: 1em;
+    cursor: pointer;
     &:hover {
         background-color: $accent-focus;
     }
@@ -1205,7 +1235,6 @@ fieldset {
             width: 1em;
             height: 1em;
             content: ' ';
-            z-index: 20;
         }
     }
     &.icon::before {
@@ -1218,7 +1247,6 @@ fieldset {
         width: 1em;
         height: 1em;
         content: ' ';
-        z-index: 20;
     }
 }
 .iconnone {
@@ -1348,7 +1376,7 @@ fieldset {
 button.ui-button {
     margin: 0.1em;
     border-width: 0;
-    border-radius: 4px;
+    @include border-radius(.25rem);
     padding: 0.4em 0.5em;
     background: $button-back $url_2 top;
     -webkit-background-size: cover;
@@ -1414,7 +1442,7 @@ button.ui-button {
             height: 1.5em;
             margin-top: 6px; //~ effective vertical center in titlebar (fontsize  + padding 0.5em)
             margin-#{$end-side}: 10px;
-            border-radius: 4px;
+            @include border-radius(.25rem);
             background:$accent2 $url_8 repeat 9em 0 / 9em 1.5em;
             &:hover {
                 background-color: $accent-focus;
@@ -1482,7 +1510,7 @@ button.ui-button {
         #{$start-side}: 50%;
         transform: translate(-50%, -50%);
         border: 1px solid $accent1;
-        border-radius: 4px;
+        @include border-radius(.25rem);
         padding: 0;
         background: $back-color;
         color: $fore-color;
@@ -1492,7 +1520,7 @@ button.ui-button {
         margin: 0;
         padding: 0;
         border-width: 0;
-        border-radius: 4px 4px 0 0;
+        @include border-radius(sidedValues(.25rem, .25rem, 0, 0));
         background: $accent1;
     }
     .ui-dialog-buttonpane.alertable-buttons {
@@ -1512,7 +1540,7 @@ button.ui-button {
 
 .ui-tooltip {
     border: 1px solid $accent1;
-    border-radius: 4px;
+    @include border-radius(.25rem);
     background-color: $back-color;
     font-size: 0.85em;
     @include box-shadow(6px, 6px, $popup-shadow, 12px, -6px);
@@ -1523,33 +1551,33 @@ button.ui-button {
 
 .pagetext {
     width: auto;
-	margin: sidedValues(10px 0 5px 4px);
-	padding: 0;
-	color: $fore-color;
-	font-weight: bold;
+    margin: sidedValues(10px, 0, 5px, 4px);
+    padding: 0;
+    color: $fore-color;
+    font-weight: bold;
 }
 
 .pageinput {
     width: auto;
-	margin: sidedValues(5px 0 10px 4px);
-	padding: 0;
-	color: $fore-color;
+    margin: sidedValues(5px, 0, 10px, 4px);
+    padding: 0;
+    color: $fore-color;
 }
 
 .message {
-    border-radius: 4px;
+    @include border-radius(.25rem);
     display: inline-block;
     width: auto;
     padding: sidedValues(10px, 10px, 10px, 40px);
     margin: 10px 0;
-    font-size: 0.9em;
+    font-size: 0.925rem;
     &:hover {
         cursor: help;
     }
     p {
         margin: 0;
         color: $warn-color;
-        font-size: 0.9em;
+        font-size: 0.925rem;
     }
 }
 .info {
@@ -1574,12 +1602,12 @@ button.ui-button {
     }
 }
 .information {
-    border-radius: 4px;
+    @include border-radius(.25rem);
     display: inline-block;
     width: auto;
     padding: sidedValues(10px, 10px, 10px, 40px);
     margin: 10px 0;
-    font-size: 0.9em;
+    font-size: 0.925rem;
     background: $info-back $url_7 10px 50% no-repeat;
     border: 1px solid $info-border;
     color: $info-color;
@@ -1606,7 +1634,7 @@ button.ui-button {
     }
 }
 .warning {
-    border-radius: 4px;
+    @include border-radius(.25rem);
     display: inline-block;
     width: auto;
     padding: sidedValues(10px, 10px, 10px, 40px);
@@ -1618,7 +1646,7 @@ button.ui-button {
     p {
         margin: 0;
         color: $warn-color;
-        font-size: 0.9em;
+        font-size: 0.925rem;
     }
     h3 {
         margin: 2px 0;
@@ -1627,7 +1655,7 @@ button.ui-button {
     }
 }
 .error {
-    border-radius: 4px;
+    @include border-radius(.25rem);
     background: $error-back $url_5 10px 50% no-repeat;
     border: 1px solid $error-border;
     color: $error-color;
@@ -1649,7 +1677,7 @@ button.ui-button {
     }
 }
 .success {
-    border-radius: 4px;
+    @include border-radius(.25rem);
     background: $success-back $url_6 10px 50% no-repeat;
     border: 1px solid $success-color;
     color: $success-color;
@@ -1676,10 +1704,10 @@ button.ui-button {
     width: auto;
     margin: 10px 0;
     border: 1px solid $info-border;
-    border-radius: 4px;
+    @include border-radius(.25rem);
     padding: sidedValues(10px, 10px, 10px, 40px);
     background: $info-back $url_7 10px 50% no-repeat;
-    font-size: 0.9em;
+    font-size: 0.925rem;
     color: $info-color;
 }
 .pagesuccess {
@@ -1687,19 +1715,19 @@ button.ui-button {
     width: auto;
     margin: 10px 0;
     border: 1px solid $success-border;
-    border-radius: 4px;
+    @include border-radius(.25rem);
     padding: sidedValues(10px, 10px, 10px, 40px);
     background: $success-back $url_6 10px 50% no-repeat;
-    font-size: 0.9em;
+    font-size: 0.925rem;
     color: $success-color;
 }
 .pagewarning {
-    border-radius: 4px;
+    @include border-radius(.25rem);
     display: inline-block;
     width: auto;
     padding: sidedValues(10px, 10px, 10px, 40px);
     margin: 10px 0;
-    font-size: 0.9em;
+    font-size: 0.925rem;
     background: $warn-back $url_4 10px 50% no-repeat;
     border: 1px solid $warn-border;
     color: $warn-color;
@@ -1722,10 +1750,10 @@ button.ui-button {
     width: auto;
     margin: 10px 0;
     border: 1px solid $warn-border;
-    border-radius: 4px;
+    @include border-radius(.25rem);
     padding: sidedValues(10px, 10px, 10px, 40px);
     background: $warn-back $url_4 10px 50% no-repeat;
-    font-size: 0.9em;
+    font-size: 0.925rem;
     color: $warn-color;
     h3 {
         margin: 2px 0;
@@ -1738,7 +1766,7 @@ button.ui-button {
     width: auto;
     margin: 10px 0;
     border: 1px solid $error-border;
-    border-radius: 4px;
+    @include border-radius(.25rem);
     padding: sidedValues(10px, 10px, 10px, 40px);
     background: $error-back $url_5 10px 50% no-repeat;
     font-size: 0.9em;
@@ -1760,7 +1788,7 @@ button.ui-button {
     border-top: none;
     width: 30%;
     font-size: 0.75em;
-    border-radius: sidedValues(0, 0, 4px, 4px);
+    @include border-radius(sidedValues(0, 0, .25rem, .25rem));
     @include box-shadow(1px, 1px, $msgbox-shadow, 3px, 1px);
     margin: 0;
     top: 0;
@@ -1780,7 +1808,7 @@ button.ui-button {
     border-top: none;
     width: 30%;
     font-size: 0.75em;
-    border-radius: sidedValues(0, 0, 4px, 4px);
+    @include border-radius(sidedValues(0, 0, .25rem, .25rem));
     @include box-shadow(1px, 1px, $msgbox-shadow, 3px, 1px);
     margin: 0;
     top: 0;
@@ -1805,7 +1833,7 @@ button.ui-button {
     border-top: none;
     width: 30%;
     font-size: 0.75em;
-    border-radius: sidedValues(0, 0, 4px, 4px);
+    @include border-radius(sidedValues(0, 0, .25rem, .25rem));
     @include box-shadow(1px, 1px, $msgbox-shadow, 3px, 1px);
     margin: 0;
     top: 0;
@@ -1861,7 +1889,7 @@ button.ui-button {
     position: fixed;
     border-width: 1px;
     border-style: solid;
-    border-radius: 4px;
+    @include border-radius(.25rem);
     margin: 0;
     padding: 10px;
     max-width: 40em;
@@ -1915,6 +1943,9 @@ button.ui-button {
     font-weight: bold;
     text-align: center;
 }
+.drag .jqt-heading {
+    cursor: move;
+}
 .jqt-close {
     position: absolute;
     background-image: $url_8;
@@ -1932,7 +1963,7 @@ button.ui-button {
     height: 5px;
     width: 0;
     #{$start-side}: 0;
-    border-radius: 4px;
+    @include border-radius(.25rem);
     background: $focus-color;
 }
 .jqt-loaded {
@@ -1985,7 +2016,7 @@ button.ui-button {
         }
     }
 }
-.alertable-overlay {
+#alertable-overlay {
     position: fixed;
     top: 0;
     #{$start-side}: 0;
@@ -2000,58 +2031,30 @@ button.ui-button {
     top: 50%;
     #{$start-side}: 50%;
     transform: translate(-50%, -50%);
-    border-radius: 4px;
+    @include border-radius(.25rem);
     padding: 1em;
     background: $back-color;
     color: $fore-color;
     z-index: 999;
 }
-.alertable-message {
+#alertable-message {
     margin-bottom: 1.5em;
     font-weight: bold;
     text-align: center;
 }
-.alertable-prompt {
+#alertable-prompt {
     margin-bottom: 1.5em;
 }
-.alertable-input {
+#alertable-input {
     width: 18em;
 }
-.alertable-buttons {
+#alertable-buttons {
     float: $end-side;
     button {
         margin-#{$end-side}: 1em;
     }
 }
 
-#cms_busy {
-    position: fixed;
-    z-index: 999;
-    height: 50px;
-    width: 50px;
-    margin: auto;
-    top: 0;
-    #{$end-side}: 0;
-    bottom: 0;
-    #{$start-side}: 0;
-    background: transparent $url_10 no-repeat;
-    background-size: 50px 50px;
-    cursor: wait;
-}
-.busy {
-    position: fixed;
-    z-index: 999;
-    height: 50px;
-    width: 50px;
-    margin: auto;
-    top: 0;
-    #{$end-side}: 0;
-    bottom: 0;
-    #{$start-side}: 0;
-    background: transparent $url_10 no-repeat;
-    background-size: 50px 50px;
-    cursor: wait;
-}
 .close-warning {
     float: $end-side;
     display: inline-block;
@@ -2087,6 +2090,48 @@ button.ui-button {
         background-position: 7.5em 0;
     }
 }
+
+@keyframes spin {
+    0% {
+        transform: rotate(0)
+    }
+    100% {
+        transform: rotate(360deg)
+    }
+}
+
+#cms_busy,
+.busy {
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    #{$start-side}: 0;
+    bottom: 0;
+    #{$end-side}: 0;
+    height: 3em;
+    width: 3em;
+    margin: auto;
+    border: .25em solid $spinner-second;
+    @include border-radius(50%);
+}
+
+#cms_busy::before,
+.busy::before {
+    box-sizing: border-box;
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: calc(50% - .125em);
+    background: $spinner-prime;
+    width: .25em;
+    height: calc(50% - 1px);
+    @include border-radius(.25em);
+    transform-origin: 50% 100%;
+    -webkit-animation: spin 1.5s linear infinite;
+    -moz-animation: spin 1.5s linear infinite;
+    animation: spin 1.5s linear infinite;
+}
+
 .colbox {
     @include flexbox;
     @include flex-direction(column);
@@ -2197,18 +2242,18 @@ button.ui-button {
     cursor: pointer;
 }
 .group_memberships {
-    border-radius: 4px;
+    @include border-radius(.25rem);
 }
 .dashboard-box {
     margin: 5px;
     padding: 10px;
     border: 1px solid $accent1;
-    border-radius: 4px;
+    @include border-radius(.25rem);
     max-width: 20em;
     min-width: 10em;
     @include flex(1, 0, 33%);
     img {
-        border-radius: 4px;
+        @include border-radius(.25rem);
     }
     h3 {
         margin: sidedValues(0, 0, 5px, 0);
@@ -2228,9 +2273,9 @@ button.ui-button {
                 padding-#{$end-side}: 5px;
             }
             svg {
-                max-width: 2.1em;
-                max-height: 2.1em;
-                margin-bottom: -0.5em;
+                max-width: 2em;
+                height: 1.5em;
+                vertical-align: middle;
             }
         }
     }
@@ -2278,7 +2323,6 @@ button.ui-button {
     @include flexbox;
     @include flex-wrap(wrap);
     @include flex(0, 0, auto);
-    overflow: auto;
 }
 .row {
     width: 100%;
@@ -2303,7 +2347,7 @@ button.ui-button {
 }
 .systemicon {
     border: none;
-    vertical-align: text-bottom;
+    vertical-align: middle;
 }
 #copy_paste_in_forum {
     width: 80%;
@@ -2341,52 +2385,50 @@ button.ui-button {
     text-align: $start-side;
 }
 
-#menus a {
-    padding: 2px 4px; // small enough to not cause menu overflow
-    color: $back-color; // same as nav menu
-    &:hover {
-        background-color: $accent-focus; //ditto
-    }
-}
-
 .ContextMenu {
+    position: fixed;
     display: none;
     border: 1px solid $accent1;
-    border-radius: 6px;
-    position: fixed;
-    background-color: $accent2;
-    padding: 8px;
+    @include border-radius(.5rem);
+    padding: 10px 6px;
     max-width: 16em;
-    //max-height: 25em;
+//  min-width: 12em;
+//  max-height: 25em;
+    background-color: $accent2;
     font-size: 1.1em;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+    z-index: 100;
+@if $deepcontext {
     > label {
         height: 1.5em;
         width: 100%;
-        margin: 0;
+        margin: 0 0 10px 0;
         text-align: $start-side;
-        margin-bottom: 10px;
+        color: $fore-color;
+    }
+}
+    &.active {
+        display: block;
+        background-color: $accent2;
+        @include box-shadow(4px, 5px, $popup-shadow, 10px, -6px);
     }
     > ul {
-        margin: 0;
         max-width: 15em;
-        //max-height: 22em;
+//      max-height: 22em;
         overflow: auto;
+        margin: 0;
+        padding: 0;
+@if $deepcontext {
         > ul {
             margin-bottom: 1px;
             > li:not(:last-child) {
                 border-bottom: 1px solid $accent-focus;
             }
         }
+}// @else {
+//      list-style-type: none;
+//}
     }
-    &.active {
-        display: block;
-        @include box-shadow(6px, 6px, $popup-shadow, 12px, -6px);
-    }
+@if $deepcontext {
     ul {
         list-style-type: none;
         ul {
@@ -2399,7 +2441,7 @@ button.ui-button {
             &.active {
                 display: block;
                 border: 1px solid $accent-focus;
-                border-radius: 4px;
+                @include border-radius(.5rem);
                 padding: 10px 5px;
             }
         }
@@ -2408,32 +2450,42 @@ button.ui-button {
             font-size: 0.75em;
         }
     }
+}
     li {
-        margin-bottom: 4px;
+        margin: 6px 0;
+//      min-width: 6rem;
+//      list-style-type: none;
+        &:first-child {
+            margin-top: 0;
+        }
         &:last-child {
-            margin-bottom: 0;
+            margin-bottom: 3px; // small > 0 to prevent unwanted scrollbar
         }
         &:hover {
-            cursor: pointer;
+            background-color: $accent-focus;
             @include transition(all, 300, ease);
+            cursor: pointer;
             > span {
                 color: $accent-fore;
             }
         }
-        span.glyphicon {
-            margin-#{$end-side}: 5px;
-            padding-#{$end-side}: 5px;
-            border-#{$end-side}: 1px solid $accent1;
-            font-size: 1.2em;
-        }
-    }
-    label span.glyphicon {
-        margin-#{$end-side}: 5px;
-        padding-#{$end-side}: 5px;
-        font-size: 1.2em;
     }
 }
-
+#menus a {
+    padding: 5px 4px; // small enough to not cause menu overflow
+    color: $button-color; // same as nav menu
+    &:hover {
+        background-color: $accent-focus; //ditto
+    }
+}
+@if false {
+#menus1 .ContextMenu > ul {
+//    margin: 0; default see above
+}
+#menus2 .ContextMenu > ul {
+//    margin: 0; default
+}
+}
 iframe {
     width: 99%;
     height: 99%;
@@ -2459,7 +2511,7 @@ iframe {
 #Editor {
     line-height: 1.2;
     max-width: 99%;
-    font-family: 'Consolas', 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', 'monospace';
+    font-family: 'Red Hat Mono', Courier, monospace;
 }
 
 .version {
@@ -2467,14 +2519,14 @@ iframe {
     border: 1px solid $info-border;
     margin: 15px 0;
     padding: 20px;
-    font-family: 'Consolas', 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', 'monospace';
+    font-family: 'Red Hat Mono', Courier, monospace;
     line-height: 1.5;
     h3 {
         text-transform: uppercase;
         color: $accent-focus; // TODO
         margin: 0;
         padding: 0;
-        font-family: 'Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif';
+        font-family: 'Open Sans', Arial, sans-serif;
     }
 }
 .drop {
@@ -2505,7 +2557,7 @@ iframe {
         height: 30px;
         background-color: $focus-color;
     }
-    div.zone {
+    .zone {
         display: block;
         float: $start-side;
         width: 14em;
@@ -2518,7 +2570,7 @@ iframe {
             border: 2px dashed $success-color;
         }
     }
-    span.folder-selection {
+    .folder-selection {
         display: inline-block;
         float: $start-side;
         margin-#{$end-side}: 10px;
@@ -2557,7 +2609,7 @@ iframe {
     #{$start-side}: auto;
     top: auto;
     border: 1px solid $error-color;
-    border-radius: 4px;
+    @include border-radius(.25rem);
     @include box-shadow(none);
     background-image: none;
     width: auto;
@@ -2569,7 +2621,7 @@ aside .no-slide {
     #{$start-side}: auto;
     top: auto;
     border: 1px solid #490707; //TODO aside
-    border-radius: 4px;
+    @include border-radius(.25rem);
     @include box-shadow(none);
     background-image: none;
     width: auto;
@@ -2579,11 +2631,6 @@ aside .no-slide {
 .oneliner > * {
     float: $start-side;
     margin-#{$end-side}: 20px;
-}
-#site-logo img {
-    overflow: hidden;
-    max-width: 50%;
-    max-height: 55px;
 }
 #header-links > div {
     @include flexbox;
@@ -2620,87 +2667,36 @@ img.systemicon {
     }
 }
 
-#pagecontainer {
-    overflow: auto; /* ? auto IF NO #page_tabs & #page_content FOLLOW* /
-    height: calc(100vh - 12em); /* TODO dynamic c.f. #page_content */
-    width: calc(100vw - 20px); /* TODO dynamic */
-    margin: 10px;
-    .h-inside {
-        float: $start-side;
-        padding-top: 8px;
-        padding-#{$start-side}: 10px;
-        margin-#{$end-side}: 10%;
-        width: 18em;
-        margin-bottom: 0.5em;
-        text-align: $end-side;
-    }
-    .pagetext {
-        margin: sidedValues(10px, 0, 5px, 4px);
-        padding: 0;
-        width: auto;
-        color: $fore-color;
-        font-weight: bold;
-    }
-    .pageshowrows {
-        color: $fore-color;
-        font-size: 0.9em;
-        text-align: $end-side;
-        margin-bottom: 5px;
-    }
-    span.helptext {
-        display: inline-block;
-    }
-}
+/* boxes schematic
+BODY
 
-#page_content {
-    border-radius: sidedValues(0, 4px, 4px, 4px);
-    border: 1px solid $accent1;
-    height: calc(100vh - 3em); /* TODO dynamic */
-    width: calc(100vw - 10em); /* TODO dynamic */
-    padding: 10px;
-    overflow: hidden;
-    > div {
-        height: calc(100vh - 3em); /* TODO dynamic */
-        width: calc(100vw - 5em); /* TODO  dynamic */
-        overflow: auto;
-    }
-}
-#page_tabs {
-    @include flexbox;
-    @include flex-wrap(wrap);
-    @include align-items(flex-start);
-    background-color: $back-color; // support scroll-behind with fixed-position floater
-    div {
-        margin-top: 1px;
-        margin-#{$end-side}: 1px;
-        padding: 0.3em 0.7em;
-        border-radius: sidedValues(4px, 4px, 0, 0);
-        background-color: $accent1;
-        color: $fore-color;
-        font-size: 0.9em;
-        font-weight: bold;
-        text-align: center;
-        cursor: pointer;
-        white-space: nowrap;
-        img {
-            margin-top: 2px;
-            margin-#{$start-side}: 5px;
-            margin-#{$end-side}: 5px;
-            height: 14px;
-        }
-        &:hover {
-            color: $accent-focus;
-        }
-        &:focus {
-            color: $accent-focus;
-        }
-        &.active {
-            background-color: $accent-focus; //TODO
-            color: $back-most; //TODO
-            text-shadow: sidedSingle(-1px) -1px 0 $color_congress_blue_approx;  //TODO
-        }
-    }
-}
+  #ggp_header
+
+  #ggp_navwrap
+
+  WAS ggp_container ?
+
+  div unnamed now ggp_contentwrap OFLOW auto
+
+     #ggp_contenthead
+
+     WAS ggp_content
+
+          pagecontainer OFLOW: auto AT LEAST WHEN NO TABS PRESENT
+          whatever from generator
+             #page_content > div OFLOW auto
+             #page_tabs
+
+     WAS /ggp_content
+
+  WAS /ggp_container
+
+  #ggp_footer
+
+  dialogs
+
+/BODY
+*/
 
 /*** header ***/
 
@@ -2712,9 +2708,7 @@ img.systemicon {
     @include justify-content(space-between);
     @include align-items(center);
     background-color: $accent1;
-    -webkit-box-shadow: sidedSingle(-2px) -2px 8px $box-shadow inset, sidedSingle(2px) 2px 8px $box-shadow-default inset;
-    -moz-box-shadow: sidedSingle(-2px) -2px 8px $box-shadow inset, sidedSingle(2px) 2px 8px $box-shadow-default inset;
-    box-shadow: sidedSingle(-2px) -2px 8px $box-shadow inset, sidedSingle(2px) 2px 8px $box-shadow-default inset;
+    @include panel-shadow($box-shadow, $box-shadow-default);
     line-height: 1;
 /*    > div {
         @include flexbox;
@@ -2732,6 +2726,11 @@ img.systemicon {
         vertical-align: middle;
         text-align: $start-side;
         img {
+            overflow: hidden;
+            max-width: 50%;
+            max-height: 2.5em;
+            margin-top: 4px;
+            margin-bottom: 4px;
             vertical-align: middle;
         }
         a:hover {
@@ -2743,20 +2742,20 @@ img.systemicon {
         font-size: 1em;
         font-weight: bold;
         color: $fore-color;
-        vertical-align: middle;
         text-align: $start-side;
     }
     #system-logo {
         text-align: center;
     }
     #system-text {
-        vertical-align: text-bottom;
-        line-height: 2.2;
+        vertical-align: top;
+        line-height: 2.4;
         font-weight: bold;
     }
 }
 #cms-logo {
     display: inline-block;
+    margin-top: 0.2em;
     height: 2em;
     width: 10em;
     background: transparent $logotext_png no-repeat $start-side;
@@ -2770,21 +2769,22 @@ img.systemicon {
 #shortcuts {
     text-align: $end-side;
     a {
+        padding: 0.5em;
         text-decoration: none;
+        vertical-align: super;
     }
-    > span.icon {
-        margin: sidedValues(0, 10px ,0, 0);
+    > .icon {
+        margin: sidedValues(0, 4px ,0, 0);
         cursor: pointer;
     }
     > .icon svg {
+        margin-bottom: -0.5em;
         max-height: 1.3em;
         max-width: 1.3em;
-        margin-top: 0.4em;
     }
-    span.bubble {
+    .bubble {
         display: inline-block;
         margin-#{$start-side}: -1em;
-        margin-top: -0.4em;
         color: $error-color;
         font-size: 1.2em;
         font-weight: bold;
@@ -2800,244 +2800,194 @@ img.systemicon {
 
 /*** navigation ***/
 
+@if $withnav {
+// TODO confirm that the following are current
 #ggp_navwrap {
-    @include flex(0, 0, auto); // h boxchild
-    height: 100%;
-    min-height: 5em;
-    overflow: auto;
-    &.sidebar-off {
-        width: 2.4em;
-        #ggp_navhead svg {
-            &.navopen {
-                width: 0;
-                height: 0;
-            }
-            &.navshut {
-                width: initial;
-                height: initial;
-                max-width: 1.8em;
-                max-height: 1.8em;
-            }
-        }
+    @include flex(0, 0, auto);
+}
+
+#burger {
+    display: none;
+    width: calc(1.5rem + 4px); //match svg width + right-padding
+    background-color: $nav-back;
+    padding: sidedValues(4px, 0, 0, 4px);
+    &:hover {
+        background-color: $nav-focus;
+        cursor: pointer;
     }
-    #ggp_navhead svg {
-        &.navopen {
-            max-width: 1.8em;
-            max-height: 1.8em;
-        }
-        &.navshut {
-            width: 0;
-            height: 0;
-        }
+    > svg {
+        width: 1.5rem;
+        height: 1.5rem;
     }
 }
-#ggp_navhead {
-    margin-top: 2px;
-    padding: 0;
-    background-color: $accent2;
-    > li {
-        padding: sidedValues(0, 0, 0, 4px);
-        > span {
-            display: inline-block;
-            margin-left: 2.2em;
-            width: calc(9.4em + 16px);
-            height: 1.8em;
-            cursor: pointer;
-            &:hover {
-                background-color: $accent-focus;
-            }
-        }
-    }
 
-    > a:hover {
-        background-color: $accent-focus;
+#ggp_menu {
+    @include flexbox;
+    @include flex-wrap(wrap);
+    @include justify-content(center);
+    &.noflash {
+        visibility: hidden; // preserve sizes for menu setup
+    }
+@if false {
+    .descend::after {
+        display: block;
+        background-image: url(../images/navindicators.png);
+        float: $end-side;
+        width: .75rem;
+        height: .75rem;
+        content: ' ';
+        /* TODO consider transform rotate 180degrees */
+    }
+}
+    .open-mark {
+	position: relative;
+	float: right;
+	height: .8rem;
+	width: .8rem;
+	top: .5rem;
+	margin: 0 .25rem;
+	background-image: url(../images/navindicators.png);
+	background-position: 48px 0; // down-arrow
+	/* TODO consider transform rotate 180degrees */
     }
     a {
-        width: 10em;
-        color: $back-color;
-        svg {
-               position: absolute;
-            &:hover {
-                background-color: $accent-focus;
-            }
+        padding: 0; //sidedValues(0.12rem, 4px, 0.3rem, 4px);
+        text-decoration: none;
+        color: $button-color;
+        &:link,
+        &:visited {
+            color: $button-color;
         }
-    }
-}
-#ggp_nav {
-    @include flex(1, 1, 0);
-    overflow-x: hidden;
-    overflow-y: auto;
-    background-color: $accent2;
-    color: $back-color;
-    ul ul {
-        margin-#{$start-side}: 0;
-    }
-}
-#ggp_menu {
-    > li {
-        position: relative;
-        padding: sidedValues(0, 0, 0, 4px);
-        font-size: 1em;
     }
     li {
-        a {
-            padding: 0.9em 0 2px;
-            text-decoration: none;
-            &.no-nav {
-                position: absolute;
-                padding: 0;
-                width: calc(10.6em + 16px);
-                #{$start-side}: 2.6em;
-                font-size: 0.9em;
-                line-height: 2;
-                &:hover {
-                    background-color: $accent-focus;
-                }
-            }
-            svg {
-                width: 1.8em;
-                height: 1.8em;
-            }
-            img {
-                width: 1.8em;
-                height: 1.8em;
-            }
+        position: relative;
+        margin: 0;
+        padding-#{$start-side}: .25rem;
+        background-color: $nav-back;
+        color: $button-color;
+        font-size: 0.95em; // NOT rem
+@if false {
+        &.descend.subsub::after {
+            margin-#{$end-side}: .5rem;
+            margin-top: calc(0.65em - .25rem); // line-height-related : (1.3em + 4px pad - 12px img ht) / 2
+            background-position: 24px 0; // right-arrow
         }
-        span {
+        &.descend.subsubL::after {
+            margin-#{$end-side}: .5rem;
+            margin-top: calc(0.65em - .25rem); // line-height-related : (1.3em + 4px pad - 12px img ht) / 2
+            background-position: 12px 0; // left-arrow
+        }
+}
+        &.descend.subsub .open-mark {
+            background-position: 24px 0; // right-arrow
+        }
+        &.descend.subsubL .open-mark {
+            background-position: 12px 0; // left-arrow
+        }
+
+        > svg, > a > svg, > img, > a > img {
+            height: 1.3em;
+            width: 1.3em;
+            padding: 2px;
+            margin-#{$start-side}: 0;
+            margin-bottom: -0.5em;
+        }
+        > span, > a > span {
+            display: inline-block;
+            height: 1.3em;
+            padding: 2px 4px;
+            font-size: 0.95em; // NOT rem
+            vertical-align: middle;
             cursor: pointer;
-            &.open-nav {
-                position: absolute;
-                width: calc(10.6em + 16px);
-                #{$start-side}: 2.6em;
-                font-size: 0.9em;
-                line-height: 2;
-                &:hover::after {
-                    display: inline-block;
-                    background-image: $url_14;
-                    float: $end-side;
-                    width: 12px;
-                    height: 12px;
-                    margin-top: 8px;
-                    margin-#{$end-side}: 0.5em;
-                    content: ' ';
-                    z-index: 20;
-                    background-position: 48px 0;
-                }
-                &.open-sub:hover::after {
-                    background-position: 36px 0;
-                }
-            }
-        }
-        li {
-            margin-#{$start-side}: 0.8em;
-            line-height: 1.2;
-            font-size: 0.9em;
-            li {
-                margin-#{$start-side}: 1.6em;
-                &:first-of-type {
-                    margin-top: 5px;
-                }
-                li {
-                    margin-#{$start-side}: 2.4em;
-                    &:first-of-type {
-                        margin-top: 5px;
-                    }
-                }
-            }
-            a {
-                padding: 2px 5px;
-                vertical-align: bottom;
-                line-height: 1.5;
-                font-size: 0.95em;
-                font-weight: normal;
-                white-space: pre-line;
-                word-break: normal;
-                svg {
-                    width: 1.5em;
-                    height: 1.5em;
-                    vertical-align: top;
-                }
-                img {
-                    width: 1.5em;
-                    height: 1.5em;
-                    vertical-align: top;
-                }
-            }
-            &.current span {
-                color: $accent-fore;
-            }
-        }
-        &.current span {
-            color: $accent-fore;
-            &.open-nav::after {
-                display: inline-block;
-                float: $end-side;
-                background-image: $url_14;
-                background-position: 24px 0;
-                width: 12px;
-                height: 12px;
-                margin-top: 8px;
-                margin-#{$end-side}: 4px;
-                content: ' ';
-                z-index: 20;
-            }
-            &.open-nav:hover::after {
-                background-position: 0 0;
-            }
-            &.open-nav.open-sub:hover::after {
-                background-position: 36px 0;
-            }
-        }
-        > span:hover {
-            background-color: $accent-focus;
         }
     }
-    a {
-        color: $back-color;
-        &:link {
-            color: $back-color;
-            &:hover {
-                background-color: $accent-focus;
-            }
+    > li {
+        font-size: 1.1rem;
+        > svg, > a > svg, > img, > a > img {
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-bottom: -0.5rem;
         }
-        &:visited {
-            color: $back-color;
-            &:hover {
-                background-color: $accent-focus;
-            }
+        > span, > a > span {
+            height: 1.5rem;
+            font-size: 1.1rem;
         }
-        &:hover {
-            background-color: $accent-focus;
+        > ul {
+            margin-top: 0;
         }
+        > ul ul {
+            margin-top: 1px;
+        }
+@if false {
+        &.descend::after {
+            margin-#{$end-side}: .25rem;
+            margin-top: calc(0.75rem - .25rem); // line-height-related :: (1.5rem + 4px pad - 12px img ht) / 2
+            background-position: 48px 0; // down arrow
+        }
+}
     }
     ul {
-        display: none;
-        margin-top: -6px;
-        padding: 2px 0;
+        @include flexbox;
+        @include flex-direction(column);
+        margin: sidedValues(2px, 0, 0, 0);
+        position: absolute;
+        z-index: 50;
+        ul {
+            margin-top: calc(-1.125rem - 8px);
+            z-index: 55;
+        }
     }
+    a:hover, li:hover, span:hover, img:hover, svg:hover {
+        background-color: $nav-focus;
+        cursor: pointer;
+    }
+}
+
+/* TODO theme-js supports variable hamburger-menu-threshold */
+@media all and(max-width : 39.98em) {
+    #burger {
+        display: block;
+    }
+    #ggp_menu {
+        @include flex-direction(column);
+        @include justify-content(flex-start);
+        position: absolute;
+        z-index: 50;
+        overflow: auto;
+        ul {
+            position: relative;
+            $start-side: 0;
+            margin: 2px 0;
+            padding: 0;
+        }
+        li {
+            padding: 0 .25rem;
+            &.vopen .open-mark {
+                display: none;
+            }
+        }
+        > li > ul {
+            position: relative;
+            $start-side: 10rem;
+            margin: 0;
+            padding: 0 2px;
+        }
+    }
+}
+
+} @else { // not $withnav
+/* see separate file ATM */
 }
 
 /*** content ***/
 
-.headericon {
-    display: inline-block;
-    vertical-align: middle;
-    margin: sidedValues(0, 1em, 0, 0);
-    height: 2em;
-    width: 2em;
-    img {
-        max-height: 2em;
-        max-width: 2em;
-    }
-}
-
 #ggp_contentwrap {
     @include flexbox;
     @include flex-direction(column);
+    overflow: auto;
 }
 #ggp_contenthead {
-    @include flex(0, 1, auto);
-    overflow: auto;
+    @include flex(0, 0, auto);
     margin: sidedValues(0, 0, 5px, 10px);
     padding: 0;
     font-weight: normal;
@@ -3050,7 +3000,7 @@ img.systemicon {
         font-size: 1.1em;
         font-weight: normal;
     }
-    span.helptext {
+    .helptext {
         display: inline-block;
         float: $end-side;
         margin-#{$end-side}: 10px;
@@ -3070,13 +3020,27 @@ img.systemicon {
         font-weight: normal;
     }
 }
+
+.headericon {
+    display: inline-block;
+    vertical-align: middle;
+    margin: sidedValues(-0.25em, .5em, 0, 1em);
+    height: 1.8em;
+    width: 1.8em;
+    img {
+        max-height: 1.8em;
+        max-width: 1.8em;
+    }
+}
+@if false {
+/* DEBUG DISABLED
 #ggp_content {
     margin: sidedValues(0, 0, 0, 10px);
     border: 0;
     padding: 0;
     overflow: hidden;
-    height: calc(100vh - 3em); /* TODO dynamic */
-    width: calc(100vw - 10em); /* TODO dynamic */
+    height: calc(100vh - 3em);/* TODO dynamic * /
+    width: calc(100vw - 10em);/* TODO dynamic * /
     .h-inside {
         float: $start-side;
         padding-top: 8px;
@@ -3086,12 +3050,49 @@ img.systemicon {
         margin-bottom: 0.5em;
         text-align: $end-side;
     }
-    .pagetext {
+/*    .pagetext {
         margin: sidedValues(10px, 0, 5px, 4px);
         padding: 0;
         width: auto;
         color: $fore-color;
         font-weight: bold;
+    }
+* /
+    .pageshowrows {
+        color: $fore-color;
+        font-size: 0.9em;
+        text-align: $end-side;
+        margin-bottom: 5px;
+    }
+    .helptext {
+        display: inline-block;
+    }
+}
+*/
+}
+
+/*
+TODO dynamic height-adjustment calc
+#ggp_header ht = tallest of #site-logo(<=2.5em+8px mg), #system-logo(2.2em), #shortcuts(1.1em * 1 li ht + 4px margin) = 46.6 px
+#ggp_navrap ht = _menu ht = topmost li ht = 1.1rem font * 1.3 line ht = 26.5px + 5px mg
+#ggp_footer ht = 1rem font * 1 line ht + 10px mg = 33px
+.pagecontainer T/B mg = 0
+h-scroller N/A ever ? or 16px ?
+ETC?
+*/
+.pagecontainer {
+    overflow: auto;
+    height: calc(100vh - 115px);/*TODO calc(100vh - whatever);*/
+    width: calc(100vw - 16px);/*v-scroller space*/
+    margin: 0 10px;
+    .h-inside {
+        float: $start-side;
+        padding-top: 8px;
+        padding-#{$start-side}: 10px;
+        margin-#{$end-side}: 10%;
+        width: 18em;
+        margin-bottom: 0.5em;
+        text-align: $end-side;
     }
     .pageshowrows {
         color: $fore-color;
@@ -3099,8 +3100,66 @@ img.systemicon {
         text-align: $end-side;
         margin-bottom: 5px;
     }
-    span.helptext {
+@if false {
+/*    .pagetext {
+        margin: sidedValues(10px, 0, 5px, 4px);
+        padding: 0;
+        width: auto;
+        color: $fore-color;
+        font-weight: bold;
+    }
+*/
+}
+    .helptext {
         display: inline-block;
+    }
+}
+
+#page_tabs {
+    @include flexbox;
+    @include flex-wrap(wrap);
+    @include align-items(flex-start);
+    overflow: hidden;
+    > div {
+        margin-top: 1px;
+        margin-#{$end-side}: 1px;
+        padding: 0.3em 0.7em;
+        @include border-radius(sidedValues(.25rem, .25rem, 0, 0));
+        background-color: $accent1;
+        color: $fore-color;
+        font-size: 0.9em;
+        font-weight: bold;
+        text-align: center;
+        white-space: nowrap;
+        cursor: pointer;
+        &:hover {
+            color: $accent-focus;
+        }
+        &:focus {
+            color: $accent-focus;
+        }
+        img {
+            margin-top: 2px;
+            margin-#{$start-side}: 5px;
+            margin-#{$end-side}: 5px;
+            height: 0.9em;
+        }
+    }
+    > .active {
+        background-color: $accent-focus; //TODO
+        color: $back-most; //TODO
+        text-shadow: sidedSingle(-1px) -1px 0 $focustext-shadow;
+    }
+}
+
+#page_content {
+    @include border-radius(sidedValues(0, .25rem, .25rem, .25rem));
+    border: 1px solid $accent1;
+    padding: 0.5em;
+    > div {
+	padding: 0.5em 2px;
+        max-height: calc(100vh - 250px);/* TODO derive adjustment from context, dynamic */
+        overflow: auto;
     }
 }
 
@@ -3109,26 +3168,52 @@ img.systemicon {
 #ggp_footer {
     @include flex(0, 1, auto);
     @include flexbox;
-    @include flex-wrap(wrap);
-    @include justify-content(space-between);
-    @include align-items(flex-start);
-    padding: sidedValues(0.5em, 0.25em, 0, 0.5em);
-    font-size: 0.9em;
-    color: $fore-color;
+//    @include flex-wrap(wrap);
+//    @include justify-content(space-between);
+    @include align-items;
+    padding: 0 1.5em;
     background-color: $accent1;
-    -webkit-box-shadow: sidedSingle(-2px) -2px 8px $box-shadow inset, sidedSingle(2px) 2px 8px $box-shadow-default inset;
-    -moz-box-shadow: sidedSingle(-2px) -2px 8px $box-shadow inset, sidedSingle(2px) 2px 8px $box-shadow-default inset;
-    box-shadow: sidedSingle(-2px) -2px 8px $box-shadow inset, sidedSingle(2px) 2px 8px $box-shadow-default inset;
-    ul.links {
-        display: inline-block;
+    font-size: 1rem;
+    color: $fore-color;
+    @include panel-shadow($box-shadow, $box-shadow-default);
+    .links {
         li {
             display: inline-block;
-            padding: 0 5px;
-            float: $start-side;
+            margin: 0 5px;
+            padding: .68rem 0;
+            a {
+                padding: .68rem 5px;
+            }
         }
     }
-    small {
-        font-size: 0.8em;
+//    small {
+//        font-size: 0.9rem;
+//    }
+}
+
+// button like .adminsubmit, but without icon
+.loginsubmit {
+    margin: 0.1em;
+    margin-#{$end-side}: 0.5em;
+    border-width: 0;
+    @include border-radius(.25rem);
+    padding: 0.4em 0.5em;
+    background: $accent2 $url_2 top;
+    height: auto;
+    -webkit-background-size: cover;
+    -o-background-size: cover;
+    -ms-background-size: cover;
+    color: $button-color;
+    font-weight: 600;
+    font-size: 1em;
+    &:hover {
+        background-color: $accent-focus;
+    }
+    &:active {
+        background-color: $accent-focus;
+    }
+    &:disabled {
+        background-color: $button-disabled;
     }
 }
 
@@ -3146,31 +3231,52 @@ img.systemicon {
             font-size: 0.9em;
         }
     }
-    #sitelogo {
+    #site-logo {
         display: block;
         margin: sidedValues(0, auto, 10px, auto);
+        max-width: 10em;
+        max-height: 3.5em;
     }
-    #cmslogo {
+    #cms-logo {
         float: $end-side;
-        span#logotext {
-            display: inline-block;
-            margin-top: -25px; // TODO calc to centre on 30px image
-            margin-#{$end-side}: 0.5em;
-            font-weight: bold;
-            font-size: 0.9em;
-            vertical-align: middle;
+    }
+    #logo-text {
+        float: $end-side;
+        margin: sidedValues(0.75em, 0.5em, 0, 0);
+        font-weight: bold;
+        font-size: 0.75rem;
+    }
+    #goto {
+        position: absolute;
+        background: transparent $url_25 no-repeat scroll center center;
+        top: 2em;
+        #{$end-side}: 2em;
+        height: 22px;
+        width: 22px;
+//      outline: 0;
+        text-decoration: none;
+        cursor: pointer;
+        z-index: 40;
+    }
+    #forgotpw {
+        float: $end-side;
+        margin: 3px; // space for focus-indication
+        line-height: 2.25;
+        font-size: 0.9rem;
+        a {
+            padding: .5rem 0;
+            text-decoration: none;
+            cursor: pointer;
         }
     }
     #login-box {
         position: relative;
+        min-width: 17em;
         background-color: $accent1;
-        border-radius: 4px;
+        @include border-radius(.25em);
         margin: 0 auto;
         padding: 2em 2em 1em 2em;
-        -webkit-box-shadow: sidedSingle(-2px) -2px 8px $box-shadow inset, sidedSingle(2px) 2px 8px $box-shadow-default inset;
-        -moz-box-shadow: sidedSingle(-2px) -2px 8px $box-shadow inset, sidedSingle(2px) 2px 8px $box-shadow-default inset;
-        box-shadow: sidedSingle(-2px) -2px 8px $box-shadow inset, sidedSingle(2px) 2px 8px $box-shadow-default inset;
-        min-width: 17em;
+        @include panel-shadow($box-shadow, $box-shadow-default);
     }
     h1 {
         margin: 0 auto;
@@ -3191,72 +3297,37 @@ img.systemicon {
         margin: 1em 0 0;
         width: 17em;
     }
-    // button like .adminsubmit, but without icon
-    .loginsubmit {
-        margin: 0.1em;
-        margin-#{$end-side}: 0.5em;
-        border-width: 0;
-        border-radius: 4px;
-        padding: 0.4em 0.5em;
-        background: $accent2 $url_2 top;
-        height: auto;
-        -webkit-background-size: cover;
-        -o-background-size: cover;
-        -ms-background-size: cover;
-        color: $back-color;
-        font-weight: 600;
-        font-size: 1em;
-        &:hover {
-            background-color: $accent-focus;
-        }
-        &:active {
-            background-color: $accent-focus;
-        }
-        &:disabled {
-            background-color: $button-disabled;
+    #toggle-info {
+        position: absolute;
+        background: $url_7 no-repeat scroll center center;
+        top: 2em;
+        #{$start-side}: 2em;
+        height: 1.75rem;
+        width: 1.75rem;
+//      outline: 0;
+//      text-indent: sidedSingle(-9999em);
+        z-index: 40;
+        &:active, &:focus {
+        	outline: 1px solid $fore-color;
+        	outline-offset: 0;
         }
     }
     .login-info {
         border: 1px solid $info-border;
-        border-radius: 4px;
+        @include border-radius(.25rem);
         padding: 6px 10px;
         background-color: $info-back;
         color: $info-color;
-        font-size: 0.9em;
-    }
-    a {
-        &#toggle-info {
-            position: absolute;
-            background: $url_7 no-repeat scroll center center;
-            top: 2em;
-            #{$start-side}: 2em;
-            height: 24px;
-            width: 24px;
-//          outline: 0;
-            text-indent: sidedSingle(-9999em);
-            z-index: 40;
-        }
-        &#goto {
-            position: absolute;
-            background: transparent $url_25 no-repeat scroll center center;
-            top: 2em;
-            #{$end-side}: 2em;
-            height: 22px;
-            width: 22px;
-//          outline: 0;
-            text-decoration: none;
-            cursor: pointer;
-            z-index: 40;
-        }
+        font-size: 1.1rem;
     }
     #info-wrapper {
         display: none;
         position: absolute;
-        top: 30px;
+        top: 3.5em;
         #{$start-side}: 0.5em;
-        max-width: 21.5em;
-        margin-top: 2em;
+        max-width: 17.5em;
         z-index: 20;
+        cursor: pointer;
         &.open {
             display: block;
         }
@@ -3274,36 +3345,19 @@ img.systemicon {
             padding: 5px;
         }
     }
-    span#forgotpw {
-        float: $end-side;
-        display: inline-block;
-        line-height: 2.8em;
-        font-size: 0.9em;
-        bottom: 0;
-        a {
-            padding: 8px 0;
-            text-decoration: none;
-            cursor: pointer;
-        }
-    }
 }
 
-@media screen and (max-width: 64rem) {
-    // NOTE scss compiler might not cope with nested '@', if so, manual correction needed
-    @-ms-viewport {
-        width: device-width;
-    }
-    @-webkit-viewport {
-        width: device-width;
-    }
-    @viewport {
-        width: device-width;
-    }
-
+@media screen and (max-width: 63.98rem) {
     body {
         margin: 0;
         min-width: 100%;
         padding: 0;
+    }
+
+    #ggp_header {
+        #cms-text {
+            display: none;
+        }
     }
     header .breadcrumbs {
         display: none;
@@ -3345,6 +3399,7 @@ img.systemicon {
             //text-overflow: elipsis;
         }
     }
+
     td.pagew30 {
         width: auto;
         padding: 0;
@@ -3352,6 +3407,7 @@ img.systemicon {
         word-wrap: break-word;
         //text-overflow: elipsis;
     }
+
     article.content-inner {
         margin-#{$start-side}: 2.5em;
     }
@@ -3362,11 +3418,8 @@ img.systemicon {
         padding-#{$start-side}: 0;
     }
     .move {
-        width: auto;
         padding: 0;
-        max-width: 16px;
         width: auto;
-        padding: 0;
         max-width: 30px;
         word-wrap: break-word;
         //text-overflow: elipsis;
@@ -3414,13 +3467,21 @@ img.systemicon {
     }
 }
 
-@media screen and (max-width: 40rem) {
+@media screen and (max-width: 47.98rem) {
     #ggp_header {
-        .site-logo {
+        #system-text {
+            display: none;
+        }
+    }
+}
+
+@media screen and (max-width: 39.98rem) {
+    #ggp_header {
+        #site-logo {
             margin: 0.1em;
             text-align: center;
         }
-        .site-text, #system-text, #cms-text {
+        .site-text {
             display: none;
         }
     }
@@ -3435,9 +3496,11 @@ img.systemicon {
             }
         }
     }
+@if false {
     #ggp_content {
         margin: 0;
     }
+}
     #page_tabs {
         margin-top: 0;
     }
@@ -3453,9 +3516,12 @@ img.systemicon {
     header div.admin-title {
         display: none;
     }
-    div.cms-text {
-        display: none;
+@if false {
+    #cms-text {
+//        display: none; ibid
     }
+}
+    // design-manager stuff ?
     #template_area .pagetable {
         display: table;
         tr {
@@ -3576,7 +3642,7 @@ img.systemicon {
     }
 }
 
-@media screen and (max-width: 30rem) {
+@media screen and (max-width: 29.98rem) {
     #cms-logo {
         width: 2em;
         background: transparent $logo_png no-repeat $start-side;
@@ -3616,19 +3682,18 @@ img.systemicon {
         max-width: 23em;
     }
     #login {
-        div {
-            &.login-container {
+        .login-container {
+            width: 30em;
+            &#error {
                 width: 30em;
-                &#error {
-                    width: 30em;
-                }
             }
-            &.login-box {
-                width: 28em;
-            }
-            &.info-wrapper {
-                display: none;
-            }
+        }
+        .login-box {
+            width: 28em;
+        }
+        #info-wrapper {
+            display: none;
+            /*max-width: less than 21.5em;? */
         }
         input[type="text"] {
             width: 24em;
@@ -3647,12 +3712,27 @@ img.systemicon {
     }
 }
 
-@media screen and (max-width: 20rem) {
+@media screen and (max-width: 19.98rem) {
     #cms-logo {
         display: none;
     }
 }
 
-@supports (display: grid) {
-// stuff to use when css-grid is supported by the browser
+@media screen {
+    .tooltip {
+        padding: 0.25em 0.5em;
+        background: $accent1;
+        font-size: 0.9em;
+        color: $fore-color;
+//        & > .arrow {
+//            border-top-color: $accent2;
+//        }
+//        &.top > .arrow {
+//            border-bottom-color: $accent2;
+//        }
+    }
 }
+
+//@supports (display: grid) {
+// stuff to use when css-grid is supported by the browser
+//}

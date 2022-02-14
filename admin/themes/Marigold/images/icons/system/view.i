@@ -1,1 +1,1 @@
-class="mgfa-popup"
+class="cfi-popup"

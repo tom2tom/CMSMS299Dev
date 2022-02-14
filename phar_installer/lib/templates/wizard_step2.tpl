@@ -62,21 +62,21 @@
    {/if}
 
    <ul class="existing-info no-list no-padding">
-    <li class="flexrow">
-      <div class="cell cols_4">{'step2_pwd'|tr}:</div>
-      <div class="cell cols_6"><span class="label">{$pwd}</span></div>
+    <li class="row">
+      <div class="cell col-4">{'step2_pwd'|tr}:</div>
+      <div class="cell col-6"><span class="label">{$pwd}</span></div>
     </li>
-    <li class="flexrow">
-      <div class="cell cols_4">{'step2_version'|tr}:</div>
-      <div class="cell cols_6"><span class="label">{$cmsms_info.version} <span class="emphatic">({$cmsms_info.version_name})</span></span></div>
+    <li class="row">
+      <div class="cell col-4">{'step2_version'|tr}:</div>
+      <div class="cell col-6"><span class="label">{$cmsms_info.version} <span class="emphatic">({$cmsms_info.version_name})</span></span></div>
     </li>
-    <li class="flexrow">
-      <div class="cell cols_4">{'step2_schemaver'|tr}:</div>
-      <div class="cell cols_6"><span class="label">{$cmsms_info.schema_version}</span></div>
+    <li class="row">
+      <div class="cell col-4">{'step2_schemaver'|tr}:</div>
+      <div class="cell col-6"><span class="label">{$cmsms_info.schema_version}</span></div>
     </li>
-    <li class="flexrow">
-      <div class="cell cols_4">{'step2_installdate'|tr}:</div>
-      <div class="cell cols_6"><span class="label">{$cmsms_info.mdate}</span></div>
+    <li class="row">
+      <div class="cell col-4">{'step2_installdate'|tr}:</div>
+      <div class="cell col-6"><span class="label">{$cmsms_info.mdate}</span></div>
     </li>
    </ul>
 
@@ -89,14 +89,14 @@
      </div>
      <ul id="upgrade_info" class="no-list">
      {foreach $upgrade_info as $ver => $data}
-      <li class="flexrow upgrade-ver">
-       <div class="cell cols_4">{$ver}</div>
-       <div class="cell cols_4">
+      <li class="row upgrade-ver">
+       <div class="cell col-4">{$ver}</div>
+       <div class="cell col-4">
         {if $data.readme}
         <div class="label green link" data-content="r{$data@iteration}"><i class="icon-info"></i> {'readme_uc'|tr}</div>
         {/if}
        </div>
-       <div class="cell cols_4">
+       <div class="cell col-4">
         {if $data.changelog}
         <div class="label blue link" data-content="c{$data@iteration}"><i class="icon-info"></i> {'changelog_uc'|tr}</div>
         {/if}

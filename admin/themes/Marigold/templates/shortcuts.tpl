@@ -2,33 +2,6 @@
 {strip}
 <div class="shortcuts">
   <ul class="cf">
-    <li class="help">
-    {if isset($module_help_url)}
-      <a href="{$module_help_url}" title="{'module_help'|lang}"><i class="fa fa-question-circle"></i></a>
-    {else}
-      <a href="https://docs.cmsmadesimple.org/" rel="external" title="{'documentation'|lang}"><i class="fa fa-question-circle"></i></a>
-    {/if}
-    </li>
-    <li class="help">
-    {if isset($site_help_url)}
-      <a href="{$site_help_url}" title="{'site_support'|lang}"><i class="fa fa-hands-helping"></i></a>
-    {else}
-      <a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{'site_support'|lang}"><i class="fa fa-hands-helping"></i></a>
-    {/if}
-    </li>
-    {if isset($myaccount)}
-    <li class="settings">
-      <a href="useraccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa fa-user-circle-o"></i></a>
-    </li>
-    {/if}
-    {if isset($marks)}
-    <li class="favorites open">
-      <a href="listbookmarks.php?{$secureparam}" title="{'bookmarks'|lang}"><i class="fa fa-bookmark"></i></a>
-    </li>
-    {/if}
-    <li class="view-site">
-      <a href="{root_url}/index.php" rel="external" target="_blank" title="{'viewsite'|lang}"><i class="mgfa-website"></i></a>
-    </li>
     {$my_alerts=$theme->get_my_alerts()}
     {if !empty($my_alerts)}
       {$num_alerts=count($my_alerts)}
@@ -36,16 +9,52 @@
         {if $num_alerts > 10}{$txt='&#2295'}{else}{$txt=$num_alerts}{/if}
          <li class="notifications">
         <a id="alerts" title="{_la('notifications_to_handle2',$num_alerts)}">
-          <i class="fa fa-bell"></i><span class="bubble">{$txt}</span></a>
+          <i class="fa fa-bell-o" aria-hidden="true"></i><span class="bubble">{$txt}</span></a>
         </li>
       {/if}
-        {/if}
+    {/if}
+    <li class="help">
+      <a href="javascript:MG.aboutToggle();" title="{'about'|lang}"><i class="fa fa-info"></i></a>
+    </li>
+    <li class="help">
+      <a href="https://forum.cmsmadesimple.org" rel="external" title="{'forums'|lang}"><i class="fa fa-comments-o"></i></a>
+    </li>
+    <li class="help">
+    {if isset($module_help_url)}
+      <a href="{$module_help_url}" title="{'module_help'|lang}"><i class="fa fa-question-circle"></i></a>
+    {else}
+      <a href="https://docs.cmsmadesimple.org/" rel="external" title="{'documentation'|lang}"><i class="fa fa-question"></i></a>
+    {/if}
+    </li>
+    <li class="help">
+    {if isset($site_help_url)}
+      <a href="{$site_help_url}" title="{'site_support'|lang}"><i class="fa fa-life-ring"></i></a>
+    {else}
+      <a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{'site_support'|lang}"><i class="fa fa-life-ring"></i></a>
+    {/if}
+    </li>
+    {if isset($marks)}
+    <li class="favorites open">
+      <a href="listbookmarks.php?{$secureparam}" title="{'bookmarks'|lang}"><i class="fa fa-bookmark"></i></a>
+    </li>
+    {else}
+    <li style="width:1.5rem"></li>
+    {/if}
+    {if isset($myaccount)}
+    <li class="settings">
+      <a href="usersettings.php?{$secureparam}" title="{'title_mysettings'|lang}"><i class="fa fa-sliders fa-rotate-90"></i></a>
+    </li>
+    {/if}
+    <li class="view-site">
+      <a href="{root_url}/index.php" rel="external" target="_blank" title="{'viewsite'|lang}"><i class="cfi-mainsite"></i></a>
+    </li>
     <li class="logout">
 {*TODO replace onclick handler*}
-      <a href="logout.php?{$secureparam}" title="{'logout'|lang}"{if isset($is_sitedown)} onclick="return confirm('{"maintenance_warning"|lang|escape:"javascript"}');"{/if}><i class="fa fa-sign-out"></i></a>
+      <a href="logout.php?{$secureparam}" title="{'logout'|lang}"{if isset($is_sitedown)} onclick="return confirm('{"maintenance_warning"|lang|escape:"javascript"}');"{/if}><i class="cfi-logout"></i></a>
     </li>
   </ul>
 </div>
+<a id="aboutinfo" style="display:none;" href="javascript:MG.aboutToggle();">CMSMS {'version'|lang} {cms_version} &ldquo;{cms_versionname}&rdquo;</a>
 {if isset($marks)}
 <div class="dialog invisible" role="dialog" title="{'bookmarks'|lang}">
   {if is_array($marks) && count($marks)}

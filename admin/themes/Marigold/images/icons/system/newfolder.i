@@ -1,1 +1,1 @@
-class="mgfa-folder-add"
+class="cfi-folder-add"

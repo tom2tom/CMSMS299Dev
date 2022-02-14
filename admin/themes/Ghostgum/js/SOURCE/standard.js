@@ -4,7 +4,7 @@
  */
 /*!
 javascript for CMSMS Ghostgum-theme v.0.9
-(C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+(C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 License: Affero GPL 3+
 */
 /* jslint nomen: true, devel: true */
@@ -18,15 +18,30 @@ License: Affero GPL 3+
 var themejs = {};
 (function ($, window, document, classname) {
   var
+    self = this,
+    wait = false,
     cookieHandler = 'themes/assets/js/js-cookie.min.js', // assistant script
-    smallWidth = 600, // viewport-width threshold related to sidebar display
-//    $container = null, // cache for outer container
-//    $menucontainer = null, // redundant nav menu container
+//  $container = null, // cache for outer container
+//  $menucontainer = null, // redundant nav menu container
     $menu = null, // nav menu
     $scroller = null, // scrolled content element(s)
-    oldwide,
+    exli = [], //departed li object(s) being processed by a timer
+    timerID = 0,
+    opts = {
+      minWidth: 6,  // em's
+      maxWidth: 25, // em's
+      extraWidth: 0.01,// em's might ensure lines don't sometimes turn over
+                    // due to slight differences in how browsers round values
+      speed: 150,   // sub-menu popup duration (mS) or
+                    // 'normal' etc recognized by jQuery for animation
+      delay: 400    // interval (mS) between menu exit and hide TODO longer interval for vert menu ?
+    },
+    topTop = -1,
+    smallWidth = 40, // em's viewport-width threshold for toggling menu-state
+    fpx,
+    threshold, // px corresponding to smallWidth
 //  oldhigh,
-    threshold;
+    oldwide;
 
   this.init = function () {
 //    $container = $('#ggp_container');
@@ -50,56 +65,27 @@ var themejs = {};
         $scroller = null;
       }
     }
-/*  // handle the initial collapsed/expanded state of the nav sidebar
-    this.handleSidebar();
-*/
-    // initialize menu
-    this.suckerSetup($menu, {
-      minWidth: 6,  // em's
-      maxWidth: 25, // em's
-      extraWidth: 0.01,// em's might ensure lines don't sometimes turn over
-                    // due to slight differences in how browsers round values
-      speed: 150,   // sub-menu popup duration (mS) or
-                    // 'normal' etc recognized by jQuery for animation
-      delay: 400    // interval (mS) between menu exit and hide
-    });
-    // handle hamburger activation
-    $('#burger').on('click activate', function(ev) {
-      $menu.toggleClass('hidden').find('ul').hide().css({
-//       'top': '-999rem',
-       'visibility': 'hidden'
-      });
-    });
 
-    var fpx = parseFloat(getComputedStyle(document.documentElement).fontSize);
-    threshold = (fpx * 40) | 0; // 40-rem width-threshold for toggling menu-state
-    oldwide = threshold + 10; // anything > threshold
-    this.updateDisplay();
+    fpx = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    threshold = (fpx * smallWidth) | 0;
+    oldwide = threshold + 1; // anything > threshold
 
-    var self = this;
-    var wait = false;
-    $(window).on('resize', function () {
-      if (!wait) {
-        self.updateDisplay();
-        wait = true;
-        setTimeout(function () {
-          wait = false;
-        }, 100);
-      }
-    });
-    // handle notifications
-    this.showNotifications();
+    this.suckerSetup($menu);
     // substitute elements - buttons for inputs etc
     this.migrateUIElements();
     // handle updating the display
     this.updateDisplay();
-    // setup deprecated alert-handlers
+    // setup deprecated one-request notice handling
+//  this.showNotifications();
+    // setup keep-until-dismiss notice handling
     this.setupAlerts();
     // setup custom dialogs
     cms_data.alertfunc = this.popup_alert;
     cms_data.confirmfunc = this.popup_confirm;
     cms_data.promptfunc = this.popup_prompt;
     cms_data.dialogfunc = this.popup_dialog;
+    // display pending notices
+    cms_notify_all();
     // open external links with rel="external" attribute in new window
     $('a[rel="external"]').attr('target', '_blank');
     // focus on input with .defaultfocus class
@@ -108,7 +94,24 @@ var themejs = {};
     if (!this.isLocalStorage()) {
       this.loadScript(cookieHandler);
     }
-    // logout-during-sitedown confirmation
+    // handle hamburger activation
+    $('#burger').on('click activate', function(ev) {
+      $menu.toggleClass('hidden').find('ul').hide().css({
+//       'top': '-999rem',
+       'visibility': 'hidden'
+      });
+    });
+
+    $(window).on('resize', function() {
+      if (!wait) {
+        wait = true;
+        self.updateDisplay();
+        setTimeout(function () {
+          wait = false;
+        }, 200);
+      }
+    });
+    // possible logout-during-sitedown confirmation
     if (cms_data.sitedown) {
       $menu.find('a[href^="logout.php"]')
        .add($('#shortcuts').find('a[href^="logout.php"]'))
@@ -175,7 +178,11 @@ var themejs = {};
       }
     }
     if (typeof options.viewwidth !== 'undefined') {
-      smallWidth = parseInt(options.viewwidth, 10) || 600;
+      var cpx = parseInt(options.viewwidth, 10) || 640;
+      var fpx = parseFloat(getComputedStyle(document.documentElement).fontSize);
+      smallWidth = (cpx / fpx) | 0;
+      threshold = (smallWidth * fpx) | 0;
+      oldwide = threshold + 1; // anything > threshold
     }
   };
   /**
@@ -273,7 +280,7 @@ var themejs = {};
   };
   /**
    * @description Check whether running on a touch-capable device (regardless of device form-factor)
-   * @function _isMobileDevice()
+   * @function isMobileDevice()
    * @return boolean
    */
   this.isMobileDevice = function () {
@@ -298,153 +305,223 @@ var themejs = {};
     return false;
   };
   /**
+   * @description li-element class adjuster
+   * @function toggleIndicator($li)
+   * @param {jQuery object} $li
+   * @return void
+   */
+  this.toggleIndicator = function ($li) {
+    var current = $li[0].classList,
+        classes = ['vshut', 'vopen', 'hshut', 'hopen'],
+        i;
+    for (i = 0; i < 4; i++) {
+      if (current.contains(classes[i])) {
+        var j = (i % 2 === 0) ? i+1 : i-1;
+        current.remove(classes[i]);
+        current.add(classes[j]);
+        return;
+      }
+    }
+  };
+  /**
+   * @description li-element hover handler
+   * @function overLi(ev)
+   * @param {object} ev
+   * @return void
+   */
+  this.overLi = function (ev) {
+    //abort timer
+    if (timerID != 0) {
+      clearTimeout(timerID);
+      timerID = 0;
+      $.each(exli, function(i, value) { // immediate cleanup
+        self.toggleIndicator(value);
+      });
+      exli = [];
+/*      $menu.find('ul').hide().css({
+//        'top': '-999rem',
+        'visibility': 'hidden'
+      });
+*/
+    }
+    var $LI = $(ev.target).closest('li');
+    //hide unwanted menus
+    $LI.siblings().find('ul').hide().css({
+//      'top': '-999rem',
+      'visibility': 'hidden'
+    });
+    if ($LI.hasClass('sub')) {
+      $LI.find('ul ul').hide().css({
+//       'top': '-999rem',
+        'visibility': 'hidden'
+      });
+      //TODO revert indicator state for open submenus
+      //TODO revert horiz position for open submenus
+    }
+    //show this menu, if any
+    var menu = $LI.children('ul');
+    if (menu.length > 0 && menu.css('visibility') == 'hidden') {
+      var menuwidth, leftPos;
+      //animate menu display
+      if ($LI.hasClass('sub')) {
+        var topPos, parent;
+        // TODO handle placement for vertical menu
+        // TODO positions for rtl
+        if (!$('#burger').is(':visible')) {
+          if ($LI.hasClass('subsub')) {
+            parent = $LI.parent('ul');
+            menuwidth = parent[0].clientWidth;
+            leftPos = (menuwidth - 6) + 'px'; // DEBUG fudge factor 6? relates to overall menu width?
+            topPos = -1; //align with parent
+          } else if ($LI.hasClass('subsubL')) {
+            parent = $LI.parent('ul');
+            menuwidth = parent[0].clientWidth;
+            leftPos = -(menuwidth - 21) + 'px'; // DEBUG fudge factor -21?
+            topPos = -1; //align with parent
+          } else {
+            leftPos = 0;
+            topPos = topTop + 20; //DEBUG
+          }
+        } else {
+          leftPos = 0;
+          topPos = topTop + 20; //DEBUG
+        }
+        menu.css({
+          'left': leftPos,
+          'top': topPos,
+          'visibility': 'visible'
+        })
+          /*.stop()*/
+          .animate({
+            opacity: 'show',
+            height: 'show'
+          }, opts.speed, 'swing', function() {
+            self.toggleIndicator($LI);
+          });
+      } else {
+        //TODO cache this data
+        var LIright = $LI[0].getBoundingClientRect().right,
+          $child = $LI.find('li:first'),
+          childwidth = parseInt($child.css('width'), 10),
+          $container = $LI.closest('div'),
+          cright = $container[0].getBoundingClientRect().right;
+        menuwidth = parseInt(menu.css('width'), 10);
+        if (LIright + menuwidth + childwidth <= cright) {
+          if ($LI.hasClass('subsubL')) {
+            $LI.removeClass('subsubL').addClass('subsub');
+          }
+        } else if ($LI.hasClass('subsub')) {
+          $LI.removeClass('subsub').addClass('subsubL');
+        }
+        if ($LI.hasClass('subsub')) { // expand LTR
+          menu.css({
+            'top': '-30px', //DEBUG
+            'visibility': 'visible'
+          })
+          .animate({
+            opacity: 'show',
+            width: 'show'
+          }, opts.speed, 'swing', function() {
+            self.toggleIndicator($LI);
+          });
+        } else { // $LI.hasClass('subsubL')) expand RTL
+          var distance = menuwidth + 'px';
+          leftPos = '-' + (menuwidth + 3 + 20) + 'px'; // DEBUG fudge offset
+          menu.css({
+            'left': 0,
+            'width': 0,
+            'top': '-1px',
+            'visibility': 'visible'
+          })
+          .animate({
+            opacity: 'show',
+            left: leftPos,
+            width: distance
+          }, opts.speed, 'swing', function() {
+            self.toggleIndicator($LI);
+          });
+        }
+      }
+    }
+  };
+  /**
+   * @description li-element exit handler
+   * @function overLi(ev)
+   * @param {object} ev
+   * @return void
+   */
+  this.outLi = function (ev) {
+    if (timerID != 0) {
+      clearTimeout(timerID);
+      $.each(exli, function(i, value) { // immediate cleanup
+        self.toggleIndicator(value);
+      });
+      exli = [];
+    }
+    var $LI = $(ev.target).closest('li');
+    exli.push($LI);
+    //start timer which when finished reinstates vanilla menu
+    timerID = setTimeout(function () {
+      $menu.find('ul').hide().css({
+//        'top': '-999rem',
+        'visibility': 'hidden'
+      });
+      self.toggleIndicator($LI);
+      var i = exli.indexOf($LI);
+      if (i > -1) {
+        exli.splice(i, 1);
+      }
+      timerID = 0;
+    }, opts.delay);
+  };
+  /**
+   * @description li-element click/activate handler
+   * @function activateLi(ev)
+   * @param {object} ev
+   * @return void
+   */
+  this.activateLi = function (ev) {
+    if (timerID != 0) {
+      clearTimeout(timerID);
+      timerID = 0;
+      $.each(exli, function(i, value) { // immediate cleanup
+        self.toggleIndicator(value);
+      });
+      exli = [];
+/*      $menu.find('ul').hide().css({
+//        'top': '-999rem',
+        'visibility': 'hidden'
+      });
+*/
+    }
+    var $tgt = $(ev.target);
+    if ($tgt.is('a')) {
+      return true;
+    }
+    var $LI = $tgt.closest('li');
+    if ($LI.hasClass('descend')) {
+      // toggle visibility of child menu
+      var $ul = $LI.children('ul');
+      if ($ul.css('visibility') == 'hidden') {
+        self.overLi(ev);
+      } else {
+        self.toggleIndicator($LI);
+        $ul.add($ul.find('ul')).hide().css({
+//          'top': '-999rem',
+          'visibility': 'hidden'
+        });
+      }
+      return false;
+    }
+  };
+  /**
    * @description Initialize 3-levels of suckerfish-style menu items
    * @function suckerSetup($ob)
    * Uses and manipulates nested li's classes: sub subsub subsubL hover width
    * @param {object} $ob - Menu container object
-   * @param {object} opts - menu parameters
    */
-  this.suckerSetup = function ($ob, opts) {
-    var topTop = '';
-    var timerID = 0;
-    //li hover handler
-    var overLi = function (ev) {
-      //abort timer
-      if (timerID != 0) {
-        clearTimeout(timerID);
-        timerID = 0;
-      }
-      var $LI = $(ev.target).closest('li');
-      //hide unwanted menus
-      $LI.siblings().find('ul').hide().css({
-//        'top': '-999rem',
-        'visibility': 'hidden'
-      });
-      if ($LI.hasClass('sub')) {
-        $LI.find('ul ul').hide().css({
-//          'top': '-999rem',
-          'visibility': 'hidden'
-        });
-        //TODO revert indicator state for open submenus
-      }
-      //show this menu, if any
-      var menu = $LI.children('ul');
-      if (menu.length > 0 && menu.css('visibility') == 'hidden') {
-        //animate menu display
-        if ($LI.hasClass('sub')) {
-          menu.css({
-              'top': topTop + 20, //DEBUG
-              'visibility': 'visible'
-            })
-            /*.stop()*/
-            .animate({
-              opacity: 'show',
-              height: 'show'
-            }, opts.speed, 'swing', function() {
-              toggleIndicator($LI);
-            });
-        } else {
-          //TODO cache this data
-          var LIright = $LI[0].getBoundingClientRect().right,
-            $child = $LI.find('li:first'),
-            childwidth = parseInt($child.css('width'), 10),
-            menuwidth = parseInt(menu.css('width'), 10),
-            $container = $LI.closest('div'),
-            cright = $container[0].getBoundingClientRect().right;
-          if (LIright + menuwidth + childwidth <= cright) {
-            if ($LI.hasClass('subsubL')) {
-              $LI.removeClass('subsubL').addClass('subsub');
-            }
-          } else if ($LI.hasClass('subsub')) {
-            $LI.removeClass('subsub').addClass('subsubL');
-          }
-          if ($LI.hasClass('subsub')) { // expand LTR
-            menu.css({
-                'top': '-30px', //DEBUG
-                'visibility': 'visible'
-              })
-              .animate({
-                opacity: 'show',
-                width: 'show'
-              }, opts.speed, 'swing', function() {
-                toggleIndicator($LI);
-              });
-          } else { // $LI.hasClass('subsubL')) expand RTL
-            var distance = menuwidth + 'px',
-              leftPos = '-' + (menuwidth + 3) + 'px';
-            menu.css({
-                'left': 0,
-                'width': 0,
-                'top': '-1px',
-                'visibility': 'visible'
-              })
-              .animate({
-                opacity: 'show',
-                left: leftPos,
-                width: distance
-              }, opts.speed, 'swing', function() {
-                toggleIndicator($LI);
-              });
-          }
-        }
-      }
-    };
-    //li exit handler
-    var outLi = function (ev) {
-      if (timerID != 0) {
-        clearTimeout(timerID);
-      }
-      $li = $(ev.target).closest('li');
-      //start timer which when finished hides all sub-menus
-      timerID = setTimeout(function () {
-        toggleIndicator($li);
-        $menu.find('ul').hide().css({
-//          'top': '-999rem',
-          'visibility': 'hidden'
-        });
-        timerID = 0;
-      }, opts.delay);
-    };
-    //li click/activate handler
-    var activateLi = function (ev) {
-      if (timerID != 0) {
-        clearTimeout(timerID);
-        timerID = 0;
-      }
-      var $tgt = $(ev.target);
-      if ($tgt.is('a')) {
-        return true;
-      }
-      var $li = $tgt.closest('li');
-      if ($li.hasClass('descend')) {
-        // toggle visibility of child menu
-        var $ul = $li.children('ul');
-        if ($ul.css('visibility') == 'hidden') {
-          overLi(ev);
-        } else {
-          toggleIndicator($li);
-          $ul.add($ul.find('ul')).hide().css({
-//            'top': '-999rem',
-            'visibility': 'hidden'
-          });
-        }
-        return false;
-      }
-    };
-    var toggleIndicator = function ($LI) {
-      var current = $LI[0].classList,
-          classes = ['vshut', 'vopen', 'hshut', 'hopen'],
-          i;
-      for (i = 0; i < 4; i++) {
-        if (current.contains(classes[i])) {
-          var j = (i % 2 === 0) ? i+1 : i-1;
-          current.remove(classes[i]);
-          current.add(classes[j]);
-          return;
-        }
-      }
-    };
-    //decimal-value rounder
+  this.suckerSetup = function ($ob) {
+   //decimal-value rounder
     var roundNum = function (value, places) {
       return Number(Math.round(value + 'e' + places) + 'e-' + places);
     };
@@ -469,14 +546,15 @@ var themejs = {};
     var menuWidth = $ob[0].clientWidth;
     $ob.css('flex-direction', '').data('menuwidth', menuWidth + 'px');
 
-    //TODO hshut class on small screen
-    $LIs.css('visibility', 'visible').addClass('sub vshut')/*.on('mouseover', overLi).on('mouseout', outLi)*/.on('click activate', activateLi);
+    //TODO deploy hshut class on small screen
+    //TODO no 'mouseover', 'mouseout' on small screen
+    $LIs.css('visibility', 'visible').addClass('sub vshut').on('mouseover', self.overLi).on('mouseout', self.outLi).on('click activate', self.activateLi);
     var $last = $LIs.eq(-1);
     $LIs = $LIs.find('> ul > li'); // level 2
-    $LIs.addClass('sub subsub')/*.on('mouseover', overLi).on('mouseout', outLi)*/.on('click activate', activateLi);
+    $LIs.addClass('sub subsub').on('mouseover', self.overLi).on('mouseout', self.outLi).on('click activate', self.activateLi);
     $last.find('> ul > li').removeClass('subsub').addClass('subsubL');
     $LIs = $LIs.find('li'); // level 3+
-    $LIs.addClass('sub')/*.on('mouseover', overLi).on('mouseout', outLi)*/.on('click activate', activateLi);
+    $LIs.addClass('sub').on('mouseover', self.overLi).on('mouseout', self.outLi).on('click activate', self.activateLi);
 
     var $ULs = $ob.find('ul');
     // make everything measurable without showing
@@ -487,7 +565,7 @@ var themejs = {};
     $ULs.each(function () {
       var $ul = $(this);
       // top of level-1 menus, when displayed
-      if (topTop === '') {
+      if (topTop < 0) {
         val = (parseFloat($ul.css('top')) + 2) / fontsize; // TODO generalize fudge-factor :: func (ancestor-li height etc)
         topTop = roundNum(val, 2) + 'em';
       }
@@ -528,7 +606,7 @@ var themejs = {};
         'visibility': 'visible'
       });
       $ul.css('width', ems);
-      
+
       // update horizontal position
       if ($ul.parent().is('li.subsub')) {
         // re-position rightwards
@@ -553,39 +631,40 @@ var themejs = {};
     $ob.css('visibility', '');
     $ob.removeClass('noflash');
   };
-  /**
+  /* *
    * @description Handle 'dynamic' notifications
    * @function showNotifications()
+   * @private
    * @requires global cms_data{}, cms_notify(), cms_lang()
    */
-  this.showNotifications = function () {
-    //  back-compatibility check might be relevant in some contexts
-    //  if (typeof cms_notify_all === 'function') {
-    cms_notify_all();
-    //  } else {
-    //    do old-style notifications
-    //  }
+/*  this.showNotifications = function () {
+    if (typeof cms_notify === 'function') {
+      return; // notifications handled in core
+    }
+    // old-style notifications
     $('.pagewarning, .message, .pageerrorcontainer, .pagemcontainer').prepend('<span class="close-warning" title="' + cms_lang('gotit') + '"></span>');
-    $('.close-warning').on('click', function () {
-      var $ob = $(this).parent();
-      $ob.hide().remove();
+    $('.close-warning').on('click activate', function() {
+      $(this).parent().hide().remove();
     });
-    // pagewarning status hidden? TODO is this stuff still relevant ?
-    var key = $('body').attr('id') + '_notification';
-    $('.pagewarning .close-warning').on('click', function () {
-      this.setStorageValue(key, 'hidden', 60);
+    // pagewarning status hidden?
+    var self = this,
+     key = $('body').attr('id') + '_notification';
+    $('.pagewarning .close-warning').on('click activate', function() {
+      self.setStorageValue(key, 'hidden', 60);
     });
     if (this.getStorageValue(key) === 'hidden') {
       $('.pagewarning').addClass('hidden');
     }
-    $(document).on('cms_ajax_apply', function (ev) {
+    $(document).on('cms_ajax_apply', function(ev) {
       var type = (ev.response === 'Success') ? 'success' : 'error';
       cms_notify(type, ev.details);
     });
   };
+*/
   /**
    * @description Substitute styled buttons for named input-submits. And some links
    * @function migrateUIElements()
+   * @private
    */
   this.migrateUIElements = function () {
     // Standard input buttons
@@ -630,7 +709,7 @@ var themejs = {};
       }
     });
     // Back links
-    $('a.pageback').addClass('link_button icon back');
+    $('.pageback').addClass('link_button icon back');
   };
   /**
    * @description Do things upon window resize
@@ -650,11 +729,14 @@ var themejs = {};
               $p = $ul.parent();
             if ($p.is('li.subsub') || $p.is('li.subsubL')) { //TODO sometimes toggle these
               $ul.data('wideleft', $ul.css('left')); // or right for rtl?
-              $ul.css({'top': '1.5em','left': '0'}); //DEBUG TODO
+              $ul.css({'top': 0,'left': 0}); //DEBUG TODO
             } else {
               $ul.css('left', distance);
             }
           });
+// no mouse events now ?? TODO
+          var $LIs = $menu.find('li');
+          $LIs.off('mouseover', self.overLi).off('mouseout', self.outLi);
         }
       }
     } else if (hided) {
@@ -663,12 +745,15 @@ var themejs = {};
         var $ul = $(this),
           $p = $ul.parent();
         if ($p.is('li.subsub') || $p.is('li.subsubL')) { //TODO sometimes toggle these
-          //$ul.css('left', $ul.data('wideleft')); //TODO also top
-          $ul.css('top', '3em'); //TODO also top
+          $ul.css('left', $ul.data('wideleft')); //or right for rtl? TODO also top
+          $ul.css('top', '3em'); //  TODO valid top
         }
       });
       $menu.find('#burger').hide();
       $menu.removeClass('hidden');
+// [re]instate mouse events TODO
+      var $LIs = $menu.find('li');
+      $LIs.on('mouseover', self.overLi).on('mouseout', self.outLi);
     }
     if (wide > oldwide) {
       //do stuff
@@ -678,20 +763,18 @@ var themejs = {};
     oldwide = wide;
   };
   /**
-   * @description
+   * @description Delete persistent notice
    * @function handleAlert(target)
    * @private
    * @requires global cms_data{}
    * @params {object} target
-   * @deprecated since 2.3 use showNotifications()
    */
   this.handleAlert = function (target) {
-    var _row = $(target).closest('.alert-box');
-    var _alert_name = _row.data('alert-name');
+    var _row = $(target).closest('.alert-box'),
+        _alert_name = _row.data('alert-name');
     if (!_alert_name) return;
-    return $.ajax({
+    return $.ajax(cms_data.ajax_alerts_url, {
       method: 'POST',
-      url: cms_data.ajax_alerts_url,
       data: {
         op: 'delete',
         alert: _alert_name
@@ -702,32 +785,26 @@ var themejs = {};
       _row.slideUp(1000);
       var _parent = _row.parent();
       if (_parent.children().length <= 1) {
-        cms_dialog(_row.closest('div.ui-dialog-content'), 'close');
+        cms_dialog($('#alert-dialog'), 'close');
         $('#alert-noalerts').show();
-        $('a#alerts').closest('li').remove();
+        $('#alerts').closest('li').remove();
       }
       _row.remove();
     });
   };
   /**
-   * @description Handle popping up the notification area
+   * @description Handle persistent (keep-until-dismiss) notifications
    * @function setupAlerts()
    * @private
-   * @deprecated since 2.3 use showNotifications() ?
    */
   this.setupAlerts = function () {
-    $('a#alerts').on('click', function (ev) {
-      ev.preventDefault();
-      cms_dialog($('#alert-dialog'));
-      return false;
-    });
     var self = this;
-    $('.alert-msg a').on('click', function (ev) {
+    $('#alerts').on('click activate', function(ev) {
       ev.preventDefault();
-      self.handleAlert(ev.target);
+      cms_dialog($('#alert-dialog')); //TODO cms_dialog full API
       return false;
     });
-    $('.alert-remove').on('click', function (ev) {
+    $('.alert-remove, .alert-msg a').on('click activate', function(ev) {
       ev.preventDefault();
       self.handleAlert(ev.target);
       return false;
@@ -795,7 +872,7 @@ var themejs = {};
 /* TODO alertable only :: process opts, if any
    $.fn.alertable.prompt('', {
      modal: content
-   });/*.then(function(data) {
+   });/*.then(function (data) {
      console.log('Dialog promise data', data);
    }, function() {
      console.log('Dialog cancelled');
@@ -803,8 +880,17 @@ var themejs = {};
    return TODO;
 */
   };
+
+  this.aboutToggle = function () {
+    var el = document.getElementById('aboutinfo');
+    if (el.style.display === 'none') {
+      el.style.display = 'inline-block';
+    } else {
+      el.style.display = 'none';
+    }
+  };
 }).call(themejs, jQuery, window, document, 'themejs');
 
-$(function () {
+$(function() {
   themejs.init();
 });

@@ -1,1 +1,1 @@
-class="fa fa-layer-group red"
+class="cfi-delete-deep red"

@@ -13,8 +13,7 @@
 {$liclasses=$liclasses|cat:'module'}{/if}
 {if !empty($navitem.selected) || (isset($smarty.get.section) && $smarty.get.section == $navitem.name|lower)}
 {$liclasses=$liclasses|cat:' current'}{/if}
-{if $down}
-{$liclasses=$liclasses|cat:' descend'}{/if}
+{if $down}{$liclasses=$liclasses|cat:' descend'}{/if}
   <li{if $liclasses} class="{$liclasses|trim}"{/if} title="{if !empty($navitem.description)}{$navitem.description|strip_tags}{else}{$navitem.title|strip_tags}{/if}">
     {if $linked}
       <a href="{$navitem.url}" class="{$type} icon"{if isset($navitem.target)} target="_blank"{/if}>
@@ -34,6 +33,7 @@
     {/if}
     {if $down}
       {menu_branch nav=$navitem.children depth=$depth+1}
+      <i class="open-mark"></i>
     {/if}
   </li>
 {/foreach}{/strip}

@@ -7,7 +7,7 @@ This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of that license, or
+the Free Software Foundation; either version 3 of that license, or
 (at your option) any later version.
 
 CMS Made Simple is distributed in the hope that it will be useful,
@@ -218,7 +218,6 @@ if( $rst ) {
      'curcategory' => $curcategory,
      'enddatetext' => $this->Lang('enddate'),
      'filter_descendants' => $withchildren,
-     'filterimage' => cms_join_path(__DIR__, 'images', 'filter'), //TODO use theme->DisplayImage( new admin icon )
      'filtertext' => $this->Lang('filter'),
      'formstart_items' => $this->CreateFormStart($id, 'defaultadmin'),
      'formstart_itemsfilter' => $this->CreateFormStart($id, 'defaultadmin', $returnid, 'post', '', false, '', ['filteraction'=>'apply']),

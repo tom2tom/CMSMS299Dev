@@ -32,7 +32,7 @@ $(function() {
 
     <p class="message yellow">{'step1_info_destdir'|tr}</p>
 
-    <div class="row">
+    <div class="page-row">
     <label>{'destination_directory'|tr}:</label>
     <select class="form-field" name="destdir">
       {html_options options=$dirlist selected=$destdir|default:''}
@@ -42,7 +42,7 @@ $(function() {
 
   <h3>{'step1_language'|tr}</h3>
   <p>{'select_language'|tr}</p>
-  <div class="row">
+  <div class="page-row">
     <label>{'installer_language'|tr}:</label>
     <select id="lang_selector" class="form-field" name="lang">
       {html_options options=$languages selected=$curlang}
@@ -51,7 +51,7 @@ $(function() {
 
   <h3>{'step1_advanced'|tr}</h3>
   <p>{'info_advanced'|tr}</p>
-  <div class="row">
+  <div class="page-row">
     <label>{'advanced_mode'|tr}:</label>
     <select class="form-field" name="verbose">
       {html_options options=$yesno selected=$verbose}

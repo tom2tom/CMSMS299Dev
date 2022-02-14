@@ -1,1 +1,1 @@
-class="fa fa-hand-o-down green"
+class="cfi-append green"

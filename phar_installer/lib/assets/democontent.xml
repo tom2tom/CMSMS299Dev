@@ -5904,7 +5904,7 @@ a {
 			<content_id>1</content_id>
 			<content_name>Home</content_name>
 			<type>content</type>
-			<default_content>0</default_content>
+			<default_content>1</default_content>
 			<show_in_menu>1</show_in_menu>
 			<active>1</active>
 			<cachable>1</cachable>

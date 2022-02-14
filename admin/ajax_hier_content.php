@@ -8,7 +8,7 @@ This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of that license, or
+the Free Software Foundation; either version 3 of that license, or
 (at your option) any later version.
 
 CMS Made Simple is distributed in the hope that it will be useful,
@@ -24,7 +24,7 @@ use CMSMS\DataException;
 use CMSMS\Error403Exception;
 use CMSMS\SingleItem;
 use ContentManager\Utils;
-use function CMSMS\sanitizeVal;
+//use function CMSMS\sanitizeVal;
 
 $dsep = DIRECTORY_SEPARATOR;
 require ".{$dsep}admininit.php";
@@ -232,7 +232,7 @@ try {
                 else { $out['display'] = $out['menu_text']; }
             }
             else {
-                throw new RuntimeException($this->Lang('errorgettingcontent'));
+                throw new RuntimeException(_la('errorgettingcontent'));
             }
         }
         break;

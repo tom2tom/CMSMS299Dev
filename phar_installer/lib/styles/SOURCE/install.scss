@@ -167,11 +167,9 @@ $yellow_text: #887b3b; //was #434309;
 
 //fonts
 $font_0: installer;
-$font_1: 'Open Sans';
-$font_2: 'Helvetica Neue';
-$font_3: Helvetica;
-$font_4: Arial;
-$font_5: sans-serif;
+$font_1: Roboto;
+$font_2: Arial;
+$font_3: sans-serif;
 
 //urls
 $url_0: url(../font/installer.woff2?3976476);
@@ -337,7 +335,7 @@ body {
 	line-height: 1.6;
 	-webkit-font-smoothing: subpixel-antialiased;
 	font-size: 1em;
-	font-family: $font_1, $font_2, $font_3, $font_4, $font_5;
+	font-family: $font_1, $font_2, $font_3;
 	background-color: $default_bg;
 	color: $default_text;
 }
@@ -458,7 +456,7 @@ tr {
 		color: $error_text;
 		&:hover {
 			background-color: $error_activebg;
-//					color: $error_text;
+//			color: $error_text;
 		}
 	}
 	&.warning {
@@ -466,7 +464,7 @@ tr {
 		color: $warning_text;
 		&:hover {
 			background-color: $warning_activebg !important;
-//					color: $warning_text;
+//			color: $warning_text;
 		}
 	}
 	&.odd {
@@ -494,7 +492,7 @@ td {
 		color: $warning_text;
 		&:hover {
 			background-color: $warning_activebg !important;
-//					color: $warning_text;
+//			color: $warning_text;
 		}
 	}
 	&.error {
@@ -502,7 +500,7 @@ td {
 		color: $error_text;
 		&:hover {
 			background-color: $error_activebg !important;
-//					color: $error_text;
+//			color: $error_text;
 		}
 	}
 	&.odd {
@@ -540,11 +538,14 @@ td {
 .no-margin {
 	margin: 0;
 }
+.btm-margin {
+	margin-bottom: 0.7em;
+}
 .no-padding {
 	padding: 0;
 }
 .inside {
-	padding: sidedValues(0, 1em, 0, 0);
+	margin: 0.5em;
 }
 .text-centered {
 	text-align: center;
@@ -552,37 +553,36 @@ td {
 .text-right {
 	text-align: #{$end-side};
 }
-.row {
+.page-row {
 	width: 100%;
 	max-width: 80em;
 	margin: 0 auto;
 	position: relative;
+@if false {
 /*	&::before {
-		content: " ";
+		content: ' ';
 		display: table;
 	}
 	&::after {
-		content: " ";
+		content: ' ';
 		display: table;
 	}
 */
-	.row {
+}
+	.page-row {
 		max-width: none;
 	}
-	> .col {
+	> .page-col {
 		position: relative;
 	}
 }
-.form-row {
-	margin-bottom: .7em;
-}
 .cf {
 	&::before {
-		content: " ";
+		content: ' ';
 		display: table;
 	}
 	&::after {
-		content: " ";
+		content: ' ';
 		display: table;
 		clear: both;
 	}
@@ -876,7 +876,7 @@ td {
 	transition: color .2s ease;
 	&::after {
 		position: absolute;
-		content: "";
+		content: '';
 		top: 0;
 		#{$end-side}: 0;
 		width: 0;
@@ -968,8 +968,8 @@ td {
 	}
 }
 .header-section {
+	margin: sidedValues(1.75em, 0, 1.5em);
 	text-align: center;
-	padding: sidedValues(28px, 0, 25px);
 	line-height: 1;
 	.installer-title {
 		display: block;
@@ -982,7 +982,7 @@ td {
 	border-radius: 2px;
 	-webkit-box-shadow: 0 0 6px $shadow_10;
 	-moz-box-shadow: 0 0 6px $shadow_10;
-//		-o-box-shadow: 0 0 6px $shadow_10;
+//	-o-box-shadow: 0 0 6px $shadow_10;
 	box-shadow: 0 0 6px $shadow_10;
 }
 .installer-content-section h1 {

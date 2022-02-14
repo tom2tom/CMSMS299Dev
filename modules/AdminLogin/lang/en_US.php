@@ -18,15 +18,11 @@ $lang['error_sendemail'] = 'There was an error sending the email. Please notify 
 $lang['goto'] = 'Go to: %s';
 $lang['info_recover'] = 'Enter your admin username. After submitting, an email containing new login information will be sent to the address associated with the entered username.';
 $lang['info_replace'] = 'Your password has expired. Enter and submit a replacement.';
-$lang['login_info'] = 'For the admin console to work properly';
-$lang['login_info_ipandcookies'] = '<strong>Warning:</strong> some admin operations use cookies and/or track your IP address';
-$lang['login_info_params'] = <<<EOS
-<ol>
- <li>Javascript must be enabled in your browser</li>
- <li>Cookies must be enabled in your browser</li>
-</ol>
-EOS;
-// <li>Popup windows must be allowed for:</li>
+$lang['info_cookies'] = 'Some admin operations use cookies and/or track your IP address';
+//$lang['login_info_ipandcookies'] = '<strong>Warning:</strong> some admin operations use cookies and/or track your IP address';
+$lang['login_info_needjs'] = 'For login and the admin console to work properly, javascript must be enabled in your browser';
+//$lang['login_info_params'] = 'For the admin console to work properly:<br />&#8729; popup windows must be allowed for %s<br />&#8729; cookies must be enabled in your browser';
+$lang['login_info_params'] = 'For the admin console to work properly, cookies must be enabled in your browser';
 $lang['login_info_title'] = 'Information';
 $lang['login_sitetitle'] = 'Log in to<br />%s<br />Admin&nbsp;Console';
 //$lang['logintitle'] = 'Log in to CMS Made Simple&trade;';

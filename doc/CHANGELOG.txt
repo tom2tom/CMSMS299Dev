@@ -141,20 +141,21 @@ smarty templates, stylesheets, UDT's can be stored as standalone files instead o
 
 INSTALLER
 
-the concept of 'phar' and 'expanded' installer-versions is defunct - 'automated' and 'manual' (respectively) are better. Both versions include and do the same things.
+the concept of 'phar' and 'expanded' installer-versions is defunct - 'automated' and 'manual' (respectively) are better. Both versions include and do the same things
 the manual installer can operate on a host without PHP's phar extension
-installer build-parameters are read from a .ini file
+build-parameters are read from a .ini file
 one such parameter prescribes installer files form: zip (default) tar.bz2 tar.gz tar (intended for further manipulation by system commands)
-installer uses a single compression-type throughout, easily configured via the aforementioned parameter
+uses a single compression-type throughout, easily configured via the aforementioned parameter
 symlinks in the source-files are handled properly
 less scope for confusion about 'advanced' mode functionality
-user-inputs required during an installer session can be pre-defined in a .ini fle. With all of them in place, an installer session takes only about 90 seconds.
+user-inputs required during an installer session can be pre-defined in a .ini fle. With all of them in place, an installer session takes only about 90 seconds
+UI supports rtl locales
 non-core modules can also be included by the release-builder among installer source-files, in which case those modules become optional selections during installation
 a custom 'support-url' can be specified, in which case it will be displayed in the admin console instead of a link to CMSMS website
 installs and upgrades support renamed admin and/or assets and/or user_plugins folders
 minimum database server (MySQL or MariaDB) version 5.5 (released in 2011)
-installer warns if database permissions are unnecessarily broad/risky (a matter for discussion with the db admin)
-installer cleans up after itself
+warns if database permissions are unnecessarily broad/risky (a matter for discussion with the db admin)
+cleans up after itself
 
 deprecated
 

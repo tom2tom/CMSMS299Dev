@@ -1,14 +1,14 @@
 <?php
 /*
 Ebonne - an admin theme for CMS Made Simple
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Tom Phane and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by the
-Free Software Foundation; either version 2 of that license, or
+Free Software Foundation; either version 3 of that license, or
 (at your option) any later version.
 
 CMS Made Simple is distributed in the hope that it will be useful,
@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
+use CMSMS\AdminTheme;
 use CMSMS\AppParams;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
@@ -35,6 +36,7 @@ use const CMS_ADMIN_PATH;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
 use function _la;
+use function add_page_headtext;
 use function check_permission;
 use function cms_installed_jquery;
 use function cms_join_path;
@@ -69,37 +71,39 @@ class EbonneTheme extends AdminTheme
 	{
 		list($vars, $add_list) = parent::AdminHeaderSetup();
 
-		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
-		$rel_url = strtr($rel, DIRECTORY_SEPARATOR, '/');
-		$fn = 'style';
-		if (NlsOperations::get_language_direction() == 'rtl') {
-			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
-				$fn .= '-rtl';
-			}
-		}
 		$incs = cms_installed_jquery(true, true, true, true);
+
 		$csm = new StylesMerger();
 		$csm->queue_matchedfile('normalize.css', 1);
-		$csm->queue_file($incs['jquicss'], 2);
-//		$csm->queue_matchedfile('flex-grid-lite.css', 2);
-		$csm->queue_matchedfile('grid-960.css', 2); // deprecated since 2.99
-
+		$csm->queue_matchedfile('flex-grid-lite.css', 2);
+		$csm->queue_matchedfile('grid-960.css', 2); //for modules, deprecated since 2.99
 		$out = $csm->page_content('', false, true);
+
+		// jQUI css does, and theme-specific css files might, include relative URLs, so cannot be merged
+		$url = cms_path_to_url($incs['jquicss']);
 		$out .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
+<link rel="stylesheet" type="text/css" href="$url" />
 
 EOS;
+		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
+		$rel_url = strtr($rel, '\\', '/');
+		$n = strlen(__DIR__) + 1;
+		$files = $this->get_styles();
+		$after = '';
+		foreach ($files as $fp) {
+			$extra = substr($fp, $n);
+			$sufx = strtr($extra, '\\', '/');
+			$after .= <<<EOS
+<link rel="stylesheet" type="text/css" href="{$rel_url}/{$sufx}" />
+
+EOS;
+		}
 		//DEBUG
-		$out .= <<<EOS
+		$after .= <<<EOS
 <link rel="stylesheet" type="text/css" href="{$rel_url}/css/superfishnav.css" />
 
 EOS;
-		if (is_file(__DIR__.DIRECTORY_SEPARATOR.'extcss'.DIRECTORY_SEPARATOR.$fn.'.css')) {
-			$out .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$rel_url}/extcss/{$fn}.css" />
-
-EOS;
-		}
+		add_page_headtext($after); // append this lot
 
 		$jsm = new ScriptsMerger();
 		$jsm->queue_file($incs['jqcore'], 1);
@@ -142,6 +146,14 @@ EOS;
 		require_once $fp;
 		$smarty->assign($tplvars);
 
+		// site logo?
+		$sitelogo = AppParams::get('site_logo');
+		if ($sitelogo) {
+			if (!preg_match('~^\w*:?//~', $sitelogo)) {
+				$sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
+			}
+			$smarty->assign('sitelogo', $sitelogo);
+		}
 //TODO  ensure $smarty->assign('lang_code', AppParams::get('frontendlang'));
 /* N/A
 		//extra theme-specific parameters for the form
@@ -160,7 +172,7 @@ EOS;
 			}
 		}
 		$out = <<<EOS
-<link rel="stylesheet" type="text/css" href="themes/Ebonne/css/{$fn}.css" />
+ <link rel="stylesheet" type="text/css" href="themes/Ebonne/css/{$fn}.min.css" />
 
 EOS;
 //		get_csp_token(); //setup CSP header (result not used)
@@ -214,6 +226,7 @@ EOS;
 	{
 		$smarty = SingleItem::Smarty();
 		$userid = get_userid(false);
+
 		// setup titles etc
 //		$tree =
 		$this->get_navigation_tree(); //TODO if section
@@ -230,9 +243,10 @@ EOS;
 		// module name
 		$modname = $this->get_value('module_name');
 		if (!$modname) {
-			$modname = RequestParameters::get_request_values('module'); // maybe null
+			$modname = RequestParameters::get_request_values('module');
+			$this->set_value('module_name', $modname);
 		}
-		$smarty->assign('module_name', $modname);
+		$smarty->assign('module_name', $modname); // maybe null
 
 		$module_help_type = $this->get_value('module_help_type');
 		// module_help_url
@@ -243,7 +257,7 @@ EOS;
 			}
 		}
 
-		// page title
+		// page title(s) and alias
 		$alias = $title = $this->get_value('pagetitle');
 		$subtitle = '';
 		if ($title && !$module_help_type) {
@@ -256,7 +270,7 @@ EOS;
 				$title = _la($title, $extra);
 			}
 //			$subtitle = TODO
-		} else {
+		} elseif (!$title) {
 			$title = $this->get_active_title(); // try for the active-menu-item title
 			if ($title) {
 				$subtitle = $this->subtitle;
@@ -272,11 +286,12 @@ EOS;
 				}
 */
 			}
+//		} else {
+//			$subtitle = TODO
 		}
-		if (!$title) $title = '';
 		$smarty->assign('pagetitle', $title)
 		  ->assign('subtitle', $subtitle)
-		  ->assign('pagealias', munge_string_to_url($alias)); // page alias
+		  ->assign('pagealias', munge_string_to_url($alias));
 
 		// icon
 		if ($modname && ($icon_url = $this->get_value('module_icon_url'))) {
@@ -291,7 +306,7 @@ EOS;
 		$smarty->assign('pageicon', $tag);
 
 		$config = SingleItem::Config();
-		// site logo
+		// site logo?
 		$sitelogo = AppParams::get('site_logo');
 		if ($sitelogo) {
 			if (!preg_match('~^\w*:?//~', $sitelogo)) {
@@ -323,10 +338,8 @@ EOS;
 		// other variables
 		//strip inappropriate closers cuz we're putting it in the middle somewhere
 		  ->assign('content', str_replace('</body></html>', '', $html))
-
 		  ->assign('admin_url', $config['admin_url'])
 		  ->assign('assets_url', $config['admin_url'] . '/themes/assets')
-
 		  ->assign('theme', $this);
 		// navigation menu data
 		if (!$this->_havetree) {
@@ -336,7 +349,7 @@ EOS;
 		}
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
 		$user = SingleItem::UserOperations()->LoadUserByID($userid);
-		$smarty->assign('username', $user->username);
+		$smarty->assign('username', $user->username); //TODO only if user != effective user
 		// selected language
 		$lang = UserParams::get_for_user($userid, 'default_cms_language');
 		if (!$lang) $lang = AppParams::get('frontendlang');
@@ -376,7 +389,7 @@ EOS;
 			if ($extras['title']) {
 				$extras['alt'] = $extras['title'];
 			} else {
-				$extras['alt'] = $type;
+				$extras['alt'] = $type.' icon';
 			}
 		}
 
@@ -386,9 +399,16 @@ EOS;
 				$res .= " $key=\"$value\"";
 			}
 		}
-		$res .= ">\n";
-		if ($extras['title']) $res .= "<title>{$extras['title']}</title>\n";
-		$res .= "<use xlink:href=\"themes/Ebonne/images/icons/system/sprite.svg#{$type}\"/>\n</svg>";
+		if (!$extras['title'] && $extras['alt']) {
+			$extras['title'] = $extras['alt'];
+		}
+		$res .= ">\n<use xlink:href=\"themes/Ebonne/images/icons/system/sprite.svg#{$type}\"";
+		if ($extras['title']) {
+			$res .= "></use>\n<title>{$extras['title']}</title>";
+		} else {
+			$res.= ' />';
+		}
+		$res .="\n</svg>";
 		return $res;
 	}
 }

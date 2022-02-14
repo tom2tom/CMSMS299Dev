@@ -34,44 +34,44 @@
   </div>
   {/if}
   <fieldset>
-    <div class="flexrow form-row">
-      <div class="cell cols_4">
+    <div class="row btm-margin">
+      <div class="cell col-4">
         <label for="name">{'username'|tr}</label>
       </div>
-      <div class="cell cols_8 must">
+      <div class="cell col-8 must">
         <input type="text" class="form-field full-width max20 mustchild" id="name" name="username" value="{$account.username}" required="required" />
         <div class="corner red mustchild">
           <i class="icon-asterisk"></i>
         </div>
       </div>
     </div>
-    <div class="flexrow form-row">
-      <div class="cell cols_4">
+    <div class="row btm-margin">
+      <div class="cell col-4">
         <label for="pass">{'password'|tr}</label>
       </div>
-      <div class="cell cols_8 must">
+      <div class="cell col-8 must">
         <input type="password" class="form-field full-width max40 mustchild" id="pass" name="password" value="{$account.password}" required="required" autocomplete="off" />
         <div class="corner red mustchild">
           <i class="icon-asterisk"></i>
         </div>
       </div>
     </div>
-    <div class="flexrow form-row">
-      <div class="cell cols_4">
+    <div class="row btm-margin">
+      <div class="cell col-4">
         <label for="again">{'repeatpw'|tr}</label>
       </div>
-      <div class="cell cols_8 must">
+      <div class="cell col-8 must">
         <input type="password" class="form-field full-width max40 mustchild" id="again" name="repeatpw" value="{$account.password}" required="required" autocomplete="off" />
         <div class="corner red mustchild">
           <i class="icon-asterisk"></i>
         </div>
       </div>
     </div>
-    <div class="flexrow form-row">
-      <div class="cell cols_4">
+    <div class="row btm-margin">
+      <div class="cell col-4">
         <label for="email">{'emailaddr'|tr}</label>
       </div>
-      <div class="cell cols_8{* must*}">
+      <div class="cell col-8{* must*}">
 {*      {if $verbose} *}
         <input type="email" class="form-field full-width max40" id="email" name="emailaddr" value="{$account.emailaddr}" />
 {*      {else}

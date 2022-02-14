@@ -133,6 +133,7 @@ $lang = [
 'cms_forums' => 'CMSMS Forums',
 'cms_home' => 'CMSMS Home',
 'cms_install_information' => 'CMS Made Simple Install Information',
+'cms_team' => 'CMSMS Team',
 'cms_version' => 'CMSMS Version',
 'CMSEX_C001' => 'Could not create a valid page alias from the input supplied',
 'CMSEX_F001' => 'File system permissions problem',
@@ -368,6 +369,7 @@ $lang = [
 'errordeletingfile' => 'Could not delete file. Permissions problem?',
 'errordirectorynotwritable' => 'No permission to write in directory.  This could be caused by file permissions and ownership.  Safe mode might also be in effect.',
 'errorfilenotwritable' => 'No permission to write to file \'%s\'.',
+'errorgettingcontent' => 'Could not retrieve information for the specified content object',
 'errorgroupexists' => 'A users group named \'%s\' already exists',
 'errorinsertingbookmark' => 'Error inserting bookmark',
 'errorinsertinggroup' => 'Error inserting group',
@@ -506,6 +508,7 @@ $lang = [
 'info_autoalias' => 'If this field is empty, an alias will be created automatically.',
 'info_changegroupperms' => 'Here you can specify the permission(s) of each admin user group.  Keep in mind: any admin user can belong to multiple admin groups.<br /><strong>Note:</strong> the &quot;Admin&quot; group is a special group and is automatically granted all permissions.',
 'info_changeusergroup' => 'Group membership determines which permissions the user has, hence her/his capabilities in the admin console',
+'info_cookies' => 'Some admin operations use cookies and/or track your IP address.',
 'info_default_contenttype' => 'Applicable when adding new content objects, this control specifies the type that is selected by default.  Please ensure that the selected item is not one of the &quot;disallowed types&quot;.',
 'info_deletepages' => 'Note: due to permission restrictions, some of the pages you selected for deletion might not be listed below',
 'info_edeprecated_failed' => 'If E_DEPRECATED is enabled in your error reporting users will see a lot of warning messages that could affect the display and functionality',
@@ -570,14 +573,9 @@ $lang = [
 'lock_timeout' => 'Locks Time-out Interval (minutes)',
 'login_admin' => 'Log in to website Admin&nbsp;Console',
 'login_failed' => 'User Login Failed',
-'login_info' => 'For the admin console to work properly',
-'login_info_params' => '
-<ol>
- <li>Cookies must be enabled in your browser</li>
- <li>Javascript must be enabled in your browser</li>
- <li>Popup windows must be allowed for:</li>
-</ol>
-',
+'login_info_needjs' => 'For login and the admin console to work properly, javascript must be enabled in your browser',
+//'login_info_params' => 'For the admin console to work properly:<br />&#8729; popup windows must be allowed for %s<br />&#8729; cookies must be enabled in your browser.',
+'login_info_params' => 'For the admin console to work properly, cookies must be enabled in your browser.',
 'login_info_title' => 'Information',
 'login_sitetitle' => 'Log in to<br />%s Admin&nbsp;Console',
 'loginprompt' => 'Enter a valid user credential to get access to the Admin&nbsp;Console.',
@@ -678,13 +676,13 @@ $lang = [
 'msg_usersettingscopied' => 'User settings copied from template user account',
 'msg_usersrepass' => '%d user-passwords were flagged for replacement',
 'myaccount' => 'Account',
-'myaccountdescription' => 'Update the details of your own admin account',
+'myaccountdescription' => 'Update the details of your admin account',
 'mybookmarks' => 'Bookmarks',
 'mybookmarksdescription' => 'Manage your bookmarks',
 'myprefs' => 'Me &amp; Mine',
 'myprefsdescription' => 'Adjust the way this admin console works for you',
 'mysettings' => 'Settings',
-'mysettingsdescription' => 'Update your preferences for how things should work',
+'mysettingsdescription' => 'Update your settings for this console',
 
 // N
 'n_a' => 'N/A',
@@ -1048,6 +1046,7 @@ $lang = [
 'title_hierselect_select' => 'Select a content page. If the selected page has children a new dropdown will appear.  Selecting "None" indicates that the selection stops with the value of the previous select if any.',
 'title_hierselect' => 'This field displays the selected content page. The actual string displayed (page title or menu text) is dependent on user and site preference.',
 //'title_mailtest' => 'Mail Test',
+'title_mysettings' => 'Your settings',
 'title_themeexport' => 'Export theme to XML',
 'title_themeimport' => 'Import theme from XML',
 'title' => 'Title',
@@ -1108,7 +1107,6 @@ $lang = [
 
 // W
 'warn_addgroup' => 'Creating a new group does not assign any permissions. You will need to assign permissions to the new group in a separate step.',
-'warn_admin_ipandcookies' => '<strong>Warning:</strong> some admin operations use cookies and/or track your IP address',
 'warn_nosefurl' => 'SEO-friendly (\'pretty\') URLs are not enabled. Settings for those are not displayed.',
 //'warning_mail_settings' => 'The website mailer settings have not been configured. This could interfere with the ability of this website to send email messages. You should go to <a href="%s">Extensions >> OutMailer</a> and configure the email settings with the information provided by your host.',
 'warning_safe_mode' => '<strong><em>WARNING:</em></strong> PHP Safe mode is enabled. This will cause difficulty with files uploaded via the web browser interface, including images, theme and module XML packages.  You are advised to contact your site administrator to see about disabling safe mode.',

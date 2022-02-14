@@ -8,7 +8,7 @@ This module is a component of CMS Made Simple.
 
 This module is free software; you may redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
-Free Software Foundation; either version 2 of that license, or
+Free Software Foundation; either version 3 of that license, or
 (at your option) any later version.
 
 This module is distributed in the hope that it will be useful, but

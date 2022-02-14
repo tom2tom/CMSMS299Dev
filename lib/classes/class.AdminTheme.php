@@ -8,7 +8,7 @@ This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of that license, or
+the Free Software Foundation; either version 3 of that license, or
 (at your option) any later version.
 
 CMS Made Simple is distributed in the hope that it will be useful, but
@@ -263,7 +263,7 @@ abstract class AdminTheme
      */
     public function __get(string $key)
     {
-        switch( $key) {
+        switch ($key) {
         case 'themeName':
             $o = strlen(__NAMESPACE__) + 1; //separator-offset
             $class = get_class($this);
@@ -476,6 +476,50 @@ abstract class AdminTheme
     public function MenuCssClassname() : string
     {
         return 'ContextMenu';
+    }
+
+    /**
+     * Get best stylesheet(s) for this theme
+     * Prefers min and/or rtl for a corresponding locale.
+     * Appends ext.. version if any
+     * @since 2.99
+     *
+     * @return array absolute filepath(s) or empty (hence disaster)
+     */
+    protected function get_styles() : array
+    {
+        $res = [];
+		$base = cms_join_path(CMS_ADMIN_PATH, 'themes', $this->themeName, '');
+		if (NlsOperations::get_language_direction() == 'rtl') {
+            $names = ['style-rtl', 'style'];
+        } else {
+            $names = ['style'];
+        }
+        $exts = ['min.css', 'css'];
+
+        foreach (['css','styles'] as $str) {
+            foreach ($names as $name) {
+                foreach ($exts as $type) {
+                    $path = $base.$str.DIRECTORY_SEPARATOR.$name.'.'.$type;
+                    if (is_file($path)) {
+                        $res[] = $path;
+                        break 3;
+                    }
+                }
+            }
+        }
+        foreach (['extcss','extstyles'] as $str) {
+            foreach ($names as $name) {
+                foreach ($exts as $type) {
+                    $path = $base.$str.DIRECTORY_SEPARATOR.$name.'.'.$type;
+                    if (is_file($path)) {
+                        $res[] = $path;
+                        break 3;
+                    }
+                }
+            }
+        }
+        return $res;
     }
 
     /**
@@ -1219,7 +1263,9 @@ abstract class AdminTheme
         if ($module) {
             return $this->get_module_icon($module, attrs);
         } else {
-            if (basename($icon) == $icon) { $icon = 'icons'.DIRECTORY_SEPARATOR.'system'.DIRECTORY_SEPARATOR.$icon; }
+            if (basename($icon) == $icon) {
+                $icon = 'icons'.DIRECTORY_SEPARATOR.'system'.DIRECTORY_SEPARATOR.$icon;
+            }
             return $this->DisplayImage($icon, '', 0, 0, '', $attrs);
         }
     }
@@ -1414,6 +1460,9 @@ EOS;
                 $p = strrpos($path,'/');
                 $extras['alt'] = substr($path, $p+1);
             }
+        }
+        if ($extras['width'] == 0 && $extras['height'] == 0 ) {
+            unset($extras['width'],$extras['height']);
         }
 
         switch ($type) {

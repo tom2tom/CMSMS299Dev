@@ -17,27 +17,27 @@
 		<link rel="apple-touch-icon" sizes="144x144" href="themes/assets/images/apple-touch-icon-ipad3.png" />
 
 {*		<link href="themes/LTE/css/fork-awesome.min.css" rel="stylesheet" />*}{* Fork Awesome *}
-		<link rel="stylesheet" href="themes/LTE/css/fontawesome.min.css" />{* Font Awesome 1 *}
-		<link rel="stylesheet" href="themes/LTE/css/solid.min.css" />{* Font Awesome 2 *}
-{*
-		<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />* } {* Ionicons * }
-{ *		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" />* } {* Google Font: Source Sans Pro * }
-{ *		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=teko:300,400,400i,700" />* } {* Google Font: teko * }
-*}
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700|Teko:700&display=swap" />
+		<link rel="stylesheet" href="themes/LTE/css/fontawesome.min.css" />{* Font Awesome #1 *}
+		<link rel="stylesheet" href="themes/LTE/css/solid.min.css" />{* Font Awesome #2 *}
+{*		<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />* } {* Ionicons *}
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&family=Source+Sans+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap" />
 		<link rel="stylesheet" href="themes/LTE/css/OverlayScrollbars.min.css" />
-		<link rel="stylesheet" href="themes/LTE/css/adminlte.min.css" />{* theme styles + bootstap grid *}
+{*		<link rel="stylesheet" href="themes/LTE/css/adminlte.min.css" />* }{* theme styles + bootstap grid *}
+		<link rel="stylesheet" href="themes/LTE/css/adminlte.core.min.css" />{* theme styles + bootstap grid *}
+		<link rel="stylesheet" href="themes/LTE/css/style-override.css" />
 {*
 		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" />{* Tempusdominus Bootstrap 4 * }
 		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/icheck-bootstrap/icheck-bootstrap.min.css" /> {* iCheck * }
-		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/overlayScrollbars/css/OverlayScrollbars.min.css" />{* overlayScrollbars *}
+		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/overlayScrollbars/css/OverlayScrollbars.min.css" />{* overlayScrollbars * }
 		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/daterangepicker/daterangepicker.css" /> {* Daterange picker * }
 		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/summernote/summernote-bs4.css" /> {* summernote * }
 
 		{* backwards and CMSMS compatibility * }
 		<link rel="stylesheet" href="style.php?{$secureparam}" /> {* backwards compatibility * }
 *}
-		<link rel="stylesheet" href="themes/LTE/css/style.css" />{* OR -rtl version*}
+		<link rel="stylesheet" href="themes/LTE/css/style{if $lang_dir == 'rtl'}-rtl{/if}.min.css" />
 		<link rel="stylesheet" href="themes/LTE/css/topfiles.css" />
 {*
 		<link rel="stylesheet" href="themes/LTE/css/default-cmsms/jquery-ui-1.10.4.custom.min.css" />
@@ -116,36 +116,36 @@ moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conf
 
 	<body class="hold-transition sidebar-mini {* layout-footer-fixed *} layout-fixed layout-navbar-fixed {*control-sidebar-push*}">
 
-		<div class="wrapper">
+{*		<div class="wrapper"> *}
 
-			<nav class="main-header navbar navbar-expand navbar-dark">
+			<nav class="main-header navbar navbar-dark">
 				<ul class="navbar-nav">
 					<li class="nav-item">
 						<a class="nav-link" data-widget="pushmenu" href="javascript:void()"><i class="fas fa-bars"></i></a>
 					</li>
-					<li class="nav-item d-none d-sm-inline-block">
+{*					<li class="nav-item d-none d-sm-inline-block">
 						<a href="index.php?{$secureparam}" title="{'home'|lang}" class="nav-link"><i class="fas fa-home"></i></a>
 					</li>
-					{* redundant maybe? (JM)
+					redundant maybe? (JM)
 					<li class="nav-item d-none d-sm-inline-block">
 						<a href="useraccount.php?{$secureparam}" class="nav-link">Account</a>
 					</li>
-					*}
+*}
 				</ul>
+				<a id="headerlogo" href="https://www.cmsmadesimple.org" rel="external" title="CMSMS Home" target="_blank"></a>
 				{include file='shortcuts.tpl'}
 			</nav>
 
+		<div class="wrapper">
+
 			<aside class="main-sidebar sidebar-dark-primary elevation-4">
-				<a href="{root_url}/index.php" rel="external" target="_blank" class="brand-link">
-				{if isset($sitelogo)}
-					<img src="{$sitelogo}" alt="{sitename}" class="brand-image elevation-3" />
-				{else}
-					{sitename}
+{* page layout doesn't work {if isset($sitelogo)}
+				<a href="menu.php?{$secureparam}" title="{'home'|lang}"<img src="{$sitelogo}" class="brand-image elevation-3" /></a>
 				{/if}
-					<span class="brand-text font-weight-light"></span>
-				</a>
+				<span class="brand-text font-weight-light">{sitename}</span>
+*}
 				<div class="sidebar">
-					{include file='user_panel.tpl'}
+{* only useful if effective user != user	{include file='user_panel.tpl'*}
 					{include file='navigation.tpl' nav=$theme->get_navigation_tree()}
 				</div>
 			</aside>
@@ -157,28 +157,28 @@ moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conf
 							{if isset($module_icon_url) || isset($page_title)}
 								<div class="col-12 col-sm-6 col-lg-6">
 									<h1 class="m-0 text-dark">
-										{*if isset($module_icon_url)}<img src="{$module_icon_url}" alt="{$module_name|default:''}" class="module-icon" />{/if*}
+										{if isset($module_icon_url)}<img src="{$module_icon_url}" alt="{$module_name|default:''}" class="module-icon" />{/if}
 										{$page_title|default:''}
 									</h1>
 								</div>
 							{/if}
 
-								<div class="col-12 col-sm-6 col-lg-6">
-									<span class="float-right">
-										{include file='breadcrumbs.tpl' items = $theme->get_breadcrumbs()}
-									</span>
-								</div>
-
+							<div class="col-12 col-sm-6 col-lg-6">
+								<span class="float-right">
+									{include file='breadcrumbs.tpl' items = $theme->get_breadcrumbs()}
+								</span>
 							</div>
-							{if isset($page_subtitle)}
-								<div class="row">
-									<div class="col-12">
-										<h3>{$page_subtitle}</h3>
-									</div>
-								</div>
-							{/if}
+
 						</div>
+						{if isset($page_subtitle)}
+							<div class="row">
+								<div class="col-12">
+									<h3>{$page_subtitle}</h3>
+								</div>
+							</div>
+						{/if}
 					</div>
+				</div>
 
 				<section class="content">
 					<div class="container-fluid">{$content}</div>
@@ -186,7 +186,7 @@ moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conf
 
 			</div>
 
-			{include file='footer.tpl'}
+{*			{include file='footer.tpl'*}
 			{$footertext|default:''}
 
 		</div>
@@ -254,7 +254,7 @@ moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conf
 			<div class="spacer">&nbsp;</div>
 		</div>
 
-		{include file='footer.tpl'}
+{ *		{include file='footer.tpl'* }
 		{$footertext|default:''}
 
 	</div>

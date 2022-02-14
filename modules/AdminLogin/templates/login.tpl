@@ -85,12 +85,11 @@
     <div id="logo">
       <a href="https://www.cmsmadesimple.org"><img src="themes/assets/images/cmsms-logotext-dark.svg" alt="CMS Made Simple&trade;" /></a>
     </div>
-    <div id="maininfo" style="display:none;">
-      <a id="hide-info" href="javascript:void()" title="{_ld($_module,'close')}"></a>
-      <h2>{_ld($_module,'login_info_title')}</h2>
-      {_ld($_module,'login_info')}<br />
-      {_ld($_module,'login_info_params')}
-      <p class="warning">{_ld($_module,'login_info_ipandcookies')}</p>
+    <a id="hide-info" href="javascript:void()" title="{_ld($_module,'close')}"></a>
+    <div id="maininfo" class="message info" style="display:none">
+{*    <p>{_ld($_module,'login_info_params',"<strong>{$smarty.server.HTTP_HOST}</strong>")}</p>*}
+      <p>{_ld($_module,'login_info_params')}</p>
+      <p>{_ld($_module,'info_cookies')}</p>
     </div>{* maininfo *}
   </div>{* login-container *}
   {$bottom_includes|default:''}

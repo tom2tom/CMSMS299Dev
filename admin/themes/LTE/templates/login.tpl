@@ -14,27 +14,33 @@
 	<link rel="stylesheet" href="themes/LTE/css/solid.min.css" />{* Font Awesome 1 *}
 	<link rel="stylesheet" href="themes/LTE/css/fontawesome.min.css" />{* Font Awesome 2 *}
 {*	<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/icheck-bootstrap/icheck-bootstrap.min.css" />*}{* icheck bootstrap *}
-	<link rel="stylesheet" href="themes/LTE/css/adminlte.min.css" />{* theme-specific styles + bootstrap grid *}
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" />{* Google font: Source Sans Pro *}
+{*	<link rel="stylesheet" href="themes/LTE/css/adminlte.min.css" />{* theme-specific styles + bootstrap grid *}
+	<link rel="stylesheet" href="themes/LTE/css/adminlte.core.min.css" />{* theme styles + bootstap grid *}
+	<link rel="stylesheet" href="themes/LTE/css/adminlte.pages.min.css" />{* login-specific extras *}
+	<link rel="stylesheet" href="themes/LTE/css/style-override.css" />
+	<link rel="stylesheet" href="themes/LTE/css/style{if $lang_dir == 'rtl'}-rtl{/if}.min.css" />
 </head>
 
 <body class="hold-transition login-page">
 	<div class="login-box">
-		<div class="login-logo">
-			<a href="https://www.cmsmadesimple.org"><img src="themes/assets/images/cmsms-logotext-dark.svg" class="img-fluid" style="max-width: 268px;" alt="CMS Made Simple logo" title="CMS Made Simple" /></a>
-		</div>
-		<!-- /.login-logo -->
-
 		<div class="card">
-			<div class="card-body login-card-body">
+			<div class="card-body">
+				<noscript>
+					<div class="alert alert-danger">{'login_info_needjs'|lang}</div>
+				</noscript>
+				{if !empty($sitelogo)}
+					<img id="sitelogo" src="{$sitelogo}" alt="{sitename}" />
+				{/if}
 				<p class="login-box-msg">{$lost=isset($smarty.get.forgotpw)}
 				{if $lost}{['forgotpwtitle',{sitename}]|lang}
 				{elseif isset($renewpw)}{['renewpwtitle',{sitename}]|lang}
-				{elseif !empty($sitelogo)}{'login_admin'|lang}
 				{else}{['login_sitetitle',{sitename}]|lang}{/if}</p>
 				<form method="post" action="login.php">
 					{if isset($csrf)}<input type="hidden" name="csrf" value="{$csrf}" />{/if}
-					<div class="input-group mb-3">
+					<div class="input-icon mb-3">
 						{if isset($renewpw)}
 						<input id="lbusername" type="text" class="form-control" size="20" maxlength="64" value="{$username}" disabled />
 						<input type="hidden" name="username" value="{$username}" />
@@ -48,41 +54,29 @@
 						{/if}
 						<input id="lbusername" type="text"{if !isset($smarty.post.lbusername)} class="form-control"{/if} placeholder="{'username'|lang}" name="{$usernamefld}" size="25" maxlength="64" value="" autofocus="autofocus" />
 						{/if}
-						<div class="input-group-append">
-							<div class="input-group-text">
-								<span class="fas fa-user-secret"></span>
-							</div>
-						</div>
+						<i class="fas fa-user-secret" aria-hidden="true"></i>
 					</div>
 					{if !$lost}
-						<div class="input-group mb-3">
+						<div class="input-icon mb-3">
 							<input id="lbpassword" name="password" type="password" class="form-control{if !isset($smarty.post.lbpassword) or isset($error)} focus{/if}" placeholder="{'password'|lang}" size="25" maxlength="64" />
-							<div class="input-group-append">
-								<div class="input-group-text">
-									<span class="fas fa-key"></span>
-								</div>
-							</div>
+							<i class="fas fa-key" aria-hidden="true"></i>
 						</div>
 					{/if}
 					{if !empty($changepwhash)}
-						<div class="input-group mb-3">
+						<div class="input-icon mb-3">
 							<input id="lbpasswordagain" name="passwordagain" type="password" class="form-control" placeholder="{'passwordagain'|lang}" size="25" maxlength="64" />
-							<div class="input-group-append">
-								<div class="input-group-text">
-									<span class="fas fa-key"></span>
-								</div>
-							</div>
+							<i class="fas fa-key" aria-hidden="true"></i>
 							<input type="hidden" name="changepwhash" value="{$changepwhash}" />
 						</div>
 					{/if}
 					<div class="row mb-3">
 						<div class="col-4">
-							 <button class="btn btn-default bg-orange btn-block" name="submit" type="submit">{'submit'|lang}</button>
+							 <button class="btn btn-default w-100" name="submit" type="submit">{'submit'|lang}</button>
 						</div>
 						<!-- /.col -->
 						<div class="col-4">
 							{if ($lost || isset($renewpw))}
-							<button class="btn btn-default bg-orange btn-block" name="cancel" type="submit">{'cancel'|lang}</button>
+							<button class="btn btn-default w-100" name="cancel" type="submit">{'cancel'|lang}</button>
 							{/if}
 						</div>
 						<!-- /.col -->
@@ -100,14 +94,20 @@
 				{if !empty($infomessage)}<div class="alert alert-info">{$infomessage}</div>{/if}
 
 				{if !($lost || isset($renewpw))}
-				<div class="mb-3">
-					<a href="login.php?forgotpw=1" class="text-orange"><span class="fas fa-user-lock fa-fw"></span>&nbsp;&nbsp;{'lostpw'|lang}</a>
+				<div class="mb-2">
+					<a href="javascript:void()" id="toggle-info" class="text-primary" title="{'open'|lang}/{'close'|lang}"><span class="fas fa-info-circle fa-fw" aria-hidden="true"></span>&nbsp;&nbsp;{'login_info_title'|lang}</a>
+				</div>
+				<div class="mb-2">
+					<a href="login.php?forgotpw=1" class="text-primary"><span class="fas fa-user-lock fa-fw" aria-hidden="true"></span>&nbsp;&nbsp;{'lostpw'|lang}</a>
+				</div>
+				<a href="{root_url}" class="text-primary"><span class="fas fa-arrow-circle-left fa-fw" aria-hidden="true"></span>&nbsp;&nbsp;{['goto',{sitename}]|lang}</a>
+				<div id="info-wrapper" class="alert alert-info">
+{*					<p>{['login_info_params',"<strong>{$smarty.server.HTTP_HOST}</strong>"]|lang}</p>*}
+					<p>{'login_info_params'|lang}</p>
+					<p>{'info_cookies'|lang}</p>
 				</div>
 				{/if}
 
-				<div>
-					<a href="{root_url}" class="text-orange" title="{['goto',{sitename}]|lang}"><span class="fas fa-arrow-circle-left fa-fw"></span>&nbsp;&nbsp;{['goto',{sitename}]|lang}</a>
-				</div>
 			</div>
 			<!-- /.login-card-body -->
 
@@ -115,32 +115,18 @@
 
 		<footer>
 			<p class="text-center"><small>
-				Powered by <a rel="external" class="text-orange" href="https://cmsmadesimple.org"><b>CMS Made Simple</b></a>
+				Powered by <a href="https://cmsmadesimple.org" rel="external">
+				<img src="themes/assets/images/cmsms-logotext-dark.svg" class="img-fluid" style="max-width:15em" alt="CMS Made Simple logo" title="CMS Made Simple" />
+				</a>
 			</small></p>
 		</footer>
-
 	</div>
 	<!-- /.login-box -->
 
 	{get_jquery migrate=true ui=true uicss=false}
-{*	<script type="text/javascript" src="themes/LTE/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>*}{* Bootstrap 4 *}
 {*	<script type="text/javascript" src="themes/LTE/includes/adminlte.min.js"></script>*}{* AdminLTE App *}
 	<script type="text/javascript" src="themes/LTE/includes/login.min.js"></script>
 
 </body>
 
 </html>
-{* +++++++++++++++++++++++++++++++++++++++++++++++++
-
-<div class="info-wrapper open">
-	<aside class="info">
-		<h2>{'login_info_title'|lang}</h2>
-		<p>{'login_info'|lang}</p>
-		{'login_info_params'|lang}
-		<p><strong>({$smarty.server.HTTP_HOST})</strong></p>
-		<p class="warning">{'warn_admin_ipandcookies'|lang}</p>
-	</aside>
-	<a href="javascript:void()" title="{'open'|lang}/{'close'|lang}" class="toggle-info">{'open'|lang}/{'close'|lang}</a>
-</div>
-
-+++++++++++++++++++++++++++++++++++++++++++++++++ *}

@@ -1,2 +1,1 @@
-class="fas fa-exclamation-triangle"
-style="color:#ede170"
+class="fas fa-exclamation-triangle yellow"

@@ -7,7 +7,7 @@ This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of that license, or
+the Free Software Foundation; either version 3 of that license, or
 (at your option) any later version.
 
 CMS Made Simple is distributed in the hope that it will be useful,
@@ -63,7 +63,7 @@ if( version_compare($oldversion,'2.3') < 0 ) {
 		$alert->msgkey = 'postinstall_notice';
 		$alert->save();
 
-		$val = 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.9.11';
+		$val = 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.9.11';//TODO support preconnection, SRI hash
 		$hash = 'sha512-3tlegnpoIDTv9JHc9yJO8wnkrIkq7WO7QJLi5YfaeTmZHvfrb1twMwqT4C0K8BLBbaiR6MOo77pLXO1/PztcLg==';
 	}
 	$this->SetPreference('source_url', $val);

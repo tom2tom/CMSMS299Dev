@@ -1,31 +1,33 @@
 {strip}
 {function menu_branch}
 {if $depth == 0}
-<nav class="navigation" id="mg_menu" role="navigation">
+<nav id="mg_menu" role="navigation">
  <ul id="mg_pagemenu">
 {else}
  <ul>
-{/if} {$prompt='maintenance_warning'|lang|escape:'javascript'}
-{foreach $nav as $navitem}
- <li class="nav{if !isset($navitem.system) && (isset($navitem.module) || isset($navitem.firstmodule))} module{/if}{if !empty($navitem.selected) || (isset($smarty.get.section) && $smarty.get.section == $navitem.name|lower)} current{/if}">
-{*TODO replace onclick handler*}
-  <a href="{$navitem.url}" class="{$navitem.name|lower} icon"{if isset($navitem.target)} target="_blank"{/if} title="{if !empty($navitem.description)}{$navitem.description|strip_tags}{else}{$navitem.title|strip_tags}{/if}" {if substr($navitem.url,0,6) == 'logout' && isset($is_sitedown)}onclick="cms_confirm_linkclick(this,'{$prompt}');return false;"{/if}>
- {if $depth > 0}{$navitem.title}{/if}
- </a>
- {if $depth == 0}
-  {if !empty($navitem.children)}
-  <span class="open-nav" title="{_la('togglemenu', {$navitem.title|strip_tags})}">{$navitem.title}</span>
-  {else}
-{*TODO replace onclick handler*}
-  <a href="{$navitem.url}"{if isset($navitem.target)} target="_blank"{/if} class="no-nav" title="{if !empty($navitem.description)}{$navitem.description|strip_tags}{else}{$navitem.title|strip_tags}{/if}" {if substr($navitem.url,0,6) == 'logout' && isset($is_sitedown)}onclick="cms_confirm_linkclick(this,'{$prompt}');return false;"{/if}>
-   {$navitem.title}
-  </a>
-  {/if}
+{/if}
+{foreach $nav as $item}
+ {if $item.show_in_menu}
+  <li class="nav
+ {if !empty($item.children)} sub{/if}
+ {if !isset($item.system) && (isset($item.module) || isset($item.firstmodule))} module{/if}
+ {if !empty($item.selected) || (isset($smarty.get.section) && $smarty.get.section == $item.name|lower)} current{/if}">
+ {if !empty($item.children)}
+  <i class="nav-mark" aria-hidden="true"></i>{$cn="{$item.name|lower} icon"}
+ {else}{$cn=''}
  {/if}
- {if !empty($navitem.children)}
-  {menu_branch nav=$navitem.children depth=$depth+1}
-  {/if}
- </li>
+ {if isset($is_sitedown) && substr($item.url,0,6) == 'logout'}{$cn=$cn|cat:' outwarn'|trim}{/if}
+ {$t=$item.title|strip_tags}
+  <a href="{$item.url}"{if isset($item.target)} target="_blank"{/if}{if $cn} class="{$cn}"{/if} title="{if !empty($item.description)}{$item.description|strip_tags}{else}{$t}{/if}"
+  >
+ {if $depth > 0 && empty($item.children)}{$t}{/if}
+  </a>
+  {if !empty($item.children)}
+ <span title="{['togglemenu', {$t}]|lang}">{$t}</span>
+  {menu_branch nav=$item.children depth=$depth+1}
+ {/if}
+  </li>
+ {/if}
 {/foreach}
  </ul>
 {if $depth == 0}</nav>{/if}

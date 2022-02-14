@@ -10,7 +10,7 @@ This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by the
-Free Software Foundation; either version 2 of that license, or (at your
+Free Software Foundation; either version 3 of that license, or (at your
 option) any later version.
 
 CMS Made Simple is distributed in the hope that it will be useful, but
@@ -36,11 +36,13 @@ use CMSMS\SingleItem;
 use CMSMS\StylesMerger;
 use CMSMS\UserParams;
 use CMSMS\Utils;
+use const CMS_ADMIN_PATH;
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
 use function _la;
+use function add_page_headtext;
 use function check_permission;
 use function cleanValue;
 use function cms_installed_jquery;
@@ -61,11 +63,12 @@ class AltbierTheme extends AdminTheme
 	 */
 	const THEME_VERSION = '0.6';
 	/**
-	 * TODO variable(s) for this to generate e.g.
-	 * e.g. <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	 * TODO variable(s) for this
 	 * @ignore
 	 */
-	const AWESOME_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css';
+	const AWESOME_CDN =
+    '<link rel="preconnect" href="https://cdnjs.cloudflare.com" />'."\n".
+    '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha256-FMvZuGapsJLjouA6k7Eo2lusoAX9i0ShlWFG6qt7SLc=" crossorigin="anonymous" referrerpolicy="no-referrer" />';
 
 	/**
 	 * @ignore
@@ -92,6 +95,7 @@ class AltbierTheme extends AdminTheme
 	 * Hook accumulator-function to nominate runtime resources, which will be
 	 * included in the header of each displayed admin page
 	 *
+	 * @since 2.99
 	 * @return 2-member array
 	 * [0] = array of data for js vars, members like varname=>varvalue
 	 * [1] = array of string(s) for includables
@@ -100,35 +104,33 @@ class AltbierTheme extends AdminTheme
 	{
 		list($vars, $add_list) = parent::AdminHeaderSetup();
 
-		$config = cmsms()->GetConfig();
-		$admin_path = $config['admin_path'];
-
-		$rel = substr(__DIR__, strlen($admin_path) + 1);
-		$rel_url = strtr($rel,DIRECTORY_SEPARATOR,'/');
-
-		$fn = 'style';
-		if (NlsOperations::get_language_direction() == 'rtl') {
-			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
-				$fn .= '-rtl';
-			}
-		}
 		$incs = cms_installed_jquery(true, true, true, true);
 
 		$csm = new StylesMerger();
 		$csm->queue_matchedfile('normalize.css', 1);
-		$csm->queue_file($incs['jquicss'], 2);
-		$csm->queue_matchedfile('grid-960.css', 2); // deprecated since 2.99
+		$csm->queue_matchedfile('grid-960.css', 2); //for modules, deprecated since 2.99
 		$out = $csm->page_content('', false, true);
+
+		// jQUI css does, and theme-specific css files might, include relative URLs, so cannot be merged
+		$url = cms_path_to_url($incs['jquicss']);
 		$out .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
+<link rel="stylesheet" type="text/css" href="$url" />
 
 EOS;
-		if (is_file(__DIR__.DIRECTORY_SEPARATOR.'extcss'.DIRECTORY_SEPARATOR.$fn.'.css')) {
-			$out .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$rel_url}/extcss/{$fn}.css" />
+		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
+		$rel_url = strtr($rel, '\\', '/');
+		$n = strlen(__DIR__) + 1;
+		$files = $this->get_styles();
+		$after = '';
+		foreach ($files as $fp) {
+			$extra = substr($fp, $n);
+			$sufx = strtr($extra, '\\', '/');
+			$after .= <<<EOS
+<link rel="stylesheet" type="text/css" href="{$rel_url}/{$sufx}" />
 
 EOS;
 		}
+		add_page_headtext($after); // append this lot
 
 		$jsm = new ScriptsMerger();
 		$jsm->queue_file($incs['jqcore'], 1);
@@ -189,18 +191,18 @@ EOS;
 				$rec = $bc[$i];
 				$title = $rec['title'];
 				if ($module_help_type && $i + 1 == count($bc)) {
-					$module_name = '';
+					$modname = '';
 					if (!empty($_GET['module'])) {
-						$module_name = trim($_GET['module']);
+						$modname = trim($_GET['module']);
 					} else {
 						$tmp = explode(',', $_REQUEST['mact']);
-						$module_name = $tmp[0];
+						$modname = $tmp[0];
 					}
-					$orig_module_name = $module_name;
-					$module_name = preg_replace('/([A-Z])/', '_$1', $module_name);
-					$module_name = preg_replace('/_([A-Z])_/', '$1', $module_name);
-					if ($module_name[0] == '_')
-						$module_name = substr($module_name, 1);
+					$orig_module_name = $modname;
+					$modname = preg_replace('/([A-Z])/', '_$1', $modname);
+					$modname = preg_replace('/_([A-Z])_/', '$1', $modname);
+					if ($modname[0] == '_')
+						$modname = substr($modname, 1);
 				} else {
 					if (($p = strrchr($title, ':')) !== FALSE) {
 						$title = substr($title, 0, $p);
@@ -278,19 +280,20 @@ EOS;
 		$fp = cms_join_path(__DIR__, 'css', 'all.min.css');
 		if (is_file($fp)) {
 			$url = cms_path_to_url($fp);
+			$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
 		} else {
-			$url = self::AWESOME_CDN; // TODO variable(s) for CDN URL and SRI hash
+			// TODO variable(s) for CDN URL and SRI hash
+			$smarty->assign('font_includes', self::AWESOME_CDN);
 		}
-		$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
 
 		if ($this->currentversion()) {
 			$auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
 			$mod = SingleItem::ModuleOperations()->get_module_instance($auth_module, '', true);
 			if ($mod) {
 				$data = $mod->fetch_login_panel();
-                if (isset($data['infomessage'])) { $data['message'] = $data['infomessage']; unset($data['infomessage']); }
-                if (isset($data['warnmessage'])) { $data['warning'] = $data['warnmessage']; unset($data['warnmessage']); }
-                if (isset($data['errmessage'])) { $data['error'] = $data['errmessage']; unset($data['errmessage']); }
+				if (isset($data['infomessage'])) { $data['message'] = $data['infomessage']; unset($data['infomessage']); }
+				if (isset($data['warnmessage'])) { $data['warning'] = $data['warnmessage']; unset($data['warnmessage']); }
+				if (isset($data['errmessage'])) { $data['error'] = $data['errmessage']; unset($data['errmessage']); }
 			} else {
 				exit('System error');
 			}
@@ -312,21 +315,43 @@ EOS;
 				}
 			}
 
-//TODO	ensure $smarty->assign('lang_code', AppParams::get('frontendlang'));
-			$fn = 'style';
-			if (NlsOperations::get_language_direction() == 'rtl') {
-				if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
-					$fn .= '-rtl';
+			$files = $this->get_styles();
+
+			if (isset($tplvars['lang_dir']) && $tplvars['lang_dir'] == 'rtl') {
+				if (0) { // TODO no rtl in $files
+					$tplvars['lang_dir'] == 'ltr';
 				}
+			} else {
+				$dir = 'ltr';
+				if (NlsOperations::get_language_direction() == 'rtl') {
+					if (0) { // TODO rtl in $files
+						$dir == 'rtl';
+					}
+				}
+				$smarty->assign('lang_dir', $dir);
+//TODO	ensure  $smarty->assign('lang_code', AppParams::get('frontendlang'));
 			}
+
 			// scripts: jquery, jquery-ui
 			$incs = cms_installed_jquery();
 			$url = cms_path_to_url($incs['jquicss']);
 			$out = <<<EOS
 <link rel="stylesheet" type="text/css" href="$url" />
-<link rel="stylesheet" type="text/css" href="themes/Altbier/css/{$fn}.css" />
 
 EOS;
+			$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
+			$rel_url = strtr($rel, '\\', '/');
+			$n = strlen(__DIR__) + 1;
+			foreach ($files as $fp) {
+				$extra = substr($fp, $n);
+				$sufx = strtr($extra, '\\', '/');
+				$out .= <<<EOS
+<link rel="stylesheet" type="text/css" href="{$rel_url}/{$sufx}" />
+
+EOS;
+			}
+
+
 //			get_csp_token(); //setup CSP header (result not used)
 			$tpl = '<script type="text/javascript" src="%s"></script>'.PHP_EOL;
 			$url = cms_path_to_url($incs['jqcore']);
@@ -334,7 +359,7 @@ EOS;
 			$url = cms_path_to_url($incs['jqui']);
 			$out .= sprintf($tpl,$url);
 			$out .= sprintf($tpl,'themes/Altbier/includes/login.min.js');
-		} else {
+		} else { // old CMSMS
 			$params = func_get_args();
 			if (!empty($params)) {
 				$smarty->assign($params[0]);
@@ -348,18 +373,34 @@ EOS;
 				$smarty->assign($tplvars);
 			}
 
-			$dir = ''; //TODO or '-rtl'
+			if (NlsOperations::get_language_direction() == 'rtl') { // TODO for old CMSMS
+				$smarty->assign('lang_dir', 'rtl');
+				$dir = '-rtl';
+			} else {
+				$smarty->assign('lang_dir', 'ltr');
+				$dir = '';
+			}
+
 			list($jqcss, $jqui, $jqcore) = $this->find_installed_jq();
 			$out = <<<EOS
-<link rel="stylesheet" href="$jqcss" />
-<link rel="stylesheet" href="themes/Altbier/css/style{$dir}.css" />
-<link rel="stylesheet" href="loginstyle.php" />
+<link rel="stylesheet" type="text/css" href="$jqcss" />
+<link rel="stylesheet" type="text/css" href="themes/Altbier/css/style{$dir}.css" />
+<link rel="stylesheet" type="text/css" href="loginstyle.php" />
 <script type="text/javascript" src="$jqcore"></script>
 <script type="text/javascript" src="$jqui"></script>
 <script type="text/javascript" src="themes/Altbier/includes/login.min.js"></script>
 
 EOS;
 		} // pre 2.99
+
+		// site logo?
+		$sitelogo = AppParams::get('site_logo');
+		if ($sitelogo) {
+			if (!preg_match('~^\w*:?//~', $sitelogo)) {
+				$sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
+			}
+			$smarty->assign('sitelogo', $sitelogo);
+		}
 
 		$smarty->assign('header_includes', $out)
 		  ->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates')
@@ -381,7 +422,7 @@ EOS;
 			if ($flag) {
 				$nodes = $this->get_navigation_tree($section_name, 0);
 				$smarty->assign('pagetitle', $this->title);
-			} else {
+			} else { // old CMSMS
 				$nodes = $this->get_navigation_tree($section_name, -1, FALSE);
 				$smarty->assign('pagetitle', _la($section_name)); //CHECKME
 			}
@@ -431,24 +472,27 @@ EOS;
 		*/
 		// prefer cached parameters, if any
 		// module name
-		$module_name = $this->get_value('module_name');
-		if (!$module_name) {
-			if (isset($_REQUEST['mact'])) {
-				$module_name = explode(',', $_REQUEST['mact'])[0];
+		$modname = $this->get_value('module_name');
+		if (!$modname) {
+			if ($flag) {
+				$modname = RequestParameters::get_request_values('module');
+			} elseif (isset($_REQUEST['mact'])) {
+				$modname = explode(',', $_REQUEST['mact'])[0];
+				$this->set_value('module_name', $modname);
 			}
 		}
-		$smarty->assign('module_name', $module_name); // maybe null
+		$smarty->assign('module_name', $modname); // maybe null
 
 		$module_help_type = $this->get_value('module_help_type');
 		// module_help_url
-		if ($module_name && ($module_help_type || $module_help_type === null) &&
+		if ($modname && ($module_help_type || $module_help_type === null) &&
 			!UserParams::get_for_user($userid,'hide_help_links', 0)) {
 			if (($module_help_url = $this->get_value('module_help_url'))) {
 				$smarty->assign('module_help_url', $module_help_url);
 			}
 		}
 
-		// page title
+		// page title(s) and alias
 		$alias = $title = $this->get_value('pagetitle');
 		$subtitle = '';
 		if ($title && !$module_help_type) {
@@ -461,12 +505,12 @@ EOS;
 				$title = _la($title, $extra);
 			}
 //			$subtitle = TODO
-		} else {
+		} elseif (!$title) {
 			$title = $this->get_active_title(); // try for the active-menu-item title
 			if ($title) {
 				$subtitle = $this->subtitle;
-			} elseif ($module_name) {
-				$mod = Utils::get_module($module_name);
+			} elseif ($modname) {
+				$mod = Utils::get_module($modname);
 				$title = $mod->GetFriendlyName();
 				$subtitle = $mod->GetAdminDescription();
 /*			} else {
@@ -477,19 +521,20 @@ EOS;
 				}
 */
 			}
+//		} else {
+//			$subtitle = TODO
 		}
-		if (!$title) $title = '';
 		$smarty->assign('pagetitle', $title)
 		  ->assign('subtitle', $subtitle)
-		  ->assign('pagealias', munge_string_to_url($alias)); // page alias
+		  ->assign('pagealias', munge_string_to_url($alias));
 
 		// icon
-		if ($module_name && ($icon_url = $this->get_value('module_icon_url'))) {
-			$tag = '<img src="'.$icon_url.'" alt="'.$module_name.'" class="module-icon" />';
-		} elseif ($module_name && $title) {
-			$tag = $this->get_module_icon($module_name, ['alt'=>$module_name, 'class'=>'module-icon']);
+		if ($modname && ($icon_url = $this->get_value('module_icon_url'))) {
+			$tag = '<img src="'.$icon_url.'" alt="'.$modname.'" class="module-icon" />';
+		} elseif ($modname && $title) {
+			$tag = $this->get_module_icon($modname, ['alt'=>$modname, 'class'=>'module-icon']);
 		} elseif (($icon_url = $this->get_value('page_icon_url'))) {
-			$tag = '<img src="'.$icon_url.'" alt="'.basename($icon_url).'" class="TODO" />';
+			$tag = '<img src="'.$icon_url.'" alt="TODO" class="TODO" />';
 		} else {
 			$name = $this->get_active('name');
 			$tag = ''; // TODO icon for admin operation func($name) ?
@@ -497,7 +542,7 @@ EOS;
 		$smarty->assign('pageicon', $tag);
 
 		$config = cmsms()->GetConfig();
-		// site logo
+		// site logo?
 		$sitelogo = AppParams::get('site_logo');
 		if ($sitelogo) {
 			if (!preg_match('~^\w*:?//~', $sitelogo)) {
@@ -505,8 +550,8 @@ EOS;
 			}
 			$smarty->assign('sitelogo', $sitelogo);
 		}
-
-		//custom support-URL
+$X = $CRASH;
+		//custom support-URL?
 		$url = AppParams::get('site_help_url');
 		if ($url) {
 			$smarty->assign('site_help_url', $url);
@@ -531,7 +576,7 @@ EOS;
 		  ->assign('theme', $this)
 		  ->assign('secureparam', $secureparam);
 		$user = SingleItem::UserOperations()->LoadUserByID($userid);
-		$smarty->assign('username', $user->username);
+		$smarty->assign('username', $user->username); //TODO only if user != effective user
 		// user-selected language
 		$lang = UserParams::get_for_user($userid, 'default_cms_language');
 		if (!$lang) $lang = AppParams::get('frontendlang');
@@ -539,35 +584,39 @@ EOS;
 		// language direction
 		$lang = NlsOperations::get_current_language();
 		$info = NlsOperations::get_language_info($lang);
-		$smarty->assign('lang_dir', $info->direction());
+		$lang_dir = $info->direction();
+		if ($lang_dir == 'rtl') {
+			if (!is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.'style-rtl.css')) { // TODO or .min
+				$lang_dir = 'ltr';
+			}
+		}
+		$smarty->assign('lang_dir', $lang_dir);
 
 		$fp = cms_join_path(__DIR__, 'css', 'all.min.css');
 		if (is_file($fp)) {
 			$url = cms_path_to_url($fp); // TODO 2.99+
+			$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
 		} else {
-			$url = self::AWESOME_CDN; // TODO variable(s) for CDN URL and SRI hash
+			// TODO variable(s) for CDN URL and SRI hash
+			$smarty->assign('font_includes', self::AWESOME_CDN);
 		}
-		$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
 
 		if ($flag) {
 			$smarty->assign('header_includes', get_page_headtext())
 			 ->assign('bottom_includes', get_page_foottext());
-		} else {
+		} else { // old CMSMS
 			// replicate AdminHeaderSetup(), with different js
 			// no CSP-related attrs for html5shiv - old IE incapable!
-			$dir = ''; //TODO or '-rtl'
+			$dir = ($lang_dir == 'ltr') ? '' : '-rtl';
 			list($jqcss, $jqui, $jqcore) = $this->find_installed_jq();
 			$smarty->assign('header_includes', <<<EOS
-<link rel="stylesheet" href="$jqcss" />
-<link rel="stylesheet" href="style.php?{$secureparam}" />
-<link rel="stylesheet" href="themes/Altbier/css/style{$dir}.css" />
+<link rel="stylesheet" type="text/css" href="$jqcss" />
+<link rel="stylesheet" type="text/css" href="style.php?{$secureparam}" />
+<link rel="stylesheet" type="text/css" href="themes/Altbier/css/style{$dir}.css" />
 <script type="text/javascript" src="$jqcore"></script>
 <script type="text/javascript" src="$jqui"></script>
 //TODO jquery ancillaries
 <script type="text/javascript" src="themes/Altbier/includes/standard.min.js"></script>
-<!--[if lt IE 9]>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
-<![endif]-->
 
 EOS
 );

@@ -1,16 +1,20 @@
 <!DOCTYPE html>
-<!--[if IE 8]>     <html lang="en" class="lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html lang="en"> <!--<![endif]-->
   <head>
-    {if isset($BASE_HREF)}<base href="{$BASE_HREF}" />{/if}
+    <base href="{$BASE_HREF}" />
     <meta charset="utf-8">
     <meta name='HandheldFriendly' content='True' />
     <meta name='MobileOptimized' content='320' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
     <meta http-equiv='cleartype' content='on' />
+    <link rel="icon" type="image/ico" href="lib/images/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap" />
+    <link rel="stylesheet" type="text/css" href="lib/js/jquery-ui/jquery-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="lib/styles/install.min.css" />{*TODO use -rtl variant if relevant*}
     <script src="lib/js/jquery.min.js"></script>
     <script src="lib/js/jquery-ui/jquery-ui.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="lib/js/jquery-ui/jquery-ui.min.css"/>
     <title>
     {if !empty($browser_title)}
     {$browser_title}
@@ -20,19 +24,17 @@
     CMS Made Simple&trade; {'apptitle'|tr}}
     {/if}
     </title>
-    <link rel="stylesheet" type="text/css" href="lib/styles/install.css" />
-    <link rel="icon" type="image/ico" href="lib/images/favicon.ico" />
   </head>
   {strip}{block name='logic'}{/block}{/strip}
   <body>
-    <div class="row header-section">
+    <div class="page-row header-section">
       <a href="http://www.cmsmadesimple.org" rel="external" target="_blank" class="cmsms-logo" title="CMS Made Simple&trade;">
        <img class="cmslogo" src="lib/images/cmsms-logo.svg" onerror="this.onerror=null;this.src='lib/images/cmsms-logo.png';" alt="CMS Made Simple" title="CMS Made Simple" />
       </a>
       <span class="installer-title">{'apptitle'|tr}</span>
     </div>
-    <div class="flexrow installer-section">
-      <div class="cell cols_4 installer-steps-section">
+    <div class="row no-gutter installer-section">
+      <div class="cell col-4 installer-steps-section">
         <div class="inside">
         {block name='aside_content'}
           {if isset($wizard_steps)}
@@ -52,7 +54,7 @@
         {/block}
         </div>
       </div>
-      <main role="main" class="cell cols_8 installer-content-section">
+      <main role="main" class="cell col-8 installer-content-section">
         <div class="inside">
           <h1>{if isset($title)}{$title}{else}{'install_upgrade'|tr}{/if}</h1>
           {if isset($subtitle)}<h3>{$subtitle}</h3>{/if}
@@ -74,7 +76,7 @@
         </div>
       </main>
     </div>
-    <footer class="row footer-section">
+    <footer class="page-row footer-section">
 {*      <div class="footer-info">
         <a href="https://forum.cmsmadesimple.org" target="_blank">{'title_forum'|tr}</a> &bull; <a href="https://docs.cmsmadesimple.org" target="_blank">{'title_docs'|tr}</a> &bull; <a href="http://apidoc.cmsmadesimple.org" target="_blank">{'title_api_docs'|tr}</a>
       </div>*}

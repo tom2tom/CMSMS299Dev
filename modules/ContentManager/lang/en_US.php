@@ -148,7 +148,6 @@ $lang = [
 'error_template_notavailable' => 'Either there is no template associated with this object, or it is not available for edit. Perhaps it has been deleted?',
 'error_type' => 'Error Type',
 //'error_usrplg_name' => 'A valid tag name starts with a letter or underscore, followed by any number of letters, numbers, or underscores.',
-'errorgettingcontent' => 'Could not retrieve information for the specified content object',
 'errorpagealreadyinuse' => 'A page of this type already exists, and only one of this type is allowed.',
 'expandall' => 'Expand All',
 'extra1' => 'Extra Page Attribute 1',

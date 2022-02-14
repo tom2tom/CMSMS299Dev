@@ -1,14 +1,14 @@
 <?php
 /*
 ContentManger module action: defaultadmin
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of that license, or
+the Free Software Foundation; either version 3 of that license, or
 (at your option) any later version.
 
 CMS Made Simple is distributed in the hope that it will be useful,
@@ -183,7 +183,7 @@ $s9 = json_encode($this->Lang('error_action_contentlocked'));
 $s6 = $this->Lang('submit');
 $s7 = $this->Lang('cancel');
 $secs = AppParams::get('lock_refresh', 120);
-$secs = max(30,min(600,$secs));
+$secs = max(30, min(600, $secs));
 
 $jsm = new ScriptsMerger();
 $jsm->queue_matchedfile('jquery.cmsms_poll.js', 2);
@@ -403,9 +403,6 @@ function setuplist() {
     cms_alert('AJAX ERROR');
   });
   return false;
- });
- $('.cms_help .cms_helpicon').on('click', function() {
-  gethelp(this);
  });
 }
 

@@ -1,1 +1,1 @@
-class="dmfa-filter fas fa-filter"
+class="fas fa-filter"

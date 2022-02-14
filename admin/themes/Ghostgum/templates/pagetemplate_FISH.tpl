@@ -21,37 +21,37 @@
   <link rel="apple-touch-icon" sizes="72x72" href="themes/assets/images/apple-touch-icon-ipad.png" />
   <link rel="apple-touch-icon" sizes="114x114" href="themes/assets/images/apple-touch-icon-iphone4.png" />
   <link rel="apple-touch-icon" sizes="144x144" href="themes/assets/images/apple-touch-icon-ipad3.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Red+Hat+Mono:wght@400;700&display=swap">
   {$header_includes|default:''}
  </head>
  <body>
   <!-- start header -->
-  <div id="ggp_header">{*h container*}
+  <div id="ggp_header" class="row no-gutter between align-center">
 
-     <div id="site-logo">{*h boxchild *}
-      <a href="{root_url}/index.php" rel="external" target="_blank" title="{_la('viewsite')}">
-      {if isset($sitelogo)}
-       <img src="{$sitelogo}" alt="{sitename}" />
-      {else}
-       {sitename}
-      {/if}
+    <div id="site-logo" class="cell">
+     {if empty($sitelogo)}
+      {sitename}
+      <span id="site-text">-&nbsp;<a href="menu.php?{$secureparam}" title="{_la('home')}">{_la('adminpaneltitle')}</a></span>
+     {else}
+      <a href="menu.php?{$secureparam}" title="{_la('home')}">
+        <img src="{$sitelogo}" alt="{_la('home')}" />
       </a>
-      {if isset($sitelogo)}
-       <span id="site-text">{_la('adminpaneltitle')}</span>
-      {else}
-       <span id="site-text">- {_la('adminpaneltitle')}</span>
-      {/if}
-     </div>
+      <span id="site-text">{_la('adminpaneltitle')}</span>
+     {/if}
+    </div>
 
-     <div id="system-logo">{*h boxchild *}
-       <span id="system-text">{_la('power_by')}</span>
-       <span id="cms-logo">
-        <a href="http://www.cmsmadesimple.org" rel="external" title="{_la('cms_home')}"></a>
-       </span>
-     </div>
+    <div id="system-logo" class="cell">
+      <span id="system-text">{_la('power_by')}</span>
+      <span id="cms-logo">
+       <a href="http://www.cmsmadesimple.org" rel="external" title="{_la('cms_home')}"></a>
+      </span>
+    </div>
 
-     <div id="shortcuts">{*h boxchild*}
+    <div id="shortcuts" class="cell">
      {include file='shortcuts.tpl'}{block name=shortcuts}{/block}
-     </div>
+    </div>
   </div>{*end header*}
 
   <!-- start menu -->
@@ -60,7 +60,8 @@
   </div>
 
   <!-- start content -->
-  <div style="flex: 1 1 100%">
+{*  <div id="ggp_container">{*v boxchild and h container*}
+  <div id="ggp_contentwrap">
     <div id="ggp_contenthead">
        {strip}{if !empty($pageicon) || !empty($pagetitle)}<h1>
        {if !empty($pageicon)}<span class="headericon">{$pageicon}</span> {/if}{$pagetitle|default:''}
@@ -70,11 +71,13 @@
        <div class="subheader">
         <h3 class="subtitle">{$subtitle}</h3>
        </div>{/if}
-     </div>{* end contenthead *}
+    </div>{* end contenthead *}
      {/strip}
-     <div id="pagecontainer">{$content}</div>
-    </div>
+{*  <div id="ggp_content">*}
+    <div class="pagecontainer">{$content}</div>
+{*   </div>*}
   </div>
+{*  </div>{* end container *}
 
   <!-- start footer -->
   <div id="ggp_footer">{*h container*}

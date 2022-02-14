@@ -9,7 +9,7 @@
     <link href="flex-grid-lite.min.css" rel="stylesheet" />
     <style>
 body {
-	color: white; 
+	color: white;
 	background-color: #4d6f80;
 }
 code {
@@ -37,6 +37,15 @@ span.pre {
 	border-collapse: collapse;
 	background-color: #264859;
 	text-align: center;
+}
+.cell.short {
+	min-height: 40px;
+}
+.cell.medium {
+	min-height: 60px;
+}
+.cell.tall {
+	min-height: 80px;
 }
 .accent {
 	color: #dc9518;
@@ -226,26 +235,26 @@ span.pre {
     <h2>Sreeensize Breakpoints</h2>
     <p>
       Breakpoint classes define the screen size below which cells go to 100% width. The smallest,
-    <code class="inline">.cell_sm</code>, snaps to 100% at 480px,
-    <code class="inline">.cell_md</code> at 640px,
-    <code class="inline">.cell_lg</code> at 800px,
-    <code class="inline">.cell_xl</code> at 960px, and
-    <code class="inline">.cell_xxl</code> at 1200px. The breakpoint classes will override any other columns-share or grow-based modifier class.
+    <code class="inline">.cell-sm</code>, snaps to 100% at 480px,
+    <code class="inline">.cell-md</code> at 640px,
+    <code class="inline">.cell-lg</code> at 800px,
+    <code class="inline">.cell-xl</code> at 960px, and
+    <code class="inline">.cell-xxl</code> at 1200px. The breakpoint classes will override any other columns-share or grow-based modifier class.
     </p>
     <div class="row first">
-      <div class="cell cell_md">.cell .cell_md</div>
-      <div class="cell cell_md">.cell .cell_md</div>
-      <div class="cell cell_lg">.cell .cell_lg</div>
+      <div class="cell cell-md">.cell .cell-md</div>
+      <div class="cell cell-md">.cell .cell-md</div>
+      <div class="cell cell-lg">.cell .cell-lg</div>
     </div>
     <div class="row">
-      <div class="cell cell_sm">.cell .cell_sm</div>
-      <div class="cell col-5 cell_sm">.cell .col-5 .cell_sm</div>
-      <div class="cell cell_lg">.cell .cell_lg</div>
+      <div class="cell cell-sm">.cell .cell-sm</div>
+      <div class="cell col-5 cell-sm">.cell .col-5 .cell-sm</div>
+      <div class="cell cell-lg">.cell .cell-lg</div>
     </div>
     <div class="row last">
-      <div class="cell grow-2 cell_md">.cell .grow-2 .cell_md</div>
-      <div class="cell cell_md">.cell .cell_md</div>
-      <div class="cell cell_lg">.cell .cell_lg</div>
+      <div class="cell grow-2 cell-md">.cell .grow-2 .cell-md</div>
+      <div class="cell cell-md">.cell .cell-md</div>
+      <div class="cell cell-lg">.cell .cell-lg</div>
     </div>
 
     <h2>Gutters</h2>
@@ -272,21 +281,101 @@ span.pre {
     </code>
 
     <h2>Content Vertical Alignment</h2>
+    <p>Position/size each cell in a row.</p>
+    <p>Auto</p>
+    <div class="row align-auto">
+      <div class="cell short">short .cell</div>
+      <div class="cell medium">medium .cell</div>
+      <div class="cell tall">tall .cell</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="row align-auto"&gt;
+        <span class="pre">&lt;div class="cell short"&gt;short .cell&lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell medium"&gt;medium .cell&lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell tall"&gt;tall .cell&lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+    <p>Start</p>
+    <div class="row align-start">
+      <div class="cell short">short .cell</div>
+      <div class="cell medium">medium .cell</div>
+      <div class="cell tall">tall .cell</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="row align-start"&gt;
+        <span class="pre">&lt;div class="cell short"&gt;short .cell&lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell medium"&gt;medium .cell&lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell tall"&gt;tall .cell&lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+    <p>Center</p>
+    <div class="row align-center">
+      <div class="cell short">short .cell</div>
+      <div class="cell medium">medium .cell</div>
+      <div class="cell tall">tall .cell</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="row align-center"&gt;
+        <span class="pre">&lt;div class="cell short"&gt;short .cell&lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell medium"&gt;medium .cell&lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell tall"&gt;tall .cell&lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+    <p>End</p>
+    <div class="row align-end">
+      <div class="cell short">short .cell</div>
+      <div class="cell medium">medium .cell</div>
+      <div class="cell tall">tall .cell</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="row align-end"&gt;
+        <span class="pre">&lt;div class="cell short"&gt;short .cell&lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell medium"&gt;medium .cell&lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell tall"&gt;tall .cell&lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+    <p>Stretch</p>
+    <div class="row align-stretch">
+      <div class="cell short">short .cell</div>
+      <div class="cell medium">medium .cell</div>
+      <div class="cell tall">tall .cell</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="row align-stretch"&gt;
+        <span class="pre">&lt;div class="cell short"&gt;short .cell&lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell medium"&gt;medium .cell&lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell tall"&gt;tall .cell&lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+    <p>Base</p>
+    <div class="row align-base">
+      <div class="cell short">short .cell</div>
+      <div class="cell medium">medium .cell</div>
+      <div class="cell tall">tall .cell</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="row align-base"&gt;
+        <span class="pre">&lt;div class="cell short"&gt;short .cell&lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell medium"&gt;medium .cell&lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell tall"&gt;tall .cell&lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+
     <p>Position cell-content vertically in the cell.</p>
     <div class="row first last">
-      <div class="cell content_top" style="height:96px;">.cell .content_top</div>
-      <div class="cell content_middle" style="height:96px;">.cell .content_middle</div>
-      <div class="cell content_bottom" style="height:96px;">.cell .content_bottom</div>
+      <div class="cell medium content-top">medium .cell .content-top</div>
+      <div class="cell medium content-center">medium .cell .content-center</div>
+      <div class="cell medium content-bottom">medium .cell .content-bottom</div>
     </div>
     <code>
       <span class="pre">&lt;div class="row first last"&gt;
-        <span class="pre">&lt;div class="cell content_top" style="height:96px;"&gt;
+        <span class="pre">&lt;div class="cell medium content-top"&gt;
           <span class="pre">Content aligned to top</span>
         &lt;/div&gt;</span>
-        <span class="pre">&lt;div class="cell content_middle" style="height:96px;"&gt;
+        <span class="pre">&lt;div class="cell medium content-center"&gt;
           <span class="pre">Content aligned to middle</span>
         &lt;/div&gt;</span>
-        <span class="pre">&lt;div class="cell content_bottom" style="height:96px;"&gt;
+        <span class="pre">&lt;div class="cell medium content-bottom"&gt;
           <span class="pre">Content aligned to bottom</span>
         &lt;/div&gt;</span>
       &lt;/div&gt;</span>
@@ -297,10 +386,10 @@ span.pre {
       Position cells relative to each other within a <code class="inline">.row</code> element.
     </p>
     <div class="row first last">
-      <div class="cell align_top">.cell .align_top</div>
-      <div class="cell align_middle">.cell .align_middle</div>
-      <div class="cell align_bottom">.cell .align_bottom</div>
-      <div class="cell" style="height:112px;">
+      <div class="cell align-top">.cell .align-top</div>
+      <div class="cell align-center">.cell .align-center</div>
+      <div class="cell align-bottom">.cell .align-bottom</div>
+      <div class="cell tall">
         <p style="margin-bottom:1em;">Tall cell expanding</p>
         <p style="margin-bottom:1em;">the height of</p>
         <p>the grid row</p>
@@ -308,16 +397,16 @@ span.pre {
     </div>
     <code>
       <span class="pre">&lt;div class="row first last"&gt;
-        <span class="pre">&lt;div class="cell align_top"&gt;
+        <span class="pre">&lt;div class="cell align-top"&gt;
           <span class="pre">Top-Aligned Cell</span>
         &lt;/div&gt;</span>
-        <span class="pre">&lt;div class="cell align_middle"&gt;
+        <span class="pre">&lt;div class="cell align-center"&gt;
           <span class="pre">Middle-Aligned Cell</span>
         &lt;/div&gt;</span>
-        <span class="pre">&lt;div class="cell align_bottom"&gt;
+        <span class="pre">&lt;div class="cell align-bottom"&gt;
           <span class="pre">Bottom-Aligned Cell</span>
         &lt;/div&gt;</span>
-        <span class="pre">&lt;div class="cell" style="height:112px;"&gt;
+        <span class="pre">&lt;div class="cell tall"&gt;
           <span class="pre">Tall Cell</span>
         &lt;/div&gt;</span>
       &lt;/div&gt;</span>

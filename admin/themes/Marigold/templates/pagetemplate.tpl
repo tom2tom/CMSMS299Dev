@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
  <head>
 {$thetitle=$pagetitle}
@@ -19,7 +19,9 @@
   <link rel="apple-touch-icon" sizes="72x72" href="themes/assets/images/apple-touch-icon-ipad.png" />
   <link rel="apple-touch-icon" sizes="114x114" href="themes/assets/images/apple-touch-icon-iphone4.png" />
   <link rel="apple-touch-icon" sizes="144x144" href="themes/assets/images/apple-touch-icon-ipad3.png" />
-  <link rel="stylesheet" href="themes/Marigold/css/fonticons.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap" />
   {$font_includes}
   {$header_includes|default:''}
  </head>
@@ -30,20 +32,21 @@
    <header role="banner" class="cf header">
     <!-- start header-top -->
     <div class="header-top cf">
-     <!-- logo -->
-     <div class="cms-logo">
+     <div id="admin-title">
+      {if empty($sitelogo)}{sitename} - {'adminpaneltitle'|lang}
+      {else}<img src="{$sitelogo}" alt="{sitename}" /> {'adminpaneltitle'|lang}
+      {/if}
+     </div>
+     <div id="cms-logo">
       <a href="http://www.cmsmadesimple.org" rel="external">
-       <img src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" height="45" alt="CMS Made Simple" title="CMS Made Simple" />
+       <img src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" alt="CMS Made Simple" title="CMS Made Simple" />
       </a>
      </div>
-     <!-- title -->
-     <span class="admin-title"> {'adminpaneltitle'|lang} - {sitename}</span>
     </div>
-    <div class='clear'></div>
-    <!-- end header-top //-->
+    <!-- end header-top -->
     <!-- start header-bottom -->
     <div class="header-bottom cf">
-     <!-- welcome -->
+{*   <!-- welcome -->
      <div class="welcome">
      {if isset($myaccount)}
       <span><a class="welcome-user" href="useraccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa fa-user-circle-o"></i></a> {'welcome_user'|lang}: <a href="useraccount.php?{$secureparam}">{$username}</a></span>
@@ -51,12 +54,13 @@
       <span><a class="welcome-user"><i class="fa fa-user-circle-o"></i></a> {'welcome_user'|lang}: {$username}</span>
      {/if}
      </div>
-     <!-- bookmarks -->
+*}
+     <!-- links -->
      {include file='shortcuts.tpl'}{block name=shortcuts}{/block}
     </div>
-    <!-- end header-bottom //-->
+    <!-- end header-bottom -->
    </header>
-   <!-- end header //-->
+   <!-- end header -->
    <!-- start content -->
    <div id="mg_admin-content">
     <div class="shadow">
@@ -65,11 +69,11 @@
     <!-- start sidebar -->
     <div id="mg_sidebar">
       <aside>
-        <span title="{'open'|lang}/{'close'|lang}" class="toggle-button close"></span>
+        <span title="{'open'|lang}/{'close'|lang}" id="toggle-button" class="close"></span>
         {include file='navigation.tpl' nav=$theme->get_navigation_tree()}{block name=navigation}{/block}
       </aside>
     </div>
-    <!-- end sidebar //-->
+    <!-- end sidebar -->
     <!-- start main -->
     <div id="mg_mainarea" class="cf">
      {strip}
@@ -88,17 +92,18 @@
      </article>
      {/strip}
     </div>
-    <!-- end main //-->
-    <div class="spacer">
-     &nbsp;
+    <!-- end main -->
+{*    <div class="spacer">
+     &nbsp;*}
     </div>
    </div>
-   <!-- end content //-->
-   <!-- start footer -->
+   <!-- end content -->
+{*   <!-- start footer -->
    {include file='footer.tpl'}{block name=footer}{/block}
-   <!-- end footer //-->
+   <!-- end footer -->
   </div>
-  <!-- end container //-->
+*}
+  <!-- end container -->
  {$bottom_includes|default:''}
  </body>
 </html>

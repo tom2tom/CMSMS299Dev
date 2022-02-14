@@ -8,7 +8,7 @@ This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of that license, or
+the Free Software Foundation; either version 3 of that license, or
 (at your option) any later version.
 
 CMS Made Simple is distributed in the hope that it will be useful,
@@ -23,16 +23,20 @@ namespace CMSMS; //2.99+
 
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
+use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
+use CMSMS\RequestParameters;
 use CMSMS\ScriptsMerger;
 use CMSMS\SingleItem;
 use CMSMS\StylesMerger;
 use CMSMS\UserParams;
+use CMSMS\Utils;
 use const CMS_ADMIN_PATH;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
 use function _la;
+use function add_page_headtext;
 use function check_permission;
 use function cms_installed_jquery;
 use function cms_join_path;
@@ -51,36 +55,38 @@ class LTETheme extends AdminTheme
     {
         list($vars, $add_list) = parent::AdminHeaderSetup();
 
-        $rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
-        $rel_url = strtr($rel, DIRECTORY_SEPARATOR, '/');
-        $fn = 'style';
-        if (NlsOperations::get_language_direction() == 'rtl') {
-            if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
-                $fn .= '-rtl';
-            }
-        }
         $incs = cms_installed_jquery(true, true, true, true);
 
         $csm = new StylesMerger();
         $csm->queue_matchedfile('normalize.css', 1);
-        $csm->queue_file($incs['jquicss'], 2);
-        $csm->queue_matchedfile('grid-960.css', 2); // deprecated since 2.99
+        $csm->queue_matchedfile('grid-960.css', 2); //for modules, deprecated since 2.99
         $out = $csm->page_content('', false, true);
+
+        // jQUI css does, and theme-specific css files might, include relative URLs, so cannot be merged
+        $url = cms_path_to_url($incs['jquicss']);
         $out .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
+<link rel="stylesheet" type="text/css" href="$url" />
 
 EOS;
-        if (is_file(__DIR__.DIRECTORY_SEPARATOR.'extcss'.DIRECTORY_SEPARATOR.$fn.'.css')) {
-            $out .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$rel_url}/extcss/{$fn}.css" />
+        $rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
+        $rel_url = strtr($rel, '\\', '/');
+        $n = strlen(__DIR__) + 1;
+        $files = $this->get_styles();
+        $after = '';
+        foreach ($files as $fp) {
+            $extra = substr($fp, $n);
+            $sufx = strtr($extra, '\\', '/');
+            $after .= <<<EOS
+<link rel="stylesheet" type="text/css" href="{$rel_url}/{$sufx}" />
 
 EOS;
         }
+        add_page_headtext($after); // append this lot
 
         $jsm = new ScriptsMerger();
         $jsm->queue_file($incs['jqcore'], 1);
 //      if (CMS_DEBUG) {
-        $jsm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ?
+        $jsm->queue_file($incs['jqmigrate'], 1); //in due course, omit this or keep if (CMS_DEBUG)
 //      }
         $jsm->queue_file($incs['jqui'], 1);
         $jsm->queue_matchedfile('jquery.cmsms_admin.js', 2);
@@ -135,8 +141,8 @@ EOS;
         $url = cms_path_to_url($incs['jquicss']);
         $dir = ''; //TODO or '-rtl'
         $out = <<<EOS
-<link rel="stylesheet" href="$url" />
-<link rel="stylesheet" href="themes/LTE/css/{$fn}.css" />
+<link rel="stylesheet" type="text/css" href="$url" />
+<link rel="stylesheet" type="text/css" href="themes/LTE/css/{$fn}.css" />
 
 EOS;
 //        get_csp_token(); //setup CSP header (result not used)
@@ -145,9 +151,18 @@ EOS;
         $out .= sprintf($tpl, $url)."\n";
         $url = cms_path_to_url($incs['jqui']);
         $out .= sprintf($tpl, $url)."\n";
+        $smarty->assign('header_includes', $out);
 
-        $smarty->assign('header_includes', $out)
-          ->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates')
+		// site logo?
+		$sitelogo = AppParams::get('site_logo');
+		if ($sitelogo) {
+			if (!preg_match('~^\w*:?//~', $sitelogo)) {
+				$sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
+			}
+			$smarty->assign('sitelogo', $sitelogo);
+		}
+
+        $smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates')
           ->display('login.tpl');
     }
 
@@ -202,6 +217,13 @@ EOS;
 
     public function fetch_page($html)
     {
+        // setup titles etc
+//      $tree =
+        $this->get_navigation_tree(); //TODO if section
+
+        $smarty = SingleItem::Smarty();
+        $userid = get_userid(false);
+
         /* possibly-cached value-names
         'pagetitle'
         'extra_lang_params'
@@ -210,55 +232,96 @@ EOS;
         'pageicon'
         'page_crumbs'
         */
-        $module_help_type = $this->get_value('module_help_type');
+        // prefer cached parameters, if any
+        // module name
+        $modname = $this->get_value('module_name');
+        if (!$modname) {
+            $modname = RequestParameters::get_request_values('module');
+            $this->set_value('module_name', $modname);
+        }
+        $smarty->assign('module_name', $modname); // maybe null
 
-        // get a page title
+        $module_help_type = $this->get_value('module_help_type');
+        // module_help_url
+        if ($modname && ($module_help_type || $module_help_type === null) &&
+            !UserParams::get_for_user($userid,'hide_help_links', 0)) {
+            if (($module_help_url = $this->get_value('module_help_url'))) {
+                $smarty->assign('module_help_url', $module_help_url);
+            }
+        }
+
+        // page title(s) and alias
         $alias = $title = $this->get_value('pagetitle');
-        if ($title) {
-            if (!$module_help_type) {
-                // if not doing module help, translate the string.
+        $subtitle = '';
+        if ($title && !$module_help_type) {
+            // if not doing module help, maybe translate the string
+            if (LangOperations::lang_key_exists('admin', $title)) {
                 $extra = $this->get_value('extra_lang_params');
                 if (!$extra) {
                     $extra = [];
                 }
                 $title = _la($title, $extra);
             }
-        } elseif ($this->title) {
-            $title = $this->title;
-        } else {
-            // no title, get one from the breadcrumbs.
-            $bc = $this->get_breadcrumbs();
-            if (is_array($bc) && count($bc)) {
-                $title = $bc[count($bc) - 1]['title'];
+//           $subtitle = TODO
+        } elseif (!$title) {
+            $title = $this->get_active_title(); // try for the active-menu-item title
+            if ($title) {
+                $subtitle = $this->subtitle;
+            } elseif ($modname) {
+                $mod = Utils::get_module($modname);
+                $title = $mod->GetFriendlyName();
+                $subtitle = $mod->GetAdminDescription();
+/*          } else {
+                // no title, get one from the breadcrumbs.
+                $bc = $this->get_breadcrumbs();
+                if ($bc) {
+                    $title = $bc[count($bc) - 1]['title'];
+                }
+*/
             }
+//        } else {
+//           $subtitle = TODO
         }
-
-        $smarty = SingleItem::Smarty();
-        // page title and alias
         $smarty->assign('page_title', $title)
-         ->assign('page_subtitle',$this->subtitle)
+         ->assign('page_subtitle', $this->subtitle)
          ->assign('pagealias', (($alias) ? munge_string_to_url($alias) : ''));
 
-        // module name?
-        if (($module_name = $this->get_value('module_name'))) {
-            $smarty->assign('module_name', $module_name); }
+        // icon
+        if ($modname && ($icon_url = $this->get_value('module_icon_url'))) {
+            $tag = '<img src="'.$icon_url.'" alt="'.$modname.'" class="module-icon" />';
+        } elseif ($modname && $title) {
+            $tag = $this->get_module_icon($modname, ['alt'=>$modname, 'class'=>'module-icon']);
+        } elseif (($icon_url = $this->get_value('page_icon_url'))) {
+            $tag = '<img src="'.$icon_url.'" alt="'.basename($icon_url).'" class="TODO" />';
+        } else {
+            $name = $this->get_active('name');
+            $tag = ''; // TODO icon for admin operation func($name) ?
+        }
+        $smarty->assign('pageicon', $tag);
 
-        // module icon?
-        if (($module_icon_url = $this->get_value('module_icon_url'))) {
-            $smarty->assign('module_icon_url', $module_icon_url); }
-
-        $userid = get_userid();
-        // module_help_url
-        if( !UserParams::get_for_user($userid,'hide_help_links',0) ) {
-            if (($module_help_url = $this->get_value('module_help_url'))) {
-                $smarty->assign('module_help_url', $module_help_url); }
+        $config = SingleItem::Config();
+        // site logo?
+        $sitelogo = AppParams::get('site_logo');
+        if ($sitelogo) {
+            if (!preg_match('~^\w*:?//~', $sitelogo)) {
+                $sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
+            }
+            $smarty->assign('sitelogo', $sitelogo);
         }
 
-        // my preferences
-        if (check_permission($userid,'Manage My Settings')) {
-            $smarty->assign('myaccount', 1); }
+        // custom support-URL?
+        $url = AppParams::get('site_help_url');
+        if ($url) {
+            $smarty->assign('site_help_url', $url);
+        }
 
-        // if bookmarks
+        // preferences UI
+        if (check_permission($userid,'Manage My Settings')) {
+            $smarty->assign('mysettings', 1)
+            ->assign('myaccount', 1); //TODO maybe a separate check
+        }
+
+        // bookmarks UI
         if (UserParams::get_for_user($userid, 'bookmarks') && check_permission($userid, 'Manage My Bookmarks')) {
             $all_marks = $this->get_bookmarks();
             $marks = [];
@@ -276,15 +339,6 @@ EOS;
                 'marks' => $marks,
                 'marks_cntrls' => $marks_cntrls,
             ]);
-        }
-
-        // site logo
-        $sitelogo = AppParams::get('site_logo');
-        if ($sitelogo) {
-            if (!preg_match('~^\w*:?//~', $sitelogo)) {
-                $sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
-            }
-            $smarty->assign('sitelogo', $sitelogo);
         }
 
         // custom js
@@ -337,7 +391,6 @@ EOS;
          ->assign('footertext', get_page_foottext());
 
         // and some other common variables
-        $config = SingleItem::Config();
         $smarty->assign([
             'config' => $config,
             'admin_url' => $config['admin_url'],
@@ -358,8 +411,8 @@ EOS;
 
         // is the website set down for maintenance?
         if (AppParams::get('enablesitedownmessage') == '1') {
-            $smarty->assign('is_sitedown', 'true'); }
-
+            $smarty->assign('is_sitedown', 'true');
+        }
         $smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
         return $smarty->fetch('pagetemplate.tpl');
     }

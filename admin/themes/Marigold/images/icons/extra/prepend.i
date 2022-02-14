@@ -1,1 +1,1 @@
-class="fa fa-hand-o-up green"
+class="cfi-prepend green"

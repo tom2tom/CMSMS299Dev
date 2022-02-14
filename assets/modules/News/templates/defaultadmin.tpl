@@ -12,7 +12,7 @@
     <a href="{cms_action_url action=addarticle}">{admin_icon icon='newobject.gif' alt=_ld($_module,'addarticle')} {_ld($_module,'addarticle')}</a>&nbsp;
     {/if}
     {if $xcats && isset($formstart_itemsfilter)}
-    <a id="toggle_filter" title="{_ld($_module,'tip_viewfilter')}">{admin_icon icon=$filterimage}
+    <a id="toggle_filter" title="{_ld($_module,'tip_viewfilter')}">{admin_icon icon='icons/extra/filter'}
     {if $curcategory != ''}
     <span id="filter_active">{_ld($_module,'prompt_filtered')}</span>
     {else}

@@ -1,14 +1,14 @@
 <?php
 /*
 Marigold - an admin-console theme for CMS Made Simple
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of that license, or
+the Free Software Foundation; either version 3 of that license, or
 (at your option) any later version.
 
 CMS Made Simple is distributed in the hope that it will be useful, but
@@ -36,6 +36,7 @@ use const CMS_ADMIN_PATH;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
 use function _la;
+use function add_page_headtext;
 use function check_permission;
 use function cms_installed_jquery;
 use function cms_join_path;
@@ -56,10 +57,11 @@ class MarigoldTheme extends AdminTheme
 	 + TODO variable(s) for this e.g. better CDN, SRI hash
 	 * e.g. 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
 	 *      'https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
-	 * <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	 * @ignore
 	 */
-	const AWESOME_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';
+	const AWESOME_CDN =
+	'<link rel="preconnect" href="https://cdnjs.cloudflare.com" />'."\n".
+	'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" referrerpolicy="no-referrer" />';
 
 	/**
 	 * @ignore
@@ -78,33 +80,33 @@ class MarigoldTheme extends AdminTheme
 	{
 		list($vars, $add_list) = parent::AdminHeaderSetup();
 
-		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
-		$rel_url = strtr($rel, DIRECTORY_SEPARATOR, '/');
-		$fn = 'style';
-		if (NlsOperations::get_language_direction() == 'rtl') {
-			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
-				$fn .= '-rtl';
-			}
-		}
 		$incs = cms_installed_jquery(true, true, true, true);
 
 		$csm = new StylesMerger();
 		$csm->queue_matchedfile('normalize.css', 1);
-		$csm->queue_file($incs['jquicss'], 2);
-		$csm->queue_matchedfile('grid-960.css', 2); // deprecated since 2.99
+		$csm->queue_matchedfile('grid-960.css', 2); //for modules, deprecated since 2.99
 		$out = $csm->page_content('', false, true);
-		// can't merge these - they include relative URL's
-		// TODO support .min versions if present
+
+		// jQUI css does, and theme-specific css files might, include relative URLs, so cannot be merged
+		$url = cms_path_to_url($incs['jquicss']);
 		$out .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
+<link rel="stylesheet" type="text/css" href="$url" />
 
 EOS;
-		if (is_file(__DIR__.DIRECTORY_SEPARATOR.'extcss'.DIRECTORY_SEPARATOR.$fn.'.css')) {
-			$out .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$rel_url}/extcss/{$fn}.css" />
+		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
+		$rel_url = strtr($rel, '\\', '/');
+		$n = strlen(__DIR__) + 1;
+		$files = $this->get_styles();
+		$after = '';
+		foreach ($files as $fp) {
+			$extra = substr($fp, $n);
+			$sufx = strtr($extra, '\\', '/');
+			$after .= <<<EOS
+<link rel="stylesheet" type="text/css" href="{$rel_url}/{$sufx}" />
 
 EOS;
 		}
+		add_page_headtext($after); // append this lot
 
 		$jsm = new ScriptsMerger();
 		$jsm->queue_file($incs['jqcore'], 1);
@@ -156,10 +158,10 @@ EOS;
 		$fp = cms_join_path(__DIR__, 'css', 'font-awesome.min.css');
 		if (is_file($fp)) {
 			$url = cms_path_to_url($fp);
+			$smarty->assign('font_includes', ' <link rel="stylesheet" href="'.$url.'" />');
 		} else {
-			$url = self::AWESOME_CDN; // TODO variable CDN URL
+			$smarty->assign('font_includes', self::AWESOME_CDN);
 		}
-		$smarty->assign('font_includes', ' <link rel="stylesheet" href="'.$url.'" />');
 
 		$fn = 'style';
 		if (NlsOperations::get_language_direction() == 'rtl') {
@@ -184,8 +186,17 @@ EOS;
 		$url = 'themes/Marigold/includes/login.min.js'; // TODO cms_get_...()
 		$out .= sprintf($tpl, $url);
 
-		$smarty->assign('header_includes', $out) //NOT into bottom (to avoid UI-flash)
-		  ->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates')
+		$smarty->assign('header_includes', $out); //NOT into bottom (to avoid UI-flash)
+		// site logo?
+		$sitelogo = AppParams::get('site_logo');
+		if ($sitelogo) {
+			if (!preg_match('~^\w*:?//~', $sitelogo)) {
+				$sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
+			}
+			$smarty->assign('sitelogo', $sitelogo);
+		}
+
+		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates')
 		  ->display('login.tpl');
 	}
 
@@ -230,7 +241,7 @@ EOS;
 	public function fetch_page($html)
 	{
 		$smarty = SingleItem::Smarty();
-		$uid = get_userid(false);
+		$userid = get_userid(false);
 
 		// setup titles etc
 //		$tree =
@@ -248,20 +259,21 @@ EOS;
 		// module name
 		$modname = $this->get_value('module_name');
 		if (!$modname) {
-			$modname = RequestParameters::get_request_values('module'); // maybe null
+			$modname = RequestParameters::get_request_values('module');
+			$this->set_value('module_name', $modname);
 		}
-		$smarty->assign('module_name', $modname);
+		$smarty->assign('module_name', $modname); // maybe null
 
 		$module_help_type = $this->get_value('module_help_type');
 		// module_help_url
 		if ($modname && ($module_help_type || $module_help_type === null) &&
-			!UserParams::get_for_user($uid,'hide_help_links', 0)) {
+			!UserParams::get_for_user($userid,'hide_help_links', 0)) {
 			if (($module_help_url = $this->get_value('module_help_url'))) {
 				$smarty->assign('module_help_url', $module_help_url);
 			}
 		}
 
-		// page title
+		// page title(s) and alias
 		$alias = $title = $this->get_value('pagetitle');
 		$subtitle = '';
 		if ($title && !$module_help_type) {
@@ -274,7 +286,7 @@ EOS;
 				$title = _la($title, $extra);
 			}
 //			$subtitle = TODO
-		} else {
+		} elseif (!$title) {
 			$title = $this->get_active_title(); // try for the active-menu-item title
 			if ($title) {
 				$subtitle = $this->subtitle;
@@ -290,11 +302,12 @@ EOS;
 				}
 */
 			}
+//		} else {
+//			$subtitle = TODO
 		}
-		if (!$title) $title = '';
 		$smarty->assign('pagetitle', $title)
 		  ->assign('subtitle', $subtitle)
-		  ->assign('pagealias', munge_string_to_url($alias));		// page alias
+		  ->assign('pagealias', munge_string_to_url($alias));
 
 		// icon
 		if ($modname && ($icon_url = $this->get_value('module_icon_url'))) {
@@ -325,13 +338,13 @@ EOS;
 		}
 
 		// preferences UI
-		if (check_permission($uid,'Manage My Settings')) {
+		if (check_permission($userid,'Manage My Settings')) {
 			$smarty->assign('mysettings', 1)
 			  ->assign('myaccount', 1); //TODO maybe a separate check
 		}
 
 		// bookmarks UI
-		if (UserParams::get_for_user($uid, 'bookmarks') && check_permission($uid,'Manage My Bookmarks')) {
+		if (UserParams::get_for_user($userid, 'bookmarks') && check_permission($userid,'Manage My Bookmarks')) {
 			$marks = $this->get_bookmarks();
 			$smarty->assign('marks', $marks);
 		}
@@ -339,10 +352,11 @@ EOS;
 		$fp = cms_join_path(__DIR__, 'css', 'font-awesome.min.css');
 		if (is_file($fp)) {
 			$url = cms_path_to_url($fp);
+			$s = '<link rel="stylesheet" href="'.$url.'" />';
 		} else {
-			$url = self::AWESOME_CDN; // TODO variable CDN URL
+			$s = self::AWESOME_CDN; // TODO variable CDN URL
 		}
-		$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />')
+		$smarty->assign('font_includes', $s)
 		  ->assign('header_includes', get_page_headtext())
 		  ->assign('bottom_includes', get_page_foottext())
 		// other variables
@@ -350,7 +364,6 @@ EOS;
 		  ->assign('content', str_replace('</body></html>', '', $html))
 		  ->assign('admin_url', $config['admin_url'])
 		  ->assign('assets_url', $config['admin_url'] . '/themes/assets')
-
 		  ->assign('theme', $this);
 		// navigation menu data
 		if (!$this->_havetree) {
@@ -359,10 +372,10 @@ EOS;
 			$smarty->assign('nav', $this->_havetree);
 		}
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
-		$user = SingleItem::UserOperations()->LoadUserByID($uid);
-		$smarty->assign('username', $user->username);
+		$user = SingleItem::UserOperations()->LoadUserByID($userid);
+		$smarty->assign('username', $user->username); //TODO only if user != effective user
 		// selected language
-		$lang = UserParams::get_for_user($uid, 'default_cms_language');
+		$lang = UserParams::get_for_user($userid, 'default_cms_language');
 		if (!$lang) $lang = AppParams::get('frontendlang');
 		$smarty->assign('lang_code', $lang)
 		  ->assign('lang_dir', NlsOperations::get_language_direction()); // language direction
