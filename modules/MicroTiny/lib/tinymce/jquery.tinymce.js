@@ -1,10 +1,11 @@
 /**
  * JqueryIntegration.js
  *
- * Released under LGPL License.
+ * Released under GPL license v.3
+ * Formerly under LGPL v.2.1, but revised here in accord with the terms of the latter license
  * Copyright (c) 1999-2017 Ephox Corp. All rights reserved
  *
- * License: http://www.tinymce.com/license
+ * Former license: http://www.tinymce.com/license
  * Contributing: http://www.tinymce.com/contributing
  */
 
