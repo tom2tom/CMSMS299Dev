@@ -4,7 +4,7 @@ jQuery Resize And Crop (jrac) plugin V.1.0.3 <https://github.com/trepmag/jrac>
 License: GPL2
 */
 /**
- * A jquery+jquery-ui plugin under GNU GENERAL PUBLIC LICENSE version 2 lisense.
+ * A jquery+jquery-ui plugin under GNU GENERAL PUBLIC LICENSE version 2.
  * Copyright (c) 2011-2014 Cedric Gampert - cgampert@gmail.com
  *
  * Dependencies:
