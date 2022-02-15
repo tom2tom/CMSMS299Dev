@@ -36,8 +36,6 @@ use CMSMS\RouteOperations;
 use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use CMSMS\Utils;
-use Exception;
-use LogicException;
 use function CMSMS\de_entitize;
 use function CMSMS\entitize;
 use function CMSMS\execSpecialize;
@@ -47,9 +45,6 @@ use function CMSMS\get_site_UUID;
 use function CMSMS\log_error;
 use function CMSMS\specialize;
 use function CMSMS\urlencode;
-use function endswith;
-use function redirect;
-use function startswith;
 
 /**
  * Miscellaneous support functions which are dependent on this CMSMS
