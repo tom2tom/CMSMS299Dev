@@ -36,7 +36,7 @@ $lang = [
 <h3>Support</h3>
 <p>As per the GPL, this software is provided as-is. Please read the text of the license for the full disclaimer.</p>
 <h3>Copyright and License</h3>
-<p>Copyright &copy; 2012-2021 CMS Made Simple Foundation <a href="mailto:foundation@cmsmadesimple.org">&lt;foundation@cmsmadesimple.org&gt;</a>. All rights reserved.</p>
+<p>Copyright &copy; 2012-2022 CMS Made Simple Foundation <a href="mailto:foundation@cmsmadesimple.org">&lt;foundation@cmsmadesimple.org&gt;</a>. All rights reserved.</p>
 <p>This module has been released under the <a href="http://www.gnu.org/licenses/licenses.html#GPL">GNU Public License</a>. The module may not be distributed or used otherwise than in accordance with that license.</p>
 EOS
 ,

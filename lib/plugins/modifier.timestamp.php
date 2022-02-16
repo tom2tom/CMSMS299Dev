@@ -16,7 +16,7 @@ function smarty_modifier_timestamp($string)
 function smarty_cms_about_modifier_timestamp()
 {
 	$n = _la('none');
-	echo _ld('tags', 'about_generic', '2021', "<li>$n</li>");
+	echo _ld('tags', 'about_generic', '2022', "<li>$n</li>");
 }
 */
 function smarty_cms_help_modifier_timestamp()

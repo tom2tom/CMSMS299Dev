@@ -21,7 +21,7 @@ function smarty_modifier_localedate_format($datevar, $format = '%b %e, %Y', $def
 function smarty_cms_about_modifier_localedate_format()
 {
     $n = _la('none');
-    echo _ld('tags', 'about_generic', 'Dec 2021', "<li>$n</li>");
+    echo _ld('tags', 'about_generic', 'Feb 2022', "<li>$n</li>");
 }
 
 function smarty_cms_help_modifier_localedate_format()

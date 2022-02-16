@@ -70,7 +70,7 @@ function smarty_modifier_cms_date_format($datevar, $format = '', $default_date =
 function smarty_cms_about_modifier_cms_date_format()
 {
 	echo _ld('tags', 'about_generic', 'Ted Kulp 2004',
-	'<li>Dec 2021<ul>
+	'<li>Mar 2022<ul>
  <li>Use site setting \'date_format\' if no \'format\' parameter is supplied</li>
  <li>Support \'timed\' in the format parameter</li>
  <li>If appropriate, generate output using replacement for deprecated strftime()</li>

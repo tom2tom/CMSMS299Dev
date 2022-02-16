@@ -1,7 +1,7 @@
 <?php
 /*
 Job: generate a notice about draft news item(s)
-Copyright (C) 2017-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2017-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is part of CMS Made Simple module: News
 

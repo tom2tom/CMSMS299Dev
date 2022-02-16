@@ -1,7 +1,7 @@
 <?php
 /*
 Class which supports searching in stylesheets.
-Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 See license details at the top of file AdminSearch.module.php
 */

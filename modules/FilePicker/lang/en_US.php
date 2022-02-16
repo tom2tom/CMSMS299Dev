@@ -97,8 +97,8 @@ $lang = [
 <h3>Support</h3>
 <p>As per the license, this software is provided as-is. Please read the text of the license for the full disclaimer.</p>
 <h3>Copyright and License</h3>
-<p>Copyright &copy; 2017-2018, Fernando Morgado and Robert Campbell, &copy; 2019-2021, CMS Made Simple Foundation. All rights reserved.</p>
-<p>This module has been released under the <a href="http://www.gnu.org/licenses/licenses.html#GPL">GNU Public License</a>. The module must not be used otherwise than in accordance with that license, or a later version of that licence granted by the module distributor.</p>
+<p>Copyright &copy; 2017-2018, Fernando Morgado and Robert Campbell, &copy; 2019-2022, CMS Made Simple Foundation. All rights reserved.</p>
+<p>This module has been released under version 3 of the <a href="http://www.gnu.org/licenses/licenses.html#GPL">General Public License</a>. The module must not be used otherwise than in accordance with that license, or a later version of that licence granted by the module distributor.</p>
 EOT
 ,
 
