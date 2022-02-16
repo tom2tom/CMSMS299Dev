@@ -73,9 +73,12 @@ require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppConfig.php'; // us
 // DEBUG require_once $dirpath.'version.php'; // some defines
 require_once $dirpath.'defines.php'; // populate relevant defines (uses AppConfig instance)
 if (CMS_DEPREC) {
-    ini_set('assert.exception', 1);
-} else {
-    ini_set('zend.assertions', -1);
+    @ini_set('assert.exception', 1);
+/*} else {
+    @ini_set('zend.assertions', -1); TODO probably useless. From PHP doc:
+If a process is started in production mode, zend.assertions cannot be changed at runtime...
+If a process is started in development mode, zend.assertions cannot be set to -1 at runtime.
+*/
 }
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.App.php'; // used in autoloader
 require_once $dirpath.'module.functions.php'; // used in autoloader
