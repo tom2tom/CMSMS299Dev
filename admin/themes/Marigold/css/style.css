@@ -274,19 +274,10 @@ a.external::after {
 
 /* Clearfix */
 
-.cf {
-    height: 1%;
-    overflow: visible
-}
 .cf::after {
-    clear: both;
-    content: ' ';
-    display: block;
-    height: 0;
-    visibility: hidden
-}
-* + .cf {
-    min-height: 1%
+    content: '';
+    display: table;
+    clear: both
 }
 .clear {
     clear: both;

@@ -50,9 +50,6 @@ body {
     flex: 0 0 auto;
 }
 
-.clear { clear: both; height: 0 }
-.clearb { clear: both }
-
 .img-fluid {
     height: auto
 }
@@ -182,6 +179,19 @@ a.external::after {
     font-weight: normal;
     font-size: 0.7rem;
     margin: 10px 0 0 0
+}
+
+.cf::after {
+    content: '';
+    display: table;
+    clear: both
+}
+.clear {
+    clear: both;
+    height: 0
+}
+.clearb {
+    clear: both
 }
 
 /* these will be replaced by Bootstrap */

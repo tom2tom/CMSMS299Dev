@@ -862,20 +862,10 @@ fieldset {
 }
 
 /*** clearfix ***/
-* + .cf {
-	min-height: 1%;
-}
-
-.cf {
-	height: 1%;
-}
-
 .cf::after {
-	clear: both;
-	content: ' ';
-	display: block;
-	height: 0;
-	visibility: hidden;
+	content: '';
+	display: table;
+	clear: both
 }
 
 .clear {

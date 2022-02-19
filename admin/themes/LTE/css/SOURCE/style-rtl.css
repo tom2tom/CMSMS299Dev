@@ -58,21 +58,10 @@ Derived from the OneEleven/Marigold admin themes for CMS Made Simple
 
 /* Clearfix */
 
-.cf {
-	height: 1%;
-	overflow: visible
-}
-
 .cf::after {
-	clear: both;
-	display: block;
-	content: ' ';
-	height: 0;
-	visibility: hidden
-}
-
-* + .cf {
-	min-height: 1%
+	content: '';
+	display: table;
+	clear: both
 }
 
 .clear {

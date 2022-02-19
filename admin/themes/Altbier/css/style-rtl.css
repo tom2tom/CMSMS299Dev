@@ -7,7 +7,7 @@ Release year 2022
 Derived from OneEleven theme (C) 2012 Goran Ilic (ja@ich-mach-das.at) - http://dev.cmsmadesimple.org/users/uniqu3 * Version: 1.0
 Uses Font Awesome 5 Free font-icons, the stylesheet for which is assumed to be separately (pre-)loaded
 */
-/*! CMSMS admin theme styling: Altbier v.1.1 2022 */
+/*! CMSMS admin theme styling: Altbier v.1.1 rtl 2022 */
 /*
 Pallette
 #262626 body/content foreground WAS #232323
@@ -38,10 +38,10 @@ body {
 body {
     direction: rtl;
     unicode-bidi: embed;
-    line-height: 1.4;
-    font-size: 0.95rem;
     background: #f8f8fb;
-    color: #262626
+    color: #262626;
+    line-height: 1.4;
+    font-size: 0.98rem;
 }
 
 .col-auto {
@@ -49,9 +49,6 @@ body {
     -webkit-flex: 0 0 auto;
     flex: 0 0 auto;
 }
-
-.clear { clear: both; height: 0 }
-.clearb { clear: both }
 
 .img-fluid {
     height: auto
@@ -104,37 +101,6 @@ ol {
     list-style: none;
     margin: 0;
     padding: 0
-}
-
-#ab_mainarea {
-    height: 100%;
-    width: 100%;
-    margin: 0 0.25em;
-    -webkit-flex: 1;
-    -ms-flex: 1;
-    flex: 1; /* take the remaining height of the parent div */
-    overflow: auto; /* scroll this div */
-}
-
-#ab_mainarea ul {
-    list-style: square
-}
-
-#ab_mainarea ul ol {
-    margin: 10px 25px 10px 0
-}
-
-#ab_mainarea li {
-    line-height: 1.5
-}
-
-#ab_mainarea ol li {
-    list-style: decimal
-}
-
-#ab_mainarea,
-#ab_menu {
-    text-align: left; /* crappy hack for elements not affected by html|css rtl-direction setting */
 }
 
 h1,
@@ -215,15 +181,19 @@ a.external::after {
     margin: 10px 0 0 0
 }
 
-div.pagecontainer .h-inside {
-    float: right;
-    padding-top: 8px;
-    padding-left: 10px;
-    margin-right: 10%;
-    width: 18rem;
-    margin-bottom: 0.5em;
-    text-align: left
+.cf::after {
+    content: '';
+    display: table;
+    clear: both
 }
+.clear {
+    clear: both;
+    height: 0
+}
+.clearb {
+    clear: both
+}
+
 /* these will be replaced by Bootstrap */
 .visible {
     position: static
@@ -270,7 +240,7 @@ pre {
 
 /* border radius */
 table.pagetable,
-div.pagecontainer fieldset,
+/*.pagecontainer fieldset, CHANGED re-located to other pagecontainer stuff*/
 input,
 textarea,
 select,
@@ -1066,16 +1036,6 @@ aside .no-slide,
     float: right;
     margin-left: 20px
 }
-.pagecontainer .pageinput.postgap, .postgap {
-    margin-top: 5px;
-    margin-bottom: 16px;
-    overflow: auto
-}
-.pagecontainer .pageinput.pregap, .pregap {
-    margin-top: 16px;
-    margin-bottom: 5px;
-    overflow: auto
-}
 
 /* Full height */
 
@@ -1209,16 +1169,15 @@ aside .no-slide,
 /* Sidebar */
 
 #ab_sidebar {
-    overflow: hidden;
     width: 13.5em;
-    height: calc(100vh - 7em); /*TODO adjust for actual header+footer height*/
-    border-left: 1px solid #fff;
+/*CHANGED no height here*/
+/*CHANGED border-right: 1px solid #fff;*/
     background: #dcdce5;
 }
 .sidebar-off #ab_sidebar {
-    overflow: hidden;
-    width: 3em;
-    border: 0
+/*CHANGED no overflow here*/
+    width: 3em
+/*CHANGED    border: 0*/
 }
 
 /* toggle sidebar */
@@ -1248,12 +1207,14 @@ aside .no-slide,
 }
 
 #ab_sidebar aside {
-    height: 100%;
+    height: calc(100% - 2.5em); /*TODO reduction to match footer height */
+    overflow: hidden;
 }
 
 #ab_sidebar nav {
     position: relative;
     top: 2.75em; /*open-close height =~ top-li height*/
+    height: calc(100% - 2.5em - 16px);/* TODO allowance for footer height + h-scrollbar */
     overflow: auto;
 }
 
@@ -1270,7 +1231,6 @@ aside .no-slide,
 #ab_pagemenu {
     border-top: 1px solid #cbcbf6;
     border-bottom: 1px solid #cbcbf6;
-    overflow: auto;
 }
 
 #ab_pagemenu li {
@@ -1310,10 +1270,11 @@ aside .no-slide,
 .nav-mark.open::after {
     content: '\f106';
 }
-#ab_pagemenu li li .nav-mark {
-    left: 0; /*align markers*/
+/*
+#ab_pagemenu li li .nav-mark { CHANGED
+    right: 0.5em; /*align markers* /
 }
-
+*/
 
 /* TODO support nav-mark::after rotatation @ sub-menu open/close
     -webkit-transition: transform ease-in-out 300ms;
@@ -1398,7 +1359,7 @@ aside .no-slide,
 }
 
 #ab_pagemenu li li {
-    width: 13.3em; /*avoids horz scrollbar*/
+/* CHANGED    width: 12.3em;*/
     border-top: 1px solid #dedeff;
     border-bottom: 0;
     line-height: 1.8;
@@ -1543,6 +1504,38 @@ nav h3.usertags a::before, #ab_pagemenu li a.usertags::before { content: '\f507'
 
 /* Page content */
 
+#ab_mainarea {
+    height: 100%;
+    width: 100%;
+    margin: 0 0.25em;
+    padding: 0;/*CHANGED*/
+    -webkit-flex: 1;
+    -ms-flex: 1;
+    flex: 1; /* take the remaining height of the parent div */
+    overflow: hidden; /*CHANGED do not scroll this div */
+}
+
+#ab_mainarea ul {
+    list-style: square
+}
+
+#ab_mainarea ul ol {
+    margin: 10px 25px 10px 0
+}
+
+#ab_mainarea li {
+    line-height: 1.5
+}
+
+#ab_mainarea ol li {
+    list-style: decimal
+}
+
+#ab_mainarea,
+#ab_menu {
+    text-align: left; /* crappy hack for elements not affected by html|css rtl-direction setting */
+}
+
 #ab_mainarea .content-inner {
     padding: 0 10px;
     position: relative;
@@ -1597,13 +1590,13 @@ i.fontimage {
     display: inline-block;
     vertical-align: middle;
     margin: 0 0 0 1em;
-    height: 2em;
-    width: 2em;
+    height: 1.75em;/*CHANGED*/
+    width: 1.75em;/*CHANGED*/
 }
 
 .headericon img {
-    max-height: 2em;
-    max-width: 2em;
+    max-height: 1.75em;/*CHANGED*/
+    max-width: 1.75em;/*CHANGED*/
 }
 
 span.helptext a {
@@ -1622,6 +1615,7 @@ span.helptext a::before {
     padding: 0;
     color: #147fdb
 }
+
 .pageheader img {
     max-height: 2rem;
     max-width: 2rem;
@@ -1682,7 +1676,6 @@ svg.systemicon {
     margin: 0 1px;
     color: #fff
 }
-
 
 /* Dialogs */
 
@@ -2079,15 +2072,57 @@ a.pageback:hover {
     color: #fff
 }
 
-/* TODO
-div.pagecontainer {
+/* main content */
+
+.pagecontainer { /*CHANGED ADDED*/
+    overflow: auto;
+    height: calc(100vh - 12.5em - 16px);/*TODO derive fudge from (variable) header + fixed page-top + footer heights PLUS js on.('resize", adjust...*/
+}
+
+.pagecontainer > * {/* REPLACED former #page_container class*/
     overflow: hidden;
 }
-div.pagecontainer * {
-    overflow: inherit;
+
+.pagecontainer fieldset {/*CHANGED moved, no div etc*/
+    margin: .5em 0 .5em .25em;/*right margin offset from possible v-scrollbar*/
+    padding: .5em;
+    border: 1px solid #cecef3;
+    -webkit-border-radius: 4px;/*CHANGED consolidated these */
+    -moz-border-radius: 4px;
+    border-radius: 4px
 }
-*/
-div.pagecontainer .pagetext {
+
+.pagecontainer legend {/*CHANGED moved no div*/
+    margin: 0;
+    padding: 0 .5em;
+    width: inherit;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #4d4d4d;
+}
+
+.pagecontainer .h-inside {/*CHANGED moved, no div*/
+    float: right;
+    padding-top: 8px;
+    padding-left: 10px;
+    margin-right: 10%;
+    width: 18rem;
+    margin-bottom: 0.5em;
+    text-align: left
+}
+
+.pagecontainer .pageshowrows {/*CHANGED no div*/
+    color: #4d4d4d;
+    font-size: 0.9rem;
+    text-align: left;
+    margin-bottom: 5px
+}
+
+.pagecontainer .helptext {/*CHANGED no div, span*/
+    display: inline-block
+}
+
+.pagecontainer .pagetext {/*CHANGED moved, no div*/
     color: #4d4d4d;
     margin: 10px 0 5px 0;
     padding: 0;
@@ -2095,44 +2130,27 @@ div.pagecontainer .pagetext {
     font-weight: bold
 }
 
-div.pagecontainer .pageshowrows {
-    color: #4d4d4d;
-    font-size: 0.9rem;
-    text-align: left;
-    margin-bottom: 5px
-}
-
-div.pagecontainer span.helptext {
-    display: inline-block
-}
-
-/* Content forms */
-
-div.pagecontainer .pageinput {
+.pagecontainer .pageinput {/*CHANGED no div*/
     padding: 0;
     margin: 0;
     width: auto;
     text-align: right
 }
 
-.pageinput img {
-    line-height: 28px;
-    vertical-align: middle
+.pagecontainer .pageinput.postgap, .postgap { /*CHANGED MOVED*/
+    margin-top: 5px;
+    margin-bottom: 16px;
+    overflow: auto
+}
+.pagecontainer .pageinput.pregap, .pregap { /*CHANGED MOVED*/
+    margin-top: 16px;
+    margin-bottom: 5px;
+    overflow: auto
 }
 
-div.pagecontainer fieldset {
-    margin: 4px 2px;
-    padding: 5px;
-    border: 1px solid #cecef3
-}
-
-div.pagecontainer legend {
-    margin: 0;
-    padding: 0 5px;
-    width: inherit;
-    color: #4d4d4d;
-    font-weight: bold;
-    font-size: 1rem
+.pagecontainer p.pageinput,
+.pagecontainer .pageinput label {/*CHANGED MOVED, no div*/
+    font-size: 0.9rem
 }
 
 .pageinput input,
@@ -2141,6 +2159,36 @@ div.pagecontainer legend {
 .pageinput menu {
     margin-bottom: 4px
 }
+
+.pageinput img { /*CHANGED moved*/
+    line-height: 28px;
+    vertical-align: middle
+}
+
+.pageinput textarea {/*CHANGED moved*/
+    width: 90%;
+    font-family: 'Red Hat Mono', Courier, monospace;
+    font-size: 0.9rem;
+    line-height: 1.6
+}
+
+/* CHANGED moved
+textarea.pagebigtextarea {
+    height: 40em;
+    width: 90%
+}
+*/
+
+textarea.pagesmalltextarea {/*CHANGED moved*/
+    height: 15em;
+    width: 90%
+}
+
+textarea.pageextrasmalltextarea {/*CHANGED moved*/
+    height: 8em;
+    width: 90%
+}
+
 
 .group {
     padding-left: 3px;
@@ -2154,11 +2202,6 @@ div.pagecontainer legend {
     padding: 5px 10px;
     background: #fefefe;
     border: 1px solid #cecef3;
-}
-
-div.pagecontainer p.pageinput,
-div.pagecontainer .pageinput label {
-    font-size: 0.9rem
 }
 
 p.pageinputwysiwyg {
@@ -2175,59 +2218,31 @@ input.pagecheckbox {
     border: none
 }
 
-/*
-textarea.pagebigtextarea {
-    height: 40em;
-    width: 90%
-}
-*/
-
-.pageinput textarea {
-    width: 90%;
-    font-family: 'Red Hat Mono', Courier, monospace;
-    font-size: 0.85rem;
-    line-height: 1.6
-}
-
-textarea.pagesmalltextarea {
-    height: 15em;
-    width: 90%
-}
-
-textarea.pageextrasmalltextarea {
-    height: 8em;
-    width: 90%
-}
-
 /* Tabs */
 
 #page_tabs {
-    overflow: hidden;
-    margin-top: 20px
+    overflow: hidden
+/*    margin-top: 1em CHANGED*/
 }
 
 #page_tabs > div {
-    color: #4d4d4d;
+    float: right;
     -webkit-border-radius: 4px 4px 0 0;
     -moz-border-radius: 4px 4px 0 0;
     border-radius: 4px 4px 0 0;
-    text-shadow: 1px 1px 0 #fff;
+    border: 1px solid #cecef3;/*CHANGES*/
+    border-bottom-width: 0;
+    padding: .75em;
+    margin-top: 1px;
+    margin-left: 1px;
     background: #dcdce5;
     font-weight: bold;
     text-align: center;
-    float: right;
-    cursor: pointer;
+    text-shadow: 1px 1px 0 #fff;
     white-space: nowrap;
-    padding: 11px;
-    margin-top: 1px;
-    margin-left: 1px
-}
+    color: #4d4d4d;
+    cursor: pointer;
 
-#page_tabs > div img {
-    height: .875rem;
-    margin-top: 2px;
-    margin-right: 5px;
-    margin-left: 5px
 }
 
 #page_tabs > div:hover {
@@ -2239,24 +2254,28 @@ textarea.pageextrasmalltextarea {
 }
 
 #page_tabs > div.active {
+    background: #147fdb url(../images/layout/tab-active.png) no-repeat center bottom;
     color: #fff;
     text-shadow: 1px -1px 0 #054882;
-    background: #147fdb url(../images/layout/tab-active.png) no-repeat center bottom
 }
 
-#page_tabs ~ #page_content > div {
-    overflow: auto;
-    min-height: 0;
+#page_tabs > div img {/*CHANGED moved etc*/
+    height: 0.9em;
+    margin-top: 2px;
+    margin-right: 5px;
+    margin-left: 5px
 }
 
 #page_content {
     background: #fff;
-    padding: 20px 10px;
-    -webkit-border-radius: 0 0 4px 4px;
-    -moz-border-radius: 0 0 4px 4px;
-    border-radius: 0 0 4px 4px;
-    border: 1px solid #cecef3;
-    border-top: 3px solid #cecef3
+    padding: 2px;/*space for focus indicators CHANGED*/
+    border-top: 2px solid #cecef3;
+}
+
+#page_content > div { /*CHANGED moved etc*/
+    padding: 0.5em 2px;
+    max-height: calc(100vh - 17em);/*TODO derive relevant adjustment*/
+    overflow: auto;
 }
 
 /* Topcontent (dashboard) */
@@ -2964,7 +2983,7 @@ select {
     #ab_sidebar aside {
         padding: 0
     }
-    .sidebar-off #ab_sidebar nav.navigation {
+    .sidebar-off #ab_sidebar nav {
         overflow: hidden;
     }
 /*
