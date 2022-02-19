@@ -48,7 +48,7 @@ $lang['example'] = 'Example';
 
 // F
 $lang['filepickertitle'] = 'File Picker'; //lazy, get this from FilePicker-module lang
-$lang['friendlyname'] = 'Content Editor Settings'; //admin menu label
+$lang['friendlyname'] = 'HTML Editor Settings'; //admin menu label see also 'settings'
 $lang['fileview'] = 'File View';
 $lang['filename'] = 'File Name';
 $lang['filterby'] = 'Filter by';
@@ -225,7 +225,6 @@ $lang['loading_info'] = 'Loading...';
 $lang['mailto_image'] = 'Create a mail image'; // WHAT ??
 $lang['mailto_text'] = 'Email link';
 $lang['mailto_title'] = 'Create an email link';
-$lang['microtiny_friendlyname'] = 'MicroTiny';
 
 $lang['msg_cancelled'] = 'Operation canceled';
 $lang['mthelp_allowcssoverride'] = 'If enabled, then any code that initializes a MicroTiny WYSIWYG area will be able to specify the name of a stylesheet to use instead of the default stylesheet specified above.';
@@ -276,7 +275,7 @@ $lang['prompt_target'] = 'Target';
 $lang['prompt_texttodisplay'] = 'Text to Display';
 
 // S
-$lang['settings_title'] = 'MicroTiny Editor Settings'; // central settings title
+$lang['settings_title'] = 'HTML Editor Settings'; // central settings title
 $lang['settings'] = 'Settings'; // tab title
 $lang['size'] = 'Size';
 $lang['submit'] = 'Submit';
