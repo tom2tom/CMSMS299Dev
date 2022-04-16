@@ -2508,7 +2508,7 @@ body &gt; main {
 
 .list1 {
 
-} 
+}
 .firstnewscat {
 
 }
@@ -4001,7 +4001,7 @@ body&gt;main {
 
 .list1 {
 
-} 
+}
 .firstnewscat {
 
 }
@@ -5968,7 +5968,7 @@ a {
 		</page>
 		<page>
 			<content_id>5</content_id>
-			<content_name>Why use CMS Made Simple?</content_name>
+			<content_name>Why Use CMS Made Simple?</content_name>
 			<type>content</type>
 			<default_content>0</default_content>
 			<show_in_menu>1</show_in_menu>
@@ -5979,7 +5979,7 @@ a {
 			<parent_id>-1</parent_id>
 			<template_id>4</template_id>
 			<item_order>4</item_order>
-			<menu_text><![CDATA[Why use CMS Made Simple?]]></menu_text>
+			<menu_text><![CDATA[Why Use CMS Made Simple?]]></menu_text>
 			<content_alias>why-use-cms-made-simple</content_alias>
 			<metadata></metadata>
 			<titleattribute></titleattribute>
@@ -6090,7 +6090,7 @@ a {
 &lt;p&gt;If you are new to CMS Made Simple, the best place to start is with the &lt;a title=&quot;CMS Made Simple documentation site&quot; href=&quot;http://docs.cmsmadesimple.org/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;documentation&lt;/a&gt;. If you&apos;re ready to get your hands dirty, log in to the site admin console &lt;a title=&quot;CMSMS Demo Admin Panel&quot; href=&quot;admin&quot;&gt;here&lt;/a&gt; (or if this is not your site, go to &lt;span style=&quot;white-space: nowrap;&quot;&gt;yoursite.com/[path]/admin&lt;/span&gt;). Explore the templates provided. They are sprinkled with comments and tips for modifying or building your own designs.&lt;/p&gt;
 &lt;p&gt;If you need further help, various support options are described &lt;a href=&quot;https://www.cmsmadesimple.org/support/options/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 &lt;h3&gt;License&lt;/h3&gt;
-&lt;p&gt;The license which applies to CMS Made Simple is the &lt;a class=&quot;external&quot; title=&quot;General Public License&quot; href=&quot;http://www.gnu.org/licenses/licenses.html#GPL&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;GPL&lt;/a&gt; version 2 (or later) from the Free Software Foundation.&lt;/p&gt;
+&lt;p&gt;The license which applies to CMS Made Simple is the &lt;a class=&quot;external&quot; title=&quot;General Public License&quot; href=&quot;http://www.gnu.org/licenses/licenses.html#GPL&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;GPL&lt;/a&gt; version 3 (or later) from the Free Software Foundation.&lt;/p&gt;
 &lt;p&gt;Some independently-developed add-on modules may have a different (compatible) license.&lt;/p&gt;
 ]]></content>
 		</property>
@@ -6141,7 +6141,7 @@ a {
 &lt;/p&gt;
 &lt;p&gt;CMS Made Simple&amp;trade; was first released in July 2004 as an open source (&lt;a href=&quot;http://www.gnu.org/licenses/gpl-2.0.html&quot;&gt;GPL&lt;/a&gt;) package, which it remains to this day.
 &lt;/p&gt;
-&lt;p&gt;Since 2004, the core system has been regularly improved and updated with features, security releases, code improvements and much more. In that time, we have released countless new versions, each an improvement on the previous. In the summer of 2015, we released version 2.0, which was a nearly complete overhaul of the system. As we noticed our user base maturing to more advanced developers creating sites and applications, and larger design firms producing hundreds of CMSMS projects, it helped steer the project towards the powerful application base it is today.
+&lt;p&gt;Since 2004, the core system has been regularly improved and updated with features, security releases, code improvements and much more. In that time, many new versions have been released, each an improvement on the previous. In the summer of 2015, version 2.0 was released. It was a nearly-complete overhaul of the system. As we noticed our user base maturing to more advanced developers creating sites and applications, and larger design firms producing hundreds of CMSMS projects, it helped steer the project towards the powerful application base it is today.
 &lt;/p&gt;
 &lt;p&gt;It&amp;rsquo;s not just our own user base that has given us such great support. CMS Made Simple has garnered a number of awards since its creation including runner up (twice) and winner of Pact Publishing&amp;rsquo;s &amp;lsquo;Best Overall Open Source Content Management System&amp;rsquo; in their annual Open Source Awards.
 &lt;/p&gt;

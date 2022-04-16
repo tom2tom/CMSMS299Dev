@@ -16,7 +16,7 @@ final class cms_smarty extends Smarty
         parent::__construct();
 
         $assdir = dirname(__DIR__).DIRECTORY_SEPARATOR; // 'lib'-relative
-        $this->setTemplateDir($assdir.'templates');
+        $this->setTemplateDir($assdir.'layouts');
         $this->setConfigDir($assdir.'configs');
         $app = get_app();
         $tmpdir = $app->get_tmpdir().DIRECTORY_SEPARATOR.'m'.md5(__FILE__).DIRECTORY_SEPARATOR;

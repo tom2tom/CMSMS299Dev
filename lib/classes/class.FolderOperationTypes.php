@@ -20,7 +20,7 @@ namespace CMSMS;
 use CMSMS\BasicEnum;
 
 /**
- * @since 2.99
+ * @since 3.0
  */
 final class FolderOperationTypes extends BasicEnum
 {

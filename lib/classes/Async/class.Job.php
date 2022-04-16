@@ -197,7 +197,7 @@ abstract class Job
      * Jobs cannot count on any user, or data stored in session variables.
      * Any data that is needed for the job should either be stored with
      * the job object, or stored in the database in a context-independent format.
-     * @return mixed void | since 2.99 int indicating execution-status
+     * @return mixed void | since 3.0 int indicating execution-status
      *   0 = failed, 1 = no need to do anything, 2 = success
      */
     abstract public function execute();
@@ -205,7 +205,7 @@ abstract class Job
     /**
      * Get the 'base' name of the class.
      *
-     * @since 2.99
+     * @since 3.0
      * @return string
      */
     protected function shortname() : string

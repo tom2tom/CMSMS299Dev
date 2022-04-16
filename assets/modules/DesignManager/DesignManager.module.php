@@ -36,7 +36,7 @@ final class DesignManager extends CMSModule
     public function HasAdmin() { return true; }
     public function IsAdminOnly() { return true; }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
-    public function MinimumCMSVersion()  { return '2.99'; }
+    public function MinimumCMSVersion()  { return '2.999'; }
 //  public function LazyLoadAdmin() { return true; }
 //  public function LazyLoadFrontend() { return true; }
     public function UninstallPostMessage() { return $this->Lang('postuninstall'); }

@@ -36,7 +36,7 @@ use const CMS_DEPREC;
  *
  * @see also the LoadedDataType class, which defines how data are populated on demand
  * @see also the SystemCache class, which defines the main system cache
- * @since 2.99
+ * @since 3.0
  * @since 2.0 as CMSMS\internal\global_cache class
  * @package CMS
  */
@@ -125,8 +125,8 @@ class LoadedData
 
     /**
      * Get the singleton instance of this class
-     * @since 2.99
-     * @deprecated since 2.99 Instead use CMSMS\SingleItem::LoadedData()
+     * @since 3.0
+     * @deprecated since 3.0 Instead use CMSMS\SingleItem::LoadedData()
      * @return LoadedData object
      */
     public static function get_instance()
@@ -139,7 +139,7 @@ class LoadedData
      * Add a loaded-data type (including the mechanism to populate data
      * of that type). Any existing loader for the same type will be
      * replaced.
-     * @since 2.99
+     * @since 3.0
      *
      * @param mixed $obj LoadedDataType or anything else with compatible API e.g. LoadedMetadataType
      */
@@ -151,7 +151,7 @@ class LoadedData
 
     /**
      * Add a loaded-data type
-     * @deprecated since 2.99 Instead use LoadedData::add_type()
+     * @deprecated since 3.0 Instead use LoadedData::add_type()
      *
      * @param mixed $obj LoadedDataType or anything else with compatible API e.g. LoadedMetadataType
      */
@@ -165,7 +165,7 @@ class LoadedData
      * Report whether a data-type is present in the cache
      *
      * @param string $type Data-identifier
-     * @param varargs $details since 2.99 Optional extra parameters UNUSED
+     * @param varargs $details since 3.0 Optional extra parameters UNUSED
      * @return bool
      */
     public function has(string $type, ...$details) : bool
@@ -183,9 +183,9 @@ class LoadedData
      * Get all loaded or loadable data for the specified type
      *
      * @param string $type Data-identifier
-     * @param bool $force since 2.99 Optional flag signalling
+     * @param bool $force since 3.0 Optional flag signalling
      *  source-data are wanted (i.e. no system-cache). Default false.
-     * @param varargs $details since 2.99 Optional extra parameters
+     * @param varargs $details since 3.0 Optional extra parameters
      * @return mixed
      * @throws UnexpectedValueException if $type is not a recorded/cachable type
      */
@@ -234,7 +234,7 @@ class LoadedData
      *
      * @param string $type Specific data-identifier or '*'
      *  If $type is '*' or falsy, all types will be refreshed
-     * @param varargs $details since 2.99 Optional extra parameters
+     * @param varargs $details since 3.0 Optional extra parameters
      */
     public function refresh(string $type, ...$details)
     {
@@ -281,7 +281,7 @@ class LoadedData
      *
      * @param mixed $type string | null Optional type-name.
      *  If $type is '*' or falsy or not supplied, all types will be released
-     * @param varargs $details since 2.99 Optional extra parameters
+     * @param varargs $details since 3.0 Optional extra parameters
      */
     public function release($type = null, ...$details)
     {
@@ -298,10 +298,10 @@ class LoadedData
 
     /**
      * Remove the specified type from the in-memory and system caches
-     * @since 2.99
+     * @since 3.0
      *
      * @param string $type
-     * @param varargs $details since 2.99 Optional extra parameters
+     * @param varargs $details since 3.0 Optional extra parameters
      */
     public function delete(string $type, ...$details)
     {
@@ -312,10 +312,10 @@ class LoadedData
 
     /**
      * Remove all loadable-data, or a named type, from the in-memory and system caches
-     * @since 2.99
+     * @since 3.0
      * @param mixed $type string | null Optional type-name.
      *  If $type is '*' or falsy or not supplied, all types will be cleared
-     * @param varargs $details since 2.99 Optional extra parameters
+     * @param varargs $details since 3.0 Optional extra parameters
      */
     public function clear($type = null, ...$details)
     {
@@ -333,7 +333,7 @@ class LoadedData
 
     /**
      * Remove everything from the in-memory and system caches
-     * @deprecated since 2.99 Instead use interface-compatible LoadedData::clear()
+     * @deprecated since 3.0 Instead use interface-compatible LoadedData::clear()
      */
     public function clear_all()
     {
@@ -344,11 +344,11 @@ class LoadedData
     /**
      * Set|replace the data of the specified type in the in-memory cache.
      * The system cache will be updated correspondingly during object destruction.
-     * @since 2.99
+     * @since 3.0
      *
      * @param string $type
      * @param mixed $val the data to be recorded
-     * @param varargs $details since 2.99 Optional extra parameters
+     * @param varargs $details since 3.0 Optional extra parameters
      */
     public function set(string $type, $val, ...$details)
     {
@@ -360,12 +360,12 @@ class LoadedData
     }
 
     /**
-     * @since 2.99
-     * @deprecated since 2.99 Instead use interface-compatible LoadedData::set()
+     * @since 3.0
+     * @deprecated since 3.0 Instead use interface-compatible LoadedData::set()
      *
      * @param string $type
      * @param mixed $val the data to be recorded
-     * @param varargs $details since 2.99 Optional extra parameters
+     * @param varargs $details since 3.0 Optional extra parameters
      */
     public function update(string $type, $val, ...$details)
     {
@@ -393,7 +393,7 @@ class LoadedData
 
     /**
      * Return sub-type identifier suffix
-     * @since 2.99
+     * @since 3.0
      *
      * @param array $details
      * @return string
@@ -412,7 +412,7 @@ class LoadedData
 
     /**
      * Return hashed sub-type identifier suffix
-     * @since 2.99
+     * @since 3.0
      *
      * @param array $details
      * @return string 10 alphanum bytes

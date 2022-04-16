@@ -1,7 +1,7 @@
 <?php
 /*
 abstract class that defines admin alerts for CMSMS.
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -144,10 +144,9 @@ abstract class Alert
      * Alerts can only be modified before the object is stored in the database.  Not afterwards.
      * If an unknown key, or invalid priority is provided then an exception is thrown.
      *
-     * @throws InvalidArgumentException
-     * @throws LogicException
      * @param string $key
      * @param string $val
+     * @throws InvalidArgumentException or LogicException
      */
     public function __set(string $key,$val)
     {
@@ -267,7 +266,6 @@ abstract class Alert
     /**
      * Given an alert preference name, load it from the database.
      *
-     * @throws LogicException
      * @param string $name The preference name
      * @return mixed Alert | null
      * @throws DataException or RuntimeException
@@ -354,7 +352,7 @@ abstract class Alert
 
         // can only save if preference does not already exist
         //$tmp = CMSMS\AppParams::get($this->get_prefname());
-        //if( $tmp ) throw new \LogicException('Cannot save a class that has already been saved '.$this->get_prefname());
+        //if( $tmp ) throw new LogicException('Cannot save a class that has already been saved '.$this->get_prefname());
         AppParams::set($this->get_prefname(),self::encode_object($this));
     }
 

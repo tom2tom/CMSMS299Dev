@@ -1,0 +1,478 @@
+/* admintheme and summernote-lite overrides and supplements for plugin-dialog styling */
+
+@font-face {
+  font-family: cmsnoteicons;
+  src: url(../font/cmsnoteicons.woff2?29324651) format('woff2'),
+       url(../font/cmsnoteicons.woff?29324651) format('woff'),
+       url(../font/cmsnoteicons.ttf?29324651) format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+/*
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: 'cmsnoteicons';
+    src: url(../font/cmsnoteicons.svg?29324651#cmsnoteicons) format('svg');
+  }
+}
+*/
+[class^="note-iconc-"]::before, [class*=" note-iconc-"]::before {
+  font-family: cmsnoteicons;
+  font-style: normal;
+  font-weight: normal;
+  speak: never;
+
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  text-align: center;
+
+  /* reset parent styles that can break glyph codes */
+  font-variant: normal;
+  text-transform: none;
+
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+
+  /* Font smoothing, taken from TWBS */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.note-iconc-site::before { content: '\eb00';color: #f7993b; } /* '' */
+.note-iconc-pageovr::before { content: '\eb01';margin-left: -1.2em; } /* '' ltr */
+/*.note-iconc-pageovr::before { content: '\eb01';margin-right: -1.2em; } /* '' rtl */
+.note-iconc-pictovr:before { content: '\eb02';margin-left: -1.2em; } /* '' ltr */
+/*.note-iconc-pictovr:before { content: '\eb02';margin-right: -1.2em; } /* '' rtl */
+.note-iconc-inserts::before { content: '\eb03'; } /* '' */
+.note-iconc-mailto::before { content: '\eb04'; } /* '' */
+.note-iconc-show::before { content: '\eb05'; } /* '' */
+.note-iconc-hide::before { content: '\eb06'; } /* '' */
+.note-iconc-cut::before { content: '\eb07'; } /* '' */
+.note-iconc-copy::before { content: '\eb08'; } /* '' */
+.note-iconc-paste::before { content: '\eb09'; } /* '' */
+.note-iconc-search::before { content: '\eb0a'; } /* '' */
+.note-iconc-pick::before { content: '\eb0b'; } /* '' */
+.note-iconc-para::before { content: '\eb0c'; } /* '' */
+.note-iconc-columns::before { content: '\eb0d'; } /* '' */
+.note-iconc-template::before { content: '\eb0e'; } /* '' */
+.note-iconc-seeblocks::before { content: '\eb0f'; } /* '' */
+
+[class^="note-icon-"]::before, [class*=" note-icon-"]::before {
+    margin: 0;
+}
+
+.note-frame {
+    color: inherit;
+}
+.note-btn,
+.note-toolbar {
+    background-color: inherit;
+    color: inherit;
+}
+.note-editor .note-toolbar .note-dropdown-menu {
+    min-width: initial;
+}
+.dropdown-toggle {
+    position: relative;
+}
+.note-editor .note-toolbar .note-para .note-dropdown-menu,
+.note-dropdown-menu {
+    position: fixed;
+    top: unset;
+    left: unset;
+    min-width: unset;
+}
+.note-editor .note-toolbar .note-para .note-dropdown-menu > div + div {
+    margin-left: unset;
+}
+.note-btn-group.open .note-dropdown-menu {
+    display: flex;
+    flex-direction: column;
+}
+a.note-dropdown-item,
+a.note-dropdown-item:hover {
+    margin: 1px 0;
+}
+.note-btn-group.note-para .dropdown-toggle .note-icon-align-left::before {
+    font-family: cmsnoteicons;
+    content: '\eb0c';
+}
+
+.note-modal {
+    z-index: 50;
+}
+.note-modal-content {
+/* TODO background, color to match context */
+    width: 36em;
+    max-width: 98%;
+/*  height: 25em;
+    max-height: 90vh;*/
+    overflow: hidden;
+}
+.note-modal-backdrop {
+    z-index: 45;
+}
+
+/*.note-input[type="button"], */
+.note-modal-content input[type="button"] { /*WHAT?*/
+/*    display: inline-block; useless - floated */
+    margin-bottom: 0;
+    padding: 0.375em 0.75em;
+    height: auto;
+    background-color: #fff;/* TODO if dark */
+    background-image: none;
+    border: 1px solid #dae0e5;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    outline: 0;
+    color: #333;
+    font-weight: 400;
+    font-size: 0.9em;
+    line-height: 1.4;
+    text-align: center;
+/*    vertical-align: middle; useless*/
+    white-space: nowrap;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+    cursor: pointer;
+}
+
+.note-modal-content .autowidth {
+    width: auto;
+}
+.note-modal-content .form-group {
+    margin-bottom: 0.5em;
+}
+.note-modal-content .form-group.button {
+    position: relative;
+}
+.note-modal-content .oneline > * {
+    display: table-cell;
+    width: auto;
+}
+.note-modal-content .oneline > label {
+    width: 25%;
+    vertical-align: middle;
+}
+
+.note-modal-content .action-button {
+    position: absolute;
+    top: 0.3em;
+    right: 1em; /* TODO */
+    padding: 0.3em 0.5em;
+    border: 0;
+    cursor: pointer;
+}
+.note-modal-content .action-button > img,
+.note-modal-content .action-button > svg {
+    height: 1em;
+    max-width: 1em;
+    vertical-align: middle;
+}
+
+.note-icon svg {
+    height: 1em;
+    max-width: 1em;
+    margin: 0 0.125em;
+    vertical-align: middle;
+}
+
+.note-modal-content input:disabled,
+.note-modal-content select:disabled {
+    height: auto;
+    -webkit-opacity: 0.65;
+    -moz-opacity: 0.65;
+    opacity: 0.65;
+    -ms-filter: progid:DXImageTransform.Microsoft.Alpha(opacity=65);
+    filter: alpha(opacity=65);
+    box-shadow: none;
+    background-image: none;
+    background-color: transparent;
+    cursor: not-allowed;
+}
+
+/* height = calc(1.25em * 1.4 + 40px) */
+.note-modal-header {
+/*    position: absolute;
+    width: 100%;
+    max-width: calc(36em - 2px); /*c.f. note-modal-content width 36em (not 100%)* /
+    z-index: 150;*/
+    border-bottom: 1px solid #c5c5c5;
+/*    background: red; TODO per theme */
+}
+.note-modal-title {
+    font-size: 1.25em;
+}
+/* titlebar button with font-icon to close popup */
+.close {
+}
+.note-modal-body {
+/*    position: absolute;
+    top: calc(1.75em + 22px); /*TODO fudge factor calc from context * /
+    width: 100%;
+    z-index: 20;*/
+    padding: 0;
+/*    background: pink; /* TODO per theme */
+}
+.note-modal-body select {
+    background: #fff;
+}
+.note-modal-footer {
+/*    position: absolute;
+    bottom: 0.5em;
+    right: 0;
+    width: 100%;*/
+    height: 3.2em;
+    padding: 0.5em 1em;
+    border-top: 1px solid #c5c5c5;
+}
+/*
+.note-modal-textbox {
+    display: inline-block;
+    padding: 0 0.25rem 0 0.25rem;
+    border: 1px solid #c5c5c5;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    -webkit-transition: border linear .2s, box-shadow linear .2s;
+    transition: border linear .2s, box-shadow linear .2s;
+    height: 1.75em;
+    resize: none;
+    white-space: pre-wrap;
+/*  color: #42515f;* /
+}
+.note-modal-combobox {
+    border: 1px solid #c5c5c5;
+    -webkit-transition: border linear .2s, box-shadow linear .2s;
+    transition: border linear .2s, box-shadow linear .2s;
+    height: 1.75em;
+}
+
+.note-modal-textbox:focus,
+.note-modal-textbox:hover,
+.note-modal-combobox:focus,
+.note-modal-combobox:hover {
+    border-color: #2276d2;
+}
+.note-modal-textbox.disabled,
+.note-modal-combobox.disabled {
+    color: #b3bfcc
+}
+*/
+/*
+picker dlg iframe
+    height: 17em;
+    max-height: 90vw;
+
+these should be in main admin .css
+
+picker dlg iframe body
+overflow hidden
+
+picker dlg iframe #fp-wrap (etc)
+make content autoscroll, except list header-row as follows
+   <div class="fpitem header inlist">    <div>&nbsp;</div>
+    <div class="filename">Name</div>
+    <div>Dimensions</div>
+    <div>Size</div>
+    <div>&nbsp;</div>
+   </div>
+*/
+/* picker dialog */
+/*.note-modal-body iframe {
+    height: 20em; /* 25em height of main dialog less 5em TODO * /
+    max-height: 90vw;
+}
+*/
+.note-modal-content .note-btn {
+    padding: 0.375em 0.75em;
+    font-size: 0.9em;
+}
+/*
+.note-modal-content .note-btn-primary {
+    background-color: #337ab7 !important;
+    color: #fff !important;
+}
+*/
+.note-modal-content .note-btn-primary:hover,
+.note-modal-content .note-btn-primary:focus,
+.note-modal-content .note-btn-primary.focus {
+    background-color: #098ddf !important;
+    color: #333 !important;
+}
+.note-modal-content .note-btn:disabled {
+    background-color: transparent !important;
+    color: #333 !important;
+}
+/* tabs
+<div class="note-tabs-container">
+    <ul class="note-nav-tabs">
+        <li class="note-nav-item active">
+            <a class="note-nav-link active" href="#note-pane-1" data-toggle="tab">Pane 1</a>
+        </li>
+        <li class="note-nav-item">
+            <a class="note-nav-link" href="#note-pane-2" data-toggle="tab">Pane 2</a>
+        </li>
+    </ul>
+    <div class="note-tabs-content">
+        <div class="note-tab-content active" id="note-pane-1">
+        </div>
+        <div class="note-tab-content" id="note-pane-2">
+        </div>
+    </div>
+</div>
+*/
+.note-tabs-container {
+    margin-top: 0.25em;
+    background: #fff;
+    color: #333;
+/*TODO per theme
+    background: inherit;
+    color: inherit;
+*/
+}
+.note-tabs-container > ul,
+.note-nav-tabs {
+    list-style-type: none;
+/*  direction: rtl*/
+}
+/* no clearfix needed
+.note-tabs-container > ul::after,
+.note-nav-tabs::after {
+    content: '';
+    display: table;
+    clear: both;
+}
+.note-tabs-content {
+    border-top: 1px solid #c5c5c5;
+}
+.note-tab-content {
+}
+.note-tab-content.active {
+}
+*/
+
+.note-nav-item {
+    display: table-cell;
+    height: calc(1.2em + 1px);
+    margin: 1px 1px -1px 1px;
+    padding: 0.5em;
+    background: transparent;
+    border: 1px solid #c5c5c5;
+/*  border-width: 0 1px 0 0; OR 0 0 0 1px for rtl */
+    -webkit-border-radius: 0.25rem 0.25rem 0 0;
+    -moz-border-radius: 0.25rem 0.25rem 0 0;
+    border-radius: 0.25rem 0.25rem 0 0;
+/*    text-shadow: 0 1px 1px rgba(255,255,255,0.75);*/
+    cursor: pointer
+}
+.note-nav-item.active {
+    border-bottom-color: transparent;
+    background: #337ab7;
+    color: #fff;
+}
+.note-nav-item:not(.active):hover,
+.note-nav-item:not(.active):focus,
+.note-nav-item.focus:not(.active) {
+    background: #098ddf;
+    color: #333;
+}
+.note-nav-item.disabled {
+    background: rgba(106,130,149,0.3);
+    color: #6a8295;
+/*    text-shadow: none;*/
+}
+/*.note-nav-item.show .note-nav-link {
+}
+*/
+.note-nav-link {
+    display: initial !important;
+    border: 0 !important;
+    padding: 0.5em !important;
+    text-decoration: none;
+    color: #333;
+}
+.note-nav-link:hover {
+    border: 0 !important;
+}
+.note-nav-link.active {
+    color: #fff;
+}
+.note-nav-link:focus {
+    outline: 0;
+}
+.note-nav-item.disabled .note-nav-link {
+    color: #6a8295;
+}
+
+#fp-wrap {
+    max-height: 15em;/* suitable for height of plugin popup dialog */
+}
+
+.stack-menu {
+/*    border: 1px solid #c5c5c5;*/
+    overflow: hidden;
+}
+.stack-menu__list {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    background: transparent;
+    display: none;
+}
+.stack-menu__list--active {
+    display: block;
+}
+.stack-menu__item {
+    padding: 0.3em;
+    background: transparent;
+}
+.stack-menu__item--back {
+    margin-left: -0.3em; /* align */
+}
+.stack-menu__item--hidden {
+    display: none;
+}
+.stack-menu__link {
+    color: #000; /* TODO inherit  if popup backdound also does so */
+    -webkit-transition: color 0.25s ease-in-out, background-color 0.25s ease-in-out;
+    -moz-transition: color 0.25s ease-in-out, background-color 0.25s ease-in-out;
+    transition: color 0.25s ease-in-out, background-color 0.25s ease-in-out;
+    cursor: pointer;
+}
+.stack-menu__link:hover {
+    background-color: #007aff;
+    color: #fff;
+}
+.stack-menu__link--active {
+    background-color: #14b866;
+    color: #fff;
+}
+.stack-menu__link--parent::after {
+    content: '\eb05'; /* show */
+    font-family: cmsnoteicons;
+    margin: 0 0.5em;
+}
+.stack-menu__link--back::after {
+    content: '\eb06'; /* hide */
+    font-family: cmsnoteicons;
+    margin: 0 0.5em;
+}
+.stack-menu__link--hidden {
+    display: none;
+}
+/*
+@media screen and (prefers-color-scheme: dark) {
+    .note-modal-content {
+        background: #000;/* TODO * /
+        color: rgba(255,255,255,1);
+    }
+}
+*/

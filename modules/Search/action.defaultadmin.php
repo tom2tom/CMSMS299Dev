@@ -58,17 +58,17 @@ if (isset($params['reindex'])) {
     $this->SetPreference('searchtext',$params['searchtext']);
 
     $curval = (bool)$this->GetPreference('usestemming',0);
-    $newval = !empty($params['usestemming']);
+    $newval = isset($params['usestemming']) && cms_to_bool($params['usestemming']);
     if ($newval != $curval) {
         $this->SetPreference('usestemming',(($newval)?1:0));
         $this->Reindex();
         $this->ShowMessage($this->Lang('reindexcomplete'));
     }
 
-    $newval = !empty($params['savephrases']);
+    $newval = isset($params['savephrases']) && cms_to_bool($params['savephrases']);
     $this->SetPreference('savephrases',(($newval)?1:0));
 
-    $newval = !empty($params['alpharesults']);
+    $newval = isset($params['alpharesults']) && cms_to_bool($params['alpharesults']);
     $this->SetPreference('alpharesults',(($newval)?1:0));
 
     $this->SetPreference('resultpage',(int)$params['resultpage']);

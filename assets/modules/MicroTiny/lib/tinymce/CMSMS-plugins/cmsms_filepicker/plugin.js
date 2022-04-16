@@ -3,23 +3,31 @@
     'use strict';
 
     function picker_callback(callback, value, meta) {
-//  if (typeof top.filepicker != 'undefined') alert('woot');
-      var height, width, mywin;
-      if (window.innerHeight < 650) {
-        height = Math.max(window.innerHeight * 0.8, 250);
+//      if (typeof top.filepicker != 'undefined') alert('wtf');
+      var i, height, width, mywin;
+      i = window.innerHeight;
+      if (i < 650) {
+        i = (i * 0.8) | 0;
+        height = Math.max(i, 250);
       } else {
         height = 600;
       }
-      if (window.innerWidth < 950) {
-        width = Math.max(window.innerWidth * 0.8, 250);
+      i = window.innerWidth;
+      if (i < 950) {
+        i = (i * 0.8) | 0;
+        width = Math.max(i, 250);
       } else {
         width = 900;
       }
-      // generate a unique id for the active editor so we can access it later.
+      var uctype = meta.filetype.toUpperCase();
+      // generate a unique id for the active editor so we can access it later
       var inst = 'i' + (new Date().getTime()).toString(16);
       tinymce.activeEditor.dom.setAttrib(tinymce.activeEditor.dom.select('html'), 'data-cmsfp-instance', inst);
-      if (!top.document.CMSFileBrowser) top.document.CMSFileBrowser = {};
-      top.document.CMSFileBrowser.onselect = function(inst, file) {
+      if (!top.document.CMSFileBrowser) {
+//        alert('wtf');
+        top.document.CMSFileBrowser = { settings:{} };
+      }
+      top.document.CMSFileBrowser.settings.onselect = function(inst, file) {
         file = cms_data.root_url + '/' + file;
 
         function basename(str) {
@@ -29,21 +37,19 @@
           if (p !== -1) base = base.substring(0, p);
           return base;
         }
+
         var opts = {};
-        if (meta.filetype === 'file') {
+        if (uctype === 'ANY') {
           opts.text = basename(file);
-        } else if (meta.filetype === 'image') {
+        } else if (uctype === 'IMAGE') {
           opts.alt = basename(file);
-/*        opts.height = 50;
-          opts.width = 75;
-*/
         }
         callback(file, opts);
-        top.document.CMSFileBrowser.onselect = null;
+        top.document.CMSFileBrowser.settings.onselect = null;
         mywin.close();
       };
-      // here we open the filepicker window.
-      var url = cmsms_tiny.filepicker_url + '&inst=' + inst + '&type=' + meta.filetype;
+      // open the filepicker window
+      var url = cmsms_tiny.filepicker_url + '&inst=' + inst + '&type=' + uctype;
       mywin = tinymce.activeEditor.windowManager.open({
         title: cmsms_tiny.filepicker_title,
         file: url,
@@ -54,14 +60,18 @@
         resizable: true,
         maximizable: true
       }, {
+/* on show, resize, maximize, unmazimize ...
+    val = $('.mce-container-body')[0].innerHeight - $('#fp-navbar)[0].outerHeight;
+    $('#fp-wrap').css('max-height', val + 'px');
+*/
         onFileSelected: function(filename) {
           console.debug('woot got callback with ' + filename);
         }
       });
     }
     tinymce.util.Tools.resolve('tinymce.PluginManager').add('cmsms_filepicker', function(editor, pluginUrl) {
-      editor.settings.file_picker_type = 'file image media'; // TODO
-      editor.settings.file_picker_callback = picker_callback; // TODO
+      editor.settings.file_picker_type = 'file image media';
+      editor.settings.file_picker_callback = picker_callback;
     });
 
     function Plugin() {}

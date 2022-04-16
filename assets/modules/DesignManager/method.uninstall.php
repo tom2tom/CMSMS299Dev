@@ -53,7 +53,7 @@ try {
 $this->RemovePermission('Manage Designs');
 
 // unregister events
-// pre 2.99 these events' originator was 'Core'
+// pre 3.0 these events' originator was 'Core'
 foreach([
  'AddDesignPost',
  'AddDesignPre',

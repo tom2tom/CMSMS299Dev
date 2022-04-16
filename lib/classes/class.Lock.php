@@ -68,7 +68,7 @@ final class Lock implements ArrayAccess
      * Varargs for this method are:
      * absent,
      * or an assoc. array of some/all instance properties,
-     * or (pre-2.99 API) 2 or 3 individual un-named properties:
+     * or (pre-3.0 API) 2 or 3 individual un-named properties:
      * string Locked-object type
      * int    Locked-object numeric identifier
      * int    Optional interval (in minutes) during which the lock may not
@@ -112,12 +112,12 @@ final class Lock implements ArrayAccess
         case 'oid':
         case 'uid':
             return $this->_data[$key];
-        case 'created':  // deprecated since 2.99
+        case 'created':  // deprecated since 3.0
             return cms_to_stamp($this->_data['create_date']);
         case 'id':
-        case 'create_date': // deprecated since 2.99
-        case 'modified_date': // deprecated since 2.99
-        case 'lifetime': // deprecated since 2.99
+        case 'create_date': // deprecated since 3.0
+        case 'modified_date': // deprecated since 3.0
+        case 'lifetime': // deprecated since 3.0
         case 'expires':
             if (isset($this->_data[$key])) {
                 return $this->_data[$key];
@@ -135,10 +135,10 @@ final class Lock implements ArrayAccess
     public function OffsetSet($key, $value)
     {
         switch ($key) {
-        case 'modified_date': // deprecated since 2.99
+        case 'modified_date': // deprecated since 3.0
             $this->_data[$key] = trim($value);
             break;
-        case 'lifetime': // deprecated since 2.99
+        case 'lifetime': // deprecated since 3.0
             $this->_data[$key] = max(1, (int)$value);
             break;
         case 'expires':
@@ -154,7 +154,7 @@ final class Lock implements ArrayAccess
             $this->_data[$key] = (int)$value;
             break;
         case 'type':
-        case 'create_date': // deprecated since 2.99
+        case 'create_date': // deprecated since 3.0
             // can't reset these
             if (isset($this->_data['id']) && $this->_data['id'] != 0) {
                 throw new LogicException('CMSEX_INVALIDMEMBER', null, $key);
@@ -191,7 +191,7 @@ final class Lock implements ArrayAccess
 
     /**
      * Set some or all properties of this lock
-     * @since 2.99
+     * @since 3.0
      * @throws LogicException or DataException
      */
     public function set_properties(array $params)
@@ -218,7 +218,7 @@ final class Lock implements ArrayAccess
             $val = AppParams::get('lock_timeout', 60);
         }
         $t = max(1, (int)$val);
-        $params['lifetime'] = $t; // deprecated since 2.99
+        $params['lifetime'] = $t; // deprecated since 3.0
 
         $val = $params['expires'] ?? 0;
         if ($val == 0) { // null ok
@@ -283,7 +283,7 @@ final class Lock implements ArrayAccess
 
     /**
      * Create a lock object from a database row
-     * @deprecated since 2.99 Instead use LockOperations::from_row()
+     * @deprecated since 3.0 Instead use LockOperations::from_row()
      * @internal
      *
      * @param array $row An array representing a database lock
@@ -297,7 +297,7 @@ final class Lock implements ArrayAccess
 
     /**
      * Load a lock object matching the supplied parameters
-     * @deprecated since 2.99 Instead use LockOperations::load_by_id()
+     * @deprecated since 3.0 Instead use LockOperations::load_by_id()
      *
      * @param int $lock_id
      * @param string $type  The lock type (type of object being locked)
@@ -314,7 +314,7 @@ final class Lock implements ArrayAccess
 
     /**
      * Load a lock object matching the supplied parameters
-     * @deprecated since 2.99 Instead use LockOperations::load()
+     * @deprecated since 3.0 Instead use LockOperations::load()
      *
      * @param string $type  The lock type (type of object being locked)
      * @param int $oid  The numeric id of the locked object

@@ -40,7 +40,7 @@ use function CMSMS\add_debug_message;
 /**
  * A class defining a MySQL (or compatible) database connection, and
  * mechanisms for working with that database.
- * @since 2.99
+ * @since 3.0
  * @since 2.0 as a parent-class with a mysql-specific sub-class
  *
  * This class continues the CMSMS tradition of supporting much of the
@@ -488,7 +488,7 @@ final class Connection
 
     /**
      * An alias for the qStr method.
-     * @deprecated since 2.99 instead use Connection::qStr()
+     * @deprecated since 3.0 instead use Connection::qStr()
      *
      * @param string $str
      * @return string
@@ -589,7 +589,7 @@ final class Connection
 
     /**
      * Return the SQL for replacing a null value.
-     * @since 2.99 if the supplied $altvalue is a string, and not (single or double) quoted,
+     * @since 3.0 if the supplied $altvalue is a string, and not (single or double) quoted,
      * it will be surrounded by single-quotes
      *
      * @param string $field  The field to test
@@ -900,7 +900,7 @@ final class Connection
 
     /**
      * An alias for the getArray method.
-     * @deprecated since 2.99 instead use Connection::getArray()
+     * @deprecated since 3.0 instead use Connection::getArray()
      *
      * @param string $sql     The SQL statement to execute
      * @param mixed  $bindvars array | falsy Optional value-parameters
@@ -1376,7 +1376,7 @@ final class Connection
 
     /**
      * An alias for the unixTimestamp method.
-     * @deprecated since 2.99 instead use Connection::unixTimeStamp()
+     * @deprecated since 3.0 instead use Connection::unixTimeStamp()
      *
      * @return int
      */
@@ -1428,7 +1428,7 @@ final class Connection
 
     /**
      * An alias for the unixDate method.
-     * @deprecated since 2.99 Instead use Connection::unixDate()
+     * @deprecated since 3.0 Instead use Connection::unixDate()
      *
      * @return int
      */
@@ -1564,7 +1564,7 @@ final class Connection
      * Create a new data dictionary object.
      * Those are used for creating, altering, deleting tables, fields
      * and related indices.
-     * @deprecated since 2.99 use new DataDictionary()
+     * @deprecated since 3.0 use new DataDictionary()
      *
      * @return <namespace>DataDictionary
      */

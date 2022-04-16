@@ -33,7 +33,7 @@ use const CMS_DB_PREFIX;
 /**
  * Simple class for dealing with a permission.
  *
- * @since 2.99
+ * @since 3.0
  * @since 2.0 as global-namespace CmsPermission
  * @package CMS
  * @license GPL
@@ -42,7 +42,7 @@ final class Permission
 {
 	/**
 	 * Value to use for the 'originator' of core-permissions
-	 * @since 2.99
+	 * @since 3.0
 	 */
 	const CORE = '__CORE__';
 
@@ -52,7 +52,7 @@ final class Permission
 	private const PROPS = ['id','name','desc','originator','create_date','modified_date'];
 	/**
 	 * @ignore
-	 * Property-name aliases, some of them deprecated since 2.99
+	 * Property-name aliases, some of them deprecated since 3.0
 	 */
 	private const ALIASPROPS = ['description' => 'desc','text' => 'desc','source' => 'originator'];
 
@@ -72,7 +72,7 @@ final class Permission
 
 	/**
 	 * Constructor
-	 * @param mixed $props array | null Optional permission-properties Since 2.99
+	 * @param mixed $props array | null Optional permission-properties Since 3.0
 	 */
 	public function __construct($props = null)
 	{
@@ -161,7 +161,7 @@ final class Permission
 
 	/**
 	 * Validate some permission properties: name, originator
-	 * @since 2.99 description may be empty
+	 * @since 3.0 description may be empty
 	 *
 	 * @throws LogicException if validation fails
 	 */
@@ -227,7 +227,7 @@ final class Permission
 	 * Load a permission with the specified identifier
 	 *
 	 * @param mixed $a string name | int id
-	 * @since 2.99 the name may be like 'originator::name' or just 'name'
+	 * @since 3.0 the name may be like 'originator::name' or just 'name'
 	 * @return Permission
 	 * @throws RuntimeException if nil or > 1 permissions match
 	 */
@@ -313,7 +313,7 @@ final class Permission
 	/**
 	 * Get the id of a named permission, if possible
 	 *
-	 * @param string $permname since 2.99 like 'originator::name' or just 'name'
+	 * @param string $permname since 3.0 like 'originator::name' or just 'name'
 	 * @return mixed int | null
 	 */
 	public static function get_perm_id($permname)
@@ -329,7 +329,7 @@ final class Permission
 
 	/**
 	 * Get the name of a numbered permission, if possible
-	 * @since 2.99
+	 * @since 3.0
 	 * @param muixed $permid int | numeric string
 	 * @return mixed string | null
 	 */

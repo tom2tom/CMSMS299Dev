@@ -49,27 +49,29 @@ final class Navigator extends CMSModule
     public function IsPluginModule() { return true; } //deprecated
 //  public function LazyLoadAdmin() { return true; }
 //  public function LazyLoadFrontend() { return true; }
-    public function MinimumCMSVersion() { return '2.99'; }
+    public function MinimumCMSVersion() { return '2.999'; }
 
     public function InitializeFrontend()
     {
-//CMSMS 2.99 does nothing        $this->RestrictUnknownParams();
-        $this->SetParameterType('childrenof',CLEAN_STRING);
-        $this->SetParameterType('collapse',CLEAN_INT);
-        $this->SetParameterType('excludeprefix',CLEAN_STRING);
-        $this->SetParameterType('includeprefix',CLEAN_STRING);
-        $this->SetParameterType('items',CLEAN_STRING);
-        $this->SetParameterType('loadprops',CLEAN_INT);
-        $this->SetParameterType('nlevels',CLEAN_INT);
-        $this->SetParameterType('number_of_levels',CLEAN_INT);
-        $this->SetParameterType('root',CLEAN_STRING);
-        $this->SetParameterType('show_all',CLEAN_INT);
-        $this->SetParameterType('show_root_siblings',CLEAN_INT);
-        $this->SetParameterType('start_element',CLEAN_STRING); // yeah, it's a string
-        $this->SetParameterType('start_level',CLEAN_INT);
-        $this->SetParameterType('start_page',CLEAN_STRING);
-        $this->SetParameterType('start_text',CLEAN_STRING);
-        $this->SetParameterType('template',CLEAN_STRING);
+//CMSMS 3.0 does nothing        $this->RestrictUnknownParams();
+        $this->SetParameterType([
+        'childrenof' => CLEAN_STRING,
+        'collapse' => CLEAN_INT,
+        'excludeprefix' => CLEAN_STRING,
+        'includeprefix' => CLEAN_STRING,
+        'items' => CLEAN_STRING,
+        'loadprops' => CLEAN_INT,
+        'nlevels' => CLEAN_INT,
+        'number_of_levels' => CLEAN_INT,
+        'root' => CLEAN_STRING,
+        'show_all' => CLEAN_INT,
+        'show_root_siblings' => CLEAN_INT,
+        'start_element' => CLEAN_STRING, // yeah, it's a string
+        'start_level' => CLEAN_INT,
+        'start_page' => CLEAN_STRING,
+        'start_text' => CLEAN_STRING,
+        'template' => CLEAN_STRING,
+        ]);
     }
 
     public function InitializeAdmin()

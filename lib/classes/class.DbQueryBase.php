@@ -31,7 +31,7 @@ use const CMS_DEPREC;
  * This class is capable of managing a resultset, and encapsulates conversion of
  * database rows into application objects.
  *
- * @since 2.99
+ * @since 3.0
  * @since 2.0 as global-namespace CmsDbQueryBase
  * @package CMS
  * @license GPL

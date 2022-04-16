@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\HookOperations;
 
-//since 2.99
+//since 3.0
 function smarty_function_gather_content($params, $template)
 {
 	$listname = (!empty($params['list'])) ? $params['list'] : 'gatherlist';

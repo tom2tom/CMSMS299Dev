@@ -1,0 +1,2 @@
+<input type="checkbox" id="mycheck" name="discoverme" value="1"  checked  />
+<label for="mycheck">checkbox descriptor</label>

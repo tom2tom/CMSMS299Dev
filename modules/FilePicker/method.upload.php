@@ -27,9 +27,12 @@ use FilePicker\Utils;
 header('Content-type:application/json;charset=utf-8');
 
 try {
-    $key = $params['filefield'] ?? ''; // input[type=file] HTMLElement name
-    if (!$key) {
-        throw new RuntimeException('Invalid parameters');
+    $key = $params['filefield'] ?? ''; // might be string 'null'
+    if (!$key || !isset($_FILES[$key])) {
+        $key = 'fp-upload'; // name-attribure of input-file element (per filepicker.tpl)
+        if (!isset($_FILES[$key])) {
+            throw new RuntimeException('Invalid parameters');
+        }
     }
     $f = &$_FILES[$key];
     // undefined | $_FILES corruption attack
@@ -53,7 +56,7 @@ try {
     //$topdir, $fullpath, $profile are set in parent code
     $maxsize = $config['max_upload_size'];
     $helper = new FileTypeHelper();
-    $mime = $helper->get_file_type_mime($profile->type);
+    $mime = $helper->get_file_type_mime($profile->type); // might be empty
     $destpath = null;
 
     // crappy $_FILES[] arrangement forces these funcs
@@ -61,7 +64,8 @@ try {
     {
        return ($idx === null) ? $f[$key] : $f[$key][$idx];
     };
-    $do_file = function($idx = null) use($f, $fileval, $topdir, $fullpath, $profile, $maxsize, $helper, $mime, &$destpath)
+
+    $do_file = function($idx = null) use($fileval, $topdir, $fullpath, $profile, $maxsize, $helper, $mime, &$destpath)
     {
         // Check filesize
         if ($maxsize > 0 && $fileval('size', $idx) > $maxsize) {
@@ -102,12 +106,14 @@ try {
                 unlink($destpath);
                 throw new RuntimeException($fn.': '.$this->Lang('error_upload_acceptFileTypes'));
             }
-            // Check mimetype (maybe dodgy, depending on installed capabilities)
-            $filemime = $helper->get_mime_type($destpath);
-            if (!startswith($filemime, 'text/html;')) { // skip if the check found nothing recognisable
-                if (!$helper->match_mime($filemime, $mime)) {
-                    unlink($destpath);
-                    throw new RuntimeException($fn.': '.$this->Lang('error_upload_type', $fn));
+            if ($mime) { // skip check if any mime will do
+                // Check mimetype (maybe dodgy, depending on installed capabilities)
+                $filemime = $helper->get_mime_type($destpath);
+                if (!startswith($filemime, 'text/html;')) { // skip if the check found nothing recognisable
+                    if (!$helper->match_mime($filemime, $mime)) {
+                        unlink($destpath);
+                        throw new RuntimeException($this->Lang('error_upload_type', $fn));
+                    }
                 }
             }
             chmod($destpath, 0640);

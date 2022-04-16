@@ -1,7 +1,7 @@
 <?php
 /*
 Class to provide menu items in the CMSMS admin navigation
-Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -26,7 +26,7 @@ use CMSMS\Utils;
 use LogicException;
 
 /**
- * @since 2.99
+ * @since 3.0
  * @since 2.0 as global-namespace CmsAdminMenuItem
  */
 final class AdminMenuItem
@@ -104,7 +104,7 @@ final class AdminMenuItem
 
     /**
      * Return all recorded data for this item
-     * @since 2.99
+     * @since 3.0
      * @return associative array
      */
     public function get_all() : array
@@ -118,7 +118,7 @@ final class AdminMenuItem
 
     /**
      * Return an object-name derived from $from
-     * @since 2.99
+     * @since 3.0
      *
      * @param string $from
      * @return string
@@ -162,7 +162,7 @@ final class AdminMenuItem
      *
      * @internal
      * @param CMSModule | IResource $mod
-     * @param since 2.99 Optional action name, default 'defaultadmin'
+     * @param since 3.0 Optional action name, default 'defaultadmin'
      * @return mixed AdminMenuItem-object or null
      */
     public static function from_module($mod, $action = 'defaultadmin')

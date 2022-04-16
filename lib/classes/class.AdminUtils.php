@@ -1,7 +1,7 @@
 <?php
 /*
 A class of convenience functions for admin console requests
-Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -186,11 +186,11 @@ final class AdminUtils
 
 	/**
 	 * Get a tag representing a themed icon or module icon
-	 * @deprecated since 2.99 instead use CMSMS\AdminTheme::get_icon()
+	 * @deprecated since 3.0 instead use CMSMS\AdminTheme::get_icon()
 	 *
 	 * @param string $icon the basename of the desired icon file, may include theme-dir-relative path,
 	 *  may omit file type/suffix, ignored if smarty variable $actionmodule is currently set
-	 * @param array $attrs Since 2.99 Optional assoc array of attributes for the created img tag
+	 * @param array $attrs Since 3.0 Optional assoc array of attributes for the created img tag
 	 * @return string
 	 */
 	public static function get_icon(string $icon, array $attrs = []) : string
@@ -275,7 +275,7 @@ final class AdminUtils
 	/**
 	 * Remove files from the website directories defined as
 	 * TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param $age_days Optional cache-item-modification threshold (days), 0 to whatever.
 	 *  Default 0 hence 'now'.
@@ -290,7 +290,7 @@ final class AdminUtils
 
 		$age_days = max(0, $age_days);
 		HookOperations::do_hook('clear_cached_files', ['older_than' => $age_days]); //TODO BAD no namespace, some miscreant handler can change the parameter ...  deprecate?
-		Events::SendEvent('Core', 'ClearCachedFiles', ['older_than' => $age_days]); //since 2.99
+		Events::SendEvent('Core', 'ClearCachedFiles', ['older_than' => $age_days]); //since 3.0
 		$ttl = $age_days * 24 * 3600;
 		$the_time = time() - $ttl;
 		$dirs = array_unique([TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION]);
@@ -323,7 +323,7 @@ final class AdminUtils
 	 * for changing a page's parent.
 	 *
 	 * This method uses the CMSMS jQuery hierselector widget.
-	 * @since 2.99 This method was migrated from the ContentOperations class
+	 * @since 3.0 This method was migrated from the ContentOperations class
 	 *
 	 * @param int The id of the content object we are working with. Default 0.
 	 *   Used with $allow_current to ignore this object and its descendants.

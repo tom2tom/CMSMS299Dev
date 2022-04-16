@@ -25,7 +25,7 @@ namespace CMSMS;
  * It does not use PHP7+ type-declarations, to make it easier for legacy
  * content-types to comply.
  *
- * @since		2.99
+ * @since		3.0
  * @package		CMS
  */
 interface IContentEditor
@@ -109,7 +109,7 @@ interface IContentEditor
 
 	/**
 	 * Get the elements for a specific tab.
-	 * @deprecated since 2.99 does nothing - instead process results from GetSortedEditableProperties()
+	 * @deprecated since 3.0 does nothing - instead process results from GetSortedEditableProperties()
 	 *
 	 * @param string $key tab key
 	 * @param bool   $adding  Optional flag whether this is an add operation. Default false (i.e. edit).
@@ -569,7 +569,7 @@ interface IContentEditor
 	/**
 	 * Return whether this page should be accessed via a secure protocol.
 	 * The secure flag affects whether the ssl protocol and appropriate config entries are used when generating urls to this page.
-	 * @deprecated since 2.99
+	 * @deprecated since 3.0
 	 *
 	 * @return bool
 	 */
@@ -578,7 +578,7 @@ interface IContentEditor
 	/**
 	 * Set whether this page should be accessed via a secure protocol.
 	 * The secure flag affects whether the ssl protocol and appropriate config entries are used when generating urls to this page.
-	 * @deprecated since 2.99
+	 * @deprecated since 3.0
 	 *
 	 * @param bool $state
 	 */

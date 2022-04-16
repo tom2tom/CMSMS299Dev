@@ -1,8 +1,8 @@
 jQuery(function($) {
   // nicely display message, if any
   $('#message').hide().fadeIn(2000);
-  // focus input with class focus
-  $('input:first.focus').focus();
+  // focus 1st input with class 'focus'
+  $('input.focus').eq(0).trigger('focus');
   // toggle info window
   $('#show-info').on('click', function() {
     $('#maininfo').fadeIn(400);

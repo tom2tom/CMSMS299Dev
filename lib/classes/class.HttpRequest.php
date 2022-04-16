@@ -28,7 +28,7 @@ use const TMP_CACHE_LOCATION;
  * @author      Md Emran Hasan <phpfour@gmail.com>
  *
  * @link        http://www.phpfour.com/lib/http
- * @since       2.99
+ * @since       3.0
  * @since       0.1 as global-namespace cms_http_request
  */
 class HttpRequest
@@ -418,7 +418,7 @@ class HttpRequest
 
     /**
      * Set timeout of initial connection
-     * @since 2.99
+     * @since 3.0
      *
      * @param int $seconds Timeout delay in seconds
      */

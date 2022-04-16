@@ -131,7 +131,7 @@ class Smarty_Resource_cms_template extends Smarty_Resource_Custom
         $data = $db->getRow($sql,$args);
         if( $data ) {
             if( $data['contentfile'] ) {
-                $fp = cms_join_path(CMS_ASSETS_PATH,'templates',$data['content']);
+                $fp = cms_join_path(CMS_ASSETS_PATH,'layouts',$data['content']);
                 if( is_readable($fp) && is_file($fp) ) {
                     try {
                         $data['content'] = file_get_contents($fp);

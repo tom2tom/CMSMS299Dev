@@ -1,7 +1,7 @@
 <?php
 /*
 Alert class that uses pre-defined values
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp, Rovert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -68,7 +68,7 @@ class SimpleAlert extends Alert
      */
     public function __construct($perms = null)
     {
-        if( $perms && !is_array($perms) ) InvalidArgumentException('perms must be an array of permission name strings');
+        if( $perms && !is_array($perms) ) throw new InvalidArgumentException('perms must be an array of permission name strings');
         $this->_perms = $perms;
         parent::__construct();
     }

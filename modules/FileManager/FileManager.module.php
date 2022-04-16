@@ -47,7 +47,7 @@ final class FileManager extends CMSModule
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function IsAdminOnly() { return TRUE; }
 //    public function LazyLoadFrontend() { return TRUE; }
-    public function MinimumCMSVersion() { return '2.99'; }
+    public function MinimumCMSVersion() { return '2.999'; }
     public function UninstallPostMessage() { return $this->Lang('uninstalled'); }
     public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
     public function VisibleToAdminUser() { return $this->AccessAllowed(); }

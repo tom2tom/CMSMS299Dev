@@ -1,7 +1,7 @@
 <?php
 /*
 Ajax processor to generate runtime variables for admin js to use
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 /*
-Deprecated since 2.99
+Deprecated since 3.0
 Use corresponding immediate setup via a hooklist, then include|require
 jsruntime.php at a suitable place in a script.
 */

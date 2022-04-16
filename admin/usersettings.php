@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to display and modify the user's admin settings/preferences
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -307,7 +307,7 @@ if ($modnames) {
                 if ($modname == $syntaxmodule && $edname == $syntaxtype) { $one->checked = true; }
                 $editors[] = $one;
             }
-        } elseif ($modnames[$i] != 'MicroTiny') { //that's only for html :(
+        } elseif ($modnames[$i] != 'HTMLEditor') { //that's only for html :(
             $one = new stdClass();
             if (method_exists($mod, 'GetEditorName')) {
                 $one->label = $mod->GetEditorName();

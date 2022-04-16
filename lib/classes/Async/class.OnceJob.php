@@ -28,7 +28,7 @@ use CMSMS\Async\RecurType;
  * it has been enabled (which may happen as often as appropriate).
  *
  * @package CMS
- * @since 2.99
+ * @since 3.0
  */
 abstract class OnceJob extends Job
 {

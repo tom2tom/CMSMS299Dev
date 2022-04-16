@@ -35,7 +35,7 @@ use function file_put_contents;
  * A class for consolidating specified javascript files and/or strings
  * into a single file.
  *
- * @since 2.99
+ * @since 3.0
  * @package CMS
  */
 class ScriptsMerger

@@ -29,11 +29,12 @@ also support installation based on sources in a git repo
 INFRASTRUCTURE
 
 Coded for PHP 7.1+, compatible with 7.1.x to 8.1 (at least)
-jQuery 2.2.4 (effective upgrades from 1.x to the current 3.x need to be in two stages, with an intermediate 2.x)
-jQuery migrate 1.4.1
-jQuery-UI & jQuery-UI-css 1.13.0
-support-js (cookies, sortable, uploads etc) latest releases as of 1/9/2018
-Smarty 3.1.40
+jQuery 3.6.0 (but use of 2.2.4 may be configured, to provide for effective upgrades
+ from 1.x to 3.x which need two stages, via an intermediate 2.x)
+jQuery migrate 3.4.0 (but use of 1.4.1 may be configured, to work with jQ 2.2.4)
+jQuery-UI & jQuery-UI-css 1.13.1
+support-js (cookies, sortable, uploads etc) latest relevant releases
+Smarty 4.1.0 (Smarty 2 API support is retained and deprecated)
 replacement for the OutMailer (formerly CMSMailer) module backend PHPMailer class (due to license incompatibility)
 TinyMCE (MicroTiny module) 4.9.11 Now has incompatible license, so a replacement editor is needed
 
@@ -45,6 +46,7 @@ assets_url
 content_language - for PHP htmlentities() and html_entity_decode(), default 'xhtml'
 deprecations - if this parameter, and also debug, are not empty, deprecation notices will be thrown when something (method, property etc) deprecated is used
 develop_mode (formerly developer_mode) - 1 when somebody authorized is working on the site content/operation
+jqversion - set to '2' (unquoted) to use jQuery 2.2.4 and jQuery-migrate 1.4.1 instead of 3.x versions
 menu_cssclass css class to be applied to admin console context menus. Each admin theme should have such class(es)
 pr_root_url - protocol-relative root URI
 usertags_path - name of filesystem folder where 'user-defined tag' files are stored, default 'assets-path'/'user_plugins'
@@ -134,6 +136,8 @@ deprecated
 
 non-core modules in <siterootpath>/modules
   migrated to <siterootpath>/assets/modules (or whatever the 'assets' folder is named)
+resources in <siterootpath>/assets/images migrated to ...assets/media (ibid re name)
+resources in <siterootpath>/assets/css migrated to ...assets/styles (ibid re name)
 javascript files in <siterootpath>/lib/jquery
   jQuery & cmsms core scripts migrated to <siterootpath>/lib/js, other scripts to <siterootpath>/assets/js (or whatever the 'assets' folder is named)
   links to relocated non-jquery files remain in <siterootpath>/lib/jquery

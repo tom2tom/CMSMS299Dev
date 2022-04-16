@@ -63,8 +63,7 @@
 {/function}
 
 {if isset($nodes)}
-<div id="menuwrapper">
+<div id="menuwrapper" class="cf">
   {cssmenu_ulshadow data=$nodes depth=0}
-  <div class="clearb"></div>
 </div>
 {/if}

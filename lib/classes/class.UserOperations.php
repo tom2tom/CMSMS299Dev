@@ -77,7 +77,7 @@ final class UserOperations
 
 	/**
 	 * Get the singleton instance of this class
-	 * @deprecated since 2.99 use CMSMS\SingleItem::UserOperations()
+	 * @deprecated since 3.0 use CMSMS\SingleItem::UserOperations()
 	 *
 	 * @return UserOperations object
 	 */
@@ -169,7 +169,7 @@ EOS;
 	 * @param string $username      Username to load
 	 * @param string $password      Optional (but not really) Password to check against
 	 * @param bool $activeonly      Optional flag whether to load the user only if [s]he is active Default true
-	 * @param bool $adminaccessonly Deprecated since 2.99 UNUSED Optional flag whether to load the user only if [s]he may log in Default false
+	 * @param bool $adminaccessonly Deprecated since 3.0 UNUSED Optional flag whether to load the user only if [s]he may log in Default false
 	 * @return mixed User object | null | false
 	 */
 	public function LoadUserByUsername(string $username, string $password = '', bool $activeonly = true, bool $adminaccessonly = false)
@@ -519,7 +519,7 @@ EOS;
 	 * has the specified permission(s).
 	 *
 	 * @param int	$uid
-	 * @param mixed $permname single string or (since 2.99) an array of them,
+	 * @param mixed $permname single string or (since 3.0) an array of them,
 	 *  optionally with following bool to indicate type (AND|OR) of check wanted
 	 * @return bool
 	 */
@@ -562,7 +562,7 @@ EOS;
 	 * Report whether the password of the specified user has expired.
 	 * We do not support P/W lifetime/timeout (per NIST recommendation),
 	 * but there may have been a system-flag or a onetime-password applied
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $user User object | null to process current user
 	 * return bool indicating expiry
@@ -594,7 +594,7 @@ EOS;
 
 	/**
 	 * Check validity of a posited password for the specified user
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $a int userid | string username | populated User object (e.g. if not yet saved)
 	 * @param string $candidate plaintext intended-password
@@ -630,7 +630,7 @@ EOS;
 
 	/**
 	 * Generate the content (hash) [to be] recorded for a password
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $password
 	 * @return string
@@ -639,7 +639,7 @@ EOS;
 	{
 /*		// for 'new' passwords, factor in a not-in-db string, per NIST recommendation
 		$config = SingleItem::Config();
-		$fp = cms_join_path($config['assets_path'], 'configs', 'siteuuid.dat');
+		$fp = cms_join_path(CMS_ASSETS_PATH, 'configs', 'siteuuid.dat');
 		$str = @file_get_contents($fp);
 		if ($str) {
 			$password ^= $str;
@@ -651,7 +651,7 @@ EOS;
 
 	/**
 	 * Check validity of a posited username for the specified user
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param User $user object with (at least) the properties to be used in checking
 	 * @param string $candidate intended-username
@@ -683,7 +683,7 @@ EOS;
 
 	/**
 	 * Check whether a posited username is available for use
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param User $user
 	 * @param string $candidate
@@ -702,7 +702,7 @@ EOS;
 
 	/**
 	 * Check validity of a posited username and/or password for the specified user
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param User $user object with (at least) the properties to be used in checking
 	 * @param mixed $username intended-username or null to skip check
@@ -732,7 +732,7 @@ EOS;
 	 * Report whether the specified username/accountid is unused, hence available
 	 * If available and a user id is specified, that account's name will be
 	 * updated now, to reduce the race-risk.
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $username
 	 * @param int $updateby id of user who wants the name, or 0 to ignore
@@ -763,7 +763,7 @@ EOS;
 	 * Get recorded data about the specified user, without password check.
 	 * Does not use the cache, so use sparingly.
 	 * At least one of $username or $uid must be provided.
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $username Optional login/account name, used if provided
 	 * @param int	 $uid Optional user id, used if $username not provided

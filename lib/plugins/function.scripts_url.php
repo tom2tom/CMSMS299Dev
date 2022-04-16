@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-// since 2.99
+// since 3.0
 function smarty_function_scripts_url($params, $template)
 {
 	$out = cms_path_to_url(CMS_SCRIPTS_PATH);

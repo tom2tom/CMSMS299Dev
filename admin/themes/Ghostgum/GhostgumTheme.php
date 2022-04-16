@@ -76,7 +76,7 @@ class GhostgumTheme extends AdminTheme
 		$csm = new StylesMerger();
 		$csm->queue_matchedfile('normalize.css', 1);
 		$csm->queue_matchedfile('flex-grid-lite.css', 2);
-		$csm->queue_matchedfile('grid-960.css', 2); // for modules, deprecated since 2.99
+		$csm->queue_matchedfile('grid-960.css', 2); // for modules, deprecated since 3.0
 		$out = $csm->page_content('', false, true);
 
 		// jQUI css does, and theme-specific css files might, include relative URLs, so cannot be merged
@@ -98,11 +98,12 @@ EOS;
 
 EOS;
 		}
-		//DEBUG
+/*		//DEBUG
 		$after .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$rel_url}/css/superfishnav.css" />
+<link rel="stylesheet" type="text/css" href="{$rel_url}/styles/superfishnav.css" />
 
 EOS;
+*/
 		add_page_headtext($after); // append this lot
 
 		$jsm = new ScriptsMerger();
@@ -116,7 +117,6 @@ EOS;
 		$jsm->reset(); // start another merger-file
 		$jsm->queue_matchedfile('jquery.ui.touch-punch.js', 1);
 		$jsm->queue_matchedfile('jquery.toast.js', 1);
-		$jsm->queue_matchedfile('jquery.basictable.js', 1); //TESTER
 		$p = __DIR__.DIRECTORY_SEPARATOR.'js';
 		$jsm->queue_matchedfile('jquery.alertable.js', 2, $p);
 		$jsm->queue_matchedfile('standard.js', 3, $p);
@@ -167,12 +167,12 @@ EOS;
 */
 		$fn = 'style';
 		if (NlsOperations::get_language_direction() == 'rtl') {
-			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
+			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'styles'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
 				$fn .= '-rtl';
 			}
 		}
 		$out = <<<EOS
- <link rel="stylesheet" type="text/css" href="themes/Ghostgum/css/{$fn}.min.css" />
+ <link rel="stylesheet" type="text/css" href="themes/Ghostgum/styles/{$fn}.min.css" />
 
 EOS;
 //		get_csp_token(); //setup CSP header (result not used)
@@ -187,7 +187,7 @@ EOS;
 		$out .= sprintf($tpl, $url);
 
 		$smarty->assign('header_includes', $out) //NOT into bottom (to avoid UI-flash)
-		  ->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates')
+		  ->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'layouts', -1)
 		  ->display('login.tpl');
 	}
 
@@ -214,7 +214,7 @@ EOS;
 		$smarty->assign('admin_url', $config['admin_url'])
 		  ->assign('theme', $this);
 
-		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
+		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'layouts', -1);
 		return $smarty->fetch('topcontent.tpl');
 	}
 
@@ -356,7 +356,7 @@ EOS;
 		$smarty->assign('lang_code', $lang)
 		  ->assign('lang_dir', NlsOperations::get_language_direction()); // language direction
 
-		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
+		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'layouts', -1);
 		return $smarty->fetch('pagetemplate.tpl');
 	}
 

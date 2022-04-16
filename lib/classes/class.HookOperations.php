@@ -43,7 +43,7 @@ ATM not so.
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  * @since 2.2 as HookManager
  */
 class HookOperations
@@ -134,7 +134,7 @@ OR
      * @param string $name The hook name.  If the hook does not already exist, it is added.
      * @param callable $callable A PHP callable: function name | array | closure
      * @param int $priority The priority of the handler.
-     * @return bool indicating success since 2.99
+     * @return bool indicating success since 3.0
      */
     public static function add_hook($name,$callable,$priority = self::PRIORITY_NORMAL)
     {

@@ -1,7 +1,7 @@
 <?php
 /*
 Class for CMS Made Simple ErrorPage content type
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -54,7 +54,7 @@ class ErrorPage extends Content
 			'page_url' => '',
 			'parent' => -1,
 //			'searchable' => false,
-			'secure' => false, //deprecated property since 2.99
+			'secure' => false, //deprecated property since 3.0
 			'showinmenu' => false,
 			'titleattribute' => '',
 		] as $key => $value) {

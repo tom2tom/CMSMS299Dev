@@ -33,7 +33,7 @@ use const APC_ITER_MTIME;
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  */
 class CacheApcu extends CacheDriver
 {

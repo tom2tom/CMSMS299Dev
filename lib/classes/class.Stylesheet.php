@@ -1,7 +1,7 @@
 <?php
 /*
 Class for dealing with a Stylesheet object
-Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -45,14 +45,14 @@ use function endswith;
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  * @since 2.0 as global-namespace CmsLayoutStylesheet
  */
 class Stylesheet
 {
 	/**
 	 * @ignore
-	 * @deprecated since 2.99 use the equivalent StylesheetOperations::TABLENAME
+	 * @deprecated since 3.0 use the equivalent StylesheetOperations::TABLENAME
 	 */
 	const TABLENAME = 'layout_stylesheets';
 
@@ -231,7 +231,7 @@ class Stylesheet
 
 	/**
 	 * Get the recordable properties of this stylesheet
-	 * @since 2.99
+	 * @since 3.0
 	 * @internal
 	 * @ignore
 	 *
@@ -246,7 +246,7 @@ class Stylesheet
 
 	/**
 	 * Set the private properties of this stylesheet
-	 * @since 2.99
+	 * @since 3.0
 	 * @internal
 	 * @ignore
 	 *
@@ -309,7 +309,7 @@ class Stylesheet
 
 	/**
 	 * Get the originator of this stylesheet
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return string, '' if the originator has not yet been nominated.
 	 */
@@ -324,7 +324,7 @@ class Stylesheet
 	 * theme name.
 	 * $str is not checked/validated here, other than non-empty.
 	 * Any case-variant of 'core' is converted to '__CORE__'.
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $str
 	 * @throws DataException if $str is empty
@@ -401,7 +401,7 @@ class Stylesheet
 
 	/**
 	 * Get the type-id of this stylesheet, if any
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return int, 0 if un-typed
 	 */
@@ -413,7 +413,7 @@ class Stylesheet
 
 	/**
 	 * Set the type of this stylesheet
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $a int | null
 	 */
@@ -437,7 +437,7 @@ class Stylesheet
 
 	/**
 	 * Get the flag indicating this stylesheet is the default for its type, if any
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return bool
 	 */
@@ -448,7 +448,7 @@ class Stylesheet
 
 	/**
 	 * Set the flag indicating this stylesheet is the default for its type
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $flag bool or interpretable bool-string
 	 */
@@ -552,7 +552,7 @@ class Stylesheet
 
 	/**
 	 * Get the list of group id's (if any) that this stylesheet belongs to
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return array Array of integer group id's
 	 */
@@ -563,7 +563,7 @@ class Stylesheet
 
 	/**
 	 * Set the group id's that this stylesheet belongs to
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $all array | int integer group id(s), maybe empty
 	 * @throws InvalidArgumentException
@@ -582,7 +582,7 @@ class Stylesheet
 
 	/**
 	 * Add this stylesheet to a group
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @throws LogicException
 	 * @param mixed $a An integer group id, or a string group name
@@ -605,7 +605,7 @@ class Stylesheet
 
 	/**
 	 * Remove this stylesheet from a group
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @throws LogicException
 	 * @param mixed $a An integer group id, or a string group name
@@ -630,7 +630,7 @@ class Stylesheet
 
 	/**
 	 * Set the owner of this stylesheet
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $a int | numeric string | null
 	 */
@@ -651,7 +651,7 @@ class Stylesheet
 
 	/**
 	 * Get the owner of this stylesheet
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return int, 0 if no owner has been specified
 	 */
@@ -742,7 +742,7 @@ class Stylesheet
 */
 	/**
 	 * Get the flag indicating this sheet may be listed
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return bool
 	 */
@@ -753,7 +753,7 @@ class Stylesheet
 
 	/**
 	 * Set the flag indicating this sheet may be listed
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $flag bool or interpretable bool-string
 	 */
@@ -883,7 +883,7 @@ class Stylesheet
 	/**
 	 * Get whether this stylesheet's content resides in a file
 	 *  (as distinct from the database)
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return bool
 	 */
@@ -895,7 +895,7 @@ class Stylesheet
 	/**
 	 * Get whether this stylesheet's content resides in a file
 	 * @since 2.2
-	 * @deprecated since 2.99 this is an alias for get_content_file()
+	 * @deprecated since 3.0 this is an alias for get_content_file()
 	 *
 	 * @return bool
 	 */
@@ -908,7 +908,7 @@ class Stylesheet
 	/**
 	 * Set the value of the flag indicating the content of this stylesheet
 	 *  resides in a filesystem file
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $flag recognized by cms_to_bool(). Default true.
 	 */
@@ -948,7 +948,7 @@ class Stylesheet
 
 	/**
 	 * @ignore
-	 * @since 2.99
+	 * @since 3.0
 	 * @return StylesheetOperations
 	 */
 	protected function get_operations()
@@ -961,7 +961,7 @@ class Stylesheet
 	 * Validate this stylesheet for suitability for saving to the database
 	 * Stylesheets must have a valid name (only certain characters accepted),
 	 * and must have at least some content
-	 * @deprecated since 2.99 use the corresponding StylesheetOperations method
+	 * @deprecated since 3.0 use the corresponding StylesheetOperations method
 	 *
 	 * @throws UnexpectedValueException
 	 */
@@ -981,7 +981,7 @@ class Stylesheet
 	 * AddStylesheetPre is sent before a new stylesheet is saved to the database
 	 * AddStylesheetPost is sent after a new stylesheet is saved to the database
 	 *
-	 * @deprecated since 2.99 use the corresponding StylesheetOperations method
+	 * @deprecated since 3.0 use the corresponding StylesheetOperations method
 	 * @throws SQLException
 	 */
 	public function save()
@@ -999,7 +999,7 @@ class Stylesheet
 	 * deletes the id from this object, and marks the object as dirty so that it can be saved again
 	 *
 	 * This method triggers the DeleteStylesheetPre and DeleteStylesheetPost events
-	 * @deprecated since 2.99 use the corresponding StylesheetOperations method
+	 * @deprecated since 3.0 use the corresponding StylesheetOperations method
 	 */
 	public function delete()
 	{
@@ -1010,7 +1010,7 @@ class Stylesheet
 
 	/**
 	 * Load the specified stylesheet
-	 * @deprecated since 2.99 use the corresponding StylesheetOperations method
+	 * @deprecated since 3.0 use the corresponding StylesheetOperations method
 	 *
 	 * @param mixed $a Either an integer stylesheet id, or a string stylesheet name.
 	 * @return Stylesheet
@@ -1026,7 +1026,7 @@ class Stylesheet
 	 * Load multiple stylesheets in an optimized fashion
 	 *
 	 * This method does not throw exceptions if one requested id, or name does not exist.
-	 * @deprecated since 2.99 use the corresponding StylesheetOperations method
+	 * @deprecated since 3.0 use the corresponding StylesheetOperations method
 	 *
 	 * @param array $ids Array of integer stylesheet id's or an array of string stylesheet names.
 	 * @param bool $deep whether or not to load associated data
@@ -1041,7 +1041,7 @@ class Stylesheet
 
 	/**
 	 * Return all stylesheet objects or stylesheet names.
-	 * @deprecated since 2.99 use the corresponding StylesheetOperations method
+	 * @deprecated since 3.0 use the corresponding StylesheetOperations method
 	 *
 	 * @param bool $by_name Optional flag indicating the output format. Default FALSE.
 	 * @return array If $by_name is TRUE then each value will have
@@ -1055,7 +1055,7 @@ class Stylesheet
 
 	/**
 	 * Test if the specific stylesheet (by name or id) is loaded
-	 * @deprecated since 2.99
+	 * @deprecated since 3.0
 	 *
 	 * @param mixed $id Either an integer stylesheet id, or a string stylesheet name
 	 * @return bool FALSE always
@@ -1068,7 +1068,7 @@ class Stylesheet
 
 	/**
 	 * Generate a unique name for a stylesheet
-	 * @deprecated since 2.99 use the corresponding StylesheetOperations method
+	 * @deprecated since 3.0 use the corresponding StylesheetOperations method
 	 *
 	 * @param string $prototype A prototype stylesheet name
 	 * @param string $prefix An optional name prefix

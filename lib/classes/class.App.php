@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton class for accessing intra-request system properties
-Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -49,40 +49,40 @@ use function CMSMS\get_installed_schema_version;
  * @final
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  * @since 0.5 as global-namespace CmsApp etc
  */
 final class App
 {
     /**
      * A bitflag constant indicating that the request is for a page in the CMSMS admin console
-     * @deprecated since 2.99 use AppState::ADMIN_PAGE
+     * @deprecated since 3.0 use AppState::ADMIN_PAGE
      */
     const STATE_ADMIN_PAGE = 2;
 
     /**
      * A bitflag constant indicating that the request is for an admin login
-     * @deprecated since 2.99 use AppState::LOGIN_PAGE
+     * @deprecated since 3.0 use AppState::LOGIN_PAGE
      */
     const STATE_LOGIN_PAGE = 4;
 
-//    const STATE_ASYNC_JOB = 0x40; from 2.99
+//    const STATE_ASYNC_JOB = 0x40; from 3.0
 
     /**
      * A bitflag constant indicating that the request is taking place during the installation process
-     * @deprecated since 2.99 use AppState::INSTALL
+     * @deprecated since 3.0 use AppState::INSTALL
      */
     const STATE_INSTALL = 0x80;
 
     /**
      * A bitflag constant indicating that the request is for a stylesheet
-     * @deprecated since 2.99 use AppState::STYLESHEET
+     * @deprecated since 3.0 use AppState::STYLESHEET
      */
     const STATE_STYLESHEET = 0x100;
 
     /**
      * A bitflag constant indicating that we are currently parsing page templates
-     * @deprecated since 2.99 use AppState::PARSE_TEMPLATE
+     * @deprecated since 3.0 use AppState::PARSE_TEMPLATE
      */
     const STATE_PARSE_TEMPLATE = 0x200;
 
@@ -154,7 +154,7 @@ final class App
     /**
      * Get the installed-schema version.
      * @since 2.0
-     * @deprecated since 2.99 instead use CMSMS\get_installed_schema_version()
+     * @deprecated since 3.0 instead use CMSMS\get_installed_schema_version()
      *
      * @return int maybe 0
      */
@@ -166,7 +166,7 @@ final class App
     /**
      * Get the dump-messages.
      * @since 1.9
-     * @deprecated since 2.99 instead use CMSMS\get_debug_messages()
+     * @deprecated since 3.0 instead use CMSMS\get_debug_messages()
      *
      * @return array
      */
@@ -178,7 +178,7 @@ final class App
     /**
      * Add a dump-message.
      * @since 1.9
-     * @deprecated since 2.99 instead use CMSMS\add_debug_message()
+     * @deprecated since 3.0 instead use CMSMS\add_debug_message()
      *
      * @param string $str The error message
      */
@@ -253,7 +253,7 @@ final class App
     /**
      * Get the module-operations instance.
      * @see ModuleOperations
-     * @since 2.99 CMSMS\SingleItem::ModuleOperations() may be used instead
+     * @since 3.0 CMSMS\SingleItem::ModuleOperations() may be used instead
      *
      * @return ModuleOperations handle to the ModuleOperations object
      */
@@ -285,7 +285,7 @@ final class App
      * whether the version of the requested module matches the one specified.
      *
      * @since 1.9
-     * @deprecated since 2.99 instead use Utils::get_module() or ModuleOperations::get_module_instance()
+     * @deprecated since 3.0 instead use Utils::get_module() or ModuleOperations::get_module_instance()
      *
      * @param string $modname The module name
      * @param mixed  $version (optional) string|float version number for a check. Default ''
@@ -298,7 +298,7 @@ final class App
 
     /**
      * Record the database connection object.
-     * @deprecated since 2.99 Does nothing
+     * @deprecated since 3.0 Does nothing
      * @internal
      *
      * @param Connection $conn UNUSED
@@ -310,7 +310,7 @@ final class App
 
     /**
      * Get the database-connection instance.
-     * @deprecated since 2.99 Instead, use SingleItem::Db()
+     * @deprecated since 3.0 Instead, use SingleItem::Db()
      *
      * @return Connection object
      */
@@ -321,7 +321,7 @@ final class App
 
     /**
      * Get the database prefix.
-     * @deprecated since 2.99 Instead, use constant CMS_DB_PREFIX
+     * @deprecated since 3.0 Instead, use constant CMS_DB_PREFIX
      *
      * @return string
      */
@@ -347,7 +347,7 @@ final class App
     /**
      * Get the user-operations instance.
      * @see UserOperations
-     * @since 2.99 CMSMS\SingleItem::UserOperations() may be used instead
+     * @since 3.0 CMSMS\SingleItem::UserOperations() may be used instead
      *
      * @return UserOperations handle to the UserOperations object
      */
@@ -359,7 +359,7 @@ final class App
     /**
      * Get the content-operations instance.
      * @see ContentOperations
-     * @since 2.99 CMSMS\SingleItem::ContentOperations() may be used instead
+     * @since 3.0 CMSMS\SingleItem::ContentOperations() may be used instead
      *
      * @return ContentOperations handle to the ContentOperations object
      */
@@ -370,7 +370,7 @@ final class App
 
     /**
      * Get a bookmark-operations object.
-     * @deprecated since 2.99 instead use new CMSMS\BookmarkOperations()
+     * @deprecated since 3.0 instead use new CMSMS\BookmarkOperations()
      * @see BookmarkOperations
      *
      * @return BookmarkOperations
@@ -383,7 +383,7 @@ final class App
     /**
      * Get the group-operations instance.
      * @see GroupOperations
-     * @since 2.99 CMSMS\SingleItem::GroupOperations() may be used instead
+     * @since 3.0 CMSMS\SingleItem::GroupOperations() may be used instead
      *
      * @return GroupOperations handle to the GroupOperations instance
      */
@@ -395,7 +395,7 @@ final class App
     /**
      * Get the user-plugin-operations instance, for interacting with UDT's
      * @see UserTagOperations
-     * @since 2.99 CMSMS\SingleItem::UserTagOperations() may be used instead
+     * @since 3.0 CMSMS\SingleItem::UserTagOperations() may be used instead
      *
      * @return the UserTagOperations singleton
      */
@@ -438,7 +438,7 @@ final class App
 
     /**
      * Does nothing. Formerly, get the template-parser instance.
-     * @deprecated since 2.99 use new page_template_parser()
+     * @deprecated since 3.0 use new page_template_parser()
      * @see CMSMS\internal\page_template_parser class
      */
     public function get_template_parser()
@@ -448,7 +448,7 @@ final class App
 
     /**
      * Remove files from the website file-cache directories.
-     * @deprecated since 2.99 Instead use AdminUtils::clear_cached_files()
+     * @deprecated since 3.0 Instead use AdminUtils::clear_cached_files()
      *
      * @internal
      * @ignore
@@ -464,7 +464,7 @@ final class App
      * Get a list of all current states.
      *
      * @since 1.11.2
-     * @deprecated since 2.99 instead use CMSMS\AppState::get()
+     * @deprecated since 3.0 instead use CMSMS\AppState::get()
      * @return array  State constants (int's)
      */
     public function get_states() : array
@@ -476,7 +476,7 @@ final class App
     /**
      * Report whether the specified state matches the current application state.
      * @since 1.11.2
-     * @deprecated since 2.99 instead use CMSMS\AppState::test()
+     * @deprecated since 3.0 instead use CMSMS\AppState::test()
      *
      * @param mixed $state int | deprecated string State identifier, a class constant
      * @return bool
@@ -494,7 +494,7 @@ final class App
      * @ignore
      * @internal
      * @since 1.11.2
-     * @deprecated since 2.99 instead use CMSMS\AppState::add()
+     * @deprecated since 3.0 instead use CMSMS\AppState::add()
      * @param mixed $state int | deprecated string The state, a class constant
      * @throws UnexpectedValueException if an invalid state is provided.
      */
@@ -510,7 +510,7 @@ final class App
      * @ignore
      * @internal
      * @since 1.11.2
-     * @deprecated since 2.99 instead use CMSMS\AppState::remove()
+     * @deprecated since 3.0 instead use CMSMS\AppState::remove()
      *
      * @param mixed $state int | deprecated string The state, a class constant
      * @return bool indicating success
@@ -525,7 +525,7 @@ final class App
     /**
      * Report whether the current request was executed via the CLI.
      * @since 2.2.10
-     * @deprecated since 2.99 CLI operation is not supported
+     * @deprecated since 3.0 CLI operation is not supported
      *
      * @return bool false always
      */

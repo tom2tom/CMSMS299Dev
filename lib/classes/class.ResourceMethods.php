@@ -326,7 +326,7 @@ class ResourceMethods
 			$db = SingleItem::Db();
 			$config = SingleItem::Config();
 			$smarty = SingleItem::Smarty();
-			$uuid = get_site_UUID(); //since 2.99
+			$uuid = get_site_UUID(); //since 3.0
 			try {
 				ob_start();
 				$result = include $this->modpath.DIRECTORY_SEPARATOR.'action.'.$name.'.php';

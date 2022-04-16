@@ -1,7 +1,7 @@
 <?php
 /*
 TreeOperations - a tree-populator class
-Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -31,7 +31,7 @@ use RuntimeException;
  * @license GPL
  * @author  Robert Campbell
  *
- * @since 2.99
+ * @since 3.0
  * @since 1.9 as global-namespace cms_tree_operations
  */
 class TreeOperations
@@ -83,7 +83,7 @@ class TreeOperations
               $parent_node = $tree;
           }
           else {
-              $parent_node = $tree->find_by_tag('id',$row['parent_id'],FALSE,FALSE); //no id quick-finds possiblke yet
+              $parent_node = $tree->find_by_tag('id',$row['parent_id'],FALSE,FALSE); //no id quick-finds possible yet
               if( !$parent_node ) {
                   // ruh-roh
                   throw new RuntimeException('Problem with internal content organization... could not get a parent node for content with id '.$row['content_id']);

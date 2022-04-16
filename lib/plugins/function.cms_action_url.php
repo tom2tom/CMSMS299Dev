@@ -55,9 +55,10 @@ function smarty_function_cms_action_url($params, $template)
 		case 'assign':
 			$assign = trim($value);
 			break;
-		case 'forjs':
+/*		case 'forjs': processed downstream
 			$forjs = 1;
 			break;
+*/
 		default:
 			if( startswith($key, '_') ) {
 				$urlparms[substr($key, 1)] = $value;
@@ -101,10 +102,10 @@ function smarty_function_cms_action_url($params, $template)
 		$url = (string)$url_ob;
 	}
 
-	if( $forjs ) {
+/*	if( $forjs ) {
 		$url = str_replace('&amp;','&',$url); // prob. redundant
 	}
-
+*/
 	if( $assign ) {
 		$template->assign($assign,$url);
 		return;

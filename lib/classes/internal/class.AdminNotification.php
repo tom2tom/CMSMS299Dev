@@ -28,9 +28,9 @@ use LogicException;
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  * @since  1.11 as CmsAdminThemeNotification
- * @deprecated since 2.99
+ * @deprecated since 3.0
  * @author  Robert Campbell
  * @property string $module Module name
  * @property int $priority Priority between 1 and 3

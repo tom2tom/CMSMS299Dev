@@ -30,7 +30,7 @@ use UnexpectedValueException;
  * @final
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  */
 final class AppState
 {
@@ -90,9 +90,9 @@ final class AppState
     ];
 
     /**
-     * Interpretations of pre-2.99 identifiers of various states
+     * Interpretations of pre-3.0 identifiers of various states
      * @ignore
-     * @deprecated since 2.99
+     * @deprecated since 3.0
      */
     private const STATESTRINGS = [
         'admin_request' => self::ADMIN_PAGE,
@@ -144,7 +144,7 @@ final class AppState
     /**
      * [Un]set a global variable reflecting $flag and $value.
      * Effectively the inverse of _capture_states()
-     * @deprecated since 2.99
+     * @deprecated since 3.0
      * @ignore
      */
     private static function _set_state_var(int $flag, bool $value = true)
@@ -242,7 +242,7 @@ final class AppState
     public static function test($state) : bool
     {
         if( is_string($state) ) {
-            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.99
+            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 3.0
         }
         if( self::_validate_state_var($state, null) ) {
             self::_capture_states();
@@ -286,7 +286,7 @@ final class AppState
     public static function add($state)
     {
         if( is_string($state) ) {
-            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.99
+            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 3.0
         }
         if( self::_validate_state_var($state, TRUE) ) {
             self::$_states[$state] = $state;
@@ -305,7 +305,7 @@ final class AppState
     public static function remove($state) : bool
     {
         if( is_string($state) ) {
-            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.99
+            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 3.0
         }
         if( self::_validate_state_var($state, FALSE) ) {
             self::_capture_states();
@@ -329,7 +329,7 @@ final class AppState
     public static function exchange($state) : int
     {
         if( is_string($state) ) {
-            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.99
+            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 3.0
         }
         if (0) { // TODO validate all flag(s) in $state
             throw new UnexpectedValueException($state.' includes un-recognised CMSMS state(s)');

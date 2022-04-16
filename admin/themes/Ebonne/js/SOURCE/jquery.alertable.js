@@ -173,7 +173,7 @@ License: MIT
       if (!$(event.target).parents().is('.alertable')) {
         event.stopPropagation();
         event.target.blur();
-        $(modal).find(':input:first').focus();
+        $(modal).find(':input').eq(0).focus();
       }
     });
 

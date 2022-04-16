@@ -25,7 +25,7 @@ final class std_layout_template_callbacks
 
 	public static function reset_page_type_defaults()
 	{
-		$file = cms_join_path(CMS_ADMIN_PATH,'templates','orig_page_template.tpl');
+		$file = cms_join_path(CMS_ADMIN_PATH,'layouts','orig_page_template.tpl');
 		if( is_file($file) ) {
 			return @file_get_contents($file);
 		}

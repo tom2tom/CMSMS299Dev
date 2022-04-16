@@ -8,6 +8,6 @@ published by the Free Software Foundation.
 */
 //PROTECT THIS FILE AGAINST INVALID CHANGE !
 
-$CMS_VERSION = '2.99';
+$CMS_VERSION = '3.0-beta.1';
 $CMS_VERSION_NAME = 'Skye Isle';
 $CMS_SCHEMA_VERSION = 300;

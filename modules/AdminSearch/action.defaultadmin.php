@@ -1,7 +1,7 @@
 <?php
 /*
 AdminSearch module action: defaultadmin
-Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -39,7 +39,7 @@ add_page_headtext($out, false);
 $s1 = json_encode($this->Lang('warn_clickthru'));
 $s2 = json_encode($this->Lang('error_search_text'));
 $s3 = json_encode($this->Lang('error_select_slave'));
-$ajax_url = $this->create_action_url($id,'admin_search',[CMS_JOB_KEY=>1]);
+$ajax_url = $this->create_action_url($id,'admin_search',['forjs'=>1, CMS_JOB_KEY=>1]);
 
 /*function _update_status(html) {
   $('#status_area').html(html);

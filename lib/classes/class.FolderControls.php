@@ -48,14 +48,14 @@ use function startswith;
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  * @since 2.2 as FilePickerProfile
  */
 class FolderControls
 {
     /**
      * @ignore
-     * Constants deprecated since 2.99. Instead use corresponding FSControlValue
+     * Constants deprecated since 3.0. Instead use corresponding FSControlValue
      */
     const FLAG_NONE = 0;
     const FLAG_NO = 0;
@@ -89,20 +89,20 @@ class FolderControls
          'create_date'=>$longnow,
          'exclude_groups'=>[], //array of group-id's
          'exclude_patterns'=>[], //array of regex's - barred item-names
-         'exclude_prefix'=>'', // deprecated, unused since 2.99 see exclude_pattern
+         'exclude_prefix'=>'', // deprecated, unused since 3.0 see exclude_pattern
          'exclude_users'=>[],  //array of user-id's
          'file_extensions'=>'', // deprecated, unused since 2.99s ee match_pattern allowed_types etc
          'file_mimes'=>'', //since 2.0
          'file_types'=>[FileType::ANY], //array of acceptable type-enumerators
          'match_groups'=>[], //array of group-id's
          'match_patterns'=>[], //array of regex's representing acceptable item-names
-         'match_prefix'=>'', // deprecated, unused since 2.99 see match_pattern allowed_types etc
+         'match_prefix'=>'', // deprecated, unused since 3.0 see match_pattern allowed_types etc
          'match_users'=>[], //array of user-id's
          'modified_date'=>null,
          'reltop'=>'', // topmost (aka 'senior') filepath relative to website root, generally the name of the uploads folder
          'show_hidden'=>FSControlValue::NO,
          'show_thumbs'=>FSControlValue::YES,
-         'sort'=>FSControlValue::YES, // deprecated, unused since 2.99 see sort_asc etc
+         'sort'=>FSControlValue::YES, // deprecated, unused since 3.0 see sort_asc etc
          'sort_asc'=>FSControlValue::YES,
          'sort_by'=>'name', // item-property - name,size,created,modified + [a[sc]] | d[esc]
          'type'=>FileType::ANY,
@@ -189,7 +189,7 @@ class FolderControls
      */
     public function __set(string $key, $val)
     {
-        // TODO all 2.99 props
+        // TODO all 3.0 props
         switch( $key ) {
         case 'id':
             if( !empty($this->data[$key]) ) {
@@ -327,7 +327,7 @@ class FolderControls
      */
     public function __get(string $key)
     {
-        // TODO all 2.99 props
+        // TODO all 3.0 props
         switch( $key ) {
         case 'id':
         case 'can_mkdir': // FSControlValue::* value, sometimes non-0 handled just as true
@@ -368,7 +368,7 @@ class FolderControls
 
     /**
      * Set a property of this profile.
-     * Since 2.99 just an alias for __set(). Use that instead.
+     * Since 3.0 just an alias for __set(). Use that instead.
      *
      * @param string $key Property name
      * @param mixed $val Property value
@@ -406,7 +406,7 @@ class FolderControls
 
     /**
      * Get a clone of this profile
-     * @param mixed $new_id ignored since 2.99
+     * @param mixed $new_id ignored since 3.0
      *  Setting a specific id is automatic when a set is saved, and prohibited otherwise
      * @return self
      */

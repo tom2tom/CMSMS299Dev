@@ -27,7 +27,7 @@ use const CMS_ROOT_URL;
 /**
  * Base class for data-cache drivers
  *
- * @since 2.99
+ * @since 3.0
  * @package CMS
  * @license GPL
  */
@@ -156,7 +156,7 @@ abstract class CacheDriver
 
     /**
      * Set the default keys-space
-     * @since 2.99
+     * @since 3.0
      *
      * @param string $space Ignored if empty
      */
@@ -167,7 +167,7 @@ abstract class CacheDriver
 
     /**
      * Get the default keys-space
-     * @since 2.99
+     * @since 3.0
      *
      * @return string
      */

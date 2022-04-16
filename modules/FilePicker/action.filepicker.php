@@ -20,21 +20,23 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 /*
- * This generates content (html, js, css) for a whole page, intended for
- * an iframe which can support directory-change and -display.
- * That page uses a CMSFileBrowser js object with methods to interact
- * with the generated page and with a non-CMSMS file-upload js plugin,
- * currently dm-uplader (see https://github.com/danielm/uploader)
- */
+This generates content (html, js, css) for a div intended for
+standalone use, or for a whole page, intended for an iframe.
+Those use a CMSFileBrowser js object with methods to interact with
+the generated page and with a non-CMSMS file-upload js plugin,
+currently dm-uplader (see https://github.com/danielm/uploader)
+jQuery basictable is applied to the displayed table containing files/folders
+*/
 
 use CMSMS\Crypto;
 use CMSMS\FileType;
 use CMSMS\FolderControlOperations;
 use CMSMS\FSControlValue;
 use CMSMS\NlsOperations;
-use CMSMS\ScriptsMerger;
+//use CMSMS\ScriptsMerger;
 use FilePicker\PathAssistant;
 use FilePicker\Utils;
+use UnexpectedValueException;
 use function CMSMS\log_error;
 
 //if( some worthy test fails ) exit;
@@ -46,11 +48,13 @@ for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 //
 // initialization
 //
+$contentonly = isset($params['content']) && cms_to_bool($params['content']);
+
 if( !empty($params['_enc']) ) {
-    $eparms = json_decode(base64_decode($params['_enc']), true); //has 'seldir'|'subdir', 'inst' no sanitize, rely on obfuscation to protect
+    $eparms = json_decode(base64_decode($params['_enc']), true); //has 'seldir'|'subdir', 'inst' etc no sanitize, rely on obfuscation to protect
     if( $eparms ) {
         $params = array_merge($params, $eparms);
-//        unset($params['_enc']);
+        unset($params['_enc']);
     }
 }
 
@@ -83,12 +87,25 @@ try {
 
     $stype = $params['type'] ?? ''; //TODO form needs to send this if no inst
     if( $profile && !$inst && $stype ) {
-        $itype = FileType::getValue($stype);
-        $profile = $profile->overrideWith([
-            'type'=>$itype,
-        ]);
-        $save = true;
+        if( is_numeric($stype) ) {
+            $itype = (int)$stype;
+        }
+        else {
+            $itype = FileType::getValue($stype);
+        }
+        if( FolderControlOperations::is_file_type_acceptable($profile, $itype) ) {
+/*            $profile = $profile->overrideWith([
+                'type' => $itype,
+            ]);
+            $save = true;
+*/
+        }
+        else {
+            if ($itype == $stype) { $stype = FileType::getName($itype); }
+            throw new UnexpectedValueException("Browsing files of type '$stype' is not permitted");
+        }
     }
+
     if( !$this->CheckPermission('Modify Files') ) {
         $profile = $profile->overrideWith([
             'can_upload' => FSControlValue::NO,
@@ -114,6 +131,13 @@ try {
         $inst = FolderControlOperations::store_cached($profile);
     }
 
+    $typename = $params['type'] ?? $profile->typename; // TODO per $params['type'] iff consistent with $profile
+    // uploader parameters
+    $mime = $params['mime'] ?? $profile->file_mimes; // TODO default per $params['type'] iff consistent with $profile
+    //$mime = $this->_typehelper->get_file_type_mime(FileType::getValue($typename));
+    $extensions = $params['exts'] ?? $profile->file_extensions;
+    //if (!($extensions || $mime)) $extensions = $this->_typehelper->get_file_type_extensions(FileType::getValue($typename));
+
     $assistant = new PathAssistant($config, $topdir);
     $sesskey = Crypto::hash_string(__FILE__);
 
@@ -136,7 +160,7 @@ try {
             $cwd = $assistant->to_relative($profile->top);
         }
 
-        $nosub = $params['nosub'] ?? false;
+        $nosub = isset($params['nosub']) && cms_to_bool($params['nosub']);
         if( !($nosub || empty($params['subdir'])) ) {
             $cwd .= DIRECTORY_SEPARATOR . $params['subdir'];
             $cwd = $assistant->to_relative($assistant->to_absolute($cwd));
@@ -154,7 +178,7 @@ try {
     $starturl = $assistant->relative_path_to_url($cwd);
     $startdir = $assistant->to_absolute($cwd);
     //
-    // get file list c.f. Utils::get_file_list($profile, $startdir)
+    // get file list c.f. Utils::get_file_list($this, $profile, $startdir)
     //
     $files = $thumbs = [];
     $dosize = function_exists('getimagesize'); // GD extension present
@@ -175,7 +199,7 @@ try {
         if( is_dir($fullname) ) {
             // anything here?
         }
-        elseif( !$this->is_acceptable_filename($profile, $fullname) ) {
+        elseif( !$this->is_acceptable_filename($profile, $fullname, $stype) ) {
             continue;
         }
         $data = ['name' => $name, 'fullpath' => $fullname];
@@ -205,11 +229,16 @@ try {
             $data['icon'] = Utils::get_file_icon($t, true);
 */
             $data['icon'] = Utils::get_file_icon('', true);
-
-            $parms = ['subdir'=>$name, 'inst'=>$inst];
+            $parms = [
+                'subdir' => $name,
+                'inst' => $inst,
+                'type' => $typename,
+                'mime' => $mime,
+                'exts' => $extensions,
+            ];
             $up = base64_encode(json_encode($parms,
-                JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE));
-            $url = $this->create_action_url($id, 'filepicker', ['_enc'=>$up, CMS_JOB_KEY=>1]); // come back here
+                JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            $url = $this->create_action_url($id, 'filepicker', ['_enc' => $up, 'forjs'=>1, CMS_JOB_KEY=>1]); // come back here
             $data['chdir_url'] = $url;
         }
         else {
@@ -286,24 +315,20 @@ try {
         else {
             $parent = '';
         }
-        $parms = ['seldir'=>$parent, 'inst'=>$inst];
+        $parms = [
+            'seldir' => $parent,
+            'inst' => $inst,
+            'type' => $typename,
+            'mime' => $mime,
+            'exts' => $extensions,
+        ];
         $up = base64_encode(json_encode($parms,
-            JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE));
-        $upurl = $this->create_action_url($id, 'filepicker', ['_enc'=>$up, CMS_JOB_KEY=>1]); // come back here
+            JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        $upurl = $this->create_action_url($id, 'filepicker', ['_enc'=>$up, 'forjs'=>1, CMS_JOB_KEY=>1]); // come back here
     }
     else {
+        $up = '';
         $upurl = '';
-    }
-
-    $typename = $profile->typename;
-    // input[file] parameters
-    $mime = $profile->file_mimes;
-    $extensions = $profile->file_extensions;
-    if( $extensions ) {
-        $extjs = '["'.str_replace(',', '","', $extensions).'"]';
-    }
-    else {
-        $extjs = '[]';
     }
 
     $baseurl = $this->GetModuleURLPath();
@@ -312,14 +337,17 @@ try {
     // fully-populated $headercontent, just as if the iframe were generated by a normal admin request
     // c.f. admintheme::AdminHeaderSetup() etc which populate via an admin-request hooklist
     // i.e. also needs at least: admin + theme js & admin + theme css
-
-    $incs = cms_installed_jquery(true, true, true, true);
-    // don't bother with a StylessMerger BUT TODO CSP support ??
-    $url = cms_path_to_url($incs['jquicss']);
-    $url2 = cms_get_css('filepicker.css');
+/*
+ 	$frontend = SingleItem::App()->is_frontend_request();
+    if ($frontend) { $incs = cms_installed_jquery(true, true, true, true); }
+    // no StylessMerger BUT TODO CSP support ??
+    if ($frontend) {$url = cms_path_to_url($incs['jquicss']); }
+    $url2 = cms_get_css('basictable.css');
+    $url3 = cms_get_css('browsefiles.css');
     $headinc = <<<EOS
-<link rel="stylesheet" type="text/css" href="$url" />
+<link rel="stylesheet" type="text/css" href="$url" /> if ($frontend)
 <link rel="stylesheet" type="text/css" href="$url2" />
+<link rel="stylesheet" type="text/css" href="$url3" />
 
 EOS;
 
@@ -328,13 +356,15 @@ EOS;
 //    if( CMS_DEBUG )
         $jsm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ? or keep if( CMS_DEBUG )?
 //    }
-    $jsm->queue_file($incs['jqui'], 1);
+    if ($frontend) {$jsm->queue_file($incs['jqui'], 1);
+    $jsm->queue_matchedfile('jquery.basictable.js', 2);
     $jsm->queue_matchedfile('jquery.dm-uploader.js', 2);
-    $jsm->queue_matchedfile('fakeadmin.js', 2);
+    if ($frontend) { $jsm->queue_matchedfile('adminlite.js', 2); }
     $jsm->queue_matchedfile('filebrowser.js', 2);
     $headinc .= $jsm->page_content();
 
-    $lang = (object) [
+    $lang_js = '{';
+    foreach ([
         'cancel' => $this->Lang('cancel'),
         'choose' => $this->Lang('choose'),
         'clear' => $this->Lang('clear'),
@@ -350,16 +380,50 @@ EOS;
         'ok' => $this->Lang('ok'),
         'select_file' => $this->Lang('select_a_file'),
         'yes' => $this->Lang('yes'),
-    ];
-    $lang_js = json_encode($lang); // CHECKME need for prior (object) cast?
+    ] as $k => $v) {
+        $lang_js .= $k.':'.json_encode($v).',';
+    }
+    $p = strlen($lang_js);
+    $lang_js[$p-1] = '}';
     $url = $this->create_action_url($id, 'ajax_cmd', ['forjs'=>1, CMS_JOB_KEY=>1]);
+/*
+    if( $contentonly ) {
+ //breakpoint: 2000 DEBUG normally forceResponsive: false
+        $footinc = <<<EOS
+ $('#fp-list').basictable({
+  forceResponsive: false
+ });
+ $('.cmsfp_elem').attr('data-cmsfp-instance', '$inst');
 
-    $footinc = <<<EOS
+EOS;
+    }
+    else {
+* /
+//breakpoint: 2000 DEBUG normally forceResponsive: false
+        $footinc = <<<'EOS'
 <script type="text/javascript">
 //<![CDATA[
 $(function() {
- var filepicker = new CMSFileBrowser({
+ var ifrm = $(document).find('iframe');
+ ifrm.on('load', function() {
+  ifrm.contents().find('#fp-list').basictable({
+   forceResponsive: false
+  });
+ });
+
+EOS;
+//    }
+        if( $extensions ) {
+            $extjs = '["'.str_replace(',', '","', $extensions).'"]';
+        }
+        else {
+            $extjs = '[]';
+        }
+//target: null,
+        $footinc .= <<<EOS
+ var browser = new CMSFileBrowser({
   cmd_url: '$url',
+  content: $contentonly,
   cwd: '$cwd',
   cd_url: '$upurl',
   inst: '$inst',
@@ -368,25 +432,62 @@ $(function() {
   extensions: $extjs,
   lang: $lang_js
  });
+
+EOS;
+//    if( !$contentonly ) {
+        $footinc .= <<<'EOS'
 });
 //]]>
 </script>
 
 EOS;
-    // this template generates a full html page
+//    }
+/*    $footinc .= <<<'EOS'
+</script>
+
+EOS;
+*/
     $tpl = $smarty->createTemplate($this->GetTemplateResource('filepicker.tpl')); //, null, null, $smarty);
     $tpl->assign([
-     'bottomcontent' => $footinc,
      'cwd_for_display' => $cwd_for_display,
      'cwd_up' => ($cwd != false),
+     'cwd_updata' => $up,
      'files' => $files,
-     'headercontent' => $headinc,
      'inst' => $inst,
      'module_url' => $baseurl,
      'profile' => $profile,
      'topurl' => $topurl,
+     'type' => $typename
     ]);
-    $tpl->display();
+    if( $contentonly ) {
+        $tpl->assign('getcontent', 1);
+        $body = $tpl->fetch();
+        //return ajax data
+        echo json_encode([
+          'cwd' => $cwd,
+          'inst' => $inst,
+          'body' => $body
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
+    }
+    else {
+        list($headinc, $footinc) = Utils::get_browsedata($this, [
+            'cwd' => $cwd,
+            'upurl' => $upurl,
+            'exts' => $extensions,
+            'inst' => $inst,
+            'listurl' => $this->get_browser_url(),
+            'mime' => $mime,
+            'typename' => $typename
+            ], true);
+        $tpl->assign([
+         'headercontent' => $headinc,
+         'bottomcontent' => $footinc
+        ]);
+        $tpl->display();
+//$adbg = $tpl->fetch();
+//file_put_contents(TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'iframe.html');
+//echo $adbg;
+    }
 }
 catch (Throwable $t) {
     log_error($t->GetMessage(), 'FilePicker::filepicker');

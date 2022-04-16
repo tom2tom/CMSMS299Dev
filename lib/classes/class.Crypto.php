@@ -30,7 +30,7 @@ use const CMS_ROOT_URL;
  * @package CMS
  * @license GPL
  *
- * @since 2.99
+ * @since 3.0
  */
 class Crypto
 {

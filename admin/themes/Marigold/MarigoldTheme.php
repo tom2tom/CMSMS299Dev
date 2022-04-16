@@ -84,7 +84,7 @@ class MarigoldTheme extends AdminTheme
 
 		$csm = new StylesMerger();
 		$csm->queue_matchedfile('normalize.css', 1);
-		$csm->queue_matchedfile('grid-960.css', 2); //for modules, deprecated since 2.99
+		$csm->queue_matchedfile('grid-960.css', 2); //for modules, deprecated since 3.0
 		$out = $csm->page_content('', false, true);
 
 		// jQUI css does, and theme-specific css files might, include relative URLs, so cannot be merged
@@ -155,7 +155,7 @@ EOS;
 			}
 		}
 
-		$fp = cms_join_path(__DIR__, 'css', 'font-awesome.min.css');
+		$fp = cms_join_path(__DIR__, 'styles', 'font-awesome.min.css');
 		if (is_file($fp)) {
 			$url = cms_path_to_url($fp);
 			$smarty->assign('font_includes', ' <link rel="stylesheet" href="'.$url.'" />');
@@ -165,7 +165,7 @@ EOS;
 
 		$fn = 'style';
 		if (NlsOperations::get_language_direction() == 'rtl') {
-			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
+			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'styles'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
 				$fn .= '-rtl';
 			}
 		}
@@ -174,7 +174,7 @@ EOS;
 		$url = cms_path_to_url($incs['jquicss']);
 		$out = <<<EOS
  <link rel="stylesheet" href="$url" />
- <link rel="stylesheet" type="text/css" href="themes/Marigold/css/{$fn}.css" />
+ <link rel="stylesheet" type="text/css" href="themes/Marigold/styles/{$fn}.css" />
 
 EOS;
 //		get_csp_token(); //setup CSP header (result not used)
@@ -196,7 +196,7 @@ EOS;
 			$smarty->assign('sitelogo', $sitelogo);
 		}
 
-		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates')
+		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'layouts', -1)
 		  ->display('login.tpl');
 	}
 
@@ -230,7 +230,7 @@ EOS;
 			$smarty->assign('is_sitedown', 1);
 		}
 
-		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR. 'templates');
+		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR. 'layouts', -1);
 		return $smarty->fetch('topcontent.tpl');
 	}
 
@@ -349,7 +349,7 @@ EOS;
 			$smarty->assign('marks', $marks);
 		}
 
-		$fp = cms_join_path(__DIR__, 'css', 'font-awesome.min.css');
+		$fp = cms_join_path(__DIR__, 'styles', 'font-awesome.min.css');
 		if (is_file($fp)) {
 			$url = cms_path_to_url($fp);
 			$s = '<link rel="stylesheet" href="'.$url.'" />';
@@ -385,7 +385,7 @@ EOS;
 			$smarty->assign('is_sitedown', 1);
 		}
 
-		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
+		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'layouts', -1);
 		return $smarty->fetch('pagetemplate.tpl');
 	}
 }

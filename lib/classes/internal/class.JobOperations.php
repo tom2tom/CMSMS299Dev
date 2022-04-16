@@ -45,7 +45,7 @@ use const CMS_DB_PREFIX;
 use const CMS_ROOT_PATH;
 use const CMS_SECURE_PARAM_NAME;
 use const TMP_CACHE_LOCATION;
-use function audit;
+//use function audit;
 use function cms_join_path;
 use function cms_path_to_url;
 use function CMSMS\log_notice;
@@ -53,7 +53,7 @@ use function debug_to_log;
 use function error_log;
 
 /**
- * @since 2.99
+ * @since 3.0
  */
 final class JobOperations
 {

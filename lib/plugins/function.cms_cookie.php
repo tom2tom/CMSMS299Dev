@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-//since 2.99
+//since 3.0
 use CMSMS\SignedCookieOperations;
 
 function smarty_function_cms_cookie($params, $template)

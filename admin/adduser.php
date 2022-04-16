@@ -77,8 +77,8 @@ if (isset($_POST['submit'])) {
         $errors[] = _la('nofieldgiven', _la('username'));
     }
 
-    $firstname = sanitizeVal(trim($_POST['firstname']), CMSSAN_NONPRINT); // OR no-gibberish 2.99 breaking change
-    $lastname = sanitizeVal(trim($_POST['lastname']), CMSSAN_NONPRINT); // OR no-gibberish 2.99 breaking change
+    $firstname = sanitizeVal(trim($_POST['firstname']), CMSSAN_NONPRINT); // OR no-gibberish 3.0 breaking change
+    $lastname = sanitizeVal(trim($_POST['lastname']), CMSSAN_NONPRINT); // OR no-gibberish 3.0 breaking change
 
     $tmp = $_POST['passwordagain'] ?? '';
     //per https://pages.nist.gov/800-63-3/sp800-63b.html : valid = printable ASCII | space | Unicode

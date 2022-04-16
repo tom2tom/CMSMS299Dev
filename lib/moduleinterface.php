@@ -1,7 +1,7 @@
 <?php
 /*
 module-action request-processing for CMS Made Simple
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -139,7 +139,7 @@ switch ($CMS_JOB_TYPE) {
 				$db = SingleItem::Db();
 				$config = SingleItem::Config();
 				//no $smarty (no template-processing)
-				$uuid = get_site_UUID(); //since 2.99
+				$uuid = get_site_UUID(); //since 3.0
 				include $filepath;
 			}, $mact_mod, $mact_mod);
 			$dojob($fp, $id, $params);

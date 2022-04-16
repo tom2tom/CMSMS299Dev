@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton class of utility-methods for operating on and with modules
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -95,7 +95,7 @@ final class ModuleOperations
 
 	/**
 	 * @ignore
-	 * @deprecated since 2.99 Instead use LoadedMetadata::ANY_RESULT
+	 * @deprecated since 3.0 Instead use LoadedMetadata::ANY_RESULT
 	 */
 	const ANY_RESULT = '.*';
 
@@ -190,7 +190,7 @@ final class ModuleOperations
 
 	/**
 	 * Get the singleton instance of this class.
-	 * @deprecated since 2.99 use CMSMS\SingleItem::ModuleOperations()
+	 * @deprecated since 3.0 use CMSMS\SingleItem::ModuleOperations()
 	 * @return ModuleOperations
 	 */
 	public static function get_instance() : self
@@ -201,7 +201,7 @@ final class ModuleOperations
 
 	/**
 	 * Initialize LoadedData-caching for 'modules', 'module_deps' and 'module_depstree'
-	 * @since 2.99
+	 * @since 3.0
 	 */
 	public static function load_setup()
 	{
@@ -263,7 +263,7 @@ final class ModuleOperations
 	 * Get the classname corresponding to the named module.
 	 * It might differ from what's expected for $modname
 	 * e.g. an alias or have a specific namespace.
-	 * @since 2.99 public access
+	 * @since 3.0 public access
 	 *
 	 * @param string $modname
 	 * @return mixed string | null if $modname is empty
@@ -337,7 +337,7 @@ final class ModuleOperations
 	/* *
 	 * Generate a moduleinfo.ini file for a module.
 	 *
-	 * @since 2.99
+	 * @since 3.0
 	 * @param CMSModule $mod a loaded-module object
 	 */
 /*	public function generate_moduleinfo(CMSModule $mod)
@@ -885,7 +885,7 @@ VALUES (?,?,?,$longnow)");
 	/**
 	 * Pass a named module to a nominated handler
 	 * The handler will be called with the module-object (or null if N/A) as argument.
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $modname
 	 * @param bool $force flag whether to force-load the module
@@ -943,7 +943,7 @@ VALUES (?,?,?,$longnow)");
 
 	/**
 	 * Return all the information we know about installed modules.
-	 * @deprecated since 2.99 instead use ModuleOperations::GetInstalledModuleInfo()
+	 * @deprecated since 3.0 instead use ModuleOperations::GetInstalledModuleInfo()
 	 *
 	 * @return array
 	 */
@@ -955,7 +955,7 @@ VALUES (?,?,?,$longnow)");
 
 	/**
 	 * Return locally-cached info about installed modules
-	 * @param bool $force since 2.99 Flag whether to force-load the modules cache. Default false
+	 * @param bool $force since 3.0 Flag whether to force-load the modules cache. Default false
 	 * @return array, maybe empty, or each member like $modname => props
 	 *  props are from db via LoadedData 'modules', plus calculated 'dependents'
 	 * @ignore
@@ -992,7 +992,7 @@ VALUES (?,?,?,$longnow)");
 
 	/**
 	 * Return the names of installed modules
-	 * @since 2.99
+	 * @since 3.0
 	 * @see also ModuleOpeations::GetInstalledModules()
 	 *
 	 * @return array
@@ -1004,7 +1004,7 @@ VALUES (?,?,?,$longnow)");
 
 	/**
 	 * Return the names of installed modules
-	 * @deprecated since 2.99 instead use ModuleOperations::GetInstalledModuleNames()
+	 * @deprecated since 3.0 instead use ModuleOperations::GetInstalledModuleNames()
 	 *
 	 * @return array
 	 */
@@ -1040,7 +1040,7 @@ VALUES (?,?,?,$longnow)");
 
 	/**
 	 * Return the names of available but not-loaded modules
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return array maybe empty
 	 */
@@ -1051,7 +1051,7 @@ VALUES (?,?,?,$longnow)");
 
 	/**
 	 * @ignore
-	 * @param bool $flat since 2.99 whether to get un-ordered dependencies
+	 * @param bool $flat since 3.0 whether to get un-ordered dependencies
 	 * @return mixed
 	 *  if $flat, then array, each member like
 	 *    child=>[parent1=>minver1, parent2=>minver2, ...]
@@ -1078,7 +1078,7 @@ VALUES (?,?,?,$longnow)");
 	 *
 	 * @since 1.11.8
 	 * @param string $modname The module name
-	 * @param bool $flat since 2.99 whether to get un-ordered dependencies
+	 * @param bool $flat since 3.0 whether to get un-ordered dependencies
 	 * @return mixed array of prerequisite-module names and versions | null
 	 */
 	public function get_module_dependencies(string $modname, $flat = true)
@@ -1121,7 +1121,7 @@ VALUES (?,?,?,$longnow)");
 			return false;
 		}
 
-		$gCms = SingleItem::App(); // some crappy old modules expect this during loading. Deprecated since 2.99
+		$gCms = SingleItem::App(); // some crappy old modules expect this during loading. Deprecated since 3.0
 
 		if( !($this->installing || $this->polling) ) {
 			// okay, lessee if we can load dependencies/prerequisites
@@ -1242,7 +1242,7 @@ VALUES (?,?,?,$longnow)");
 	 * @param bool $force Optional flag whether to reload the module if
 	 *  already loaded e.g. there might be a new version. Default false.
 	 * @return mixed CMSModule subclass | IResource | null
-	 *  Since 2.99 (and PHP 5.0) : object, not an object-reference ("returning object-references is totally wasted")
+	 *  Since 3.0 (and PHP 5.0) : object, not an object-reference ("returning object-references is totally wasted")
 	 */
 	public function get_module_instance($modname, string $version = '', bool $force = false)
 	{
@@ -1303,7 +1303,7 @@ VALUES (?,?,?,$longnow)");
 			// during installation, poll
 			$val = [];
 			$names = $this->FindAllModules();
-			$gCms = SingleItem::App(); // compatibility for some crappy old modules, deprecated since 2.99
+			$gCms = SingleItem::App(); // compatibility for some crappy old modules, deprecated since 3.0
 			// processing order doesn't matter: only HasCapability() calls here
 			foreach( $names as $modname ) {
 				$classname = $this->modulespace.$modname;
@@ -1346,7 +1346,7 @@ VALUES (?,?,?,$longnow)");
 
 	/**
 	 * Record the (non-default) login module to be used from now
-	 * @since 2.99
+	 * @since 3.0
 	 * @param CMSModule | IResource $mod
 	 * @throws LogicException
 	 */
@@ -1360,7 +1360,7 @@ VALUES (?,?,?,$longnow)");
 	}
 
 	/**
-	 * @since 2.99
+	 * @since 3.0
 	 * @return mixed CMSModule | IResource | null
 	 */
 	public function GetAdminLoginModule()
@@ -1375,7 +1375,7 @@ VALUES (?,?,?,$longnow)");
 	 * or the current user's preference for such module, in each case
 	 * provided that all of the module's dependencies are satisfied
 	 * @since 1.10
-	 * @deprecated since 2.99. Instead, generate and place content (js etc) directly
+	 * @deprecated since 3.0. Instead, generate and place content (js etc) directly
 	 *
 	 * @param mixed string|null|-1 $modname allows specifying a
 	 * module to be used instead of the user's recorded preference.
@@ -1405,7 +1405,7 @@ VALUES (?,?,?,$longnow)");
 	 * Alias for GetSyntaxHiglighter().
 	 *
 	 * @see ModuleOperations::GetSyntaxHighlighter()
-	 * @deprecated since 2.99
+	 * @deprecated since 3.0
 	 * @since 1.10
 	 * @param mixed $modname string | null
 	 * @return CMSModule | IResource
@@ -1422,7 +1422,7 @@ VALUES (?,?,?,$longnow)");
 	 * and the current user's preference for such module, in each
 	 * case provided that all the module's dependencies are satisfied.
 	 * @since 1.10
-	 * @deprecated since 2.99. Instead, generate and place content (js etc) directly
+	 * @deprecated since 3.0. Instead, generate and place content (js etc) directly
 	 *
 	 * @param mixed string|null $modname allows bypassing the automatic
 	 *  detection process and specifying a WYSIWYG module.
@@ -1484,7 +1484,7 @@ VALUES (?,?,?,$longnow)");
 	/**
 	 * Return the members of $_REQUEST[] whose key begins with $id
 	 * $id is stripped from the start of returned keys.
-	 * @deprecated since 2.99 instead use RequestParameters::get_identified_params()
+	 * @deprecated since 3.0 instead use RequestParameters::get_identified_params()
 	 *
 	 * @param string $id parameter identifier/prefix
 	 * @return array, maybe empty

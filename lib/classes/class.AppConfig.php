@@ -1,7 +1,7 @@
 <?php
 /*
 Class for handling system-configuration data
-Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -48,7 +48,7 @@ use function startswith;
  * may be dealt with like array members.
  *
  * @final
- * @since 2.99
+ * @since 3.0
  * @since 1.9 as global-namespace cms_config
  * @package CMS
  * @license GPL
@@ -80,14 +80,14 @@ final class AppConfig implements ArrayAccess
         'admin_dir' => self::TYPE_STRING,
         'admin_encoding' => self::TYPE_STRING,
         'admin_url' => self::TYPE_STRING,
-        'assets_dir' => self::TYPE_STRING, //deprecated since 2.99
+        'assets_dir' => self::TYPE_STRING, //deprecated since 3.0
         'assets_path' => self::TYPE_STRING,
         'assets_url' => self::TYPE_STRING,
         'auto_alias_content' => self::TYPE_BOOL,
-        'content_encoding' => self::TYPE_STRING, //since 2.99 alias of 'default_encoding'
-        'content_language' => self::TYPE_STRING, //since 2.99
+        'content_encoding' => self::TYPE_STRING, //since 3.0 alias of 'default_encoding'
+        'content_language' => self::TYPE_STRING, //since 3.0
 //      'content_processing_mode' => self::TYPE_INT,
-        'db_credentials' => self::TYPE_STRING, //since 2.99 (difficult for installer!)
+        'db_credentials' => self::TYPE_STRING, //since 3.0 (difficult for installer!)
         'db_hostname' => self::TYPE_STRING,
         'db_name' => self::TYPE_STRING,
         'db_password' => self::TYPE_STRING,
@@ -102,9 +102,10 @@ final class AppConfig implements ArrayAccess
         'deprecations' => self::TYPE_BOOL,
         'image_uploads_path' => self::TYPE_STRING,
         'image_uploads_url' => self::TYPE_STRING,
+        'jqversion' => self::TYPE_STRING, //since 3.0 deprecated since 3.0
         'locale' => self::TYPE_STRING,
         'max_upload_size' => self::TYPE_INT,
-//      'obscure_urls' => self::TYPE_BOOL, //since 2.99 formerly secure_action_url
+//      'obscure_urls' => self::TYPE_BOOL, //since 3.0 formerly secure_action_url
         'page_extension' => self::TYPE_STRING,
         'permissive_smarty' => self::TYPE_BOOL,
         'persist_db_conn' => self::TYPE_BOOL,
@@ -116,7 +117,7 @@ final class AppConfig implements ArrayAccess
         'root_url' => self::TYPE_STRING,
         'set_db_timezone' => self::TYPE_BOOL,
         'set_names' => self::TYPE_BOOL,
-        'usertags_path' => self::TYPE_STRING, //since 2.99 UDTfiles
+        'usertags_path' => self::TYPE_STRING, //since 3.0 UDTfiles
         'timezone' => self::TYPE_STRING,
         'tmp_cache_location' => self::TYPE_STRING,
         'tmp_templates_c_location' => self::TYPE_STRING,
@@ -351,7 +352,7 @@ final class AppConfig implements ArrayAccess
             return $this->_cache[$key];
 
         case 'ssl_uploads_url':
-            // From v 2.99 this is just an alias for the uploads_url
+            // From v 3.0 this is just an alias for the uploads_url
             return $this->offsetGet('uploads_url');
 
         case 'image_uploads_path':
@@ -365,7 +366,7 @@ final class AppConfig implements ArrayAccess
             return $this->_cache[$key];
 
         case 'ssl_image_uploads_url':
-            // From v 2.99 this is just an alias for the image_uploads_url
+            // From v 3.0 this is just an alias for the image_uploads_url
             assert(empty(CMS_DEPREC), new DeprecationNotice('property','image_uploads_url'));
             return $this->offsetGet('image_uploads_url');
 
@@ -376,7 +377,7 @@ final class AppConfig implements ArrayAccess
             return 'admin';
 
         case 'developer_mode';
-            // deprecated from v 2.99 this is just an alias for develop_mode
+            // deprecated from v 3.0 this is just an alias for develop_mode
             assert(empty(CMS_DEPREC), new DeprecationNotice('property', 'develop_mode'));
             return $this->offsetGet('develop_mode');
 //        case 'app_mode':
@@ -384,7 +385,7 @@ final class AppConfig implements ArrayAccess
 //        case 'develop_mode':
 //            return false; c.f. default return null
 
-		case 'assets_dir': // deprecated from v 2.99 but used in derivative members
+        case 'assets_dir': // deprecated from v 3.0 but used in derivative members
             return 'assets';
 
         case 'assets_path':
@@ -403,7 +404,7 @@ final class AppConfig implements ArrayAccess
             }
             return null;
 
-        case 'max_upload_size': //deprecated since 2.99
+        case 'max_upload_size': //deprecated since 3.0
             assert(empty(CMS_DEPREC), new DeprecationNotice('property', 'upload_max_filesize'));
             // no break here
         case 'upload_max_filesize':
@@ -446,7 +447,7 @@ final class AppConfig implements ArrayAccess
             $this->_cache[$key] = $this->offsetGet('root_url').'/'.$this->offsetGet('admin_dir');
             return $this->_cache[$key];
 
-        case 'css_path': // since 2.99 officially the same as tmp_cache_location, instead of relying on public == tmp
+        case 'css_path': // since 3.0 officially the same as tmp_cache_location, instead of relying on public == tmp
             //TODO $this->url2path();
             return $this->offsetGet('tmp_cache_location');
 
@@ -479,13 +480,16 @@ final class AppConfig implements ArrayAccess
             $this->_cache[$key] = cms_join_path($this->OffsetGet('assets_path'),'user_plugins');
             return $this->_cache[$key];
 
+        case 'jqversion':
+            return ''; // i.e. latest
+
         default:
             return null; // a key that we can't autofill
         }
     }
 
     /**
-     * interface method, use of which is deprecated since 2.99
+     * interface method, use of which is deprecated since 3.0
      * instead supply install-time settings directly : Config::get_instance($config)
      * @ignore
      */
@@ -495,7 +499,7 @@ final class AppConfig implements ArrayAccess
     }
 
     /**
-     * interface method, use of which is deprecated since 2.99
+     * interface method, use of which is deprecated since 3.0
      * instead supply install-time settings directly : Config::get_instance($config)
      * @ignore
      */
@@ -677,7 +681,7 @@ final class AppConfig implements ArrayAccess
                         $value = filter_var(rtrim($value, ' /'), FILTER_SANITIZE_URL);
                         break 2;
                     case 'admin_dir':
-                    case 'assets_dir': // deprecated since 2.99 use assets_path
+                    case 'assets_dir': // deprecated since 3.0 use assets_path
                         $value = sanitizeVal(trim($value, ' \/'), CMSSAN_FILE);
                         break 2;
                     default:
@@ -807,7 +811,7 @@ EOS;
     /**
      * Returns either the http root url or the https root url depending upon the request mode.
      *
-     * @deprecated since 2.99 use 'root_url'
+     * @deprecated since 3.0 use 'root_url'
      * @return string
      */
     public function smart_root_url() : string
@@ -819,7 +823,7 @@ EOS;
     /**
      * Returns either the http uploads url or the https uploads url depending upon the request mode.
      *
-     * @deprecated since 2.99 use 'uploads_url'
+     * @deprecated since 3.0 use 'uploads_url'
      * @return string
      */
     public function smart_uploads_url() : string
@@ -831,7 +835,7 @@ EOS;
     /**
      * Returns either the http image uploads url or the https image uploads url depending upon the request mode.
      *
-     * @deprecated since 2.99 use 'image_uploads_url'
+     * @deprecated since 3.0 use 'image_uploads_url'
      * @return string
      */
     public function smart_image_uploads_url() : string

@@ -31,10 +31,8 @@ use CMSMS\UserParams;
 
 if( !$this->CheckContext() ) exit;
 
+$modname = $this->GetName();
 $builder = new ContentListBuilder($this);
-$pagelimit = UserParams::get($this->GetName().'_pagelimit',500);
-$filter = UserParams::get($this->GetName().'_userfilter');
-if( $filter ) $filter = unserialize($filter);
 
 if( isset($params['curpage']) ) {
     $curpage = max(1,min(500,(int)$params['curpage']));
@@ -49,11 +47,11 @@ elseif( isset($params['collapseall']) || isset($_GET['collapseall']) ) {
     $curpage = 1;
 }
 
-$filter = null;
 if( isset($params['setoptions']) ) {
-    $pagelimit = max(1,min(500,(int)$params['pagelimit']));
-    UserParams::set($this->GetName().'_pagelimit',$pagelimit);
-
+    $pagelimit = $params['pagelimit'] ?? 500;
+    $pagelimit = max(1,min(500,(int)$pagelimit));
+    UserParams::set($modname.'_pagelimit',$pagelimit);
+    $filter = null;
     $filter_type = $params['filter_type'] ?? null;
     switch( $filter_type ) {
     case ContentListFilter::EXPR_DESIGN:
@@ -77,14 +75,23 @@ if( isset($params['setoptions']) ) {
         $filter->expr = $params['filter_editor'];
         break;
     default:
-        UserParams::remove($this->GetName().'_userfilter');
+        UserParams::remove($modname.'_userfilter');
     }
     if( $filter ) {
         //record for use by ajax processor
-        UserParams::set($this->GetName().'_userfilter',serialize($filter));
+        UserParams::set($modname.'_userfilter',serialize($filter));
     }
     $curpage = 1;
+} else {
+    $pagelimit = UserParams::get($modname.'_pagelimit',500);
+    $filter = UserParams::get($modname.'_userfilter', null); // empty string invalid
+    if( $filter ) {
+        $filter = unserialize($filter);
+    }
 }
+
+// see included file $builder->set_filter($filter);
+
 if( isset($params['expand']) ) {
     $builder->expand_section($params['expand']);
 }
@@ -126,7 +133,7 @@ if( isset($params['delete']) ) {
 
 function urlsplit(string $u) : array
 {
-    $u = str_replace('&amp;','&',$u);
+//  $u = str_replace('&amp;','&',$u);
     $parts = parse_url($u);
     $u = $parts['scheme'].'://'.$parts['host'].$parts['path'];
     if( $parts['query'] ) {
@@ -140,6 +147,8 @@ function urlsplit(string $u) : array
                   $ob->$k = "'".addcslashes($v,"'")."'";
              }
         }
+        $k = CMS_SECURE_PARAM_NAME;
+        $ob->$k = 'cms_data.user_key';
         $s = json_encode($ob);
         $s = str_replace(['{"','"}','":"','","'],["{\n","\n}",': ',",\n"],$s);
         return [$u, $s];
@@ -154,17 +163,16 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); 
 
 require __DIR__.DIRECTORY_SEPARATOR.'action.ajax_get_content.php';
 
-$modname = $this->GetName();
 if( isset($curpage) ) {
     $_SESSION[$modname.'_curpage'] = $curpage;
 }
 
-$find_url = $this->create_action_url($id,'ajax_pagelookup',[CMS_JOB_KEY=>1]);
+$find_url = $this->create_action_url($id,'ajax_pagelookup',['forjs'=>1,CMS_JOB_KEY=>1]);
 
-$url = $this->create_action_url($id,'ajax_get_content',[CMS_JOB_KEY=>1]);
+$url = $this->create_action_url($id,'ajax_get_content',['forjs'=>1,CMS_JOB_KEY=>1]);
 list($page_url, $page_data) = urlsplit($url);
 
-$url = $this->create_action_url($id,'ajax_check_locks',[CMS_JOB_KEY=>1]);
+$url = $this->create_action_url($id,'ajax_check_locks',['forjs'=>1,CMS_JOB_KEY=>1]);
 list($watch_url, $watch_data) = urlsplit($url);
 
 $securekey = CMS_SECURE_PARAM_NAME;
@@ -188,6 +196,7 @@ $secs = max(30, min(600, $secs));
 $jsm = new ScriptsMerger();
 $jsm->queue_matchedfile('jquery.cmsms_poll.js', 2);
 $jsm->queue_matchedfile('jquery.ContextMenu.js', 2);
+
 $out = $jsm->page_content();
 if ($out) {
     add_page_foottext($out);
@@ -238,35 +247,38 @@ function gethelp(tgt) {
   }
 }
 function adjust_locks(json) {
-  var n = 0;
   var lockdata = JSON.parse(json);
+  if ($.isEmptyObject(lockdata)) {
+    return 0;
+  }
+  var n = 0;
   $('#contenttable > tbody > tr').each(function() {
-    var row = $(this),
-     id = row.attr('data-id');
-    if(lockdata.hasOwnProperty(id)) {
-      n++;
-      var status = lockdata[id];
-      //set lock-indicators for this row
-      if(status === 1) {
-        //stealable
-        row.find('.locked').css('display','none');
-        row.find('.steal_lock').css('display','inline');
-      } else if(status === -1) {
-        //blocked
-        row.find('.steal_lock').css('display','none');
-        row.find('.locked').css('display','inline');
-      }
-      row.find('.action').prop('disabled',true).css('pointer-events','none'); //IE 11+ ?
-      row.addClass('locked');
-    } else if(row.hasClass('locked')) {
-      row.find('.locked,.steal_lock').css('display','none');
-      row.find('.action').prop('disabled',false).css('pointer-events','auto');
-      row.removeClass('locked');
-    }
+   var row = $(this),
+    id = row.attr('data-id');
+   if(lockdata.hasOwnProperty(id)) {
+     n++;
+     var status = lockdata[id];
+     //set lock-indicators for this row
+     if(status === 1) {
+       //stealable
+       row.find('.locked').css('display','none');
+       row.find('.steal_lock').css('display','inline');
+     } else if(status === -1) {
+       //blocked
+       row.find('.steal_lock').css('display','none');
+       row.find('.locked').css('display','inline');
+     }
+     row.find('.action').prop('disabled',true).css('pointer-events','none'); //IE 11+ ?
+     row.addClass('locked');
+   } else if(row.hasClass('locked')) {
+     row.find('.locked,.steal_lock').css('display','none');
+     row.find('.action').prop('disabled',false).css('pointer-events','auto');
+     row.removeClass('locked');
+   }
   });
   return n;
 }
-function setuplist() {
+function setuplist(pause) {
  var el = $('#bulk_action');
  el.prop('disabled',true);
  var btn = $('#bulk_submit');
@@ -285,7 +297,7 @@ function setuplist() {
   cb.prop('checked',(this.checked || false)).eq(0).trigger('change');
  });
  $('[context-menu]').ContextMenu();
-
+/*
  $('#ajax_find').autocomplete({
   source: '$find_url', //TODO widget expects only array|string|function?
   minLength: 2,
@@ -315,6 +327,37 @@ function setuplist() {
      });
     }
    });
+  }
+ });
+*/
+ $('#ajax_find').on('keypress', function(e) {
+   if(e.which == 13) {
+    e.preventDefault();
+    var p = $(this).val().trim();
+    if(p.length < 3) {
+      $(this).val('');
+      if(pause) { // pause normally undefined
+        //resume normal polling
+        Poller.request(refresher);
+        pause = false;
+      }
+    } else {
+      params = $.extend({}, pagedata, {
+        {$id}ajax: 1,
+        {$id}search: p
+      });
+      Poller.oneshot({
+        url: pageurl,
+        data: params,
+        done_handler: function(content, textStatus, jqXHR) {
+          $('#content_area').html(content);
+          $('html,body').animate({
+            scrollTop: 0
+          });
+          setuplist(true); //recurse, signalling paused
+        }
+      });
+    }
   }
  });
  $('#filterdisplay').on('click', function() {
@@ -418,7 +461,7 @@ $(function() {
  setuplist();
  watcher = Poller.run({
   url: '$watch_url',
-  data: pagedata,
+  data: $watch_data,
   interval: $secs,
   done_handler: adjust_locks
  });
@@ -436,9 +479,6 @@ $(function() {
  });
  $('#filter_type').trigger('change');
  // other events
- $('#ajax_find').on('keypress', function(e) {
-  if(e.which == 13) e.preventDefault();
- });
  // go to page on option change
  $('#{$id}curpage').on('change', function() {
   $(this).closest('form').submit();
@@ -473,7 +513,7 @@ $(function() {
      if(data.stealable) {
       cms_confirm($s4).done(function() {
        parms.op = 'unlock';
- // TODO remove single anonymous lock
+// TODO remove single anonymous lock
        parms.lock_id = data.lock_id;
 // TODO security : parms.X = Y suitable for ScriptsMerger
        $.ajax(lockurl, {

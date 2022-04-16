@@ -21,7 +21,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\FolderContolOperations;
+use CMSMS\FolderControlOperations;
 use FilePicker\PathAssistant;
 use FilePicker\Utils;
 
@@ -34,7 +34,7 @@ try {
 
     $inst = $params['inst'] ?? '';
     // get the profile
-    $profile = ($inst) ? FolderContolOperations::get_cached($inst) : null;
+    $profile = ($inst) ? FolderControlOperations::get_cached($inst) : null;
     if (!$profile) {
         throw new RuntimeException('Missing profile data');
     }
@@ -56,7 +56,7 @@ try {
     switch ($cmd) {
         case 'mkdir':
             if (!$profile->can_mkdir) {
-                throw new LogicException('Internal error: mkdir command executed, but profile says we cannot do this');
+                throw new LogicException('A new directory in the current location is not allowed');
             }
             // no hidden folders
             if (startswith($val, '.') || startswith($val, '_')) {

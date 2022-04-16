@@ -378,7 +378,7 @@ License GPL2+
                     _p.push($s.find('ul').slideUp(duration/2));
                     _p.push($s.add($s.find('li')).removeClass('open').find('.nav-mark').removeClass('open'));
                     _p.push($li.children('ul').slideDown(duration));
-                    _p.push($li.addClass('open').find('> .nav-mark').addClass('open'));
+                    _p.push($li.addClass('open').children('.nav-mark').addClass('open'));
                 }
                 $.when.apply($, _p).done(function () {
                     _this.updateDisplay();

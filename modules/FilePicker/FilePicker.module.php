@@ -2,7 +2,7 @@
 /*
 FilePicker - a CMSMS module which provides file-related services for the website
 Copyright (C) 2016 Fernando Morgado <jomorg@cmsmadesimple.org>
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -66,7 +66,7 @@ final class FilePicker extends CMSModule implements IFilePicker
     public function GetHelp() { return $this->Lang('help'); }
     public function GetVersion() { return '2.0'; }
     public function HasAdmin() { return false; }
-    public function MinimumCMSVersion() { return '2.99'; }
+    public function MinimumCMSVersion() { return '2.999'; }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
     public function HasCapability($capability, $params = [])
@@ -82,6 +82,27 @@ final class FilePicker extends CMSModule implements IFilePicker
         }
     }
 
+    public function InitializeFrontend()
+    {
+        $this->SetParameterType([
+        '_enc' => CLEAN_STRING,
+        'cmd' => CLEAN_STRING,
+        'content' => CLEAN_BOOL,
+        'cwd' => CLEAN_STRING,
+        'extensions' => CLEAN_STRING,
+        'exts' => CLEAN_STRING, //not needed (bundled into '_enc')
+        'inst' => CLEAN_STRING,
+        'mime' => CLEAN_STRING,
+        'name' => CLEAN_STRING,
+        'nosub' => CLEAN_BOOL,
+        'seldir' => CLEAN_STRING,
+        'subdir' => CLEAN_STRING, //not needed (bundled into '_enc')
+        'type' => CLEAN_STRING,
+        'val' => CLEAN_STRING, //URL parameter value
+        'value' => CLEAN_STRING, //html-element initial value
+        ]);
+    }
+
     /**
      * Generate page-header js. For use by relevant module actions.
      * Include after jQuery and core js.
@@ -91,7 +112,7 @@ final class FilePicker extends CMSModule implements IFilePicker
      */
     protected function HeaderJsContent() : string
     {
-        $url1 = str_replace('&amp;','&',$this->get_browser_url()).'&'.CMS_JOB_KEY.'=1';
+        $url1 = str_replace('&amp;', '&', $this->get_browser_url());
         $config = SingleItem::Config();
         $url2 = $config['uploads_url'];
         $max = $config['max_upload_size'];
@@ -126,7 +147,7 @@ EOS;
      */
     public function GetFileList($dirpath = '')
     {
-        return Utils::get_file_list(null, $dirpath);
+        return Utils::get_file_list($this, null, $dirpath);
     }
 
     /**
@@ -135,7 +156,7 @@ EOS;
      * @param mixed $profile_name string or falsy value
      * @param mixed $dirpath Optional filesystem path, absolute or relative
      * @param mixed $uid Optional user-identifier
-     * @return FolderControls
+     * @return FolderControls object
      */
     public function get_profile_or_default($profile_name, $dirpath = null, $uid = null)
     {
@@ -146,7 +167,7 @@ EOS;
      * Get a profile for the specified folder and/or user.
      * @param mixed $dirpath Optional top-directory for the profile. Default null hence top-level
      * @param mixed $uid Optional user id Default null hence current user
-     * @return FolderControls
+     * @return FolderControls object
      */
     public function get_default_profile( $dirpath = null, $uid = null )
     {
@@ -155,11 +176,11 @@ EOS;
 
     /**
      * Generate the URL which initiates this module's filepicker action
-     * @return string
+     * @return string (formatted for js use)
      */
     public function get_browser_url()
     {
-        return $this->create_action_url('','filepicker');
+        return $this->create_action_url('', 'filepicker', ['forjs'=>1, CMS_JOB_KEY=>1]);
     }
 
     /**
@@ -249,12 +270,13 @@ EOS;
         $req = ( $required ) ? 'true':'false';
         $s1 = $this->Lang('clear');
 /*
-        if ($mime) {
+        if( $mime ) {
             $mime = rawurlencode($mime); OR CMSMS\urlencode()
         }
-        if ($exts) {
+        if( $exts ) {
             $extparm = rawurlencode(implode(',', $exts)); OR CMSMS\urlencode()
-        } else {
+        }
+        else {
             $extparm = '';
         }
 */
@@ -271,11 +293,13 @@ EOS;
         }
 
         // where to go to generate the browse/select page content
-        $url = str_replace('&amp;', '&', $this->get_browser_url()).'&'.CMS_JOB_KEY.'=1';
+        $url = $this->get_browser_url();
 // parameters now in profile identified by param_inst:
 //  param_mime: '$mime',
 //  param_extensions: '$extparm',
-// CHECKME param_inst: '$inst',
+//  param_type: '$type',
+// TODO action.filepicker recognises type as a FileType-class value (int) or a corresponding name e.g. 'IMAGE'
+// TODO if picker is used to populate a popup, document-ready N/A
         $js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[
@@ -313,6 +337,22 @@ EOS;
     }
 
     /**
+     * Get data for a file-browse process
+     * @since 2.0
+     *
+     * @param array $params assoc. array of values to be used
+     * @param bool $framed optional flag whether to generate content
+     *  for full-page(iframe), default true
+     * @return 2-member array
+     * [0] = page-header content (html) OR array of css or js filepaths to be loaded
+     * [1] = page-bottom content (js) OR immediately-executable js
+     */
+    public function get_browsedata(array $params, bool $framed = true) : array
+    {
+        return Utils::get_browsedata($this, $params, $framed);
+    }
+
+    /**
      * Report whether the specified filename represents an image
      * @param string $filename
      * @return bool
@@ -328,13 +368,34 @@ EOS;
      * Report whether the specified filepath accords with the specified profile
      * @param FolderControls $profile
      * @param string $filepath
+     * @param mixed $type optional limiter for the filetype(s) allowed by
+     *  $profile, a FilteType enum (int) or corresponding identifier (string).
+     *  Default 0 i.e. ignored.
      * @return boolean
      */
-    public function is_acceptable_filename($profile, $filepath)
+    public function is_acceptable_filename($profile, $filepath, $type = 0)
     {
-        if( endswith($filepath,'index.html') || endswith($filepath,'index.php') ) {
+        if( endswith($filepath, 'index.html') || endswith($filepath, 'index.php') ) {
             return false;
         }
-        return FolderControlOperations::is_file_name_acceptable($profile,$filepath);
+        if( $type ) {
+            if( is_numeric($type) ) {
+                $itype = (int)$type;
+                $stype = FileType::getName($itype);
+                if( $stype === null ) { return false; } // unknown type
+            }
+            else {
+                $itype = FileType::getValue($type);
+                if( $itype === null ) { return false; } // unknown type
+            }
+            if( $itype != FILETYPE::ANY ) {
+                $all = $this->_typehelper->get_file_type_extensions($itype);
+                $ext = Utils::get_extension($filepath);
+                if( !in_array($ext, $all) ) {
+                    return false;
+                }
+            }
+        }
+        return FolderControlOperations::is_file_name_acceptable($profile, $filepath);
     }
 } // class

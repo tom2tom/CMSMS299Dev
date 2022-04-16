@@ -1,7 +1,7 @@
 <?php
 /*
 Edit category action for CMSMS News module.
-Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -90,7 +90,7 @@ WHERE parent_id = ? AND item_order > ?';
 
 $origname = 'TODO';
 
-            if( !empty($params['generate_url']) ) {
+            if( isset($params['generate_url']) && cms_to_bool($params['generate_url']) ) {
                 $str = ( $name ) ? $name : 'newscategory'.$catid.mt_rand(1000, 9999);
                 $category_url = Utils::condense($str, true);
             }

@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure for the current admin user to modify her/his own account data
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -154,9 +154,9 @@ if (isset($_POST['submit'])) {
         ($pwok && $password && $usrops->PreparePassword($password) != $userobj->password)) {
           // record properties involved in credentials checks
 //        $userobj->username = $username;
-        $val = sanitizeVal($_POST['firstname'], CMSSAN_NONPRINT); // OR ,CMSSAN_PUNCT OR ,CMSSAN_PURESPC OR no-gibberish 2.99 breaking change
+        $val = sanitizeVal($_POST['firstname'], CMSSAN_NONPRINT); // OR ,CMSSAN_PUNCT OR ,CMSSAN_PURESPC OR no-gibberish 3.0 breaking change
         if ($val) { $userobj->firstname = $val; }
-        $val = sanitizeVal($_POST['lastname'], CMSSAN_NONPRINT); // OR ,CMSSAN_PUNCT OR ,CMSSAN_PURESPC OR no-gibberish 2.99 breaking change
+        $val = sanitizeVal($_POST['lastname'], CMSSAN_NONPRINT); // OR ,CMSSAN_PUNCT OR ,CMSSAN_PURESPC OR no-gibberish 3.0 breaking change
         if ($val) { $userobj->lastname = $val; }
         $userobj->email = $email; // TODO might be bad
         $msg = ''; //feedback err msg holder

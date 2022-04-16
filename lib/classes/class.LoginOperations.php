@@ -64,7 +64,7 @@ final class LoginOperations
 
 	/**
 	 * Get the singleton instance of this class.
-	 * @deprecated since 2.99 instead use CMSMS\SingleItem::LoginOperations()
+	 * @deprecated since 3.0 instead use CMSMS\SingleItem::LoginOperations()
 	 * @return self i.e. LoginOperations
 	 */
 	public static function get_instance() : self
@@ -99,7 +99,7 @@ final class LoginOperations
 		'eff_username' => null,
 		'hash' => $user->password,
 		];
-		//From 2.99 - changing to super-user (1) is not supported
+		//From 3.0 - changing to super-user (1) is not supported
 		if ($effective_user && $effective_user->id != $user->id && $effective_user->id > 1) {
 			$private_data['eff_uid'] = $effective_user->id;
 			$private_data['eff_username'] = $effective_user->username;
@@ -145,7 +145,7 @@ final class LoginOperations
 
 	/**
 	 * Get current or newly-generated salt
-	 * @since 2.99 access public
+	 * @since 3.0 access public
 	 * @return string
 	 */
 	public function get_salt() : string
@@ -252,7 +252,7 @@ final class LoginOperations
 
 	/**
 	 * Change the current admin user.
-	 * @since 2.99 this works only if the current user is a member of the superusers group
+	 * @since 3.0 this works only if the current user is a member of the superusers group
 	 *
 	 * @param User $e_user
 	 */

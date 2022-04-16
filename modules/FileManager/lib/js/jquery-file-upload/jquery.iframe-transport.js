@@ -65,13 +65,13 @@
                     iframe = $(
                         '<iframe src="javascript:false;" name="iframe-transport-' +
                             counter + '"></iframe>'
-                    ).bind('load', function () {
+                    ).on('load', function () {
                         var fileInputClones,
-                            paramNames = $.isArray(options.paramName) ?
+                            paramNames = Array.isArray(options.paramName) ?
                                     options.paramName : [options.paramName];
                         iframe
-                            .unbind('load')
-                            .bind('load', function () {
+                            .off('load')
+                            .on('load', function () {
                                 var response;
                                 // Wrap in a try/catch block to catch exceptions thrown
                                 // when trying to access cross-domain iframe contents:
@@ -105,13 +105,13 @@
                                 }, 0);
                             });
                         form
-                            .prop('target', iframe.prop('name'))
-                            .prop('action', options.url)
-                            .prop('method', options.type);
+                            .attr('target', iframe.prop('name'))
+                            .attr('action', options.url)
+                            .attr('method', options.type);
                         if (options.formData) {
                             $.each(options.formData, function (index, field) {
                                 $('<input type="hidden"/>')
-                                    .prop('name', field.name)
+                                    .attr('name', field.name)
                                     .val(field.value)
                                     .appendTo(form);
                             });
@@ -158,8 +158,8 @@
                         // and prevents warning popups on HTTPS in IE6.
                         // concat is used to avoid the "Script URL" JSLint error:
                         iframe
-                            .unbind('load')
-                            .prop('src', 'javascript'.concat(':false;'));
+                            .off('load')
+                            .attr('src', 'javascript'.concat(':false;'));
                     }
                     if (form) {
                         form.remove();
@@ -185,7 +185,7 @@
                 return iframe && $(iframe[0].body).text();
             },
             'iframe json': function (iframe) {
-                return iframe && $.parseJSON($(iframe[0].body).text());
+                return iframe && JSON.parse($(iframe[0].body).text());
             },
             'iframe html': function (iframe) {
                 return iframe && $(iframe[0].body).html();

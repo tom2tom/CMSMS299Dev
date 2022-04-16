@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to get page-content representing an admin icon
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -44,7 +44,18 @@ function smarty_function_admin_icon($params, $template)
 			case 'name':
 			case 'title':
 			case 'accesskey':
-				$tagparms[$key] = trim($value);
+				$tagparms[$key] = trim($value, " '\"");
+				break;
+			case 'addtext':
+				//parse 'A=B C=D ...'
+				$s = trim($value, " \t'\"");
+				$matches = [];
+				preg_match_all('/([\w\-]+)\s*?=\s*?(".*?"|\'.*?\'|[^ ]+?(\s|$))/', $s, $matches, PREG_SET_ORDER);
+				if( $matches ) {
+					foreach( $matches as $attr ) {
+						$tagparms[$attr[1]] = trim($attr[2], "'\"");
+					}
+				}
 				// no break here
 			default:
 				break;
@@ -78,6 +89,7 @@ function smarty_cms_about_function_admin_icon()
 {
 	$n = _la('none');
 	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
+    support addtext parameter
 }
 */
 function smarty_cms_help_function_admin_icon()
@@ -99,6 +111,7 @@ function smarty_cms_help_function_admin_icon()
 <li>rel: </li>
 <li>title: </li>
 <li>width: </li>
-</ul></li>'
+</ul></li>
+<li>addtext: optional extra or condensed-format, space-separated, attribute(s) like A=B C=D ...</li>'
 	);
 }

@@ -184,7 +184,7 @@ class wizard_step9 extends wizard_step
             chmod($fp, $perms[1]); // writable
         }
         $fromfn = ($apache) ? 'block.plugins.htaccess' : 'block.plugins.config';
-        $sp = joinpath($destdir, 'lib', 'assets', 'security', $fromfn);
+        $sp = joinpath($destdir, 'lib', 'security', $fromfn);
         copy($sp, $fp);
         chmod($fp, $filemode); // NOT 0444?
         // in the tmp folder OR dirname(CONFIG_FILE_LOCATION) ?
@@ -193,7 +193,7 @@ class wizard_step9 extends wizard_step
             chmod($fp, $perms[1]);
         }
         $fromfn = ($apache) ? 'block.tmp.htaccess' : 'block.tmp.config';
-        $sp = joinpath($destdir, 'lib', 'assets', 'security', $fromfn);
+        $sp = joinpath($destdir, 'lib', 'security', $fromfn);
         copy($sp, $fp);
         chmod($fp, $filemode);
         // in the uploads folder OR config value for uploads ?
@@ -202,7 +202,7 @@ class wizard_step9 extends wizard_step
             chmod($fp, $perms[1]);
         }
         $fromfn = ($apache) ? 'block.php.htaccess' : 'block.php.config';
-        $sp = joinpath($destdir, 'lib', 'assets', 'security', $fromfn);
+        $sp = joinpath($destdir, 'lib', 'security', $fromfn);
         copy($sp, $fp);
         chmod($fp, $filemode);
         // in the topmost lib folder
@@ -211,7 +211,7 @@ class wizard_step9 extends wizard_step
             chmod($fp, $perms[1]);
         }
         $fromfn = ($apache) ? 'allow.moduleinterface.htaccess' : 'allow.moduleinterface.config';
-        $sp = joinpath($destdir, 'lib', 'assets', 'security', $fromfn);
+        $sp = joinpath($destdir, 'lib', 'security', $fromfn);
         copy($sp, $fp);
         chmod($fp, $filemode);
         // TODO anywhere else ? modules ? any-name-assets ? any-name-admin (unlikely)

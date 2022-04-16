@@ -1,6 +1,6 @@
 {* cssmenu *}
 {* this template uses recursion, but not a smarty function. *}
-{* 
+{*
   variables:
   node: contains the current node.
   aclass: is used to build a string containing class names given to the a tag if one is used
@@ -10,7 +10,7 @@
 {strip}
 
 {if $depth == 0}
-<div id="menuwrapper">
+<div id="menuwrapper" class="cf">
 <ul id="primary-nav">
 {else}
 <ul class="unli">
@@ -67,7 +67,6 @@
 </ul>
 
 {if $depth == 0}
-<div class="clearb"></div>
 </div>{* menuwrapper *}
 {/if}
 {/strip}

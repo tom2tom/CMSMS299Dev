@@ -35,13 +35,13 @@ final class FileType extends BasicEnum
     const IMAGE     = 1;
     const AUDIO     = 2;
     const VIDEO     = 3;
-    const MEDIA     = 4;
+    const MEDIA     = 4; //any of the above
     const DOCUMENT  = 5; //'office', plaintext, see also TEXT
     const SHOWABLE  = 9; //any of the above
     const ARCHIVE   = 15;
     const XML       = 20; //includes [x]html[5]
     const ML        = 20; //alias
-    const PHP       = 30;
+    const PHP       = 30; //php[45s]?, phtml
     const SCRIPT    = 31; //js & the like
     const TEMPLATE  = 32;
     const STYLE     = 33; //css, sass, less etc
@@ -61,8 +61,8 @@ final class FileType extends BasicEnum
     const TYPE_VIDEO    = 3;
     const TYPE_MEDIA    = 4;
     const TYPE_DOCUMENT = 5;
-    const TYPE_ARCHIVE  = 20;
-    const TYPE_XML      = 30;
+    const TYPE_ARCHIVE  = 15;
+    const TYPE_XML      = 20;
     const TYPE_ANY      = 99;
 
     private function __construct() {}

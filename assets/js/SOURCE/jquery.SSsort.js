@@ -1,6 +1,6 @@
 /*!
-jQuery plug-in SSsort table-sorter/pager V.0.6.1
-(C) 2014-2020 Tom Phane
+jQuery plug-in SSsort table-sorter/pager V.0.6.2
+(C) 2014-2022 Tom Phane
 License: GNU Affero GPL V.3 or later
   bundled with
 Metadata plugin for jQuery
@@ -36,20 +36,20 @@ Dual licensed: MIT and GPL
  * As a result, you can define the metadata type, use $(expr) to load the metadata into the elements
  * matched by expr, then redefine the metadata type and run another $(expr) for other elements.
  *
- * @name $.metadata.setType
+ * @name $.fn.metadata.setType
  *
  * @example <p id="one" class="some_class {item_id: 1, item_label: 'Label'}">This is a p</p>
- * @before $.metadata.setType("class")
+ * @before $.fn.metadata.setType("class")
  * @after $("#one").metadata().item_id == 1; $("#one").metadata().item_label == "Label"
  * @desc Reads metadata from the class attribute
  *
  * @example <p id="one" class="some_class" data="{item_id: 1, item_label: 'Label'}">This is a p</p>
- * @before $.metadata.setType("attr", "data")
+ * @before $.fn.metadata.setType("attr", "data")
  * @after $("#one").metadata().item_id == 1; $("#one").metadata().item_label == "Label"
  * @desc Reads metadata from a "data" attribute
  *
  * @example <p id="one" class="some_class"><script>{item_id: 1, item_label: 'Label'}</script>This is a p</p>
- * @before $.metadata.setType("elem", "script")
+ * @before $.fn.metadata.setType("elem", "script")
  * @after $("#one").metadata().item_id == 1; $("#one").metadata().item_label == "Label"
  * @desc Reads metadata from a nested script element
  *
@@ -75,8 +75,11 @@ Dual licensed: MIT and GPL
   $.fn.metadata = function(opts) {
 
     function setType(type, name) {
-      defaults.type = type;
-      defaults.name = name;
+      if (typeof $.fn.metadata.defaults === 'undefined') {
+        $.fn.metadata.defaults = {};
+      }
+      $.fn.metadata.defaults.type = type;
+      $.fn.metadata.defaults.name = name;
     }
 
     var settings = $.extend({}, $.fn.metadata.defaults, opts);
@@ -100,7 +103,7 @@ Dual licensed: MIT and GPL
       }
       var e = elem.getElementsByTagName(settings.name);
       if (e.length) {
-        data = $.trim(e[0].innerHTML);
+        data = e[0].innerHTML.trim();
       }
     } else if (elem.getAttribute !== undefined) {
       var attr = elem.getAttribute(settings.name);
@@ -187,7 +190,7 @@ Dual licensed: MIT and GPL
  Here are some example parsers:
      {  id: 'itext',
         is: function (s) { return true; },
-        format: function (s) { return $.toLocaleLowerCase($.trim(s)); },
+        format: function (s) { return $.toLocaleLowerCase(s.trim()); },
         type: 'text'
      }
 
@@ -198,7 +201,7 @@ Dual licensed: MIT and GPL
         },
         watch: true,
         format: function(s,node) {
-            return $.trim(node.childNodes[0].value);
+            return node.childNodes[0].value.trim();
         },
         type: 'text'
      }
@@ -260,7 +263,7 @@ Dual licensed: MIT and GPL
             return p.test(s);
         },
         format: function (s) {
-            return $.trim(s.replace(/(https?|s?ftp|file):\/\//),'');
+            return s.replace(/(https?|s?ftp|file):\/\//),'').trim();
         },
         type: 'text'
      }
@@ -395,7 +398,7 @@ Dual licensed: MIT and GPL
   0.5 adapt for later metadata plugin and jQ 2+ April 2018
   0.5.1 bugfix April 2019
   0.6 bundled metadata plugin April 2019
-  0.6.1 cleanup March 2020 
+  0.6.1 cleanup March 2020
 */
 /* global jQuery */
 (function ($) {
@@ -421,7 +424,7 @@ Dual licensed: MIT and GPL
       cfg.body = $this.children('tbody');
       cfg.rows = cfg.body[0].rows; //ignore bodies after 1st!
       cfg.works = [];
-      var $cells = cfg.header.find('tr:first > th');
+      var $cells = cfg.header.find('tr').eq(0).children('th');
       var vers = $.fn.jquery;
       var meta = $.fn.metadata;
       var col = 0;
@@ -507,7 +510,7 @@ Dual licensed: MIT and GPL
           return true;
         },
         format: function (s) {
-          return $.trim(s);
+          return s.trim();
         },
         type: 'text'
       },
@@ -710,7 +713,7 @@ Dual licensed: MIT and GPL
       return;
     }
     var l = this.cellIndex;
-    var $cells = cfg.header.find('tr:first > th');
+    var $cells = cfg.header.find('tr').eq(0).children('th');
     var col = 0;
     if (l > 0) {
       var i;
@@ -884,7 +887,7 @@ Dual licensed: MIT and GPL
       node = node.firstChild;
     }
     var v = node.nodeValue;
-    if (node.nodeName === '#text' && $.trim(v) === '') {
+    if (node.nodeName === '#text' && v.trim() === '') {
       //skip whitespace in the DOM
       node = node.nextElementSibling;
       if (node !== null) {
@@ -904,7 +907,10 @@ Dual licensed: MIT and GPL
       row = rows[rowIndex];
       if (row) {
         node = row.cells[colIndex];
-        value = $.trim(getNodeText(node));
+        value = getNodeText(node);
+        if (value || typeof value === 'number') {
+          value = value.trim();
+        }
         if (value === '') {
           value = false;
         }

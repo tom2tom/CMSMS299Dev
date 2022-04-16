@@ -55,7 +55,7 @@ $hm = $gCms->GetHierarchyManager();
 foreach( $params as $key => $value ) {
     switch( $key ) {
     case 'loadprops':
-        $deep = cms_to_bool($value); //true achieves nothing. Deprecated since 2.3
+        $deep = cms_to_bool($value); //true achieves nothing. Deprecated since 3.0
         break;
 
     case 'items':
@@ -118,7 +118,7 @@ foreach( $params as $key => $value ) {
         break;
 
     case 'show_root_siblings':
-        // given a start element or start page ... show it's siblings too
+        // given a start element or start page ... show its siblings too
         $show_root_siblings = cms_to_bool($value);
         break;
 

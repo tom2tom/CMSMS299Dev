@@ -36,7 +36,7 @@ use function startswith;
  * Objects should implement the JsonSerializable interface if they can
  * be saved to a cookie.
  *
- * @since 2.99
+ * @since 3.0
  * @package CMS
  * @license GPL
  * @author  Robert Campbell

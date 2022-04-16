@@ -52,7 +52,7 @@ use function get_userid;
  * or by DesignManager module etc.
  * The class is not involved with intra-request template processing.
  *
- * @since 2.99
+ * @since 3.0
  * @package CMS
  * @license GPL
  */
@@ -196,8 +196,8 @@ class TemplateOperations
 	/**
 	 * [Re]set all properties of a template, using properties from another one
 	 *
-	 * @since 2.99
-	 * @deprecated since 2.99 this enables the deprecated CmsLaoutTemplate::load() method
+	 * @since 3.0
+	 * @deprecated since 3.0 this enables the deprecated CmsLaoutTemplate::load() method
 	 * @param Template $tpl The template to be updated (or perhaps a deprecated CmsLayoutTemplate)
 	 * @param mixed $a The id or name of the template from which to source the replacement properties
 	 * @throws DataException
@@ -268,7 +268,7 @@ class TemplateOperations
 
 	/**
 	 * Get all templates whose originator is the one specified
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $orig name of originator - core (Template::CORE or '') or a module name
 	 * @param bool $by_name Optional flag indicating the output format. Default false.
@@ -336,7 +336,7 @@ class TemplateOperations
 
 	/**
 	 * Get all recorded templates
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param bool $by_name Optional flag indicating the output format. Default false.
 	 * @return array If $by_name is true then each value will have template id
@@ -421,7 +421,7 @@ class TemplateOperations
 
 	/**
 	 * Return a set of groups or group-names
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $prefix Optional group-name prefix to be matched. Default ''.
 	 * @param bool   $by_name Optional flag whether to return group names. Default false
@@ -458,7 +458,7 @@ class TemplateOperations
 
 	/**
 	 * Return a list of all template-originators
-	 * @since 2.99
+	 * @since 3.0
 	 * $param bool $friendly Optional flag whether to report in UI-friendly format. Default false.
 	 * @return array name-strings, maybe empty
 	 */
@@ -627,7 +627,7 @@ class TemplateOperations
 
 	/**
 	 * Clone template(s) and/or group(s)
-	 * @since 2.99
+	 * @since 3.0
 	 * @param mixed $ids int | int[] template identifier(s), < 0 means a group
 	 * @return int No of templates cloned
 	 */
@@ -652,8 +652,8 @@ class TemplateOperations
 					if (!isset($config)) {
 						$config = SingleItem::Config();
 					}
-					$from = cms_join_path($config['assets_path'], 'templates', $row['content']);
-					$to = cms_join_path($config['assets_path'], 'templates', $fn);
+					$from = cms_join_path(CMS_ASSETS_PATH, 'layouts', $row['content']);
+					$to = cms_join_path(CMS_ASSETS_PATH, 'layouts', $fn);
 					if (copy($from, $to)) {
 						$db->execute('UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?', [$fn, $id]);
 					} else {
@@ -692,7 +692,7 @@ class TemplateOperations
 
 	/**
 	 * Delete template(s) and/or group(s) but not group members (unless also specified individually)
-	 * @since 2.99
+	 * @since 3.0
 	 * @param mixed $ids int | int[] template identifier(s), < 0 means a group
 	 * @return int No of items e.g. pages modified | groups deleted
 	 */
@@ -739,7 +739,7 @@ class TemplateOperations
 
 	/**
 	 * Delete template(s) and/or group(s) and group-member(s)
-	 * @since 2.99
+	 * @since 3.0
 	 * @param mixed $ids int | int[] template identifier(s), < 0 means a group
 	 * @return int No of pages modified
 	 */
@@ -779,7 +779,7 @@ class TemplateOperations
 
 	/**
 	 * Replace the template wherever used and the user is authorized
-	 * @since 2.99
+	 * @since 3.0
 	 * @param int $from template identifier
 	 * @param int $to template identifier
 	 * @return int No of pages modified
@@ -805,7 +805,7 @@ class TemplateOperations
 
 	/**
 	 * Set the template for all pages where the user is authorized
-	 * @since 2.99
+	 * @since 3.0
 	 * @param int $to template identifier
 	 * @return int No of pages modified
 	 */
@@ -830,7 +830,7 @@ class TemplateOperations
 
 	/**
 	 * Migrate template(s) from database storage to file
-	 * @since 2.99
+	 * @since 3.0
 	 * @param mixed $ids int | int[] template identifier(s)
 	 * @return int No. of files processed
 	 */
@@ -849,7 +849,7 @@ class TemplateOperations
 					//replicate object::set_content_file()
 					$fn = sanitizeVal($row['name'], CMSSAN_FILE).'.'.$row['id'].'.tpl';
 					//replicate object::get_content_filename()
-					$outfile = cms_join_path($config['assets_path'], 'templates', $fn);
+					$outfile = cms_join_path(CMS_ASSETS_PATH, 'layouts', $fn);
 					$res = file_put_contents($outfile, $row['content'], LOCK_EX);
 					if ($res !== false) {
 						$db->execute($sql, [$fn, $row['id']]);
@@ -865,7 +865,7 @@ class TemplateOperations
 
 	/**
 	 * Migrate template(s) from file storage to database
-	 * @since 2.99
+	 * @since 3.0
 	 * @param mixed $ids int | int[] template identifier(s)
 	 * @return int No. of files processed
 	 */
@@ -883,7 +883,7 @@ class TemplateOperations
 					//replicate object::set_content_file()
 					$fn = sanitizeVal($row['name'], CMSSAN_FILE).'.'.$row['id'].'.tpl';
 					//replicate object::get_content_filename()
-					$outfile = cms_join_path($config['assets_path'], 'templates', $fn);
+					$outfile = cms_join_path(CMS_ASSETS_PATH, 'layouts', $fn);
 					$content = file_get_contents($outfile);
 					if ($content !== false) {
 						$db->execute($sql, [$content, $row['id']]);
@@ -1037,7 +1037,7 @@ class TemplateOperations
 	{
 		if (($ops = $tpl->fileoperations)) {
 			foreach ($ops as $row) {
-				$fp = cms_join_path(CMS_ASSETS_PATH, 'templates', $row[1]);
+				$fp = cms_join_path(CMS_ASSETS_PATH, 'layouts', $row[1]);
 				switch ($row[0]) {
 					case 'store':
 						file_put_contents($fp, $row[2], LOCK_EX);
@@ -1046,7 +1046,7 @@ class TemplateOperations
 						unlink($fp);
 						break;
 					case 'rename':
-						$tp = cms_join_path(CMS_ASSETS_PATH, 'templates', $row[2]);
+						$tp = cms_join_path(CMS_ASSETS_PATH, 'layouts', $row[2]);
 						rename($fp, $tp);
 						break;
 				}

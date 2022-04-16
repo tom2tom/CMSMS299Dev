@@ -130,7 +130,7 @@ final class RouteOperations
 			//$polls = SingleItem::LoadedMetadata()->get('capable_modules',$force,CMSMS\CoreCapabilities::ROUTE_MODULE);
 			$modops = SingleItem::ModuleOperations();
 			$extras = $modops->GetLoadableModuleNames(); // hence incremental changes
-			$skips = SingleItem::LoadedMetadata()->get('methodic_modules',$force,'RegisterRoute',FALSE ); //deprecated since 2.99
+			$skips = SingleItem::LoadedMetadata()->get('methodic_modules',$force,'RegisterRoute',FALSE ); //deprecated since 3.0
 			$polls = array_diff($extras,$skips);
 
 			foreach( $polls as $modname ) {
@@ -491,7 +491,7 @@ EOS;
 	 * @param mixed string | null $page Optional value recorded in table
 	 *  page (page-id) field (used here if $dest1 is non-NULL)
 	 * @param mixed string | null $delmatch Optional value recorded in
-	 *  table delmatch (filter) field. Pre-2.99 this was used only if
+	 *  table delmatch (filter) field. Pre-3.0 this was used only if
 	 *  both $dest1 and $page were non-NULL)
 	 * @return bool indicating success
 	 */

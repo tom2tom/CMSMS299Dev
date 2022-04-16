@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to generate html for a textarea element
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -38,7 +38,7 @@ function smarty_function_cms_textarea($params, $template)
 function smarty_cms_about_function_cms_textarea()
 {
 	echo _ld('tags', 'about_generic', 'Ted Kulp 2004',
-	'<li>May 2019 Adapted to work with CMSMS 2.99 FormUtils::create_textarea()</li>'
+	'<li>May 2019 Adapted to work with CMSMS 3.0 FormUtils::create_textarea()</li>'
 	);
 }
 

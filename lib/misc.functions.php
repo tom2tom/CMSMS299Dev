@@ -1,7 +1,7 @@
 <?php
 /*
 Non-system-dependent utility-methods available during every request
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -174,7 +174,7 @@ function get_matching_files(string $dir, string $extensions = '', bool $excluded
  * Get sorted list of paths of files and/or directories in, and descendant from, the
  * specified directory
  *
- * @since 2.99, reported directories do not have a trailing separator
+ * @since 3.0, reported directories do not have a trailing separator
  * @param  string  $path     start path
  * @param  array   $excludes Optional array of regular-expressions indicating (path)names
  *  of files to exclude. Default []
@@ -225,7 +225,7 @@ function get_recursive_file_list(string $path, array $excludes = [], int $maxdep
  * Delete directory $path, and all files and folders in it. Equivalent to command rm -r.
  *
  * @param string $path The directory filepath
- * @param bool $withtop Since 2.99 Optional flag whether to remove the
+ * @param bool $withtop Since 3.0 Optional flag whether to remove the
  *  topmost (first-nominated) folder (or just clear it). Default true.
  * @return bool indicating complete success
  */
@@ -258,7 +258,7 @@ function recursive_delete(string $path, bool $withtop = true) : bool
 /**
  * Get filesystem permission 'modes' appropriate for the server to read and/or
  * write files and inside directories. For the latter, access permission is included.
- * @since 2.99
+ * @since 3.0
  * @return array, 4 integer members
  * [0] file read
  * [1] file read+write
@@ -302,13 +302,13 @@ function get_server_permissions() : array
 /**
  * Chmod $path, and if it's a directory, all files and folders in it and descendants.
  * Links are not changed.
- * @since 2.99
+ * @since 3.0
  * @since ? as deprecated chmod_r
  * @see chmod
  *
  * @param string $path The start location
  * @param int   $dirmode Optional permissions for dirs and dir-links. Default 0, hence read+write from get_server_permissions()
- * @param int   $filemode since 2.99 Optional permissions for non-dirs. Default 0, hence read+write from get_server_permissions()
+ * @param int   $filemode since 3.0 Optional permissions for non-dirs. Default 0, hence read+write from get_server_permissions()
  * @return bool indicating complete success
  */
 function recursive_chmod(string $path, int $dirmode = 0, int $filemode = 0) : bool
@@ -348,7 +348,7 @@ function recursive_chmod(string $path, int $dirmode = 0, int $filemode = 0) : bo
  *
  * @param string $str The string to test against
  * @param string $sub The search string
- * @param bool   $exact since 2.99 optional flag whether to do case-sensitive check. Default true.
+ * @param bool   $exact since 3.0 optional flag whether to do case-sensitive check. Default true.
  * @return bool
  */
 function startswith(string $str, string $sub, $exact = true) : bool
@@ -366,7 +366,7 @@ function startswith(string $str, string $sub, $exact = true) : bool
  *
  * @param string $str The string to test against
  * @param string $sub The search string
- * @param bool   $exact since 2.99 optional flag whether to do case-sensitive check. Default true.
+ * @param bool   $exact since 3.0 optional flag whether to do case-sensitive check. Default true.
  * @return bool
  */
 function endswith(string $str, string $sub, $exact = true) : bool
@@ -554,7 +554,7 @@ function cms_to_bool($val) : bool
 /**
  * Record a value in $_SESSION[]
  * Not entirely wise, but hey ...
- * @since 2.99
+ * @since 3.0
  *
  * @param string $session_key
  * @param mixed $value
@@ -572,7 +572,7 @@ function set_session_value(string $session_key, $value)
 /**
  * Retrieve a value stored via set_session_value()
  * A sane replacement for get_parameter_value()
- * @since 2.99
+ * @since 3.0
  *
  * @param string $session_key
  * @param mixed $default What to return if wanted data N/A
@@ -600,7 +600,7 @@ function is_base64(string $s) : bool
 
 /**
  * Add to the accumulated content to be inserted in the head section of the output page
- * @since 2.99
+ * @since 3.0
  *
  * @param mixed $content string | string[] The content to add
  * @param bool  $after Optional flag whether to append (instead of prepend). Default true
@@ -612,7 +612,7 @@ function add_page_headtext($content, $after = true)
 
 /**
  * Remove from the accumulated content to be inserted in the head section of the output page
- * @since 2.99
+ * @since 3.0
  *
  * @param mixed $content string | string[] The content to add
  */
@@ -623,7 +623,7 @@ function remove_page_headtext($content)
 
 /**
  * Add to the accumulated content to be inserted at the bottom of the output page
- * @since 2.99
+ * @since 3.0
  *
  * @param mixed $content string | string[] The content to add
  * @param bool  $after Optional flag whether to append (instead of prepend). Default true
@@ -635,7 +635,7 @@ function add_page_foottext($content, $after = true)
 
 /**
  * Remove from the accumulated content to be inserted at the bottom of the output page
- * @since 2.99
+ * @since 3.0
  *
  * @param mixed $content string | string[] The content to remove
  */
@@ -782,7 +782,7 @@ function get_page_content(bool $top)
  * Return the accumulated content to be inserted into the head section
  * of the output page
  * For direct use in admin scripts, and via plugins e.g. {syntax_area}, {header_includes}, {add_headcontent/}
- * @since 2.99
+ * @since 3.0
  * @internal
  *
  * @return string
@@ -796,7 +796,7 @@ function get_page_headtext() : string
  * Return the accumulated content to be inserted toward the bottom of
  * the output page
  * For direct use in admin scripts, and via plugins e.g. {syntax_area}, {bottom_includes}, {add_bottomcontent/}
- * @since 2.99
+ * @since 3.0
  * @internal
  *
  * @return string
@@ -810,7 +810,7 @@ function get_page_foottext() : string
  * Scrub inappropriate chars from the supplied string.
  * This is a cousin of PHP's filter_var(FILTER_SANITIZE...).
  * @internal
- * @since 2.99
+ * @since 3.0
  *
  * @param string $str String to be cleaned
  * @param int $scope Optional enumerator
@@ -956,7 +956,7 @@ function sanitizeVal(string $str, int $scope = CMSSAN_PURE, string $ex = '') : s
 
 /**
  * Encode relevant chars in the supplied URL string, and strip non-printable chars < 0x80
- * @since 2.99
+ * @since 3.0
  * @param string $str
  *
  * @param string $keeps Optional valid verbatim chars.
@@ -984,7 +984,7 @@ function urlencode(string $str, string $keeps = '\w.~!$&\'()*\-+,/:;=%') : strin
  * Entitized content is interpreted, but not (url-, rawurl-, base64-) encoded content.
  * Does not deal with image-file content. Inline <svg/> will be handled anyway.
  * @internal
- * @since 2.99
+ * @since 3.0
  * @see https://portswigger.net/web-security/cross-site-scripting/cheat-sheet
  * @see https://owasp.org/www-community/xss-filter-evasion-cheatsheet
  *
@@ -1033,7 +1033,7 @@ function execSpecialize(string $val) : string
 /**
  * Create an almost-certainly-unique identifier.
  *
- * @since 2.99
+ * @since 3.0
  * @return string 32 random hexits
  */
 function create_guid() : string
@@ -1045,7 +1045,7 @@ function create_guid() : string
  * Sort array of strings which include, or may do so, non-ASCII-encoded char(s)
  * @param array $arr data to be sorted
  * @param bool $preserve Optional flag whether to preserve key-value associations during the sort Default false
- * @since 2.99
+ * @since 3.0
  * @return sorted array
 */
 function utf8_sort(array $arr, bool $preserve = false) : array
@@ -1062,7 +1062,7 @@ function utf8_sort(array $arr, bool $preserve = false) : array
 
 /**
  * Call all registered end-of-request shutdown functions
- * @since 2.99
+ * @since 3.0
  * @global type $SHUT_FUNCS
  */
 function run_shutters()
@@ -1085,7 +1085,7 @@ function run_shutters()
 
 /**
  * Queue a shutdown-function
- * @since 2.99
+ * @since 3.0
  * @global array $SHUT_FUNCS
  *
  * @param int $priority 1(high)..big int(low). Default 1.
@@ -1101,7 +1101,7 @@ function add_shutdown(int $priority, $handler, ...$args)
 
 /**
  * Cache a callable for use immediately before the current session terminates
- * @since 2.99
+ * @since 3.0
  * @internal
  * @see also CMSMS\internal\Session::register_destroy_function()
  *
@@ -1120,7 +1120,7 @@ function register_endsession_function(int $priority, $handler, ...$args)
 // TODO this is never used ATM
 /**
  * End-of-session-function: process all recorded handlers
- * @since 2.99
+ * @since 3.0
  * @internal
  */
 function run_session_enders()

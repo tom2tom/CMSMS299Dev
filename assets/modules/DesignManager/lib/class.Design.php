@@ -40,7 +40,7 @@ use function cms_to_stamp;
  * @package CMS
  * @license GPL
  * @since 2.0 as CmsLayoutCollection
- * @since 2.99
+ * @since 3.0
  */
 class Design
 {
@@ -127,7 +127,7 @@ class Design
 
 	/**
 	 * Get the default flag
-	 * @deprecated since 2.99 there is no such thing as a default design
+	 * @deprecated since 3.0 there is no such thing as a default design
 	 *
 	 * @return bool
 	 */
@@ -138,7 +138,7 @@ class Design
 
 	/**
 	 * [Un]set this design as the default.
-	 * @deprecated since 2.99 there is no such thing as a default design
+	 * @deprecated since 3.0 there is no such thing as a default design
 	 *
 	 * @param bool $flag
 	 */
@@ -513,29 +513,29 @@ class Design
 	 * Save this design
 	 * This method sends the AddDesignPre and AddDesignPost events before and after saving a new design
 	 * or the EditDesignPre and EditDesignPost events before and after saving an existing design.
-	 * @deprecated since 2.99 the event originator is 'Core', change to 'DesignManager'
+	 * @deprecated since 3.0 the event originator is 'Core', change to 'DesignManager'
 	 */
 	public function save()
 	{
 		if( $this->get_id() ) {
-			Events::SendEvent('Core','EditDesignPre',['CmsLayoutCollection' => &$this]); // deprecated since 2.99
+			Events::SendEvent('Core','EditDesignPre',['CmsLayoutCollection' => &$this]); // deprecated since 3.0
 			Events::SendEvent('DesignManager','EditDesignPre',['Design' => &$this]);
 			$this->_update();
-			Events::SendEvent('Core','EditDesignPost',['CmsLayoutCollection' => &$this]); // deprecated since 2.99
+			Events::SendEvent('Core','EditDesignPost',['CmsLayoutCollection' => &$this]); // deprecated since 3.0
 			Events::SendEvent('DesignManager','EditDesignPost',['Design' => &$this]);
 			return;
 		}
-		Events::SendEvent('Core','AddDesignPre',['CmsLayoutCollection' => &$this]); // deprecated since 2.99
+		Events::SendEvent('Core','AddDesignPre',['CmsLayoutCollection' => &$this]); // deprecated since 3.0
 		Events::SendEvent('DesignManager','AddDesignPre',['Design' => &$this]);
 		$this->_insert();
-		Events::SendEvent('Core','AddDesignPost',['CmsLayoutCollection' => &$this]); // deprecated since 2.99
+		Events::SendEvent('Core','AddDesignPost',['CmsLayoutCollection' => &$this]); // deprecated since 3.0
 		Events::SendEvent('DesignManager','AddDesignPost',['Design' => &$this]);
 	}
 
 	/**
 	 * Delete the current design
 	 * This method normally does nothing if this design has associated templates.
-	 * @deprecated since 2.99 event originator 'Core', 2.99+ also from 'DesignManager'
+	 * @deprecated since 3.0 event originator 'Core', 3.0+ also from 'DesignManager'
 	 *
 	 * @throws LogicException
 	 * @param bool $force Force deleting the design even if there are templates assigned
@@ -549,7 +549,7 @@ class Design
 			throw new LogicException('Cannot delete a design that has templates assigned');
 		}
 */
-		Events::SendEvent('Core','DeleteDesignPre',['CmsLayoutCollection' => &$this]); // deprecated since 2.99
+		Events::SendEvent('Core','DeleteDesignPre',['CmsLayoutCollection' => &$this]); // deprecated since 3.0
 		Events::SendEvent('DesignManager','DeleteDesignPre',['Design' => &$this]);
 /*
 		if( $this->css_members ) {
@@ -570,7 +570,7 @@ class Design
 		$dbr = $db->execute($query,[$did]);
 
 		log_notice('Design deleted',$this->get_name());
-		Events::SendEvent('Core','DeleteDesignPost',['CmsLayoutCollection' => &$this]); // deprecated since 2.99
+		Events::SendEvent('Core','DeleteDesignPost',['CmsLayoutCollection' => &$this]); // deprecated since 3.0
 		Events::SendEvent('DesignManager','DeleteDesignPost',['Design' => &$this]);
 		unset($this->props['id']);
 		$this->dirty = TRUE;
@@ -718,7 +718,7 @@ class Design
 
 	/**
 	 * Load the default design
-	 * @deprecated since 2.99 there is no such thing as a default design
+	 * @deprecated since 3.0 there is no such thing as a default design
 	 *
 	 * @throws LogicException
 	 * @return null

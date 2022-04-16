@@ -29,7 +29,7 @@ use RecursiveIteratorIterator;
 /**
  * A class for creating and modifying tree-structured arrays
  *
- * @since 2.99
+ * @since 3.0
  * @package CMS
  * @license GPL
  */

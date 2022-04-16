@@ -401,7 +401,7 @@ var themejs = {};
       } else {
         //TODO cache this data
         var LIright = $LI[0].getBoundingClientRect().right,
-          $child = $LI.find('li:first'),
+          $child = $LI.find('li').eq(0),
           childwidth = parseInt($child.css('width'), 10),
           $container = $LI.closest('div'),
           cright = $container[0].getBoundingClientRect().right;
@@ -536,7 +536,7 @@ var themejs = {};
     var fontsize = roundNum(val, 1);
     // TODO migrate non-em sizes in opts to em
 
-    var $LIs = $ob.find('> li'); // top level
+    var $LIs = $ob.children('li'); // top level
     $LIs.css({
       'visibility': 'hidden',
       'display': 'block',
@@ -815,12 +815,20 @@ var themejs = {};
    * @function popup_alert()
    * @param (String) msg The message to display (text, no markup TODO)
    * @param (String) title Unused title string.
-   * @return promise
+   * @param {Bool} wait Optional wait-until-selection flag Default false
+   * @return promise if wait is true, else nothing
    */
-  this.popup_alert = function (msg, title) {
-    return $.fn.alertable.alert(msg, {
-      okButton: '<button type="button" class="adminsubmit">' + cms_lang('close') + '</button>',
-    });
+  this.popup_alert = function (msg, title, wait) {
+    var bhtm = '<button type="button" class="adminsubmit">' + cms_lang('close') + '</button>';
+    if (wait) {
+      return $.fn.alertable.alert(msg, {
+        okButton: bhtm
+      });
+    } else {
+      $.fn.alertable.alert(msg, {
+        okButton: bhtm
+      }).always();
+    }
   };
   /**
    * @description Display a modal confirm dialog
@@ -867,14 +875,17 @@ var themejs = {};
       'ui-dialog-buttonpane': 'alertable-buttons',
       'ui-dialog-buttonset': 'alertable-buttons'
     });
-    return content.dialog(opts); //JQueryUI dialog
-    //JQueryUI >> $('div[class~="ui-draggable"]').removeClass('ui-draggable'); TOO LATE
+    return content.dialog(opts); //jQuery UI dialog
+    // TODO $.fn.alertable something
+    //jQuery UI >> $('div[class~="ui-draggable"]').removeClass('ui-draggable'); TOO LATE
 /* TODO alertable only :: process opts, if any
    $.fn.alertable.prompt('', {
      modal: content
-   });/*.then(function (data) {
+   })
+   .done(function(data, textStatus, jqXHR) {
      console.log('Dialog promise data', data);
-   }, function() {
+   })
+   .fail(function(jqXHR, textStatus, errorThrown) {
      console.log('Dialog cancelled');
    });
    return TODO;

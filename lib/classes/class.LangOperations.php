@@ -216,7 +216,7 @@ final class LangOperations
 	 *  1st = domain name (required non-falsy string) or array comprising all args
 	 *  2nd = translated-string key (required non-falsy string unless 1st is merged array)
 	 *  further argument(s) if any are unused here
-	 * @since 2.99 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
+	 * @since 3.0 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return bool
 	 */
 	public static function lang_key_exists(...$args) : bool
@@ -247,13 +247,13 @@ final class LangOperations
 	 * returned, indicating that the specified key needs translating.
 	 * This function uses the currently set locale, and will load the
 	 * translations if necessary.
-	 * @since 2.99 Replaces deprecated lang_from_realm()
+	 * @since 3.0 Replaces deprecated lang_from_realm()
 	 *
 	 * @param varargs $args, of which
 	 *  1st = domain name (required non-falsy string) or array comprising all args
 	 *  2nd = translated-string key (required non-falsy string unless 1st is merged array)
 	 *  further argument(s) (optional string|number, generally, or array of same)
-	 * @since 2.99 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
+	 * @since 3.0 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return string, possibly empty
 	 */
 	public static function domain_string(...$args) : string
@@ -304,7 +304,7 @@ final class LangOperations
 
 	/**
 	 * Return translated string if possible
-	 * @deprecated since 2.99 instead use LangOperations::domain_string()
+	 * @deprecated since 3.0 instead use LangOperations::domain_string()
 	 * @param varargs $args
 	 */
 	public static function lang_from_realm(...$args) : string
@@ -317,7 +317,7 @@ final class LangOperations
 	 * self::CMSMS_ADMIN_REALM domain.
 	 * Note, under normal circumstances this will generate an error if
 	 * called during a frontend request.
-	 * @since 2.99
+	 * @since 3.0
 	 * @see LangOperations::domain_string()
 	 *
 	 * @param varargs $args, of which
@@ -336,7 +336,7 @@ final class LangOperations
 	 * self::$_default_domain (typically self::CMSMS_ADMIN_REALM) domain.
 	 * Note, under normal circumstances this will generate an error if
 	 * called during a frontend request.
-	 * @since 2.99 Replaces deprecated lang()
+	 * @since 3.0 Replaces deprecated lang()
 	 * @see LangOperations::domain_string()
 	 *
 	 * @param varargs $args, of which
@@ -354,7 +354,7 @@ final class LangOperations
 
 	/**
 	 * Return translated admin-domain string if possible
-	 * @deprecated since 2.99 instead use LangOperations::default_string()
+	 * @deprecated since 3.0 instead use LangOperations::default_string()
 	 * @param varargs $args
 	 */
 	public static function lang(...$args) : string
@@ -389,7 +389,7 @@ final class LangOperations
 	 * @param mixed $key string|null The wanted key
 	 * @param string $domain Optional lang domain. Default null, hence the
 	 *  currently-recorded default domain.
-	 * @since 2.99 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
+	 * @since 3.0 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return bool
 	 */
 	public static function key_exists($key, $domain = NULL) : bool
@@ -405,7 +405,7 @@ final class LangOperations
 	 *
 	 * @since 2.0
 	 * @param string $domain Optional domain name.  Default self::CMSMS_ADMIN_REALM.
-	 * @since 2.99 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
+	 * @since 3.0 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return string the previous/replaced domain-name
 	 */
 	public static function set_realm($domain = self::CMSMS_ADMIN_REALM) : string

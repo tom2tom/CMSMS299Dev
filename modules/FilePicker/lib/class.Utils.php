@@ -18,23 +18,31 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-namespace FilePicker; //the module-class
+namespace FilePicker; //global-namespace module-class
 
 use CMSMS\AppParams;
+use CMSMS\FileType;
 use CMSMS\FolderControlOperations;
 use CMSMS\FolderControls;
-use CMSMS\FileTypeHelper;
 use CMSMS\FSControlValue;
 use CMSMS\NlsOperations;
+use CMSMS\ScriptsMerger;
 use CMSMS\SingleItem;
 use CMSMS\Utils as AppUtils;
 use Collator;
 use FilePicker;
+use const CMS_JOB_KEY;
 use const CMS_ROOT_PATH;
 use const CMSSAN_FILE;
+use function check_permission;
+use function cms_get_css;
+use function cms_get_script;
+use function cms_installed_jquery;
 use function cms_join_path;
 use function cms_path_to_url;
 use function CMSMS\sanitizeVal;
+use function get_userid;
+use function lang;
 use function startswith;
 
 /**
@@ -60,7 +68,7 @@ class Utils
             $mod = AppUtils::get_module('FilePicker');
         }
         $baseurl = $mod->GetModuleURLPath();
-        //TODO $themeObject=;
+        //TODO $themeObject = ;
 
         if ($isdir) {
             switch ($extension) {
@@ -105,7 +113,9 @@ class Utils
 
     /**
      * Save a thumbnail if possible
-     * @param string $rootpath absolute filesystem path to be prepended to $path if the latter is relative
+     *
+     * @param string $rootpath absolute filesystem path to be prepended
+     *  to $path if the latter is relative
      * @param string $path absolute or root-relative filesystem-path of original image
      */
     public static function create_file_thumb(string $rootpath, string $path)
@@ -274,12 +284,14 @@ class Utils
 
     /**
      * Return data for relevant files/sub-folders in folder $dirpath
+     *
+     * @param FilePicker $mod
      * @param mixed $profile Optional FolderControls object | name of one-such | falsy. Default null
      * @param string $dirpath Optional absolute or appropriate-root-relative
      *  filesystem-path of folder to be reported. Default '' (hence use relevant root)
      * @return array (maybe empty)
      */
-    public static function get_file_list($profile = null, string $dirpath = '') : array
+    public static function get_file_list(FilePicker $mod, $profile = null, string $dirpath = '') : array
     {
         $dirpath = self::processpath($dirpath);
         if (!$dirpath) return [];
@@ -304,7 +316,7 @@ class Utils
         $pex = $profile->exclude_prefix ?? '';
         $pin = $profile->match_prefix ?? '';
 
-        $helper = new FileTypeHelper();
+        $helper = $mod->_typehelper;
         $posix = function_exists('posix_getpwuid');
         if (!$posix) {
             $ownerna = $mod->Lang('na');
@@ -341,8 +353,14 @@ class Utils
 
             $info = ['fullpath' => $filepath, 'dir' => is_dir($filepath), 'name' => $name];
             if (!$info['dir']) {
+//TODO          if( !$mod->is_acceptable_filename($profile, $filepath, $type) ) { if profile-overtide is allowed here ...
+                if (!FolderControlOperations::is_file_name_acceptable($profile, $filepath)) {
+                    //unwanted non-dir item
+                    continue;
+                }
                 $info['ext'] = $helper->get_extension($name);
                 $info['text'] = $helper->is_text($filepath);
+                //TODO careful with browser-executable text files
                 $info['image'] = $helper->is_image($filepath);
                 $info['archive'] = !$info['text'] && !$info['image'] && $helper->is_archive($filepath);
                 $info['mime'] = $helper->get_mime_type($filepath);
@@ -434,6 +452,7 @@ class Utils
 
     /**
      * Get the extension of the specified file
+     *
      * @param string $path Filesystem path, or at least the basename, of a file
      * @param bool $lower Optional flag, whether to lowercase the result. Default true.
      * @return string, lowercase if $lower is true or not set
@@ -443,9 +462,11 @@ class Utils
     public static function get_extension(string $path, bool $lower = true) : string
     {
         $p = strrpos($path, '.');
-        if( !$p ) { return ''; } // none or at start
+        if (!$p) {
+            return ''; // none or at start
+        }
         $ext = substr($path, $p + 1);
-        if( $lower) {
+        if ($lower) {
             return strtolower($ext);
         }
         return $ext;
@@ -453,6 +474,7 @@ class Utils
 
     /**
      * Get a variant of the supplied $path with definitely-lowercase filename extension
+     *
      * @param string $path Filesystem path, or at least the basename, of a file
      * @return string
      */
@@ -469,6 +491,7 @@ class Utils
     /**
      * Get a variant of the supplied $path without any suspect chars in the
      *  last path-segment (normally a filename)
+     *
      * @param string $rootpath absolute filesystem path to be prepended to $path
      *  if the latter is relative, and to use for path validation
      * @param string $path absolute or root-relative filesystem-path of file or folder
@@ -497,4 +520,210 @@ class Utils
         }
         return '';
     }
+
+    /**
+     * Get html & js for a file-browse process
+     * @since 2.0
+     *
+     * @param FilePicker $mod
+     * @param array $params assoc. array of values to be used
+     * @param bool $framed optional flag whether to generate content
+     *  for a full-page (to go into an iframe). Default true
+     * @return 2-member array
+     * [0] = page-header content (html) OR array of css, js filepaths to be loaded
+     * [1] = page-bottom content (js) OR immediately-executable js
+     */
+    public static function get_browsedata(FilePicker $mod, array $params, bool $framed = true) : array
+    {
+        $cmd_url = $mod->create_action_url('', 'ajax_cmd', ['forjs'=>1, CMS_JOB_KEY=>1]);
+        $list_url = $params['listurl'] ?? $mod->get_browser_url();
+        $inst = $params['inst'] ?? '';
+        if ($inst) {
+            $inst = "'" . $inst. "'";
+        } else {
+            $inst = "''"; //TODO $inst from FolderControlOperations::store_cached($profile) if not already cached
+        }
+        $v = $typename = $params['typename'] ?? '';
+        if ($typename) {
+            $typename = "'" . $typename . "'";
+        } else {
+            $typename = "''";
+        }
+        $mime = $params['mime'] ?? '';
+        if ($mime) {
+            $mime = "'" . $mime. "'";
+        } elseif ($v) {
+            $mime = $mod->_typehelper->get_file_type_mime(FileType::getValue($v));
+            if ($mime) {
+                $mime = "'" . $mime. "'";
+            } else {
+                $mime = "''";
+            }
+        } else {
+            $mime = "''";
+        }
+        if (!empty($params['exts'])) {
+            $exts = "['" . implode("','", $params['exts']) . "']";
+        } elseif ($mime == "''") {
+            $k = $mod->_typehelper->get_file_type_extensions(FileType::getValue($v));
+            if ($k) {
+                $exts = "['" . str_replace($k, ',', "','") . "']";
+            } else {
+                $exts = 'null';
+            }
+        } else {
+            $exts = 'null';
+        }
+        $lang = [];
+        foreach([
+            'cancel' => lang('cancel'),
+            'choose' => $mod->Lang('choose'),
+            'clear' => $mod->Lang('clear'),
+            'close' => lang('close'),
+            'confirm' => $mod->Lang('confirm'),
+            'confirm_delete' => $mod->Lang('confirm_delete'),
+            'error_ext' => $mod->Lang('error_upload_ext', '%s'),
+            'error_size' => $mod->Lang('error_upload_size', '%s'),
+            'error_type' => $mod->Lang('error_upload_type', '%s'),
+            'error_failed_ajax' => $mod->Lang('error_failed_ajax'),
+            'error_problem_upload' => $mod->Lang('error_problem_upload'),
+            'error_title' => $mod->Lang('error_title'),
+            'no' => lang('no'),
+            'ok' => $mod->Lang('ok'),
+            'select_file' => $mod->Lang('select_a_file'),
+            'yes' => lang('yes')
+        ] as $k => $v) {
+            $lang[] = $k . ':' . json_encode($v);
+        }
+        $langmerge = implode(',', $lang);
+
+        $incs = cms_installed_jquery(true, true, true, true);
+
+        if ($framed) {
+            // no StylesMerger TODO CSP support for css ?
+            $url1 = cms_path_to_url($incs['jquicss']);
+            $url2 = cms_get_css('basictable.css');
+            $url3 = cms_get_css('browsefiles.css');
+            $headinc = <<<EOS
+<link rel="stylesheet" type="text/css" href="$url1" />
+<link rel="stylesheet" type="text/css" href="$url2" />
+<link rel="stylesheet" type="text/css" href="$url3" />
+
+EOS;
+            $jsm = new ScriptsMerger();
+            $jsm->queue_file($incs['jqcore'], 1);
+//          if (CMS_DEBUG)
+                $jsm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ? or keep if (CMS_DEBUG)?
+//          }
+            $jsm->queue_file($incs['jqui'], 1);
+            $jsm->queue_matchedfile('jquery.basictable.js', 2);
+            $jsm->queue_matchedfile('jquery.dm-uploader.js', 2);
+            $jsm->queue_matchedfile('adminlite.js', 2); // always needed inside iframe
+            $jsm->queue_matchedfile('filebrowser.js', 2);
+            $headinc .= $jsm->page_content();
+            //TODO vars from caller
+            // these server-side params will be suppliemented by browser-side
+            // by calling the function
+            $cwd = $params['cwd'] ?? '';
+            if ($cwd) {
+                $cwd = "'" . $cwd . "'";
+            } else {
+                $cwd = "''";
+            }
+            $cdup_url = $params['upurl'] ?? '';
+            if ($cdup_url) {
+                $cdup_url = "'" . $cdup_url . "'";
+            } else {
+                $cdup_url = "''";
+            }
+//basictable DEBUG breakpoint: 2000 NORMAL forceResponsive: false
+            $footinc = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(function() {
+  var c = $('#fp-body');
+  if (c.length > 0) {
+    c.find('#fp-list').basictable({
+      forceResponsive: false
+    });
+  } else {
+    c = null;
+    console.error('No in-frame content-container');
+  }
+  var browser = new CMSFileBrowser({
+   container: c,
+   cd_url: $cdup_url,
+   cmd_url: '$cmd_url',
+   list_url: '$list_url',
+   cwd: $cwd,
+   inst: $inst,
+   type: $typename,
+   mime: $mime,
+   extensions: $exts,
+   lang: {
+    $langmerge
+   }
+  });
+});
+//]]>
+</script>
+
+EOS;
+            return [$headinc, $footinc];
+        } else { // !$framed
+            $paths = [];
+            $frontend = SingleItem::App()->is_frontend_request();
+            if ($frontend) {
+                $paths[] = $incs['jquicss'];
+            }
+            $paths[] = cms_get_css('basictable.css', false);
+            $paths[] = cms_get_css('browsefiles.css', false);
+
+            if ($frontend) {
+                $paths[] = $incs['jqcore'];
+//              if (CMS_DEBUG)
+                $paths[] = $incs['jqmigrate']; //in due course, omit this ? or keep if (CMS_DEBUG)?
+//              }
+                $paths[] = $incs['jqui'];
+            }
+            $paths[] = cms_get_script('jquery.dm-uploader.js', false);
+            $paths[] = cms_get_script('jquery.basictable.js', false);
+            if ($frontend) { $paths[] = cms_get_script('adminlite.js', false); }
+            $paths[] = cms_get_script('filecustombrowser.js', false);
+
+            // runtime props to be set later, in context: cwd, container
+//basictable DEBUG breakpoint: 2000 NORMAL forceResponsive: false
+            $js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+function getbrowser(options) {
+  var tgt = $('.cmsfp_elem');
+  var params = $.extend({
+    target: tgt,
+    container: null,
+    cmd_url: '$cmd_url',
+    inst: $inst,
+    list_url: '$list_url',
+    type: $typename,
+    mime: $mime,
+    extensions: $exts,
+    lang: {
+     $langmerge
+    }
+   }, options || {});
+  tgt.attr('data-cmsfp-instance', params.inst);
+  $(params.container).on('list.loaded', function() {
+    $(this).find('#fp-list').basictable({
+      forceResponsive: false
+    });
+  });
+  return new CMSCustomFileBrowser(params);
+}
+//]]>
+</script>
+
+EOS;
+            return [$paths, $js]; // TODO standalone lang[], urls etc
+        } // !$framed
+    } // function
 } //class

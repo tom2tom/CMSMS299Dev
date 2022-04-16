@@ -1,0 +1,16 @@
+<address>
+<dl class="list-address">
+<dt style="outline-style: none;">Direcció</dt>
+<dd>Nom i Cognoms</dd>
+<dt>Directori</dt>
+<dd><a href="#">Càrrecs i personal</a></dd>
+<dt>Ubicació</dt>
+<dd><a href="#">UPCmaps</a></dd>
+<dt>Telèfon</dt>
+<dd>93 783 70 22</dd>
+<dt><abbr title="" data-toggle="tooltip" data-placement="top" data-original-title="Correu electrònic">C/e</abbr></dt>
+<dd><a href="#">adreca.electronica@upc.edu</a></dd>
+<dt>Web</dt>
+<dd><a href="#">www.upc.edu/directori</a></dd>
+</dl>
+</address>

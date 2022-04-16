@@ -32,7 +32,7 @@ use function startswith;
  * Methods for modules to construct URL's.
  *
  * @internal
- * @since 2.99
+ * @since 3.0
  * @package CMS
  * @license GPL
  */
@@ -50,7 +50,7 @@ use function startswith;
  *   is done, numeric(int) or ''|null for admin. Default null.
  * @param array $params	Optional parameters to include in the URL. Default []
  *   These will be ignored if the prettyurl parameter is present.
- *   Since 2.99, parameter value(s) may be non-scalar: 1-D arrays processed directly,
+ *   Since 3.0, parameter value(s) may be non-scalar: 1-D arrays processed directly,
  *   other things json-encoded if possible.
  * @param string $prettyurl URL segment(s) relative to the root-URL of the
  *   action, to generate a pretty-formatted URL
@@ -59,9 +59,9 @@ use function startswith;
  * @param bool	$targetcontentonly Optional flag whether the target of the
  *   output link targets the content area of the destination page Default false
  * @param string $prettyurl Optional url part(s), or ':NOPRETTY:' Default ''
- * @param bool $relative since 2.99 Optional flag whether to omit the site-root
+ * @param bool $relative since 3.0 Optional flag whether to omit the site-root
  *   from the created url. Default false
- * @param int    $format since 2.99 Optional indicator for how to format the URL
+ * @param int    $format since 3.0 Optional indicator for how to format the URL
  *  0 = entitized ' &<>"\'!$' chars in parameter keys and values,
  *   '&amp;' for parameter separators except 'mact' (clunky, back-compatible)
  *  1 = proper: rawurlencoded keys and values, '&amp;' for parameter separators
@@ -162,10 +162,10 @@ function CreateActionUrl(
  * @param string $action The module action name
  * Optional parameters:
  * @param array $params Parameters to include in the URL. Default [].
- *   Since 2.99, parameter value(s) may be non-scalar: 1-D arrays processed directly,
+ *   Since 3.0, parameter value(s) may be non-scalar: 1-D arrays processed directly,
  *   other things json-encoded if possible.
  * @param bool $onetime Whether the URL (specifically, its security-parameters) is for one-time use. Default false.
- * @param bool $relative since 2.99 Optional flag whether to omit the site-root
+ * @param bool $relative since 3.0 Optional flag whether to omit the site-root
  *   from the created url. Default false
  * @param int  $format Indicator for how to format the URL
  *  0 = entitized ' &<>"\'!$' chars in parameter keys and values, '&amp;' for
@@ -211,11 +211,11 @@ function CreateJobUrl(
  * @param mixed $returnid The integer page-id to return to after the action
  *   is done, or ''|null for admin
  * @param array $params	  Optional array of parameters to include in the URL.
- *   Since 2.99, parameter value(s) may be non-scalar: 1-D arrays processed directly,
+ *   Since 3.0, parameter value(s) may be non-scalar: 1-D arrays processed directly,
  *   other things json-encoded if possible.
- * @param bool $relative since 2.99 Optional flag whether to omit the site-root
+ * @param bool $relative since 3.0 Optional flag whether to omit the site-root
  *   from the created url. Default false
- * @param int   $format since 2.99 Optional indicator for how to format the url
+ * @param int   $format since 3.0 Optional indicator for how to format the url
  *  0 = entitized ' &<>"\'!$' chars in parameter keys and values, '&amp;' for
  *    parameter separators except 'mact' (clunky, back-compatible)
  *  1 = rawurlencoded keys and values, '&amp;' for parameter separators

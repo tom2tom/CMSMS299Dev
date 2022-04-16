@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\TemplateOperations;
 
-// since 2.99
+// since 3.0
 function smarty_function_edit_template($params, $template)
 {
 	if (!isset($params['template']) || (int)$params['template'] < 0) {

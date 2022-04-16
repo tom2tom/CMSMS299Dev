@@ -8,7 +8,7 @@ jQuery(function($) {
   // ease messages
   $('.message').hide().fadeIn(2000);
   // focus input with class focus
-  $('input:first.focus').trigger('focus');
+  $('input.focus').eq(0).trigger('focus');
   // toggle info window
   $('#toggle-info').on('click activate', function () {
     var $p = $('#info-wrapper');

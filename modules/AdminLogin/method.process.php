@@ -164,7 +164,7 @@ if (isset($_SESSION[$id.'logout_user_now'])) {
     $forgot_username = $_REQUEST[$id.'forgottenusername']; //might be empty
     unset($_REQUEST[$id.'forgottenusername'], $_POST[$id.'forgottenusername']);
     if ($forgot_username) {
-        $tmp = sanitizeVal($forgot_username, CMSSAN_PURESPC); // OR ,CMSSAN_ACCOUNT OR ,CMSSAN_PURE if no spaces allowed (2.99 breaking change)
+        $tmp = sanitizeVal($forgot_username, CMSSAN_PURESPC); // OR ,CMSSAN_ACCOUNT OR ,CMSSAN_PURE if no spaces allowed (3.0 breaking change)
         Events::SendEvent('Core', 'LostPassword', ['username' => $tmp]);
         $user = $userops->GetRecoveryData($forgot_username);
         unset($_REQUEST[$id.'loginsubmit'], $_POST[$id.'loginsubmit']);

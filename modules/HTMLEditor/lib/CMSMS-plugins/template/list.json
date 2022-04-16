@@ -1,0 +1,17 @@
+[
+	{"file": "abbreviation", "title": "Abbreviation"},
+	{"file": "address", "title": "Address"},
+	{"file": "bulletlist", "title": "Bullets list"},
+	{"file": "checkbox", "title": "Checkbox"},
+	{"file": "citation", "title": "Citation"},
+	{"file": "container", "title": "Container", "tip": "div"},
+	{"file": "descriptions", "title": "Description"},
+	{"file": "figure", "title": "Figure"},
+	{"file": "fieldset", "title": "Group", "tip": "frameset"},
+	{"file": "line", "title": "Horiz line"},
+	{"file": "mark", "title": "Mark"},
+	{"file": "numberlist", "title": "Numbered list"},
+	{"file": "preformat", "title": "Preformat"},
+	{"file": "selector", "title": "Selector"},
+	{"file": "textinput", "title": "Text input"}
+]

@@ -36,7 +36,7 @@ use function cms_to_stamp;
  * properties are modifiable only by [re]retrieval from the database.
  * Content properties which are only for 'management' are not used here.
  *
- * @since 2.99
+ * @since 3.0
  * @package  CMS
  */
 class ContentBase implements Serializable
@@ -206,7 +206,7 @@ class ContentBase implements Serializable
 
 	/**
 	 * Legacy method to initialize this object
-	 * @deprecated since 2.99 instead supply object property-values as arguments
+	 * @deprecated since 3.0 instead supply object property-values as arguments
 	 *  to the subclass constructor
 	 *
 	 * @abstract
@@ -341,7 +341,7 @@ class ContentBase implements Serializable
 	/**
 	 * Return a smarty resource identifier for the (possibly-themed) template assigned to this page.
 	 * @todo theme-support
-	 * @since 2.99
+	 * @since 3.0
 	 * @abstact
 	 * @return string
 	 */
@@ -366,7 +366,7 @@ class ContentBase implements Serializable
 	/* *
 	 * Return a smarty resource identifier for the (possibly-themed) stylesheet assigned to this page.
 	 * @todo theme-support
-	 * @since 2.99
+	 * @since 3.0
 	 * @abstact
 	 * @return string
 	 */

@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -30,6 +30,7 @@ use CMSMS\UserParams;
 use function cms_installer\get_server_permissions;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
+use function cms_installer\rrmdir;
 use function cms_installer\startswith;
 
 // vars set in includer: $admin_user, $choices[], $wiz, $app, $destdir etc
@@ -80,30 +81,86 @@ function create_private_dir(string $basedir, string $reldir, int $mode)
     $fp = $basedir.DIRECTORY_SEPARATOR.$reldir;
     if (!is_dir($fp)) {
         @mkdir($fp, $mode, true);
-    } // else clear it!
+    } else {
+        @chmod($fp, $mode); // TODO recurse all folders
+    }
     @touch($fp.DIRECTORY_SEPARATOR.'index.html');
 }
+
+//deprecated from 3.0 support modules etc which use stuff in old folders
+function create_deprec_links(string $basedir)
+{
+    foreach ([
+    ['styles', 'css'],
+    ['media', 'images'],
+    ] as $names) {
+        $tp = $basedir.DIRECTORY_SEPARATOR.$names[1];
+        if (is_file($tp)) {
+            unlink($tp);
+        } elseif (is_dir($tp)) {
+            rrmdir($tp);
+        }
+        $fp = $basedir.DIRECTORY_SEPARATOR.$names[0];
+        symlink($fp, $tp);
+    }
+}
+
+//
+// create the lib folders tree
+//
+//verbose_msg(lang('install_create TODO'));
+$bp = $destdir.DIRECTORY_SEPARATOR.'lib';
+foreach ([
+    'classes',
+    'font',
+    'jquery',
+    'js',
+    'lang',
+    'layouts',
+    'media',
+    'nls',
+    'plugins',
+    'security',
+    'styles',
+    'vendor',
+] as $name) {
+    //TODO suitable mode e.g. read-only for these dirs
+    create_private_dir($bp, $name, $dirmode);
+}
+
+create_deprec_links($bp);
 
 $config = $app->get_config(); //more-or-less same as $choices[]
 //
 // create the assets (however named) folders tree
 //
 verbose_msg(lang('install_createassets'));
-$name = $config['assetsdir'] ?? 'assets';
-$bp = $destdir.DIRECTORY_SEPARATOR.$name;
-//TODO suitable mode e.g. read-only for these dirs
-create_private_dir($bp, 'admin_custom', $dirmode);
-create_private_dir($bp, 'configs', $dirmode);
-create_private_dir($bp, 'images', $dirmode);
-create_private_dir($bp, 'module_custom', $dirmode);
-create_private_dir($bp, 'modules', $dirmode); // for non-core modules during installation at least
-create_private_dir($bp, 'plugins', $dirmode);
-//create_private_dir($bp,'resources');
-$name = $config['pluginsdir'] ?? 'user_plugins';
-create_private_dir($bp, $name, $dirmode); //UDTfiles
-create_private_dir($bp, 'styles', $dirmode);
-create_private_dir($bp, 'templates', $dirmode);
-create_private_dir($bp, 'themes', $dirmode);
+$r = $config['assetsdir'] ?? 'assets';
+$bp = $destdir.DIRECTORY_SEPARATOR.$r;
+$s = $config['pluginsdir'] ?? 'user_plugins';  //UDTfiles
+foreach ([
+    'admin_custom',
+    'classes',
+    'configs', // see also admin/configs
+    'font',
+    'jobs',
+    'js',
+    'layouts',
+    'media', //TODO + deprecated 'images' symlink?
+    'module_custom',
+    'modules', // for non-core modules during installation at least
+    'plugins',
+//  'resources',
+    'styles', //TODO + deprecated 'css' symlink?
+    'themes',
+    $s,
+//  'vendor', needed?
+] as $name) {
+    //TODO suitable mode e.g. read-only for these dirs
+    create_private_dir($bp, $name, $dirmode);
+}
+
+create_deprec_links($bp);
 
 status_msg(lang('install_requireddata'));
 
@@ -149,8 +206,9 @@ foreach ([
     'date_format' => 'j %B Y', // mixed format
     'datetime_format' => 'j %B Y g:i %P', // ditto
     'defaultdateformat' => '%e %B %Y %l:%M %P', // localizable strftime()-compatible format OR %#e ... on Windows ?
-    'enablesitedownmessage' => 0, // deprecated since 2.99 use site_downnow
+    'enablesitedownmessage' => 0, // deprecated since 3.0 use site_downnow
     'frontendlang' => 'en_US',
+    'frontendwysiwyg' => 'HTMLEditor',
     'global_umask' => $global_umask,
     'jobinterval' => 180, // min-gap between job-processing's 1 .. 600 seconds
     'joblastrun' => 0,
@@ -181,8 +239,9 @@ foreach ([
     'thumbnail_height' => 96,
     'thumbnail_width' => 96,
     'ultraroles' => $ultras,
-    'use_smartycompilecheck' => 1, //deprecated since 2.99 use smarty_compilecheck
+    'use_smartycompilecheck' => 1, //deprecated since 3.0 use smarty_compilecheck
     'username_level' => 0, // policy-type enumerator
+    'wysiwyg' => 'HTMLEditor',
 ] as $name => $val) {
     AppParams::set($name, $val);
 }
@@ -254,7 +313,7 @@ foreach ([
         $permission->save();
 //        $all_perms[$one_perm] = $permission;
     } catch (Throwable $t) {
-        // nothing here
+        // nothing here (incl. ignore duplicate permission)
     }
 }
 
@@ -334,7 +393,7 @@ $admin_user->password = $ops->PreparePassword($adminaccount['password']);
 $admin_user->Save();
 
 $ops->AddMemberGroup($admin_user->id, $gid1);
-UserParams::set_for_user($admin_user->id, 'wysiwyg', 'MicroTiny'); // TODO if MicroTiny present - the only user-preference we need now
+UserParams::set_for_user($admin_user->id, 'wysiwyg', 'HTMLEditor'); // the only user-preference we need now
 //UserParams::set_for_user($admin_user->id, 'wysiwyg_type', '');
 //UserParams::set_for_user($admin_user->id, 'wysiwyg_theme', '');
 

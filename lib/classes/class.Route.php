@@ -1,7 +1,7 @@
 <?php
 /*
 Class to manage information for a route.
-Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -32,7 +32,7 @@ use const CMS_DEPREC;
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  * @since 1.9 as global-namespace CmsRoute
  */
 class Route implements ArrayAccess
@@ -192,7 +192,7 @@ class Route implements ArrayAccess
 
 	/**
 	 * Return the signature of this object
-	 * @deprecated since 2.99 Instead use get_signature()
+	 * @deprecated since 3.0 Instead use get_signature()
 	 */
 	public function signature()
 	{
@@ -264,7 +264,7 @@ class Route implements ArrayAccess
 
 	/**
 	 * Test if this object matches the specified string.
-	 * @deprecated since 2.99 instead use RouteOperations::is_match()
+	 * @deprecated since 3.0 instead use RouteOperations::is_match()
 	 *
 	 * @param string $str The input string
 	 * @param bool $exact Optional flag whether to try for exact string-match

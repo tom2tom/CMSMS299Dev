@@ -1,7 +1,7 @@
 <?php
 /*
 Backward compatibility support
-Copyright (C) 2011-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2011-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -42,7 +42,7 @@ if( !function_exists('gzopen') ) {
 
 /**
  * Return the currently configured database prefix.
- * @deprecated since 2.99 Use constant CMS_DB_PREFIX instead
+ * @deprecated since 3.0 Use constant CMS_DB_PREFIX instead
  *
  * @since 0.4
  * @return string
@@ -58,7 +58,7 @@ $lvl = error_reporting();
 error_reporting(0);
 
 // pre-define aliases which might be used in a type-hint/declaration
-// since 2.99
+// since 3.0
 // FWIW lines marked with !! are typehints seen in a nothing-special 2.2.3 distro ..
 foreach ([
   'CMSMS\AppConfig' => 'cms_config', // !!

@@ -1,0 +1,7 @@
+<label for="mysel">select descriptor</label><br />
+<select id="mysel"  name="discoverme">
+  <option value="choice1">Lorem</option>
+  <option value="choice2">Ipsum</option>
+  <option value="choice3">Dolor</option>
+  <option value="choice4">Sit</option>
+</select>

@@ -35,7 +35,7 @@ use function file_put_contents;
  * REMEMBER: relative urls/paths in css are almost never relocatable, so
  * this cannot be used for such.
  *
- * @since 2.99
+ * @since 3.0
  * @package CMS
  */
 class StylesMerger

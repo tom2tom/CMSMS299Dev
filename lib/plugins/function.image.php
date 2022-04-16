@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to retrieve xhtml representing an uploaded image
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -25,6 +25,18 @@ use CMSMS\SingleItem;
 function smarty_function_image($params, $template)
 {
 	$text = '';
+/*TODO support $params['addtext']
+case 'addtext':
+    //parse 'A=B C=D ...'
+    $s = trim($value, " \t'\"");
+    $matches = [];
+    preg_match_all('/([\w\-]+)\s*?=\s*?(".*?"|\'.*?\'|[^ ]+?(\s|$))/', $s, $matches, PREG_SET_ORDER);
+    if( $matches ) {
+        foreach( $matches as $attr ) {
+            $tagparms[$attr[1]] = trim($attr[2], "'\"");
+        }
+    }
+*/
 	if( !empty($params['src'] ) ) {
 		$imgstart = '<img src=';
 		$imgend = ' />';

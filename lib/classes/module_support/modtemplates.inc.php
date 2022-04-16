@@ -1,7 +1,7 @@
 <?php
 /*
 Template-related methods for modules
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -76,7 +76,7 @@ function GetTemplate($mod, $tpl_name, $modname = '')
  *
  * @param $mod The current module-object
  * @param string $tpl_name Template name
- * @param since 2.99 string $modname Optional name of a module to use instead of $mod
+ * @param since 3.0 string $modname Optional name of a module to use instead of $mod
  * @return mixed string | null
  */
 function GetTemplateFromFile($mod, $tpl_name, $modname = '')

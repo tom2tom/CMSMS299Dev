@@ -31,7 +31,7 @@ if( !($this->CheckPermission('Modify Any Page') || $this->CheckPermission('Modif
     $this->Redirect($id,'defaultadmin',$returnid);
 }
 
-$fp = cms_join_path(CMS_ROOT_PATH, 'lib', 'assets', 'method.edittemplate.php');
+$fp = cms_join_path(CMS_ROOT_PATH, 'lib', 'method.edittemplate.php');
 if( is_file($fp) ) {
 
     $userid = get_userid(false);

@@ -1,7 +1,7 @@
 <?php
 /*
 Autoloader
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -82,9 +82,9 @@ function cms_autoloader(string $classname)
 		foreach (['class.', 'trait.', 'interface.', ''] as $test) {
 			$fp = $sroot.$test.$base.'.php';
 			if (is_file($fp)) {
-/* since 2.99 don't also autoload a module-object
+/* since 3.0 don't also autoload a module-object
 				if (!($sysp || class_exists($space, false))) {
-					//deprecated since 2.99 - some modules require existence of this, or assume, and actually use it
+					//deprecated since 3.0 - some modules require existence of this, or assume, and actually use it
 					$gCms = SingleItem::App();
 					require_once $mpath;
 				}
@@ -171,7 +171,7 @@ function cms_autoloader(string $classname)
 		if (class_exists($classname, false)) return;
 	}
 
-/*	// pre-2.99 standard tasks
+/*	// pre-3.0 standard tasks
 	if (endswith($base, 'Task')) {
 		$fp = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'tasks'.DIRECTORY_SEPARATOR.'class.'.$base.'.php';
 		if (is_file($fp)) {
@@ -194,7 +194,7 @@ function cms_autoloader(string $classname)
 	// module classes
 	$fp = cms_module_path($base);
 	if ($fp) {
-		//deprecated since 2.99 - some modules require existence of this, or assume, and actually use it
+		//deprecated since 3.0 - some modules require existence of this, or assume, and actually use it
 		$gCms = SingleItem::App();
 		require_once $fp;
 		if (class_exists($classname, false)) return;
@@ -209,7 +209,7 @@ function cms_autoloader(string $classname)
 			require_once $files[0];
 			if (class_exists($classname, false)) return;
 		}
-		if (endswith($base, 'Task')) { // deprecated since 2.99 instead use Jobs
+		if (endswith($base, 'Task')) { // deprecated since 3.0 instead use Jobs
 			$class = substr($base, 0, -4);
 			$fp = $root.DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'{class.,}'.$class.'.task.php';
 			$files = glob($fp, GLOB_NOSORT | GLOB_NOESCAPE | GLOB_BRACE);

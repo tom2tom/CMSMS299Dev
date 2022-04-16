@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to list stylesheets and groups
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -197,9 +197,9 @@ function pageback(tbl) {
 }
 function adjust_locks(tblid,lockdata) {
   var n = 0;
-  $('#'+tblid).find(' > tbody > tr').each(function() {
+  $('#'+tblid).find('> tbody > tr').each(function() {
     var row = $(this),
-     id = row.find('td:first').text();
+     id = row.find('td').eq(0).text();
     if(lockdata.hasOwnProperty(id)) {
       n++;
       var status = lockdata[id];
@@ -267,7 +267,7 @@ $(function() {
       cms_button_able($('#bulk_submit'),true);
     }
   });
-  $('#bulk_submit').on('click', function() {
+  $('#bulk_submit').on('click', function(e) {
     e.preventDefault();
     var l = $('input:checkbox:checked.css_select').length;
     if(l > 0) {
@@ -327,7 +327,7 @@ $(function() {
     //customize the dialog
     var dlg = $('#replacedialog'),
      sel = dlg.find('#replacement'),
-     from = $(this).attr('data-tpl-id'),
+     from = $(this).attr('data-css-id'),
      opt = sel.find('option[value='+from+']'),
      name = opt.text();
     sel.find('option[disabled="disabled"]').prop('disabled', false);
@@ -337,7 +337,7 @@ $(function() {
 
     cms_dialog($('#replacedialog'), {
       open: function(ev, ui) {
-        $(this).find('input[name="css"]').val(old);
+        $(this).find('input[name="css"]').val(from);
       },
       modal: true,
       width: 'auto',
@@ -382,8 +382,10 @@ $(function() {
     interval: $secs,
     done_handler: function(json) {
       var lockdata = JSON.parse(json);
-      adjust_locks('csslist',lockdata.sheets || {});
-      adjust_locks('grouplist',lockdata.groups || {});
+      if (!$.isEmptyObject(lockdata)) {
+        adjust_locks('csslist',lockdata.sheets || {});
+        adjust_locks('grouplist',lockdata.groups || {});
+      }
     }
   });
   $('#clearlocks').on('click', function(e) {

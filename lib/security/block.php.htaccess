@@ -1,0 +1,3 @@
+RedirectMatch 403 \.htaccess
+RedirectMatch 403 (?i)\.php[45s]?$
+RedirectMatch 403 (?i)\.phtml$

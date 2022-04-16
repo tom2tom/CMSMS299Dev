@@ -33,7 +33,7 @@ use const CMS_DB_PREFIX;
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  */
 class PageLoader
 {

@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-// since 2.99
+// since 3.0
 // alternatively, use {$smarty.const.CMS_ASSETS_URL}
 function smarty_function_assets_url($params, $template)
 {

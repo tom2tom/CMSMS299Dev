@@ -149,9 +149,9 @@ class wizard_step5 extends wizard_step
         } elseif ($action == 'upgrade') {
             // if pertinent upgrade
             $version_info = $this->get_wizard()->get_data('version_info');
-            if (version_compare($version_info['version'], '2.99') < 0) {
+            if (version_compare($version_info['version'], '3.0') < 0) {
                 $raw = $app->get_dest_version();
-                if (version_compare($raw, '2.99') >= 0) { //should always be true, here
+                if (version_compare($raw, '3.0') >= 0) { //should always be true, here
                     $raw = $config['supporturl'] ?? null;
                     $v = ($raw === null) ? '' : trim($raw);
                     $smarty->assign('supporturl', specialize($v));

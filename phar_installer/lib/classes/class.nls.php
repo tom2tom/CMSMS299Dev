@@ -13,7 +13,7 @@ abstract class nls
 
     abstract public function __construct();
 
-    // since 2.99 this does case-insensitive checks
+    // since 3.0 this does case-insensitive checks
     public function matches($str)
     {
         if (strcasecmp($str, $this->name()) == 0) {
@@ -81,7 +81,7 @@ abstract class nls
         return strtoupper($this->_encoding);
     }
 
-    // since 2.99
+    // since 3.0
     public function direction()
     {
         if (empty($this->_direction)) {

@@ -1,7 +1,7 @@
 <?php
 /*
 MicroTiny: a module for CMS Made Simple to allow WYSIWYG editing using a TinyMCE-derivative
-Copyright (C) 2009-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2009-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -41,13 +41,13 @@ class MicroTiny extends CMSModule
   public function IsPluginModule() { return true; } //deprecated
 //public function LazyLoadAdmin() { return true; }
 //public function LazyLoadFrontend() { return true; }
-  public function MinimumCMSVersion() { return '2.99'; }
+  public function MinimumCMSVersion() { return '2.999'; }
   public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
   public function HasCapability($capability, $params=[])
   {
     switch ($capability) {
-      case CoreCapabilities::CORE_MODULE:
+//      case CoreCapabilities::CORE_MODULE: abandoned
       case CoreCapabilities::PLUGIN_MODULE:
       case CoreCapabilities::WYSIWYG_MODULE:
       case CoreCapabilities::SITE_SETTINGS:
@@ -67,7 +67,7 @@ class MicroTiny extends CMSModule
    * Hook function to populate 'centralised' site settings UI
    * @internal
    * @ignore
-   * @since 2.3 / CMSMS 2.99
+   * @since 2.3 / CMSMS 3.0
    * @return array
    */
   public function ExtraSiteSettings()
@@ -85,7 +85,7 @@ class MicroTiny extends CMSModule
    * UNUSED Hook function to populate 'centralised' user settings UI
    * @internal
    * @ignore
-   * @since 2.3 / CMSMS 2.99
+   * @since 2.3 / CMSMS 3.0
    * @return array
    */
   public function ExtraUserSettings()
@@ -95,8 +95,8 @@ class MicroTiny extends CMSModule
 
   /**
    * Return the 'public' name of the backend editor
-   * @since 2.3 / CMSMS 2.99
-   */ 
+   * @since 2.3 / CMSMS 3.0
+   */
   public function GetEditorName() : string
   {
     return $this->Lang('editor_publicname');

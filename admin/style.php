@@ -1,7 +1,7 @@
 <?php
 /*
 Styles retriever used by some admin-themes
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -53,10 +53,10 @@ if( isset($_GET['ie']) ) $style .= '_ie';
 $style .= '.css';
 
 $theme = SingleItem::Theme()->themeName;
-$fn = cms_join_path(__DIR__,'themes',$theme,'css',$style);
-if( is_file($fn) ) $cms_readfile($fn);
-$fn = cms_join_path(__DIR__,'themes',$theme,'extcss',$style);
-if( is_file($fn) ) $cms_readfile($fn);
+$fn = cms_join_path(__DIR__,'themes',$theme,'styles',$style);
+if( is_file($fn) ) { $cms_readfile($fn); }
+$fn = cms_join_path(__DIR__,'themes',$theme,'extstyles',$style);
+if( is_file($fn) ) { $cms_readfile($fn); }
 
 // this is crappily slow and inefficient !!
 $allmodules = SingleItem::ModuleOperations()->GetLoadedModules();

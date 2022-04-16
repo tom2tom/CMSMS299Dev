@@ -53,7 +53,7 @@ final class SignedCookieOperations implements ICookieManager
     /**
      * Constructor.
      *
-     * @param mixed $app App | null. Optional since 2.99
+     * @param mixed $app App | null. Optional since 3.0
      */
     public function __construct($app = null)
     {
@@ -97,7 +97,7 @@ final class SignedCookieOperations implements ICookieManager
      *
      * @param string $okey The cookie name
      * @param mixed $value The cookie value
-     *  Since 2.99, the supplied $value need not be a string.
+     *  Since 3.0, the supplied $value need not be a string.
      *  If not scalar, the value  will be json_encode()'d before storage.
      * @param int $expires Optional expiry timestamp of the cookie. Default 0,
      *  hence a session cookie.

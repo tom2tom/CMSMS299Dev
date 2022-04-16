@@ -143,7 +143,7 @@ class wizard_step1 extends wizard_step
             break;
 
         case 'assets':
-            if (is_dir($dir.DIRECTORY_SEPARATOR.'templates')) {
+            if (is_dir($dir.DIRECTORY_SEPARATOR.'layouts')) {
                 return false;
             }
             break;

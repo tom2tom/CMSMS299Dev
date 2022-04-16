@@ -38,7 +38,7 @@ define('CMS_DEBUG',$config['debug']);
 
 /**
  * Whether to throw upon use of deprecated stuff.
- * @since 2.99
+ * @since 3.0
  */
 define('CMS_DEPREC',CMS_DEBUG && $config['deprecations']);
 
@@ -81,19 +81,19 @@ define('CMS_ASSETS_PATH',$config['assets_path']);
 
 /**
  * Where user-plugin files are stored.
- * @since 2.99
+ * @since 3.0
  */
 define('CMS_FILETAGS_PATH',$config['usertags_path']);
 
 /**
  * The 'top' directory where javascript files are stored.
- * @since 2.99
+ * @since 3.0
  */
 define('CMS_SCRIPTS_PATH',$config['root_path'].DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'js');
 
 /**
  * Where theme data files are stored.
- * @since 2.99
+ * @since 3.0
  */
 define('CMS_THEMES_PATH',$config['assets_path'].DIRECTORY_SEPARATOR.'themes');
 
@@ -104,19 +104,19 @@ define('CMS_ROOT_URL',$config['root_url']);
 
 /**
  * The site assets URL.
- * @since 2.99
+ * @since 3.0
  */
 define('CMS_ASSETS_URL',$config['assets_url']);
 
 /**
  * The 'top' URL where javascript files are stored.
- * @since 2.99
+ * @since 3.0
  */
 define('CMS_SCRIPTS_URL',$config['root_url'].'/lib/js');
 
 /**
  * The 'top' URL where theme data files are stored.
- * @since 2.99
+ * @since 3.0
  */
 define('CMS_THEMES_URL',$config['assets_url'].'/themes');
 
@@ -131,7 +131,7 @@ define('CMS_UPLOADS_URL',$config['uploads_url']);
 define('CMS_DB_PREFIX',$config['db_prefix']);
 
 if( CMS_DEBUG ) {
-    //for async DEBUG since 2.99
+    //for async DEBUG since 3.0
     define('ASYNCLOG', TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'debug.log');
 }
 
@@ -139,7 +139,7 @@ const CMS_DEFAULT_VERSIONCHECK_URL = 'https://www.cmsmadesimple.org/latest_versi
 
 /*
  * Something short, URL-compatible and never used as a 'real' URL-parameter
- * From CMSMS 1.5 (or before) to 2.99, this const has been '_s_','sp_','_sx_','_sk_','__c','_k_'
+ * From CMSMS 1.5 (or before) to 3.0, this const has been '_s_','sp_','_sx_','_sk_','__c','_k_'
  * but changing its value is minimally useful
 */
 const CMS_SECURE_PARAM_NAME = '_sk_';
@@ -153,4 +153,4 @@ const CMS_USER_KEY = '_userkey_';
 const CMS_PREVIEW = '__cms_preview__';
 const CMS_PREVIEW_TYPE = '__cms_preview_type__';
 const CMS_PREVIEW_PAGEID = -100;
-const __CMS_PREVIEW_PAGE__ = -100; //deprecated since 2.99
+const __CMS_PREVIEW_PAGE__ = -100; //deprecated since 3.0

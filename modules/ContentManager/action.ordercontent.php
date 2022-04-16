@@ -1,7 +1,7 @@
 <?php
 /*
 CMSMS ContentManager module action: process page-reordering
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -109,7 +109,7 @@ function parseTree(ul) {
   ul.children('li').each(function() {
     var subtree = $(this).children('ul');
     tags.push($(this).attr('id'));
-    if (subtree.size() > 0) {
+    if (subtree.length > 0) {
       tags.push(parseTree(subtree));
     }
   });

@@ -4,11 +4,10 @@
   <h3>{_ld($_module,'install_module')} {$module_name} <em>({_ld($_module,'version')} {$module_version})</em></h3>
 {/if}
 
-<div class="pagewarn">
+<div class="pagewarn cf">
   <h3>{_ld($_module,'notice')}:</h3>
   {_ld($_module,'time_warning')}
 </div>
-<div class="clearb"></div>
 
 {if isset($dependencies)}
   {$has_custom=0}
@@ -16,7 +15,7 @@
      {if $rec.has_custom}{$has_custom=1}{/if}
   {/foreach}
   {if $has_custom}
-    <div class="pagewarn">
+    <div class="pagewarn cf">
       <h3>{_ld($_module,'warning')}</h3>
       {_ld($_module,'warn_modulecustom')}
       <ul>
@@ -25,7 +24,6 @@
 	{/foreach}
       </ul>
     </div>
-    <div class="clearb"></div>
   {/if}
 
   {if count($dependencies) > 1}

@@ -76,7 +76,7 @@ class ContentTypeOperations
 	 * Get the singleton instance of this class.
 	 * This method is called over a hundred times during a typical request,
 	 * so definitely the class warrants being a singleton.
-	 * @deprecated since 2.99 instead use CMSMS\SingleItem::ContentTypeOperations()
+	 * @deprecated since 3.0 instead use CMSMS\SingleItem::ContentTypeOperations()
 	 * @return ContentTypeOperations
 	 */
 	public static function get_instance() : self
@@ -126,7 +126,7 @@ class ContentTypeOperations
 	 * This method constructs a content-type object for each recorded type,
 	 * and each type initiated by polled modules.
 	 *
-	 * @param bool $force since 2.99 whether to force-reload cache data. Default false.
+	 * @param bool $force since 3.0 whether to force-reload cache data. Default false.
 	 * @return array of ContentType objects, or maybe empty
 	 */
 	public function get_content_types(bool $force = false) : array
@@ -172,7 +172,7 @@ class ContentTypeOperations
 	 *
 	 * @since 1.9
 	 * @param mixed $type string type name or an instance of ContentType
-	 * @param bool since 2.99 optional flag whether to create a IContentEditor-compatible class
+	 * @param bool since 3.0 optional flag whether to create a IContentEditor-compatible class
 	 * object. Default false (hence a shortform object)
 	 * @return mixed ContentType object | null
 	 */
@@ -272,7 +272,7 @@ class ContentTypeOperations
 	/**
 	 * Record a content type in the database
 	 *
-	 * @since 2.99
+	 * @since 3.0
 	 * @todo
 	 */
 	public function AddStaticContentType()
@@ -287,7 +287,7 @@ class ContentTypeOperations
 	/**
 	 * Remove a content type from the database
 	 *
-	 * @since 2.99
+	 * @since 3.0
 	 */
 	public function DelStaticContentType()
 	{
@@ -299,7 +299,7 @@ class ContentTypeOperations
 
 	/**
 	 * Reset the database-recorded content types
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param bool $force whether to force-reload cache data. Default false.
 	 */

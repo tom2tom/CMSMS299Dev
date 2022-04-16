@@ -1,7 +1,7 @@
 <?php
 /*
 Url class
-Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -29,7 +29,7 @@ use function startswith;
  * @package CMS
  * @author  Robert Campbell
  *
- * @since 2.99
+ * @since 3.0
  * @since 1.9 as global-namespace cms_url
  */
 class Url
@@ -154,7 +154,7 @@ class Url
 
     /**
      * A convenience function equivalent to (string) new Url(trim($url))
-     * @since 2.99
+     * @since 3.0
      * @param mixed $url string | null
      * @return string
      */

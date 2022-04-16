@@ -22,7 +22,7 @@ namespace CMSMS;
 
 /**
  * Class for engaging with a LoadedData values-set
- * @since 2.99
+ * @since 3.0
  * @since 2.0 as CMSMS\internal\global_cachable
  */
 class LoadedDataType
@@ -53,7 +53,7 @@ class LoadedDataType
 
     /**
      * Get recorded fetch-parameters, if any
-     * @since 2.99
+     * @since 3.0
      * @return array like [arg(s)1, arg(s)2, ...], maybe empty
      * i.e. suitable for recursive merging
      */
@@ -65,7 +65,7 @@ class LoadedDataType
     /**
      * Get this data-type's value, or one of them, if $args are presented
      * @param bool $force whether the fetcher should force-retrieve
-     * @param varargs $args since 2.99 optional argument(s) for the callable
+     * @param varargs $args since 3.0 optional argument(s) for the callable
      * @return mixed
      */
     public function fetch(bool $force, ...$args)

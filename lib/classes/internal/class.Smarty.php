@@ -1,7 +1,7 @@
 <?php
 /*
 Class to tailor Smarty for CMSMS.
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -28,7 +28,7 @@ use CMSMS\SingleItem;
 use Exception;
 use LogicException;
 use Smarty_Internal_Template;
-use SmartyBC as SmartyParent; //deprecated since 2.99
+use SmartyBC as SmartyParent; //deprecated since 3.0
 //use Smarty as SmartyParent; //in future
 use const CMS_ADMIN_PATH;
 use const CMS_ASSETS_PATH;
@@ -49,11 +49,13 @@ OR
  require_once cms_join_path(CMS_ROOT_PATH,'lib','smarty','Smarty.class.php'); //when BC not needed
 else
 */
-require_once cms_join_path(CMS_ROOT_PATH,'lib','vendor','smarty','smarty','libs','SmartyBC.class.php'); //deprecated - support for Smarty2 API
+//require_once cms_join_path(CMS_ROOT_PATH,'lib','vendor','smarty','smarty','libs','SmartyBC.class.php'); //deprecated - support for Smarty2 API
+require_once cms_join_path(CMS_ROOT_PATH,'lib','vendor','smarty','smarty','libs','Smarty.class.php');
+require_once __DIR__.DIRECTORY_SEPARATOR.'SmartyBC.class.php'; //deprecated support for Smarty2 API
 
 /**
  * Class to tailor Smarty for CMSMS use.
- * This retains support for the Smarty2 API, but that's deprecated since 2.99
+ * This retains support for the Smarty2 API, but that's deprecated since 3.0
  *
  * @package CMS
  * @since 0.1
@@ -118,9 +120,10 @@ smarty cache lifetime != global cache ttl, probably
              ->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'plugins')
              ->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'plugins') // deprecated
 
-             ->setTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates') //template-assets prevail
-             ->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'templates') // internal, never renamed
-             ->addTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'styles');
+             ->setTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'layouts') //template-assets prevail
+             ->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'layouts')
+             ->addTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'styles')
+             ->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'styles');
 
         if( SingleItem::App()->is_frontend_request() ) {
             // just for frontend actions
@@ -174,8 +177,8 @@ smarty cache lifetime != global cache ttl, probably
                  ->registerPlugin('function','content_image','CMSMS\internal\content_plugins::fetch_imageblock',true)
                  ->registerPlugin('function','content_module','CMSMS\internal\content_plugins::fetch_moduleblock',true)
                  ->registerPlugin('function','content_text','CMSMS\internal\content_plugins::fetch_textblock',true)
-                 ->registerPlugin('function','fetch_pagedata','CMSMS\internal\content_plugins::fetch_pagedata',true) // redundant, deprecated since 2.99
-                 ->registerPlugin('function','process_pagedata','CMSMS\internal\content_plugins::process_pagedata',true); // redundant, deprecated since 2.99
+                 ->registerPlugin('function','fetch_pagedata','CMSMS\internal\content_plugins::fetch_pagedata',true) // redundant, deprecated since 3.0
+                 ->registerPlugin('function','process_pagedata','CMSMS\internal\content_plugins::process_pagedata',true); // redundant, deprecated since 3.0
 
             // Autoload filters
             $this->autoloadFilters();
@@ -203,9 +206,9 @@ smarty cache lifetime != global cache ttl, probably
             // our configs folder could be added (i.e. to smarty's own config dir - but that doesn't exist in 3.1.33 at least)
             $this->setConfigDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'configs')
                  ->addPluginsDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'plugins')
-                 ->addTemplateDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'templates')
+                 ->addTemplateDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'layouts')
 //TODO where appropriate (currently in each theme-method which generates content)
-//               ->addTemplateDir(CMS_THEMES_PATH.DIRECTORY_SEPARATOR.TODOcurrenttheme.DIRECTORY_SEPARATOR.'templates')
+//               ->addTemplateDir(CMS_THEMES_PATH.DIRECTORY_SEPARATOR.TODOcurrenttheme.DIRECTORY_SEPARATOR.'layouts', -1)
 //               ->setDefaultResourceType('TODO')
                  ->setCaching(SmartyParent::CACHING_OFF); //($v) TODO enable admin caching with in-context disabling
 //c.f. frontend   ->enableSecurity('CMSMS\internal\SmartySecurityPolicy');
@@ -314,7 +317,7 @@ smarty cache lifetime != global cache ttl, probably
             return false;
         }
 
-        //Deprecated pre-2.99 approach - non-system plugins were never cachable
+        //Deprecated pre-3.0 approach - non-system plugins were never cachable
         //In future, allow caching and expect users to override that in templates where needed
         //Otherwise, module-plugin cachability is opaque to page-builders
         if( SingleItem::App()->is_frontend_request() ) {
@@ -349,7 +352,7 @@ smarty cache lifetime != global cache ttl, probably
     /**
      * Report whether a smarty plugin (regular, not module- or user-)
      * having the specified name exists.
-     * @since 2.99
+     * @since 3.0
      *
      * @param string the plugin identifier
      * @param string Optional plugin-type, default 'function' TODO support '*'/'any'

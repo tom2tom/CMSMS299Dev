@@ -271,10 +271,10 @@
             if (typeof options.formData === 'function') {
                 return options.formData(options.form);
             }
-            if ($.isArray(options.formData)) {
+            if (Array.isArray(options.formData)) {
                 return options.formData;
             }
-            if ($.type(options.formData) === 'object') {
+            if (typeof options.formData === 'object') {
                 formData = [];
                 $.each(options.formData, function (name, value) {
                     formData.push({name: name, value: value});
@@ -451,7 +451,7 @@
         },
 
         _initIframeSettings: function (options) {
-            var targetHost = $('<a></a>').prop('href', options.url).prop('host');
+            var targetHost = $('<a>').attr('href', options.url).attr('host'); // WHAT ??
             // Setting the dataType to iframe enables the iframe transport:
             options.dataType = 'iframe ' + (options.dataType || '');
             // The iframe transport accepts a serialized array as form data:
@@ -500,7 +500,7 @@
                 if (!paramName.length) {
                     paramName = [fileInput.prop('name') || 'files[]'];
                 }
-            } else if (!$.isArray(paramName)) {
+            } else if (!Array.isArray(paramName)) {
                 paramName = [paramName];
             }
             return paramName;
@@ -933,7 +933,7 @@
             // without loosing the file input value:
             input.after(inputClone).detach();
             // Avoid memory leaks with the detached file input:
-            $.cleanData(input.unbind('remove'));
+            $.cleanData(input.off('remove'));
             // Replace the original file input element in the fileInput
             // elements set with the clone, which has been copied including
             // event handlers:
@@ -1200,7 +1200,7 @@
         },
 
         _isRegExpOption: function (key, value) {
-            return key !== 'url' && $.type(value) === 'string' &&
+            return key !== 'url' && typeof value === 'string' &&
                 /^\/.*\/[igm]{0,3}$/.test(value);
         },
 
@@ -1290,14 +1290,13 @@
                                 return;
                             }
                             data.files = files;
-                            jqXHR = that._onSend(null, data).then(
-                                function (result, textStatus, jqXHR) {
-                                    dfd.resolve(result, textStatus, jqXHR);
-                                },
-                                function (jqXHR, textStatus, errorThrown) {
-                                    dfd.reject(jqXHR, textStatus, errorThrown);
-                                }
-                            );
+                            jqXHR = that._onSend(null, data)
+                              .done(function(result, textStatus, jqXHR) {
+                                dfd.resolve(result, textStatus, jqXHR);
+                              })
+                              .fail(function(jqXHR, textStatus, errorThrown) {
+                                dfd.reject(jqXHR, textStatus, errorThrown);
+                              });
                         }
                     );
                     return this._enhancePromise(promise);

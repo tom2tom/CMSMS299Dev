@@ -48,7 +48,7 @@ class Search extends CMSModule
     public function IsPluginModule() { return true; } //deprecated
 //  public function LazyLoadAdmin() { return true; }
 //  public function LazyLoadFrontend() { return false; }
-    public function MinimumCMSVersion() { return '2.99'; }
+    public function MinimumCMSVersion() { return '2.999'; }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
     public function InitializeAdmin()
@@ -73,22 +73,24 @@ class Search extends CMSModule
 
     public function InitializeFrontend()
     {
-//CMSMS 2.99 does nothing        $this->RestrictUnknownParams();
-        $this->SetParameterType('count',CLEAN_INT);
-        $this->SetParameterType('detailpage',CLEAN_STRING);
-        $this->SetParameterType('formtemplate',CLEAN_STRING);
-        $this->SetParameterType('inline',CLEAN_STRING);
-        $this->SetParameterType('modules',CLEAN_STRING);
-        $this->SetParameterType('origreturnid',CLEAN_INT);
-        $this->SetParameterType('pageid',CLEAN_INT);
-        $this->SetParameterType('resultpage',CLEAN_STRING);
-        $this->SetParameterType('resulttemplate',CLEAN_STRING);
-        $this->SetParameterType('search_method',CLEAN_STRING);
-        $this->SetParameterType('searchinput',CLEAN_STRING);
-        $this->SetParameterType('searchtext',CLEAN_STRING);
-        $this->SetParameterType('submit',CLEAN_STRING);
-        $this->SetParameterType('use_or',CLEAN_INT); //CHECKME disabled?
-        $this->SetParameterType(CLEAN_REGEXP.'/passthru_.*/',CLEAN_STRING);
+//CMSMS 3.0 does nothing        $this->RestrictUnknownParams();
+        $this->SetParameterType([
+        'count' => CLEAN_INT,
+        'detailpage' => CLEAN_STRING,
+        'formtemplate' => CLEAN_STRING,
+        'inline' => CLEAN_STRING,
+        'modules' => CLEAN_STRING,
+        'origreturnid' => CLEAN_INT,
+        'pageid' => CLEAN_INT,
+        'resultpage' => CLEAN_STRING,
+        'resulttemplate' => CLEAN_STRING,
+        'search_method' => CLEAN_STRING,
+        'searchinput' => CLEAN_STRING,
+        'searchtext' => CLEAN_STRING,
+        'submit' => CLEAN_STRING,
+        'use_or' => CLEAN_INT, //CHECKME disabled?
+        CLEAN_REGEXP.'/passthru_.*/' => CLEAN_STRING
+        ]);
     }
 
     public function RegisterEvents()

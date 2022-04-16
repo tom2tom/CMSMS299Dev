@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-// since 2.99
+// since 3.0
 use CMSMS\ScriptsMerger;
 
 function smarty_function_get_jquery($params, $template)
@@ -28,7 +28,7 @@ function smarty_function_get_jquery($params, $template)
 	$migrate = cms_to_bool($params['migrate'] ?? false);
 	$ui = cms_to_bool($params['ui'] ?? true);
 	$uicss = cms_to_bool($params['uicss'] ?? $ui);
-	$append = trim($params['append'] ?? ''); // deprecated since 2.99
+	$append = trim($params['append'] ?? ''); // deprecated since 3.0
 
 	$incs = cms_installed_jquery($core, $migrate, $ui, $uicss);
 
@@ -46,7 +46,7 @@ EOS;
 	if ($core) { $jsm->queue_file($incs['jqcore'], 1); }
 	if ($migrate) { $jsm->queue_file($incs['jqmigrate'], 1); }
 	if ($ui) { $jsm->queue_file($incs['jqui'], 1); }
-	if ($append) { // deprecated since 2.99
+	if ($append) { // deprecated since 3.0
 		$extras = explode(',', $append);
 		foreach ($extras as $spath) {
 			$filename = basename($spath);

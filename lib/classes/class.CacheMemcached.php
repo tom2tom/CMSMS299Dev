@@ -31,7 +31,7 @@ use Memcached;
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  */
 class CacheMemcached extends CacheDriver
 {

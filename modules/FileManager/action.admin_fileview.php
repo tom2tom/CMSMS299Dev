@@ -236,8 +236,8 @@ a.filelink:visited {
 EOS;
     add_page_headtext($out, false);
 
-    $refresh_url = $this->create_action_url($id, 'admin_fileview', ['ajax'=>1, 'path'=>$path, CMS_JOB_KEY=>1]);
-    $viewfile_url = $this->create_action_url($id, 'admin_fileview', ['ajax'=>1]);
+    $refresh_url = $this->create_action_url($id, 'admin_fileview', ['ajax'=>1, 'path'=>$path, 'forjs'=>1, CMS_JOB_KEY=>1]);
+    $viewfile_url = $this->create_action_url($id, 'admin_fileview', ['ajax'=>1, 'forjs'=>1]);
     $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[

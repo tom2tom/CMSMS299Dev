@@ -1,7 +1,7 @@
 <?php
 /*
 Admin-group class for CMSMS
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -37,7 +37,7 @@ use function lang;
  * @property string $description The group description
  * @property bool $active Indicates active status of this group.
  * @since 0.9
- * @since 2.99 non-final status is deprecated
+ * @since 3.0 non-final status is deprecated
  * @package CMS
  * @license GPL
  */
@@ -190,7 +190,7 @@ use function lang;
 	 * @internal
 	 * @access private
 	 * @ignore
-	 * @param mixed $perm Permission name string, or (since 2.99) array of those, to test.
+	 * @param mixed $perm Permission name string, or (since 3.0) array of those, to test.
 	 * (Previous documentation referring to a numeric permission-id was incorrect)
 	 * @return bool whether the group has the specified permission.
 	 */

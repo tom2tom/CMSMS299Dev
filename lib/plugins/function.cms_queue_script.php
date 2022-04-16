@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use function CMSMS\get_scripts_manager;
 
-// since 2.99
+// since 3.0
 function smarty_function_cms_queue_script($params, $template)
 {
 	if( !isset($params['file']) ) { return ''; }

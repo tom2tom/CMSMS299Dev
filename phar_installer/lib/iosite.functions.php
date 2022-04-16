@@ -736,11 +736,11 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 		}
 	}
 
-	$frombase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates';
+	$frombase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'layouts';
 	if (is_dir($frombase)) {
 		//TODO ensure any such files are omitted from the sources tarball
 		if ($copyfiles) {
-			$tobase = $workerspath.DIRECTORY_SEPARATOR.'templates';
+			$tobase = $workerspath.DIRECTORY_SEPARATOR.'layouts';
 			if (is_dir($tobase)) {
 				//done before rrmdir($tobase, false);
 				$install_relative = file_relpath($workerspath, $tobase); //stored in intaller-top-sub-folder

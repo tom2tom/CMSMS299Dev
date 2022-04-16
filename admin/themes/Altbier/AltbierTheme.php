@@ -21,11 +21,11 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-namespace CMSMS; // TODO PHP5.4+ OK if pre-2.99?
+namespace CMSMS; // TODO PHP5.4+ OK if pre-3.0?
 
-//use CMSMS\RequestParameters; //2.99+
-//use Throwable; 2.99+
-//use function CMSMS\sanitizeVal; // 2.99+
+//use CMSMS\RequestParameters; //3.0+
+//use Throwable; //3.0+
+//use function CMSMS\sanitizeVal; //3.0+
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AppParams;
 use CMSMS\LangOperations;
@@ -75,12 +75,12 @@ class AltbierTheme extends AdminTheme
 	 */
 	private $_havetree = null;
 
-	// 2.99+ will access these via parent-class
+	// 3.0+ will access these via parent-class
 	protected $_errors = [];
 	protected $_messages = [];
 
 	/**
-	 * Determine whether this is running on CMSMS 2.99+
+	 * Determine whether this is running on CMSMS 3.0+
 	 */
 	protected function currentversion() : bool
 	{
@@ -95,7 +95,7 @@ class AltbierTheme extends AdminTheme
 	 * Hook accumulator-function to nominate runtime resources, which will be
 	 * included in the header of each displayed admin page
 	 *
-	 * @since 2.99
+	 * @since 3.0
 	 * @return 2-member array
 	 * [0] = array of data for js vars, members like varname=>varvalue
 	 * [1] = array of string(s) for includables
@@ -108,7 +108,7 @@ class AltbierTheme extends AdminTheme
 
 		$csm = new StylesMerger();
 		$csm->queue_matchedfile('normalize.css', 1);
-		$csm->queue_matchedfile('grid-960.css', 2); //for modules, deprecated since 2.99
+		$csm->queue_matchedfile('grid-960.css', 2); //for modules, deprecated since 3.0
 		$out = $csm->page_content('', false, true);
 
 		// jQUI css does, and theme-specific css files might, include relative URLs, so cannot be merged
@@ -155,7 +155,7 @@ EOS;
 	{
 		if ($this->currentversion()) {
 			parent::ShowHeader($title_name, $extra_lang_params, $link_text, $module_help_type);
-		} else { // pre 2.99
+		} else { // pre 3.0
 
 		if ($title_name) $this->set_value('pagetitle', $title_name);
 		if ($extra_lang_params) $this->set_value('extra_lang_params', $extra_lang_params);
@@ -213,12 +213,12 @@ EOS;
 			} // for-loop
 		}
 
-		} // pre-2.99
+		} // pre-3.0
 	}
 
 	/**
 	 * Get URL's for installed jquery, jquery-ui & related css
-	 * Only for pre-2.99 operation
+	 * Only for pre-3.0 operation
 	 * @return 3-member array
 	 */
 	protected function find_installed_jq()
@@ -277,7 +277,7 @@ EOS;
 		$gCms = cmsms();
 		$smarty = $gCms->GetSmarty();
 
-		$fp = cms_join_path(__DIR__, 'css', 'all.min.css');
+		$fp = cms_join_path(__DIR__, 'styles', 'all.min.css');
 		if (is_file($fp)) {
 			$url = cms_path_to_url($fp);
 			$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
@@ -384,14 +384,14 @@ EOS;
 			list($jqcss, $jqui, $jqcore) = $this->find_installed_jq();
 			$out = <<<EOS
 <link rel="stylesheet" type="text/css" href="$jqcss" />
-<link rel="stylesheet" type="text/css" href="themes/Altbier/css/style{$dir}.css" />
+<link rel="stylesheet" type="text/css" href="themes/Altbier/styles/style{$dir}.css" />
 <link rel="stylesheet" type="text/css" href="loginstyle.php" />
 <script type="text/javascript" src="$jqcore"></script>
 <script type="text/javascript" src="$jqui"></script>
 <script type="text/javascript" src="themes/Altbier/includes/login.min.js"></script>
 
 EOS;
-		} // pre 2.99
+		} // pre 3.0
 
 		// site logo?
 		$sitelogo = AppParams::get('site_logo');
@@ -403,7 +403,7 @@ EOS;
 		}
 
 		$smarty->assign('header_includes', $out)
-		  ->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates')
+		  ->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'layouts', -1)
 		  ->display('login.tpl');
 	}
 
@@ -443,7 +443,7 @@ EOS;
 			$smarty->assign('is_sitedown', 1);
 		}
 
-		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
+		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'layouts', -1);
 		return $smarty->fetch('topcontent.tpl');
 	}
 
@@ -550,7 +550,6 @@ EOS;
 			}
 			$smarty->assign('sitelogo', $sitelogo);
 		}
-$X = $CRASH;
 		//custom support-URL?
 		$url = AppParams::get('site_help_url');
 		if ($url) {
@@ -586,15 +585,15 @@ $X = $CRASH;
 		$info = NlsOperations::get_language_info($lang);
 		$lang_dir = $info->direction();
 		if ($lang_dir == 'rtl') {
-			if (!is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.'style-rtl.css')) { // TODO or .min
+			if (!is_file(__DIR__.DIRECTORY_SEPARATOR.'styles'.DIRECTORY_SEPARATOR.'style-rtl.css')) { // TODO or .min
 				$lang_dir = 'ltr';
 			}
 		}
 		$smarty->assign('lang_dir', $lang_dir);
 
-		$fp = cms_join_path(__DIR__, 'css', 'all.min.css');
+		$fp = cms_join_path(__DIR__, 'styles', 'all.min.css');
 		if (is_file($fp)) {
-			$url = cms_path_to_url($fp); // TODO 2.99+
+			$url = cms_path_to_url($fp); // TODO 3.0+
 			$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
 		} else {
 			// TODO variable(s) for CDN URL and SRI hash
@@ -612,7 +611,7 @@ $X = $CRASH;
 			$smarty->assign('header_includes', <<<EOS
 <link rel="stylesheet" type="text/css" href="$jqcss" />
 <link rel="stylesheet" type="text/css" href="style.php?{$secureparam}" />
-<link rel="stylesheet" type="text/css" href="themes/Altbier/css/style{$dir}.css" />
+<link rel="stylesheet" type="text/css" href="themes/Altbier/styles/style{$dir}.css" />
 <script type="text/javascript" src="$jqcore"></script>
 <script type="text/javascript" src="$jqui"></script>
 //TODO jquery ancillaries
@@ -631,11 +630,11 @@ EOS
 			$smarty->assign('is_sitedown', 1);
 		}
 
-		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR .'templates');
+		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR .'layouts', -1);
 		return $smarty->fetch('pagetemplate.tpl');
 	}
 
-	// for pre-2.99 compatibility
+	// for pre-3.0 compatibility
 
 	public function ShowErrors($errors, $get_var = '')
 	{
@@ -647,7 +646,7 @@ EOS
 		if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
 			if (is_array($_GET[$get_var])) {
 				foreach ($_GET[$get_var] as $one) {
-					$this->_errors[] = lang(cleanValue($one)); // pre-2.99
+					$this->_errors[] = lang(cleanValue($one)); // pre-3.0
 				}
 			} else {
 				$this->_errors[] = lang(cleanValue($_GET[$get_var]));
@@ -661,7 +660,7 @@ EOS
 		}
 		return '<!-- Altbier::ShowErrors() called -->';
 
-//		} //pre 2.99
+//		} //pre 3.0
 	}
 
 	public function ShowMessage($message, $get_var = '')
@@ -687,7 +686,7 @@ EOS
 			$this->_messages[] = $message;
 		}
 
-//		} // pre 2.99
+//		} // pre 3.0
 	}
 
 	public function do_toppage($section_name)

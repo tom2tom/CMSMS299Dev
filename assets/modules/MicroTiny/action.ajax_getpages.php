@@ -1,7 +1,7 @@
 <?php
 /*
 MicroTiny module action: get pages via ajax
-Copyright (C) 2009-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2009-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

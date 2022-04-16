@@ -1,7 +1,7 @@
 <?php
 /*
 The interface for interacting with deprecated pseudocron tasks
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -26,7 +26,7 @@ namespace CMSMS;
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  * @since 1.8 as CmsRegularTask
  * @deprecated since 2.2 See CMSMS\Async\RegularTask and CMSMS\Async\Job
  */

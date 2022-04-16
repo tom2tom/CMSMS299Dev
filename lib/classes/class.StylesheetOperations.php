@@ -49,7 +49,7 @@ use function get_userid;
  * stylesheet retrieval, except when a WYSIWWYG is used in an admin page,
  * in which case get_bulk_stylesheets() is called.
  *
- * @since 2.99
+ * @since 3.0
  * @package CMS
  * @license GPL
  */
@@ -485,8 +485,8 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 					if (!isset($config)) {
 						$config = SingleItem::Config();
 					}
-					$from = cms_join_path($config['assets_path'], 'styles', $row['content']);
-					$to = cms_join_path($config['assets_path'], 'styles', $fn);
+					$from = cms_join_path(CMS_ASSETS_PATH, 'styles', $row['content']);
+					$to = cms_join_path(CMS_ASSETS_PATH, 'styles', $fn);
 					if (copy($from, $to)) {
 						$db->execute('UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?', [$fn, $id]);
 					} else {
@@ -754,7 +754,7 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 					//replicate object::set_content_file()
 					$fn = sanitizeVal($row['name'], CMSSAN_FILE).'.'.$row['id'].'.css';
 					//replicate object::get_content_filename()
-					$outfile = cms_join_path($config['assets_path'], 'styles', $fn);
+					$outfile = cms_join_path(CMS_ASSETS_PATH, 'styles', $fn);
 					$res = file_put_contents($outfile, $row['content'], LOCK_EX);
 					if ($res !== false) {
 						$db->execute($sql, [$fn, $row['id']]);
@@ -788,7 +788,7 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 					//replicate object::set_content_file()
 					$fn = sanitizeVal($row['name'], CMSSAN_FILE).'.'.$row['id'].'.css';
 					//replicate object::get_content_filename()
-					$outfile = cms_join_path($config['assets_path'], 'styles', $fn);
+					$outfile = cms_join_path(CMS_ASSETS_PATH, 'styles', $fn);
 					$content = file_get_contents($outfile);
 					if ($content !== false) {
 						$db->execute($sql, [$content, $row['id']]);

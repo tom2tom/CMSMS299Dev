@@ -1,7 +1,7 @@
 <?php
 /*
 System utilities class.
-Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -40,7 +40,7 @@ use Throwable;
  * @author  Robert Campbell
  *
  * @final
- * @since 2.99
+ * @since 3.0
  * @since 1.9 as global-namespace cms_utils
  */
 final class Utils
@@ -229,7 +229,7 @@ final class Utils
 
 	/**
 	 * Return the first-detected email-sender module (if any)
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return mixed CMSModule | null
 	 */
@@ -245,7 +245,7 @@ final class Utils
 	 * Send email message(s) using the selected system email-sender,
 	 *  if any, or else by PHP mail()
 	 * @see https://www.php.net/manual/en/function.mail
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $to one or more (in which case comma-separated)
 	 *  destination(s), each like emailaddress or Name <emailaddress>
@@ -301,7 +301,7 @@ final class Utils
 	 * @see also AdminTheme::get_instance()
 	 * @since 1.11
 	 *
-	 * @param mixed $name Since 2.99 Optional theme name. Default ''
+	 * @param mixed $name Since 3.0 Optional theme name. Default ''
 	 * @return mixed AdminTheme-derived object | null
 	 *  Always null if not called from an admin script/module-action
 	 */
@@ -538,7 +538,7 @@ final class Utils
 
 	/**
 	 * Return a formatted date/time representation
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $datevar timestamp | DateTime object | datetime string parsable by strtotime()
 	 * @param string $format strftime()- and/or date()-compatible format definition

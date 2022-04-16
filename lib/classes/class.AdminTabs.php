@@ -92,7 +92,7 @@ final class AdminTabs
 
     /**
      * Revert class properties ready for a fresh sequence
-     * @since 2.99
+     * @since 3.0
      *
      * @param string $tab The param key
      */
@@ -120,7 +120,7 @@ final class AdminTabs
     /**
      * Begin output of tab headers
      *
-     * @param bool   $autoflow Since 2.99 Whether to process 'glue' element(s) to determine the returned value. Default true.
+     * @param bool   $autoflow Since 3.0 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
     public static function start_tab_headers($autoflow = true)
@@ -138,7 +138,7 @@ final class AdminTabs
      * @param string $title The title to display in the tab
      * @param bool   $active Whether the tab is active or not.  Default false.
      *  If the current active tag matches the $tabid then the tab will be marked as active.
-     * @param bool   $autoflow Since 2.99 Whether to process 'glue' element(s) to determine the returned value. Default true.
+     * @param bool   $autoflow Since 3.0 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
     public static function set_tab_header($tabid, $title, $active = false, $autoflow = true)
@@ -172,7 +172,7 @@ final class AdminTabs
     /**
      * Finish outputting tab headers
      *
-     * @param bool   $autoflow Since 2.99 Whether to process 'glue' element(s) to determine the returned value. Default true.
+     * @param bool   $autoflow Since 3.0 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
     public static function end_tab_headers($autoflow = true)
@@ -186,7 +186,7 @@ final class AdminTabs
     /**
      * Start the content portion of the tabbed layout
      *
-     * @param bool   $autoflow Since 2.99 Whether to process 'glue' element(s) to determine the returned value. Default true.
+     * @param bool   $autoflow Since 3.0 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
     public static function start_tab_content($autoflow = true)
@@ -226,7 +226,7 @@ final class AdminTabs
      * Start the content portion of a specific tab
      *
      * @param string $tabid The tab key
-     * @param bool   $autoflow Since 2.99 Whether to process 'glue' element(s) to determine the returned value. Default true.
+     * @param bool   $autoflow Since 3.0 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
     public static function start_tab($tabid, $autoflow = true)
@@ -248,7 +248,7 @@ final class AdminTabs
     /**
      * End the content portion of a single tab
      *
-     * @param bool   $autoflow Since 2.99 Whether to process 'glue' element(s) to determine the returned value. Default true.
+     * @param bool   $autoflow Since 3.0 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
     public static function end_tab($autoflow = true)

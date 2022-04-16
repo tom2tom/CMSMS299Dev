@@ -1,7 +1,7 @@
 <?php
 /*
 Class of methods for processing the pages-tree, and content objects generally
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -84,7 +84,7 @@ final class ContentOperations
 	 * Get the singleton instance of this class.
 	 * This method is called over a hundred times during a typical request,
 	 * so warrants being a singleton.
-	 * @deprecated since 2.99 instead use CMSMS\SingleItem::ContentOperations()
+	 * @deprecated since 3.0 instead use CMSMS\SingleItem::ContentOperations()
 	 * @return ContentOperations
 	 */
 	public static function get_instance() : self
@@ -97,7 +97,7 @@ final class ContentOperations
 	 * Register a new content type
 	 *
 	 * @since 1.9
-	 * @deprecated since 2.99 instead use ContentTypeOperations::AddContentType()
+	 * @deprecated since 3.0 instead use ContentTypeOperations::AddContentType()
 	 * @param ContentTypePlaceHolder Reference to placeholder object
 	 * @return bool
 	 */
@@ -111,7 +111,7 @@ final class ContentOperations
 	 * Load a specific content type
 	 *
 	 * @since 1.9
-	 * @deprecated since 2.99 instead use ContentTypeOperations::LoadContentType()
+	 * @deprecated since 3.0 instead use ContentTypeOperations::LoadContentType()
 	 * @param mixed $type string type name or ContentType object
 	 * @return mixed ContentType object | null
 	 */
@@ -125,7 +125,7 @@ final class ContentOperations
 	 * Return a hash of known content types.
 	 * Values are respective 'public' names (from the class FriendlyName() method)
 	 * if any, otherwise the raw type-name.
-	 * @deprecated since 2.99 instead use ContentTypeOperations::ListContentTypes()
+	 * @deprecated since 3.0 instead use ContentTypeOperations::ListContentTypes()
 	 *
 	 * @param bool $byclassname optionally return keys as class names instead of type names. Default false.
 	 * @param bool $allowed optionally filter the list of content types by the
@@ -145,7 +145,7 @@ final class ContentOperations
 	 * Return all recorded user id's and group id's in a format suitable
 	 * for use in a select field.
 	 *
-	 * @since 2.99 Migrated from ContentBase::GetAdditionalEditorOptions()
+	 * @since 3.0 Migrated from ContentBase::GetAdditionalEditorOptions()
 	 * @return array each member like id => name
 	 * Note: group id's are expressed as negative integers in the keys.
 	 */
@@ -210,8 +210,8 @@ final class ContentOperations
 	 * a new object of the designated type will be instantiated.
 	 *
 	 * @param mixed $type string type name or an instance of ContentType
-	 * @param array since 2.99 initial object properties (replaces subsequent LoadFromData())
-	 * @param bool since 2.99 optional flag whether to create a IContentEditor-compatible class
+	 * @param array since 3.0 initial object properties (replaces subsequent LoadFromData())
+	 * @param bool since 3.0 optional flag whether to create a IContentEditor-compatible class
 	 * object. Default false (hence a shortform object)
 	 * @return mixed An object derived from ContentBase | null
 	 */
@@ -240,7 +240,7 @@ final class ContentOperations
 	/**
 	 * Load and return an editable content object representing the
 	 * specified content id.
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $id int | null The id of the content object to load. If < 1, the default id will be used. TODO OR create empty object of some type
 	 * @param bool $loadprops Optional flag whether to load the properties of that content object. Default false.
@@ -305,7 +305,7 @@ EOS;
 //					unset($row['metadata']);
 					$classname = $ctype->class;
 					$contentobj = new $classname($row);
-					 // legacy support deprecated since 2.99
+					 // legacy support deprecated since 3.0
 					if( method_exists( $contentobj, 'LoadFromData') ) {
 						$contentobj->LoadFromData($row);
 					}
@@ -374,7 +374,7 @@ EOS;
 
 		while( $current_parent_id > 0 ) {
 			$item_order = max($row['item_order'], 1);
-			$hier = str_pad($item_order, 3, '0', STR_PAD_LEFT) . '.' . $hier; //max usable order 999 (tho in practice > 9 is a sucky design) since 2.99, was 99999
+			$hier = str_pad($item_order, 3, '0', STR_PAD_LEFT) . '.' . $hier; //max usable order 999 (tho in practice > 9 is a sucky design) since 3.0, was 99999
 			$idhier = $current_parent_id . '.' . $idhier;
 			$pathhier = $row['alias'] . '/' . $pathhier;
 			$current_parent_id = $row['parent_id'];
@@ -773,7 +773,7 @@ EOS;
 	/**
 	 * Create a hierarchical ordered ajax-populated dropdown of some or all the pages in the system.
 	 *
-	 * @deprecated since 2.99 instead use CMSMS\AdminUtils::CreateHierarchyDropdown()
+	 * @deprecated since 3.0 instead use CMSMS\AdminUtils::CreateHierarchyDropdown()
 	 * @return string
 	 */
 	public function CreateHierarchyDropdown(
@@ -921,7 +921,7 @@ EOS;
 		$n = count($levels);
 		$m = $n - 1;
 		for( $i = 0; $i < $n; ++$i ) {
-			$tmp .= str_pad($levels[$i], 3, '0', STR_PAD_LEFT); //max usable order 999 (tho in practice > 9 is a sucky design) since 2.99, was 99999
+			$tmp .= str_pad($levels[$i], 3, '0', STR_PAD_LEFT); //max usable order 999 (tho in practice > 9 is a sucky design) since 3.0, was 99999
 			if( $i < $m ) { $tmp .= '.'; }
 		}
 		return $tmp;

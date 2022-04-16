@@ -1,7 +1,7 @@
 <?php
 /*
 Reorder categories action for CMSMS News module.
-Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -81,7 +81,7 @@ function parseTree(ul) {
   var tags = [];
   ul.children('li').each(function() {
     var subtree = $(this).children('ul');
-    if(subtree.size() > 0) {
+    if(subtree.length > 0) {
       tags.push([this.id, parseTree(subtree)]);
     } else {
       tags.push(this.id);

@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to retrieve site metadata property
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -44,7 +44,7 @@ function smarty_function_metadata($params, $template)
 		$showbase = cms_to_bool($params['showbase']);
 	}
 
-	HookOperations::do_hook('metadata_prerender', ['content_id'=>$cid, 'showbase'=>&$showbase, 'html'=>&$result]); //deprecated since 2.99 TODO BAD no namespace, only valid for 1st handler ...
+	HookOperations::do_hook('metadata_prerender', ['content_id'=>$cid, 'showbase'=>&$showbase, 'html'=>&$result]); //deprecated since 3.0 TODO BAD no namespace, only valid for 1st handler ...
 	Events::SendEvent('Core','MetadataPrerender', ['content_id'=>$cid, 'showbase'=>&$showbase, 'html'=>&$result]);
 
 	if( $showbase ) {
@@ -62,7 +62,7 @@ function smarty_function_metadata($params, $template)
 		$result = $template->fetch('string:'.$result);
 	}
 
-	HookOperations::do_hook('metadata_postrender', ['content_id'=>$cid,'html'=>&$result]); //deprecated since 2.99 TODO BAD no namespace, only valid for 1st handler ...
+	HookOperations::do_hook('metadata_postrender', ['content_id'=>$cid,'html'=>&$result]); //deprecated since 3.0 TODO BAD no namespace, only valid for 1st handler ...
 	Events::SendEvent('Core','MetadataPostrender', ['content_id'=>$cid,'html'=>&$result]);
 
 	if( !empty($params['assign']) ) {

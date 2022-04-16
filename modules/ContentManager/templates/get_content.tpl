@@ -4,6 +4,7 @@
   {if !$flag}{continue}{/if}
   <td class="{$column}">
     {if $column == 'expand'}
+      {if empty($pattern)}
       {if $row.expand == 'open'}{$t=_ld($_module,'prompt_page_collapse')}
        <a href="{cms_action_url action='defaultadmin' collapse=$row.id}" class="page_collapse" accesskey="C" title="{$t}">
         {admin_icon icon='contract.gif' class='systemicon hier_contract' title=$t}
@@ -12,6 +13,7 @@
        <a href="{cms_action_url action='defaultadmin' expand=$row.id}" class="page_expand" accesskey="c" title="{$t}">
         {admin_icon icon='expand.gif' class='systemicon hier_expand' title=$t}
        </a>
+      {/if}
       {/if}
     {elseif $column == 'icon1'}
       {if isset($row.lock)} {admin_icon icon='warning.gif' class='systemicon' title=_ld($_module,'title_locked')} {/if}
@@ -205,21 +207,28 @@
     {if !empty($have_filter)}<span style="color: red;"><em>({_ld($_module,'filter_applied')})</em></span>{/if}
   </div>{*boxchild*}
 
+  {if isset($content_list)}
   <div class="pageoptions options-form boxchild">
-    {if isset($content_list)}
-    <span><label for="ajax_find">{_ld($_module,'find')}:</label>&nbsp;
-    <input type="text" id="ajax_find" name="ajax_find" title="{_ld($_module,'title_listcontent_find')}" value="" size="25" /></span>
+    <span>
+    {if $dir == 'rtl'}
+    {admin_icon icon='icons/extra/search' alt="{_ld('layout','search')}" addtext='style=position:relative;left:1.8em'}
     {/if}
-    {if isset($content_list) && $npages > 1}
-      {form_start action='defaultadmin'}
-       <span>{_ld($_module,'page')}:&nbsp;
+    <input type="text" id="ajax_find" title="{_ld($_module,'title_listcontent_find')}" size="10" maxlength="15" value="{$pattern}" placeholder="{_ld('layout','search')}" />
+    {if $dir != 'rtl'}
+    {admin_icon icon='icons/extra/search' alt="{_ld('layout','search')}" addtext='style=position:relative;left:-1.8em'}
+    {/if}
+    </span>
+    {if $npages > 1}
+    &nbsp;&nbsp;{form_start action='defaultadmin'}
+      <span>{_ld($_module,'page')}:&nbsp;
         <select name="{$actionid}curpage" id="{$actionid}curpage">
          {html_options options=$pagelist selected=$curpage}    </select>
         <button type="submit" name="{$actionid}submitpage" class="invisible adminsubmit icon check">{_ld($_module,'go')}</button>
-       </span>
-      </form>
+      </span>
+    </form>
     {/if}
   </div>{*boxchild*}
+  {/if}
 </div>{*rowbox*}
 
 {form_start action='multicontent' id='listform'}

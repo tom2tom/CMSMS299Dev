@@ -1,6 +1,6 @@
 <?php
 
-// access to CMSMS 2.99+ API is needed
+// access to CMSMS 3.0+ API is needed
 use CMSMS\Template;
 
 status_msg('Upgrading schema for CMSMS 2.1');

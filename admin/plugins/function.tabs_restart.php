@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to revert tabs-class data back to vanilla
-Copyright (C) 2020-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2020-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-// since 2.99
+// since 3.0
 
 function smarty_function_tabs_restart($params, $template)
 {

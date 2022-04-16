@@ -19,7 +19,7 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-namespace CMSMS; //2.99+
+namespace CMSMS; //3.0+
 
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
@@ -59,7 +59,7 @@ class LTETheme extends AdminTheme
 
         $csm = new StylesMerger();
         $csm->queue_matchedfile('normalize.css', 1);
-        $csm->queue_matchedfile('grid-960.css', 2); //for modules, deprecated since 2.99
+        $csm->queue_matchedfile('grid-960.css', 2); //for modules, deprecated since 3.0
         $out = $csm->page_content('', false, true);
 
         // jQUI css does, and theme-specific css files might, include relative URLs, so cannot be merged
@@ -132,7 +132,7 @@ EOS;
         }
         $fn = 'style';
         if (NlsOperations::get_language_direction() == 'rtl') {
-            if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
+            if (is_file(__DIR__.DIRECTORY_SEPARATOR.'styles'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
                 $fn .= '-rtl';
             }
         }
@@ -142,7 +142,7 @@ EOS;
         $dir = ''; //TODO or '-rtl'
         $out = <<<EOS
 <link rel="stylesheet" type="text/css" href="$url" />
-<link rel="stylesheet" type="text/css" href="themes/LTE/css/{$fn}.css" />
+<link rel="stylesheet" type="text/css" href="themes/LTE/styles/{$fn}.css" />
 
 EOS;
 //        get_csp_token(); //setup CSP header (result not used)
@@ -162,7 +162,7 @@ EOS;
 			$smarty->assign('sitelogo', $sitelogo);
 		}
 
-        $smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates')
+        $smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'layouts', -1)
           ->display('login.tpl');
     }
 
@@ -211,7 +211,7 @@ EOS;
             $smarty->assign('is_sitedown', 'true');
         }
 
-        $smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
+        $smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'layouts', -1);
         return $smarty->fetch('topcontent.tpl');
     }
 
@@ -413,7 +413,7 @@ EOS;
         if (AppParams::get('enablesitedownmessage') == '1') {
             $smarty->assign('is_sitedown', 'true');
         }
-        $smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
+        $smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'layouts', -1);
         return $smarty->fetch('pagetemplate.tpl');
     }
 } // end of class

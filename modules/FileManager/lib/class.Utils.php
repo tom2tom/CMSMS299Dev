@@ -198,7 +198,8 @@ final class Utils
      */
     public static function get_file_list($path = '')
     {
-        return PickerUtils::get_file_list(null, $path);
+        $pickmod = AppUtils::get_module('FilePicker');
+        return PickerUtils::get_file_list($pickmod, null, $path);
     }
 
     /**

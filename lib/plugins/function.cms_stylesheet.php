@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to minimize and merge contents of stylesheets for frontend pages
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -177,10 +177,10 @@ function smarty_function_cms_stylesheet($params, $template)
 		if( !empty($params['name']) ) {
 			$name = trim($params['name']); //sheet-name prefix
 		}
-		elseif( !empty($params['styles']) ) { //since 2.99
+		elseif( !empty($params['styles']) ) { //since 3.0
 			$styles = trim($params['styles']);
 		}
-/*		elseif( !empty($params['designid']) ) { //deprecated since 2.99
+/*		elseif( !empty($params['designid']) ) { //deprecated since 3.0
 			$design_id = (int)$params['designid'];
 		}
 */

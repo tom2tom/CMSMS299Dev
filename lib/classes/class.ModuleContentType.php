@@ -1,7 +1,7 @@
 <?php
 /*
 Abstract class providing a framework for additonal content types
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -29,9 +29,9 @@ use CMSMS\Utils;
  * Class providing a framework for displaying non-core page-content-types.
  * Module-defined content types may extend this class.
  *
- * @since 2.99
+ * @since 3.0
  * @since 0.9 as global-namespace CMSModuleContentType
- * @deprecated since 2.99 This does not provide anything useful.
+ * @deprecated since 3.0 This does not provide anything useful.
  * Instead, the content-type class (implementing IContentEditor), and if appropriate
  * a separate display-only variant, should just be registered permanently or during
  * each request via the CMSModule API.

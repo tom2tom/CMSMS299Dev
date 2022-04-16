@@ -1,7 +1,7 @@
 <?php
 /*
 CMSMS News module add-category action.
-Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -46,7 +46,7 @@ if( isset($params['name']) ) {
     //if( $parent == 0 ) $parent = -1;
     $tmp = de_specialize(trim($params['name']));
     // valid URL chars allowed (tho' some must be encoded in URL's)
-    $name = preg_replace('<[^A-Za-z0-9\-._~:/?#[]@!$&\'()*+,;=%\x00-\xff]>', '', $tmp); //2.99+
+    $name = preg_replace('<[^A-Za-z0-9\-._~:/?#[]@!$&\'()*+,;=%\x00-\xff]>', '', $tmp); //3.0+
     if( $name ) { // TODO if (!$error)
         //small race-risk here
         $query = 'SELECT news_category_id FROM '.CMS_DB_PREFIX.'module_news_categories WHERE parent_id = ? AND news_category_name = ?';

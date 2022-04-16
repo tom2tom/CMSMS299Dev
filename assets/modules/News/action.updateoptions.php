@@ -1,7 +1,7 @@
 <?php
 /*
 Record module settings action for CMSMS News module
-Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -30,14 +30,14 @@ if( isset($params['cancel']) ) {
 //$this->SetPreference('allowed_upload_types',$params['allowed_upload_types']);
 //$this->SetPreference('formsubmit_emailaddress',$params['formsubmit_emailaddress']);
 
-$this->SetPreference('alert_drafts',!empty($params['alert_drafts']));
-$this->SetPreference('allow_summary_wysiwyg',!empty($params['allow_summary_wysiwyg']));
+$this->SetPreference('alert_drafts',isset($params['alert_drafts']) && cms_to_bool($params['alert_drafts']));
+$this->SetPreference('allow_summary_wysiwyg',isset($params['allow_summary_wysiwyg']) && cms_to_bool($params['allow_summary_wysiwyg']));
 
 $t = (int)$params['article_pagelimit'];
 $t = max(5,min(50,$t));
 $this->SetPreference('article_pagelimit',$t);
 
-$this->SetPreference('clear_category',!empty($params['clear_category']));
+$this->SetPreference('clear_category',isset($params['clear_category']) && cms_to_bool($params['clear_category']));
 // TODO sanitizeVal() where relevant
 $this->SetPreference('date_format',trim($params['date_format']));
 $this->SetPreference('default_category',(int)$params['default_category']);
@@ -58,8 +58,8 @@ $t = (int)$params['expiry_interval'];
 $t = max(1,min(365,$t));
 $this->SetPreference('expiry_interval',$t);
 
-$this->SetPreference('expired_searchable',!empty($params['expired_searchable']));
-$this->SetPreference('expired_viewable',!empty($params['expired_viewable']));
+$this->SetPreference('expired_searchable',isset($params['expired_searchable']) && cms_to_bool($params['expired_searchable']));
+$this->SetPreference('expired_viewable',isset($params['expired_viewable']) && cms_to_bool($params['expired_viewable']));
 
 $this->SetPreference('timeblock',(int)$params['timeblock']);
 

@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManager module action: edit page content
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -337,7 +337,7 @@ try {
 
         foreach( $props as &$one ) {
             if( $one['name'] == 'design_id' ) {
-                continue; // deprecated property since 2.99, ignored
+                continue; // deprecated property since 3.0, ignored
             }
             if( !isset($one['tab']) || $one['tab'] === '' ) {
                 $one['tab'] = $maintab;
@@ -375,7 +375,7 @@ else {
 }
 /*
 if( $this->GetPreference('template_list_mode','allpage') != 'all')  {
-    $designchanged_ajax_url = $this->create_action_url($id,'ajax_gettemplates',[CMS_JOB_KEY=>1]);
+    $designchanged_ajax_url = $this->create_action_url($id,'ajax_gettemplates',['forjs'=>1,CMS_JOB_KEY=>1]);
 }
 else {
     $designchanged_ajax_url = '';

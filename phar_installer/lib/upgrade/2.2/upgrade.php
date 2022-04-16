@@ -1,6 +1,6 @@
 <?php
 
-// access to CMSMS 2.99+ API is needed
+// access to CMSMS 3.0+ API is needed
 use CMSMS\TemplateType;
 use function cms_installer\get_app;
 use function cms_installer\get_server_permissions;

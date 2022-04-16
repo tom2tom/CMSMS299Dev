@@ -482,7 +482,7 @@ function copy_local_files()
     }
 /*    $fp2 = joinpath($sourcedir, 'assets', '');
     // no change to {...[assets]/templates/*, ...[assets]/styles/*}, those files will be recorded in the relevant table
-    foreach ([/*'templates','styles',*  REMOVE THIS GAP IF UN-COMMENTED  /'user_plugins'] as $name) {
+    foreach ([/*'layouts','styles',*  REMOVE THIS GAP IF UN-COMMENTED  /'user_plugins'] as $name) {
         @rrmdir($fp2.$name, false, true);
     }
 */

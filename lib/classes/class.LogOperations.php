@@ -32,7 +32,7 @@ use const CMS_DEPREC;
  * Supports using a custom recorder in place of the default.
  *
  * @final
- * @since 2.99
+ * @since 3.0
  * @package CMS
  * @license GPL
  */

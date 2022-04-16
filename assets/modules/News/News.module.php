@@ -1,7 +1,7 @@
 <?php
 /*
 News module for CMSMS
-Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This module is free software; you can redistribute it and/or modify
@@ -40,7 +40,7 @@ class News extends CMSModule
     const HALFDAYBLOCK = 2;
     const DAYBLOCK = 3;
 
-/* for CMSMS < 2.99
+/* for CMSMS < 3.0
     public function __construct()
     {
         parent::__construct();
@@ -68,11 +68,11 @@ class News extends CMSModule
     public function IsPluginModule() { return true; } //deprecated in favour of capability
 //  public function LazyLoadAdmin() { return true; }
 //  public function LazyLoadFrontend() { return true; }
-    public function MinimumCMSVersion() { return '2.99'; }
+    public function MinimumCMSVersion() { return '2.999'; }
 
     public function InitializeFrontend()
     {
-/*      $this->RestrictUnknownParams(); does nothing in 2.99+
+/*      $this->RestrictUnknownParams(); does nothing in 3.0+
         $this->SetParameterType('articleid', CLEAN_INT);
         $this->SetParameterType('assign', CLEAN_STRING);
         $this->SetParameterType('browsecat', CLEAN_INT);
@@ -92,7 +92,7 @@ class News extends CMSModule
         $this->SetParameterType('preview', CLEAN_STRING);
         $this->SetParameterType('showall', CLEAN_INT);
         $this->SetParameterType('showarchive', CLEAN_INT);
-        $this->SetParameterType('sortasc', CLEAN_STRING); // or int or boolean ?
+        $this->SetParameterType('sortasc', CLEAN_STRING); // or _INT or _BOOL?
         $this->SetParameterType('sortby', CLEAN_STRING);
         $this->SetParameterType('start', CLEAN_INT);
         $this->SetParameterType('summarytemplate', CLEAN_STRING);
@@ -128,28 +128,30 @@ class News extends CMSModule
 'origid'
 'preview'
 */
-        $this->SetParameterType('articleid', CLEAN_INT);
-        $this->SetParameterType('browsecat', CLEAN_INT); //??
-        $this->SetParameterType('browsecattemplate', CLEAN_STRING); //general template name or News template like 'somefilename.tpl'
-        $this->SetParameterType('category_id', CLEAN_INT);
-        $this->SetParameterType('category', CLEAN_STRING); //comma-separated name(s)
-        $this->SetParameterType('detailpage', CLEAN_STRING); //page id or alias
-        $this->SetParameterType('detailtemplate', CLEAN_STRING); //name
-        $this->SetParameterType('idlist', CLEAN_STRING); //??
-        $this->SetParameterType('lang', CLEAN_STRING); //TODO explain
-        $this->SetParameterType('moretext', CLEAN_STRING); //label, TODO ever submitted?
-        $this->SetParameterType('number', CLEAN_INT); //alias for pagenumber ??
-        $this->SetParameterType('origid', CLEAN_INT);
-        $this->SetParameterType('pagelimit', CLEAN_INT);
-        $this->SetParameterType('pagenumber', CLEAN_INT);
-        $this->SetParameterType('preview', CLEAN_STRING); //hashed preview data
-//      $this->SetParameterType('returnid', CLEAN_INT);
-        $this->SetParameterType('showall', CLEAN_INT); //??
-        $this->SetParameterType('showarchive', CLEAN_INT);
-        $this->SetParameterType('sortasc', CLEAN_STRING); // ''true'|'false'
-        $this->SetParameterType('sortby', CLEAN_STRING); //TODO needed?
-        $this->SetParameterType('start', CLEAN_INT); //offset of 1st displayed item
-        $this->SetParameterType('summarytemplate', CLEAN_STRING); //name
+        $this->SetParameterType([
+        'articleid' => CLEAN_INT,
+        'browsecat' => CLEAN_INT, //redirection flag OR _BOOL
+        'browsecattemplate' => CLEAN_STRING, //general template name or News template like 'somefilename.tpl'
+        'category_id' => CLEAN_INT,
+        'category' => CLEAN_STRING, //comma-separated name(s)
+        'detailpage' => CLEAN_STRING, //page id or alias
+        'detailtemplate' => CLEAN_STRING, //name
+        'idlist' => CLEAN_STRING, //??
+        'lang' => CLEAN_STRING, //TODO explain
+        'moretext' => CLEAN_STRING, //label, TODO ever submitted? just for admin ?
+        'number' => CLEAN_INT, //alias for pagenumber ??
+        'origid' => CLEAN_INT,
+        'pagelimit' => CLEAN_INT,
+        'pagenumber' => CLEAN_INT,
+        'preview' => CLEAN_STRING, //hashed preview data
+//      'returnid' => CLEAN_INT, generic (all actions)
+        'showall' => CLEAN_INT, //??
+        'showarchive' => CLEAN_INT,
+        'sortasc' => CLEAN_STRING, // 'true'|'false'
+        'sortby' => CLEAN_STRING, //TODO needed?
+        'start' => CLEAN_INT, //offset of 1st displayed item
+        'summarytemplate' => CLEAN_STRING, //name
+        ]);
     }
 
     public function InitializeAdmin()
@@ -168,7 +170,6 @@ class News extends CMSModule
 //      $this->CreateParameter('lang', ... CLEAN_STRING); //TODO explain
         $this->CreateParameter('moretext', $this->Lang('moreprompt'), $this->Lang('helpmoretext'));
         $this->CreateParameter('number', 100000, $this->Lang('helpnumber'));
-//      $this->SetParameterType('origid', ...CLEAN_INT);
         $this->CreateParameter('pagelimit', 1000, $this->Lang('help_pagelimit'));
 //      $this->CreateParameter('pagenumber', ...CLEAN_INT);
 //      $this->CreateParameter('preview', ....CLEAN_STRING); //hashed preview data

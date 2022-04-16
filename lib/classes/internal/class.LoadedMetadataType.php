@@ -22,7 +22,7 @@ namespace CMSMS\internal;
 
 /**
  * Class for engaging with a LoadedMetadata values-set
- * @since 2.99
+ * @since 3.0
  * @see also LoadedDataType class
  */
 class LoadedMetadataType
@@ -56,7 +56,7 @@ class LoadedMetadataType
 
     /**
      * Get recorded fetch-parameters
-     * @since 2.99
+     * @since 3.0
      * Get recorded fetch-parameters, if any
      * @return array like ['capable_modules => ['ability' => [args1, args2, ...]]]
      * i.e. suitable for recursive merging

@@ -1,7 +1,7 @@
 <?php
 /*
 Class to process user-plugins (a.k.a. user-defined-tags)
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Culp and all other contributors from the CMSMS Development Team.
 
 This file is part of CMS Made Simple <http://cmsmadesimple.org>
@@ -104,7 +104,7 @@ final class UserTagOperations
 	private function __clone() {}
 
 	/**
-	 * Support for pre-2.99 method-names, and simplified explicit tag-running
+	 * Support for pre-3.0 method-names, and simplified explicit tag-running
 	 * @ignore
 	 * @param string $name user-plugin name
 	 * @param array $args plugin-API variable(s) in some form.
@@ -132,7 +132,7 @@ final class UserTagOperations
 
 	/**
 	 * Process a smarty-call to get the output from a user-plugin named $name
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $name plugin identifier (as used in tags)
 	 * @param array $args plugin-API variable(s)
@@ -151,7 +151,7 @@ final class UserTagOperations
 
 	/**
 	 * Get the singleton instance of this class
-	 * @deprecated since 2.99 instead use CMSMS\SingleItem::UserTagOperations()
+	 * @deprecated since 3.0 instead use CMSMS\SingleItem::UserTagOperations()
 	 * @return self i.e. UserTagOperations
 	 */
 	public static function get_instance() : self
@@ -162,7 +162,7 @@ final class UserTagOperations
 
 	/**
 	 * Return filesystem path which would apply to a user-plugin named $name
-	 * @since 2.99
+	 * @since 3.0
 	 * @param string $name plugin name or name(s)-pattern, suitable for file-system usage verbatim
 	 * @return string absolute path
 	 */
@@ -177,7 +177,7 @@ final class UserTagOperations
 	 * valid filename, in case the plugin is or will become file-stored.
 	 * And its length is between 8 and 48 bytes inclusive.
 	 * And it's not a duplicate of some other tag's name.
-	 * @since 2.99
+	 * @since 3.0
 	 * @internal
 	 *
 	 * @param string $name plugin identifier (as used in tags). A reference, so it can be trim()'d
@@ -197,7 +197,7 @@ final class UserTagOperations
 			}
 */
 			$l = strlen($name);
-			if ($l < 8 || $l > 48) { // max == table-column-width 2.99 breaker
+			if ($l < 8 || $l > 48) { // max == table-column-width 3.0 breaker
 				return false;
 			}
 			if (0) { // TODO $name is not unique and this is a rename or addition
@@ -257,7 +257,7 @@ final class UserTagOperations
 
 	/**
 	 * Establish local data cache for all user-plugins
-	 * @deprecated since 2.99 does nothing. There are no LoadedData
+	 * @deprecated since 3.0 does nothing. There are no LoadedData
 	 * for user-plugins
 	 * @internal
 	 */
@@ -265,7 +265,7 @@ final class UserTagOperations
 
 	/**
 	 * Cache all information about all user-plugins (onetime only)
-	 * @deprecated since 2.99 does nothing. Local cache is populated
+	 * @deprecated since 3.0 does nothing. Local cache is populated
 	 * on demand, and to the extent needed, by class methods
 	 * e.g. ListUserTags()
 	 * @internal
@@ -275,7 +275,7 @@ final class UserTagOperations
 	/* *
 	 * Migrate plugin from database-storage to file-storage.
 	 * Note: there is no operational advantage from such change.
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $name Plugin name
 	 * @return bool indicating success
@@ -286,7 +286,7 @@ final class UserTagOperations
 	/* *
 	 * Migrate plugin from file-storage to dB-storage
 	 * Note: there is no operational advantage from such change.
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $name Plugin name
 	 * @return bool indicating success
@@ -300,7 +300,7 @@ final class UserTagOperations
 	 * This is run each time a tag is to be used i.e. don't rely on any
 	 * previous pre-save cleanup, in case the tag has been modified
 	 * independently since last saved (especially possible if file-stored).
-	 * @since 2.99
+	 * @since 3.0
 	 * @internal
 	 *
 	 * @param string $code the tag PHP code
@@ -428,7 +428,7 @@ final class UserTagOperations
 	 * Retrieve property|ies of the named user-plugin.
 	 *
 	 * @param string $name Plugin name
-	 * @param mixed $props @since 2.99 string|strings[] Optional database
+	 * @param mixed $props @since 3.0 string|strings[] Optional database
 	 *  userplugins-table field name(s) (comma-separated ok), or '*',
 	 *  or falsy for an existence-check. Default 'code'.
 	 *
@@ -524,7 +524,7 @@ final class UserTagOperations
 	 * @since 1.10
 	 *
 	 * @param $name plugin identifier
-	 * @return bool since 2.99, formerly $name|false
+	 * @return bool since 3.0, formerly $name|false
 	*/
 	public function UserTagExists(string $name) : bool
 	{
@@ -540,7 +540,7 @@ final class UserTagOperations
 	/**
 	 * Test whether a user-plugin with the specified name exists, after (if
 	 * check_functions is true) testing whether ANY plugin with that name has been registered.
-	 * @since 2.99 this does not also check for a matching system-plugin - all
+	 * @since 3.0 this does not also check for a matching system-plugin - all
 	 *  system-plugins are automatically handled by smarty
 	 *
 	 * @param string $name	The name to test
@@ -641,7 +641,7 @@ EOS;
 	 * Insert/store or update a user-plugin in the database or in file.
 	 *
 	 * @param string $name   plugin name now, perhaps different from $params[oldname]
-	 * @param varargs $args  since 2.99 normally just a single assoc array of
+	 * @param varargs $args  since 3.0 normally just a single assoc array of
 	 *  additional properties, some/all of
 	 *  'id' 0 for new plugin, > 0 for an existing plugin
 	 *  'oldname' string user-plugin recorded name, or '' for new plugin
@@ -659,7 +659,7 @@ EOS;
 	{
 		if (count($args) == 1 && is_array($args[0])) {
 			$params = $args[0];
-		} else { // pre-2.99 API
+		} else { // pre-3.0 API
 			$params = ['id'=>0, 'description'=>$args[1] ?? '', 'code'=>$args[0], 'contentfile'=>false];
 		}
 		$bare = empty($params['detail']);
@@ -933,7 +933,7 @@ EOS;
 	/**
 	 * If a user-plugin corresponding to $name exists, arrange for it
 	 * to process an event identified by its originator and name.
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $name plugin identifier (as used in tags)
 	 * @param string $originator The name of the event originator, a module-name or 'Core'

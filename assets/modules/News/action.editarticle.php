@@ -1,7 +1,7 @@
 <?php
 /*
 CMSMS News module edit-item action.
-Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -106,7 +106,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
         $error = true;
     }
 
-    if (!empty($params['generate_url'])) {
+    if (isset($params['generate_url']) && cms_to_bool($params['generate_url'])) {
         if ($title) {
             $str = $title;
         } elseif ($summary) {

@@ -1,12 +1,12 @@
 /*
  * jQuery UI Nested Sortable
- * v 2.1a / 2016-02-04
+ * v 2.2 / 2022-03-26
  * https://github.com/ilikenwf/nestedSortable
  *
  * Depends on:
  *	 jquery.ui.sortable.js 1.10+
  *
- * Copyright (c) 2010-2016 Manuele J Sarfatti and contributors
+ * Copyright (c) 2010-2022 Manuele J Sarfatti and contributors
  * Licensed under the MIT License
  * http://www.opensource.org/licenses/mit-license.php
  */
@@ -32,7 +32,7 @@
 		return ( x > reference ) && ( x < ( reference + size ) );
 	}
 
-	$.widget("mjs.nestedSortable", $.extend({}, $.ui.sortable.prototype, {
+	$.widget("mjs.nestedSortable", $.ui.sortable, {
 
 		options: {
 			disableParentChange: false,
@@ -62,7 +62,7 @@
 			var self = this,
 				err;
 
-			this.element.data("ui-sortable", this.element.data("mjs-nestedSortable"));
+			this.element.data("uiSortable", this.element.data("mjsNestedSortable"));
 
 			// mjs - prevent browser from freezing if the HTML is not correct
 			if (!this.element.is(this.options.listType)) {
@@ -78,7 +78,7 @@
 				this.options.tolerance = "intersect";
 			}
 
-			$.ui.sortable.prototype._create.apply(this, arguments);
+			this._superApply(arguments);
 
 			// prepare the tree by applying the right classes
 			// (the CSS is responsible for actual hide/show functionality)
@@ -108,9 +108,9 @@
 
 		_destroy: function() {
 			this.element
-				.removeData("mjs-nestedSortable")
-				.removeData("ui-sortable");
-			return $.ui.sortable.prototype._destroy.apply(this, arguments);
+				.removeData("mjsNestedSortable")
+				.removeData("uiSortable");
+			return this._superApply(arguments);
 		},
 
 		_mouseDrag: function(event) {
@@ -262,6 +262,12 @@
 			childLevels = this._getChildLevels(this.helper);
 			newList = document.createElement(o.listType);
 
+			// object required by $.ui.sortable 1.13+
+			this.dragDirection = {
+				vertical: this._getDragVerticalDirection(),
+				horizontal: this._getDragHorizontalDirection()
+			};
+
 			//Rearrange
 			for (i = this.items.length - 1; i >= 0; i--) {
 
@@ -287,8 +293,8 @@
 				// No action if intersected item is disabled
 				// and the element above or below in the direction we're going is also disabled
 				if (itemElement.className.indexOf(o.disabledClass) !== -1) {
-					// Note: intersection hardcoded direction values from
-					// jquery.ui.sortable.js:_intersectsWithPointer
+					// Note: hardcoded intersection-values corresponding to
+					// $.ui.sortable::_intersectsWithPointer()
 					if (intersection === 2) {
 						// Going down
 						itemAfter = this.items[i + 1];
@@ -296,7 +302,7 @@
 							continue;
 						}
 
-					} else if (intersection === 1) {
+					} else { //if (intersection === 1) {
 						// Going up
 						itemBefore = this.items[i - 1];
 						if (itemBefore && itemBefore.item.hasClass(o.disabledClass)) {
@@ -323,7 +329,7 @@
 					// mjs - we are intersecting an element:
 					// trigger the mouseenter event and store this state
 					if (!this.mouseentered) {
-						$(itemElement).mouseenter();
+						$(itemElement).trigger("mouseenter");
 						this.mouseentered = true;
 					}
 
@@ -347,7 +353,7 @@
 
 					// mjs - rearrange the elements and reset timeouts and hovering state
 					if (this.options.tolerance === "pointer" || this._intersectsWithSides(item)) {
-						$(itemElement).mouseleave();
+						$(itemElement).trigger("mouseleave");
 						this.mouseentered = false;
 						$(itemElement).removeClass(o.hoveringClass);
 						if (this.hovering) {
@@ -534,8 +540,9 @@
 					// mjs - otherwise, add it to the bottom of the list.
 					previousItem.children(o.listType)[0].appendChild(this.placeholder[0]);
 				}
-                if(typeof parentItem !== 'undefined')
-				    this._clearEmpty(parentItem[0]);
+				if (typeof parentItem !== 'undefined') {
+					this._clearEmpty(parentItem[0]);
+				}
 				this._trigger("change", event, this._uiHash());
 			} else {
 				this._isAllowed(parentItem, level, level + childLevels);
@@ -575,7 +582,7 @@
 
 			// mjs - clear the hovering timeout, just to be sure
 			$("." + this.options.hoveringClass)
-				.mouseleave()
+				.trigger("mouseleave")
 				.removeClass(this.options.hoveringClass);
 
 			this.mouseentered = false;
@@ -587,14 +594,14 @@
 			this._relocate_event = event;
 			this._pid_current = $(this.domPosition.parent).parent().attr("id");
 			this._sort_current = this.domPosition.prev ? $(this.domPosition.prev).next().index() : 0;
-			$.ui.sortable.prototype._mouseStop.apply(this, arguments); //asybnchronous execution, @see _clear for the relocate event.
+			this._superApply(arguments); //asynchronous execution, @see _clear for the relocate event.
 		},
 
 		// mjs - this function is slightly modified
 		// to make it easier to hover over a collapsed element and have it expand
 		_intersectsWithSides: function(item) {
 
-			var half = this.options.isTree ? .8 : .5,
+			var half = this.options.isTree ? 0.8 : 0.5,
 				isOverBottomHalf = isOverAxis(
 					this.positionAbs.top + this.offset.click.top,
 					item.top + (item.height * half),
@@ -633,7 +640,7 @@
 				return;
 			}
 
-			$.ui.sortable.prototype._contactContainers.apply(this, arguments);
+			this._superApply(arguments);
 
 		},
 
@@ -641,7 +648,7 @@
 			var i,
 				item;
 
-			$.ui.sortable.prototype._clear.apply(this, arguments);
+			this._superApply(arguments);
 
 			//relocate event
 			if (!(this._pid_current === this._uiHash().item.parent().parent().attr("id") &&
@@ -897,11 +904,11 @@
 			}
 		}
 
-	}));
+	});
 
 	$.mjs.nestedSortable.prototype.options = $.extend(
 		{},
-		$.ui.sortable.prototype.options,
-		$.mjs.nestedSortable.prototype.options
+		$.ui.sortable.prototype.options || {},
+		$.mjs.nestedSortable.prototype.options || {}
 	);
 }));

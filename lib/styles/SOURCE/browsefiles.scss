@@ -1,0 +1,450 @@
+//colors
+$color_forest_green_approx: #12a112;
+$white: #fff;
+$red: #f00;
+$color_moss_green_approx: #badeba;
+$color_bossanova_approx: #452145;
+$color_lavender_gray_approx: #babade;
+$color_wild_sand_approx: #f5f5f5;
+$color_mercury_approx: #e6e6e6;
+$color_mine_shaft_approx: #444;
+$color_alto_approx: #d6d6d6;
+$color_nobel_approx: #b3b3b3;
+$color_cold_turkey_approx: #c6b9b9;
+$color_dove_gray_approx: #7e6767;
+$silver: #c0c0c0;
+$color_bunting_approx: #17174f;
+$black_80: rgba(0, 0, 0, 0.8);
+$color_white_approx: #fefefe;
+$color_silver_approx: #c5c5c5;
+
+//fonts
+$font_0: fman;
+$font_id: 53975565;
+
+//urls
+$url_0: url(../font/#{$font_0}.woff2?#{$font_id});
+$url_1: url(../font/#{$font_0}.woff?#{$font_id});
+$url_2: url(../font/#{$font_0}.ttf?#{$font_id});
+
+//@extend-elements
+//original selectors
+//[class^="ifm-"]::after, [class*=" ifm-"]::after
+%extend_1 {
+	font-family: $font_0;
+	font-style: normal;
+	font-weight: normal;
+	speak: never;
+	display: inline-block;
+	text-decoration: inherit;
+	width: 1em;
+	text-align: center;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1em;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+
+@font-face {
+	font-family: $font_0;
+	src: $url_0 format('woff2'), $url_1 format('woff'), $url_2 format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+[class^="ifm-"]::after {
+	@extend %extend_1;
+}
+[class*=" ifm-"]::after {
+	@extend %extend_1;
+}
+
+.ifm-home::after { content: '\e900'; } /* '' */
+.ifm-crumb-right::after { content: '\e901'; } /* '' */
+.ifm-crumb-left::after { content: '\e902'; } /* '' */
+.ifm-extract::after { content: '\e903'; } /* '' */
+.ifm-compact::after { content: '\e904'; } /* '' */
+.ifm-rename::after { content: '\e905'; } /* '' */
+.ifm-history::after { content: '\e906'; } /* '' */
+.ifm-cog::after { content: '\e907'; } /* '' */
+.ifm-chat::after { content: '\e908'; } /* '' */
+.ifm-folder::after { content: '\e909'; } /* '' */
+.ifm-folder-add::after { content: '\e90a'; } /* '' */
+.ifm-folder-open::after { content: '\e90b'; } /* '' */
+.ifm-folder-close::after { content: '\e90c'; } /* '' */
+.ifm-folder-link::after { content: '\e90d'; } /* '' */
+.ifm-cancel::after { content: '\e90e'; } /* '' */
+.ifm-cancel-squared::after { content: '\e90f'; } /* '' */
+.ifm-file::after { content: '\e910'; } /* '' */
+.ifm-font::after { content: '\e911'; } /* '' */
+.ifm-pdf::after { content: '\e912'; } /* '' */
+.ifm-word::after { content: '\e913'; } /* '' */
+.ifm-excel::after { content: '\e914'; } /* '' */
+.ifm-image::after { content: '\e915'; } /* '' */
+.ifm-video::after { content: '\e916'; } /* '' */
+.ifm-audio::after { content: '\e917'; } /* '' */
+.ifm-archive::after { content: '\e918'; } /* '' */
+.ifm-code::after { content: '\e919'; } /* '' */
+.ifm-text::after { content: '\e91a'; } /* '' */
+.ifm-html5::after { content: '\e91b'; } /* '' */
+.ifm-powerpoint::after { content: '\e91c'; } /* '' */
+.ifm-css3::after { content: '\e91d'; } /* '' */
+.ifm-music::after { content: '\e91e'; } /* '' */
+.ifm-terminal::after { content: '\e91f'; } /* '' */
+.ifm-all::after { content: '\e92c'; } /* '' */
+.ifm-cut::after { content: '\e92d'; } /* '' */
+.ifm-copy::after { content: '\e92e'; } /* '' */
+.ifm-paste::after { content: '\e92f'; } /* '' */
+.ifm-sort-down::after { content: '\e930'; } /* '' */
+.ifm-sort-up::after { content: '\e931'; } /* '' */
+.ifm-sortable::after { content: '\e932'; } /* '' */
+.ifm-download::after { content: '\e933'; } /* '' */
+.ifm-upload::after { content: '\e934'; } /* '' */
+.ifm-link::after { content: '\e935'; } /* '' */
+.ifm-switch::after { content: '\e936'; } /* '' */
+.ifm-view::after { content: '\e937'; } /* '' */
+.ifm-edit::after { content: '\e938'; } /* '' */
+.ifm-delete::after { content: '\e939'; } /* '' */
+.ifm-level-up-left::after { content: '\e93a'; } /* '' */
+.ifm-level-up-right::after { content: '\e93b'; } /* '' */
+.ifm-search::after { content: '\e93c'; } /* '' */
+.ifm-pick::after { content: '\e93d'; } /* '' */
+
+#fp-body {
+	margin: 0;
+	padding: 0;
+	font-size: 0.9em;
+}
+.visuallyhidden {
+	clip: rect(0, 0, 0, 0);
+	overflow: hidden;
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	border: 0;
+	padding: 0;
+	z-index: -1;
+}
+#fp-progress {
+	overflow: hidden;
+	height: 0.3em;
+	margin: 0;
+	border: 0;
+	border-radius: 0;
+	display: none; // changed at runtime when needed
+	width: 100%;
+	margin-top: calc(0.45em + 3px); // space for 'spill' of #fp-progress-text, to get it vertical-center on the bar
+}
+#fp-progress-inner {
+	overflow: hidden;
+	height: 0.3em;
+	margin: 0;
+	border: 0;
+	border-radius: 0;
+	width: 0;
+	background-color: $color_forest_green_approx;
+	z-index: 22;
+}
+#fp-progress-text {
+	overflow: visible;
+	position: absolute;
+	top: 0;
+	left: 50%;
+	-ms-transform: translateX(-50%);
+	-o-transform: translateX(-50%);
+	-moz-transform: translateX(-50%);
+	-webkit-transform: translateX(-50%);
+	//Instead of the line below you could use @include transform($scale, $rotate, $transx, $transy, $skewx, $skewy, $originx, $originy)
+	transform: translateX(-50%);
+	margin: 0;
+	border: 0;
+	padding: 3px 6px;
+	text-align: center;
+	vertical-align: middle;
+	background-color: $color_forest_green_approx;
+	color: $white;
+	font-size: 1em;
+	font-weight: bold;
+	z-index: 24;
+}
+#fp-dropzone {
+	position: absolute;
+	top: 1px;
+	right: .25em;
+	height: 3em;
+	width: 9em;
+	z-index: 18;
+	border: 2px dashed $red;
+	background-color: $color_moss_green_approx;
+	color: $color_bossanova_approx;
+	line-height: calc(3em - 4px);
+	text-align: center;
+	&.dragging {
+		background-color: $color_lavender_gray_approx;
+	}
+	> span {
+		vertical-align: middle;
+	}
+}
+#fp-navbar {
+	height: 6.5em;
+	padding: 1.5em 0 0.5em;
+}
+#fp-navbar-inner {
+	position: absolute;
+	top: 3.25em;
+	width: 100%;
+	display: -webkit-box;
+	display: -moz-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-flex-wrap: wrap;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	-ms-box-pack: justify;
+	-webkit-box-pack: justify;
+	-moz-box-pack: justify;
+	-ms-flex-pack: justify;
+	-webkit-justify-content: space-between;
+	justify-content: space-between;
+	-webkit-align-items: center;
+	align-items: center;
+	> div {
+		-ms-box-flex: 0;
+		-webkit-box-flex: 0;
+		-moz-box-flex: 0;
+		-webkit-flex-grow: 0;
+		-ms-flex: 0;
+		flex-grow: 0;
+	}
+}
+#fp-type-filter {
+	display: -webkit-box;
+	display: -moz-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-flex-wrap: wrap;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	-webkit-align-items: center;
+	align-items: center;
+	font-size: 1.2em;
+}
+#fp-filter-title {
+	margin: 0 0.5em;
+	text-align: right;
+}
+.fp-button {
+	margin: 2px;
+	padding: 0.1em 0.25em;
+	background-color: $color_wild_sand_approx;
+	border: 1px solid $color_mercury_approx;
+	border-radius: 2px;
+	font-size: 1.3rem;
+	font-weight: normal;
+	color: $color_mine_shaft_approx;
+	cursor: pointer;
+	&.active {
+		background-color: $color_alto_approx;
+		border: 1px solid $color_nobel_approx;
+	}
+	&:hover {
+		background-color: $color_alto_approx;
+	}
+	&.disabled {
+		background-color: $color_cold_turkey_approx;
+		color: $color_dove_gray_approx;
+		cursor: default;
+		&:hover {
+			background-color: $color_cold_turkey_approx;
+		}
+	}
+}
+#fp-file-upload {
+	&:focus + .fp-button {
+		background-color: $color_alto_approx;
+		border: 1px solid $color_nobel_approx;
+	}
+	&:hover + .fp-button {
+		background-color: $color_alto_approx;
+	}
+}
+#view-list {
+	display: none;
+}
+#view-grid {
+	display: none;
+}
+#fp-breadcrumb {
+	position: absolute;
+	top: 0.25em;
+	width: calc(100% - 10em);
+	z-index: 16;
+	padding: 0.5em;
+	.ifm-folder-open::after {
+		font-size: 1.8em;
+		vertical-align: middle;
+	}
+}
+.fp-delete {
+	cursor: pointer;
+	&:hover {
+		color: $red;
+	}
+}
+#fp-wrap {
+	height: 15em;
+	overflow: auto;
+}
+#fp-list {
+	width: 100%;
+	border-collapse: collapse;
+	border-width: 1px;
+	tbody {
+		max-height: 90vh;
+		width: 100%;
+		tr {
+			width: 100%;
+		}
+	}
+	th {
+		border-bottom: 1px solid $color_alto_approx;
+		padding: 2px 5px;
+	}
+	td {
+		border-bottom: 1px solid $color_alto_approx;
+		padding: 2px 5px;
+	}
+	&.bt {
+		th:last-child {
+			border-bottom: 6px double $color_alto_approx;
+		}
+		td:last-child {
+			border-bottom: 6px double $color_alto_approx;
+		}
+	}
+	a {
+		color: inherit;
+		&:link {
+			color: inherit;
+		}
+		&:visited {
+			color: inherit;
+		}
+	}
+	.fp-thumb {
+		max-width: 3em;
+		overflow: hidden;
+		img.svgimg {
+			max-height: 3em;
+		}
+	}
+	img {
+		margin-left: 0.5em;
+	}
+	.filename {
+		text-align: left;
+		&.rtl {
+			text-align: right;
+		}
+		a {
+			position: relative;
+			font-size: inherit;
+			color: inherit;
+			text-decoration: none;
+		}
+	}
+	.icon-no-thumb {
+		font-size: 2em;
+	}
+	[class^="ifm-"]::after {
+		font-size: 1.75rem;
+		margin-left: 0.25em;
+	}
+	thead tr {
+		position: sticky;
+		top: 0;
+		z-index: 18;
+		border: 0;
+		background-color: $silver;
+		color: $color_bunting_approx;
+	}
+	.ifm-delete:hover::after {
+		color: $red;
+	}
+}
+.ui-widget-overlay {
+	background: $black_80;
+}
+.anon-header {
+	border: 0;
+	background: $color_white_approx;
+}
+.popup-header {
+	border: 1px solid $color_silver_approx;
+	background: $silver;
+}
+.popup-title {
+	text-align: center;
+	vertical-align: middle;
+	color: $color_bunting_approx;
+}
+.popup-body {
+	background-color: $color_white_approx;
+}
+.dlg-options {
+	padding-top: 0.5em;
+}
+.listicon {
+	border: 0;
+	width: 2em;
+	height: 2em;
+	vertical-align: middle;
+}
+.cmsfp.cmsfp_frame {
+	a {
+		color: inherit;
+		text-decoration: none;
+	}
+	img {
+		border: none;
+		margin-left: 0.5em;
+	}
+}
+.ui-dialog-buttonset button.ui-button {
+	background: none;
+	margin: 2px;
+	padding: 0.1em 0.25em;
+	background-color: $color_wild_sand_approx;
+	border: 1px solid $color_mercury_approx;
+	border-radius: 2px;
+	font-size: 1.3rem;
+	font-weight: normal;
+	color: $color_mine_shaft_approx;
+	cursor: pointer;
+	&.active {
+		background-color: $color_alto_approx;
+		border: 1px solid $color_nobel_approx;
+	}
+	&:hover {
+		background-color: $color_alto_approx;
+	}
+	&.disabled {
+		background-color: $color_cold_turkey_approx;
+		color: $color_dove_gray_approx;
+		cursor: default;
+		&:hover {
+			background-color: $color_cold_turkey_approx;
+		}
+	}
+}
+
+@media screen and(max-width: 26rem) {
+	#fp-dropzone {
+		width: 3em;
+	}
+}

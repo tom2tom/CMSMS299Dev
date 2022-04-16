@@ -1,0 +1,1964 @@
+@if $lighttheme != null {
+	$light-theme: $lighttheme !global; // set via gulp
+} @else {
+	$light-theme: true !global;
+}
+
+@if $leftwards == null {
+	$leftwards: true !global; // or false for rtl styling
+}
+
+//colors
+$color_gallery_approx: #eee;
+$black: #000;
+$color_mercury_approx: #e2e2e2;
+$color_mine_shaft_approx: #333;
+$color_wild_sand_approx: #f5f5f5;
+$color_alto_approx: #ddd;
+$color_geyser_approx: #dae0e5;
+$white: #fff;
+$black_12_5: rgba(0, 0, 0, 0.125);
+$color_bittersweet_approx: #fa6362;
+$black_6: rgba(0, 0, 0, 0.06);
+$black_20: rgba(0, 0, 0, 0.2);
+$black_50: rgba(0, 0, 0, 0.5);
+$color_athens_gray_approx: #ededef;
+$color_steel_blue_approx: #337ab7;
+$color_blumine_approx: #23527c;
+$color_river_bed_approx: #42515f;
+$color_dove_gray_approx: #737373;
+$color_azure_radiance_approx: #007bff;
+$color_endeavour_approx: #0056b3;
+$color_oslo_gray_approx: #868e96;
+$color_silver_approx: #ccc;
+$color_martini_approx: #999999;
+$black_25: rgba(0, 0, 0, 0.25);
+$color_malibu_approx: lightskyblue;
+$color_cerulean_approx: #098ddf;
+$color_boulder_approx: #777;
+$color_st_tropaz_approx: #286090;
+$color_killarney_approx: #3c763d;
+$color_calypso_approx: #31708f;
+$color_yellow_metal_approx: #8a6d3b;
+$color_apple_blossom_approx: #a94442;
+$color_zanah_approx: #dff0d8;
+$color_link_water_approx: #d9edf7;
+$color_pearl_lusta_approx: #fcf8e3;
+$color_bizarre_approx: #f2dede;
+$gray: gray;
+$color_havelock_blue_approx: #428bca;
+
+//fonts
+$font_0: summernote;
+$font_1: sans-serif;
+$font_2: Menlo;
+$font_3: Monaco;
+$font_4: monospace;
+
+$fonts_id: 27589111;
+
+//data-uris
+$data_uri_0: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASAgMAAAAroGbEAAAACVBMVEUAAIj4+Pjp6ekKlAqjAAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfYAR0BKhmnaJzPAAAAG0lEQVQI12NgAAOtVatWMTCohoaGUY+EmIkEAEruEzK2J7tvAAAAAElFTkSuQmCC";
+$data_uri_1: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASAgMAAAAroGbEAAAACVBMVEUAAIjd6vvD2f9LKLW+AAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfYAR0BKwNDEVT0AAAAG0lEQVQI12NgAAOtVatWMTCohoaGUY+EmIkEAEruEzK2J7tvAAAAAElFTkSuQmCC";
+
+//urls
+//$url_00: src: url('./font/summernote.eot?#{$fonts_id}');
+//$url_0: url('./font/summernote.eot?#{$fonts_id}#iefix') format('embedded-opentype');
+$url_1: url('./font/summernote.woff2?#{$fonts_id}') format('woff2');
+$url_2: url('./font/summernote.woff?#{$fonts_id}') format('woff');
+$url_3: url('./font/summernote.ttf?#{$fonts_id}') format('truetype');
+//$url_4: url('./font/summernote.svg?#{$fonts_id}#summernote') format('svg');
+
+//@extend-elements
+//original selectors
+//[class^=note-icon]:before, [class*=" note-icon"]:before
+%extend_1 {
+	display: inline-block;
+	font-family: $font_0;
+	font-style: normal;
+	font-size: inherit;
+	text-decoration: inherit;
+	text-rendering: auto;
+	text-transform: none;
+	vertical-align: middle;
+	speak: none;
+}
+
+//original selectors
+//.note-btn:focus, .note-btn.focus
+%extend_2 {
+	color: $color_mine_shaft_approx;
+	background-color: $color_gallery_approx;
+	border-color: $color_geyser_approx;
+}
+
+//original selectors
+//.note-btn:hover, .note-btn:focus, .note-btn.focus
+%extend_3 {
+	color: $color_mine_shaft_approx;
+	text-decoration: none;
+	border: 1px solid $color_geyser_approx;
+	background-color: $color_gallery_approx;
+	outline: 0;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 1px;
+}
+
+//original selectors
+//.note-btn:active, .note-btn.active
+%extend_4 {
+	background-image: none;
+	color: $color_mine_shaft_approx;
+	text-decoration: none;
+	border: 1px solid $color_geyser_approx;
+	background-color: $color_gallery_approx;
+	outline: 0;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 1px;
+	//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+	box-shadow: inset 0 3px 5px $black_12_5;
+}
+
+//original selectors
+//.note-btn.disabled, .note-btn[disabled], fieldset[disabled] .note-btn
+%extend_5 {
+	cursor: not-allowed;
+	opacity: 0.65;
+	filter: alpha(opacity=65);
+	//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+	box-shadow: none;
+}
+
+//original selectors
+//.note-btn-primary:hover, .note-btn-primary:focus, .note-btn-primary.focus
+%extend_6 {
+	color: $white;
+	text-decoration: none;
+	border: 1px solid $color_geyser_approx;
+	background-color: $color_bittersweet_approx;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 1px;
+}
+
+//original selectors
+//a.note-dropdown-item, a.note-dropdown-item:hover
+%extend_7 {
+	margin: 5px 0;
+	color: $black;
+	text-decoration: none;
+}
+
+@if $leftwards {
+	$start-side: left !global;
+	$end-side: right !global;
+} @else {
+	$start-side: right !global;
+	$end-side: left !global;
+}
+
+@function sidedValues($top, $right, $bottom, $left:$right) {
+	@if $left != null {
+		@if $leftwards {
+			@return $top $right $bottom $left;
+		} @else {
+			@return $top $left $bottom $right;
+		}
+	}
+	@else {
+		@return $top $right $bottom $left;
+	}
+}
+
+@function sidedShadow($hLength) {
+	@if $leftwards {
+		@return $hLength;
+	} @else {
+		$local: #{$hLength};
+		@if str-index($local, '-') != 1 {
+			@return -#{$local}; //TODO something * -1
+		} @else {
+			@return str-slice($local, 2); //ibid
+		}
+	}
+}
+
+// No corner-radii are used, no siding needed
+@function sidedRadii($tl, $tr, $br, $bl:$tr) {
+	@if $leftwards {
+		@if $tr == $bl {
+			@return $tl $tr $br;
+		} @else {
+			@return $tl $tr $br $bl;
+		}
+	} @else {
+		@return $tr $tl $bl $br;
+	}
+}
+
+@font-face {
+	font-family: $font_0;
+	font-style: normal;
+	font-weight: 400;
+	font-display: auto;
+//	src: $url_0 format("embedded-opentype");
+	src: $url_1 format("woff2"), $url_2 format("woff"), $url_3 format("truetype");
+}
+.note-icon-fw {
+	text-align: center;
+	width: 1.25em;
+}
+.note-icon-border {
+	border: solid 0.08em $color_gallery_approx;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 0.1em;
+	padding: 0.2em 0.25em 0.15em;
+}
+.note-icon-pull-left {
+	float: left;
+}
+.note-icon-pull-right {
+	float: right;
+}
+.note-icon {
+	&.note-icon-pull-left {
+		margin-right: 0.3em;
+	}
+	&.note-icon-pull-right {
+		margin-left: 0.3em;
+	}
+}
+.note-icon-align::before {
+	content: "\ea01";
+}
+.note-icon-align-center::before {
+	content: "\ea02";
+}
+.note-icon-align-indent::before {
+	content: "\ea03";
+}
+.note-icon-align-justify::before {
+	content: "\ea04";
+}
+.note-icon-align-left::before {
+	content: "\ea05";
+}
+.note-icon-align-outdent::before {
+	content: "\ea06";
+}
+.note-icon-align-right::before {
+	content: "\ea07";
+}
+.note-icon-arrow-circle-down::before {
+	content: "\ea08";
+}
+.note-icon-arrow-circle-left::before {
+	content: "\ea09";
+}
+.note-icon-arrow-circle-right::before {
+	content: "\ea0a";
+}
+.note-icon-arrow-circle-up::before {
+	content: "\ea0b";
+}
+.note-icon-arrows-alt::before {
+	content: "\ea0c";
+}
+.note-icon-arrows-h::before {
+	content: "\ea0d";
+}
+.note-icon-arrows-v::before {
+	content: "\ea0e";
+}
+.note-icon-bold::before {
+	content: "\ea0f";
+}
+.note-icon-caret::before {
+	content: "\ea10";
+	width: 0.5em;
+	margin-left: -0.4em; //*TODO ltr only*/
+}
+.note-icon-chain-broken::before {
+	content: "\ea11";
+}
+.note-icon-circle::before {
+	content: "\ea12";
+}
+.note-icon-close::before {
+	content: "\ea13";
+}
+.note-icon-code::before {
+	content: "\ea14";
+}
+.note-icon-col-after::before {
+	content: "\ea15";
+}
+.note-icon-col-before::before {
+	content: "\ea16";
+}
+.note-icon-col-remove::before {
+	content: "\ea17";
+}
+.note-icon-eraser::before {
+	content: "\ea18";
+}
+.note-icon-float-left::before {
+	content: "\ea19";
+}
+.note-icon-float-none::before {
+	content: "\ea1a";
+}
+.note-icon-float-right::before {
+	content: "\ea1b";
+}
+.note-icon-font::before {
+	content: "\ea1c";
+}
+.note-icon-frame::before {
+	content: "\ea1d";
+}
+.note-icon-italic::before {
+	content: "\ea1e";
+}
+.note-icon-link::before {
+	content: "\ea1f";
+}
+.note-icon-magic::before {
+	content: "\ea20";
+}
+.note-icon-menu-check::before {
+	content: "\ea21";
+}
+.note-icon-minus::before {
+	content: "\ea22";
+}
+.note-icon-orderedlist::before {
+	content: "\ea23";
+}
+.note-icon-pencil::before {
+	content: "\ea24";
+}
+.note-icon-picture::before {
+	content: "\ea25";
+}
+.note-icon-question::before {
+	content: "\ea26";
+}
+.note-icon-redo::before {
+	content: "\ea27";
+}
+.note-icon-rollback::before {
+	content: "\ea28";
+}
+.note-icon-row-above::before {
+	content: "\ea29";
+}
+.note-icon-row-below::before {
+	content: "\ea2a";
+}
+.note-icon-row-remove::before {
+	content: "\ea2b";
+}
+.note-icon-special-character::before {
+	content: "\ea2c";
+}
+.note-icon-square::before {
+	content: "\ea2d";
+}
+.note-icon-strikethrough::before {
+	content: "\ea2e";
+}
+.note-icon-subscript::before {
+	content: "\ea2f";
+}
+.note-icon-summernote::before {
+	content: "\ea30";
+}
+.note-icon-superscript::before {
+	content: "\ea31";
+}
+.note-icon-table::before {
+	content: "\ea32";
+}
+.note-icon-text-height::before {
+	content: "\ea33";
+}
+.note-icon-trash::before {
+	content: "\ea34";
+}
+.note-icon-underline::before {
+	content: "\ea35";
+}
+.note-icon-undo::before {
+	content: "\ea36";
+}
+.note-icon-unorderedlist::before {
+	content: "\ea37";
+}
+.note-icon-video::before {
+	content: "\ea38";
+}
+.note-frame {
+	//Instead of the line below you could use @include box-sizing($bs)
+	box-sizing: border-box;
+	color: $black;
+	font-family: $font_1;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 4px;
+}
+.note-toolbar {
+	padding: 10px 5px;
+	border-bottom: 1px solid $color_mercury_approx;
+	color: $color_mine_shaft_approx;
+	background-color: $color_wild_sand_approx;
+	border-color: $color_alto_approx;
+	//Instead of the line below you could use @include border-top-left-radius($radius)
+	border-top-left-radius: 3px;
+	//Instead of the line below you could use @include border-top-right-radius($radius)
+	border-top-right-radius: 3px;
+	position: relative;
+}
+.note-btn-group {
+	position: relative;
+	display: inline-block;
+	margin-right: 8px;
+	> {
+		.note-btn-group {
+			margin-right: 0;
+			&:not( {
+				&:first-child) > .note-btn {
+					//Instead of the line below you could use @include border-top-left-radius($radius)
+					border-top-left-radius: 0;
+					//Instead of the line below you could use @include border-bottom-left-radius($radius)
+					border-bottom-left-radius: 0;
+				}
+				&:last-child) > .note-btn {
+					//Instead of the line below you could use @include border-top-right-radius($radius)
+					border-top-right-radius: 0;
+					//Instead of the line below you could use @include border-bottom-right-radius($radius)
+					border-bottom-right-radius: 0;
+				}
+			}
+		}
+		.note-btn {
+			&:first-child {
+				margin-left: 0;
+			}
+			&:not( {
+				&:first-child) {
+					//Instead of the line below you could use @include border-top-left-radius($radius)
+					border-top-left-radius: 0;
+					//Instead of the line below you could use @include border-bottom-left-radius($radius)
+					border-bottom-left-radius: 0;
+				}
+				&:last-child):not(.dropdown-toggle) {
+					//Instead of the line below you could use @include border-top-right-radius($radius)
+					border-top-right-radius: 0;
+					//Instead of the line below you could use @include border-bottom-right-radius($radius)
+					border-bottom-right-radius: 0;
+				}
+			}
+		}
+	}
+	&.open {
+		.note-dropdown-menu {
+			display: block;
+		}
+		> .note-dropdown {
+			display: block;
+		}
+	}
+	.note-btn + {
+		&.note-btn {
+			margin-left: -1px;
+		}
+		&.note-btn-group {
+			margin-left: -1px;
+		}
+	}
+	.note-btn-group + {
+		&.note-btn {
+			margin-left: -1px;
+		}
+		&.note-btn-group {
+			margin-left: -1px;
+		}
+	}
+}
+.note-btn {
+	display: inline-block;
+	font-weight: 400;
+	margin-bottom: 0;
+	text-align: center;
+	vertical-align: middle;
+	touch-action: manipulation;
+	cursor: pointer;
+	background-image: none;
+	border: 1px solid $color_geyser_approx;
+	white-space: nowrap;
+	outline: 0;
+	color: $color_mine_shaft_approx;
+	background-color: $white;
+	border-color: $color_geyser_approx;
+	padding: 5px 10px;
+	font-size: 14px;
+	line-height: 1.4;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 3px;
+	//Instead of the line below you could use @include user-select($select)
+	user-select: none;
+	&:focus {
+		@extend %extend_2;
+		@extend %extend_3;
+	}
+	&.focus {
+		@extend %extend_2;
+		@extend %extend_3;
+	}
+	&:hover {
+		color: $color_mine_shaft_approx;
+		background-color: $color_gallery_approx;
+		border-color: $color_geyser_approx;
+		@extend %extend_3;
+	}
+	&.disabled {
+		@extend %extend_5;
+		&:focus {
+			background-color: $white;
+			border-color: $color_geyser_approx;
+		}
+		&.focus {
+			background-color: $white;
+			border-color: $color_geyser_approx;
+		}
+	}
+	&:active {
+		@extend %extend_4;
+	}
+	&.active {
+		@extend %extend_4;
+	}
+	> span.note-icon-caret {
+		&:first-child {
+			margin-left: -1px;
+		}
+		&:nth-child(2) {
+			padding-left: 3px;
+			margin-right: -5px;
+		}
+	}
+}
+.note-btn[disabled] {
+	@extend %extend_5;
+	&:focus {
+		background-color: $white;
+		border-color: $color_geyser_approx;
+	}
+	&.focus {
+		background-color: $white;
+		border-color: $color_geyser_approx;
+	}
+}
+.note-btn-primary {
+	background: $color_bittersweet_approx;
+	color: $white;
+	&:hover {
+		@extend %extend_6;
+	}
+	&:focus {
+		@extend %extend_6;
+	}
+	&.focus {
+		@extend %extend_6;
+	}
+}
+.note-btn-block {
+	display: block;
+	width: 100%;
+	+ .note-btn-block {
+		margin-top: 5px;
+	}
+}
+.close {
+	float: right;
+	font-size: 21px;
+	line-height: 1;
+	color: $black;
+	opacity: 0.2;
+	&:hover {
+		filter: alpha(opacity=100);
+		opacity: 1;
+	}
+}
+.note-dropdown {
+	position: relative;
+}
+.note-dropdown-menu {
+	display: none;
+	min-width: 100px;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 1000;
+	float: left;
+	text-align: left;
+	background: $white;
+	border: 1px solid $color_mercury_approx;
+	padding: 5px;
+	//Instead of the line below you could use @include background-clip($clip)
+	background-clip: padding-box;
+	//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+	box-shadow: 0 1px 1px $black_6;
+	> *:last-child {
+		margin-right: 0;
+	}
+}
+.note-dropdown-item {
+	display: block;
+	&:hover {
+		background-color: $color_gallery_approx;
+	}
+}
+.note-modal {
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 1050;
+	opacity: 1;
+	filter: alpha(opacity=100);
+	display: none;
+	&.open {
+		display: block;
+	}
+	.note-help-block {
+		display: block;
+		margin-top: 5px;
+		margin-bottom: 10px;
+		color: $color_dove_gray_approx;
+	}
+	.note-nav {
+		display: flex;
+		flex-wrap: wrap;
+		padding-left: 0;
+		margin-bottom: 0;
+		list-style: none;
+	}
+	.note-nav-link {
+		display: block;
+		padding: 0.5rem 1rem;
+		color: $color_azure_radiance_approx;
+		text-decoration: none;
+		background-color: transparent;
+		&:focus {
+			color: $color_endeavour_approx;
+			text-decoration: none;
+		}
+		&:hover {
+			color: $color_endeavour_approx;
+			text-decoration: none;
+		}
+		&.disabled {
+			color: $color_oslo_gray_approx;
+		}
+	}
+	.note-nav-tabs {
+		border-bottom: 1px solid $color_alto_approx;
+		.note-nav-item {
+			margin-bottom: -1px;
+			&.show .note-nav-link {
+				color: $color_river_bed_approx;
+				background-color: $white;
+				border-color: $color_alto_approx $color_alto_approx $white;
+			}
+		}
+		.note-nav-link {
+			border: 1px solid transparent;
+			//Instead of the line below you could use @include border-top-left-radius($radius)
+			border-top-left-radius: 0.25rem;
+			//Instead of the line below you could use @include border-top-right-radius($radius)
+			border-top-right-radius: 0.25rem;
+			&:focus {
+				border-color: $color_athens_gray_approx $color_athens_gray_approx $color_alto_approx;
+			}
+			&:hover {
+				border-color: $color_athens_gray_approx $color_athens_gray_approx $color_alto_approx;
+			}
+			&.disabled {
+				color: $color_oslo_gray_approx;
+				background-color: transparent;
+				border-color: transparent;
+			}
+		}
+	}
+	.note-tab-content {
+		margin: 15px auto;
+		> {
+			.note-tab-pane {
+				display: none;
+				&:target {
+					display: block;
+					~ .note-tab-pane:last-child {
+						display: none;
+					}
+				}
+			}
+			:last-child {
+				display: block;
+			}
+		}
+	}
+	.modal-dialog {
+		outline: 0;
+		//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+		border-radius: 5px;
+		//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+		box-shadow: 0 3px 9px $black_50;
+	}
+	.form-group {
+		margin-left: 0;
+		margin-right: 0;
+	}
+	.note-modal-form {
+		margin: 0;
+	}
+	.note-modal-body {
+		label {
+			margin-bottom: 2px;
+			padding: 2px 5px;
+			display: inline-block;
+		}
+		.help-list-item:hover {
+			background-color: $color_mercury_approx;
+		}
+	}
+	.note-image-dialog .note-dropzone {
+		min-height: 100px;
+		font-size: 30px;
+		line-height: 4;
+		color: $color_alto_approx;
+		text-align: center;
+		border: 4px dashed $color_alto_approx;
+		margin-bottom: 10px;
+	}
+}
+.note-modal-content {
+	position: relative;
+	width: auto;
+	margin: 30px 20px;
+	border: 1px solid $black_20;
+	background: $white;
+	//Instead of the line below you could use @include background-clip($clip)
+	background-clip: border-box;
+	outline: 0;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 5px;
+	//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+	box-shadow: 0 3px 9px $black_50;
+}
+.note-modal-header {
+	padding: 10px 20px;
+	border: 1px solid $color_athens_gray_approx;
+}
+.note-modal-body {
+	position: relative;
+	padding: 20px 30px;
+	kbd {
+		//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+		border-radius: 2px;
+		background-color: $black;
+		color: $white;
+		padding: 3px 5px;
+		font-weight: 700;
+		//Instead of the line below you could use @include box-sizing($bs)
+		box-sizing: border-box;
+	}
+}
+.note-modal-footer {
+	height: 40px;
+	padding: 10px;
+	text-align: center;
+	a {
+		color: $color_steel_blue_approx;
+		text-decoration: none;
+		&:hover {
+			color: $color_blumine_approx;
+			text-decoration: underline;
+		}
+		&:focus {
+			color: $color_blumine_approx;
+			text-decoration: underline;
+		}
+	}
+	.note-btn {
+		float: right;
+	}
+}
+.note-modal-title {
+	font-size: 20px;
+	color: $color_river_bed_approx;
+	margin: 0;
+	line-height: 1.4;
+}
+.note-modal-backdrop {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	top: 0;
+	z-index: 1040;
+	background: $black;
+	opacity: 0.5;
+	filter: alpha(opacity=50);
+	display: none;
+	&.open {
+		display: block;
+	}
+}
+@media(min-width: 768px) {
+	.note-modal-content {
+		width: 600px;
+		margin: 30px auto;
+	}
+}
+@media(min-width: 992px) {
+	.note-modal-content-large {
+		width: 900px;
+	}
+}
+.note-form-group {
+	padding-bottom: 20px;
+	&:last-child {
+		padding-bottom: 0;
+	}
+}
+.note-form-label {
+	display: block;
+	width: 100%;
+	font-size: 16px;
+	color: $color_river_bed_approx;
+	margin-bottom: 10px;
+	font-weight: 700;
+}
+.note-input {
+	width: 100%;
+	display: block;
+	border: 1px solid $color_athens_gray_approx;
+	background: $white;
+	outline: 0;
+	padding: 6px 4px;
+	font-size: 14px;
+	//Instead of the line below you could use @include box-sizing($bs)
+	box-sizing: border-box;
+	&:-moz-placeholder {
+		color: $color_gallery_approx;
+	}
+	&:-ms-input-placeholder {
+		color: $color_gallery_approx;
+	}
+}
+.note-input::-webkit-input-placeholder {
+	color: $color_gallery_approx;
+}
+.note-input::-moz-placeholder {
+	color: $color_gallery_approx;
+}
+.note-tooltip {
+	position: absolute;
+	z-index: 1070;
+	display: block;
+	font-size: 13px;
+	//Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+	transition: opacity 0.15s;
+	opacity: 0;
+	filter: alpha(opacity=0);
+	&.in {
+		opacity: 0.9;
+		filter: alpha(opacity=90);
+	}
+	&.top {
+		margin-top: -3px;
+		padding: 5px 0;
+		.note-tooltip-arrow {
+			bottom: 0;
+			left: 50%;
+			margin-left: -5px;
+			border-width: 5px 5px 0;
+			border-top-color: $black;
+		}
+	}
+	&.right {
+		margin-left: 3px;
+		padding: 0 5px;
+		.note-tooltip-arrow {
+			top: 50%;
+			left: 0;
+			margin-top: -5px;
+			border-width: 5px 5px 5px 0;
+			border-right-color: $black;
+		}
+	}
+	&.bottom {
+		margin-top: 3px;
+		padding: 5px 0;
+		.note-tooltip-arrow {
+			top: 0;
+			left: 50%;
+			margin-left: -5px;
+			border-width: 0 5px 5px;
+			border-bottom-color: $black;
+		}
+	}
+	&.left {
+		margin-left: -3px;
+		padding: 0 5px;
+		.note-tooltip-arrow {
+			top: 50%;
+			right: 0;
+			margin-top: -5px;
+			border-width: 5px 0 5px 5px;
+			border-left-color: $black;
+		}
+	}
+}
+.note-tooltip-arrow {
+	position: absolute;
+	width: 0;
+	height: 0;
+	border-color: transparent;
+	border-style: solid;
+}
+.note-tooltip-content {
+	max-width: 200px;
+	font-family: $font_1;
+	padding: 3px 8px;
+	color: $white;
+	text-align: center;
+	background-color: $black;
+}
+.note-popover {
+	position: absolute;
+	z-index: 1060;
+	display: block;
+	font-size: 13px;
+	font-family: $font_1;
+	display: none;
+	background: $white;
+	border: 1px solid $black_20;
+	border: 1px solid $color_silver_approx;
+	&.in {
+		display: block;
+	}
+	&.top {
+		margin-top: -10px;
+		padding: 5px 0;
+		.note-popover-arrow {
+			bottom: -11px;
+			left: 20px;
+			margin-left: -10px;
+			border-bottom-width: 0;
+			border-top-color: $color_martini_approx;
+			border-top-color: $black_25;
+		}
+		.note-popover-arrow::after {
+			bottom: 1px;
+			margin-left: -10px;
+			content: "\0020";
+			border-bottom-width: 0;
+			border-top-color: $white;
+		}
+	}
+	&.right {
+		margin-left: 10px;
+		padding: 0 5px;
+		.note-popover-arrow {
+			top: 50%;
+			left: -11px;
+			margin-top: -10px;
+			border-left-width: 0;
+			border-right-color: $color_martini_approx;
+			border-right-color: $black_25;
+		}
+		.note-popover-arrow::after {
+			left: 1px;
+			margin-top: -10px;
+			content: "\0020";
+			border-left-width: 0;
+			border-right-color: $white;
+		}
+	}
+	&.bottom {
+		margin-top: 10px;
+		padding: 5px 0;
+		.note-popover-arrow {
+			top: -11px;
+			left: 20px;
+			margin-left: -10px;
+			border-top-width: 0;
+			border-bottom-color: $color_martini_approx;
+			border-bottom-color: $black_25;
+		}
+		.note-popover-arrow::after {
+			top: 1px;
+			margin-left: -10px;
+			content: "\0020";
+			border-top-width: 0;
+			border-bottom-color: $white;
+		}
+	}
+	&.left {
+		margin-left: -10px;
+		padding: 0 5px;
+		.note-popover-arrow {
+			top: 50%;
+			right: -11px;
+			margin-top: -10px;
+			border-right-width: 0;
+			border-left-color: $color_martini_approx;
+			border-left-color: $black_25;
+		}
+		.note-popover-arrow::after {
+			right: 1px;
+			margin-top: -10px;
+			content: "\0020";
+			border-right-width: 0;
+			border-left-color: $white;
+		}
+	}
+	&.popover {
+		display: none;
+		max-width: none;
+		.arrow {
+			left: 20px !important;
+		}
+		.popover-content a {
+			display: inline-block;
+			max-width: 200px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			vertical-align: middle;
+		}
+	}
+	.popover-content {
+		margin: 0;
+		padding: 0 0 5px 5px;
+		.note-color {
+			.dropdown-toggle {
+				width: 20px;
+				padding-left: 5px;
+			}
+			.note-dropdown-menu .note-palette {
+				display: inline-block;
+				margin: 0;
+				width: 160px;
+				&:first-child {
+					margin: 0 5px;
+				}
+				.note-palette-title {
+					font-size: 12px;
+					margin: 2px 7px;
+					text-align: center;
+					border-bottom: 1px solid $color_gallery_approx;
+				}
+				.note-color-reset {
+					font-size: 11px;
+					margin: 3px;
+					padding: 0 3px;
+					cursor: pointer;
+					width: 100%;
+					//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+					border-radius: 5px;
+					&:hover {
+						background: $color_gallery_approx;
+					}
+				}
+				.note-color-select {
+					font-size: 11px;
+					margin: 3px;
+					padding: 0 3px;
+					cursor: pointer;
+					width: 100%;
+					//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+					border-radius: 5px;
+					&:hover {
+						background: $color_gallery_approx;
+					}
+				}
+				.note-color-row {
+					height: 20px;
+				}
+				.note-color-select-btn {
+					display: none;
+				}
+				.note-holder-custom .note-color-btn {
+					border: 1px solid $color_gallery_approx;
+				}
+			}
+		}
+		.note-dropdown-menu {
+			min-width: 160px;
+			&.right {
+				right: 0;
+				left: auto;
+			}
+			&.right::before {
+				right: 9px;
+				left: auto !important;
+			}
+			&.right::after {
+				right: 10px;
+				left: auto !important;
+			}
+			&.note-check a {
+				i {
+					color: $color_cerulean_approx;
+					visibility: hidden;
+				}
+				&.checked i {
+					visibility: visible;
+				}
+			}
+		}
+		.note-fontsize-10 {
+			font-size: 10px;
+		}
+		.note-color-palette {
+			line-height: 1;
+			div .note-color-btn {
+				width: 20px;
+				height: 20px;
+				padding: 0;
+				margin: 0;
+				border: 0;
+				//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+				border-radius: 0;
+				&:hover {
+					//Instead of the line below you could use @include transform($scale, $rotate, $transx, $transy, $skewx, $skewy, $originx, $originy)
+					transform: scale(1.2);
+					//Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+					transition: all 0.2s;
+				}
+			}
+		}
+		> .note-btn-group {
+			margin-top: 5px;
+			margin-left: 0;
+			margin-right: 5px;
+		}
+		.note-btn-group .note-table {
+			min-width: 0;
+			padding: 5px;
+			.note-dimension-picker {
+				font-size: 18px;
+				.note-dimension-picker-mousecatcher {
+					position: absolute !important;
+					z-index: 3;
+					width: 10em;
+					height: 10em;
+					cursor: pointer;
+				}
+				.note-dimension-picker-unhighlighted {
+					position: relative !important;
+					z-index: 1;
+					width: 5em;
+					height: 5em;
+					background: url($data_uri_0) repeat;
+				}
+				.note-dimension-picker-highlighted {
+					position: absolute !important;
+					z-index: 2;
+					width: 1em;
+					height: 1em;
+					background: url($data_uri_1) repeat;
+				}
+			}
+		}
+		.note-style .dropdown-style {
+			blockquote {
+				margin: 0;
+				padding: 5px 10px;
+			}
+			pre {
+				margin: 0;
+				padding: 5px 10px;
+			}
+			h1 {
+				margin: 0;
+				padding: 0;
+			}
+			h2 {
+				margin: 0;
+				padding: 0;
+			}
+			h3 {
+				margin: 0;
+				padding: 0;
+			}
+			h4 {
+				margin: 0;
+				padding: 0;
+			}
+			h5 {
+				margin: 0;
+				padding: 0;
+			}
+			h6 {
+				margin: 0;
+				padding: 0;
+			}
+			p {
+				margin: 0;
+				padding: 0;
+			}
+		}
+		.note-color-all .note-dropdown-menu {
+			min-width: 337px;
+		}
+		.note-para .note-dropdown-menu {
+			min-width: 228px;
+			padding: 5px;
+			> div + div {
+				margin-left: 5px;
+			}
+		}
+	}
+}
+.note-popover-arrow {
+	position: absolute;
+	width: 0;
+	height: 0;
+	border: 11px solid transparent;
+}
+.note-popover-arrow::after {
+	position: absolute;
+	display: block;
+	width: 0;
+	height: 0;
+	border-color: transparent;
+	border-style: solid;
+	content: "\0020";
+	border-width: 10px;
+}
+.note-popover-content {
+	padding: 3px 8px;
+	color: $black;
+	text-align: center;
+	background-color: $white;
+	min-width: 100px;
+	min-height: 30px;
+}
+.note-editor {
+	position: relative;
+	.note-dropzone {
+		position: absolute;
+		display: none;
+		z-index: 100;
+		color: $color_malibu_approx;
+		background-color: $white;
+		opacity: 0.95;
+		.note-dropzone-message {
+			display: table-cell;
+			vertical-align: middle;
+			text-align: center;
+			font-size: 28px;
+			font-weight: 700;
+		}
+		&.hover {
+			color: $color_cerulean_approx;
+		}
+	}
+	.note-editing-area {
+		position: relative;
+		.note-editable {
+			outline: none;
+			sup {
+				vertical-align: super;
+			}
+			sub {
+				vertical-align: sub;
+			}
+			img {
+				&.note-float-left {
+					margin-right: 10px;
+				}
+				&.note-float-right {
+					margin-left: 10px;
+				}
+			}
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				td {
+					border: 1px solid $color_gallery_approx;
+					padding: 5px 3px;
+				}
+				th {
+					border: 1px solid $color_gallery_approx;
+					padding: 5px 3px;
+				}
+			}
+			a {
+				background-color: inherit;
+				text-decoration: inherit;
+				font-family: inherit;
+				font-weight: inherit;
+				color: $color_steel_blue_approx;
+				&:hover {
+					color: $color_blumine_approx;
+					text-decoration: underline;
+					outline: 0;
+				}
+				&:focus {
+					color: $color_blumine_approx;
+					text-decoration: underline;
+					outline: 0;
+				}
+			}
+			figure {
+				margin: 0;
+			}
+		}
+	}
+	&.note-frame {
+		border: 1px solid #00000032;
+		.note-editing-area {
+			overflow: hidden;
+			.note-editable {
+				padding: 10px;
+				overflow: auto;
+				word-wrap: break-word;
+			}
+			.note-editable[contenteditable=false] {
+				background-color: #8080801d;
+			}
+			.note-codable {
+				display: none;
+				width: 100%;
+				padding: 10px;
+				border: none;
+				//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+				box-shadow: none;
+				font-family: $font_2, $font_3, $font_4, $font_1;
+				font-size: 14px;
+				color: $color_silver_approx;
+				background-color: $color_mine_shaft_approx;
+				resize: none;
+				outline: none;
+				//Instead of the line below you could use @include box-sizing($bs)
+				box-sizing: border-box;
+				//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+				border-radius: 0;
+				margin-bottom: 0;
+			}
+		}
+		&.fullscreen {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100% !important;
+			z-index: 1050;
+			.note-resizebar {
+				display: none;
+			}
+		}
+		.note-status-output {
+			display: block;
+			width: 100%;
+			font-size: 14px;
+			line-height: 1.42857143;
+			height: 20px;
+			margin-bottom: 0;
+			color: $black;
+			border: 0;
+			border-top: 1px solid $color_mercury_approx;
+			&:empty {
+				height: 0;
+				border-top: 0 solid transparent;
+			}
+			.pull-right {
+				float: right !important;
+			}
+			.text-muted {
+				color: $color_boulder_approx;
+			}
+			.text-primary {
+				color: $color_st_tropaz_approx;
+			}
+			.text-success {
+				color: $color_killarney_approx;
+			}
+			.text-info {
+				color: $color_calypso_approx;
+			}
+			.text-warning {
+				color: $color_yellow_metal_approx;
+			}
+			.text-danger {
+				color: $color_apple_blossom_approx;
+			}
+			.alert {
+				margin: -7px 0 0;
+				padding: 7px 10px 2px;
+				//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+				border-radius: 0;
+				color: $black;
+				background-color: $color_wild_sand_approx;
+				.note-icon {
+					margin-right: 5px;
+				}
+			}
+			.alert-success {
+				color: $color_killarney_approx !important;
+				background-color: $color_zanah_approx !important;
+			}
+			.alert-info {
+				color: $color_calypso_approx !important;
+				background-color: $color_link_water_approx !important;
+			}
+			.alert-warning {
+				color: $color_yellow_metal_approx !important;
+				background-color: $color_pearl_lusta_approx !important;
+			}
+			.alert-danger {
+				color: $color_apple_blossom_approx !important;
+				background-color: $color_bizarre_approx !important;
+			}
+		}
+		.note-statusbar {
+			background-color: #8080801d;
+			//Instead of the line below you could use @include border-bottom-left-radius($radius)
+			border-bottom-left-radius: 4px;
+			//Instead of the line below you could use @include border-bottom-right-radius($radius)
+			border-bottom-right-radius: 4px;
+			border-top: 1px solid #00000032;
+			.note-resizebar {
+				padding-top: 1px;
+				height: 9px;
+				width: 100%;
+				cursor: ns-resize;
+				.note-icon-bar {
+					width: 20px;
+					margin: 1px auto;
+					border-top: 1px solid #00000032;
+				}
+			}
+			&.locked .note-resizebar {
+				cursor: default;
+				.note-icon-bar {
+					display: none;
+				}
+			}
+		}
+		.note-placeholder {
+			padding: 10px;
+		}
+		&.codeview .note-editing-area {
+			.note-editable {
+				display: none;
+			}
+			.note-codable {
+				display: block;
+			}
+		}
+	}
+	&.note-airframe {
+		border: 1px solid #00000032;
+		border: 0;
+		.note-editing-area {
+			overflow: hidden;
+			.note-editable {
+				padding: 10px;
+				overflow: auto;
+				word-wrap: break-word;
+				padding: 0;
+			}
+			.note-editable[contenteditable=false] {
+				background-color: #8080801d;
+			}
+			.note-codable {
+				display: none;
+				width: 100%;
+				padding: 10px;
+				border: none;
+				//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+				box-shadow: none;
+				font-family: $font_2, $font_3, $font_4, $font_1;
+				font-size: 14px;
+				color: $color_silver_approx;
+				background-color: $color_mine_shaft_approx;
+				resize: none;
+				outline: none;
+				//Instead of the line below you could use @include box-sizing($bs)
+				box-sizing: border-box;
+				//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+				border-radius: 0;
+				margin-bottom: 0;
+			}
+		}
+		&.fullscreen {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100% !important;
+			z-index: 1050;
+			.note-resizebar {
+				display: none;
+			}
+		}
+		.note-status-output {
+			display: block;
+			width: 100%;
+			font-size: 14px;
+			line-height: 1.42857143;
+			height: 20px;
+			margin-bottom: 0;
+			color: $black;
+			border: 0;
+			border-top: 1px solid $color_mercury_approx;
+			&:empty {
+				height: 0;
+				border-top: 0 solid transparent;
+			}
+			.pull-right {
+				float: right !important;
+			}
+			.text-muted {
+				color: $color_boulder_approx;
+			}
+			.text-primary {
+				color: $color_st_tropaz_approx;
+			}
+			.text-success {
+				color: $color_killarney_approx;
+			}
+			.text-info {
+				color: $color_calypso_approx;
+			}
+			.text-warning {
+				color: $color_yellow_metal_approx;
+			}
+			.text-danger {
+				color: $color_apple_blossom_approx;
+			}
+			.alert {
+				margin: -7px 0 0;
+				padding: 7px 10px 2px;
+				//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+				border-radius: 0;
+				color: $black;
+				background-color: $color_wild_sand_approx;
+				.note-icon {
+					margin-right: 5px;
+				}
+			}
+			.alert-success {
+				color: $color_killarney_approx !important;
+				background-color: $color_zanah_approx !important;
+			}
+			.alert-info {
+				color: $color_calypso_approx !important;
+				background-color: $color_link_water_approx !important;
+			}
+			.alert-warning {
+				color: $color_yellow_metal_approx !important;
+				background-color: $color_pearl_lusta_approx !important;
+			}
+			.alert-danger {
+				color: $color_apple_blossom_approx !important;
+				background-color: $color_bizarre_approx !important;
+			}
+		}
+		.note-statusbar {
+			background-color: #8080801d;
+			//Instead of the line below you could use @include border-bottom-left-radius($radius)
+			border-bottom-left-radius: 4px;
+			//Instead of the line below you could use @include border-bottom-right-radius($radius)
+			border-bottom-right-radius: 4px;
+			border-top: 1px solid #00000032;
+			.note-resizebar {
+				padding-top: 1px;
+				height: 9px;
+				width: 100%;
+				cursor: ns-resize;
+				.note-icon-bar {
+					width: 20px;
+					margin: 1px auto;
+					border-top: 1px solid #00000032;
+				}
+			}
+			&.locked .note-resizebar {
+				cursor: default;
+				.note-icon-bar {
+					display: none;
+				}
+			}
+		}
+		.note-placeholder {
+			padding: 10px;
+		}
+		&.codeview .note-editing-area {
+			.note-editable {
+				display: none;
+			}
+			.note-codable {
+				display: block;
+			}
+		}
+	}
+	.note-toolbar {
+		margin: 0;
+		padding: 0 0 5px 5px;
+		.note-color {
+			.dropdown-toggle {
+				width: 20px;
+				padding-left: 5px;
+			}
+			.note-dropdown-menu .note-palette {
+				display: inline-block;
+				margin: 0;
+				width: 160px;
+				&:first-child {
+					margin: 0 5px;
+				}
+				.note-palette-title {
+					font-size: 12px;
+					margin: 2px 7px;
+					text-align: center;
+					border-bottom: 1px solid $color_gallery_approx;
+				}
+				.note-color-reset {
+					font-size: 11px;
+					margin: 3px;
+					padding: 0 3px;
+					cursor: pointer;
+					width: 100%;
+					//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+					border-radius: 5px;
+					&:hover {
+						background: $color_gallery_approx;
+					}
+				}
+				.note-color-select {
+					font-size: 11px;
+					margin: 3px;
+					padding: 0 3px;
+					cursor: pointer;
+					width: 100%;
+					//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+					border-radius: 5px;
+					&:hover {
+						background: $color_gallery_approx;
+					}
+				}
+				.note-color-row {
+					height: 20px;
+				}
+				.note-color-select-btn {
+					display: none;
+				}
+				.note-holder-custom .note-color-btn {
+					border: 1px solid $color_gallery_approx;
+				}
+			}
+		}
+		.note-dropdown-menu {
+			min-width: 160px;
+			&.right {
+				right: 0;
+				left: auto;
+			}
+			&.right::before {
+				right: 9px;
+				left: auto !important;
+			}
+			&.right::after {
+				right: 10px;
+				left: auto !important;
+			}
+			&.note-check a {
+				i {
+					color: $color_cerulean_approx;
+					visibility: hidden;
+				}
+				&.checked i {
+					visibility: visible;
+				}
+			}
+		}
+		.note-fontsize-10 {
+			font-size: 10px;
+		}
+		.note-color-palette {
+			line-height: 1;
+			div .note-color-btn {
+				width: 20px;
+				height: 20px;
+				padding: 0;
+				margin: 0;
+				border: 0;
+				//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+				border-radius: 0;
+				&:hover {
+					//Instead of the line below you could use @include transform($scale, $rotate, $transx, $transy, $skewx, $skewy, $originx, $originy)
+					transform: scale(1.2);
+					//Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+					transition: all 0.2s;
+				}
+			}
+		}
+		> .note-btn-group {
+			margin-top: 5px;
+			margin-left: 0;
+			margin-right: 5px;
+		}
+		.note-btn-group .note-table {
+			min-width: 0;
+			padding: 5px;
+			.note-dimension-picker {
+				font-size: 18px;
+				.note-dimension-picker-mousecatcher {
+					position: absolute !important;
+					z-index: 3;
+					width: 10em;
+					height: 10em;
+					cursor: pointer;
+				}
+				.note-dimension-picker-unhighlighted {
+					position: relative !important;
+					z-index: 1;
+					width: 5em;
+					height: 5em;
+					background: url($data_uri_0) repeat;
+				}
+				.note-dimension-picker-highlighted {
+					position: absolute !important;
+					z-index: 2;
+					width: 1em;
+					height: 1em;
+					background: url($data_uri_1) repeat;
+				}
+			}
+		}
+		.note-style .dropdown-style {
+			blockquote {
+				margin: 0;
+				padding: 5px 10px;
+			}
+			pre {
+				margin: 0;
+				padding: 5px 10px;
+			}
+			h1 {
+				margin: 0;
+				padding: 0;
+			}
+			h2 {
+				margin: 0;
+				padding: 0;
+			}
+			h3 {
+				margin: 0;
+				padding: 0;
+			}
+			h4 {
+				margin: 0;
+				padding: 0;
+			}
+			h5 {
+				margin: 0;
+				padding: 0;
+			}
+			h6 {
+				margin: 0;
+				padding: 0;
+			}
+			p {
+				margin: 0;
+				padding: 0;
+			}
+		}
+		.note-color-all .note-dropdown-menu {
+			min-width: 337px;
+		}
+		.note-para .note-dropdown-menu {
+			min-width: 228px;
+			padding: 5px;
+			> div + div {
+				margin-left: 5px;
+			}
+		}
+	}
+	&.dragover .note-dropzone {
+		display: table;
+	}
+}
+.note-placeholder {
+	position: absolute;
+	display: none;
+	color: $gray;
+}
+.note-hint-popover {
+	min-width: 100px;
+	padding: 2px;
+	.popover-content {
+		padding: 3px;
+		max-height: 150px;
+		overflow: auto;
+		.note-hint-group .note-hint-item {
+			display: block !important;
+			padding: 3px;
+			&.active {
+				display: block;
+				clear: both;
+				font-weight: 400;
+				line-height: 1.4;
+				color: $white;
+				white-space: nowrap;
+				text-decoration: none;
+				background-color: $color_havelock_blue_approx;
+				outline: 0;
+				cursor: pointer;
+			}
+			&:hover {
+				display: block;
+				clear: both;
+				font-weight: 400;
+				line-height: 1.4;
+				color: $white;
+				white-space: nowrap;
+				text-decoration: none;
+				background-color: $color_havelock_blue_approx;
+				outline: 0;
+				cursor: pointer;
+			}
+		}
+	}
+}
+[class^=note-icon]:before {
+	@extend %extend_1;
+}
+[class*=" note-icon"]:before {
+	@extend %extend_1;
+}
+fieldset[disabled] .note-btn {
+	@extend %extend_5;
+	&:focus {
+		background-color: $white;
+		border-color: $color_geyser_approx;
+	}
+	&.focus {
+		background-color: $white;
+		border-color: $color_geyser_approx;
+	}
+}
+input[type=submit].note-btn-block {
+	width: 100%;
+}
+input[type=reset].note-btn-block {
+	width: 100%;
+}
+input[type=button].note-btn-block {
+	width: 100%;
+}
+button.close {
+	padding: 0;
+	cursor: pointer;
+	background: transparent;
+	border: 0;
+}
+.note-color .dropdown-toggle {
+	width: 30px;
+	padding-left: 5px;
+}
+a.note-dropdown-item {
+	@extend %extend_7;
+	&:hover {
+		@extend %extend_7;
+	}
+}
+@-moz-document url-prefix() {
+	.note-modal .note-image-input: ;
+}
+.note-handle .note-control-selection {
+	position: absolute;
+	display: none;
+	border: 1px solid $black;
+	> div {
+		position: absolute;
+	}
+	.note-control-selection-bg {
+		width: 100%;
+		height: 100%;
+		background-color: $black;
+		opacity: 0.3;
+		filter: alpha(opacity=30);
+	}
+	.note-control-handle {
+		width: 7px;
+		height: 7px;
+		border: 1px solid $black;
+	}
+	.note-control-sizing {
+		width: 7px;
+		height: 7px;
+		border: 1px solid $black;
+		background-color: $black;
+	}
+	.note-control-holder {
+		width: 7px;
+		height: 7px;
+		border: 1px solid $black;
+	}
+	.note-control-nw {
+		top: -5px;
+		left: -5px;
+		border-right: none;
+		border-bottom: none;
+	}
+	.note-control-ne {
+		top: -5px;
+		right: -5px;
+		border-bottom: none;
+		border-left: none;
+	}
+	.note-control-sw {
+		bottom: -5px;
+		left: -5px;
+		border-top: none;
+		border-right: none;
+	}
+	.note-control-se {
+		right: -5px;
+		bottom: -5px;
+		cursor: se-resize;
+		&.note-control-holder {
+			cursor: default;
+			border-top: none;
+			border-left: none;
+		}
+	}
+	.note-control-selection-info {
+		right: 0;
+		bottom: 0;
+		padding: 5px;
+		margin: 5px;
+		color: $white;
+		background-color: $black;
+		font-size: 12px;
+		//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+		border-radius: 5px;
+		opacity: 0.7;
+		filter: alpha(opacity=70);
+	}
+}
+html .note-fullscreen-body {
+	overflow: hidden !important;
+}
+body .note-fullscreen-body {
+	overflow: hidden !important;
+}
+.help-list-item label {
+	margin-bottom: 5px;
+	display: inline-block;
+}

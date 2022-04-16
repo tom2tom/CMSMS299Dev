@@ -38,7 +38,7 @@ use Throwable;
  * Store and retrieve other properties using CMSMS\SingleItem::{set|get}propkey
  *
  * @final
- * @since 2.99
+ * @since 3.0
  * @package CMS
  * @license GPL
  * @throws RuntimeException if the supplied classname or property name

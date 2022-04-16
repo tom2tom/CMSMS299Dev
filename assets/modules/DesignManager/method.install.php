@@ -100,7 +100,7 @@ try {
 }
 // register events for which other parts of the system may listen
 // these have been migrated from the main installer
-// pre 2.99 these events' originator was 'Core'
+// pre 3.0 these events' originator was 'Core'
 foreach([
 	'AddDesignPost',
 	'AddDesignPre',

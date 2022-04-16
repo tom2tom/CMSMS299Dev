@@ -24,6 +24,10 @@ $lang = [
 'dropshort' => 'Drop Zone',
 
 // E
+'error_ajax_invalidfilename' => 'Filename is invalid',
+'error_ajax_fileexists' => 'A file or directory with that name already exists',
+'error_ajax_mkdir' => 'A problem occurred creating the directory %s',
+'error_ajax_writepermission' => 'You do not have permission to write to this directory',
 'error_failed_ajax' => 'A problem occurred with an ajax request',
 'error_problem_upload' => 'A problem occurred uploading',
 'error_title' => 'Reported error(s)',

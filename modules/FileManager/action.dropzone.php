@@ -40,7 +40,7 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'],'M
     $tpl->assign('is_ie',1);
 }
 elseif ($template == 'dropzone.tpl') {
-    $chdir_url = $this->create_action_url($id,'changedir',[CMS_JOB_KEY=>1]);
+    $chdir_url = $this->create_action_url($id,'changedir',['forjs'=>1,CMS_JOB_KEY=>1]);
     $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[

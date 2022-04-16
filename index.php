@@ -115,7 +115,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 			throw new Error404Exception('Cannot view an unviewable page');
 		}
 
-		// deprecated (since 2.99) secure-page processing
+		// deprecated (since 3.0) secure-page processing
 		if ($contentobj->Secure() && !$_app->is_https_request()) {
 			// redirect to the secure page
 			$url = $contentobj->GetURL(); // CMS_ROOT_URL... i.e. absolute

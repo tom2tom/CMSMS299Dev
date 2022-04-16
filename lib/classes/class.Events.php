@@ -1,7 +1,7 @@
 <?php
 /*
 Class for handling and dispatching events
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -337,7 +337,7 @@ EOS;
 	 * Record a handler of the specified event.
 	 * User Defined Tags may be event handlers, so that relevant admin users
 	 * can customize event handling on-the-fly.
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
@@ -410,7 +410,7 @@ EOS;
 	 * Record a handler of the specified event.
 	 * User Defined Tags may be event handlers, so that relevant admin users
 	 * can customize event handling on-the-fly.
-	 * @deprecated since 2.99 Instead use AddStaticHandler()
+	 * @deprecated since 3.0 Instead use AddStaticHandler()
 	 *
 	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
@@ -438,7 +438,7 @@ EOS;
 	}
 
 	/**
-	 * @since 2.99
+	 * @since 3.0
 	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
 	 * @param mixed $handler an actual or pseudo callable or an equivalent string
@@ -537,7 +537,7 @@ EOS;
 
 	/**
 	 * Remove a handler of the given event.
-	 * @deprecated since 2.99 Instead use RemoveStaticHandler()
+	 * @deprecated since 3.0 Instead use RemoveStaticHandler()
 	 *
 	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event

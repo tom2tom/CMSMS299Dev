@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\FormUtils;
 use CMSMS\SingleItem;
 
-// since 2.99
+// since 3.0
 function smarty_function_cms_init_editor($params, $template)
 {
 	$wysiwyg = $params['wysiwyg'] ?? '';

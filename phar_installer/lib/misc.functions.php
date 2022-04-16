@@ -185,7 +185,7 @@ function is_email(string $str) : bool
  * This is a cousin of PHP's filter_var(FILTER_SANITIZE...).
  * @see also CMSMS\execSpecialize()
  * @internal
- * @since 2.99
+ * @since 3.0
  *
  * @param string $str String to be cleaned
  * @param int $scope Optional enumerator
@@ -424,7 +424,7 @@ function get_sys_tmpdir() : string
  * Get filesystem permission 'modes' appropriate for the server to read and write
  * files and in directories. For the latter, access permission is included.
  * For read + write, the relevant 2 modes must be OR'd.
- * @since 2.99
+ * @since 3.0
  * @return array, 4 integer members
  * [0] file read
  * [1] file read+write
@@ -522,7 +522,7 @@ function is_directory_writable(string $path, bool $ignore_specialfiles = true) :
  * Recursive delete directory
  *
  * @param string $path filepath
- * @param bool $withtop Since 2.99 Optional flag whether to remove $path
+ * @param bool $withtop Since 3.0 Optional flag whether to remove $path
  *  itself, as well as all its contents. Default true.
  */
 function rrmdir($path, $withtop = true)

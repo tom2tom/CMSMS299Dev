@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton class of functions to manage modules' smarty plugins
-Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -43,7 +43,7 @@ use function startswith;
  * A singleton class to manage smarty plugins registered by modules.
  * NOTE the method-names' '_' prefix.
  * Methods may be called statically as ModulePluginOperations::function()
- * or (since 2.99) as non-static (new ModulePluginOperations())->_function()
+ * or (since 3.0) as non-static (new ModulePluginOperations())->_function()
  *
  * @package CMS
  * @license GPL
@@ -113,7 +113,7 @@ final class ModulePluginOperations
 
 	/**
 	 * Initialize 'module_plugins' loaded-data cache
-	 * @since 2.99
+	 * @since 3.0
 	 */
 	public static function load_setup()
 	{
@@ -125,7 +125,7 @@ final class ModulePluginOperations
 			}
 			$data = [];
 			$tmp = SingleItem::LoadedMetadata()->get('capable_modules', $force, CoreCapabilities::PLUGIN_MODULE); //TODO might need forced if this loader is forced
-			$tmp2 = SingleItem::LoadedMetadata()->get('methodic_modules', $force, 'IsPluginModule'); //deprecated since 2.99
+			$tmp2 = SingleItem::LoadedMetadata()->get('methodic_modules', $force, 'IsPluginModule'); //deprecated since 3.0
 			if( $tmp || $tmp2 ) {
 				$val = AppParams::get('smarty_cachemodules', 0);
 				if( $val ) {
@@ -175,7 +175,7 @@ final class ModulePluginOperations
 	 * Process a module-tag
 	 * This method (or its static equivalent) is used by the {cms_module} plugin
 	 * and to process {ModuleName} tags
-	 * @since 2.99 this does the work for global method cms_module_plugin()
+	 * @since 3.0 this does the work for global method cms_module_plugin()
 	 *
 	 * @param array $params A hash of action-parameters
 	 * @param object $template A Smarty_Internal_Template object
@@ -198,10 +198,10 @@ final class ModulePluginOperations
 		if( !empty($params['action']) ) {
 			// action was set in the module tag
 			$action = $params['action'];
-//			unset($params['action']);  unfortunate 2.99 deprecation
+//			unset($params['action']);  unfortunate 3.0 deprecation
 		}
 		else {
-			$params['action'] = $action = 'default'; //2.99 deprecation
+			$params['action'] = $action = 'default'; //3.0 deprecation
 		}
 
 		if( !empty($params['idprefix']) ) {
@@ -226,7 +226,7 @@ final class ModulePluginOperations
 				$inline = !empty($rparams['inline']);
 				if( $inline && $checkid == $id ) {
 					$action = $rparams['action'] ?? 'default';
-					$params['action'] = $action; // deprecated since 2.99
+					$params['action'] = $action; // deprecated since 3.0
 					unset($rparams['module'], $rparams['id'], $rparams['action'], $rparams['inline']);
 					$params = array_merge($params, $rparams, RequestParameters::get_identified_params($id));
 				}
@@ -246,13 +246,13 @@ final class ModulePluginOperations
 					// the action is for this instance of the module and we're inline
 					// i.e. the results are supposed to replace the tag, not {content}
 					$action = $ary[2] ?? 'default';
-					$params['action'] = $action; // deprecated since 2.99
+					$params['action'] = $action; // deprecated since 3.0
 					$params = array_merge($params, RequestParameters::get_identified_params($id));
 				}
 			}
 		}
 */
-		$params['id'] = $id; // deprecated since 2.99
+		$params['id'] = $id; // deprecated since 3.0
 		if( $setid ) {
 			$params['idprefix'] = $id; // might be needed per se, probably not
 			$mod->SetParameterType('idprefix', CLEAN_STRING); // in case it's a frontend request
@@ -272,7 +272,7 @@ final class ModulePluginOperations
 	/**
 	 * Return the module (if any) to use for processing the specified tag.
 	 * Any dependent module(s) will also be loaded.
-	 * @since 2.99
+	 * @since 3.0
 	 * @param string $name Name of the tag whose processor-module is wanted
 	 * @param string $type Optional tag type (commonly Smarty::PLUGIN_FUNCTION, maybe Smarty::PLUGIN_BLOCK,
 	 *  Smarty::PLUGIN_COMPILER, Smarty::PLUGIN_MODIFIER, Smarty::PLUGIN_MODIFIERCOMPILER)
@@ -341,7 +341,7 @@ final class ModulePluginOperations
 
 	/**
 	 * Try to find a match for a named & typed module-plugin
-	 * Since 2.99, the name-comparison is case-insensitive
+	 * Since 3.0, the name-comparison is case-insensitive
 	 *
 	 * @param string $name tag identifier, usually a module-name (any case)
 	 * @param string $type tag-type 'function' etc
@@ -362,7 +362,7 @@ final class ModulePluginOperations
 	}
 
 	/**
-	 * @since 2.99
+	 * @since 3.0
 	 * @ignore
 	 * @param string $module_name The module name
 	 * @param mixed $callable string|array
@@ -411,7 +411,7 @@ final class ModulePluginOperations
 
 	/**
 	 * Add information about a plugin to the 'module_plugins' system-data cache
-	 * @since 2.99
+	 * @since 3.0
 	 * @param string $module_name The module name
 	 * @param string $name  The plugin name
 	 * @param string $type  The plugin type (normally 'function')
@@ -420,7 +420,7 @@ final class ModulePluginOperations
 	 *  [$module_name, 'plugin_handler']
 	 *  'plugin_handler' (in which case the module name will be added)
 	 *  or a falsy value results in the default handler being used
-	 * @param bool $cachable Deprecated since 2.99 Whether the plugin is cachable. Default true
+	 * @param bool $cachable Deprecated since 3.0 Whether the plugin is cachable. Default true
 	 * @param int  $available Flag(s) indicating the intended use(s) of the plugin. Default AVAIL_FRONTEND.
 	 *   See AVAIL_ADMIN and AVAIL_FRONTEND
 	 * @return bool indicating success
@@ -475,7 +475,7 @@ final class ModulePluginOperations
 	 *  [$module_name, 'plugin_handler']
 	 *  'plugin_handler' (in which case the module name will be added)
 	 *  or a falsy value results in the default handler being used
-	 * @param bool $cachable Deprecated since 2.99 Whether the plugin is cachable. Default true
+	 * @param bool $cachable Deprecated since 3.0 Whether the plugin is cachable. Default true
 	 * @param int  $available Flag(s) indicating the intended use(s) of the plugin. Default AVAIL_FRONTEND.
 	 *   See AVAIL_ADMIN and AVAIL_FRONTEND
 	 * @return mixed boolean | null

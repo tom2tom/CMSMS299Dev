@@ -1,7 +1,7 @@
 <?php
 /*
 Class for working with (optionally-namespaced) recorded parameters.
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -30,7 +30,7 @@ use const CMS_DB_PREFIX;
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  * @since 1.10 as global-namespace cms_siteprefs
  */
 final class AppParams
@@ -95,7 +95,7 @@ final class AppParams
 	 * cache, and for getting module-preferences, and for use in async
 	 * tasks, where the cache is N/A.
 	 *
-	 * @since 2.99
+	 * @since 3.0
 	 * @param mixed string (may be empty) | array $key Preference name(s)
 	 * @param mixed scalar | array $dflt Optional default value(s)
 	 * @param bool   $like Optional flag whether to interpret $key as
@@ -151,7 +151,7 @@ final class AppParams
 	 *
 	 * @param string $key The preference name (may be empty)
 	 * @param mixed scalar | array $dflt Optional default value(s)
-	 * @param bool  Since 2.99 $like Optional flag whether to interpret
+	 * @param bool  Since 3.0 $like Optional flag whether to interpret
 	 *  $key as (filename) wildcarded. Default false.
 	 * @return string
 	 */

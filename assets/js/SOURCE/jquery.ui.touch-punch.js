@@ -1,5 +1,5 @@
 /*
- * jQuery UI Touch Punch 0.3
+ * jQuery UI Touch Punch 0.4
  *
  * Copyright 2011-2020, Dave Furfero http://furf.com
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -9,7 +9,7 @@
  *  jquery.ui.mouse.js
  */
 /*!
-jQuery UI Touch Punch v0.3
+jQuery UI Touch Punch v0.4
 (C) 2011-2020 Dave Furfero http://furf.com
 License: MIT or GPL2
 */
@@ -97,15 +97,13 @@ License: MIT or GPL2
   }
 
   /**
-   * Handle the jQuery UI widget's touchstart events
+   * Override the jQuery UI widget's touchstart events
    * @param {Object} event The widget element's touchstart event
    */
   mouseProto._touchStart = function(event) {
 
-    var self = this;
-
     // Ignore the event if another widget is already being handled
-    if (touchHandled || !self._mouseCapture(event.originalEvent.changedTouches[0])) {
+    if (touchHandled || !this._mouseCapture(event.originalEvent.changedTouches[0])) {
       return;
     }
 
@@ -113,7 +111,7 @@ License: MIT or GPL2
     touchHandled = true;
 
     // Track movement to determine if interaction was a click
-    self._touchMoved = false;
+    this._touchMoved = false;
 
     // Simulate the mouseover event
     simulateMouseEvent(event, 'mouseover');
@@ -126,7 +124,7 @@ License: MIT or GPL2
   };
 
   /**
-   * Handle the jQuery UI widget's touchmove events
+   * Override the jQuery UI widget's touchmove events
    * @param {Object} event The document's touchmove event
    */
   mouseProto._touchMove = function(event) {
@@ -144,7 +142,7 @@ License: MIT or GPL2
   };
 
   /**
-   * Handle the jQuery UI widget's touchend events
+   * Override the jQuery UI widget's touchend events
    * @param {Object} event The document's touchend event
    */
   mouseProto._touchEnd = function(event) {
@@ -179,17 +177,15 @@ License: MIT or GPL2
    */
   mouseProto._mouseInit = function() {
 
-    var self = this;
-
     // Delegate the touch handlers to the widget's element
-    self.element.on({
-      touchstart: $.proxy(self, '_touchStart'),
-      touchmove: $.proxy(self, '_touchMove'),
-      touchend: $.proxy(self, '_touchEnd')
+    this.element.on({
+      touchstart: this._touchStart.bind(this),
+      touchmove: this._touchMove.bind(this),
+      touchend: this._touchEnd.bind(this)
     });
 
     // Call the original $.ui.mouse init method
-    _mouseInit.call(self);
+    _mouseInit.call(this);
   };
 
   /**
@@ -197,17 +193,15 @@ License: MIT or GPL2
    */
   mouseProto._mouseDestroy = function() {
 
-    var self = this;
-
-    // Delegate the touch handlers to the widget's element
-    self.element.off({
-      touchstart: $.proxy(self, '_touchStart'),
-      touchmove: $.proxy(self, '_touchMove'),
-      touchend: $.proxy(self, '_touchEnd')
+    // Cancel touch handlers delegation
+    this.element.off({
+      touchstart: this._touchStart,
+      touchmove: this._touchMove,
+      touchend: this._touchEnd
     });
 
     // Call the original $.ui.mouse destroy method
-    _mouseDestroy.call(self);
+    _mouseDestroy.call(this);
   };
 
 })(jQuery, navigator, window, document);

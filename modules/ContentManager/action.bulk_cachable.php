@@ -37,7 +37,7 @@ if( empty($params['bulk_content']) ) {
 
 $contentops = SingleItem::ContentOperations();
 $pagelist = $params['bulk_content'];
-$cachable = !empty($params['cachable']);
+$cachable = isset($params['cachable']) && cms_to_bool($params['cachable']);
 $user_id = get_userid();
 $n = 0;
 

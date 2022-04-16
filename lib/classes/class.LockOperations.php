@@ -48,7 +48,7 @@ final class LockOperations
 
     /**
      * Load a lock object matching the supplied parameters
-     * @since 2.99 (formerly a Lock-class method)
+     * @since 3.0 (formerly a Lock-class method)
      *
      * @param string $type  Locked-object type
      * @param int $oid  Locked-object identifier
@@ -75,7 +75,7 @@ final class LockOperations
 
     /**
      * Load a lock object matching the supplied parameters
-     * @since 2.99 (formerly a Lock-class method)
+     * @since 3.0 (formerly a Lock-class method)
      *
      * @param int $lock_id Lock identifier
      * @param string $type Locked-object type
@@ -161,7 +161,7 @@ final class LockOperations
      * Get all locks, or all of a specific type
      *
      * @param string $type Optional locked-object type. Default '' (hence any type)
-     * @param bool   $by_state Since 2.99 Optional flag indicating result
+     * @param bool   $by_state Since 3.0 Optional flag indicating result
      *  format. If true, return array of data including
      *  [type],object_id,user_id,status = 1(stealable) or -1(not stealable)
      *  If false, return lock objects. Default false.
@@ -201,7 +201,7 @@ final class LockOperations
     /**
      * Report whether a lock (if any) having the specified type
      * and identifier may be stolen by the current user
-     * @since 2.99
+     * @since 3.0
      *
      * @param string $type Locked-object type
      * @param int $oid Locked-object identifier
@@ -226,7 +226,7 @@ final class LockOperations
 
     /**
      * Save a lock
-     * @since 2.99
+     * @since 3.0
      *
      * @param mixed $a Lock object or assoc. array of lock-properties
      * @return int id of processed lock
@@ -279,7 +279,7 @@ VALUES (?,?,?,?)';
 
     /**
      * Expunge lock data from the database
-     * @since 2.99
+     * @since 3.0
      *
      * @param mixed $a Lock object or assoc. array of lock-properties
      * @return bool indicating success
@@ -374,7 +374,7 @@ VALUES (?,?,?,?)';
 
     /**
      * Delete locks held by the specified user
-     * @since 2.99
+     * @since 3.0
      *
      * @param int $userid  User id
      * @param string $type An optional type name.

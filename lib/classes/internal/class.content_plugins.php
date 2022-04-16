@@ -138,8 +138,8 @@ final class content_plugins
      * Fetch/process frontend page content so that smarty stuff can be
      * handled, but don't display the content.
      * The tag has been a mechanism for out-of-order page content processing.
-     * @since 2.99
-     * @deprecated since 2.99
+     * @since 3.0
+     * @deprecated since 3.0
      * @param array $params
      * @param template_wrapper $template
      * @return empty string
@@ -315,7 +315,7 @@ final class content_plugins
 
             $action = $params['action'];
             $params = RequestParameters::get_identified_params($id);
-            $params['action'] = $action; //deprecated since 2.99
+            $params['action'] = $action; //deprecated since 3.0
             $result = $mod->DoActionBase($action, $id, $params, $page_id, $smarty);
         }
         else {

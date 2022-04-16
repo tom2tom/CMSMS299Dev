@@ -1,7 +1,7 @@
 <?php
 /*
 Set up infrastructure for processing a request
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -117,7 +117,7 @@ add_shutdown(500, 'CSMS\dbshutdown');
 $db = new Connection($config);
 SingleItem::insert('Db', $db);
 require_once $dirpath.'compat.functions.php'; // old function- and/or class-aliases
-//deprecated since 2.99 (at most): make old stuff available
+//deprecated since 3.0 (at most): make old stuff available
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'Database'.DIRECTORY_SEPARATOR.'class.compatibility.php';
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'library.Exception.php'; // bundle of exception-classes in 1 file, not auto-loadable
 
@@ -137,7 +137,7 @@ if ($params[CMS_JOB_KEY] !== null) {
     // normal output
     $CMS_JOB_TYPE = 0;
 }
-// since 2.99 value 0|1|2 indicates the type of request, hence appropriate inclusions
+// since 3.0 value 0|1|2 indicates the type of request, hence appropriate inclusions
 $_app->JOBTYPE = $CMS_JOB_TYPE;
 do_template_processing($CMS_JOB_TYPE < 2);
 
@@ -183,7 +183,7 @@ if ($administering) {
 }
 
 $cache = SingleItem::LoadedData();
-// deprecated since 2.99 useless, caching saves minimal time | effort
+// deprecated since 3.0 useless, caching saves minimal time | effort
 $obj = new LoadedDataType('schema_version', function() {
     return get_installed_schema_version();
 });

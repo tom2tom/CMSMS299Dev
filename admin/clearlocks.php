@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-//NOTE since 2.99, something like this is performed by an async Job
+//NOTE since 3.0, something like this is performed by an async Job
 
 use CMSMS\LockOperations;
 use CMSMS\SingleItem;

@@ -1,8 +1,8 @@
 <?php
 /*
 Deprecated plugin to get includable scripts and/or related styles
-Deprecated since 2.99, this just hands-over to plugin {get_jquery}
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Deprecated since 3.0, this just hands-over to plugin {get_jquery}
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -28,7 +28,7 @@ function smarty_function_cms_jquery($params, $template)
 
 function smarty_cms_help_function_cms_jquery()
 {
-	echo '<p>Deprecated since CMSMS 2.99.</p>
+	echo '<p>Deprecated since CMSMS 3.0.</p>
 <p>This merely hands-over to plugin <code>{get_jquery}</code>.<br />
 Use that plugin instead.</p>';
 }

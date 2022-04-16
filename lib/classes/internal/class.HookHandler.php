@@ -46,7 +46,7 @@ class HookHandler
     /**
      * Constructor.
      * @param callable $handler
-     * @param int $priority Optional since 2.99, Default HookOperations::PRIORITY_NORMAL
+     * @param int $priority Optional since 3.0, Default HookOperations::PRIORITY_NORMAL
      * @throws InvalidArgumentException if $handler is not callable
      */
     public function __construct($handler, int $priority = HookOperations::PRIORITY_NORMAL)

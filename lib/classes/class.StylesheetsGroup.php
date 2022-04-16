@@ -40,7 +40,7 @@ use function CMSMS\log_info;
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  */
 class StylesheetsGroup
 {

@@ -48,7 +48,7 @@ final class CoreCapabilities extends BasicEnum
 
 	/**
 	 * A constant indicating that the module is core/system
-	 * @since 2.99
+	 * @since 3.0
 	 */
 	const CORE_MODULE = 'coremodule';
 
@@ -59,13 +59,13 @@ final class CoreCapabilities extends BasicEnum
 
 	/**
 	 * A constant indicating that the module manages async jobs
-	 * @since 2.99
+	 * @since 3.0
 	 */
 	const JOBS_MODULE = 'handles_jobs';
 
 	/**
 	 * A constant indicating that the module handles admin console logins
-	 * @since 2.99
+	 * @since 3.0
 	 */
 	const LOGIN_MODULE = 'handles_login';
 
@@ -76,7 +76,7 @@ final class CoreCapabilities extends BasicEnum
 
 	/**
 	 * A constant indicating that the module sets [non-]static route(s) during construction and/or initialization
-	 * @since 2.99
+	 * @since 3.0
 	 */
 	const ROUTE_MODULE = 'routable';
 
@@ -87,7 +87,7 @@ final class CoreCapabilities extends BasicEnum
 
 	/**
 	 * A constant indicating that the module sends email
-	 * @since 2.99
+	 * @since 3.0
 	 */
 	const EMAIL_MODULE = 'sends_email';
 
@@ -96,7 +96,7 @@ final class CoreCapabilities extends BasicEnum
 	 * operations in accord with recorded preferences/settings. In effect,
 	 * a generalization of WYSIWYG_MODULE, SYNTAX_MODULE etc but geared
      * toward value-management via admin UI
-	 * @since 2.99
+	 * @since 3.0
 	 */
 	const SITE_SETTINGS = 'handles_sitevars';
 
@@ -118,7 +118,7 @@ final class CoreCapabilities extends BasicEnum
 	 * with recorded user preferences/settings. In effect, a
 	 * generalization of WYSIWYG_MODULE, SYNTAX_MODULE etc but
 	 * geared toward value-management via admin UI
-	 * @since 2.99
+	 * @since 3.0
 	 */
 	const USER_SETTINGS = 'handles_uservars';
 

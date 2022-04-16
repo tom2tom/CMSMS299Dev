@@ -25,7 +25,7 @@ if( !$this->CheckPermission('Modify Site Preferences' ) ) exit;
 
 $this->SetCurrentTab('prefs');
 
-if( $config['develop_mode'] && !empty($params['reseturl']) ) {
+if( $config['develop_mode'] && isset($params['reseturl']) && cms_to_bool($params['reseturl']) ) {
     $this->SetPreference('module_repository',ModuleManager::_dflt_request_url);
     $this->SetMessage($this->Lang('msg_urlreset'));
     $this->RedirectToAdminTab();

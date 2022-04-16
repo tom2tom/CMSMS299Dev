@@ -1,7 +1,7 @@
 <?php
 /*
 Smarty security policy
-Copyright (C) 2011-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2011-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -22,13 +22,13 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS\internal;
 
 use CMSMS\SingleItem;
-use Smarty;
+//use Smarty;
 use Smarty_Security;
 
 /**
  * Generic smarty security policy.
  * @final
- * @since    2.99
+ * @since    3.0
  * @since    1.11 as smarty_security_policy
  * @package  CMS
  * @internal
@@ -39,7 +39,7 @@ final class SmartySecurityPolicy extends Smarty_Security
     public function __construct($smarty)
     {
         parent::__construct($smarty);
-        $this->php_handling = Smarty::PHP_REMOVE; // escape literal <?php ... ? > tags in templates
+//Smarty 2/3 $this->php_handling = Smarty::PHP_REMOVE; // escape literal <?php ... ? > tags in templates
         $this->php_modifiers = []; // allow all
         $this->secure_dir = null; // block stuff happening outside the specified directories
         $this->streams = null; // no streams allowed
@@ -52,19 +52,19 @@ final class SmartySecurityPolicy extends Smarty_Security
                 // modification or formatting ahead of or during display
                 // e.g. string searches, array searches, string comparison, sorting, etc.
                 $this->php_functions = [
-                '_la', //since 2.99
-                '_ld', //since 2.99
-                '_lm', //since 2.99
+                '_la', //since 3.0
+                '_ld', //since 3.0
+                '_lm', //since 3.0
                 'array_flip',
                 'array_rand',
                 'array_reverse',
                 'array_search',
                 'asort',
-                'cms_join_path', //since 2.99
-                'CMSMS\entitize', //since 2.99
-                'CMSMS\specialize', //since 2.99
-                'CMSMS\sanitizeVal', //since 2.99
-                'CMSMS\tailorpage', //since 2.99
+                'cms_join_path', //since 3.0
+                'CMSMS\entitize', //since 3.0
+                'CMSMS\specialize', //since 3.0
+                'CMSMS\sanitizeVal', //since 3.0
+                'CMSMS\tailorpage', //since 3.0
                 'count',
                 'date',
                 'debug_display',
@@ -72,9 +72,9 @@ final class SmartySecurityPolicy extends Smarty_Security
                 'endswith',
                 'explode',
                 'file_exists',
-                'html_entity_decode', //unused input-cleaner, deprecated since 2.99
+                'html_entity_decode', //unused input-cleaner, deprecated since 3.0
                 'htmlentities',
-                'htmlspecialchars_decode', //unused input-cleaner, deprecated since 2.99
+                'htmlspecialchars_decode', //unused input-cleaner, deprecated since 3.0
                 'htmlspecialchars',
                 'implode',
                 'in_array',
@@ -88,7 +88,7 @@ final class SmartySecurityPolicy extends Smarty_Security
                 'json_encode',
                 'ksort',
                 'lang',
-                'lang_by_realm', //since 2.99
+                'lang_by_realm', //since 3.0
                 'mt_jsbool', //Microtiny-module method
                 'nl2br',
                 'print_r',
@@ -96,17 +96,17 @@ final class SmartySecurityPolicy extends Smarty_Security
                 'sizeof',
                 'sort',
                 'startswith',
-                'str_contains', //since 2.99 PHP8+
-                'str_ends_with', //since 2.99 PHP8+
-                'str_starts_with', //since 2.99 PHP8+
+                'str_contains', //since 3.0 PHP8+
+                'str_ends_with', //since 3.0 PHP8+
+                'str_starts_with', //since 3.0 PHP8+
                 'str_replace',
                 'strcasecmp',
                 'strcmp',
-                'stripos', //since 2.99
+                'stripos', //since 3.0
                 'strlen',
                 'strpos',
-                'strripos', //since 2.99
-                'strrpos', //since 2.99
+                'strripos', //since 3.0
+                'strrpos', //since 3.0
                 'strtolower',
                 'strtotime',
                 'strtoupper',

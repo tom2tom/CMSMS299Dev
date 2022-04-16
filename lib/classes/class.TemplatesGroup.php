@@ -43,7 +43,7 @@ use function CMSMS\log_info;
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  * @since 2.0 as global-namespace CmsLayoutTemplateCategory
  */
 class TemplatesGroup
@@ -55,7 +55,7 @@ class TemplatesGroup
 
 	/**
 	 * @ignore
-	 * @since 2.99
+	 * @since 3.0
 	 */
 	const MEMBERSTABLE = 'layout_tplgroup_members';
 
@@ -86,7 +86,7 @@ class TemplatesGroup
 	/**
 	 * Set all core properties of the group.
 	 * For object initialization. No validation
-	 * @since 2.99
+	 * @since 3.0
 	 * @param array $props
 	 */
 	public function set_properties(array $props)
@@ -180,7 +180,7 @@ class TemplatesGroup
 
 	/**
 	 * Return the members of this group, as a comma-separated string of id's
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return string, maybe empty
 	 */
@@ -191,7 +191,7 @@ class TemplatesGroup
 
 	/**
 	 * Return the members of this group, as objects or by name
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param bool   $by_name Whether to return members' names. Default false.
 	 * @return assoc. array of Template objects or name strings. May be empty.
@@ -260,7 +260,7 @@ class TemplatesGroup
 
 	/**
 	 * Set all the members of this group, or empty it
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $a scalar or array, integer id(s) or string name(s), or null
 	 */
@@ -278,7 +278,7 @@ class TemplatesGroup
 
 	/**
 	 * Append member(s) to this group
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $a scalar or array, integer id(s) or string name(s), or null
 	 */
@@ -299,7 +299,7 @@ class TemplatesGroup
 
 	/**
 	 * Remove member(s) from this group
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $a scalar or array, integer id(s) or string name(s), or null
 	 */
@@ -335,7 +335,7 @@ class TemplatesGroup
 
 	/**
 	 * Get any applicable lock for this group
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return mixed Lock | null
 	 * @see Lock
@@ -348,7 +348,7 @@ class TemplatesGroup
 
 	/**
 	 * Test whether this group currently has a lock
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return bool
 	 */
@@ -360,7 +360,7 @@ class TemplatesGroup
 
 	/**
 	 * Test whether any lock on this group has expired
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return bool
 	 */
@@ -403,7 +403,7 @@ class TemplatesGroup
 
 	/**
 	 * Record group members in the members table
-	 * @since 2.99
+	 * @since 3.0
 	 * @ignore
 	 * @param Connection $db
 	 * @param bool $insert Whether this is an insert or update
@@ -538,7 +538,7 @@ class TemplatesGroup
 	/**
 	 * Return some or all template groups.
 	 * This method is not specific to this group.
-	 * @deprecated since 2.99 instead use TemplateOperations::get_bulk_groups()
+	 * @deprecated since 3.0 instead use TemplateOperations::get_bulk_groups()
 	 *
 	 * @param string $prefix An optional group-name prefix to be matched
 	 * @return array of TemplatesGroup objects, maybe empty

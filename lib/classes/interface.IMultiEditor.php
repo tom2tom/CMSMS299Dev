@@ -23,7 +23,7 @@ namespace CMSMS;
 
 /**
  * An interface to define methods in syntax-highlight text-editor modules.
- * @since 2.99
+ * @since 3.0
  * @package CMS
  * @license GPL
  */

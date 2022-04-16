@@ -31,7 +31,7 @@ if (!extension_loaded('mbstring'))
 }
 
 /**
- * @since 2.99
+ * @since 3.0
  * Formerly CMSMailer module & class
  */
 class OutMailer extends CMSModule
@@ -48,7 +48,7 @@ class OutMailer extends CMSModule
     public function HasAdmin() { return true; }
     public function IsAdminOnly() { return true; }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
-    public function MinimumCMSVersion() { return '2.99'; }
+    public function MinimumCMSVersion() { return '2.999'; }
     public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
 //  public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
 

@@ -54,12 +54,11 @@ if( $slaves ) {
     // cache this search
     $searchparams = [
      'search_text' => $text,
-     'slaves' => explode(',',$params['slaves']),
-     'search_descriptions' => !empty($params['search_descriptions']),
-     'search_casesensitive' => !empty($params['case_sensitive']),
-     'verbatim_search' => !empty($params['verbatim_search']),
-     'save_search' => !empty($params['save_search']),
+     'slaves' => explode(',',$params['slaves'])
     ];
+    foreach( ['search_descriptions','search_casesensitive','verbatim_search','save_search'] as $txt ) {
+        $searchparams[$txt] = isset($params[$txt]) && cms_to_bool($params[$txt]);
+    }
     $userid = get_userid(false);
     if( $searchparams['save_search'] ) {
         UserParams::set_for_user($userid,$this->GetName().'saved_search',serialize($searchparams));
@@ -113,10 +112,10 @@ if( $slaves ) {
                 $url = $one['edit_url'] ?? '';
                 if( $url ) { $url = str_replace('&amp;','&',$url); }
                 $tmp[] = [
-                 'description'=>$one['description'] ?? '', //TODO proper sanitize for display
-                 'text'=>$text,
-                 'title'=>addslashes(str_replace(["\r\n","\r","\n"],[' ',' ',' '],$one['title'])), //TODO proper sanitize for display
-                 'url'=>$url,
+                 'description' => $one['description'] ?? '', //TODO proper sanitize for display
+                 'text' => $text,
+                 'title' => addslashes(str_replace(["\r\n","\r","\n"],[' ',' ',' '],$one['title'])), //TODO proper sanitize for display
+                 'url' => $url,
                 ];
             }
             $oneset->matches = $tmp;

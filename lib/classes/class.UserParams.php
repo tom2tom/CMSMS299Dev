@@ -29,7 +29,7 @@ use CMSMS\SingleItem;
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  * @since 1.10 as cms_userprefs
  */
 final class UserParams

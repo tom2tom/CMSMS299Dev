@@ -30,7 +30,7 @@ use CMSMS\SingleItem;
  *
  * @package CMS
  * @since 0.6.1
- * @since 2.99 non-final status is deprecated
+ * @since 3.0 non-final status is deprecated
  * @license GPL
  */
 /*final*/ class User
@@ -52,13 +52,13 @@ use CMSMS\SingleItem;
 
 	/**
 	 * @var bool $newpass Flag whether the password property has been validly changed
-	 * @since 2.99
+	 * @since 3.0
 	 */
 	public $newpass;
 
 	/**
 	 * @var bool $pwreset Flag whether the current password needs to be reset
-	 * @since 2.99
+	 * @since 3.0
 	 */
 	public $pwreset;
 
@@ -84,7 +84,7 @@ use CMSMS\SingleItem;
 
 	/**
 	 * @var bool $adminaccess Flag whether the user may log in to the admin console
-	 * @deprecated since 2.99 This is of no practical use, as a distinction from the 'active' property
+	 * @deprecated since 3.0 This is of no practical use, as a distinction from the 'active' property
 	 */
 	public $adminaccess;
 
@@ -112,13 +112,13 @@ use CMSMS\SingleItem;
 		$this->lastname = '';
 		$this->email = '';
 		$this->active = true;
-		$this->adminaccess = true; //since 2.99 not false, and deprecated
+		$this->adminaccess = true; //since 3.0 not false, and deprecated
 	}
 
 	/**
 	 * Sets the user's active state.
 	 *
-	 * @since 2.99
+	 * @since 3.0
 	 * @param bool $flag The active state.
 	 */
 	public function SetActive($flag = true)
@@ -131,7 +131,7 @@ use CMSMS\SingleItem;
 	 *
 	 * @since 0.6.1
 	 * @param string $password The plaintext password
-	 * @return bool indicating validity (inc. true for no-change) since 2.99
+	 * @return bool indicating validity (inc. true for no-change) since 3.0
 	 */
 	public function SetPassword($password)
 	{
@@ -149,7 +149,7 @@ use CMSMS\SingleItem;
 	/**
 	 * Authenticate a users password.
 	 *
-	 * @since 2.99
+	 * @since 3.0
 	 * @param string $password The plaintext password.
 	 */
 	public function Authenticate($password)

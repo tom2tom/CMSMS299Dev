@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to migrate the content of a JSON-encoded string to a corresponding array of individual values.
-Copyright (C) 2011-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2011-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

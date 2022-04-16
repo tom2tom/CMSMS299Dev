@@ -32,7 +32,7 @@ use UnexpectedValueException;
  *
  * @package CMS
  *
- * @since 2.99
+ * @since 3.0
  * @since 2.2 as RegularTask
  * @property CmsRegularTask | IRegularTask $task The task to convert
  */

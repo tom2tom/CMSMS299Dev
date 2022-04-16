@@ -89,7 +89,7 @@ function getParms(tagname) {
    text: '$close',
    icon: 'ui-icon-cancel',
     click: function() {
-     $(this).dialog('destroy');
+     cms_dialog($(this), 'destroy');
     }
    }],
    modal: true,

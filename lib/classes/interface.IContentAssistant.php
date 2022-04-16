@@ -29,7 +29,7 @@ use CMSMS\contenttypes\ContentBase;
  * IContentAssistant instances provide various extensions and utilities
  * for content objects.
  *
- * @since	2.99
+ * @since	3.0
  * @since	2.0 as ContentAssistant
  * @abstract
  * @package	CMS

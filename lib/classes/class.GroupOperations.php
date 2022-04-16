@@ -1,7 +1,7 @@
 <?php
 /*
 Class of group-related functions
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -67,7 +67,7 @@ final class GroupOperations
 
 	/**
 	 * Get the singleton instance of this class
-	 * @deprecated since 2.99 instead use CMSMS\SingleItem::GroupOperations()
+	 * @deprecated since 3.0 instead use CMSMS\SingleItem::GroupOperations()
 	 *
 	 * @return GroupOperations
 	 */
@@ -79,7 +79,7 @@ final class GroupOperations
 
 	/**
 	 * Get all the user-id's in the specified group(s)
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $from optional group(s) identifier, [ints] | comma-sep-ints string | scalar int Default null (hence all groups)
 	 * @return array
@@ -160,7 +160,7 @@ final class GroupOperations
 
 	/**
 	 * Load the specified group from the database
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $name The name of the group to load
 	 * @return mixed Group object (if found) | null
@@ -183,7 +183,7 @@ final class GroupOperations
 	}
 
 	/**
-	 * @since 2.99
+	 * @since 3.0
 	 * @return mixed int | bool
 	 */
 	public function Upsert(Group $group)
@@ -209,7 +209,7 @@ VALUES (?,?,?,NOW())';
 
 	/**
 	 * Record in the database the properties of the supplied group
-	 * @deprecated since 2.99 use GroupOperations::Upsert()
+	 * @deprecated since 3.0 use GroupOperations::Upsert()
 	 *
 	 * @param Group $group The group object to save to the database
 	 * @return int The id of the newly created group. If none is created, -1
@@ -226,7 +226,7 @@ VALUES (?,?,?,NOW())';
 	/**
 	 * Update in the database the properties of the supplied group
 	 *
-	 * @deprecated since 2.99 use GroupOperations::Upsert()
+	 * @deprecated since 3.0 use GroupOperations::Upsert()
 	 * @param mixed $group The group to update
 	 * @return bool indication whether the update was successful
 	 */
@@ -267,7 +267,7 @@ VALUES (?,?,?,NOW())';
 	 * Report whether the specified group has the named permission(s)
 	 *
 	 * @param int $groupid The group id
-	 * @param mixed $perm The permission name string, or (since 2.99) an array of them.
+	 * @param mixed $perm The permission name string, or (since 3.0) an array of them.
 	 * If the latter, and an optional true-valued argument follows, then
 	 * the named permission(s) in the array will be AND'd instead of OR'd
 	 * @return bool

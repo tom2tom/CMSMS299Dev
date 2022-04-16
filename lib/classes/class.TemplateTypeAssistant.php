@@ -26,7 +26,7 @@ namespace CMSMS;
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  * @since 2.2 in namespace CMSMS\Layout
  */
 abstract class TemplateTypeAssistant

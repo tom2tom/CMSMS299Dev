@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="//html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <meta charset="UTF-8">
+  <style>
+    html {
+      font-size: 100%;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    a:focus {
+      outline: thin dotted #333;
+      outline: 5px auto -webkit-focus-ring-color;
+      outline-offset: -2px;
+    }
+    a:hover,
+    a:active {
+      outline: 0;
+    }
+    input {
+      margin: 0;
+      font-size: 100%;
+      vertical-align: middle;
+      *overflow: visible;
+      line-height: normal;
+    }
+    input::-moz-focus-inner {
+      padding: 0;
+      border: 0;
+    }
+    body {
+      margin: 0;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 20px;
+      color: #333;
+      background-color: #fff;
+    }
+    a {
+      color: #08c;
+      text-decoration: none;
+    }
+    a:hover {
+      color: #005580;
+      text-decoration: underline;
+    }
+    .row {
+      margin-left: -20px;
+      *zoom: 1;
+    }
+    .row:before,
+    .row:after {
+      display: table;
+      content: "";
+      line-height: 0;
+    }
+    .row:after {
+      clear: both;
+    }
+    .span3 {
+      float: left;
+      min-height: 1px;
+      margin-left: 20px;
+      width: 220px;
+    }
+    .container {
+      width: 940px;
+      margin-right: auto;
+      margin-left: auto;
+      *zoom: 1;
+    }
+    .container:before,
+    .container:after {
+      display: table;
+      content: "";
+      line-height: 0;
+    }
+    .container:after {
+      clear: both;
+    }
+    small {
+      font-size: 85%;
+    }
+    h1 {
+      margin: 10px 0;
+      font-family: inherit;
+      font-weight: bold;
+      line-height: 20px;
+      color: inherit;
+      text-rendering: optimizelegibility;
+      line-height: 40px;
+      font-size: 38.5px;
+    }
+    h1 small {
+      font-weight: normal;
+      line-height: 1;
+      color: #999;
+      font-size: 24.5px;
+    }
+
+    body {
+      margin-top: 90px;
+    }
+    .header {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      margin-left: -480px;
+      background-color: #fff;
+      border-bottom: 1px solid #ddd;
+      padding-top: 10px;
+      z-index: 10;
+    }
+    .footer {
+      color: #ddd;
+      font-size: 12px;
+      text-align: center;
+      margin-top: 20px;
+    }
+    .footer a {
+      color: #ccc;
+      text-decoration: underline;
+    }
+    .the-icons {
+      font-size: 14px;
+      line-height: 24px;
+    }
+    .switch {
+      position: absolute;
+      right: 0;
+      bottom: 10px;
+      color: #666;
+    }
+    .switch input {
+      margin-right: 0.3em;
+    }
+    .codesOn .i-name {
+      display: none;
+    }
+    .codesOn .i-code {
+      display: inline;
+    }
+    .i-code {
+      display: none;
+    }
+    @font-face {
+      font-family: 'fman';
+      src: url('./fman.woff2?6810271') format('woff2'),
+           url('./fman.woff?6810271') format('woff'),
+           url('./fman.ttf?6810271') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    .demo-icon {
+      font-family: "fman";
+      font-style: normal;
+      font-weight: normal;
+      speak: never;
+     
+      display: inline-block;
+      text-decoration: inherit;
+      width: 1em;
+      margin-right: .2em;
+      text-align: center;
+      /* opacity: .8; */
+     
+      /* For safety - reset parent styles, that can break glyph codes*/
+      font-variant: normal;
+      text-transform: none;
+     
+      /* fix buttons height, for twitter bootstrap */
+      line-height: 1em;
+     
+      /* Animation center compensation - margins should be symmetric */
+      /* remove if not needed */
+      margin-left: .2em;
+     
+      /* You can be more comfortable with increased icons size */
+      /* font-size: 120%; */
+     
+      /* Font smoothing. That was taken from TWBS */
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+     
+      /* Uncomment for 3D effect */
+      /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+    }
+    </style>
+    <link rel="stylesheet" href="css/animation.css"><!--[if IE 7]><link rel="stylesheet" href="css/" + font.fontname + "-ie7.css"><![endif]-->
+    <script>
+      function toggleCodes(on) {
+        var obj = document.getElementById('icons');
+      
+        if (on) {
+          obj.className += ' codesOn';
+        } else {
+          obj.className = obj.className.replace(' codesOn', '');
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container header">
+      <h1>fman <small>font demo</small></h1>
+      <label class="switch">
+        <input type="checkbox" onclick="toggleCodes(this.checked)">show codes
+      </label>
+    </div>
+    <div class="container" id="icons">
+      <div class="row">
+        <div class="span3" title="Code: 0xe900">
+          <i class="demo-icon ifm-home">&#xe900;</i> <span class="i-name">ifm-home</span><span class="i-code">0xe900</span>
+        </div>
+        <div class="span3" title="Code: 0xe901">
+          <i class="demo-icon ifm-crumb-right">&#xe901;</i> <span class="i-name">ifm-crumb-right</span><span class="i-code">0xe901</span>
+        </div>
+        <div class="span3" title="Code: 0xe902">
+          <i class="demo-icon ifm-crumb-left">&#xe902;</i> <span class="i-name">ifm-crumb-left</span><span class="i-code">0xe902</span>
+        </div>
+        <div class="span3" title="Code: 0xe903">
+          <i class="demo-icon ifm-extract">&#xe903;</i> <span class="i-name">ifm-extract</span><span class="i-code">0xe903</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3" title="Code: 0xe904">
+          <i class="demo-icon ifm-compact">&#xe904;</i> <span class="i-name">ifm-compact</span><span class="i-code">0xe904</span>
+        </div>
+        <div class="span3" title="Code: 0xe905">
+          <i class="demo-icon ifm-rename">&#xe905;</i> <span class="i-name">ifm-rename</span><span class="i-code">0xe905</span>
+        </div>
+        <div class="span3" title="Code: 0xe906">
+          <i class="demo-icon ifm-history">&#xe906;</i> <span class="i-name">ifm-history</span><span class="i-code">0xe906</span>
+        </div>
+        <div class="span3" title="Code: 0xe907">
+          <i class="demo-icon ifm-cog">&#xe907;</i> <span class="i-name">ifm-cog</span><span class="i-code">0xe907</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3" title="Code: 0xe908">
+          <i class="demo-icon ifm-chat">&#xe908;</i> <span class="i-name">ifm-chat</span><span class="i-code">0xe908</span>
+        </div>
+        <div class="span3" title="Code: 0xe909">
+          <i class="demo-icon ifm-folder">&#xe909;</i> <span class="i-name">ifm-folder</span><span class="i-code">0xe909</span>
+        </div>
+        <div class="span3" title="Code: 0xe90a">
+          <i class="demo-icon ifm-folder-add">&#xe90a;</i> <span class="i-name">ifm-folder-add</span><span class="i-code">0xe90a</span>
+        </div>
+        <div class="span3" title="Code: 0xe90b">
+          <i class="demo-icon ifm-folder-open">&#xe90b;</i> <span class="i-name">ifm-folder-open</span><span class="i-code">0xe90b</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3" title="Code: 0xe90c">
+          <i class="demo-icon ifm-folder-close">&#xe90c;</i> <span class="i-name">ifm-folder-close</span><span class="i-code">0xe90c</span>
+        </div>
+        <div class="span3" title="Code: 0xe90d">
+          <i class="demo-icon ifm-folder-link">&#xe90d;</i> <span class="i-name">ifm-folder-link</span><span class="i-code">0xe90d</span>
+        </div>
+        <div class="span3" title="Code: 0xe90e">
+          <i class="demo-icon ifm-cancel">&#xe90e;</i> <span class="i-name">ifm-cancel</span><span class="i-code">0xe90e</span>
+        </div>
+        <div class="span3" title="Code: 0xe90f">
+          <i class="demo-icon ifm-cancel-squared">&#xe90f;</i> <span class="i-name">ifm-cancel-squared</span><span class="i-code">0xe90f</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3" title="Code: 0xe910">
+          <i class="demo-icon ifm-file">&#xe910;</i> <span class="i-name">ifm-file</span><span class="i-code">0xe910</span>
+        </div>
+        <div class="span3" title="Code: 0xe911">
+          <i class="demo-icon ifm-font">&#xe911;</i> <span class="i-name">ifm-font</span><span class="i-code">0xe911</span>
+        </div>
+        <div class="span3" title="Code: 0xe912">
+          <i class="demo-icon ifm-pdf">&#xe912;</i> <span class="i-name">ifm-pdf</span><span class="i-code">0xe912</span>
+        </div>
+        <div class="span3" title="Code: 0xe913">
+          <i class="demo-icon ifm-word">&#xe913;</i> <span class="i-name">ifm-word</span><span class="i-code">0xe913</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3" title="Code: 0xe914">
+          <i class="demo-icon ifm-excel">&#xe914;</i> <span class="i-name">ifm-excel</span><span class="i-code">0xe914</span>
+        </div>
+        <div class="span3" title="Code: 0xe915">
+          <i class="demo-icon ifm-image">&#xe915;</i> <span class="i-name">ifm-image</span><span class="i-code">0xe915</span>
+        </div>
+        <div class="span3" title="Code: 0xe916">
+          <i class="demo-icon ifm-video">&#xe916;</i> <span class="i-name">ifm-video</span><span class="i-code">0xe916</span>
+        </div>
+        <div class="span3" title="Code: 0xe917">
+          <i class="demo-icon ifm-audio">&#xe917;</i> <span class="i-name">ifm-audio</span><span class="i-code">0xe917</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3" title="Code: 0xe918">
+          <i class="demo-icon ifm-archive">&#xe918;</i> <span class="i-name">ifm-archive</span><span class="i-code">0xe918</span>
+        </div>
+        <div class="span3" title="Code: 0xe919">
+          <i class="demo-icon ifm-code">&#xe919;</i> <span class="i-name">ifm-code</span><span class="i-code">0xe919</span>
+        </div>
+        <div class="span3" title="Code: 0xe91a">
+          <i class="demo-icon ifm-text">&#xe91a;</i> <span class="i-name">ifm-text</span><span class="i-code">0xe91a</span>
+        </div>
+        <div class="span3" title="Code: 0xe91b">
+          <i class="demo-icon ifm-html5">&#xe91b;</i> <span class="i-name">ifm-html5</span><span class="i-code">0xe91b</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3" title="Code: 0xe91c">
+          <i class="demo-icon ifm-powerpoint">&#xe91c;</i> <span class="i-name">ifm-powerpoint</span><span class="i-code">0xe91c</span>
+        </div>
+        <div class="span3" title="Code: 0xe91d">
+          <i class="demo-icon ifm-css3">&#xe91d;</i> <span class="i-name">ifm-css3</span><span class="i-code">0xe91d</span>
+        </div>
+        <div class="span3" title="Code: 0xe91e">
+          <i class="demo-icon ifm-music">&#xe91e;</i> <span class="i-name">ifm-music</span><span class="i-code">0xe91e</span>
+        </div>
+        <div class="span3" title="Code: 0xe91f">
+          <i class="demo-icon ifm-terminal">&#xe91f;</i> <span class="i-name">ifm-terminal</span><span class="i-code">0xe91f</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3" title="Code: 0xe92c">
+          <i class="demo-icon ifm-all">&#xe92c;</i> <span class="i-name">ifm-all</span><span class="i-code">0xe92c</span>
+        </div>
+        <div class="span3" title="Code: 0xe92d">
+          <i class="demo-icon ifm-cut">&#xe92d;</i> <span class="i-name">ifm-cut</span><span class="i-code">0xe92d</span>
+        </div>
+        <div class="span3" title="Code: 0xe92e">
+          <i class="demo-icon ifm-copy">&#xe92e;</i> <span class="i-name">ifm-copy</span><span class="i-code">0xe92e</span>
+        </div>
+        <div class="span3" title="Code: 0xe92f">
+          <i class="demo-icon ifm-paste">&#xe92f;</i> <span class="i-name">ifm-paste</span><span class="i-code">0xe92f</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3" title="Code: 0xe930">
+          <i class="demo-icon ifm-sort-down">&#xe930;</i> <span class="i-name">ifm-sort-down</span><span class="i-code">0xe930</span>
+        </div>
+        <div class="span3" title="Code: 0xe931">
+          <i class="demo-icon ifm-sort-up">&#xe931;</i> <span class="i-name">ifm-sort-up</span><span class="i-code">0xe931</span>
+        </div>
+        <div class="span3" title="Code: 0xe932">
+          <i class="demo-icon ifm-sortable">&#xe932;</i> <span class="i-name">ifm-sortable</span><span class="i-code">0xe932</span>
+        </div>
+        <div class="span3" title="Code: 0xe933">
+          <i class="demo-icon ifm-download">&#xe933;</i> <span class="i-name">ifm-download</span><span class="i-code">0xe933</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3" title="Code: 0xe934">
+          <i class="demo-icon ifm-upload">&#xe934;</i> <span class="i-name">ifm-upload</span><span class="i-code">0xe934</span>
+        </div>
+        <div class="span3" title="Code: 0xe935">
+          <i class="demo-icon ifm-link">&#xe935;</i> <span class="i-name">ifm-link</span><span class="i-code">0xe935</span>
+        </div>
+        <div class="span3" title="Code: 0xe936">
+          <i class="demo-icon ifm-switch">&#xe936;</i> <span class="i-name">ifm-switch</span><span class="i-code">0xe936</span>
+        </div>
+        <div class="span3" title="Code: 0xe937">
+          <i class="demo-icon ifm-view">&#xe937;</i> <span class="i-name">ifm-view</span><span class="i-code">0xe937</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3" title="Code: 0xe938">
+          <i class="demo-icon ifm-edit">&#xe938;</i> <span class="i-name">ifm-edit</span><span class="i-code">0xe938</span>
+        </div>
+        <div class="span3" title="Code: 0xe939">
+          <i class="demo-icon ifm-delete">&#xe939;</i> <span class="i-name">ifm-delete</span><span class="i-code">0xe939</span>
+        </div>
+        <div class="span3" title="Code: 0xe93a">
+          <i class="demo-icon ifm-level-up-left">&#xe93a;</i> <span class="i-name">ifm-level-up-left</span><span class="i-code">0xe93a</span>
+        </div>
+        <div class="span3" title="Code: 0xe93b">
+          <i class="demo-icon ifm-level-up-right">&#xe93b;</i> <span class="i-name">ifm-level-up-right</span><span class="i-code">0xe93b</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3" title="Code: 0xe93c">
+          <i class="demo-icon ifm-search">&#xe93c;</i> <span class="i-name">ifm-search</span><span class="i-code">0xe93c</span>
+        </div>
+        <div class="span3" title="Code: 0xe93d">
+          <i class="demo-icon ifm-pick">&#xe93d;</i> <span class="i-name">ifm-pick</span><span class="i-code">0xe93d</span>
+        </div>
+      </div>
+    <div class="container footer">Generated by <a href="https://fontello.com">fontello.com</a></div>
+  </body>
+</html>

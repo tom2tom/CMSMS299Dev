@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton class of methods for managing module metadata
-Copyright (C) 2011-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2011-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -41,7 +41,7 @@ use function debug_buffer;
  * @internal
  *
  * @package CMS
- * @since 2.99
+ * @since 3.0
  * @since 1.10 as global namespace module_meta
  */
 final class LoadedMetadata extends LoadedData
@@ -80,7 +80,7 @@ final class LoadedMetadata extends LoadedData
 
 	/**
 	 * Get the singleton instance of this class
-	 * @deprecated since 2.99 Instead use SingleItem::LoadedMetadata()
+	 * @deprecated since 3.0 Instead use SingleItem::LoadedMetadata()
 	 *
 	 * @return LoadedMetadata object
 	 */
@@ -97,7 +97,7 @@ final class LoadedMetadata extends LoadedData
 
 	/**
 	 * Record callables for custom-fetchers which might be populated on demand
-	 * @since 2.99
+	 * @since 3.0
 	 */
 	public function set_custom_callables()
 	{
@@ -114,7 +114,7 @@ final class LoadedMetadata extends LoadedData
 	 * This retrieves data from the metadata cache if possible, so it does
 	 * not necessarily check actual capabilities. Absent cached data, this
 	 * method temporarily loads modules which are not currently loaded.
-	 * @since 2.99
+	 * @since 3.0
 	 * @since 1.10 as module_meta::module_list_by_capability()
 	 *
 	 * @param bool $force Flag signalling source-data wanted
@@ -164,7 +164,7 @@ final class LoadedMetadata extends LoadedData
 	 * possible, so it does not necessarily load modules and call their
 	 * method. Absent cached data, this method temporarily loads modules
 	 * which are not currently loaded.
-	 * @since 2.99
+	 * @since 3.0
 	 * @since 1.10 as module_meta::module_list_by_method()
 	 *
 	 * @param bool $force Flag signalling source-data wanted
@@ -243,7 +243,7 @@ final class LoadedMetadata extends LoadedData
 	 * @param string $type a recognized metadata name e.g. 'capable_modules'
 	 * @param bool $force Optional flag signalling source-data wanted
 	 *  (i.e. no system-cache). Default false.
-	 * @param varargs $details since 2.99 Optional extra parameters
+	 * @param varargs $details since 3.0 Optional extra parameters
 	 * @return mixed
 	 * @throws UnexpectedValueException if $type is not a recorded/cachable type
 	 */
@@ -373,7 +373,7 @@ final class LoadedMetadata extends LoadedData
 	 *
 	 * @param mixed $type string | null Optional type-name.
 	 *  If $type is '*' or falsy or not supplied, all types will be released
-	 * @param varargs $details since 2.99 Optional extra parameters
+	 * @param varargs $details since 3.0 Optional extra parameters
 	 */
 	public function release($type = null, ...$details)
 	{
@@ -392,7 +392,7 @@ final class LoadedMetadata extends LoadedData
 
 	/**
 	 * Remove the specified type from the in-memory and system metadata caches
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $type a recognized metadata name e.g. 'capable_modules'
 	 * @param varargs $details There may be other parameter(s) following
@@ -437,11 +437,11 @@ final class LoadedMetadata extends LoadedData
 
 	/**
 	 * Remove everything, or a named type, from the in-memory and system metadata caches
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $type string | null Optional type-name. If $type is
 	 *  '*' or falsy or not supplied, all types will be cleared.
-	 * @param varargs $details since 2.99 Optional extra parameters
+	 * @param varargs $details since 3.0 Optional extra parameters
 	 */
 	public function clear($type = null, ...$details)
 	{
@@ -463,7 +463,7 @@ final class LoadedMetadata extends LoadedData
 	 * This is a shutdown/destruction method, not intended for external use.
 	 * Unlike the corresponding parent-class method, this also works when
 	 * the installer is running.
-	 * @since 2.99
+	 * @since 3.0
 	 * @internal
 	 * @ignore
 	 */
@@ -481,7 +481,7 @@ final class LoadedMetadata extends LoadedData
 	/**
 	 * Return names of installed modules which have, or don't have, the
 	 * specified capability. Modules' availability setting is ignored.
-	 * @deprecated since 2.99 Instead use
+	 * @deprecated since 3.0 Instead use
 	 *  SingleItem::LoadedMetadata()->get('capable_modules',$force,$capability[,...)
 	 *
 	 * @param string $capability The capability name
@@ -499,7 +499,7 @@ final class LoadedMetadata extends LoadedData
 	 * Return names of installed modules which have the specified method,
 	 * and that method returns the specified result.
 	 * Modules' availability setting is ignored.
-	 * @deprecated since 2.99 Instead use
+	 * @deprecated since 3.0 Instead use
 	 *  SingleItem::LoadedMetadata()->get('methodic_modules',$force,$method[,$returnvalue])
 	 *
 	 * @param string $method Method name
@@ -516,7 +516,7 @@ final class LoadedMetadata extends LoadedData
 
 	/**
 	 * Return sub-type identifier suffix
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param array $details
 	 * @return string

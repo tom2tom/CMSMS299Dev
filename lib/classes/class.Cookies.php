@@ -31,9 +31,9 @@ use const CMS_ROOT_URL;
  * @package CMS
  * @license GPL
  *
- * @since 2.99
+ * @since 3.0
  * @since 1.10 as global-namespace cms_cookies
- * @deprecated since 2.99 instead use SignedCookieOperations
+ * @deprecated since 3.0 instead use SignedCookieOperations
  */
 final class Cookies implements ICookieManager
 {

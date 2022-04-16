@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManger module action: ajax_get_content
-Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -23,50 +23,83 @@ use ContentManager\BulkOperations;
 use ContentManager\ContentListBuilder;
 use ContentManager\Utils as ManagerUtils;
 use CMSMS\FormUtils;
+use CMSMS\NlsOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
-
-// CHECKME moduleinterface used for ajax? if( !$this->CheckContext() ) exit;
 
 if( !empty($firstlist) ) {
     $ajax = false;
     //and we'll use the template initiated upstream
+    $tpl->assign('pattern','');
 }
 else {
-    // we're doing an ajax-refresh, not initial display via defaultadmin action
+    //we're doing an ajax-refresh, not initial display via defaultadmin action
+    //CHECKME moduleinterface used for ajax? if( !$this->CheckContext() ) exit;
     //if( some worthy test fails ) exit;
-    // no permissions checks here.
+    //no permissions checks here.
 
     $handlers = ob_list_handlers();
     for ($cnt = 0,$n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
     $tpl = $smarty->createTemplate($this->GetTemplateResource('get_content.tpl')); //,null,null,$smarty );
     $ajax = true;
+
+    if( empty($params['search']) ) {
+        $tpl->assign('pattern',''); //no fuzzy-search, or cancel prior one
+    }
+    else {
+        // supplied match-char(s)
+        $tpl->assign('pattern',$params['search']); //TODO sanitizeVal() etc
+        //from https://codereview.stackexchange.com/questions/23899/faster-javascript-fuzzy-string-matching-function
+        $arr = str_split($params['search']);
+        $t = '/'.$arr[0];
+        unset($arr[0]);
+        $rx = '[^ ]*? ';
+        $patn = array_reduce($arr,function($m,$c) use ($rx) {
+            if( $c != '/' ) {
+                $rx[2] = $c;
+                $rx[6] = $c;
+                return $m . $rx;
+            }
+            else {
+                return $m .'[^\/]*?\/';
+            }
+        },$t);
+        $patn .= '/i';
+    }
 }
 
 $pmanage = $this->CheckPermission('Manage All Content');
 $tpl->assign('can_manage_content',$pmanage)
  ->assign('can_reorder_content',$pmanage)
- ->assign('can_add_content',$pmanage || $this->CheckPermission('Add Pages'));
+ ->assign('can_add_content',$pmanage || $this->CheckPermission('Add Pages'))
+ ->assign('direction',NlsOperations::get_language_direction()); //'ltr' or 'rtl'
 
 $themeObject = Utils::get_theme_object();
 $builder = new ContentListBuilder($this);
+$modname = $this->GetName();
 
 try {
-    // load all the content that this user can display...
-    // organize it into a tree
-    $modname = $this->GetName();
-    $curpage = (isset($_SESSION[$modname.'_curpage']) && !isset($params['seek'])) ? (int)$_SESSION[$modname.'_curpage'] : 1;
-    if( isset($params['curpage']) ) {
-        $curpage = (int)$params['curpage'];
+    //load all the content that this user can display...
+    //organize it into a tree
+    if( !isset($patn) ) {
+        $curpage = (isset($_SESSION[$modname.'_curpage']) && !isset($params['seek'])) ? (int)$_SESSION[$modname.'_curpage'] : 1;
+        if( isset($params['curpage']) ) {
+            $curpage = (int)$params['curpage'];
+        }
+        $filter = UserParams::get($modname.'_userfilter');
+        if( $filter ) {
+            $filter = unserialize($filter);
+            $builder->set_filter($filter);
+        }
+        $tpl->assign('have_filter',is_object($filter))
+         ->assign('filter',$filter);
     }
-    $filter = UserParams::get($modname.'_userfilter');
-    if( $filter ) {
-        $filter = unserialize($filter);
-        $builder->set_filter($filter);
+    else {
+        $curpage = 1;
+        $filter = null;
+        $tpl->assign('have_filter',false);
     }
-    $tpl->assign('have_filter',is_object($filter))
-     ->assign('filter',$filter);
 
     //
     // build the display
@@ -107,7 +140,7 @@ try {
      ->assign('multiselect',$builder->supports_multiselect())
      ->assign('columns',$builder->get_display_columns());
 /*
-    $url = $this->create_action_url($id,'ajax_get_content',[CMS_JOB_KEY=>1]);
+    $url = $this->create_action_url($id,'ajax_get_content',['forjs'=>1,CMS_JOB_KEY=>1]);
     $tpl->assign('ajax_get_content_url',$url)
      ->assign('settingsicon',cms_join_path(__DIR__,'images','settings'));
 */
@@ -161,7 +194,23 @@ try {
         $now = time();
         $userid = get_userid();
         $menus = [];
-        foreach( $editinfo as &$row ) {
+        foreach( $editinfo as $i => &$row ) {
+            //TODO filter rows downstream, instead of removal here
+            if( isset($patn) ) { //doing a fuzzy search
+                $keep = false;
+                foreach( ['page','title','menutext','alias','url'] as $t) {
+                    if( !empty($row[$t]) && preg_match($patn,$row[$t]) ) {
+                        $keep = true;
+                        break;
+                    }
+                }
+                if( !$keep ) {
+                    unset($row);
+                    unset($editinfo[$i]);
+                    continue;
+                }
+            }
+
             $acts = [];
             $rid = $row['id'];
 
@@ -211,7 +260,7 @@ try {
          ->assign('menus',$menus);
     }
 
-    if( $filter && !$editinfo ) {
+    if( !$editinfo && ($filter || !empty($patn)) ) {
         $tpl->assign('error',$this->Lang('err_nomatchingcontent'));
     }
 

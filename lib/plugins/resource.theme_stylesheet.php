@@ -30,7 +30,7 @@ use function CMSMS\sanitizeVal;
  * @internal
  * @ignore
  *
- * @since 2.99
+ * @since 3.0
  */
 class Smarty_Resource_theme_stylesheet extends Smarty_Resource_Custom
 {

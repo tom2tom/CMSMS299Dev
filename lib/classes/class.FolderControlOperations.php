@@ -50,7 +50,7 @@ use function startswith;
  *
  * @package CMS
  * @license GPL
- * @since  2.99
+ * @since  3.0
  * Formerly a FilePicker module utilities class
  */
 class FolderControlOperations
@@ -366,7 +366,7 @@ class FolderControlOperations
 
     /**
      * Check whether $filename accords with relevant conditions among
-     * the profile properties
+     * profile properties
      *
      * @param FolderControls $cset
      * @param string $filename Absolute|relative filesystem path, or
@@ -397,11 +397,11 @@ class FolderControlOperations
             // file must have an acceptable extension
             $p = strrpos($fn, '.');
             if( !$p ) { // file has no extension, or just an initial '.'
-                throw new UnexpectedValueException("Type '$fn' is not acceptable");
+                throw new UnexpectedValueException("Type of '$fn' is not acceptable");
             }
             $ext = substr($fn, $p+1);
             if( !$ext ) { // file has empty extension
-                throw new UnexpectedValueException("Type '$fn' is not acceptable");
+                throw new UnexpectedValueException("Type of '$fn' is not acceptable");
             }
             $s = &$cset->file_extensions;
             // we always do a caseless (hence ASCII) check,
@@ -415,7 +415,7 @@ class FolderControlOperations
                     }
                 }
             }
-            throw new UnexpectedValueException("Type '$fn' is not acceptable");
+            throw new UnexpectedValueException("Type of '$fn' is not acceptable");
         }
         catch (Throwable $t) {
             if( CMS_DEBUG ) {
@@ -463,6 +463,65 @@ class FolderControlOperations
     }
 
 // ~~~~~~~~~~~ NONE OF THE FOLLOWING HAS BEEN TESTED ~~~~~~~~~~~
+
+    /**
+     * Check whether $type accords with relevant conditions among profile
+     *  properties
+     *
+     * @param FolderControls $cset
+     * @param mixed $type FileType-class value (int or numeric string) or name (other string)
+     *  or name (other string)
+     * @return boolean
+     */
+    public static function is_file_type_acceptable(FolderControls $cset, $type) : bool
+    {
+        if( is_numeric($type) ) {
+            $itype = (int)$type;
+        }
+        else {
+            $itype = FileType::getValue($type);
+        }
+        $arr = $cset->file_types;
+        if( $arr ) {
+            if( in_array($itype, $arr) || in_array(FileType::ANY, $arr) ) {
+                return true;
+            }
+        }
+        $val = $cset->type;
+        if ($val == $itype || $val == FileType::ANY) {
+            return true;
+        }
+        //grouped-type checks
+        foreach( [
+            FileType::MEDIA,
+            FileType::SHOWABLE,
+            FileType::LAYOUT,
+            FileType::CODE,
+            FileType::OPERATION,
+        ] as $i => $grp ) {
+            if( in_array($grp, $arr) || $val == $grp ) {
+                switch( $i ) {
+                    case 0:
+//                    if( $itype <= $grp) return true; //any lower value
+//                    break;
+                    case 1:
+                    if( $itype <= $grp ) return true; //any lower value
+                    break;
+                    case 2:
+                    //TODO replace hard-coded int's here
+                    if( $itype == $grp || $itype == 32 || $itype == 33 ) return true; //32|33
+                    break;
+                    case 3:
+                    if( $itype == $grp || $itype == 30 || $itype == 31 ) return true; //30|31|sql TODO
+                    break;
+                    case 4:
+                    if( $itype == $grp || ($itype > 29 && $itype < 40) ) return true; //any of the 30's
+                    break;
+                }
+            }
+        }
+        return false;
+    }
 
     /*
      * For now at least, hardly seems worth a LoadedData mechanism for

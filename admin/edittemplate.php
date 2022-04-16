@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to edit a template
-Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -338,7 +338,7 @@ try {
 /* for 'related file' message UNUSED
 	if ($tpl_obj->get_content_file()) {
 		$fn = $tpl_obj->content; // raw
-		$filepath = cms_join_path('','assets','templates',$fn);
+		$filepath = cms_join_path('','assets','layouts',$fn);
 		$smarty->assign('relpath', $filepath);
 	}
 */

@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton wrapper-class for engaging with a system/global cache
-Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -80,7 +80,7 @@ final class SystemCache
 
 	/**
 	 * Get the singleton general-purpose cache object.
-	 * @deprecated since 2.99 Instead use CMSMS\SingleItem::SystemCache()
+	 * @deprecated since 3.0 Instead use CMSMS\SingleItem::SystemCache()
 	 *
 	 * @return self | not at all
 	 * @throws Exception if driver-connection fails
@@ -93,7 +93,7 @@ final class SystemCache
 
 	/**
 	 * Connect to and record a driver class
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param $params Optional connection-parameters. Default []
 	 * @throws Exception
@@ -249,7 +249,7 @@ final class SystemCache
 
 	/**
 	 * Get all cached values in a keys-space
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $space Optional keys-space name, default ''.
 	 *  If not specified, the default keys-space will be used.
@@ -265,7 +265,7 @@ final class SystemCache
 
 	/**
 	 * Get all value-keys in a keys-space
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $space Optional keys-space name, default ''.
 	 *  If not specified, the default keys-space will be used.
@@ -298,7 +298,7 @@ final class SystemCache
 
 	/**
 	 * Report whether a value-key is present in the cache
-	 * @deprecated since 2.99 Instead use interface-compatible SystemCache::has()
+	 * @deprecated since 3.0 Instead use interface-compatible SystemCache::has()
 	 */
 	public function exists(string $key, string $space = '') : bool
 	{
@@ -325,7 +325,7 @@ final class SystemCache
 
 	/**
 	 * Remove a value from the cache
-	 * @deprecated since 2.99 Instead use interface-compatible Systemcache::delete()
+	 * @deprecated since 3.0 Instead use interface-compatible Systemcache::delete()
 	 */
 	public function erase(string $key, string $space = '') : bool
 	{
@@ -358,7 +358,7 @@ final class SystemCache
 	/**
 	 * Add or replace a value in the cache, giving the value a custom lifetime
 	 * NOTE some cache-drivers (e.g. file) might not support value-specific lifetimes
-	 * @since 2.99
+	 * @since 3.0
 	 * @see SystemCache::set(), SystemCache::set_space()
 	 *
 	 * @param string $key
@@ -379,7 +379,7 @@ final class SystemCache
 
 	/* *
 	 * Set/replace the contents of an entire cache-space
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param array $values assoc. array each member like $key=>$val
 	 * @param string $space Optional keys-space name, default ''.
@@ -394,7 +394,7 @@ final class SystemCache
 	/**
 	 * Set the default keys-space (a.k.a. group) for all class-methods
 	 * NOTE: cache users must self-manage the uniqueness of space names.
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $space keys-space name
 	 * @return bool
@@ -409,7 +409,7 @@ final class SystemCache
 
 	/**
 	 * Set the default keys-space (a.k.a. group) for all class-methods
-	 * @deprecated since 2.99 Instead use set_space();
+	 * @deprecated since 3.0 Instead use set_space();
 	 */
 	public function set_group(string $space) : bool
 	{
@@ -418,7 +418,7 @@ final class SystemCache
 
 	/**
 	 * Get the default keys-space (a.k.a. group) for all class-methods
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return string, possibly 'UNKNOWN'
 	 */
@@ -434,7 +434,7 @@ final class SystemCache
 	 * Convenience function to generate a keys-space name.
 	 * Cache users may specify space-names as they see fit, so using
 	 * this is optional.
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $salt If empty, the value of __CLASS__ will be used
 	 * @return string 16-hexits

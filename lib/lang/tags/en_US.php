@@ -414,7 +414,7 @@ and/or any of Smarty\'s generic parameters (nocache, assign etc)',
 
 'help_function_process_pagedata' => '<h3>What does this do?</h3>
 <p>This plugin will process the data in the &quot;pagedata&quot; block of content pages through smarty. It is a mechanism for out-of-order processing of page content, allowing the page body-content to determine what should be in the page header, if necessary.<br />
-Since CMSMS 2.99, this plugin has been redundant and deprecated, because the displayed-page body is automatically processed by smarty before the header.</p>
+Since CMSMS 3.0, this plugin has been redundant and deprecated, because the displayed-page body is automatically processed by smarty before the header.</p>
 <h3>How is it used?</h3>
 <ol>
  <li>Don\'t !</li>
@@ -520,7 +520,7 @@ EOS
 <h4>What parameters does it take?</h4>
 Any of Smarty\'s generic parameters (nocache, assign etc)',
 */
-/* GONE from 2.99 or earlier
+/* GONE from 3.0 or earlier
 'help_function_stylesheet' => '<h3>What does this do?</h3>
 <p><strong>Deprecated:</strong> This function is deprecated and will be removed in later versions of CMSMS.</p>
 <p>Gets stylesheet information from the system. By default, it grabs all of the stylesheets attached to the current template.</p>
@@ -653,7 +653,7 @@ and/or any of Smarty\'s generic parameters (nocache, assign etc)',
 <h4>What parameters does it take?</h4>
 Any of Smarty\'s generic parameters (nocache, assign etc)',
 
-/* MM module removed 2.99, plugin gone
+/* MM module removed 3.0, plugin gone
 'help_function_menu' => '<h3>What does this do?</h3>
 <p>This is a wrapper tag for the Menu Manager module, an alternative to <code>{cms_module module='MenuManager'}</code>.</p>
 <h3>How is it used?</h3>
@@ -932,7 +932,7 @@ and/or any of Smarty\'s generic parameters (nocache, assign etc)',
 <h3>Example</h3>
 <pre><code>{redirect_page page=\'some-page-alias\'}</code></pre>',
 
-/*plugin removed 2.99
+/*plugin removed 3.0
 'help_function_cms_jquery' => '<h3>What does this do?</h3>
  <p>This plugin specifies the javascript libraries and plugins to be used</p>
 <h3>How is it used?</h3>

@@ -70,7 +70,7 @@ use function startswith;
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  * @since 1.11 as global-namespace CmsAdminAdminTheme
  * @author  Robert Campbell
  * @property-read string $themeName Return the theme name
@@ -197,7 +197,7 @@ abstract class AdminTheme
     /**
      * Cache for the entire content of a page
      * @ignore
-     * @since 2.99
+     * @since 3.0
      */
     private $_primary_content;
 
@@ -340,7 +340,7 @@ abstract class AdminTheme
 
     /**
      * This is an alias for get_instance().
-     * @deprecated since 2.99 instead use AdminTheme::get_instance($name)
+     * @deprecated since 3.0 instead use AdminTheme::get_instance($name)
      *
      * @param mixed string|null $name Optional theme name.
      * @return mixed AdminTheme sub-class object | null
@@ -397,14 +397,14 @@ abstract class AdminTheme
     }
 
     /* *
-     * @aince 2.99
+     * @aince 3.0
      * @abstract
      */
 //    public function install() {}
 
 
     /* *
-     * @aince 2.99
+     * @aince 3.0
      * @abstract
      */
 //    public function uninstall() {}
@@ -412,7 +412,7 @@ abstract class AdminTheme
     /**
      * Helper for constructing js data
      * @ignore
-     * @since 2.99
+     * @since 3.0
      *
      * @param array $strings
      * @return mixed string | false
@@ -435,7 +435,7 @@ abstract class AdminTheme
      * Hook function to populate page content at runtime
      * This will normally be sub-classed by specific themes, and such methods
      * should call here (their parent) as well as their own specific setup
-     * @since 2.99
+     * @since 3.0
      *
      * @return 2-member array (not typed to support back-compatible themes)
      * [0] = array of data for js vars, members like varname=>varvalue
@@ -457,7 +457,7 @@ abstract class AdminTheme
     /**
      * Hook function to populate page content at runtime
      * Normally sub-classed
-     * @since 2.99
+     * @since 3.0
      *
      * @return array
      */
@@ -469,7 +469,7 @@ abstract class AdminTheme
     /**
      * Hook first-result-function to report the CSS-class identifier for
      * in-page context-menus, at runtime. To be sub-classed as appropriate.
-     * @since 2.99
+     * @since 3.0
      *
      * @return string, default value 'ContextMenu'
      */
@@ -482,7 +482,7 @@ abstract class AdminTheme
      * Get best stylesheet(s) for this theme
      * Prefers min and/or rtl for a corresponding locale.
      * Appends ext.. version if any
-     * @since 2.99
+     * @since 3.0
      *
      * @return array absolute filepath(s) or empty (hence disaster)
      */
@@ -686,17 +686,17 @@ abstract class AdminTheme
             check_permission($this->userid, 'Add Templates') ||
             check_permission($this->userid, 'Modify Templates');
 
-        $this->_perms['stylePerms'] =
+        $this->_perms['stylesPerms'] =
             check_permission($this->userid, 'Manage Stylesheets');
         // TODO maybe also support DesignManager::Manage Designs
         $this->_perms['layoutPerms'] =
-            $this->_perms['stylePerms'] ||
+            $this->_perms['stylesPerms'] ||
             $this->_perms['templatePerms'];
 
         // file
         $this->_perms['filePerms'] = check_permission($this->userid, 'Modify Files');
 
-        // UDT/user-plugin files (2.99+)
+        // UDT/user-plugin files (3.0+)
         $this->_perms['plugPerms'] = check_permission($this->userid, 'Manage User Plugins');
 
         // myprefs
@@ -817,7 +817,7 @@ abstract class AdminTheme
     /**
      * Generate complete admin menu array-tree from PHP definition
      * @ignore
-     * @since 2.99
+     * @since 3.0
      */
     protected function populate_tree()
     {
@@ -922,13 +922,13 @@ abstract class AdminTheme
      *  recognized as an indicator of the root node. Default null
      * @param int   $maxdepth  Optional no. of sub-root levels to be
      *  displayed for $parent. < 1 indicates no maximum depth. Default 3
-     * $param mixed $usepath   Since 2.99 Optional treepath for the selected item.
+     * $param mixed $usepath   Since 3.0 Optional treepath for the selected item.
      *  Array, or ':'-separated string, of node names (commencing with 'root'),
      *  or (boolean) true in which case a path is derived from the current request,
      *  or false to skip selection-processing. Default true
      * @param int   $alldepth  Optional no. of sub-root levels to be displayed
      *  for tree-paths other than $parent. < 1 indicates no limit. Default 2
-     * @param bool  $striproot Since 2.99 Optional flag whether to omit the
+     * @param bool  $striproot Since 3.0 Optional flag whether to omit the
      *  tree root-node from the returned array. Default true (backward compatible)
      * @return array  Nested menu nodes.  Each node's 'children' member represents the nesting
      */
@@ -1193,7 +1193,7 @@ abstract class AdminTheme
 
     /**
      * Record a theme-specific parameter value
-     * @aince 2.99
+     * @aince 3.0
      *
      * @param string $key value identifier
      * @param mixed $value value to be stored
@@ -1207,7 +1207,7 @@ abstract class AdminTheme
 
     /**
      * Retreive a theme-specific parameter value
-     * @aince 2.99
+     * @aince 3.0
      *
      * @param string $key value identifier
      * @param mixed $defaultvalue optional value to be returned in the
@@ -1248,7 +1248,7 @@ abstract class AdminTheme
 
     /**
      * Get a tag representing a themed icon or module icon
-     * @since 2.99 Formerly a method in admin utils class
+     * @since 3.0 Formerly a method in admin utils class
      *
      * @param string $icon the basename of the desired icon file, may include theme-dir-relative path,
      *  may omit file type/suffix, ignored if smarty variable $actionmodule is currently set
@@ -1272,7 +1272,7 @@ abstract class AdminTheme
 
     /**
      * Get a tag representing a module icon
-     * @since 2.99
+     * @since 3.0
      *
      * @param string $module Name of the module
      * @param array $attrs Optional assoc array of attributes for the created img tag
@@ -1360,11 +1360,11 @@ EOS;
      * @param string $image Image file identifier, a theme-images-dir (i.e. 'images')
      *  relative-filepath, or an absolute filepath. It may omit extension (type)
      * @param string $alt Optional alternate identifier for the created
-     *  image element (deprecated since 2.99 also used for its default title)
+     *  image element (deprecated since 3.0 also used for its default title)
      * @param int $width Optional image-width (ignored for svg)
      * @param int $height Optional image-height (ignored for svg)
      * @param string $class Optional class. For .i (iconimages), class "fontimage" is always prepended
-     * @param array $attrs Since 2.99 Optional array with any or all attributes for the image/span tag
+     * @param array $attrs Since 3.0 Optional array with any or all attributes for the image/span tag
      * @return string
      */
     public function DisplayImage($image, $alt = '', $width = 0, $height = 0, $class = '', $attrs = [])
@@ -1507,7 +1507,7 @@ EOS;
 
     /**
      * Cache error-message(s) to be shown in a dialog during the current request.
-     * @deprecated since 2.99 Use RecordNotice() instead
+     * @deprecated since 3.0 Use RecordNotice() instead
      *
      * @param mixed $errors The error message(s), string|strings array
      * @param string $get_var An optional $_GET variable name. Such variable
@@ -1524,7 +1524,7 @@ EOS;
 
     /**
      * Cache success-message(s) to be shown in a dialog during the current request.
-     * @deprecated since 2.99 Use RecordNotice() instead
+     * @deprecated since 3.0 Use RecordNotice() instead
      *
      * @param mixed $message The message(s), string|strings array
      * @param string $get_var An optional $_GET variable name. Such variable
@@ -1541,7 +1541,7 @@ EOS;
 
     /**
      * Cache message string(s) to be shown in a dialog during the current request.
-     * @since 2.99
+     * @since 3.0
      * @internal
      *
      * @param array store The relevant string-accumulator
@@ -1580,7 +1580,7 @@ EOS;
 
     /**
      * Cache message(s) to be shown in a notification-dialog DURING THE NEXT REQUEST
-     * @since 2.99
+     * @since 3.0
      *
      * @param string $type Message-type indicator 'error','warn','success' or 'info'
      * @param mixed $message The error message(s), string|strings array
@@ -1610,7 +1610,7 @@ EOS;
     /**
      * Helper to retrieve message(s) from $_SESSION and set them up for display
      * @ignore
-     * @since 2.99
+     * @since 3.0
      */
     protected function retrieve_message($type, &$into)
     {
@@ -1627,7 +1627,7 @@ EOS;
 
     /**
      * Retrieve message(s) that were logged during a prior request, to be shown in a notification-dialog
-     * @since 2.99
+     * @since 3.0
      */
     protected function UnParkNotices($type = null)
     {
@@ -1661,7 +1661,7 @@ EOS;
 
     /**
      * Cache message(s) to be shown in a notification-dialog
-     * @since 2.99
+     * @since 3.0
      *
      * @param string $type Message-type indicator 'error','warn','success' or 'info'
      * @param mixed $message The error message(s), string|strings array
@@ -1707,7 +1707,7 @@ EOS;
 
     /**
      * Cache page-related data for later use. This might be called by modules,
-     * but (from 2.99) is not used by any admin operation.
+     * but (from 3.0) is not used by any admin operation.
      *
      * @param string $title_name        Displayable content, or a lang key, for the page-title to be displayed
      *     Assumed to be a key, and passed through lang(), if $module_help_type is false.
@@ -1793,7 +1793,7 @@ EOS;
     /**
      * Retrieve a list of the available admin themes.
      *
-     * @param bool $fullpath since 2.99 Optional flag. Default false.
+     * @param bool $fullpath since 3.0 Optional flag. Default false.
      *  If true, array values are theme-class filepaths. Otherwise theme names.
      * @return array A theme-name-sorted hash of theme names or theme filepath strings
      */
@@ -1814,7 +1814,7 @@ EOS;
 
     /**
      * Record a notification for display in the theme.
-     * @deprecated since 2.99 instead use RecordNotice()
+     * @deprecated since 3.0 instead use RecordNotice()
      *
      * @param AdminNotification $notification A reference to the new notification
      */
@@ -1829,7 +1829,7 @@ EOS;
     /**
      * Record a notification for display in the theme.
      * This is a wrapper around the add_notification method.
-     * @deprecated since 2.99 instead use RecordNotice()
+     * @deprecated since 3.0 instead use RecordNotice()
      *
      * @param int $priority priority level between 1 and 3
      * @param string $module The module name.
@@ -1848,7 +1848,7 @@ EOS;
 
     /**
      * Retrieve the current list of notifications.
-     * @deprecated since 2.99 instead use PrepareStrings()
+     * @deprecated since 3.0 instead use PrepareStrings()
      *
      * @return array of AdminNotification objects
      */
@@ -1860,7 +1860,7 @@ EOS;
 
     /**
      * Retrieve current alerts (e.g. for display in page shortcuts toolbar)
-     * @since 2.99 (pre-2.99, themes handled this individually)
+     * @since 3.0 (pre-3.0, themes handled this individually)
      *
      * @return array, maybe empty
      */
@@ -1929,7 +1929,7 @@ EOS;
 
     /**
      * Return a select list of admin pages.
-     * @deprecated since 2.99 instead use GetAdminPages() and process the
+     * @deprecated since 3.0 instead use GetAdminPages() and process the
      * result locally and/or in template
      *
      * @param string $name - The html name of the select box
@@ -1983,8 +1983,8 @@ EOS;
      * @since 2.2
      *
      * @param string $txt The text to add to the head section.
-     * @param bool   $after Since 2.99 Optional flag whether to append (instead of prepend) default true
-     * @deprecated since 2.99 instead use add_page_headtext()
+     * @param bool   $after Since 3.0 Optional flag whether to append (instead of prepend) default true
+     * @deprecated since 3.0 instead use add_page_headtext()
      */
     public function add_headtext($txt, $after = true)
     {
@@ -2002,7 +2002,7 @@ EOS;
      * Get text that needs to be inserted into the head section of the output.
      * This method is typically called by the admin theme itself to get the text to render.
      * @since 2.2
-     * @deprecated since 2.99 instead use CMSMS\get_page_headtext()
+     * @deprecated since 3.0 instead use CMSMS\get_page_headtext()
      *
      * @return mixed string | null
      */
@@ -2015,10 +2015,10 @@ EOS;
     /**
      * Accumulate content to be inserted at the bottom of the output, immediately before the </body> tag.
      * @since 2.2
-     * @deprecated since 2.99 instead use add_page_foottext()
+     * @deprecated since 3.0 instead use add_page_foottext()
      *
      * @param string $txt The text to add to the end of the output.
-     * @param bool   $after Since 2.99 Optional flag whether to append (instead of prepend) default true
+     * @param bool   $after Since 3.0 Optional flag whether to append (instead of prepend) default true
      */
     public function add_footertext($txt, $after = true)
     {
@@ -2036,7 +2036,7 @@ EOS;
      * Get text that needs to be inserted into the bottom of the output.
      * This method is typically called by the admin theme itself to get the text to render.
      * @since 2.2
-     * @deprecated since 2.99 instead use CMSMS\get_page_foottext()
+     * @deprecated since 3.0 instead use CMSMS\get_page_foottext()
      *
      * @return string | null
      */
@@ -2066,7 +2066,7 @@ EOS;
      * Cache the content of a 'minimal' page.
      * CHECKME can the subsequent processing of such content be a security risk?
      * Hence maybe some sanitize here?
-     * @since 2.99
+     * @since 3.0
      *
      * @param string $content the entire displayable content
      * @see AdminTheme::get_content(), AdminTheme::fetch_minimal_page()
@@ -2078,7 +2078,7 @@ EOS;
 
     /**
      * Retrieve the cached content of a 'minimal' page
-     * @since 2.99
+     * @since 3.0
      *
      * @see AdminTheme::set_content(), AdminTheme::fetch_minimal_page()
      */
@@ -2090,7 +2090,7 @@ EOS;
     /**
      * Optional method to display a customized theme-specific login page.
      *   public function display_login_page() {}
-     * @since 2.99. Formerly the mandatory method do_login, which took
+     * @since 3.0. Formerly the mandatory method do_login, which took
      *   parameters and displayed content directly.
      *
      * To be implemented by themes which support such operation,
@@ -2102,7 +2102,7 @@ EOS;
      * Return the content of the menu-root (home) page or a menu-section.
      * Normally, themes would sub-class this method to customize the
      * display e.g. as a dashboard.
-     * @since 2.99 formerly do_toppage which displayed content directly
+     * @since 3.0 formerly do_toppage which displayed content directly
      *
      * @param string $section_name A menu-section name, typically empty to
      * work with the whole menu
@@ -2141,7 +2141,7 @@ EOS
      * Return the content of an 'ordinary' admin page.
      * Called only via footer.php.
      * @abstract
-     * @since 2.99 formerly postprocess
+     * @since 3.0 formerly postprocess
      *
      * @param string $content The specific page content generated by a module action or admin operation
      * @return html string | null if smarty->fetch() fails
@@ -2149,7 +2149,7 @@ EOS
     abstract public function fetch_page($content);
 
     /* *
-     * @deprecated since 2.99 use fetch_page() instead
+     * @deprecated since 3.0 use fetch_page() instead
      */
 /* no breakage if no external themes!
     public function postprocess($content)
@@ -2162,7 +2162,7 @@ EOS
      *  if such is needed
      * This is akin to the install|upgrade procedure for modules
      * @optional
-     * @since 2.99
+     * @since 3.0
      *
      * @param mixed string|null $name Optional theme name.
      */
@@ -2173,7 +2173,7 @@ EOS
      *  or this, admin theme, if such is needed
      * This is akin to the uninstall procedure for modules
      * @optional
-     * @since 2.99
+     * @since 3.0
      *
      * @param mixed string|null $name Optional theme name.
      */
@@ -2190,7 +2190,7 @@ EOS
      * e.g. echo $this->StartTabHeaders();
      * This infills related page-elements which are not explicitly created.
      * @final
-     * @deprecated since 2.99. Instead use CMSMS\AdminTabs::start_tab_headers()
+     * @deprecated since 3.0. Instead use CMSMS\AdminTabs::start_tab_headers()
      *
      * @return string
      */
@@ -2205,7 +2205,7 @@ EOS
      * e.g.  echo $this->SetTabHeader('preferences',$this->Lang('preferences'));
      * This infills related page-elements which are not explicitly created.
      * @final
-     * @deprecated since 2.99 Use CMSMS\AdminTabs::set_tab_header()
+     * @deprecated since 3.0 Use CMSMS\AdminTabs::set_tab_header()
      *
      * @param string $tabid The tab id
      * @param string $title The tab title
@@ -2222,7 +2222,7 @@ EOS
      * Return page content representing the end of tab headers.
      * This infills related page-elements which are not explicitly created.
      * @final
-     * @deprecated since 2.99 Use CMSMS\AdminTabs::end_tab_headers()
+     * @deprecated since 3.0 Use CMSMS\AdminTabs::end_tab_headers()
      *
      * @return string
      */
@@ -2236,7 +2236,7 @@ EOS
      * Return page content representing the start of XHTML areas for tabs.
      * This infills related page-elements which are not explicitly created.
      * @final
-     * @deprecated since 2.99 Use CMSMS\AdminTabs::start_tab_content()
+     * @deprecated since 3.0 Use CMSMS\AdminTabs::start_tab_content()
      *
      * @return string
      */
@@ -2250,7 +2250,7 @@ EOS
      * Return page content representing the end of XHTML areas for tabs.
      * This infills related page-elements which are not explicitly created.
      * @final
-     * @deprecated since 2.99 Use CMSMS\AdminTabs::end_tab_content()
+     * @deprecated since 3.0 Use CMSMS\AdminTabs::end_tab_content()
      *
      * @return string
      */
@@ -2264,7 +2264,7 @@ EOS
      * Return page content representing the start of a specific tab.
      * This infills related page-elements which are not explicitly created.
      * @final
-     * @deprecated since 2.99 Use CMSMS\AdminTabs::start_tab()
+     * @deprecated since 3.0 Use CMSMS\AdminTabs::start_tab()
      *
      * @param string $tabid The tabid (see SetTabHeader)
      * @return string
@@ -2279,7 +2279,7 @@ EOS
      * Return page content representing the end of a specific tab.
      * This infills related page-elements which are not explicitly created.
      * @final
-     * @deprecated since 2.99 Use CMSMS\AdminTabs::end_tab()
+     * @deprecated since 3.0 Use CMSMS\AdminTabs::end_tab()
      *
      * @return string
      */

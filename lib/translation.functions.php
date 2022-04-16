@@ -1,7 +1,7 @@
 <?php
 /*
 Translation functions
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -66,7 +66,7 @@ function lang(...$args)
  * same spirit as _() for gettext()
  * To facilitate source-file scanning (perhaps automated) to identify
  * all translatable strings.
- * @since 2.99
+ * @since 3.0
  *
  * @param varargs $args see lang_by_realm()
  * @return string
@@ -81,7 +81,7 @@ function _la(...$args)
  * _() for gettext()
  * To facilitate source-file scanning (perhaps automated) to identify all
  * translatable strings.
- * @since 2.99
+ * @since 3.0
  *
  * @param varargs $args see lang_by_realm()
  * @return mixed string | null
@@ -94,7 +94,7 @@ function _ld(...$args)
 /**
  * Marker for use in contexts where neither _la() or _ld() is
  * apppropriate to flag a translatable string. Does nothing.
- * @since 2.99
+ * @since 3.0
  *
  * @param varargs $args see lang_by_realm()
  */

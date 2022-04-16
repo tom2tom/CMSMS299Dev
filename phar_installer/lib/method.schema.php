@@ -34,7 +34,7 @@ $good = lang('done');
 $bad = lang('failed');
 
 //NOTE: primary keys are blocked (by the Datadictionary) from taking size other than I
-//page_id I UNSIGNED, removed 2.99 never used
+//page_id I UNSIGNED, removed 3.0 never used
 $flds = '
 additional_users_id I UNSIGNED AUTO KEY,
 user_id I,
@@ -94,11 +94,11 @@ verbose_msg(lang('install_created_table', 'asyncjobs', $msg_ret));
 
 $tbl = CMS_DB_PREFIX.'content';
 //parent_id may be < 0 hence signed int
-//prop_names X, unused since 2.0, removed 2.99
-//default cachable value (1) is contrary to CMSMS pre-2.99
+//prop_names X, unused since 2.0, removed 3.0
+//default cachable value (1) is contrary to CMSMS pre-3.0
 //tpltype_id for themed processing in future, as a non-core prop
 //ditto csstype_id
-//styles numeric id('s) or design|theme-specific name 2.99+
+//styles numeric id('s) or design|theme-specific name 3.0+
 //titleattribute html descriptor displayed in some contexts
 //id_hierarchy is akin to a site-relative URL-path composed of page-id's
 // 50 chars =~ 10 levels on a 9999-page site
@@ -205,7 +205,7 @@ verbose_msg(lang('install_created_table', 'events', $msg_ret));
 
 // type = C (callable,default) M (module) P (plugin) or U (UDT)
 //ex module_name >> (handler)[namespaced]class, tag_name >> (func)method or plugin/UDT name
-//deprecated since 2.99 non AUTO handler_id
+//deprecated since 3.0 non AUTO handler_id
 $flds = '
 handler_id I UNSIGNED AUTO KEY,
 event_id I UNSIGNED,
@@ -360,7 +360,7 @@ verbose_msg(lang('install_created_table', 'layout_tpl_addusers', $msg_ret));
 //CHECKME separate index on layout_tpl_addusers user_id field ?
 
 $tbl = CMS_DB_PREFIX.'layout_tpl_groups'; // aka TemplatesGroup::TABLENAME
-// item_order I1 UNSIGNED DEFAULT 0, removed 2.99
+// item_order I1 UNSIGNED DEFAULT 0, removed 3.0
 // name sufficient for module-name + 10
 // barf @f name-duplication NOTE field-collation is case-insensitive
 $flds = '
@@ -455,7 +455,7 @@ verbose_msg(lang('install_created_table', 'module_deps', $msg_ret));
 
 $tbl = CMS_DB_PREFIX.'module_smarty_plugins';
 // name field is case-sensitive, to support liberal indexing, tho' we select-for-use caselessly
-// default cachable value (1) is contrary to CMSMS pre-2.99
+// default cachable value (1) is contrary to CMSMS pre-3.0
 $flds = '
 id I UNSIGNED AUTO KEY,
 name C(50) NOTNULL UKEY,

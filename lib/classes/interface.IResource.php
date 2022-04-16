@@ -28,7 +28,7 @@ namespace CMSMS;
  * inclusion of class.ResourceMethods.php
  * @see CMSModule
  * @see ResourceMethods
- * @since 2.99
+ * @since 3.0
  * @package CMS
  * @license GPL
  *

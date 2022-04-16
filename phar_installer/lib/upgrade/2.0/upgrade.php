@@ -1,6 +1,6 @@
 <?php
 
-// access to CMSMS 2.99+ API is needed
+// access to CMSMS 3.0+ API is needed
 use CMSMS\AdminUtils;
 use CMSMS\Events;
 use CMSMS\internal\std_layout_template_callbacks;
@@ -568,7 +568,7 @@ $query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_value = ?, modified_dat
 $db->execute($query, [$theme, 'logintheme']);
 
 verbose_msg(ilang('queue_for_upgrade', 'CMSMailer'));
-SingleItem::ModuleOperations()->QueueForInstall('CMSMailer'); // TODO N/A in CMSMS 2.99+
+SingleItem::ModuleOperations()->QueueForInstall('CMSMailer'); // TODO N/A in CMSMS 3.0+
 
 verbose_msg(ilang('upgrading_schema', 200));
 $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 200';

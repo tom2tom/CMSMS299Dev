@@ -477,6 +477,18 @@ final class ContentListBuilder
 		$display = [];
 
 		// filter the display list by what the user is authorized to view.
+/* TODO support fuzzy-filtering, like
+		foreach( ['page','title','menutext','alias','url'] as $t) {
+			if( !empty($row[$t]) && preg_match($patn,$row[$t]) ) {
+				$keep = true;
+				break;
+			}
+		}
+		if( !$keep ) {
+			continue;
+		}
+with no other filtering/paging
+*/
 		$modify_any_page = $this->_module->CheckPermission('Manage All Content') || $this->_module->CheckPermission('Modify Any Page');
 		if( $this->_filter && $modify_any_page ) {
 			// we display only the pages matching the filter
@@ -525,9 +537,8 @@ final class ContentListBuilder
 		}
 		else {
 			//
-			// we can only edit some pages.
+			// user not entitled to edit all pages.
 			//
-
 /*			for each item
 				if in opened array or has no parent add item
 				if all parents are opened add item

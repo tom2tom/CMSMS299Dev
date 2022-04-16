@@ -32,7 +32,7 @@ use CMSMS\NlsOperations;
  * @see NlsOperations::set_language_detector()
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  * @since 1.11 as global-namespace CmsLanguageDetector
  */
 abstract class LanguageDetector

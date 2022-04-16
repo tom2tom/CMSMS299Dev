@@ -27,7 +27,7 @@ use CMSMS\ResourceMethods;
 
 /**
  * Module: admin-console login/out processor
- * @since 2.99
+ * @since 3.0
  * @package CMS
  * @license GPL
  */
@@ -53,7 +53,7 @@ class AdminLogin implements IResource, IAuthModule
     public function GetHelp() { return ''.@file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'modhelp.htm'); }
     public function GetVersion() { return '0.2'; }
     public function HasAdmin() { return false; }
-    public function MinimumCMSVersion() { return '2.99'; }
+    public function MinimumCMSVersion() { return '2.999'; }
     public function VisibleToAdminUser() { return false; }
 
     public function HasCapability($capability, $params = [])

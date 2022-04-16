@@ -27,7 +27,7 @@ use const CMS_DEPREC;
 /**
  * A class for interacting with the results from a database selection.
  *
- * @since 2.99
+ * @since 3.0
  */
 class ResultSet
 {

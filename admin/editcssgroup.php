@@ -1,7 +1,7 @@
 <?php
 /*
 Edit an existing or new stylesheets-group
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -176,8 +176,8 @@ $(function() {
   //hide placeholder in tbods with extra rows
   tbod.each(function() {
    var t = $(this);
-   if(t.find('>tr').length > 1) {
-    t.find('>tr.placeholder').css('display','none');
+   if(t.children('tr').length > 1) {
+    t.children('tr.placeholder').css('display','none');
    }
   });
 
@@ -202,8 +202,8 @@ $(function() {
     //adjust display of tbod placeholder rows
     tbod.each(function() {
      var t = $(this),
-      len = t.find('> tr').length;
-     row = t.find('> tr.placeholder');
+      len = t.children('tr').length;
+     row = t.children('tr.placeholder');
      if(len < 2) {
       row.css('display','table');
      } else if(len === 2 && this === srcbody) {

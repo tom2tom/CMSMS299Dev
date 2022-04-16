@@ -38,7 +38,7 @@ if( !isset($params['bulk_content']) ) {
 
 $contentops = SingleItem::ContentOperations();
 $pagelist = $params['bulk_content'];
-$active = !empty($params['active']);
+$active = isset($params['active']) && cms_to_bool($params['active']);
 $user_id = get_userid();
 $n = 0;
 

@@ -144,7 +144,7 @@ final class NlsOperations
 	/**
 	 * Get indicator whether current lang is ltr or rtl
 	 *
-	 * @since 2.99
+	 * @since 3.0
 	 * @return string 'ltr' or 'rtl'
 	 */
 	public static function get_language_direction() : string

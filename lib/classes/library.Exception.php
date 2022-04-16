@@ -146,7 +146,7 @@ class DataException extends Exception {}
 
 /**
  * Prepend a generic 'type' to the error message string
- * @since 2.99
+ * @since 3.0
  * @param string $msg
  * @param array $args
  */
@@ -179,7 +179,7 @@ function prefix_message($msg, &$args)
  * An exception indicating that a 400 error should be supplied.
  *
  * @package CMS
- * @since 2.99
+ * @since 3.0
  */
 class Error400Exception extends Exception
 {
@@ -245,7 +245,7 @@ class Error503Exception extends Exception
  * there is no error to display.
  *
  * @package CMS
- * @since 2.99
+ * @since 3.0
  */
 class StopProcessingContentException extends Exception
 {
@@ -342,7 +342,7 @@ class LockOwnerException extends LockException {}
  * An error-throwable to signal a need to replace something deprecated.
  *
  * @package CMS
- * @since 2.99
+ * @since 3.0
  */
 class DeprecationNotice extends AssertionError
 {

@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\AppParams;
 use CMSMS\FormUtils;
 use CMSMS\LockOperations;
+use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
 use CMSMS\SingleItem;
 use CMSMS\Template;
@@ -62,11 +63,11 @@ $tmp = $_REQUEST['filter'] ?? null;
 if( $tmp ) {
     if( is_array($tmp) ) {
         $filter = array_map(function ($v) {
-            return sanitizeVal($v, CMSSAN_NAME); // OR CMSSAN_PUNCT, CMSSAN_PURESPC?
+            return sanitizeVal($v, CMSSAN_PUNCT); // must allow ':'
         }, $tmp);
     }
     else {
-        $filter = [sanitizeVal($tmp, CMSSAN_NAME)]; // OR CMSSAN_PUNCT, CMSSAN_PURESPC?
+        $filter = [sanitizeVal($tmp, CMSSAN_PUNCT)];
     }
 }
 else {
@@ -323,9 +324,9 @@ function pageback(tbl) {
 }
 function adjust_locks(tblid,lockdata) {
   var n = 0;
-  $('#'+tblid).find(' > tbody > tr').each(function() {
+  $('#'+tblid+' > tbody > tr').each(function() {
     var row = $(this),
-     id = row.find('td:first').text();
+     id = row.find('td').eq(0).text();
     if(lockdata.hasOwnProperty(id)) {
       n++;
       var status = lockdata[id];
@@ -360,22 +361,49 @@ $(function() {
    oddsortClass: 'row1s',
    evensortClass: 'row2s'
   };
+  var xopts;
   if($navpages > 1) {
-   var xopts = $.extend({}, opts, {
-    paginate: true,
-    pagesize: $sellength,
-    currentid: 'cpage',
-    countid: 'tpage'
-   });
+    xopts = $.extend({}, opts, {
+     paginate: true,
+     pagesize: $sellength,
+     currentid: 'cpage',
+     countid: 'tpage'
+    });
     $(tpltable).SSsort(xopts);
     $('#pagerows').on('change',function() {
-      var l = parseInt(this.value);
-      if(l === 0) {
-       //TODO hide move-links, 'rows per page', show 'rows'
-      } else {
-        //TODO show move-links, 'rows per page', hide 'rows'
+     var l = parseInt(this.value);
+     if(l === 0) {
+     //TODO hide|disable move-links, 'rows per page', show 'rows'
+     } else {
+     //TODO show|enable move-links, 'rows per page', hide 'rows'
+     }
+     $.fn.SSsort.setCurrent(tpltable,'pagesize',l);
+    });
+    var found = false;
+    $('#finder').on('keyup',function(e) {
+      var s = this.value.trim();
+      if(s.length > 2) {
+        if (!found) {
+          $('#pagerows').val(0).trigger('change'); //show all rows etc
+          found = true;
+        }
+        //from https://codereview.stackexchange.com/questions/23899/faster-javascript-fuzzy-string-matching-function
+        var patn = s.split('').reduce(function(a,b) { return a + '[^' + b + ']*?' + b; });
+        var re = new RegExp(patn, 'i');
+        $('#tpllist > tbody > tr > td:nth-child(2) > a').each(function() {
+          var nm = $(this).text();
+          if(re.test(nm)) {
+            $(this).closest('tr').show();
+          } else {
+            $(this).closest('tr').hide();
+          }
+        });
+      } else if (found) {
+        $('#tpllist > tbody > tr').each(function() {
+          $(this).show();
+        });
+        found = false;
       }
-      $.fn.SSsort.setCurrent(tpltable,'pagesize',l);
     });
   } else {
     $(tpltable).SSsort(opts);
@@ -393,7 +421,7 @@ $(function() {
       cms_button_able($('#bulk_submit'),true);
     }
   });
-  $('#bulk_submit').on('click',function() {
+  $('#bulk_submit').on('click',function(e) {
     e.preventDefault();
     var l = $('input:checkbox:checked.tpl_select').length;
     if(l > 0) {
@@ -508,7 +536,7 @@ $(function() {
 
     cms_dialog($('#replacedialog'), {
       open: function(ev, ui) {
-        $(this).find('input[name="tpl"]').val(old);
+        $(this).find('input[name="tpl"]').val(from);
       },
       modal: true,
       width: 'auto',
@@ -548,9 +576,11 @@ $(function() {
     interval: $secs,
     done_handler: function(json) {
       var lockdata = JSON.parse(json);
-      adjust_locks('tpllist',lockdata.templates || {});
-      adjust_locks('grouplist',lockdata.groups || {});
-      adjust_locks('typelist',lockdata.types || {});
+      if (!$.isEmptyObject(lockdata)) {
+        adjust_locks('tpllist',lockdata.templates || {});
+        adjust_locks('grouplist',lockdata.groups || {});
+        adjust_locks('typelist',lockdata.types || {});
+      }
     }
   });
   $('#clearlocks').on('click', function(e) {
@@ -640,6 +670,8 @@ if( $out ) {
     add_page_foottext($out);
 }
 
+$dir = NlsOperations::get_language_direction();
+
 // hidden inputs for filter form
 $extras = get_secure_param_array() + [
     '_activetab' => 'templates',
@@ -662,6 +694,7 @@ $smarty->assign([
    'activetab' => $seetab,
    'extraparms2' => $extras,
    'extraparms3' => $extras2,
+   'direction' => $dir,
    'coretypename' => TemplateType::CORE,
 //   'import_url' => TODOfuncURL('import_template'),  N/A as standalone
    'lock_timeout' => AppParams::get('lock_timeout', 60),

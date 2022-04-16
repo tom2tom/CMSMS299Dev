@@ -38,7 +38,7 @@ if( !isset($params['bulk_content']) ) {
 
 $contentops = SingleItem::ContentOperations();
 $pagelist = $params['bulk_content'];
-$showinmenu = !empty($params['showinmenu']);
+$showinmenu = isset($params['showinmenu']) && cms_to_bool($params['showinmenu']);
 $user_id = get_userid();
 $n = 0;
 

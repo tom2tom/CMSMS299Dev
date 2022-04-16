@@ -34,7 +34,7 @@ use function startswith;
  * and retrieve parameter-values from $_REQUEST | $_GET | $_POST.
  * @see also deprecated get_parameter_value() which can revert to a $_SESSION value,
  * for any requested parameter that is not found.
- * @since 2.99
+ * @since 3.0
  */
 class RequestParameters
 {
@@ -86,10 +86,10 @@ class RequestParameters
     }
 
     /**
-     * Replacement for pre-2.99 cms_htmlentities(), as was used for
+     * Replacement for pre-3.0 cms_htmlentities(), as was used for
      * encoding during URL construction. Affects only ' &<>"\'!$' chars.
-     * @since 2.99
-     * @deprecated since 2.99
+     * @since 3.0
+     * @deprecated since 3.0
      * $param string $str
      * @return string
      */
@@ -149,11 +149,11 @@ class RequestParameters
             $tmpl = 'INSERT INTO '.CMS_DB_PREFIX."job_records (token,hash) VALUES ('%s','%s')";
             $chars = Crypto::random_string(20, true);
 //          $chars = preg_replace('/[^\w.~!@$()*#\-+]/', '', $chars); // pre-empt behaviour of create_action_params()
-            $swaps = str_shuffle('eFgHkLmN24680'); // >= 7 chars
+            $swaps = str_shuffle('eFgHkLmN24680'); // >= 9 chars
             while (1) {
                 $key = str_shuffle($chars);
                 $subkey = substr($key, 0, 10);
-                $subkey = strtr($subkey, '%+"?&;', $swaps); // replace chars which crap on url-decoding or SQL
+                $subkey = strtr($subkey, '%+"?&;()`', $swaps); // replace chars which crap on url-decoding or SQL
                 $subkey = strtr($subkey, "'", $swaps[7]); // must do this separately ? (escaping ' fails for strtr?)
                 // NOTE $subkey might be encoded in create_action_params() >> clean1()
                 $val = hash('tiger128,3', $subkey.$str); // 32-hexits
@@ -406,9 +406,9 @@ class RequestParameters
 	 * This was formerly ModuleOperations::GetModuleParameters()
 	 *
 	 * @param string $id module-action identifier
-	 * @param bool   $clean since 2.99 optional flag whether to pass
+	 * @param bool   $clean since 3.0 optional flag whether to pass
 	 *  non-numeric string-values via CMSMS\de_specialize() Default false.
-	 * @param mixed $names since 2.99 optional strings array, or single,
+	 * @param mixed $names since 3.0 optional strings array, or single,
 	 *  or comma-separated series of, wanted parameter key(s)
 	 * @return array, maybe empty
 	 */

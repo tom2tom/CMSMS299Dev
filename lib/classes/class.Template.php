@@ -52,26 +52,26 @@ use function endswith;
  *
  * @package CMS
  * @license GPL
- * @since 2.99
+ * @since 3.0
  * @since 2.0 as global-namespace CmsLayoutTemplate
  */
 class Template
 {
 	/**
-	 * @deprecated since 2.99 instead use the equivalent TemplateOperations::TABLENAME
+	 * @deprecated since 3.0 instead use the equivalent TemplateOperations::TABLENAME
 	 * @ignore
 	 */
 	const TABLENAME = 'layout_templates';
 
 	/**
-	 * @deprecated since 2.99 instead use the equivalent TemplateOperations::ADDUSERSTABLE
+	 * @deprecated since 3.0 instead use the equivalent TemplateOperations::ADDUSERSTABLE
 	 * @ignore
 	 */
 	const ADDUSERSTABLE = 'layout_tpl_addusers';
 
 	/**
 	 * Originator for core templates
-	 * @since 2.99
+	 * @since 3.0
 	 * @see also TemplateType::CORE
 	 */
 	const CORE = '__CORE__';
@@ -163,7 +163,7 @@ class Template
 			case 'type_id':
 				$this->props[$key] = (int)$value;
 				break;
-			case 'category_id': // derecated since 2.99
+			case 'category_id': // derecated since 3.0
 				if( !isset($this->groups) ) {
 					$this->groups = [];
 				}
@@ -203,12 +203,12 @@ class Template
 			case 'type_dflt':
 				$this->props[$key] = cms_to_bool($value);
 				break;
-			case 'categories': //deprecated since 2.99
+			case 'categories': //deprecated since 3.0
 			case 'groups':
 				$this->set_groups($value);
 				break;
 			case 'designs':
-				return; //deprecated since 2.99, unused
+				return; //deprecated since 3.0, unused
 			case 'editors':
 				$this->set_additional_editors($value);
 				break;
@@ -229,7 +229,7 @@ class Template
 			case 'owner_id':
 			case 'type_id':
 				return $this->props[$key] ?? 0;
-			case 'category_id': // deprecated since 2.99
+			case 'category_id': // deprecated since 3.0
 				return (!empty($this->groups)) ? reset($this->groups) : 0;
 			case 'name':
 			case 'content': // raw, maybe a filename
@@ -245,11 +245,11 @@ class Template
 				return $this->props[$key] ?? false;
 			case 'listable':
 				return $this->props[$key] ?? true;
-			case 'categories': //deprecated since 2.99
+			case 'categories': //deprecated since 3.0
 			case 'groups':
 				return $this->groups ?? [];
 			case 'designs':
-				return null; //deprecated since 2.99, unused
+				return null; //deprecated since 3.0, unused
 			case 'editors':
 				return $this->editors ?? [];
 			default:
@@ -259,7 +259,7 @@ class Template
 
 	/**
 	 * Get the recordable properties of this template
-	 * @since 2.99
+	 * @since 3.0
 	 * @internal
 	 * @ignore
 	 *
@@ -275,7 +275,7 @@ class Template
 
 	/**
 	 * Set the private properties of this template
-	 * @since 2.99
+	 * @since 3.0
 	 * @internal
 	 * @ignore
 	 *
@@ -315,7 +315,7 @@ class Template
 
 	/**
 	 * Set the id of this template, after it is initially-saved.
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param int $id
 	 * @throws LogicException if used afterwards
@@ -334,7 +334,7 @@ class Template
 
 	/**
 	 * Get the originator of this template
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return string, '' if the originator has not yet been nominated.
 	 */
@@ -349,7 +349,7 @@ class Template
 	 * theme name.
 	 * $str is not checked/validated here, other than non-empty.
 	 * Any case-variant of 'core' is converted to '__CORE__'.
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param string $str
 	 * @throws DataException if $str is empty
@@ -487,7 +487,7 @@ class Template
 
 	/**
 	 * @see Template::get_type_default()
-	 * @deprecated since 2.99 instead use Template::get_type_default()
+	 * @deprecated since 3.0 instead use Template::get_type_default()
 	 */
 	public function get_type_dflt()
 	{
@@ -512,7 +512,7 @@ class Template
 
 	/**
 	 * @see Template::set_type_default()
-	 * @deprecated since 2.99 instead use Template::set_type_default()
+	 * @deprecated since 3.0 instead use Template::set_type_default()
 	 */
 	public function set_type_dflt($flag = true)
 	{
@@ -525,7 +525,7 @@ class Template
 	 * Get 'the' (actually, the first-recorded) group id for this template (default 0)
 	 * A template is not required to be in any group
 	 *
-	 * @deprecated since 2.99 templates may belong to multiple groups
+	 * @deprecated since 3.0 templates may belong to multiple groups
 	 * @return int, 0 if no group exists
 	 */
 	public function get_category_id()
@@ -541,7 +541,7 @@ class Template
 	 * Get 'the' group-(aka category-)object for this template (if any)
 	 * A template is not required to be in any group
 	 *
-	 * @deprecated since 2.99 templates may be in multiple groups
+	 * @deprecated since 3.0 templates may be in multiple groups
 	 * @return mixed TemplatesGroup object | null
 	 * @see TemplatesGroup
 	 */
@@ -554,7 +554,7 @@ class Template
 
 	/**
 	 * Get the numeric id corresponding to $a
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $a int group id (> 0) | string group name | TemplatesGroup object
 	 * @return int
@@ -579,7 +579,7 @@ class Template
 
 	/**
 	 * Get the group(s) (id's) that this template belongs to
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return array of integers, maybe empty
 	 */
@@ -591,7 +591,7 @@ class Template
 	/**
 	 * Set 'the' group of this template
 	 *
-	 * @deprecated since 2.99 templates may be in multiple groups
+	 * @deprecated since 3.0 templates may be in multiple groups
 	 * @param mixed $a a TemplatesGroup object, a group name (string)
 	 *  or group id (int)
 	 * @see TemplatesGroup
@@ -614,7 +614,7 @@ class Template
 
 	/**
 	 * Set the group id's that this template belongs to
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $all array | int integer group id(s), maybe empty
 	 * @throws InvalidArgumentException
@@ -633,7 +633,7 @@ class Template
 
 	/**
 	 * Add this template to a group
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $a int group id | string group name | TemplatesGroup object
 	 * @see TemplatesGroup
@@ -651,7 +651,7 @@ class Template
 
 	/**
 	 * Remove this template from a group
-	 * @since 2.99
+	 * @since 3.0
 	 * @see TemplatesGroup
 	 *
 	 * @param mixed $a integer group id | string group name | TemplatesGroup object
@@ -671,7 +671,7 @@ class Template
 
 	/**
 	 * Associate another design with this template
-	 * @deprecated since 2.99 does nothing
+	 * @deprecated since 3.0 does nothing
 	 *
 	 * @param mixed $a integer design | string design name | Design object
 	 */
@@ -682,7 +682,7 @@ class Template
 
 	/**
 	 * Remove a design from the ones associated with this template
-	 * @deprecated since 2.99 does nothing
+	 * @deprecated since 3.0 does nothing
 	 *
 	 * @param mixed $a integer design id | string design name | Design object
 	 */
@@ -692,7 +692,7 @@ class Template
 	}
 
 	/**
-	 * @deprecated since 2.99 use get_owner()
+	 * @deprecated since 3.0 use get_owner()
 	 * @return int
 	 */
 	public function get_owner_id()
@@ -850,7 +850,7 @@ class Template
 	 * An alias for get_listable()
 	 *
 	 * @since 2.1
-	 * @deprcated since 2.99
+	 * @deprcated since 3.0
 	 * @return bool
 	 */
 	public function is_listable()
@@ -884,7 +884,7 @@ class Template
 
 	/**
 	 * @ignore
-	 * @deprecated since 2.99 unused here, now returns null always
+	 * @deprecated since 3.0 unused here, now returns null always
 	 */
 	protected function _get_anyowner()
 	{
@@ -1023,14 +1023,14 @@ class Template
 		if( $fn && strpos($fn, ' ') === false && endswith($fn, '.tpl') ) {
 			//NOTE CMSMS\internal\layout_template_resource replicates this,
 			// and must be manually conformed to any change
-			return cms_join_path(CMS_ASSETS_PATH, 'templates', $fn);
+			return cms_join_path(CMS_ASSETS_PATH, 'layouts', $fn);
 		}
 		return '';
 	}
 
 	/**
 	 * Get whether this template's content resides in a file (as distinct from the database)
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @return bool
 	 */
@@ -1042,7 +1042,7 @@ class Template
 	/**
 	 * Get whether this template's content resides in a file
 	 * @since 2.2
-	 * @deprecated since 2.99 this is an alias for get_content_file()
+	 * @deprecated since 3.0 this is an alias for get_content_file()
 	 *
 	 * @return bool
 	 */
@@ -1055,7 +1055,7 @@ class Template
 	/**
 	 * Set the value of the flag indicating the content of this template
 	 *  resides in a filesystem file
-	 * @since 2.99
+	 * @since 3.0
 	 *
 	 * @param mixed $flag recognized by cms_to_bool(). Default true.
 	 */
@@ -1095,7 +1095,7 @@ class Template
 
 	/**
 	 * @ignore
-	 * @since 2.99
+	 * @since 3.0
 	 * @return TemplateOperations
 	 */
 	private static function get_operations()
@@ -1106,7 +1106,7 @@ class Template
 
 	/**
 	 * Save this template to the database
-	 * @deprecated since 2.99 use corresponding TemplateOperations method
+	 * @deprecated since 3.0 use corresponding TemplateOperations method
 	 */
 	public function save()
 	{
@@ -1119,7 +1119,7 @@ class Template
 
 	/**
 	 * Delete this template from the database
-	 * @deprecated since 2.99 use corresponding TemplateOperations method
+	 * @deprecated since 3.0 use corresponding TemplateOperations method
 	 */
 	public function delete()
 	{
@@ -1129,7 +1129,7 @@ class Template
 
 	/**
 	 * Load a bulk list of templates
-	 * @deprecated since 2.99 use corresponding TemplateOperations method
+	 * @deprecated since 3.0 use corresponding TemplateOperations method
 	 *
 	 * @param int[] $list Array of integer template id's
 	 * @param bool $deep Optionally load attached data. Default true.
@@ -1158,7 +1158,7 @@ class Template
 
 	/**
 	 * Get the templates owned by a specific user
-	 * @deprecated since 2.99 use corresponding TemplateOperations method
+	 * @deprecated since 3.0 use corresponding TemplateOperations method
 	 *
 	 * @param mixed $a An integer user id, or a string user name
 	 * @return array Array of integer template ids
@@ -1172,7 +1172,7 @@ class Template
 
 	/**
 	 * Perform an advanced query on templates
-	 * @deprecated since 2.99 use corresponding TemplateOperations method
+	 * @deprecated since 3.0 use corresponding TemplateOperations method
 	 *
 	 * @see TemplateQuery
 	 * @param array $params
@@ -1185,7 +1185,7 @@ class Template
 
 	/**
 	 * Get the templates that a specific user can edit
-	 * @deprecated since 2.99 use corresponding TemplateOperations method
+	 * @deprecated since 3.0 use corresponding TemplateOperations method
 	 *
 	 * @param mixed $a An integer user id or a string user name or null
 	 * @return type
@@ -1201,7 +1201,7 @@ class Template
 	 * Test if the user specified can edit the specified template
 	 * This is a convenience method that loads the template, and tests
 	 * whether the specified user has authority to  edit it.
-	 * @deprecated since 2.99 use corresponding TemplateOperations method
+	 * @deprecated since 3.0 use corresponding TemplateOperations method
 	 *
 	 * @param mixed $tpl An integer template id, or a string template name
 	 * @param mixed $userid An integer user id, or a string user name, or null.
@@ -1216,7 +1216,7 @@ class Template
 
 	/**
 	 * Create a new template of the specific type
-	 * @deprecated since 2.99 use corresponding TemplateOperations method
+	 * @deprecated since 3.0 use corresponding TemplateOperations method
 	 *
 	 * @param mixed $t A TemplateType object, an integer template type id,
 	 *  or a string template type identifier like originator::name
@@ -1231,7 +1231,7 @@ class Template
 
 	/**
 	 * Load the default template of a specified type
-	 * @deprecated since 2.99 use corresponding TemplateOperations method
+	 * @deprecated since 3.0 use corresponding TemplateOperations method
 	 *
 	 * @param mixed $t A TemplateType object, An integer template type id, or a string template type identifier
 	 * @return Template
@@ -1245,7 +1245,7 @@ class Template
 
 	/**
 	 * Load all templates of a specific type
-	 * @deprecated since 2.99 use corresponding TemplateOperations method
+	 * @deprecated since 3.0 use corresponding TemplateOperations method
 	 *
 	 * @param TemplateType $type
 	 * @return array Template object(s) | empty
@@ -1259,7 +1259,7 @@ class Template
 
 	/**
 	 * Process a named template through smarty
-	 * @deprecated since 2.99 use corresponding TemplateOperations method
+	 * @deprecated since 3.0 use corresponding TemplateOperations method
 	 *
 	 * @param string $name
 	 * @return string
@@ -1272,7 +1272,7 @@ class Template
 
 	/**
 	 * Process the default template of a specified type
-	 * @deprecated since 2.99 use corresponding TemplateOperations method
+	 * @deprecated since 3.0 use corresponding TemplateOperations method
 	 *
 	 * @param mixed $t A TemplateType object, an integer template type id, or a string template type identifier
 	 * @return string
@@ -1285,7 +1285,7 @@ class Template
 
 	/**
 	 * Get the id's of all loaded templates
-	 * @deprecated since 2.99 no local caching is done
+	 * @deprecated since 3.0 no local caching is done
 	 *
 	 * @return null
 	 */
@@ -1297,7 +1297,7 @@ class Template
 
 	/**
 	 * Generate a unique name for a template
-	 * @deprecated since 2.99 use corresponding TemplateOperations method
+	 * @deprecated since 3.0 use corresponding TemplateOperations method
 	 *
 	 * @param string $prototype A prototype template name
 	 * @param string $prefix An optional name prefix.

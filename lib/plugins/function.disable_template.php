@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use function CMSMS\disable_template_processing;
 
-// since 2.99
+// since 3.0
 function smarty_function_disable_template($params, $template)
 {
 	disable_template_processing();

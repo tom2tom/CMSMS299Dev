@@ -30,7 +30,7 @@ use CMSMS\SingleItem;
  * @internal
  * @ignore
  *
- * @since 2.99
+ * @since 3.0
  * @since 1.11 as content_template_resource
  */
 class Smarty_Resource_content extends Smarty_Resource_Custom

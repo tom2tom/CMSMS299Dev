@@ -33,7 +33,7 @@ use function CMSMS\sanitizeVal;
  * @package CMS
  * @internal
  * @ignore
- * @since 2.99
+ * @since 3.0
  */
 class Smarty_Resource_theme_template extends Smarty_Resource_Custom
 {
@@ -90,7 +90,7 @@ class Smarty_Resource_theme_template extends Smarty_Resource_Custom
         $data = $db->getRow($sql,[$name,$name]);
         if( $data ) {
             if( $data['contentfile'] ) {
-                $fp = cms_join_path(CMS_ASSETS_PATH,'templates',$data['content']);
+                $fp = cms_join_path(CMS_ASSETS_PATH,'layouts',$data['content']);
                 if( is_readable($fp) && is_file($fp) ) {
                     try {
                         $data['content'] = file_get_contents($fp);

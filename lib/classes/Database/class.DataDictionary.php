@@ -30,7 +30,7 @@ use CMSMS\Database\Connection;
  *
  * Credits and kudos to the authors of those packages.
  *
- * @since 2.99
+ * @since 3.0
  */
 class DataDictionary
 {
@@ -958,7 +958,7 @@ class DataDictionary
 
     /**
      * Parse $defn into an array
-     * @since 2.99 imported global function
+     * @since 3.0 imported global function
      * @ignore
      * @param string $defn (needs extra trailing ' ' char after a final quote char)
      * @param string $endstmtchar optional separator character. Default ','
@@ -1080,7 +1080,7 @@ class DataDictionary
 
     /**
      * Return array matching the one supplied, but with all keys upper-case
-     * @since 2.99 imported global function
+     * @since 3.0 imported global function
      * @ignore
      * @param array $an_array
      * @return array

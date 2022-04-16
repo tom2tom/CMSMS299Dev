@@ -1,7 +1,7 @@
 <?php
 /*
 utility-methods class for Microtiny
-Copyright (C) 2009-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2009-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of the Microtiny module for CMS Made Simple
 <http://dev.cmsmadesimple.org/projects/microtiny>
@@ -156,14 +156,15 @@ class Utils
 			$shareurl = CMS_ASSETS_URL.'/js';
 			$output = <<<EOS
 <script type="text/javascript" id="shimsource">
-// jshint esversion: 5
 //<![CDATA[
 if(typeof String.prototype.trim === 'undefined') {
  var xjS = document.createElement('script');
  xjS.type = 'text/javascript';
- xjS.src = '$shareurl/es5-shim.min.js';
- var el = document.getElementById('shimsource'); // TODO better way to get current node
- el.parentNode.insertBefore(xjS, el.nextSibling); // insert after
+ xjS.async = false;
+ xjS.rel = 'preload';
+ xjS.src = '$shareurl/core-js.min.js';
+ var el = document.getElementById('shimsource');
+ el.parentNode.insertBefore(xjS, el.nextSibling); // insert after this
 }
 //]]>
 </script>
@@ -230,13 +231,13 @@ EOS;
 		$fp = AppUtils::get_filepicker_module();
 		if( $fp ) {
 			$url = $fp->get_browser_url();
-			$filepicker_url = str_replace('&amp;','&',$url).'&'.CMS_JOB_KEY.'=1';
+			$filepicker_url = str_replace('&amp;', '&', $url);
 //			$config = SingleItem::Config();
 //			$max = $config['max_upload_size'];
 //			$url2 = $config['uploads_url'];
 			$js .= <<<EOS
  filepicker_title: '{$mod->Lang('filepickertitle')}',
- filepicker_url: '{$filepicker_url}&field=',
+ filepicker_url: '$filepicker_url',
 
 EOS;
 		}

@@ -188,32 +188,38 @@ class FileTypeHelper
         'map', 'lock', 'dtd',
     ];
     /**
+     * @ignore
+     * browser-executable text-file extensions (also text)
+     */
+    private $_exe_extensions = [
+        'php', 'php4', 'php5', 'phps', 'phtml',
+    ];
+    /**
      * These are essentially for editable-file checking, rather than text per se
-      * @ignore
+     * @ignore
      */
     private $_text_mimes = [
 //too hard to edit in html context       'application/xml',
         'application/javascript',
         'application/x-javascript',
-//ditto       'image/svg+xml',
+//ditto 'image/svg+xml',
         'message/rfc822',
     ];
 
     /**
      * Constructor
      *
-     * @param array $config Optional since 2.99 custom definitions of some filetype extensions
-     * The parameters used here are NOT related to the global config class
+     * @param array $custom Optional since 3.0 custom definitions of some|all filetype extensions
      */
-    public function __construct($config = NULL)
+    public function __construct($custom = NULL)
     {
-        if( $config ) {
-            $this->update_config_extensions('_image_extensions', $config['FileTypeHelper_image_extensions']);
-            $this->update_config_extensions('_audio_extensions', $config['FileTypeHelper_audio_extensions']);
-            $this->update_config_extensions('_video_extensions', $config['FileTypeHelper_video_extensions']);
-            $this->update_config_extensions('_xml_extensions', $config['FileTypeHelper_xml_extensions']);
-            $this->update_config_extensions('_document_extensions', $config['FileTypeHelper_document_extensions']);
-            $this->update_config_extensions('_text_extensions', $config['FileTypeHelper_text_extensions']);
+        if( $custom ) {
+            $this->update_helper_extensions('_image_extensions', $custom['FileTypeHelper_image_extensions'] ?? '');
+            $this->update_helper_extensions('_audio_extensions', $custom['FileTypeHelper_audio_extensions'] ?? '');
+            $this->update_helper_extensions('_video_extensions', $custom['FileTypeHelper_video_extensions'] ?? '');
+            $this->update_helper_extensions('_xml_extensions', $custom['FileTypeHelper_xml_extensions'] ?? '');
+            $this->update_helper_extensions('_document_extensions', $custom['FileTypeHelper_document_extensions'] ?? '');
+            $this->update_helper_extensions('_text_extensions', $custom['FileTypeHelper_text_extensions'] ?? '');
         }
     }
 
@@ -228,12 +234,15 @@ class FileTypeHelper
     }
 
     /**
-     * A utility method to allow overriding the extensions used to identify files of a specific type
+     * A utility method to allow overriding the extensions used to
+     * identify files of a specific type
+     * @since 3.0 formerly called update_config_extensions()
+     *  i.e. breaker for any sub-class! TODO
      * Seems useless!
      * @param string $member One of (_archive_extensions, _audio_extensions, _video_extensions, _xml_extensions, _document_extensions)
-     * @param string $str A comma separated string of extensions for that file type
+     * @param string $str A comma-separated string of extensions for that file type
      */
-    protected function update_config_extensions($member, $str)
+    protected function update_helper_extensions($member, $str)
     {
         $str = trim($str);
         if( !$str ) return;
@@ -451,13 +460,14 @@ class FileTypeHelper
     }
 
     /**
-     * Using media type if possible, or extension, test whether the specified file is (potentially-editable) text.
+     * Using media type if possible, or extension, test whether the
+     *  specified file is (potentially-editable) text.
+     * @since 3.0
      *
-     * @since 2.99
      * @param string $filename Filesystem absolute path or include-path-resolvable path
      * @return bool
      */
-    public function is_text($filename)
+    public function is_text(string $filename) : bool
     {
         if( ($filename = $this->is_readable($filename)) ) {
             $type = $this->get_mime_type($filename);
@@ -469,15 +479,32 @@ class FileTypeHelper
             }
             if( in_array($type, $this->_text_mimes) ) {
                 return TRUE;
+                //TODO prob. need special care for executables
             }
 
             $ext = $this->get_extension($filename);
              // on a website, pretty much everything without an extension will be some form of editable text
-            if( $ext === '' && in_array($ext, $this->_text_extensions) ) {
+            if( $ext === '' || in_array($ext, $this->_text_extensions) ) {
                 return TRUE;
+                //TODO prob. need special care for executables
             }
         }
         return FALSE;
+    }
+
+    /**
+     * Using the file extension, test whether the file name specified is
+     *  a known browser-executable file.
+     * @since 3.0
+     *
+     * @param string $filename At least the basename of a file
+     * @return bool
+     */
+    public function is_executable(string $filename) : bool
+    {
+        // extensions only
+        $ext = $this->get_extension($filename);
+        return in_array($ext, $this->_exe_extensions);
     }
 
     /**
@@ -499,7 +526,7 @@ class FileTypeHelper
 
     /**
      * Get recognized file-extensions for the specified Filettype
-     * @since 2.99
+     * @since 3.0
      *
      * @param mixed int|FileType|string identifier
      * @return strings array, maybe empty
@@ -527,7 +554,7 @@ class FileTypeHelper
 
     /**
      * Get mediatype identifier for the specified Filettype
-     * @since 2.99
+     * @since 3.0
      *
      * @param mixed int|FileType|string identifier
      * @return string, maybe ''
@@ -555,7 +582,7 @@ class FileTypeHelper
 
     /**
      * Check whether mediatype $filemime matches mediatype pattern(s) $haystack
-     * @since 2.99
+     * @since 3.0
      *
      * @param string $filemime mediatype of a file
      * @param string $haystack mediatype maybe multiple, maybe wildcarded
@@ -577,7 +604,7 @@ class FileTypeHelper
 
     /**
      * Check whether file extension $fileext matches extension(s) in $haystack
-     * @since 2.99
+     * @since 3.0
      *
      * @param string $fileext maybe with leading '.'
      * @param mixed $haystack string (maybe comma-separated) | array Any of them may have leading '.'
@@ -626,7 +653,7 @@ class FileTypeHelper
      * The sanitized extension, if any, will be lower-cased, scrubbed of
      * spaces as well as other unwanted filename-chars, and if needed,
      * somewhat corrected to match an extension among this class's properties
-     * @since 2.99
+     * @since 3.0
      *
      * @param string $filename File path or just base-name
      * @param bool $image optional Flag whether to repair only image-types Default false

@@ -1,7 +1,7 @@
 <?php
 /*
 The main Content class
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -51,7 +51,7 @@ class Content extends ContentBase
 	public function IsDefaultPossible() : bool { return true; }
 
 	/**
-	 * @since 2.99
+	 * @since 3.0
 	 * @return string
 	 */
 	public function TemplateResource() : string

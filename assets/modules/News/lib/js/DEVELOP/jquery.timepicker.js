@@ -241,7 +241,7 @@ License: MIT
 
       // if not found or disabled, intelligently find first selectable element
       if (!selected.length || selected.hasClass("ui-timepicker-disabled")) {
-        selected = list.find("li:not(.ui-timepicker-disabled):first");
+        selected = list.find("li:not(.ui-timepicker-disabled)").eq(0);
       }
 
       if (selected && selected.length) {
@@ -468,7 +468,7 @@ License: MIT
     }
 
     if (
-      $.type(settings.timeFormat) === "string" &&
+      typeof settings.timeFormat === "string" &&
       settings.timeFormat.match(/[gh]/)
     ) {
       settings._twelveHourTime = true;
@@ -549,7 +549,7 @@ License: MIT
         settings.noneOption = settings.useSelect ? "Time..." : "None";
       }
 
-      if ($.isArray(settings.noneOption)) {
+      if (Array.isArray(settings.noneOption)) {
         for (var i in settings.noneOption) {
           if (parseInt(i, 10) == i) {
             var noneElement = _generateNoneElement(
@@ -599,7 +599,7 @@ License: MIT
 
     if (
       end === _ONE_DAY - 1 &&
-      $.type(settings.timeFormat) === "string" &&
+      typeof settings.timeFormat === "string" &&
       settings.show2400
     ) {
       // show a 24:00 option when using military time
@@ -1193,7 +1193,7 @@ License: MIT
       return null;
     }
 
-    if ($.type(settings.timeFormat) === "function") {
+    if (typeof settings.timeFormat === "function") {
       return settings.timeFormat(time);
     }
 

@@ -1,7 +1,7 @@
 <?php
 /*
 Module-related methods available for every request
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 /**
  * Module-directories lister. Checks for directories existence, including $modname if provided.
  *
- * @since 2.99
+ * @since 3.0
  * @param string $modname Optional name of a module
  * @param bool $all Optional flag whether to list all module-places even
  *  if a corresponding directory doesn't exist. Ignored if $modname is
@@ -68,7 +68,7 @@ function cms_module_places(string $modname = '', bool $all = false) : array
 /**
  * Module-file locator which doesn't need the module to be loaded.
  *
- * @since 2.99
+ * @since 3.0
  * @param string $modname name of the module.
  * @param bool $folder Optional flag whether to return filepath of folder containing the module Default false
  * @return string filepath of module class, or its parent folder (maybe empty)

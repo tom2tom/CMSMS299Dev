@@ -1,7 +1,7 @@
 <?php
 /*
 CMS Made Simple link content type
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -45,7 +45,7 @@ class Link extends ContentBase
 		parent::__construct($params);
 		foreach ([
 			'cachable' => true,
-			'secure' => false, //deprecated property since 2.99
+			'secure' => false, //deprecated property since 3.0
 //redundant	'type' => 'link',
 		] as $key => $value) {
 			$this->$key = $value;

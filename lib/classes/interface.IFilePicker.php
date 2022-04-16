@@ -1,7 +1,7 @@
 <?php
 /*
 Interface for file-picking modules
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -26,8 +26,8 @@ namespace CMSMS;
  *
  * @package CMS
  * @license GPL
- * @since  2.99
- * @since  2.2 as FilePicker
+ * @since 3.0
+ * @since 2.2 as FilePicker
  */
 interface IFilePicker
 {
@@ -42,7 +42,8 @@ interface IFilePicker
     public function get_profile_or_default($profile_name, $dir = null, $uid = null);
 
     /**
-     * Get the default profile for the specified data.
+     * Get the default profile for the specified parameters.
+     *
      * @param string $dir Optional topmost-folder filepath
      * @param int $uid Optional admin user id
      * @return CMSMS\FilePickerProfile
@@ -50,11 +51,22 @@ interface IFilePicker
     public function get_default_profile($dir = null, $uid = null);
 
     /**
-     * Get the URL required to render the filepicker
+     * Get the URL to be accessed to populate the filepicker display
      *
      * @return string
      */
     public function get_browser_url();
+
+    /**
+     * Get data for setting up a file-browse process
+     * @since 3.0
+     *
+     * @param array $params Assoc. array of values to be used
+     * @param bool $framed Optional flag, whether the display will be
+     *  embedded in an iframe, or a specified DOM element. Default true.
+     * @return array
+     */
+    public function get_browsedata(array $params, bool $framed = true) : array;
 
     /**
      * Generate HTML & related js, css for an input field that can be used to specify a selected file.
@@ -62,7 +74,8 @@ interface IFilePicker
      * @param string $name The name-attribute for the input field
      * @param string $value The initial/current value for the input field
      * @param CMSMS\FilePickerProfile $profile The profile to use when building the filepicker interface
-	 * @param bool   $required Optional flag, whether a choice must be provided in the generated element. Default false
+     * @param bool   $required Optional flag, whether a choice must be provided in the generated element. Default false
+     * @return string
      */
     public function get_html($name, $value, $profile, $required = false);
 } // interface

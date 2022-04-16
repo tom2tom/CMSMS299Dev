@@ -1,6 +1,6 @@
 <?php
 
-// access to CMSMS 2.99+ API is needed
+// access to CMSMS 3.0+ API is needed
 use CMSMS\Group;
 
 status_msg('Adding missing permissions');

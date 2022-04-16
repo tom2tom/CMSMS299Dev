@@ -1,7 +1,7 @@
 <?php
 /*
 Make relevant css available for a login page
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-//Deprecated since 2.99 - just include the relevant .css file(s) in the page header during its construction
+//Deprecated since 3.0 - just include the relevant .css file(s) in the page header during its construction
 
 use CMSMS\AppState;
 use CMSMS\NlsOperations;
@@ -45,13 +45,13 @@ $cms_readfile = function($filename) {
 };
 
 header('Content-type: text/css; charset=' . NlsOperations::get_encoding());
-if (is_file(__DIR__."/themes/$theme/css/style.css")) {
-    echo file_get_contents(__DIR__.'/themes/'.$theme.'/css/style.css');
+if (is_file(__DIR__."/themes/$theme/styles/style.css")) {
+    echo file_get_contents(__DIR__.'/themes/'.$theme.'/styles/style.css');
 }
 else {
-    echo file_get_contents(__DIR__.'/themes/'.$defaulttheme.'/css/style.css');
+    echo file_get_contents(__DIR__.'/themes/'.$defaulttheme.'/styles/style.css');
 }
 
-if (is_file(__DIR__.'/themes/'.$theme.'/extcss/style.css')) {
-    $cms_readfile(__DIR__.'/themes/'.$theme.'/extcss/style.css');
+if (is_file(__DIR__.'/themes/'.$theme.'/extstyles/style.css')) {
+    $cms_readfile(__DIR__.'/themes/'.$theme.'/extstyles/style.css');
 }

@@ -1472,11 +1472,11 @@
         var _this = this;
 
         $(this).find(this._settings.trigger).on('click', function () {
-          _this.load();
+          _this.trigger('load');
         });
 
         if (this._settings.loadOnInit) {
-          this.load();
+          this.trigger('load');
         }
       } // Static
       ;
@@ -1825,7 +1825,7 @@
 
       _proto._prepareContainer = function _prepareContainer() {
         if ($(this._getContainerId()).length === 0) {
-          var container = $('<div />').attr('id', this._getContainerId().replace('#', ''));
+          var container = $('<div>').attr('id', this._getContainerId().replace('#', ''));
 
           if (this._config.position == Position.TOP_RIGHT) {
             container.addClass(ClassName.TOP_RIGHT);

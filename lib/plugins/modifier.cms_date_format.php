@@ -25,6 +25,13 @@ use function CMSMS\specialize;
 
 function smarty_modifier_cms_date_format($datevar, $format = '', $default_date = '')
 {
+	if (strpos($format, 'timed') !== false) {
+		$xt = true;
+		$format = str_replace(['timed', '  '], ['', ' '], $format);
+	} else {
+		$xt = false;
+	}
+
 	if (!$format) {
 		if (!SingleItem::App()->is_frontend_request()) {
 			$userid = get_userid(false);
@@ -36,8 +43,7 @@ function smarty_modifier_cms_date_format($datevar, $format = '', $default_date =
 			$format = AppParams::get('date_format', 'j F, Y');
 		}
 	}
-	if (strpos($format, 'timed') !== false) {
-		$format = str_replace(['timed', '  '], ['', ' '], $format);
+	if ($xt) {
 		//ensure time is displayed
 		if (strpos($format, '%') !== false) {
 			if (!preg_match('/%[HIklMpPrRSTXzZ]/', $format)) {
