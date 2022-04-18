@@ -25,10 +25,10 @@
   <div class="boxchild">
    {_ld($_module,'pageof','<span id="cpage">1</span>',"<span id='tpage' style='margin-right:0.5em;'>`$totpg`</span>")}
    {$rowchanger}{_ld($_module,'pagerows')}
-   <a href="javascript:pagefirst()">{_ld($_module,'first')}</a>
-   <a href="javascript:pageprev()">{_ld($_module,'previous')}</a>
-   <a href="javascript:pagenext()">{_ld($_module,'next')}</a>
-   <a href="javascript:pagelast()">{_ld($_module,'last')}</a>
+   <a class="ipglink" href="javascript:pagefirst(itemstbl)">{_ld($_module,'first')}</a>
+   <a class="ipglink" href="javascript:pageprev(itemstbl)">{_ld($_module,'previous')}</a>
+   <a class="ipglink" href="javascript:pagenext(itemstbl)">{_ld($_module,'next')}</a>
+   <a class="ipglink" href="javascript:pagelast(itemstbl)">{_ld($_module,'last')}</a>
   </div>{*boxchild*}
 {/if}
 </div>{*rowbox*}

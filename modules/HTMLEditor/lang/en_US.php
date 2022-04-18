@@ -204,8 +204,6 @@ The editor may be installed on and run from this website, or run from CDN. The l
 <br /><br />
 CDN example: https://somecdnsite.com/summernote/0.8.9
 <br /><br />
-NOTE: CMSMS-specific editor-plugins are currently coded for Summernote version 4, <strong>not 5</strong>.
-<br /><br />
 One good CDN source, perhaps the best, is cdnjs. (browse for 'summernote'; omit the trailing '/summernote[.min].js'). Summernote operates its own cloud service, use of which requires registration and key-retrieval.
 EOS;
 $lang['help_theme'] = <<<'EOS'

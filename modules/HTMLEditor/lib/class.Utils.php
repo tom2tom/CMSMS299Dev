@@ -82,15 +82,15 @@ class Utils
             'workid' => 'edit_work',
         ]);
 
-        if( $htmlid ) {
+        if ($htmlid) {
             $selector = '#'.trim($htmlid);
-        } elseif( $htmlclass ) {
+        } elseif ($htmlclass) {
             $selector = '.'.trim($htmlclass);
         }
-        if( !$selector ) {
+        if (!$selector) {
             $selector = 'textarea.HTMLEditor';
         }
-        if( !in_array($selector, $usedselectors) ) {
+        if (!in_array($selector, $usedselectors)) {
             $usedselectors[] = $selector;
         } else {
             return '';
@@ -98,16 +98,16 @@ class Utils
 
         // confirm module presence
         $mod = AppUtils::get_module('HTMLEditor');
-        if( !is_object($mod) ) {
+        if (!is_object($mod)) {
             throw new RuntimeException('Could not find the HTMLEditor module...');
         }
 
-        if( !isset($frontend) ) {
+        if (!isset($frontend)) {
             $frontend = SingleItem::App()->is_frontend_request();
         }
 
         try {
-            $profile = ( $frontend ) ?
+            $profile = ($frontend) ?
                 Profile::load(HTMLEditor::PROFILE_FRONTEND):
                 Profile::load(HTMLEditor::PROFILE_ADMIN);
         }
@@ -117,22 +117,21 @@ class Utils
         }
 
         // get the stylesheet that we're going to use (either passed in, or from profile)
-        if( !$profile['allowcssoverride'] ) {
+        if (!$profile['allowcssoverride']) {
             // not allowing override
             $css_id = (int)$profile['dfltstylesheet'];
-            if( $css_id > 0 ) {
+            if ($css_id > 0) {
                 $css_name = $css_id;
-            }
-            else {
+            } else {
                 $css_name = '';
             }
-        } elseif( $stylesheet ) {
+        } elseif ($stylesheet) {
             $css_name = trim($stylesheet);
         }
         // or else some default css to supplement editor skin ?
 
         // if we have a stylesheet name, use it
-        if( $css_name ) {
+        if ($css_name) {
             try {
                 $css = StylesheetOperations::get_stylesheet($css_name);
                 $css_name = $css->get_name();
@@ -145,23 +144,22 @@ class Utils
 
         $ctr = count($usedselectors); // differentiator
         $base_url = $mod->GetModuleURLPath();
-        $srcurl = $mod->GetPreference('source_url'); // TODO check trailing '/timymce[.min].js', drop|append as appropriate
-        $local = startswith($srcurl, CMS_ROOT_URL);
+        $srcurl = $mod->GetPreference('source_url'); // TODO check trailing '/summernote[.min].js', drop|append as appropriate
 
         $theme = $mod->GetPreference('theme'); // TODO site or user-specific param value
         $theme = false; //DEBUG
-        if( $theme ) { // 'dark', 'light' etc?
-            if( startswith($theme, 'http') && endswith($theme, '.css') ) {
+        if ($theme) { // 'dark', 'light' etc?
+            if (startswith($theme, 'http') && endswith($theme, '.css')) {
                 $themeurl = $theme;
-            } elseif( strpos($theme, '/lib/summernote/') !== false ) {
+            } elseif (strpos($theme, '/lib/summernote/') !== false) {
                 $themeurl = $base_url . '/lib/summernote/' . trim($theme, ' /');
-            } else { // if(?) {
+            } else { // if(?)
                 $themeurl = CMS_ROOT_URL . '/' . trim($theme, ' /');
             }
         } else {
             $themeurl = $base_url.'/lib/summernote/summernote-lite.css';
         }
-        if( $css_name !== '' ) {
+        if ($css_name !== '') {
             $xcss = "\n{cms_stylesheet name=$css_name nolinks=1}\n";
         } else {
             $xcss = '';
@@ -179,7 +177,7 @@ class Utils
         $cssinc = '';
         $jsinc = '';
         $fpm = AppUtils::get_filepicker_module();
-        if( $fpm ) {
+        if ($fpm) {
             $parms = [ //TODO
 //'container' => $container, //unframed
 //'cwd' => $cwd, //framed ?
@@ -191,8 +189,8 @@ class Utils
 //'typename' => $typename
             ];
             list($incpaths, $customjs) = $fpm->get_browsedata($parms, false);
-            foreach( $incpaths as $fp ) {
-                if( endswith($fp, 'css') ) {
+            foreach ($incpaths as $fp) {
+                if (endswith($fp, 'css')) {
                     $url = cms_path_to_url($fp);
                     $cssinc .= '<link rel="stylesheet" href="' . $url . '" />'."\n";
                 } else {
@@ -209,17 +207,25 @@ class Utils
 
         // TODO module/custom css for plugin-dialogs incl. tabs, rtl if appropriate
 
-        if( $ctr == 1 ) {
+        if ($ctr == 1) {
             // once-per-request setup
             $cspext = '';
-            if( !$local ) {
-                $hash = $mod->GetPreference('source_sri');
-                if( $hash ) {
-                    $cspext = ' integrity="'.$hash.'" crossorigin="anonymous" referrerpolicy="no-referrer"';
+            $local = startswith($srcurl, CMS_ROOT_URL);
+            if ($local) {
+                $s = substr($srcurl, strlen(CMS_ROOT_URL));
+                $fp = CMS_ROOT_PATH . strtr($s, '/', DIRECTORY_SEPARATOR);
+                $fp = cms_get_script('summernote-lite.js', false, $fp);
+                $mainfile = basename($fp);
+            } else {
+                $mainfile = 'summernote-lite.min.js';
+                $s = $mod->GetPreference('source_sri');
+                if ($s) {
+                    $cspext = ' integrity="'.$s.'" crossorigin="anonymous" referrerpolicy="no-referrer"';
                 }
             }
             $shareurl = CMS_ASSETS_URL.'/js';
-//<script type="text/javascript" src="$srcurl/summernote-lite.min.js"$cspext></script>
+//<script type="text/javascript" src="$srcurl/$mainfile"$cspext></script>
+//<script type="text/javascript" src="$base_url/lib/UNUSED-summernote-0.8.20/dist/summernote-lite.js"></script>
 // TODO module.css might be .min and/or need rtl
 //<link rel="stylesheet" href="$pickurl4" />
 //<script type="text/javascript" src="$pickurl"></script>
@@ -246,7 +252,7 @@ $cssinc
 <link rel="stylesheet" href="$base_url/css/module.css" />
 $jsinc
 <script type="text/javascript" src="$pickurl2"></script>
-<script type="text/javascript" src="$base_url/lib/UNUSED-summernote-0.8.20/dist/summernote-lite.js"></script>
+<script type="text/javascript" src="$srcurl/$mainfile"$cspext></script>
 <script type="text/javascript" src="$srcurl/lang/summernote-en-US.min.js"></script>
 $customjs
 
@@ -269,18 +275,18 @@ if (typeof Symbol === 'undefined') {
 //<script type="text/javascript" src="$base_url/lib/js/purify.min.js"></script>
 
             $languageid = self::GetLanguageId($frontend);
-            if( $languageid && !startswith($languageid, 'summernote-en-US') ) {
+            if ($languageid && !startswith($languageid, 'summernote-en-US')) {
                 $output .= "\n<script type=\"text/javascript\" src=\"$srcurl/lang/$languageid\"></script>";
             }
 
             $plugs = self::GetPlugins($languageid);
-            if( $plugs[0] ) {
-                foreach( $plugs[0] as $fp ) {
+            if ($plugs[0]) {
+                foreach ($plugs[0] as $fp) {
                     $jsm->queue_file($fp);
                 }
             }
-            if( $plugs[1] ) {
-                foreach( $plugs[1] as $fp ) {
+            if ($plugs[1]) {
+                foreach ($plugs[1] as $fp) {
                     $url = cms_path_to_url($fp);
 //                  $relurl = ''; // TODO func($url etc)
 //                  $output .= "\n<link rel=\"stylesheet\" href=\"$base_url/$relurl.css\" />";
@@ -304,7 +310,7 @@ if (typeof Symbol === 'undefined') {
         $output .= <<<EOS
 <script type="text/javascript" src="$url"></script>
 EOS;
-        if( $frontend ) {
+        if ($frontend) {
             return $output;
         } else {
             add_page_headtext($output);
@@ -323,7 +329,7 @@ EOS;
      */
     private static function GetPlugins(string $languageid) : array
     {
-        if( $languageid && !startswith($languageid, 'summernote-en-US') ) {
+        if ($languageid && !startswith($languageid, 'summernote-en-US')) {
             $languageid = str_replace('summernote-', '', $languageid);
         } else {
             $languageid = '';
@@ -331,41 +337,41 @@ EOS;
         $out = [[],[]];
         $fp = __DIR__.DIRECTORY_SEPARATOR.'summernote'.DIRECTORY_SEPARATOR.'plugin'.DIRECTORY_SEPARATOR.'*';
         $places = glob($fp, GLOB_NOESCAPE | GLOB_ONLYDIR);
-        if( $places ) {
-            foreach( $places as $bp ) {
-                if( $languageid ) {
+        if ($places) {
+            foreach ($places as $bp) {
+                if ($languageid) {
                     $files = glob($bp.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'*.js');
-                    if( $files ) {
+                    if ($files) {
                         //TODO accumulate matching <locale>[.min].js as filepath akin to GetLanguageId()
                     }
                 }
                 // accumulate summernote-ext-*[.min].js as filepath
                 $files = glob($bp.DIRECTORY_SEPARATOR.'summernote-ext-*.js');
                 $fp = ($files) ? self::GetPreferred($files) : false;
-                if( $fp ) { $out[0][] = $fp; }
+                if ($fp) { $out[0][] = $fp; }
                 // accumulate [.min].css as filepath
                 $files = glob($bp.DIRECTORY_SEPARATOR.'*.css');
                 $fp = ($files) ? self::GetPreferred($files) : false;
-                if( $fp ) { $out[1][] = $fp; }
+                if ($fp) { $out[1][] = $fp; }
             }
         }
 
         $fp = __DIR__.DIRECTORY_SEPARATOR.'CMSMS-plugins'.DIRECTORY_SEPARATOR.'*';
         $places = glob($fp, GLOB_NOESCAPE | GLOB_ONLYDIR);
-        if( $places ) {
-            foreach( $places as $bp ) {
-                if( $languageid ) {
+        if ($places) {
+            foreach ($places as $bp) {
+                if ($languageid) {
                     $files = glob($bp.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'*.js');
-                    if( $files ) {
+                    if ($files) {
                         //TODO accumulate ibid
                     }
                 }
                 $files = glob($bp.DIRECTORY_SEPARATOR.'summernote-ext-*.js');
                 $fp = ($files) ? self::GetPreferred($files) : false;
-                if( $fp ) { $out[0][] = $fp; }
+                if ($fp) { $out[0][] = $fp; }
                 $files = glob($bp.DIRECTORY_SEPARATOR.'*.css');
                 $fp = ($files) ? self::GetPreferred($files) : false;
-                if( $fp ) { $out[1][] = $fp; }
+                if ($fp) { $out[1][] = $fp; }
             }
         }
         return $out;
@@ -380,8 +386,8 @@ EOS;
      */
     private static function GetPreferred(array $files) : string
     {
-        if( $files ) {
-            if( isset($files[1]) && strpos($files[1], '.min') !== false ) {
+        if ($files) {
+            if (isset($files[1]) && strpos($files[1], '.min') !== false) {
                 return $files[1];
             }
             return $files[0]; // .min or not
@@ -401,7 +407,7 @@ EOS;
     {
 //      $base_url = $mod->GetModuleURLPath();
         $root_url = CMS_ROOT_URL;
-        if( $frontend ) {
+        if ($frontend) {
             $page_id = SingleItem::App()->get_content_object()->Id();
         } else {
             $page_id = '';
@@ -412,7 +418,7 @@ EOS;
 //      $linkpicker_element = json_encode(trim(AdminUtils::CreateHierarchyDropdown(0, -1, 'all_pages', true, false, true, true)));
 
         $fpm = AppUtils::get_filepicker_module();
-        if( $fpm ) {
+        if ($fpm) {
             $files_populate_url = $fpm->get_browser_url(); // to initiate FilePicker::action.filepicker
 //          $parms = []; //TODO
 //          list($paths, $js) = $fpm->get_browsedata($parms, false);
@@ -578,21 +584,21 @@ EOS;
 //TODO adapt this to use Preference-sourced theme
 //$mod->GetPreference('skin_url');
 /*      // get preferred editor theme
-        if( !$frontend ) {
-            if( !$theme ) {
+        if (!$frontend) {
+            if (!$theme) {
                 $theme = UserParams::get_for_user(get_userid(false), 'wysiwyg_theme');
-                if( !$theme ) {
+                if (!$theme) {
                     $theme = AppParams::get('wysiwyg_theme', SOME DEFAULT)
                 }
             }
-        } elseif( !$theme ) {
+        } elseif (!$theme) {
             $theme = SOME DEFAULT; //TODO
         }
         $theme = strtolower($theme);
         $fp = __DIR__.DIRECTORY_SEPARATOR."whatever-{$theme}.css";
-        if( !is_file($fp) ) {
+        if (!is_file($fp)) {
             $fp = __DIR__.DIRECTORY_SEPARATOR."whatever-{$theme}.min.css";
-            if( !is_file($fp) ) {
+            if (!is_file($fp)) {
                 $theme = SOME DEFAULT;
             }
         }
@@ -838,21 +844,21 @@ EOS;
     private static function GetLanguageId() : string
     {
         $mylang = NlsOperations::get_current_language();
-        if( !$mylang ) return ''; //Lang setting "No default selected"
+        if (!$mylang) return ''; //Lang setting "No default selected"
         $shortlang = substr($mylang,0,2);
         $mymin = $mylang.'.min';
         $shtmin = $shortlang.'.min';
         // try to interrogate list of all translations
         $fp = __DIR__.DIRECTORY_SEPARATOR.'summernote'.DIRECTORY_SEPARATOR.'langs.manifest';
-        if( is_file($fp) ) {
+        if (is_file($fp)) {
             $cnt = file_get_contents($fp);
-            if( $cnt ) {
+            if ($cnt) {
                 $matches = [];
-                foreach( [$mymin,$mylang,$shtmin,$shortlang] as $test ) {
-                    if( ($p = strpos($cnt,$test)) !== false) {
+                foreach ([$mymin,$mylang,$shtmin,$shortlang] as $test) {
+                    if (($p = strpos($cnt,$test)) !== false) {
                         //get whole line containing $p i.e. 'summernote.'.stuff.'.js'
                         $patn = '/(^|\r|\n).+'.preg_quote($test).'/';
-                        if( preg_match($patn,$cnt,$matches,PREG_OFFSET_CAPTURE) ) {
+                        if (preg_match($patn,$cnt,$matches,PREG_OFFSET_CAPTURE)) {
                             $so = $matches[0][1];
                             preg_match('/\r|\n|$/',$cnt,$matches,PREG_OFFSET_CAPTURE,$p);
                             $eo = $matches[0][1];
@@ -866,16 +872,16 @@ EOS;
             $langs = [];
             $fp = __DIR__.DIRECTORY_SEPARATOR.'summernote'.DIRECTORY_SEPARATOR.'lang';
             $files = glob($fp.DIRECTORY_SEPARATOR."{summernote-$mylang*.js,summernote-$shortlang*.js}",GLOB_BRACE); // TODO if GLOB_BRACE N/A
-            if( $files ) {
-                foreach( $files as $one ) {
+            if ($files) {
+                foreach ($files as $one) {
                     $one = basename($one);
                     $one = substr($one,11,-3); // strip leading 'summernote-', trailing '.js', ignore any '.min'
                     $langs[] = $one;
                 }
             }
-            if( $langs ) {
-                foreach( [$mymin,$mylang,$shtmin,$shortlang] as $test ) {
-                    if( in_array($test,$langs) ) return 'summernote-'.$test.'.js';
+            if ($langs) {
+                foreach ([$mymin,$mylang,$shtmin,$shortlang] as $test) {
+                    if (in_array($test,$langs)) return 'summernote-'.$test.'.js';
                 }
             }
         }
@@ -894,7 +900,7 @@ EOS;
     public static function GetThumbnailFile(string $file, string $path, string $url) : string
     {
         $imagepath = str_replace(['\\','/'],[DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR], $path.DIRECTORY_SEPARATOR.'thumb_'.$file);
-        if( is_file($imagepath) ) {
+        if (is_file($imagepath)) {
             $imageurl = self::Slashes($url.'/thumb_'.$file);
             //TODO omit extension from alt, title
             $image = "<img src='".$imageurl."' alt='".$file."' title='".$file."' />";

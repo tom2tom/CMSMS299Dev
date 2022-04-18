@@ -26,7 +26,7 @@ use CMSMS\contenttypes\ContentBase;
 /**
  * Implements the Separator content type
  *
- * A separator might be used to provide a visual separation between menu items.
+ * A separator may be used to provide a visual separation between menu items.
 *  Typically as a horizontal or vertical bar.
  *
  * @package CMS

@@ -1,7 +1,7 @@
 <?php
 /*
 Class definition and methods for Section Header content type
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -36,12 +36,12 @@ use function get_userid;
  */
 class SectionHeader extends ContentBase
 {
-	public function FriendlyName() { return $this->mod->Lang('contenttype_sectionheader'); }
-	public function GetURL($rewrite = true) { return '#'; }
-	public function HasSearchableContent() { return false; }
-	public function HasUsableLink() { return false; }
-	public function IsViewable() { return false; }
-	public function RequiresAlias() { return true; }
+	public function FriendlyName() : string { return $this->mod->Lang('contenttype_sectionheader'); }
+	public function GetURL() : string { return '#'; }
+	public function HasSearchableContent() : bool { return false; }
+	public function HasUsableLink() : bool { return false; }
+	public function IsViewable() : bool { return false; }
+	public function RequiresAlias() : bool { return true; }
 
 	public function SetProperties()
 	{

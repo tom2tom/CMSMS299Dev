@@ -67,8 +67,8 @@ class AltbierTheme extends AdminTheme
 	 * @ignore
 	 */
 	const AWESOME_CDN =
-    '<link rel="preconnect" href="https://cdnjs.cloudflare.com" />'."\n".
-    '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha256-FMvZuGapsJLjouA6k7Eo2lusoAX9i0ShlWFG6qt7SLc=" crossorigin="anonymous" referrerpolicy="no-referrer" />';
+	'<link rel="preconnect" href="https://cdnjs.cloudflare.com" />'."\n".
+	'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous" referrerpolicy="no-referrer" />';
 
 	/**
 	 * @ignore

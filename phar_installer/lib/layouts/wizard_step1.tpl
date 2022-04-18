@@ -18,7 +18,7 @@
 }
 $(function() {
  $('#lang_selector').on('change', redirect_langchange);
-}{/literal}
+});{/literal}
 </script>
 {/block}
 

@@ -19,7 +19,7 @@ if (!$sel) {
 }
 //echo count($sel);
 if (count($sel)>1) {
-    //echo "hi";die();
+    //echo "hi"; exit;
     $params['fmerror']='morethanonefiledirselected';
     $this->Redirect($id,'defaultadmin',$returnid,$params);
 }

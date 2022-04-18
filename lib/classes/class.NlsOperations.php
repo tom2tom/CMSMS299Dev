@@ -465,7 +465,10 @@ final class NlsOperations
 	 */
 	public static function set_language_detector(LanguageDetector $obj)
 	{
-		if( is_object(self::$_fe_language_detector) ) die('language detector already set');
+		if( is_object(self::$_fe_language_detector) ) {
+			//TODO throw new LogicException('Language detector already set');
+			exit('Language detector already set');
+		}
 		self::$_fe_language_detector = $obj;
 	}
 

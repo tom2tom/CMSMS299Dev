@@ -1,7 +1,7 @@
 <?php
 /*
 CMS Made Simple link content type
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -29,8 +29,8 @@ use function get_userid;
 /**
  * Implements the Link content type
  *
- * Links are content objects that appear in navigations and implement a link to an externl
- * page or site.
+ * Links are content objects that appear in navigations and implement
+ * a link to an external page or site.
  *
  * @package CMS
  * @subpackage content_types
@@ -38,10 +38,10 @@ use function get_userid;
  */
 class Link extends ContentBase
 {
-	public function FriendlyName() { return $this->mod->Lang('contenttype_link'); }
-	public function HasSearchableContent() { return false; }
-	public function IsCopyable() { return true; }
-	public function IsViewable() { return false; }
+	public function FriendlyName() : string { return $this->mod->Lang('contenttype_link'); }
+	public function HasSearchableContent() : bool { return false; }
+	public function IsCopyable() : bool { return true; }
+	public function IsViewable() : bool { return false; }
 
 	public function SetProperties()
 	{
@@ -83,7 +83,7 @@ class Link extends ContentBase
 		return $errors ? $errors : false;
 	}
 
-	public function GetTabNames()
+	public function GetTabNames() : array
 	{
 		$res = [$this->mod->Lang('main')];
 		if( check_permission(get_userid(),'Manage All Content') ) {
@@ -120,7 +120,7 @@ class Link extends ContentBase
 		}
 	}
 
-	public function GetURL($rewrite = true)
+	public function GetURL() : string
 	{
 		return $this->GetPropertyValue('url');
 	}

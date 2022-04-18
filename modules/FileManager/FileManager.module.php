@@ -166,7 +166,7 @@ final class FileManager extends CMSModule
             $realfile = $path;
         }
         $realfile = $this->WinSlashes($realfile);
-//      echo $realfile; echo $mode;die();
+//      echo $realfile; echo $mode; exit;
         $returnvar = 0;
         $output = [];
         if ($mode == '777') {

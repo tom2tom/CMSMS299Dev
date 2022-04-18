@@ -15,7 +15,7 @@ $config = $gCms->GetConfig();
 $fullname = cms_join_path(CMS_ROOT_PATH, $params['path'], $params['filename']);
 
 if (isset($params['newmode'])) {
-  //echo deleting;die();
+  //echo 'deleting';exit;
   if (isset($params['cancel'])) {
     $this->Redirect($id, 'defaultadmin', $returnid, ['path' => $params['path'], 'fmmessage' => 'chmodcancelled']);
   } else {

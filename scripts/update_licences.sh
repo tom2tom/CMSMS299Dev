@@ -56,7 +56,7 @@ for dir in $TWIGS; do
       OLDCS=$(md5sum $LEAF | gawk '{ print $1 }')
       NEWCS=$(md5sum $LEAF-newyear | gawk '{ print $1 }')
       if [ "$OLDCS" = "$NEWCS" ] ; then
-        echo "stet $LEAF"
+#        echo "stet $LEAF"
         rm -f  $LEAF-newyear >/dev/null
      else
 #        mv -f $LEAF $LEAF-old >/dev/null

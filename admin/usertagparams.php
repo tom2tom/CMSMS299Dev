@@ -37,7 +37,7 @@ if (check_permission($userid, 'View UserTag Help')) {
     $name = sanitizeVal($tmp, CMSSAN_FILE);
     $info = SingleItem::UserTagOperations()->GetUserTag($name, 'parameters');
     if (!empty($info)) {
-        echo (nl2br(specialize(trim($info, " \t\n\r")), ENT_XML1 | ENT_QUOTES));
+        echo nl2br(specialize(trim($info, " \t\n\r")), ENT_XML1 | ENT_QUOTES);
     }
     exit;
 }

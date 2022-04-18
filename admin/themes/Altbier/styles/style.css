@@ -162,6 +162,7 @@ a:active {
 a.external::after {
     content: '\f35d';
     font-family: 'Font Awesome 5 Free';
+/*    font-weight: 600;*/
     font-size: 0.7rem;
     color: #007bff;
 }
@@ -170,6 +171,7 @@ a.external::after {
     padding-left: 25px;
     content: '\f03a';
     font-family: 'Font Awesome 5 Free';
+/*    font-weight: 600;*/
 }
 .important, text-danger {
     color: #ae432e;
@@ -875,6 +877,7 @@ aside .no-slide,
 .alert-dialog .alert-icon:before {
     content: '\f071';
     font-family: 'Font Awesome 5 Free';
+/*    font-weight: 600;*/
     font-size: 1.1em;
     color: #dc3545;
 }
@@ -890,6 +893,7 @@ aside .no-slide,
     margin-left: 1.75em;
     content: '\f057';
     font-family: 'Font Awesome 5 Free';
+/*    font-weight: 600;* /
     font-size: 2em;
     color: #dc3545
 }
@@ -912,6 +916,7 @@ aside .no-slide,
 .close-warning::before {
     content: '\f410';
     font-family: 'Font Awesome 5 Free';
+/*    font-weight: 600;*/
     font-size: 1em;
     color: #333;
 }
@@ -1607,6 +1612,7 @@ span.helptext a {
 span.helptext a::before {
     content: '\f059';
     font-family: 'Font Awesome 5 Free';
+/*    font-weight: 600;*/
     color: #147fdb;
 }
 
@@ -1695,6 +1701,7 @@ div.dialog a.bookmark::before {
 /*    background: url(../images/icons/extra/bookmark.gif) no-repeat right*/
     content: '\f02e';
     font-family: 'Font Awesome 5 Free';
+/*    font-weight: 600;*/
 }
 
 div.dialog form#chdir_form {
@@ -1795,6 +1802,7 @@ table.pagetable th.SortAble, table.pagetable th.SortUp, table.pagetable th.SortD
 table.pagetable th.SortAble::before {
     content: '\f0dc';
     font-family: 'Font Awesome 5 Free';
+    font-weight: 600; /*CHANGED*//* FA5Free expects bold, must override other fonticons which allow normal */
     margin-right: 0.2em;
     vertical-align: middle;
 }
@@ -1802,6 +1810,7 @@ table.pagetable th.SortAble::before {
 table.pagetable th.SortUp::before {
     content: '\f0de';
     font-family: 'Font Awesome 5 Free';
+    font-weight: 600; /*CHANGED*//* as above */
     margin-right: 0.2em;
     vertical-align: middle;
 }
@@ -1809,6 +1818,7 @@ table.pagetable th.SortUp::before {
 table.pagetable th.SortDown::before {
     content: '\f0dd';
     font-family: 'Font Awesome 5 Free';
+    font-weight: 600; /*CHANGED*//* as above */
     margin-right: 0.2em;
     vertical-align: middle;
 }
@@ -2409,6 +2419,7 @@ ul.sortableList div.label::before {
 /*    background: #f1f1fd url(../images/icons/extra/reorder.gif) no-repeat 10px 50%;*/
     content: '\f338';
     font-family: 'Font Awesome 5 Free';
+/*    font-weight: 600;*/
 }
 
 ul.sortableList li div.label em {

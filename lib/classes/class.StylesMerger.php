@@ -22,10 +22,13 @@ namespace CMSMS;
 
 use CMSMS\Crypto;
 use CMSMS\Events;
+use const CMS_ROOT_PATH;
+use const CMS_ROOT_URL;
 use const TMP_CACHE_LOCATION;
 use function cms_get_css;
 use function cms_path_to_url;
 use function file_put_contents;
+use function startswith;
 
 //TODO an async Job to clear old consolidations ? how old ? c.f. TMP_CACHE_LOCATION cleaner
 
@@ -60,7 +63,7 @@ class StylesMerger
      */
     public function set_style_priority(int $val)
     {
-        $this->_item_priority = max(1,min(5,$val));
+        $this->_item_priority = max(1, min(5, $val));
     }
 
     /**
@@ -266,7 +269,17 @@ class StylesMerger
      */
     protected function url_to_path(string $path) : string
     {
-        //TODO
-        return $path;
+        $path = trim($path, " \t\r\n'\"");
+        if (1) { // TODO is path, not URL
+            return $path;
+        }
+        if (startswith($path, CMS_ROOT_URL)) {
+            $s = substr($path, strlen(CMS_ROOT_URL));
+            $fp = CMS_ROOT_PATH . strtr($s, '/', DIRECTORY_SEPARATOR);
+        } else {
+            $s = preg_replace('~^(\w+?:)?//~', '', $path);
+            $fp = strtr($s, '/', DIRECTORY_SEPARATOR);
+        }
+        return $fp;
     }
 } // class

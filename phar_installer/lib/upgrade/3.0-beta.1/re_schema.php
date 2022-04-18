@@ -11,7 +11,8 @@ if (!isset($handle)) {
 );
 
     if (!$handle) {
-        die('no database connection');
+        //TODO throw new RuntimeException('No database connection')
+        exit('No database connection');
     }
 
     $tblprefix = $config['db_prefix'] ?? 'cms_';

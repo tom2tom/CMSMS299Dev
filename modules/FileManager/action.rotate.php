@@ -104,7 +104,7 @@ if( isset($params['save']) ) {
     $center_y = (int)($new_h / 2);
     $x0 = max(0,$center_x - $x2);
     $y0 = max(0,$center_y - $y2);
-    //die("width = $width, height = $height, new_w = $new_w, new_h = $new_h, x0 = $x0, y0 = $y0");
+    //exit("width = $width, height = $height, new_w = $new_w, new_h = $new_h, x0 = $x0, y0 = $y0");
 
     $newimg = imagecreatetruecolor($width,$height);
     imagealphablending($newimg,FALSE);
@@ -134,7 +134,7 @@ if( isset($params['save']) ) {
     $x0 = (int)(($src_w - $new_w) / 2);
     $y0 = (int)(($src_h - $new_h) / 2);
 
-    //die("rotated={$src_w}x{$src_h} orig={$width}x{$height} new={$new_w},{$new_h} offset = $x0,$y0");
+    //exit("rotated={$src_w}x{$src_h} orig={$width}x{$height} new={$new_w},{$new_h} offset = $x0,$y0");
     $newimg = imagecreatetruecolor($new_w,$new_h);
     imagealphablending($newimg,FALSE);
     imagecolortransparent($newimg,$bgcolor);

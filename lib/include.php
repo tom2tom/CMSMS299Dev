@@ -63,7 +63,8 @@ if (class_exists('CMSMS\AppState', false)) {
 
 define('CONFIG_FILE_LOCATION', $dirpath.'config.php');
 if (!$installing && (!is_file(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCATION) < 100)) {
-    die('FATAL ERROR: config.php file not found or invalid');
+    //TODO throw new RuntimeException(' message below ');
+    exit('FATAL ERROR: config.php file not found or invalid');
 }
 
 require_once $dirpath.'misc.functions.php'; // system-independent methods
@@ -245,7 +246,7 @@ if (!$installing) {
         debug_buffer('Finished initializing database');
     }
     catch (DatabaseConnectionException $e) {
-        die('Sorry, something has gone wrong.  Please contact a site administrator. <em>('.get_class($e).')</em>');
+        exit('Failed database connection. Please contact a site administrator. <em>('.get_class($e).')</em>');
     }
 }
 

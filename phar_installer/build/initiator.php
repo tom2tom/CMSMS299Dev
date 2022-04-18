@@ -51,7 +51,7 @@ try {
  $to = $installer_top.DIRECTORY_SEPARATOR.'README-PHAR.TXT';
  copy($from, $to);
 } catch (Throwable $t) {
- die($t->GetMessage()."\n");
+ exit($t->GetMessage()."\n");
 }
 
 $path = Phar::running(false);
@@ -65,4 +65,4 @@ if ($host && $uri) {
  $to = '//'.$host.substr($uri, 0, $p).'/installer/index.php';
  header('Location: '.$to);
 }
-die("Unable to locate the installer-start-script.<br />You can point your browser to &lt;ROOT URL&gt;/installer/index.php");
+exit("Unable to locate the installer-start-script.<br />You can point your browser to &lt;ROOT URL&gt;/installer/index.php");

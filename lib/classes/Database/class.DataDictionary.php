@@ -20,6 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Database;
 
+//use CMSMS\DataException;
 use CMSMS\Database\Connection;
 
 /**
@@ -1317,7 +1318,8 @@ class DataDictionary
 
             // VALIDATE FIELD INFO
             if (!$fname) {
-                die('failed');
+                //TODO throw new DataException('No name in field definition');
+                exit('failed');
             }
 
             if (!$ftype) {

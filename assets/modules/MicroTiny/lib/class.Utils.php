@@ -77,7 +77,8 @@ class Utils
 
 		if( $htmlid ) {
 			$selector = '#'.trim($htmlid);
-		} elseif( $htmlclass ) {
+		}
+		elseif( $htmlclass ) {
 			$selector = '.'.trim($htmlclass);
 		}
 		if( !$selector ) {
@@ -85,7 +86,8 @@ class Utils
 		}
 		if( !in_array($selector, $usedselectors) ) {
 			$usedselectors[] = $selector;
-		} else {
+		}
+		else {
 			return '';
 		}
 
@@ -119,7 +121,8 @@ class Utils
 			else {
 				$css_name = '';
 			}
-		} elseif( $stylesheet ) {
+		}
+		elseif( $stylesheet ) {
 			$css_name = trim($stylesheet);
 		}
 		// or else some default css to supplement editor skin ?
@@ -139,20 +142,27 @@ class Utils
 		$ctr = count($usedselectors); // differentiator
 		$base_url = $mod->GetModuleURLPath();
 		$srcurl = $mod->GetPreference('source_url'); // TODO check trailing '/timymce[.min].js', drop|append as appropriate
-		$local = startswith($srcurl, CMS_ROOT_URL);
 
 		$jsm = new ScriptsMerger();
 
 		if( $ctr == 1 ) {
 			// once-per-request setup
 			$cspext = '';
-			if (!$local) {
-				$hash = $mod->GetPreference('source_sri');
-				if ($hash) {
-					$cspext = ' integrity="'.$hash.'" crossorigin="anonymous" referrerpolicy="no-referrer"';
+			$local = startswith($srcurl, CMS_ROOT_URL);
+			if( $local ) {
+				$s = substr($srcurl, strlen(CMS_ROOT_URL));
+				$fp = CMS_ROOT_PATH . strtr($s, '/', DIRECTORY_SEPARATOR);
+				$fp = cms_get_script('tinymce.js', false, $fp);
+				$mainfile = basename($fp);
+			}
+			else {
+				$mainfile = 'tinymce.min.js';
+				$s = $mod->GetPreference('source_sri');
+				if( $s ) {
+					$cspext = ' integrity="'.$s.'" crossorigin="anonymous" referrerpolicy="no-referrer"';
 				}
 			}
-// TODO need FilePicker::HeaderJsContent() stuff?
+			// TODO need FilePicker::HeaderJsContent() stuff?
 			$shareurl = CMS_ASSETS_URL.'/js';
 			$output = <<<EOS
 <script type="text/javascript" id="shimsource">
@@ -168,13 +178,14 @@ if(typeof String.prototype.trim === 'undefined') {
 }
 //]]>
 </script>
-<script type="text/javascript" src="$srcurl/tinymce.min.js"$cspext></script>
+<script type="text/javascript" src="$srcurl/$mainfile"$cspext></script>
 <script type="text/javascript" src="$base_url/lib/tinymce/jquery.tinymce.js"></script>
 
 EOS;
 			$js = self::GenerateVars($frontend, $profile, $mod);
 			$jsm->queue_string($js);
-		} else {
+		}
+		else {
 			$output = '';
 		}
 
@@ -189,9 +200,10 @@ EOS;
 		$output .=<<< EOS
 <script type="text/javascript" src="$url"></script>
 EOS;
-		if ($frontend) {
+		if( $frontend ) {
 			return $output;
-		} else {
+		}
+		else {
 			add_page_headtext($output);
 			return '';
 		}
@@ -209,17 +221,18 @@ EOS;
 	{
 		$base_url = $mod->GetModuleURLPath();
 		$root_url = CMS_ROOT_URL;
-		if ($frontend) {
+		if( $frontend ) {
 			$page_id = SingleItem::App()->get_content_object()->Id();
-		} else {
+		}
+		else {
 			$page_id = '';
 		}
 //		$linker_url = $mod->create_url('m1_', 'linker', $page_id, [CMS_JOB_KEY=>1], false, false, '', false, 2); // TODO what is this?
 		$getpages_url = $mod->create_url('m1_', 'ajax_getpages', $page_id, [CMS_JOB_KEY=>1], false, false, '', false, 2);
 
-		$menu = ($profile['menubar']) ? 'true' : 'false';
-		$resize = ($profile['allowresize']) ? 'true' : 'false';
-		$status = ($profile['showstatusbar']) ? 'true' : 'false';
+		$menu = ( $profile['menubar'] ) ? 'true' : 'false';
+		$resize = ( $profile['allowresize'] ) ? 'true' : 'false';
+		$status = ( $profile['showstatusbar'] ) ? 'true' : 'false';
 
 		$js = <<<EOS
 // runtime variables
@@ -297,30 +310,31 @@ EOS;
 	{
 		$parent_url =  $base_url . '/lib/tinymce';
 		$languageid = self::GetLanguageId($frontend);
-		$image1 = ($profile['allowimages']) ? ' | image' : '';
-		$image2 = ($profile['allowimages']) ? ' media image' : '';
-		$table = ($profile['allowtables']) ? ' table' : '';
-		$fixed = ($edit) ? 'false' : 'true';
-		$pref = ($local) ? '' : '-'; // plugin-name prefix
+		$image1 = ( $profile['allowimages'] ) ? ' | image' : '';
+		$image2 = ( $profile['allowimages'] ) ? ' media image' : '';
+		$table = ( $profile['allowtables'] ) ? ' table' : '';
+		$fixed = ( $edit ) ? 'false' : 'true';
+		$pref = ( $local ) ? '' : '-'; // plugin-name prefix
 
 //TODO adapt this to use Preference-sourced URLs
 //$mod->GetPreference('skin_url');
 /*		// get preferred editor theme
-		if (AppState::test(AppState::ADMIN_PAGE)) {
-			if (!$theme) {
+		if( AppState::test(AppState::ADMIN_PAGE) ) {
+			if( !$theme ) {
 				$theme = UserParams::get_for_user(get_userid(false), 'wysiwyg_theme');
-				if (!$theme) {
+				if( !$theme ) {
 					$theme = AppParams::get('wysiwyg_theme', SOME DEFAULT)
 				}
 			}
-		} elseif (!$theme) {
+		}
+		elseif( !$theme ) {
 			$theme = SOME DEFAULT; //TODO
 		}
 		$theme = strtolower($theme);
 		$fp = __DIR__.DIRECTORY_SEPARATOR."whatever-{$theme}.css";
-		if (!is_file($fp)) {
+		if( !is_file($fp) ) {
 			$fp = __DIR__.DIRECTORY_SEPARATOR."whatever-{$theme}.min.css";
-			if (!is_file($fp)) {
+			if( !is_file($fp) ) {
 				$theme = SOME DEFAULT;
 			}
 		}
@@ -347,14 +361,14 @@ tinymce.init({
 
 EOS;
 		// smarty logic stuff
-		if ($css_name !== '') {
+		if( $css_name !== '' ) {
 			$js .= <<<EOS
  content_css: '{cms_stylesheet name=$css_name nolinks=1}',
 
 EOS;
 		}
-		if ($frontend) {
-			if (!$local) {
+		if( $frontend ) {
+			if( !$local ) {
 				$js .= <<<EOS
  external_plugins: {
   'mailto': '$parent_url/CMSMS-plugins/mailto/plugin.min.js'
@@ -367,12 +381,13 @@ EOS;
  toolbar: 'undo | cut copy paste | bold italic underline | alignleft aligncenter alignright alignjustify indent outdent | bullist numlist | link mailto{$image1}',
 
 EOS;
-		} else {
+		}
+		else {
 			$js .= <<<EOS
  image_advtab: true,
 
 EOS;
-			if (!$local) {
+			if( !$local ) {
 				$js .= <<<EOS
  external_plugins: {
   'mailto': '$parent_url/CMSMS-plugins/mailto/plugin.min.js',
@@ -469,7 +484,7 @@ $(function() {
 	private static function GetLanguageId() : string
 	{
 		$mylang = NlsOperations::get_current_language();
-		if (!$mylang) return 'en'; //Lang setting "No default selected"
+		if( !$mylang ) return 'en'; //Lang setting "No default selected"
 		$shortlang = substr($mylang,0,2);
 
 		//TODO a langs 'manifest' to interrogate when sourcing from CDN
@@ -506,7 +521,8 @@ $(function() {
 			$imageurl = self::Slashes($url.'/thumb_'.$file);
 			//TODO omit extension from alt, title
 			$image = "<img src='".$imageurl."' alt='".$file."' title='".$file."' />";
-		} else {
+		}
+		else {
 			$image = '';
 		}
 		return $image;

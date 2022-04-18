@@ -1,7 +1,7 @@
 <?php
 /*
 Class definition and methods for Page Link content type
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -22,8 +22,8 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace ContentManager\contenttypes;
 
 use CMSMS\AdminUtils;
-use CMSMS\contenttypes\ContentBase;
 use CMSMS\SingleItem;
+use ContentManager\ContentBase;
 use function check_permission;
 use function CMSMS\specialize;
 use function get_userid;
@@ -40,10 +40,10 @@ use function get_userid;
  */
 class PageLink extends ContentBase
 {
-	public function FriendlyName() { return $this->mod->Lang('contenttype_pagelink'); }
-	public function HasSearchableContent() { return false; }
-	public function IsCopyable() { return true; }
-	public function IsViewable() { return false; }
+	public function FriendlyName() : string { return $this->mod->Lang('contenttype_pagelink'); }
+	public function HasSearchableContent() : bool { return false; }
+	public function IsCopyable() : bool { return true; }
+	public function IsViewable() : bool { return false; }
 
 // Robert Campbell: commented this out so that this page can be seen in cms_selflink
 // but not sure what it's gonna mess up.
@@ -66,10 +66,10 @@ class PageLink extends ContentBase
 	{
 		parent::FillParams($params,$editing);
 
-		if (!empty($params)) {
+		if( !empty($params) ) {
 			$parameters = ['page', 'params' ];
 			foreach ($parameters as $oneparam) {
-				if (isset($params[$oneparam])) $this->SetPropertyValue($oneparam, $params[$oneparam]);
+                if( isset($params[$oneparam]) ) { $this->SetPropertyValue($oneparam, $params[$oneparam]); }
 			}
 		}
 	}
@@ -85,13 +85,12 @@ class PageLink extends ContentBase
 		if( $errors === false ) $errors = [];
 
 		$page = $this->GetPropertyValue('page');
-		if ($page == '-1') {
+		if( $page == '-1' ) {
 			$errors[]= $this->mod->Lang('nofieldgiven', $this->mod->Lang('page'));
 			$result = false;
 		}
-
-		// get the content type of page.
 		else {
+			// get the content type of page. TODO load using CM methods only
 			$contentops = SingleItem::ContentOperations();
 			$destcontent = $contentops->LoadEditableContentFromId($page);
 			if( !is_object($destcontent) ) {
@@ -110,7 +109,7 @@ class PageLink extends ContentBase
 		return ($errors) ? $errors : false;
 	}
 
-	public function GetTabNames()
+	public function GetTabNames() : array
 	{
 		$res = [$this->mod->Lang('main')];
 		if( check_permission(get_userid(),'Manage All Content') ) $res[] = $this->mod->Lang('options');
@@ -155,15 +154,17 @@ class PageLink extends ContentBase
 		}
 	}
 
-	public function GetURL($rewrite = true)
+	public function GetURL() : string
 	{
-		$contentops = SingleItem::ContentOperations();
 		$page = $this->GetPropertyValue('page');
+		//TODO load using CM methods only
+		$contentops = SingleItem::ContentOperations();
 		$destcontent = $contentops->LoadEditableContentFromId($page);
 		if( is_object($destcontent) ) {
 			$url = $destcontent->GetURL();
 			$params = $this->GetPropertyValue('params');
 			return $url . $params;
 		}
+        return '';
 	}
 }

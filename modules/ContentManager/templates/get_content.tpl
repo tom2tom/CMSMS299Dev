@@ -206,10 +206,7 @@
     <a id="filterdisplay" accesskey="f" title="{_ld($_module,'prompt_filter')}">{$t=_ld($_module,'filter')}{admin_icon icon='icons/extra/filter' alt=$t}&nbsp;{$t}</a>
     {if !empty($have_filter)}<span style="color: red;"><em>({_ld($_module,'filter_applied')})</em></span>{/if}
   </div>{*boxchild*}
-
-  {if isset($content_list)}
-  <div class="pageoptions options-form boxchild">
-    <span>
+  <div class="boxchild">
     {if $dir == 'rtl'}
     {admin_icon icon='icons/extra/search' alt="{_ld('layout','search')}" addtext='style=position:relative;left:1.8em'}
     {/if}
@@ -217,16 +214,16 @@
     {if $dir != 'rtl'}
     {admin_icon icon='icons/extra/search' alt="{_ld('layout','search')}" addtext='style=position:relative;left:-1.8em'}
     {/if}
-    </span>
-    {if $npages > 1}
-    &nbsp;&nbsp;{form_start action='defaultadmin'}
+  </div>{*boxchild*}
+  {if isset($content_list) && $npages > 1}
+  <div class="options-form boxchild">
+    {form_start action='defaultadmin'}
       <span>{_ld($_module,'page')}:&nbsp;
         <select name="{$actionid}curpage" id="{$actionid}curpage">
          {html_options options=$pagelist selected=$curpage}    </select>
         <button type="submit" name="{$actionid}submitpage" class="invisible adminsubmit icon check">{_ld($_module,'go')}</button>
       </span>
     </form>
-    {/if}
   </div>{*boxchild*}
   {/if}
 </div>{*rowbox*}

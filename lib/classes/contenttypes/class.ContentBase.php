@@ -1,7 +1,7 @@
 <?php
 /*
 Base class for working with page content at runtime
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -26,7 +26,7 @@ use CMSMS\SingleItem;
 use Exception;
 use Serializable;
 use const CMS_DB_PREFIX;
-use const CMS_DEBUG;
+//use const CMS_DEBUG;
 use const CMS_ROOT_URL;
 use function cms_to_stamp;
 
@@ -35,6 +35,7 @@ use function cms_to_stamp;
  * This is for preparation of displayed pages at runtime. Object
  * properties are modifiable only by [re]retrieval from the database.
  * Content properties which are only for 'management' are not used here.
+ * @see also interface CMSMS\IContentEditor
  *
  * @since 3.0
  * @package  CMS
@@ -80,12 +81,19 @@ class ContentBase implements Serializable
 	protected $_fields = [];
 
 	/**
-	 * Page-specific properties of this page (a.k.a. non-core properties)
-	 * from the content-properties table
+	 * Content-properties-table field values (if any) for this page
+	 * (a.k.a. non-core properties)
 	 * array
 	 * @internal
 	 */
 	protected $_props = [];
+
+	/**
+	 * Flag whether non-core properties array has been populated (tho' might still be empty)
+	 * boolean
+	 * @internal
+	 */
+	protected $_propsloaded = false;
 
 	/**
 	 * Constructor. Sets initial properties of this page from the supplied data.
@@ -129,8 +137,10 @@ class ContentBase implements Serializable
 		$use = strtolower($key);
 		$use = self::PROPALIAS[$use] ?? $use;
 		switch ($use) {
-			case '_fields':
 			case '_props':
+				$this->_propsloaded = true;
+				// no break here
+			case '_fields':
 				$this->$use = $value;
 				break;
 			default:
@@ -153,7 +163,7 @@ class ContentBase implements Serializable
 		$use = self::PROPALIAS[$use] ?? $use;
 		switch ($use) {
 			case '_fields':
-			case '_props':
+			case '_props': // too bad if not loaded before
 				return $this->$use;
 			default:
 				if (isset($this->_fields[$use])) {
@@ -231,26 +241,38 @@ class ContentBase implements Serializable
 			$res += $this->_props;
 		}
 		return $res;
+		//TODO sometimes even if !$deep: non-core properties 'tpltype_id','csstype_id' to support typed components for theme switching
 	}
 
 	/**
-	 * Load all of this page's non-core properties into _props[]
+	 * Load all of this page's non-core properties (if any) into _props[]
 	 * @ignore
 	 * @return bool indicating success
 	 */
 	protected function _load_properties() : bool
 	{
 		if (isset($this->_fields['content_id']) && $this->_fields['content_id'] > 0) {
-			$this->_props = [];
 			$db = SingleItem::Db();
 			$query = 'SELECT prop_name,content FROM '.CMS_DB_PREFIX.'content_props WHERE content_id = ?';
 			$dbr = $db->getAssoc($query, [(int)$this->_fields['content_id'] ]);
-			if ($dbr) {
-				$this->_props = $dbr;
-				return true;
-			}
+			$this->_props = $dbr; // might be empty
+			$this->_propsloaded = true;
+			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Return this page's non-core properties
+	 * @since 3.0 this method loads those properties if not already done
+	 * @return array, maybe empty
+	 */
+	public function Properties() : array
+	{
+		if (!$this->_propsloaded) {
+			$this->_load_properties();
+		}
+		return $this->_props;
 	}
 
 	/**
@@ -265,10 +287,10 @@ class ContentBase implements Serializable
 		if (!$propname) {
 			return false;
 		}
-		if (!is_array($this->_props)) {
+		if (!$this->_propsloaded) {
 			$this->_load_properties();
 		}
-		if (is_array($this->_props)) {
+		if ($this->_propsloaded) {
 			return isset($this->_props[$propname]);
 		}
 		return false;
@@ -284,7 +306,7 @@ class ContentBase implements Serializable
 	 */
 	public function SetPropertyValue(string $propname, $value)
 	{
-		if (!is_array($this->_props)) {
+		if (!$this->_propsloaded) {
 			$this->_load_properties();
 		}
 		$this->_props[$propname] = $value;
@@ -300,7 +322,6 @@ class ContentBase implements Serializable
 	 */
 	public function SetPropertyValueNoLoad(string $propname, $value)
 	{
-		if( !is_array($this->_props) ) $this->_props = [];
 		$this->_props[$propname] = $value;
 	}
 

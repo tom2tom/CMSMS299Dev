@@ -384,7 +384,8 @@ function redirect(string $to)
 {
 	$app = SingleItem::App();
 /* MAYBE IN FUTURE  if ($app->is_cli()) {
-		die("ERROR: no redirect on cli-based scripts ---\n");
+		TODO throw new LogicException (' message below ');
+		exit("ERROR: no redirect on cli-based scripts ---\n");
 	}
 */
 	$_SERVER['PHP_SELF'] = null;

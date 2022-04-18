@@ -265,6 +265,12 @@ class FormUtils
      */
     protected static function must_attrs(array &$parms, array $must)
     {
+        if (isset($parms['attrs']) && is_array($parms['attrs'])) {
+            $tmp = $parms['attrs'];
+            unset($parms['attrs']);
+            $parms = array_merge($parms, $tmp);
+        }
+
         foreach ($must as $key=>$val) {
             if (!isset($parms[$key])) {
                 return sprintf(self::ERRTPL, $key, '%s');
@@ -341,7 +347,7 @@ class FormUtils
         //aliases
         $alts += ['classname'=>'class', 'id'=>'htmlid', 'prefix'=>'getid'];
         foreach ($alts as $key => $val) {
-            if (isset($parms[$key])) {
+            if (isset($parms[$key]) && !isset($parms[$val])) {
                 $parms[$val] = $parms[$key];
                 unset($parms[$key]);
             }
@@ -375,9 +381,13 @@ class FormUtils
         }
 
         $patn = '/[\x00-\x1f "\';=?^`&@<>(){}\\/\x7f-\xff]/'; // name may be like 'X[]' or X[y]
-        if ($htmlid) { $parms['id'] = preg_replace($patn, '', $htmlid); }
+        if ($htmlid) {
+            $parms['id'] = preg_replace($patn, '', $htmlid);
+        }
         if ($name) {
-            if (!empty($getid)) { $name = $getid.$name; }
+            if (!empty($getid)) {
+                $name = $getid.$name;
+            }
             $parms['name'] = preg_replace($patn, '', $name);
         }
 
@@ -1175,10 +1185,10 @@ class FormUtils
      */
     public static function create_action_link($mod, array $parms) : string
     {
-		if (isset($parms['id']) && !isset($parms['getid'])) {
-			$parms['getid'] = $parms['id'];
-			unset($parms['id']);
-		}
+        if (isset($parms['id']) && !isset($parms['getid'])) {
+            $parms['getid'] = $parms['id'];
+            unset($parms['id']);
+        }
         //must have these $parms, each with a usable value
         $err = self::must_attrs($parms, ['action' => 'c','getid' => 'c']);
         if (!$err) {

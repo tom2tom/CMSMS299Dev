@@ -121,7 +121,7 @@ $r = $destdir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'templates';
 $s = $destdir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'layouts';
 reposition($r, $s);
 
-$from = $destdir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'assets';
+$from = $destdir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR;
 $r = $from . 'images';
 $s = $destdir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'media';
 reposition($r, $s);

@@ -26,7 +26,7 @@ $script_file = basename(__FILE__);
 if ($cli) {
     // ensure we are in the correct directory
     if (!is_file(joinpath($owd, $script_file))) {
-        die('This script must be executed from the same directory as the '.$script_file.' script');
+        exit('This script must be executed from the same directory as the '.$script_file.' script');
     }
 }
 
@@ -345,7 +345,7 @@ function copy_local_files()
             RecursiveIteratorIterator::SELF_FIRST
         );
     } catch (Throwable $t) {
-        die('ERROR: source files iterator failure: '.$t->GetMessage()."\n");
+        exit('ERROR: source files iterator failure: '.$t->GetMessage()."\n");
     }
 
     foreach ($iter as $fn => $fp) {
@@ -418,7 +418,7 @@ function copy_local_files()
     try {
         require_once $fp;
     } catch (Throwable $t) {
-        die('ERROR: missing config file');
+        exit('ERROR: missing config file');
     }
 
     $fp = $sourcedir.DIRECTORY_SEPARATOR;
@@ -529,7 +529,7 @@ function copy_installer_files()
             RecursiveIteratorIterator::SELF_FIRST
         );
     } catch (Throwable $t) {
-        die('ERROR: source files iterator failure: '.$t->GetMessage()."\n");
+        exit('ERROR: source files iterator failure: '.$t->GetMessage()."\n");
     }
 
     $len = strlen(dirname(__DIR__).DIRECTORY_SEPARATOR);
@@ -682,7 +682,7 @@ function create_source_archive()
                 RecursiveIteratorIterator::SELF_FIRST
             );
         } catch (Throwable $t) {
-            die('ERROR: source files iterator failure: '.$t->GetMessage()."\n");
+            exit('ERROR: source files iterator failure: '.$t->GetMessage()."\n");
         }
 
         $len = strlen($sourcedir.DIRECTORY_SEPARATOR);
@@ -719,7 +719,7 @@ function create_source_archive()
             unlink($archpath);
         }
     } catch (Throwable $t) {
-        die('ERROR: sources archive creation failed : '.$t->GetMessage()."\n");
+        exit('ERROR: sources archive creation failed : '.$t->GetMessage()."\n");
     }
 }
 
@@ -733,11 +733,11 @@ function create_phar_installer()
 
     $content = file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'initiator.php');
     if (!$content) {
-        die("ERROR: phar stub-file 'initiator.php' is missing\n");
+        exit("ERROR: phar stub-file 'initiator.php' is missing\n");
     }
     $init = sprintf($content, $archname);
     if ($init == $content) {
-        die("ERROR: phar stub-file 'initiator.php' is malformed\n");
+        exit("ERROR: phar stub-file 'initiator.php' is malformed\n");
     }
 
     $fp = $outdir.DIRECTORY_SEPARATOR.$destname;
@@ -1042,14 +1042,14 @@ if ($cli) {
              case 'u':
              case 'uri':
                 if (!preg_match('~^(file|svn|git)://~', $v)) {
-                    die("$v is not valid for the source-uri parameter");
+                    exit("$v is not valid for the source-uri parameter");
                 }
                 if (strncmp($v, 'file://', 7) == 0) {
                     $fp = substr($v, 7);
                     if ($fp === '' || $fp == 'local') {
                         $v = 'file://';
                     } elseif (!is_dir($fp) || !is_readable($fp)) {
-                        die("The path specified in the uri parameter ($fp) is not a valid directory");
+                        exit("The path specified in the uri parameter ($fp) is not a valid directory");
                     }
                 }
                 $sourceuri = $v;
@@ -1072,19 +1072,19 @@ switch ($pack) {
     case 'zip':
     case 'zlib':
         if (!extension_loaded($pack)) {
-            die("ERROR: PHP's $pack extension is required for this process");
+            exit("ERROR: PHP's $pack extension is required for this process");
         }
         $packext = ($pack == 'zip') ? '.zip' : '.tar.gz';
         break;
     case 'bzip2':
         if (!extension_loaded('bz2')) {
-            die("ERROR: PHP's bz2 extension is required for this process");
+            exit("ERROR: PHP's bz2 extension is required for this process");
         }
         $packext = '.tar.bz2';
         break;
     default:
         if ($pack != 'none') {
-            die("ERROR: Unrecognized archive compression type '$pack'");
+            exit("ERROR: Unrecognized archive compression type '$pack'");
         }
         $packext = '.tar';
         break;
@@ -1092,7 +1092,7 @@ switch ($pack) {
 
 try {
     if (!is_dir($installerdir) || !is_file(joinpath($installerdir, 'index.php'))) {
-        die('ERROR: Problem finding source files in '.$installerdir);
+        exit('ERROR: Problem finding source files in '.$installerdir);
     }
 
     if (!is_dir($outdir)) {
@@ -1109,7 +1109,7 @@ try {
     }
 
     if (!is_dir($outdir) || !is_dir($sourcedir)) {
-        die('Problem creating working directories: '.$outdir.' and/or '.$sourcedir);
+        exit('Problem creating working directories: '.$outdir.' and/or '.$sourcedir);
     }
 
     $fp = joinpath($installerdir, 'lib', 'classes', 'class.installer_base.php');
@@ -1123,7 +1123,7 @@ try {
         try {
             require_once $fp;
         } catch (Throwable $t) {
-            die('Failed to generate demo content: no access to CMSMS system resources');
+            exit('Failed to generate demo content: no access to CMSMS system resources');
         }
         $arr = installer_base::UPLOADFILESDIR;
         $uploadspath = joinpath($installerdir, ...$arr);
@@ -1132,7 +1132,7 @@ try {
         $db = SingleItem::Db();
         $space = @require_once joinpath($installerdir, 'lib', 'iosite.functions.php');
         if ($space === false) {
-            die('Site-content exporter is missing.');
+            exit('Site-content exporter is missing.');
         } elseif ($space === 1) {
             $space = '';
         }
@@ -1147,7 +1147,7 @@ try {
             try {
                 copy_local_files();
             } catch (Throwable $t) {
-                die('ERROR: '.$t->GetMessage());
+                exit('ERROR: '.$t->GetMessage());
             }
             /* DEBUG min size
                         mkdir($sourcedir.'/lib', 0777);
@@ -1156,15 +1156,15 @@ try {
                         copy($s1, $d2);
             */
         } elseif (!get_alternate_files()) {
-            die('ERROR: sources not available');
+            exit('ERROR: sources not available');
         }
     } elseif (!get_alternate_files()) {
-        die('ERROR: sources not available');
+        exit('ERROR: sources not available');
     }
 
     $version_php = get_version_php($sourcedir);
     if (!is_file($version_php)) {
-        die('Could not find file version.php in the source tree.');
+        exit('Could not find file version.php in the source tree.');
     }
     if (!defined('CMS_VERSION')) {
         include_once $version_php;

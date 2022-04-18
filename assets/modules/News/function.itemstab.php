@@ -185,7 +185,7 @@ if( $rst ) {
         }
         $choices[$this->Lang('all')] = 0;
         $tpl->assign('rowchanger',
-            $this->CreateInputDropdown($id, 'pagerows', $choices, -1, $pagerows));
+            $this->CreateInputDropdown($id, 'pagerows', $choices, -1, $pagerows, '', ['htmlid'=>'pagerows']));
     }
     else {
         $navpages = 0;
@@ -282,9 +282,9 @@ $(function() {
   $('#pagerows').on('change',function() {
    l = parseInt(this.value);
    if(l == 0) {
-    //TODO hide move-links, 'rows per page', show 'rows'
+     $('.ipglink').hide();//TODO hide label 'rows per page', show 'rows'
    } else {
-    //TODO show move-links, 'rows per page', hide 'rows'
+     $('.ipglink').show();//TODO show label 'rows per page', hide 'rows'
    }
    $.fn.SSsort.setCurrent(itemstbl,'pagesize',l);
   });

@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use ArrayAccess;
+//use CMSMS\DataException;
 use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\DeprecationNotice; // not autoloadable!
@@ -247,8 +248,8 @@ final class AppConfig implements ArrayAccess
             if( !AppState::test(AppState::INSTALL) ) {
                 stack_trace();
             }
-            die('FATAL ERROR: Could not find database connection key "'.$key.'" in the config file');
-            break;
+            //TODO throw new DataException('message below');
+            exit('FATAL ERROR: Could not find database connection key "'.$key.'" in the config file');
 
         case 'dbms':
             return 'mysqli';
@@ -509,19 +510,38 @@ final class AppConfig implements ArrayAccess
     }
 
     /**
+     * convert supplied string, if it's an URL, to corresponding filepath
      * @ignore
      */
-    private function url2path(string $urlkey, string $pathkey, string $default) : string
+    private function url2path(string $url) : string
     {
-        return 'TODO';
+        $url = trim($url, " \t\r\n'\"");
+        if( 1 ) { // TODO is path, not URL
+            return $url;
+        }
+        if( startswith($url, CMS_ROOT_URL) ) {
+            $s = substr($url, strlen(CMS_ROOT_URL));
+            $fp = CMS_ROOT_PATH . strtr($s, '/', DIRECTORY_SEPARATOR);
+        } else {
+            $s = preg_replace('~^(\w+?:)?//~', '', $url);
+            $fp = strtr($s, '/', DIRECTORY_SEPARATOR);
+        }
+        return $fp;
     }
 
     /**
+     * convert supplied string, if it's a filepath, to corresponding URL
      * @ignore
      */
-    private function path2url2(string $pathkey, string $urlkey, string $default) : string
+    private function path2url(string $path) : string
     {
-        return 'TODO';
+        $path = trim($path, " \t\r\n'\"");
+        if( 1 ) { // TODO is URL, not path
+            return $path;
+        }
+        $s = $path;
+        //TODO convert
+        return $s;
     }
 
     /**

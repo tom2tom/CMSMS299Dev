@@ -471,12 +471,14 @@ class TemplateOperations
 		}
 		$list = $db->getCol($sql);
 		if ($list) {
-			if ($friendly) {
-				$p = array_search(Template::CORE, $list);
-				if ($p !== false) {
+			$p = array_search(Template::CORE, $list);
+			if ($p !== false) {
+				if ($friendly) {
 					unset($list[$p]);
 					$list = [-1 => 'Core'] + $list;
 					return array_values($list);
+				} else {
+					$list[$p] = 'Core';
 				}
 			}
 			return $list;

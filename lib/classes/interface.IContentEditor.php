@@ -1,7 +1,7 @@
 <?php
 /*
 Interface for page-content-editor classes
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -25,8 +25,8 @@ namespace CMSMS;
  * It does not use PHP7+ type-declarations, to make it easier for legacy
  * content-types to comply.
  *
- * @since		3.0
- * @package		CMS
+ * @since	3.0
+ * @package	CMS
  */
 interface IContentEditor
 {
@@ -37,7 +37,7 @@ interface IContentEditor
 	 *
 	 * @return array
 	 */
-	public function ToData();
+	public function ToData() : array;
 
 	/**
 	* Set the properties of this page from a database row or equivalent array.
@@ -81,14 +81,14 @@ interface IContentEditor
 	 *
 	 * @return int
 	 */
-	public function TabIndex();
+	public function TabIndex() : int;
 
 	/**
 	 * Set this page's tabindex value
 	 *
 	 * @param int $tabindex tab index
 	 */
-	public function SetTabIndex($tabindex);
+	public function SetTabIndex(int $tabindex);
 
 	/**
 	 * Return a list of distinct sections that divide the various logical sections
@@ -97,7 +97,7 @@ interface IContentEditor
 	 *
 	 * @return array Associative array of tab keys and labels.
 	 */
-	public function GetTabNames();
+	public function GetTabNames() : array;
 
 	/**
 	 * Get an optional message for each tab.
@@ -153,7 +153,7 @@ interface IContentEditor
 	 *  'name' (string), 'tab' (string), 'priority' (int), maybe 'required' (bool), maybe 'basic' (bool)
 	 *  Other(s) may be added by a subclass
 	 */
-	public function GetEditableProperties();
+	public function GetEditableProperties() : array;
 
 	/**
 	 * Return a sorted list of all properties that may be edited by the
@@ -161,7 +161,7 @@ interface IContentEditor
 	 *
 	 * @return array
 	 */
-	public function GetSortedEditableProperties();
+	public function GetSortedEditableProperties() : array;
 
 	/**
 	 * Test whether this page has the named property.
@@ -170,7 +170,7 @@ interface IContentEditor
 	 * @param string $propname
 	 * @return bool
 	 */
-	public function HasProperty($propname);
+	public function HasProperty(string $propname) : bool;
 
 	/**
 	 * Get the value for the named property.
@@ -179,7 +179,7 @@ interface IContentEditor
 	 * @param string $propname
 	 * @return mixed String value, or null if the property does not exist.
 	 */
-	public function GetPropertyValue($propname);
+	public function GetPropertyValue(string $propname);
 
 	/**
 	 * Add a property definition.
@@ -190,7 +190,7 @@ interface IContentEditor
 	 * @param bool $required Optional flag whether the property is required. Default false
 	 * @param bool $basic Optional flag whether the property is basic (i.e. editable even by restricted editors). Default false
 	 */
-	public function AddProperty($propname, $priority, $tabname = 'Main', $required = false, $basic = false);
+	public function AddProperty(string $propname, int $priority, string $tabname = 'Main', bool $required = false, bool $basic = false);
 
 	/**
 	 * Remove a property from the known-properties list, and optionally specify
@@ -199,7 +199,7 @@ interface IContentEditor
 	 * @param string $propname The property name
 	 * @param mixed $dflt Optional new default value. Default null.
 	 */
-	public function RemoveProperty($propname, $dflt = null);
+	public function RemoveProperty(string $propname, $dflt = null);
 
 	/**
 	 * Callback for pre-loading content or other things if necessary, immediately
@@ -228,7 +228,7 @@ interface IContentEditor
 	 * We do not check the Id because there might not be one yet (new content)
 	 * The Save() method needs to validate Id.
 	 *
-	 * @return	mixed array of error-message string(s), or false indicates success
+	 * @return mixed array of error-message string(s), or false indicates success
 	 */
 	public function ValidateData();
 
@@ -237,45 +237,45 @@ interface IContentEditor
 	 *
 	 * @return int
 	 */
-	public function Id();
+	public function Id() : int;
 
 	/**
 	 * Set this page's numeric id
 	 *
 	 * @param int Integer id
 	 */
-	public function SetId($id);
+	public function SetId(int $id);
 
 	/**
 	 * Return this page's name
 	 *
 	 * @return string
 	 */
-	public function Name();
+	public function Name() : string;
 
 	/**
 	 * Set this page's name
 	 *
 	 * @param string $name
 	 */
-	public function SetName($name);
+	public function SetName(string $name);
 
 	/**
 	 * Return a friendly name for this page
 	 *
-	 * Normally this method returns this page's type translated into the user's
-	 * current language
+	 * Normally this method returns this page's type translated into
+	 * the user's current language
 	 *
 	 * @return string
 	 */
-	public function FriendlyName();
+	public function FriendlyName() : string;
 
 	/**
 	 * Return this page alias
 	 *
 	 * @return string
 	 */
-	public function Alias();
+	public function Alias() : string;
 
 	/**
 	 * Set this page alias for this page.
@@ -286,14 +286,14 @@ interface IContentEditor
 	 * @param string $alias The alias
 	 * @param bool $doAutoAliasIfEnabled Whether an alias should be calculated or not.
 	 */
-	public function SetAlias($alias = '', $doAutoAliasIfEnabled = true);
+	public function SetAlias(string $alias = '', bool $doAutoAliasIfEnabled = true);
 
 	/**
 	 * Return whether this page support aliasing
 	 *
 	 * @return bool Default false..
 	 */
-	public function HandlesAlias();
+	public function HandlesAlias() : bool;
 
 	/**
 	 * Return whether this page requires an alias.
@@ -301,21 +301,21 @@ interface IContentEditor
 	 *
 	 * @return bool
 	 */
-	public function RequiresAlias();
+	public function RequiresAlias() : bool;
 
 	/**
 	 * Return this page's type
 	 *
 	 * @return string
 	 */
-	public function Type();
+	public function Type() : string;
 
 	/**
 	 * Return the owner's user id
 	 *
 	 * @return int
 	 */
-	public function Owner();
+	public function Owner() : int;
 
 	/**
 	 * Set this page's owner.
@@ -323,7 +323,7 @@ interface IContentEditor
 	 *
 	 * @param int $owner Owner's user id
 	 */
-	public function SetOwner($owner);
+	public function SetOwner(int $owner);
 
 	/**
 	 * Return this page's metadata
@@ -361,14 +361,14 @@ interface IContentEditor
 	 *
 	 * @return int UNIX UTC timestamp
 	 */
-	public function GetCreationDate();
+	public function GetCreationDate() : int;
 
 	/**
 	 * Return the date/time of the last modification of this page.
 	 *
 	 * @return int UNIX UTC timestamp
 	 */
-	public function GetModifiedDate();
+	public function GetModifiedDate() : int;
 
 	/**
 	 * Get the access key (for accessibility) for this page.
@@ -394,7 +394,7 @@ interface IContentEditor
 	 *
 	 * @return int
 	 */
-	public function ParentId();
+	public function ParentId() : int;
 
 	/**
 	 * Set the parent of this page
@@ -402,21 +402,21 @@ interface IContentEditor
 	 * @param int $parentid The numeric page parent id.
 	 *  Use -1 for no parent, -2 for new page.
 	 */
-	public function SetParentId($parentid);
+	public function SetParentId(int $parentid);
 
 	/**
 	 * Return the numeric id of the template associated with this page.
 	 *
 	 * @return int
 	 */
-	public function TemplateId();
+	public function TemplateId() : int;
 
 	/**
 	 * Set the id of the template associated with this page.
 	 *
 	 * @param int $templateid
 	 */
-	public function SetTemplateId($templateid);
+	public function SetTemplateId(int $templateid);
 
 	/**
 	 * Return whether this page uses a template.
@@ -424,14 +424,14 @@ interface IContentEditor
 	 *
 	 * @return bool default false
 	 */
-	public function HasTemplate();
+	public function HasTemplate() : bool;
 
 	/**
-     * Return a resource identifier for Smarty to retrieve the template assigned to this page.
-     *
-     * @return string
-     */
-    public function TemplateResource();
+	 * Return a resource identifier for Smarty to retrieve the template assigned to this page.
+	 *
+	 * @return string
+	 */
+	public function TemplateResource();
 
 	/**
 	 * Return the itemOrder
@@ -439,7 +439,7 @@ interface IContentEditor
 	 *
 	 * @return int
 	 */
-	public function ItemOrder();
+	public function ItemOrder() : int;
 
 	/**
 	 * Set this page's item-order.
@@ -449,7 +449,7 @@ interface IContentEditor
 	 *
 	 * @param int $itemorder
 	 */
-	public function SetItemOrder($itemorder);
+	public function SetItemOrder(int $itemorder);
 
 	/**
 	 * Move this content up or down with respect to its peers.
@@ -468,7 +468,7 @@ interface IContentEditor
 	 *
 	 * @return string
 	 */
-	public function Hierarchy();
+	public function Hierarchy() : string;
 
 	/**
 	 * Set the hierarchy
@@ -486,7 +486,7 @@ interface IContentEditor
 	 *
 	 * @return string
 	 */
-	public function IdHierarchy();
+	public function IdHierarchy() : string;
 
 	/**
 	 * Return the hierarchy path.
@@ -495,35 +495,35 @@ interface IContentEditor
 	 *
 	 * @return string
 	 */
-	public function HierarchyPath();
+	public function HierarchyPath() : string;
 
 	/**
 	 * Return this page-active state
 	 *
 	 * @return bool
 	 */
-	public function Active();
+	public function Active() : bool;
 
 	/**
 	 * Set this page as active
 	 *
 	 * @param bool $state
 	 */
-	public function SetActive($state);
+	public function SetActive(bool $state);
 
 	/**
 	 * Return whether this page should (by default) be shown in navigation menus.
 	 *
 	 * @return bool
 	 */
-	public function ShowInMenu();
+	public function ShowInMenu() : bool;
 
 	/**
 	 * Set whether this page should be (by default) shown in menus
 	 *
 	 * @param bool $state
 	 */
-	public function SetShowInMenu($state);
+	public function SetShowInMenu(bool $state);
 
 	/**
 	 * Return whether this page is the default.
@@ -532,7 +532,7 @@ interface IContentEditor
 	 *
 	 * @return bool
 	 */
-	public function DefaultContent();
+	public function DefaultContent() : bool;
 
 	/**
 	 * Set whether this page should be considered the default.
@@ -541,14 +541,14 @@ interface IContentEditor
 	 *
 	 * @param bool $state
 	 */
-	public function SetDefaultContent($state);
+	public function SetDefaultContent(bool $state);
 
 	/**
 	 * Return whether this page may be the default page for the website.
 	 *
 	 * @return bool Default true
 	 */
-	public function IsDefaultPossible();
+	public function IsDefaultPossible() : bool;
 
 	/**
 	 * Return whether this page is cachable.
@@ -557,14 +557,14 @@ interface IContentEditor
 	 *
 	 * @return bool
 	 */
-	public function Cachable();
+	public function Cachable() : bool;
 
 	/**
 	 * Set whether this page is cachable
 	 *
 	 * @param bool $state
 	 */
-	public function SetCachable($state);
+	public function SetCachable(bool $state);
 
 	/**
 	 * Return whether this page should be accessed via a secure protocol.
@@ -573,7 +573,7 @@ interface IContentEditor
 	 *
 	 * @return bool
 	 */
-	public function Secure();
+	public function Secure() : bool;
 
 	/**
 	 * Set whether this page should be accessed via a secure protocol.
@@ -582,19 +582,7 @@ interface IContentEditor
 	 *
 	 * @param bool $state
 	 */
-	public function SetSecure($state);
-
-	/**
-	 * Return the custom page URL (if any) assigned to this page.
-	 * That is not the complete URL, but merely the 'stub' or 'slug' appended
-	 * after the root url when accessing the site.
-	 * If this page is specified as the default page then the "page url" will be ignored.
-	 * Some pages do not support page urls.
-	 * @see IContentEditor::GetURL()
-	 *
-	 * @return string
-	 */
-	public function URL();
+	public function SetSecure(bool $state);
 
 	/**
 	 * Set the custom page URL associated with this page.
@@ -604,36 +592,49 @@ interface IContentEditor
 	 *
 	 * @param string $url May be empty.
 	 */
-	public function SetURL($url);
+	public function SetURL(string $url);
 
 	/**
 	 * Return the constructed URL for this page.
+     * No re-writing is done (that's for display, not edit)
+	 * @see also IContentEditor::URL()
 	 *
-	 * @param bool $rewrite optional flag, default true. If true, and mod_rewrite is enabled, build an URL suitable for mod_rewrite.
 	 * @return string
 	 */
-	public function GetURL($rewrite = true);
+	public function GetURL();
+
+	/**
+	 * Return the URL-path (if any) associated with this page.
+	 * Not the complete URL, but merely the 'stub' or 'slug'
+     * appended to the root url when accessing the site.
+	 * If this page is specified as the default page then the "page url" will be ignored.
+	 * Some pages do not support page urls.
+	 * @see also IContentEditor::GetURL()
+	 *
+	 * @return string
+	 */
+	public function URL() : string;
 
 	/**
 	 * Return the integer id of the admin user that last modified this page.
 	 *
 	 * @return int
 	 */
-	public function LastModifiedBy();
+	public function LastModifiedBy() : int;
 
 	/**
 	 * Set the last modified date for this item
 	 *
 	 * @param int $lastmodifiedby
 	 */
-	public function SetLastModifiedBy($lastmodifiedby);
+	public function SetLastModifiedBy(int $lastmodifiedby);
 
 	/**
 	 * Return whether preview should be available for this page
 	 *
 	 * @return bool
 	 */
-	public function HasPreview();
+	public function HasPreview() : bool;
 
 	/**
 	 * Return whether this page is viewable (i.e: can be rendered).
@@ -641,37 +642,37 @@ interface IContentEditor
 	 *
 	 * @return bool Default true
 	 */
-	public function IsViewable();
+	public function IsViewable() : bool;
 
 	/**
-	 * Check this user's edit-authority
+	 * Check the current user's edit-authority
 	 *
 	 * @param $main optional flag whether to check for main-property editability. Default true
 	 * @param $extra optional flag whether to check for membership of additional-editors. Default true
 	 * @return bool
 	 */
-	public function IsEditable($main = true, $extra = true);
+	public function IsEditable(bool $main = true, bool $extra = true) : bool;
 
 	/**
 	 * Return whether this user is permitted to view this page.
 	 *
 	 * @return boolean
 	 */
-	public function IsPermitted();
+	public function IsPermitted() : bool;
 
 	/**
 	 * Return whether this page has a usable link.
 	 *
 	 * @return bool default true
 	 */
-	public function HasUsableLink();
+	public function HasUsableLink() : bool;
 
 	/**
 	 * Return whether this page is copyable.
 	 *
 	 * @return bool default false
 	 */
-	public function IsCopyable();
+	public function IsCopyable() : bool;
 
 	/**
 	 * Return whether this page is a system page.
@@ -679,7 +680,7 @@ interface IContentEditor
 	 *
 	 * @return bool default false
 	 */
-	public function IsSystemPage();
+	public function IsSystemPage() : bool;
 
 	/**
 	 * Return whether this page is searchable.
@@ -691,14 +692,14 @@ interface IContentEditor
 	 *
 	 * @return bool
 	 */
-	public function IsSearchable();
+	public function IsSearchable() : bool;
 
 	/**
 	 * Return whether this page may have content that can be used by a search module.
 	 *
 	 * @return bool Default true
 	 */
-	public function HasSearchableContent();
+	public function HasSearchableContent() : bool;
 
 	/**
 	 * Return the menu text for this page.
@@ -706,21 +707,21 @@ interface IContentEditor
 	 *
 	 * @return string
 	 */
-	public function MenuText();
+	public function MenuText() : string;
 
 	/**
 	 * Set the menu text for this page
 	 *
 	 * @param string $menutext
 	 */
-	public function SetMenuText($menutext);
+	public function SetMenuText(string $menutext);
 
 	/**
 	 * Return the number of immediate child pages of this page.
 	 *
 	 * @return int
 	 */
-	public function ChildCount();
+	public function ChildCount() : int;
 
 	/**
 	 * Return whether this page has children.
@@ -728,7 +729,7 @@ interface IContentEditor
 	 * @param bool $activeonly Optional flag whether to test only for active children. Default false.
 	 * @return bool
 	 */
-	public function HasChildren($activeonly = false);
+	public function HasChildren(bool $activeonly = false) : bool;
 
 	/**
 	 * Return whether this page may have child pages.
@@ -736,7 +737,7 @@ interface IContentEditor
 	 *
 	 * @return bool Default true
 	 */
-	public function WantsChildren();
+	public function WantsChildren() : bool;
 
 	/**
 	 * Return a list of additional editors of this page.
@@ -753,4 +754,4 @@ interface IContentEditor
 	 * @param mixed $editorarray Array of user id's and group id's, or null
 	 */
 	public function SetAdditionalEditors($editorarray = null);
-} // class
+} // interface

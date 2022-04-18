@@ -1,7 +1,7 @@
 <?php
 /*
 Smarty template sub-class
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS\internal;
 
 use CMSMS\EditContentException;
+//use LogicException;
 use Smarty_Internal_Template;
 use SmartyException;
 use function startswith;
@@ -143,7 +144,8 @@ class page_template_parser extends Smarty_Internal_Template
         $merge_tpl_vars = true,
         $no_output_filter = false
     ) {
-        die(__FILE__.'::'.__LINE__.' CRITICAL: This method should never be called');
+        //TODO throw new LogicException(' message below ');
+        exit(__FILE__.'::'.__LINE__.' CRITICAL: This method should never be called');
     }
 
     /**

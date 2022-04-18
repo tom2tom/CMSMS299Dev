@@ -1,7 +1,7 @@
 <?php
 /*
 Class definition and methods for the Separator content type
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -28,8 +28,8 @@ use function get_userid;
 /**
  * Implements the Separator content type
  *
- * A separator is used simply for navigations to provide a visual separation between menu items.  Typically
- * as a horizontal or vertical bar.
+ * A separator may be used to provide a visual separation between menu items.
+ * Typically as a horizontal or vertical bar.
  *
  * @package CMS
  * @subpackage content_types
@@ -37,13 +37,13 @@ use function get_userid;
  */
 class Separator extends ContentBase
 {
-	public function FriendlyName() { return $this->mod->Lang('contenttype_separator'); }
-	public function GetURL($rewrite = true) { return '#';  }
-	public function HasSearchableContent() { return false; }
-	public function HasUsableLink() { return false; }
-	public function IsViewable() { return false; }
-	public function RequiresAlias() { return false; }
-	public function WantsChildren() { return false; }
+	public function FriendlyName() : string { return $this->mod->Lang('contenttype_separator'); }
+	public function GetURL() : string { return '#';  }
+	public function HasSearchableContent() : bool { return false; }
+	public function HasUsableLink() : bool { return false; }
+	public function IsViewable() : bool { return false; }
+	public function RequiresAlias() : bool { return false; }
+	public function WantsChildren() : bool { return false; }
 
 	public function SetProperties()
 	{
@@ -62,7 +62,7 @@ class Separator extends ContentBase
 		]);
 	}
 
-	public function GetTabNames()
+	public function GetTabNames() : array
 	{
 		$res = [$this->mod->Lang('main')];
 		if( check_permission(get_userid(),'Manage All Content') ) $res[] = $this->mod->Lang('options');

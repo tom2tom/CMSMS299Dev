@@ -1,7 +1,7 @@
 <?php
 /*
 Base content-editing class
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -395,7 +395,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @since 2.0
 	 * @return array
 	 */
-	public function ToData()
+	public function ToData() : array
 	{
 		$l = $this->HasUsableLink();
 		$w = $this->WantsChildren();
@@ -429,8 +429,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 //			'type' => $this->mType,
 			'wants_children' => $w, // method, not property
 		];
-		//TODO non-core properties 'tpltype_id','csstype_id' to support typed components for theme switching
-
+		//TODO sometimes: non-core properties 'tpltype_id','csstype_id' to support typed components for theme switching
 	}
 
 	/**
@@ -791,7 +790,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 			//TODO js to handle selector-change
 			return [
 			'for="content_type">* ' .$this->Lang('prompt_editpage_contenttype'),
-			AdminUtils::get_help_tag($domain,'help_content_type',$this->Lang('help_title_content_type')),
+			AdminUtils::get_help_tag($this->domain,'help_content_type',$this->Lang('help_title_content_type')),
 			$input
 			];
 */
@@ -959,7 +958,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return int
 	 */
-	public function TabIndex()
+	public function TabIndex() : int
 	{
 		return $this->mTabIndex ?? 0;
 	}
@@ -969,7 +968,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @param int $tabindex tab index
 	 */
-	public function SetTabIndex($tabindex)
+	public function SetTabIndex(int $tabindex)
 	{
 		$this->mTabIndex = (int)$tabindex;
 	}
@@ -982,7 +981,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return array Associative array of tab keys and labels.
 	 */
-	public function GetTabNames()
+	public function GetTabNames() : array
 	{
 		$props = $this->GetSortedEditableProperties();
 		$arr = [];
@@ -1182,7 +1181,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *  'name' (string), 'tab' (string), 'priority' (int), maybe 'required' (bool), maybe 'basic' (bool)
 	 *  Other(s) may be added by a subclass
 	 */
-	public function GetEditableProperties()
+	public function GetEditableProperties() : array
 	{
 		$all = $this->IsEditable(true,false);
 		if( !$all ) {
@@ -1230,7 +1229,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return array
 	 */
-	public function GetSortedEditableProperties()
+	public function GetSortedEditableProperties() : array
 	{
 		if( isset($this->_editable_properties) ) return $this->_editable_properties;
 
@@ -1246,7 +1245,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @param string $name
 	 * @return bool
 	 */
-	public function HasProperty($name)
+	public function HasProperty(string $name) : bool
 	{
 		if( !$name ) return false;
 		if( !is_array($this->_props) ) $this->_load_properties();
@@ -1261,7 +1260,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @param string $name
 	 * @return mixed String value, or null if the property does not exist.
 	 */
-	public function GetPropertyValue($name)
+	public function GetPropertyValue(string $name)
 	{
 		if( $this->HasProperty($name) ) return $this->_props[$name];
 	}
@@ -1324,7 +1323,7 @@ VALUES (?,?,?,?,$longnow)";
 	 * @param string $name The property name
 	 * @param string $value The property value.
 	 */
-	public function SetPropertyValue($name, $value)
+	public function SetPropertyValue(string $name, $value)
 	{
 		if( !is_array($this->_props) ) $this->_load_properties();
 		$this->_props[$name] = $value;
@@ -1337,7 +1336,7 @@ VALUES (?,?,?,?,$longnow)";
 	 * @param string $name The property name
 	 * @param string $value The property value.
 	 */
-	public function SetPropertyValueNoLoad($name, $value)
+	public function SetPropertyValueNoLoad(string $name, $value)
 	{
 		if( !is_array($this->_props) ) $this->_props = [];
 		$this->_props[$name] = $value;
@@ -1382,7 +1381,7 @@ VALUES (?,?,?,?,$longnow)";
 	 * @param bool $required Optional flag whether the property is required Default false
 	 * @param bool $basic Optional flag whether the property is basic (i.e. editable even by restricted editors) Default false
 	 */
-	public function AddProperty($name, $priority, $tabname = self::TAB_MAIN, $required = false, $basic = false)
+	public function AddProperty(string $name, int $priority, string $tabname = self::TAB_MAIN, bool $required = false, bool $basic = false)
 	{
 		if( !$tabname ) $tabname = self::TAB_MAIN;
 		$this->_properties[] = [
@@ -1429,7 +1428,7 @@ VALUES (?,?,?,?,$longnow)";
 	 * @param string $name The property name
 	 * @param mixed $dflt Optional default value.
 	 */
-	public function RemoveProperty($name, $dflt = null)
+	public function RemoveProperty(string $name, $dflt = null)
 	{
 		if( !$this->_properties ) return;
 		for( $i = 0, $n = count($this->_properties); $i < $n; ++$i ) {
@@ -1851,7 +1850,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	/**
 	 * Return the page ID
 	 */
-	public function Id()
+	public function Id() : int
 	{
 		return $this->mId;
 	}
@@ -1863,7 +1862,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @access private
 	 * @internal
 	 */
-	public function SetId($id)
+	public function SetId(int $id)
 	{
 		$this->mId = $id;
 	}
@@ -1873,9 +1872,9 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return string
 	 */
-	public function Name()
+	public function Name() : string
 	{
-		return $this->mName;
+		return ''.$this->mName;
 	}
 
 	/**
@@ -1883,7 +1882,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @param string $name The name.
 	 */
-	public function SetName($name)
+	public function SetName(string $name)
 	{
 		$this->mName = $name;
 	}
@@ -1896,16 +1895,16 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @abstract
 	 * @return string
 	 */
-	abstract public function FriendlyName();
+	abstract public function FriendlyName() : string;
 
 	/**
 	 * Return the page alias
 	 *
 	 * @return string
 	 */
-	public function Alias()
+	public function Alias() : string
 	{
-		return $this->mAlias;
+		return ''.$this->mAlias;
 	}
 
 	/**
@@ -1917,7 +1916,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param string $alias The alias
 	 * @param bool $doAutoAliasIfEnabled Whether an alias should be calculated or not.
 	 */
-	public function SetAlias($alias = '', $doAutoAliasIfEnabled = true)
+	public function SetAlias(string $alias = '', bool $doAutoAliasIfEnabled = true)
 	{
 		$contentops = SingleItem::ContentOperations();
 		$config = SingleItem::Config();
@@ -1976,7 +1975,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @abstract
 	 * @return bool Default false
 	 */
-	public function HandlesAlias()
+	public function HandlesAlias() : bool
 	{
 		return false;
 	}
@@ -1988,7 +1987,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @abstract
 	 * @return bool Default true
 	 */
-	public function RequiresAlias()
+	public function RequiresAlias() : bool
 	{
 		return true;
 	}
@@ -1998,7 +1997,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return string
 	 */
-	public function Type()
+	public function Type() : string
 	{
 		$c = get_class($this);
 		$p = strrpos($c, '\\');
@@ -2010,7 +2009,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return int
 	 */
-	public function Owner()
+	public function Owner() : int
 	{
 		return $this->mOwner;
 	}
@@ -2021,7 +2020,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @param int $owner Owner's user id
 	 */
-	public function SetOwner($owner)
+	public function SetOwner(int $owner)
 	{
 		$owner = (int)$owner;
 		if( $owner <= 0 ) return;
@@ -2076,7 +2075,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return int UNIX UTC timestamp. Default 1.
 	 */
-	public function GetCreationDate()
+	public function GetCreationDate() : int
 	{
 		$value = $this->mCreationDate ?? '';
 		return ($value) ? cms_to_stamp($value) : 1;
@@ -2087,7 +2086,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return int UNIX UTC timestamp. Default 1.
 	 */
-	public function GetModifiedDate()
+	public function GetModifiedDate() : int
 	{
 		$value = $this->mModifiedDate ?? '';
 		return ($value) ? cms_to_stamp($value) : $this->GetCreationDate();
@@ -2123,7 +2122,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return int
 	 */
-	public function ParentId()
+	public function ParentId() : int
 	{
 		return $this->mParentId;
 	}
@@ -2133,7 +2132,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @param int $parentid The numeric page parent id. Use -1 for no parent.
 	 */
-	public function SetParentId($parentid)
+	public function SetParentId(int $parentid)
 	{
 		$parentid = (int) $parentid;
 		if( $parentid < 1 ) $parentid = -1;
@@ -2145,7 +2144,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return int.
 	 */
-	public function TemplateId()
+	public function TemplateId() : int
 	{
 		return $this->mTemplateId;
 	}
@@ -2155,7 +2154,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @param int $templateid
 	 */
-	public function SetTemplateId($templateid)
+	public function SetTemplateId(int $templateid)
 	{
 //		$templateid = (int)$templateid;
 		if( $templateid > 0 ) $this->mTemplateId = $templateid;
@@ -2179,7 +2178,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return bool Default false
 	 */
-	public function HasTemplate()
+	public function HasTemplate() : bool
 	{
 		return false;
 	}
@@ -2191,7 +2190,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @abstract
 	 * @return string
 	 */
-	public function TemplateResource()
+	public function TemplateResource() : string
 	{
 		throw new Exception('this method must be overridden for displayable content pages');
 	}
@@ -2202,7 +2201,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return int
 	 */
-	public function ItemOrder()
+	public function ItemOrder() : int
 	{
 		return $this->mItemOrder;
 	}
@@ -2216,9 +2215,9 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @internal
 	 * @param int $itemorder
 	 */
-	public function SetItemOrder($itemorder)
+	public function SetItemOrder(int $itemorder)
 	{
-		$itemorder = (int)$itemorder;
+		$itemorder = $itemorder;
 		if( $itemorder > 0 || $itemorder == -1 ) $this->mItemOrder = $itemorder;
 	}
 
@@ -2269,7 +2268,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return string
 	 */
-	public function Hierarchy()
+	public function Hierarchy() : string
 	{
 		return SingleItem::ContentOperations()->CreateFriendlyHierarchyPosition($this->mHierarchy); //should match this->mIdHierarchy
 	}
@@ -2294,9 +2293,9 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return string
 	 */
-	public function IdHierarchy()
+	public function IdHierarchy() : string
 	{
-		return $this->mIdHierarchy;
+		return ''.$this->mIdHierarchy;
 	}
 
 	/**
@@ -2306,9 +2305,9 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return string
 	 */
-	public function HierarchyPath()
+	public function HierarchyPath() : string
 	{
-		return $this->mHierarchyPath;
+		return ''.$this->mHierarchyPath;
 	}
 
 	/**
@@ -2316,7 +2315,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return bool
 	 */
-	public function Active()
+	public function Active() : bool
 	{
 		return $this->mActive;
 	}
@@ -2326,9 +2325,9 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @param bool $active
 	 */
-	public function SetActive($active)
+	public function SetActive(bool $active)
 	{
-		$this->mActive = (bool)$active;
+		$this->mActive = $active;
 	}
 
 	/**
@@ -2337,7 +2336,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @abstract
 	 * @return bool
 	 */
-	public function ShowInMenu()
+	public function ShowInMenu() : bool
 	{
 		return $this->mShowInMenu;
 	}
@@ -2347,9 +2346,9 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @param bool $showinmenu
 	 */
-	public function SetShowInMenu($showinmenu)
+	public function SetShowInMenu(bool $showinmenu)
 	{
-		$this->mShowInMenu = (bool)$showinmenu;
+		$this->mShowInMenu = $showinmenu;
 	}
 
 	/**
@@ -2359,7 +2358,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return bool
 	 */
-	public function DefaultContent()
+	public function DefaultContent() : bool
 	{
 		if( $this->IsDefaultPossible() ) return $this->mDefaultContent;
 		return false;
@@ -2371,10 +2370,10 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @param bool $defaultcontent
 	 */
-	public function SetDefaultContent($defaultcontent)
+	public function SetDefaultContent(bool $defaultcontent)
 	{
 		if( $this->IsDefaultPossible() ) {
-			$this->mDefaultContent = (bool)$defaultcontent;
+			$this->mDefaultContent = $defaultcontent;
 		}
 	}
 
@@ -2387,7 +2386,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @abstract
 	 * @return bool Default is false
 	 */
-	public function IsDefaultPossible()
+	public function IsDefaultPossible() : bool
 	{
 		return false;
 	}
@@ -2399,7 +2398,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return bool
 	 */
-	public function Cachable()
+	public function Cachable() : bool
 	{
 		return $this->mCachable;
 	}
@@ -2409,9 +2408,9 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @param bool $cachable
 	 */
-	public function SetCachable($cachable)
+	public function SetCachable(bool $cachable)
 	{
-		$this->mCachable = (bool)$cachable;
+		$this->mCachable = $cachable;
 	}
 
 	/**
@@ -2421,7 +2420,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return bool
 	 */
-	public function Secure()
+	public function Secure() : bool
 	{
 		return $this->mSecure;
 	}
@@ -2433,33 +2432,20 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @param bool $secure
 	 */
-	public function SetSecure($secure)
+	public function SetSecure(bool $secure)
 	{
-		$this->mSecure = (bool)$secure;
+		$this->mSecure = $secure;
 	}
 
 	/**
-	 * Return the page URL (if any) associated with this content page.
-	 * The page url is not the complete URL to this content page, but merely the 'stub' or 'slug' appended after the root url when accessing the site
-	 * If the page is specified as the default page then the "page url" will be ignored.
-	 * Some content types do not support page urls.
-	 *
-	 * @return string
-	 */
-	public function URL()
-	{
-		return $this->mURL;
-	}
-
-	/**
-	 * Set the page URL associated with this content page.
+	 * Set the URL-path associated with this content page.
 	 * Verbatim, no immediate validation.
-	 * The URL should be relative to the root URL i.e: /some/path/to/the/page
+	 * The path should be relative to the root URL i.e: /some/path/to/the/page
 	 * Note: some content types do not support page URLs.
 	 *
 	 * @param string $url May be empty.
 	 */
-	public function SetURL($url)
+	public function SetURL(string $url)
 	{
 		$this->mURL = $url;
 	}
@@ -2467,42 +2453,30 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	/**
 	 * Return the internally-generated URL for this content.
 	 *
-	 * @param bool $rewrite optional flag, default true. If true, and mod_rewrite is enabled, build an URL suitable for mod_rewrite.
 	 * @return string
 	 */
-	public function GetURL($rewrite = true)
+	public function GetURL() : string
 	{
-		$config = SingleItem::Config();
-		$url = '';
-		$alias = ($this->mAlias?$this->mAlias:$this->mId);
-
-		$base_url = CMS_ROOT_URL;
-
-		/* use root_url for default content */
 		if($this->DefaultContent()) {
-			$url = $base_url . '/';
-			return $url;
+			// use root_url for default content
+			return CMS_ROOT_URL . '/';
 		}
+		$config = SingleItem::Config();
+		$alias = ($this->mAlias?$this->mAlias:$this->mId);
+		return CMS_ROOT_URL . '/index.php?' . $config['query_var'] . '=' . $alias;
+	}
 
-		if( $rewrite ) {
-			$url_rewriting = $config['url_rewriting'];
-			$page_extension = $config['page_extension'];
-			if( $url_rewriting == 'mod_rewrite' ) {
-				$str = $this->HierarchyPath();
-				if( $this->mURL ) $str = $this->mURL;	// we have a url path
-				$url = $base_url . '/' . $str . $page_extension;
-				return $url;
-			}
-			elseif( isset($_SERVER['PHP_SELF']) && $url_rewriting == 'internal' ) {
-				$str = $this->HierarchyPath();
-				if( $this->mURL ) $str = $this->mURL; // we have a url path
-				$url = $base_url . '/index.php/' . $str . $page_extension;
-				return $url;
-			}
-		}
-
-		$url = $base_url . '/index.php?' . $config['query_var'] . '=' . $alias;
-		return $url;
+	/**
+	 * Return the URL-path (if any) associated with this content page.
+	 * Not the complete URL, just the 'stub' or 'slug' appended to the root url when accessing the site
+	 * If the page is specified as the default page then the "page url" will be ignored.
+	 * Some content types do not support page urls.
+	 *
+	 * @return string
+	 */
+	public function URL() : string
+	{
+		return ''.$this->mURL;
 	}
 
 	/**
@@ -2510,7 +2484,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return int (0-based), -1 for a page not-yet placed in the tree
 	 */
-	public function GetLevel()
+	public function GetLevel() : int
 	{
 		if( $this->mHierarchy ) {
 			return substr_count($this->mHierarchy,'.');
@@ -2523,7 +2497,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return int
 	 */
-	public function LastModifiedBy()
+	public function LastModifiedBy() : int
 	{
 		return $this->mLastModifiedBy;
 	}
@@ -2533,9 +2507,9 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @param int $lastmodifiedby
 	 */
-	public function SetLastModifiedBy($lastmodifiedby)
+	public function SetLastModifiedBy(int $lastmodifiedby)
 	{
-		$lastmodifiedby = (int)$lastmodifiedby;
+		$lastmodifiedby = $lastmodifiedby;
 		if( $lastmodifiedby > 0 ) $this->mLastModifiedBy = $lastmodifiedby;
 	}
 
@@ -2545,7 +2519,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @abstract
 	 * @return bool Default false
 	 */
-	public function HasPreview()
+	public function HasPreview() : bool
 	{
 		return false;
 	}
@@ -2557,7 +2531,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @abstract
 	 * @return bool Default true
 	 */
-	public function IsViewable()
+	public function IsViewable() : bool
 	{
 		return true;
 	}
@@ -2569,7 +2543,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param $extra optional flag whether to check for membership of additional-editors. Default true
 	 * @return bool
 	 */
-	public function IsEditable($main = true, $extra = true)
+	public function IsEditable(bool $main = true, bool $extra = true) : bool
 	{
 		$userops = SingleItem::UserOperations();
 		$userid = get_userid();
@@ -2606,7 +2580,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @abstract
 	 * @return bool Default true
 	 */
-	public function IsPermitted()
+	public function IsPermitted() : bool
 	{
 		return true;
 	}
@@ -2617,7 +2591,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @abstract
 	 * @return bool Default true
 	 */
-	public function HasUsableLink()
+	public function HasUsableLink() : bool
 	{
 		return true;
 	}
@@ -2628,7 +2602,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @abstract
 	 * @return bool Default false
 	 */
-	public function IsCopyable()
+	public function IsCopyable() : bool
 	{
 		return false;
 	}
@@ -2640,7 +2614,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @abstract
 	 * @return bool Default false
 	 */
-	public function IsSystemPage()
+	public function IsSystemPage() : bool
 	{
 		return false;
 	}
@@ -2655,7 +2629,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return bool
 	 */
-	public function IsSearchable()
+	public function IsSearchable() : bool
 	{
 		if( !$this->isPermitted() || !$this->IsViewable() || !$this->HasTemplate() || $this->IsSystemPage() ) return false;
 		return $this->HasSearchableContent();
@@ -2672,7 +2646,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @abstract
 	 * @return bool Default true
 	 */
-	public function HasSearchableContent()
+	public function HasSearchableContent() : bool
 	{
 		return true;
 	}
@@ -2683,9 +2657,9 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return string
 	 */
-	public function MenuText()
+	public function MenuText() : string
 	{
-		return $this->mMenuText;
+		return ''.$this->mMenuText;
 	}
 
 	/**
@@ -2693,7 +2667,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @param string $menutext
 	 */
-	public function SetMenuText($menutext)
+	public function SetMenuText(string $menutext)
 	{
 		$this->mMenuText = $menutext;
 	}
@@ -2702,11 +2676,11 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * Return the styles-sequence for this content page
 	 * @since 2.0
 	 *
-	 * @return string, comma-separated stylesheet, stylesheetgroup id(s)
+	 * @return string having comma-separated stylesheet &/| stylesheetgroup id(s)
 	 */
-	public function Styles()
+	public function Styles() : string
 	{
-		return $this->mStyles;
+		return ''.$this->mStyles;
 	}
 
 	/**
@@ -2715,7 +2689,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @param string $stylestext comma-separated stylesheet, stylesheetgroup id(s)
 	 */
-	public function SetStyles($stylestext)
+	public function SetStyles(string $stylestext)
 	{
 		$this->mStyles = $stylestext;
 	}
@@ -2725,7 +2699,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @return int
 	 */
-	public function ChildCount()
+	public function ChildCount() : int
 	{
 		$hm = SingleItem::App()->GetHierarchyManager();
 		$node = $hm->find_by_tag('id',$this->mId);
@@ -2738,7 +2712,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param bool $activeonly Optional flag whether to test only for active children. Default false.
 	 * @return bool
 	 */
-	public function HasChildren($activeonly = false)
+	public function HasChildren(bool $activeonly = false) : bool
 	{
 		if( $this->mId <= 0 ) return false;
 		$hm = SingleItem::App()->GetHierarchyManager();
@@ -2765,7 +2739,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @abstract
 	 * @return bool Default true
 	 */
-	public function WantsChildren()
+	public function WantsChildren() : bool
 	{
 		return true;
 	}

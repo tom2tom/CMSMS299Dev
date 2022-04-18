@@ -112,7 +112,7 @@ var tpltable;
 $(function() {
   tpltable = document.getElementById('tpltable');
   if($tplpages > 1) {
-   xopts = $.extend({}, SSsopts, {
+   var xopts = $.extend({}, SSsopts, {
     paginate: true,
     pagesize: $pagerows,
     currentid: 'cpage2',

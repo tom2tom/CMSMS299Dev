@@ -20,7 +20,7 @@ require __DIR__.'/EasyZip.class.php';
 require __DIR__.'/EasyTar.class.php';
 require __DIR__.'/EasyGzip.class.php';
 require __DIR__.'/EasyBzip2.class.php';
-//echo "hi";die();
+//echo "hi"; exit;
 
 /**
 // You can use this class like that.
@@ -145,7 +145,7 @@ class EasyArchive
 				foreach($tarresult as $key=>$val)
 					$result['UnCompSize'] += $tarresult[$key]['size'];
 				$result['Ratio'] = $result['UnCompSize'] ? round(100 - $result['Size'] / $result['UnCompSize']*100, 1) : false;
-				
+
 			}
 			if (!$data) unset($result['Data']);
 		}

@@ -1,7 +1,7 @@
 <?php
 /*
 Class for CMS Made Simple ErrorPage content type
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace ContentManager\contenttypes;
 
+use ContentManager\ContentBase;
 use CMSMS\AppState;
-use CMSMS\contenttypes\Content;
 use CMSMS\FormUtils;
 use CMSMS\SingleItem;
 
@@ -33,7 +33,7 @@ use CMSMS\SingleItem;
  * @version $Revision$
  * @license GPL
  */
-class ErrorPage extends Content
+class ErrorPage extends ContentBase
 {
 	public $doAliasCheck = false;
 	public $error_types = [];
@@ -54,12 +54,12 @@ class ErrorPage extends Content
 		$this->mType = strtolower(get_class($this)); //TODO BAD namespace
 	}
 
-	public function FriendlyName() { return $this->mod->Lang('contenttype_errorpage'); }
-	public function IsDefaultPossible() { return false; }
-	public function IsSystemPage() { return true; }
-	public function HandlesAlias() { return true; }
-	public function HasUsableLink() { return false; }
-	public function WantsChildren() { return false; }
+	public function FriendlyName() : string{ return $this->mod->Lang('contenttype_errorpage'); }
+	public function IsDefaultPossible() : bool { return false; }
+	public function IsSystemPage() : bool { return true; }
+	public function HandlesAlias() : bool { return true; }
+	public function HasUsableLink() : bool { return false; }
+	public function WantsChildren() : bool { return false; }
 
 	public function SetProperties()
 	{
@@ -161,6 +161,7 @@ class ErrorPage extends Content
 		} elseif (in_array($this->mAlias, $this->error_types)) {
 			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('error_type'));
 		} elseif ($this->mAlias != $this->mOldAlias) {
+			//TODO using CM methods only
 			$contentops = SingleItem::ContentOperations();
 			$error = $contentops->CheckAliasError($this->mAlias, $this->mId);
 			if ($error !== false) {

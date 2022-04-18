@@ -90,17 +90,17 @@
      <ul id="upgrade_info" class="no-list">
      {foreach $upgrade_info as $ver => $data}
       <li class="row upgrade-ver">
-       <div class="cell col-4">{$ver}</div>
-       <div class="cell col-4">
-        {if $data.readme}
-        <div class="label green link" data-content="r{$data@iteration}"><i class="icon-info"></i> {'readme_uc'|tr}</div>
-        {/if}
-       </div>
-       <div class="cell col-4">
+       <div class="cell col-1">{$ver}</div>
+       <div class="cell col-2">
         {if $data.changelog}
         <div class="label blue link" data-content="c{$data@iteration}"><i class="icon-info"></i> {'changelog_uc'|tr}</div>
         {/if}
        </div>
+       {if $data.readme}
+       <div class="cell col-4">
+        <div class="label green link" data-content="r{$data@iteration}"><i class="icon-info"></i> {'readme_uc'|tr}</div>
+       </div>
+       {/if}
       </li>
      {/foreach}
      </ul>

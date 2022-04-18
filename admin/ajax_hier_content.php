@@ -225,9 +225,9 @@ try {
                 $page = $contentops->GetDefaultContent();
             }
             // get the page properties
-            $contentobj = $contentops->LoadContentFromId($page);
-            if( is_object($contentobj) ) {
-                $out = $contentobj->ToData();
+            $content = $contentops->LoadContentFromId($page);
+            if( is_object($content) ) {
+                $out = $content->ToData();
                 if( $display == 'title' ) { $out['display'] = $out['content_name']; }
                 else { $out['display'] = $out['menu_text']; }
             }
