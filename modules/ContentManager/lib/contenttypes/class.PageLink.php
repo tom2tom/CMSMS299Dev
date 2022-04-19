@@ -40,10 +40,25 @@ use function get_userid;
  */
 class PageLink extends ContentBase
 {
-	public function FriendlyName() : string { return $this->mod->Lang('contenttype_pagelink'); }
-	public function HasSearchableContent() : bool { return false; }
-	public function IsCopyable() : bool { return true; }
-	public function IsViewable() : bool { return false; }
+	public function FriendlyName() : string
+	{
+		return $this->mod->Lang('contenttype_pagelink');
+	}
+
+	public function HasSearchableContent() : bool
+	{
+		return false;
+	}
+
+	public function IsCopyable() : bool
+	{
+		return true;
+	}
+
+	public function IsViewable() : bool
+	{
+		return false;
+	}
 
 // Robert Campbell: commented this out so that this page can be seen in cms_selflink
 // but not sure what it's gonna mess up.
@@ -52,11 +67,11 @@ class PageLink extends ContentBase
 	public function SetProperties()
 	{
 		parent::SetProperties([
-			['cachable',true],
-			['secure',false], //deprecated property since 2.0
+			['cachable', true],
+			['secure', false], //deprecated property since 2.0
 		]);
-		$this->AddProperty('page',3, parent::TAB_MAIN,true,true); //target-page id
-		$this->AddProperty('params',4, parent::TAB_OPTIONS,true,true);
+		$this->AddProperty('page', 3, parent::TAB_MAIN, true, true); //target-page id
+		$this->AddProperty('params', 4, parent::TAB_OPTIONS, true, true);
 
 		//Turn off caching
 		$this->mCachable = false;
@@ -64,12 +79,14 @@ class PageLink extends ContentBase
 
 	public function FillParams($params, $editing = false)
 	{
-		parent::FillParams($params,$editing);
+		parent::FillParams($params, $editing);
 
-		if( !empty($params) ) {
-			$parameters = ['page', 'params' ];
+		if (!empty($params)) {
+			$parameters = ['page', 'params'];
 			foreach ($parameters as $oneparam) {
-                if( isset($params[$oneparam]) ) { $this->SetPropertyValue($oneparam, $params[$oneparam]); }
+				if (isset($params[$oneparam])) {
+					$this->SetPropertyValue($oneparam, $params[$oneparam]);
+				}
 			}
 		}
 	}
@@ -82,26 +99,25 @@ class PageLink extends ContentBase
 	public function ValidateData()
 	{
 		$errors = parent::ValidateData();
-		if( $errors === false ) $errors = [];
+		if ($errors === false) {
+			$errors = [];
+		}
 
 		$page = $this->GetPropertyValue('page');
-		if( $page == '-1' ) {
-			$errors[]= $this->mod->Lang('nofieldgiven', $this->mod->Lang('page'));
+		if ($page == '-1') {
+			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('page'));
 			$result = false;
-		}
-		else {
-			// get the content type of page. TODO load using CM methods only
+		} else {
+			// get the content type of page. TODO load using module-methods only
 			$contentops = SingleItem::ContentOperations();
 			$destcontent = $contentops->LoadEditableContentFromId($page);
-			if( !is_object($destcontent) ) {
+			if (!is_object($destcontent)) {
 				$errors[] = $this->mod->Lang('destinationnotfound');
 				$result = false;
-			}
-			elseif( $destcontent->Type() == 'pagelink' ) {
+			} elseif ($destcontent->Type() == 'pagelink') {
 				$errors[] = $this->mod->Lang('pagelink_circular');
 				$result = false;
-			}
-			elseif( $destcontent->Alias() == $this->mAlias ) {
+			} elseif ($destcontent->Alias() == $this->mAlias) {
 				$errors[] = $this->mod->Lang('pagelink_circular');
 				$result = false;
 			}
@@ -112,17 +128,19 @@ class PageLink extends ContentBase
 	public function GetTabNames() : array
 	{
 		$res = [$this->mod->Lang('main')];
-		if( check_permission(get_userid(),'Manage All Content') ) $res[] = $this->mod->Lang('options');
+		if (check_permission(get_userid(), 'Manage All Content')) {
+			$res[] = $this->mod->Lang('options');
+		}
 		return $res;
 	}
 
 	public function ShowElement($propname, $adding)
 	{
 		$id = 'm1_';
-		switch($propname) {
+		switch ($propname) {
 		case 'page':
 			$input = AdminUtils::CreateHierarchyDropdown($this->mId, (int)$this->GetPropertyValue('page'), 'page', true);
-			if( $input ) {
+			if ($input) {
 				return [
 				'for="cms_hierdropdown1">'.$this->mod->Lang('destination_page'),
 				'',
@@ -140,31 +158,31 @@ class PageLink extends ContentBase
 			];
 
 		default:
-			return parent::ShowElement($propname,$adding);
+			return parent::ShowElement($propname, $adding);
 		}
 	}
 
 	public function EditAsArray($adding = false, $tab = 0, $showadmin = false)
 	{
-		switch($tab) {
+		switch ($tab) {
 		case 0:
 			return $this->display_attributes($adding);
 		case 1:
-			return $this->display_attributes($adding,1);
+			return $this->display_attributes($adding, 1);
 		}
 	}
 
 	public function GetURL() : string
 	{
-		$page = $this->GetPropertyValue('page');
-		//TODO load using CM methods only
+		$pid = $this->GetPropertyValue('page');
+		//TODO load using module-methods only
 		$contentops = SingleItem::ContentOperations();
-		$destcontent = $contentops->LoadEditableContentFromId($page);
-		if( is_object($destcontent) ) {
+		$destcontent = $contentops->LoadEditableContentFromId($pid);
+		if (is_object($destcontent)) {
 			$url = $destcontent->GetURL();
 			$params = $this->GetPropertyValue('params');
 			return $url . $params;
 		}
-        return '';
+		return '';
 	}
 }

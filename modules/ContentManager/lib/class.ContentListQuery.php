@@ -54,7 +54,7 @@ final class ContentListQuery extends DbQueryBase
 	 */
 	public function set_limit(int $limit)
 	{
-		$this->_limit = max(1,$offset);
+		$this->_limit = max(1, $offset);
 	}
 
 	/**
@@ -63,7 +63,7 @@ final class ContentListQuery extends DbQueryBase
 	 */
 	public function set_offset(int $offset)
 	{
-		$this->_offset = max(0,$offset);
+		$this->_offset = max(0, $offset);
 	}
 
 	/**
@@ -72,11 +72,13 @@ final class ContentListQuery extends DbQueryBase
 	 */
 	public function execute()
 	{
-		if( $this->_rs ) return;
+		if ($this->_rs) {
+			return;
+		}
 
 		$sql = 'SELECT C.content_id FROM '.CMS_DB_PREFIX.'content C';
 		$where = $parms = [];
-		switch( $this->_filter->type ) {
+		switch ($this->_filter->type) {
 		case ContentListFilter::EXPR_OWNER:
 			$where[] = 'C.owner_id = ?';
 			$parms[] = (int) $this->_filter->expr;
@@ -100,16 +102,19 @@ final class ContentListQuery extends DbQueryBase
 			break;
 */
 		// TODO stylesheet | group
-		//case ContentListFilter::EXPR_STYLE:
-
+//		case ContentListFilter::EXPR_STYLE:
 		}
 
-		if( $where ) $sql .= ' WHERE '.implode(' AND ',$where);
+		if ($where) {
+			$sql .= ' WHERE '.implode(' AND ', $where);
+		}
 		$sql .= ' ORDER BY C.id_hierarchy';
 
 		$db = SingleItem::Db();
-		$this->_rs = $db->SelectLimit($sql,$this->_limit,$this->_offset,$parms);
-		if( !$this->_rs || $this->_rs->errno !== 0 ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
+		$this->_rs = $db->SelectLimit($sql, $this->_limit, $this->_offset, $parms);
+		if (!$this->_rs || $this->_rs->errno !== 0) {
+			throw new SQLException($db->sql.' -- '.$db->errorMsg());
+		}
 		$this->_totalmatchingrows = $db->getOne('SELECT FOUND_ROWS()');
 	}
 
@@ -121,8 +126,9 @@ final class ContentListQuery extends DbQueryBase
 	public function GetObject()
 	{
 		$this->execute();
-		if( !$this->_rs ) throw new RuntimeException('Cannot get stylesheet from invalid stylesheet query object');
-
+		if (!$this->_rs) {
+			throw new RuntimeException('Cannot get stylesheet from invalid stylesheet query object');
+		}
 		$out = (int) $this->_rs->fields['content_id'];
 		return $out;
 	}

@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManager module action: flag multiple pages as [not] cachable
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -24,15 +24,17 @@ use CMSMS\SingleItem;
 use function CMSMS\log_error;
 use function CMSMS\log_notice;
 
-if( !$this->CheckContext() ) exit;
-
-if( !$this->CheckPermission('Manage All Content') ) {
-    $this->SetError($this->Lang('error_bulk_permission'));
-    $this->Redirect($id,'defaultadmin',$returnid);
+if (!$this->CheckContext()) {
+	exit;
 }
-if( empty($params['bulk_content']) ) {
-    $this->SetError($this->Lang('error_missingparam'));
-    $this->Redirect($id,'defaultadmin',$returnid);
+
+if (!$this->CheckPermission('Manage All Content')) {
+	$this->SetError($this->Lang('error_bulk_permission'));
+	$this->Redirect($id, 'defaultadmin', $returnid);
+}
+if (empty($params['bulk_content'])) {
+	$this->SetError($this->Lang('error_missingparam'));
+	$this->Redirect($id, 'defaultadmin', $returnid);
 }
 
 $contentops = SingleItem::ContentOperations();
@@ -42,21 +44,22 @@ $user_id = get_userid();
 $n = 0;
 
 try {
-    foreach( $pagelist as $pid ) {
-        $content = $contentops->LoadEditableContentFromId($pid);
-        if( !is_object($content) ) continue;
+	foreach ($pagelist as $pid) {
+		$content = $contentops->LoadEditableContentFromId($pid);
+		if (!is_object($content)) {
+			continue;
+		}
 
-        $content->SetCachable($cachable);
-        $content->SetLastModifiedBy($user_id);
-        $content->Save();
-        ++$n;
-    }
-    log_notice('ContentManager','Changed cachable status on '.$n.' pages');
-    $this->SetMessage($this->Lang('msg_bulk_successful'));
-}
-catch (Throwable $t) {
-    log_error('Multi-page cachability change failed',$t->getMessage());
-    $this->SetError($t->getMessage());
+		$content->SetCachable($cachable);
+		$content->SetLastModifiedBy($user_id);
+		$content->Save();
+		++$n;
+	}
+	log_notice('ContentManager', 'Changed cachable status on '.$n.' pages');
+	$this->SetMessage($this->Lang('msg_bulk_successful'));
+} catch (Throwable $t) {
+	log_error('Multi-page cachability change failed', $t->getMessage());
+	$this->SetError($t->getMessage());
 }
 $cache = SingleItem::LoadedData();
 // TODO or refresh() & save, ready for next stage ?
@@ -64,4 +67,4 @@ $cache->delete('content_quicklist');
 $cache->delete('content_tree');
 $cache->delete('content_flatlist');
 
-$this->Redirect($id,'defaultadmin',$returnid);
+$this->Redirect($id, 'defaultadmin', $returnid);

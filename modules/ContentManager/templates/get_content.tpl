@@ -120,57 +120,6 @@
       {/if}
     {elseif $column == 'modified'}
        {$row.lastmodified|cms_date_format:'timed'}
-{* replaced by actions menu items
-    {elseif $column == 'move'}
-      {if isset($row.move)}
-        {if $row.move == 'up'}
-        <a href="{cms_action_url action='defaultadmin' moveup=$row.id}" class="page_sortup" accesskey="m">
-          {admin_icon icon='arrow-u.gif' class='systemicon' title=_ld($_module,'prompt_page_sortup')}
-        </a>
-        {elseif $row.move == 'down'}
-         <a href="{cms_action_url action='defaultadmin' movedown=$row.id}" class="page_sortdown" accesskey="m">
-          {admin_icon icon='arrow-d.gif' class='systemicon' title=_ld($_module,'prompt_page_sortdown')}
-         </a>
-        {elseif $row.move == 'both'}
-        <a href="{cms_action_url action='defaultadmin' moveup=$row.id}" class="page_sortup" accesskey="m">{admin_icon icon='arrow-u.gif' title=_ld($_module,'prompt_page_sortup')}</a>
-        <a href="{cms_action_url action='defaultadmin' movedown=$row.id}" class="page_sortdown" accesskey="m">{admin_icon icon='arrow-d.gif' title=_ld($_module,'prompt_page_sortdown')}</a>
-        {/if}
-      {/if}
-    {elseif $column == 'view'}
-      {if $row.view != ''}
-      <a class="page_view" target="_blank" href="{$row.view}" accesskey="v">
-       {admin_icon icon='view.gif' class='systemicon' title=_ld($_module,'prompt_page_view')}
-      </a>
-      {/if}
-    {elseif $column == 'copy'}
-      {if $row.copy != ''}
-      <a href="{cms_action_url action='copycontent' page=$row.id}" accesskey="o">
-       {admin_icon icon='copy.gif' class='systemicon page_copy' title=_ld($_module,'prompt_page_copy')}
-      </a>
-      {/if}
-    {elseif $column == 'edit'}
-      {if $row.can_edit}
-      <a href="{cms_action_url action=editcontent content_id=$row.id}" accesskey="e" class="page_edit" title="{_ld($_module,'addcontent')}" data-cms-content="{$row.id}">
-        {admin_icon icon='edit.gif' class='systemicon page_edit' title=_ld($_module,'prompt_page_edit')}
-      </a>
-      {else}
-        {if isset($row.lock) && $row.can_steal}
-        <a href="{cms_action_url action=editcontent content_id=$row.id}" accesskey="e" class="page_edit" title="{_ld($_module,'addcontent')}" data-cms-content="{$row.id}" class="steal_lock">
-          {admin_icon icon='permissions.gif' class='systemicon page_edit steal_lock' title=_ld($_module,'prompt_steal_lock_edit')}
-        </a>
-        {/if}
-      {/if}
-    {elseif $column == 'addchild'}
-      <a href="{cms_action_url action=editcontent parent_id=$row.id}" accesskey="a" class="page_edit" title="{_ld($_module,'addchildhere')}">
-       {admin_icon icon='newobject.gif' class='systemicon page_addchild' title=_ld($_module,'prompt_page_addchild')}
-      </a>
-    {elseif $column == 'delete'}
-      {if $row.can_delete && $row.delete != ''}
-      <a href="{cms_action_url action='defaultadmin' delete=$row.id}" class="page_delete" accesskey="r">
-        {admin_icon icon='delete.gif' class='systemicon page_delete' title=_ld($_module,'prompt_page_delete')}
-      </a>
-      {/if}
-*}
     {elseif $column == 'actions'}
     {$hide=empty($row.lock) || $row.lock == 1}{$t=_ld($_module,'locked_hard')}
       <span class="locked" data-id="{$row.id}" title="{$t}"{if $hide} style="display:none;"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
@@ -215,7 +164,7 @@
     {admin_icon icon='icons/extra/search' alt="{_ld('layout','search')}" addtext='style=position:relative;left:-1.8em'}
     {/if}
   </div>{*boxchild*}
-  {if isset($content_list) && $npages > 1}
+  {if (empty($pattern) && $npages > 1)}
   <div class="options-form boxchild">
     {form_start action='defaultadmin'}
       <span>{_ld($_module,'page')}:&nbsp;

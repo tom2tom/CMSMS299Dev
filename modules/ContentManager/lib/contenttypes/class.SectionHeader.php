@@ -36,21 +36,44 @@ use function get_userid;
  */
 class SectionHeader extends ContentBase
 {
-	public function FriendlyName() : string { return $this->mod->Lang('contenttype_sectionheader'); }
-	public function GetURL() : string { return '#'; }
-	public function HasSearchableContent() : bool { return false; }
-	public function HasUsableLink() : bool { return false; }
-	public function IsViewable() : bool { return false; }
-	public function RequiresAlias() : bool { return true; }
+	public function FriendlyName() : string
+	{
+		return $this->mod->Lang('contenttype_sectionheader');
+	}
+
+	public function GetURL() : string
+	{
+		return '#';
+	}
+
+	public function HasSearchableContent() : bool
+	{
+		return false;
+	}
+
+	public function HasUsableLink() : bool
+	{
+		return false;
+	}
+
+	public function IsViewable() : bool
+	{
+		return false;
+	}
+
+	public function RequiresAlias() : bool
+	{
+		return true;
+	}
 
 	public function SetProperties()
 	{
 		parent::SetProperties([
-			['accesskey',''],
-			['cachable',true],
-			['page_url',''],
-			['secure',false], //deprecated property since 2.0
-			['target',''],
+			['accesskey', ''],
+			['cachable', true],
+			['page_url', ''],
+			['secure', false], //deprecated property since 2.0
+			['target', ''],
 		]);
 
 		// Turn off caching
@@ -61,7 +84,7 @@ class SectionHeader extends ContentBase
 	public function GetTabNames() : array
 	{
 		$res = [$this->mod->Lang('main')];
-		if( check_permission(get_userid(),'Manage All Content') ) {
+		if (check_permission(get_userid(), 'Manage All Content')) {
 			$res[] = $this->mod->Lang('options');
 		}
 		return $res;
@@ -69,11 +92,11 @@ class SectionHeader extends ContentBase
 
 	public function EditAsArray(bool $adding = false, $tab = 0, bool $showadmin = false)
 	{
-		switch($tab) {
+		switch ($tab) {
 		case '0':
 			return $this->display_attributes($adding);
 		case '1':
-			return $this->display_attributes($adding,1);
+			return $this->display_attributes($adding, 1);
 		}
 	}
 
@@ -85,7 +108,7 @@ class SectionHeader extends ContentBase
 	public function ValidateData()
 	{
 		$res = parent::ValidateData();
-		if( is_array($res) && $this->mId < 1 ) {
+		if (is_array($res) && $this->mId < 1) {
 			// some error occurred..
 			// reset the menu text
 			// and the alias

@@ -19,7 +19,6 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace ContentManager;
 
 use InvalidArgumentException;
@@ -49,7 +48,7 @@ final class ContentListFilter
 	 */
 	public function __get(string $key)
 	{
-		switch( $key ) {
+		switch ($key) {
 		case 'type':
 		case 'expr':
 			$key = '_'.$key;
@@ -66,11 +65,11 @@ final class ContentListFilter
 	 * @param mixed $val normally a string
 	 * @throws InvalidArgumentException upon unrecognized $key or $val
 	 */
-	public function __set(string $key,$val)
+	public function __set(string $key, $val)
 	{
-		switch( $key ) {
+		switch ($key) {
 		case 'type':
-			switch( $val ) {
+			switch ($val) {
 			case self::EXPR_OWNER:
 			case self::EXPR_EDITOR:
 			case self::EXPR_TEMPLATE:

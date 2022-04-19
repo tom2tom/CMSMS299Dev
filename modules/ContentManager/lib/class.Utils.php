@@ -19,7 +19,6 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace ContentManager;
 
 use CMSMS\StylesheetOperations;
@@ -49,43 +48,41 @@ final class Utils
 	{
 		$mod = AppUtils::get_module('ContentManager');
 		$tmp = $mod->GetPreference('page_prefs');
-		if( $tmp ) {
+		if ($tmp) {
 			try {
-				$page_prefs = unserialize($tmp, ['allowed_classes'=>false]);
-			}
-			catch( Throwable $t ) {
+				$page_prefs = unserialize($tmp, ['allowed_classes' => false]);
+			} catch (Throwable $t) {
 				$tmp = false;
 			}
 		}
-		if( !$tmp ) {
+		if (!$tmp) {
 			try {
 				$tpl = TemplateOperations::get_default_template_by_type(TemplateType::CORE.'::page');
 				$tpl_id = $tpl->get_id();
-			}
-			catch( Throwable $t ) {
+			} catch (Throwable $t) {
 				$type = TemplateType::load(TemplateType::CORE.'::page');
 				$list = TemplateOperations::get_all_templates_by_type($type);
 				$tpl = $list[0];
 				$tpl_id = $tpl->get_id();
 			}
 			$page_prefs = [
-				'active'=>true,
-				'addteditors'=>[], // array of userid|groupid ints
-				'cachable'=>true,
-				'content'=>'',
-				'contenttype'=>'content',
-				'defaultcontent'=>false,
-				'disallowed_types'=>[], // array of strings
-				'extra1'=>'',
-				'extra2'=>'',
-				'extra3'=>'',
-				'metadata'=>'',
-				'parent_id'=>-2, // int
-				'searchable'=>true,
-				'secure'=>false, // deprecated from 2.0
-				'showinmenu'=>true,
-				'styles'=>'', // OR some sensible default ?
-				'template_id'=>$tpl_id,
+				'active' => true,
+				'addteditors' => [], // array of userid|groupid ints
+				'cachable' => true,
+				'content' => '',
+				'contenttype' => 'content',
+				'defaultcontent' => false,
+				'disallowed_types' => [], // array of strings
+				'extra1' => '',
+				'extra2' => '',
+				'extra3' => '',
+				'metadata' => '',
+				'parent_id' => -2, // int
+				'searchable' => true,
+				'secure' => false, // deprecated from 2.0
+				'showinmenu' => true,
+				'styles' => '', // OR some sensible default ?
+				'template_id' => $tpl_id,
 			];
 		}
 
@@ -102,10 +99,10 @@ final class Utils
 	public static function get_pagenav_display() : string
 	{
 		$userid = get_userid(false);
-		$pref = UserParams::get($userid,'ce_navdisplay');
-		if( !$pref ) {
+		$pref = UserParams::get($userid, 'ce_navdisplay');
+		if (!$pref) {
 			$mod = AppUtils::get_module('ContentManager');
-			$pref = $mod->GetPreference('list_namecolumn','title');
+			$pref = $mod->GetPreference('list_namecolumn', 'title');
 		}
 		return $pref;
 	}
@@ -118,18 +115,17 @@ final class Utils
 	public static function get_sheets_data($selected = null) : array
 	{
 		$sheets = StylesheetOperations::get_displaylist();
-		if( $sheets ) {
-			if( $selected ) {
-				if( !is_array($selected) ) {
-					$selected = explode(',',$selected);
+		if ($sheets) {
+			if ($selected) {
+				if (!is_array($selected)) {
+					$selected = explode(',', $selected);
 				}
-			}
-			else {
+			} else {
 				$selected = [];
 			}
 			$grouped = false;
-			foreach( $sheets as $one ) {
-				if( $one['members'] ) {
+			foreach ($sheets as $one) {
+				if ($one['members']) {
 					$grouped = true;
 					break;
 				}
@@ -139,45 +135,46 @@ final class Utils
 
 			$selrows = [];
 			$unselrows = [];
-			foreach( $sheets as $one ) {
+			foreach ($sheets as $one) {
 				$ob = new stdClass();
 				$ob->id = $one['id'];
 				$ob->name = ($ob->id > 0) ? $one['name'] : $gname.$one['name'];
-				if( $grouped ) {
+				if ($grouped) {
 					$ob->members = $one['members'];
 				}
-				if( $selected && in_array($one['id'],$selected) ) {
+				if ($selected && in_array($one['id'], $selected)) {
 					$ob->checked = true;
 					$selrows[] = $ob;
-				}
-				else {
+				} else {
 					$ob->checked = false;
 					$unselrows[] = $ob;
 				}
 			}
 
-			if( count($selrows) > 1 ) {
-				usort($selrows, function($a, $b) use ($selected)
-				{
+			if (count($selrows) > 1) {
+				usort($selrows, function($a, $b) use ($selected) {
 					// by selection order
 					$pa = array_search($a->id, $selected);
 					$pb = array_search($b->id, $selected);
 					return $pa <=> $pb;
 				});
 			}
-			if( count($unselrows) > 1 ) {
-				usort($unselrows, function($a, $b)
-				{
+			if (count($unselrows) > 1) {
+				usort($unselrows, function($a, $b) {
 					// groups first, then by name
-					if( $a->id < 0 && $b->id > 0 ) return -1;
-					if( $a->id > 0 && $b->id < 0 ) return 1;
+					if ($a->id < 0 && $b->id > 0) {
+						return -1;
+					}
+					if ($a->id > 0 && $b->id < 0) {
+						return 1;
+					}
 					return strcmp($a->name, $b->name);
 				});
 			}
-			$rows = array_merge($selrows,$unselrows);
+			$rows = array_merge($selrows, $unselrows);
 
-			if( count($rows) > 1 ) {
-				$js = <<<EOS
+			if (count($rows) > 1) {
+				$js = <<<'EOS'
 <script type="text/javascript">
 //<![CDATA[
 $(function() {
@@ -200,8 +197,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-			}
-			else {
+			} else {
 				$js = '';
 			}
 			return [$rows, $grouped, $js];

@@ -25,8 +25,8 @@ namespace CMSMS;
  * It does not use PHP7+ type-declarations, to make it easier for legacy
  * content-types to comply.
  *
- * @since	3.0
- * @package	CMS
+ * @since   3.0
+ * @package CMS
  */
 interface IContentEditor
 {
@@ -45,7 +45,7 @@ interface IContentEditor
 	 * @param array $data Row loaded from the database
 	 * @param bool  $loadProperties Optional flag whether to also load non-core
 	 *  properties (via a database SELECT). Default false.
-	 * @return	bool indicating success
+	 * @return  bool indicating success
 	 */
 	public function LoadFromData($data, $loadProperties = false);
 
@@ -114,19 +114,19 @@ interface IContentEditor
 	 * @param string $key tab key
 	 * @param bool   $adding  Optional flag whether this is an add operation. Default false (i.e. edit).
 	 * @return array Each member an array:
-     *  [0] = prompt field
+	 *  [0] = prompt field
 	 *  [1] = input field for the prompt with its js if needed
 	 * or just a scalar false upon some errors
 	 */
 	public function GetTabElements($key, $adding = false);
 
 	/**
-	 * Return all of the 'non-core' properties of this page.
-	 * Sourced originally from the object-properties table.
+	 * Return 'non-core' properties (if any) of this page, previously
+	 * loaded from the content-properties table or otherwise set.
 	 *
 	 * @return array
 	 */
-	public function Properties();
+	public function Properties() : array;
 
 	/**
 	 * Set all the ('non-core') properties of this page. Subclasses should set
@@ -135,15 +135,16 @@ interface IContentEditor
 	public function SetProperties();
 
 	/**
-	 * Get all the properties of this page (whether or not the user is entitled to view them)
+	 * Return the editor-UI properties of this page (whether or not the
+	 * user is entitled to view them)
 	 *
 	 * @return array of assoc. arrays
 	 */
-	public function GetPropertiesArray();
+	public function GetPropertiesArray() : array;
 
 	/**
-	 * Return a list of all properties that may be edited by the current user
-	 * when editing this page in a content editor form.
+	 * Return the editor-UI properties that may be edited by the
+	 * current user when editing this page in a content editor form.
 	 *
 	 * Content-type classes should call their parent's method as well as processing
 	 * their own properties.
@@ -596,7 +597,7 @@ interface IContentEditor
 
 	/**
 	 * Return the constructed URL for this page.
-     * No re-writing is done (that's for display, not edit)
+	 * No re-writing is done (that's for display, not edit)
 	 * @see also IContentEditor::URL()
 	 *
 	 * @return string
@@ -606,7 +607,7 @@ interface IContentEditor
 	/**
 	 * Return the URL-path (if any) associated with this page.
 	 * Not the complete URL, but merely the 'stub' or 'slug'
-     * appended to the root url when accessing the site.
+	 * appended to the root url when accessing the site.
 	 * If this page is specified as the default page then the "page url" will be ignored.
 	 * Some pages do not support page urls.
 	 * @see also IContentEditor::GetURL()

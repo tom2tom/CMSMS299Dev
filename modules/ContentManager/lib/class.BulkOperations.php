@@ -19,7 +19,6 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace ContentManager;
 
 use function startswith;
@@ -34,7 +33,7 @@ use function startswith;
  **/
 final class BulkOperations
 {
-    // static properties here >> SingleItem property|ies ?
+	// static properties here >> SingleItem property|ies ?
 	private static $_list = [];
 
 	private function __construct() {}
@@ -42,20 +41,22 @@ final class BulkOperations
 
 	/**
 	 * Register a function to show in the bulk content operations list used in
-	 *  ContentManager actions ajax_get_content and admin_pages_tab.
+	 * ContentManager actions ajax_get_content and admin_pages_tab.
 	 *
 	 * @param string $label Label to show to users
 	 * @param string $name Name of the action to call
 	 * @param string $module Optional name of module, or 'core'. Default 'core'.
 	 * @return void
 	 */
-	public static function register_function(string $label, string $name, string $module='core')
+	public static function register_function(string $label, string $name, string $module = 'core')
 	{
-      if( !$name || !$label ) return;
+		if (!$name || !$label) {
+			return;
+		}
 
-      $name = $module.'::'.$name;
-	  self::$_list[$name] = $label;
-    }
+		$name = $module.'::'.$name;
+		self::$_list[$name] = $label;
+	}
 
 	/**
 	 * Get a list of the registered bulk operations.
@@ -65,22 +66,21 @@ final class BulkOperations
 	 * @return array The list of operations
 	 */
 	public static function get_operation_list(bool $separate_modules = true) : array
-    {
+	{
 		$tmpc = [];
 		$tmpm = [];
-		foreach( self::$_list as $name => $label ) {
-			if( startswith($name,'core::') ) {
+		foreach (self::$_list as $name => $label) {
+			if (startswith($name, 'core::')) {
 				$tmpc[$name] = $label;
-			}
-			else {
+			} else {
 				$tmpm[$name] = $label;
 			}
 		}
 
-		if( $separate_modules && count($tmpm) ) {
+		if ($separate_modules && count($tmpm)) {
 			$tmpc[-1] = '----------';
 		}
-		$tmpc = array_merge($tmpc,$tmpm);
+		$tmpc = array_merge($tmpc, $tmpm);
 		return $tmpc;
-    }
+	}
 } // class

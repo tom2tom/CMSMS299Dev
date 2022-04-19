@@ -19,7 +19,6 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace ContentManager;
 
 use ContentManager\EditContentAssistant;
@@ -29,7 +28,7 @@ class ContentEditContentAssistant extends EditContentAssistant
 	// get javascript for editcontent for the Content object and its derived objects.
 	public function getExtraCode()
 	{
-		return <<<EOS
+		return <<<'EOS'
 <script type="text/javascript">
 //<![CDATA[
 $(function() {

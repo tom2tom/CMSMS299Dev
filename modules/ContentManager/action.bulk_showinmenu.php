@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManager module action: flag multiple pages as in-menu
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -25,15 +25,17 @@ use function CMSMS\log_error;
 use function CMSMS\log_notice;
 
 //if( some worthy test fails ) exit;
-if( !isset($action) || $action != 'bulk_showinmenu' ) exit;
-
-if( !$this->CheckPermission('Manage All Content') ) {
-    $this->SetError($this->Lang('error_bulk_permission'));
-    $this->Redirect($id,'defaultadmin',$returnid);
+if (!isset($action) || $action != 'bulk_showinmenu') {
+	exit;
 }
-if( !isset($params['bulk_content']) ) {
-    $this->SetError($this->Lang('error_missingparam'));
-    $this->Redirect($id,'defaultadmin',$returnid);
+
+if (!$this->CheckPermission('Manage All Content')) {
+	$this->SetError($this->Lang('error_bulk_permission'));
+	$this->Redirect($id, 'defaultadmin', $returnid);
+}
+if (!isset($params['bulk_content'])) {
+	$this->SetError($this->Lang('error_missingparam'));
+	$this->Redirect($id, 'defaultadmin', $returnid);
 }
 
 $contentops = SingleItem::ContentOperations();
@@ -43,21 +45,22 @@ $user_id = get_userid();
 $n = 0;
 
 try {
-    foreach( $pagelist as $pid ) {
-        $content = $contentops->LoadEditableContentFromId($pid);
-        if( !is_object($content) ) continue;
+	foreach ($pagelist as $pid) {
+		$content = $contentops->LoadEditableContentFromId($pid);
+		if (!is_object($content)) {
+			continue;
+		}
 
-        $content->SetShowInMenu($showinmenu);
-        $content->SetLastModifiedBy($user_id);
-        $content->Save();
-        ++$n;
-    }
-    log_notice('ContentManager','Changed show-in-menu status of '.$n.' pages');
-    $this->SetMessage($this->Lang('msg_bulk_successful'));
-}
-catch (Throwable $t) {
-    log_error('Multi-page in-menu change failed',$t->getMessage());
-    $this->SetError($t->getMessage());
+		$content->SetShowInMenu($showinmenu);
+		$content->SetLastModifiedBy($user_id);
+		$content->Save();
+		++$n;
+	}
+	log_notice('ContentManager', 'Changed show-in-menu status of '.$n.' pages');
+	$this->SetMessage($this->Lang('msg_bulk_successful'));
+} catch (Throwable $t) {
+	log_error('Multi-page in-menu change failed', $t->getMessage());
+	$this->SetError($t->getMessage());
 }
 
 $cache = SingleItem::LoadedData();
@@ -66,4 +69,4 @@ $cache->delete('content_quicklist');
 $cache->delete('content_tree');
 $cache->delete('content_flatlist');
 
-$this->Redirect($id,'defaultadmin',$returnid);
+$this->Redirect($id, 'defaultadmin', $returnid);

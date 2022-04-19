@@ -21,7 +21,6 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace ContentManager\contenttypes;
 
-use ContentManager\ContentBase;
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\ContentException;
@@ -33,6 +32,7 @@ use CMSMS\SingleItem;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 use CMSMS\Utils;
+use ContentManager\ContentBase;
 use SmartyException;
 use Throwable;
 use function check_permission;
@@ -60,15 +60,36 @@ class Content extends ContentBase
 	 */
 	protected $_contentBlocks = null;
 
-	public function FriendlyName() : string { return $this->mod->Lang('contenttype_content'); }
-	public function HasPreview() : bool { return $this->mId > 0; }
-	public function HasTemplate() : bool { return true; }
-	public function IsCopyable() : bool { return true; }
-	public function IsDefaultPossible() : bool { return true; }
+	public function FriendlyName() : string
+	{
+		return $this->mod->Lang('contenttype_content');
+	}
+
+	public function HasPreview() : bool
+	{
+		return $this->mId > 0;
+	}
+
+	public function HasTemplate() : bool
+	{
+		return true;
+	}
+
+	public function IsCopyable() : bool
+	{
+		return true;
+	}
+
+	public function IsDefaultPossible() : bool
+	{
+		return true;
+	}
 
 	public function IsSearchable() : bool
 	{
-		if( !parent::IsSearchable() ) return false;
+		if (!parent::IsSearchable()) {
+			return false;
+		}
 		return $this->GetPropertyValue('searchable') != false;
 	}
 
@@ -87,16 +108,16 @@ class Content extends ContentBase
 	public function SetProperties()
 	{
 		parent::SetProperties();
-		$this->AddProperty('template',1,parent::TAB_DISPLAY);
+		$this->AddProperty('template', 1, parent::TAB_DISPLAY);
 //		$this->AddProperty('design_id',0,parent::TAB_OPTIONS);
 //		$this->AddProperty('template_rsrc',0,parent::TAB_OPTIONS);
-		$this->AddProperty('defaultcontent',3,parent::TAB_OPTIONS); //co-locate with 'main' checkboxes
-		$this->AddProperty('searchable',4,parent::TAB_OPTIONS);
-		$this->AddProperty('wantschildren',5,parent::TAB_OPTIONS);
-		$this->AddProperty('disable_wysiwyg',6,parent::TAB_OPTIONS);
+		$this->AddProperty('defaultcontent', 3, parent::TAB_OPTIONS); //co-locate with 'main' checkboxes
+		$this->AddProperty('searchable', 4, parent::TAB_OPTIONS);
+		$this->AddProperty('wantschildren', 5, parent::TAB_OPTIONS);
+		$this->AddProperty('disable_wysiwyg', 6, parent::TAB_OPTIONS);
 
-		$this->AddProperty('pagemetadata',1,parent::TAB_LONGOPTS); // aka TAB_LOGIC
-		$this->AddProperty('pagedata',2,parent::TAB_LONGOPTS);
+		$this->AddProperty('pagemetadata', 1, parent::TAB_LONGOPTS); // aka TAB_LOGIC
+		$this->AddProperty('pagedata', 2, parent::TAB_LONGOPTS);
 	}
 
 	/**
@@ -108,31 +129,37 @@ class Content extends ContentBase
 	public function FillParams($params, $editing = false)
 	{
 		if (!empty($params)) {
-			$parameters = ['pagedata','searchable','disable_wysiwyg',/*'design_id',*/'wantschildren'];
+			$parameters = ['pagedata', 'searchable', 'disable_wysiwyg', /*'design_id',*/'wantschildren'];
 
-			//pick up the template id before we do parameters
+			// pick up the template id before we do parameters
 			if (isset($params['template_id'])) {
-				if ($this->mTemplateId != $params['template_id']) $this->_contentBlocks = null;
+				if ($this->mTemplateId != $params['template_id']) {
+					$this->_contentBlocks = null;
+				}
 				$this->mTemplateId = (int) $params['template_id'];
 			}
 
-			if( $this->IsDefaultPossible() && isset($params['defaultcontent']) ) {
+			if ($this->IsDefaultPossible() && isset($params['defaultcontent'])) {
 				$this->mDefaultContent = (int) $params['defaultcontent'];
 			}
 
 			// add content blocks
 			$blocks = $this->get_content_blocks();
-			if( $blocks ) {
-				foreach($blocks as $blockName => $blockInfo) {
+			if ($blocks) {
+				foreach ($blocks as $blockName => $blockInfo) {
 					$name = $blockInfo['id'];
 					$parameters[] = $name;
-					if( isset($blockInfo['type']) && $blockInfo['type'] == 'module' ) {
+					if (isset($blockInfo['type']) && $blockInfo['type'] == 'module') {
 						$mod = Utils::get_module($blockInfo['module']);
-						if( !is_object($mod) ) continue;
-						if( !$mod->HasCapability(CoreCapabilities::CONTENT_BLOCKS) ) continue;
-// TODO if falsy value	$current = $params[$name];
-						$tmp = $mod->GetContentBlockFieldValue($blockName,$blockInfo['params'],$params,$this);
-						if( $tmp/* != null*/ ) { // TODO allow (some?) falsy value
+						if (!is_object($mod)) {
+							continue;
+						}
+						if (!$mod->HasCapability(CoreCapabilities::CONTENT_BLOCKS)) {
+							continue;
+						}
+						// TODO if falsy value	$current = $params[$name];
+						$tmp = $mod->GetContentBlockFieldValue($blockName, $blockInfo['params'], $params, $this);
+						if ($tmp/* != null*/) { // TODO allow (some?) falsy value
 							$params[$name] = $tmp;
 						}
 					}
@@ -141,14 +168,16 @@ class Content extends ContentBase
 
 			// do the content property parameters
 			foreach ($parameters as $oneparam) {
-				if( !isset($params[$oneparam]) ) continue;
+				if (!isset($params[$oneparam])) {
+					continue;
+				}
 				$val = $params[$oneparam];
-				switch( $oneparam ) {
+				switch ($oneparam) {
 				case 'pagedata':
 					// nothing
 					break;
 				default:
-					if( count($blocks) && isset($blocks[$oneparam]) ) {
+					if (count($blocks) && isset($blocks[$oneparam])) {
 						// it's a content block.
 						$val = $val;
 					} else {
@@ -156,13 +185,15 @@ class Content extends ContentBase
 					}
 					break;
 				}
-				$this->SetPropertyValue($oneparam,$val);
+				$this->SetPropertyValue($oneparam, $val);
 			}
 
 			// metadata
-			if (isset($params['metadata']) ) $this->mMetadata = $params['metadata'];
+			if (isset($params['metadata'])) {
+				$this->mMetadata = $params['metadata'];
+			}
 		}
-		parent::FillParams($params,$editing);
+		parent::FillParams($params, $editing);
 	}
 
 	/**
@@ -175,8 +206,10 @@ class Content extends ContentBase
 	public function Show($propname = 'content_en')
 	{
 		$propname = trim($propname, " \r\n\t'\"");
-		if( !$propname ) $propname = 'content_en';
-		$propname = str_replace(' ','_',$propname);
+		if (!$propname) {
+			$propname = 'content_en';
+		}
+		$propname = str_replace(' ', '_', $propname);
 		return $this->GetPropertyValue($propname);
 	}
 
@@ -195,23 +228,21 @@ class Content extends ContentBase
 	{
 		$props = parent::GetEditableProperties();
 
-		if( $this->IsEditable(true, true) ) {
+		if ($this->IsEditable(true, true)) {
 			// add in content blocks
 			$blocks = $this->get_content_blocks();
-			if( $blocks ) {
+			if ($blocks) {
 				$priority = 100; // aka page_template_parser::$_priority default value
-				foreach( $blocks as &$block ) {
+				foreach ($blocks as &$block) {
 					$prop = ['name' => $block['name']];
-					if( isset($block['tab']) && $block['tab'] !== '' ) {
+					if (isset($block['tab']) && $block['tab'] !== '') {
 						$prop['tab'] = $block['tab'];
-					}
-					else {
+					} else {
 						$prop['tab'] = parent::TAB_DISPLAY;
 					}
-					if( isset($block['priority']) ) {
+					if (isset($block['priority'])) {
 						$prop['priority'] = $block['priority'];
-					}
-					else {
+					} else {
 						$prop['priority'] = $priority++;
 					}
 					$prop['extra'] = $block;
@@ -234,68 +265,49 @@ class Content extends ContentBase
 	public function ValidateData()
 	{
 		$errors = parent::ValidateData();
-		if( $errors === false ) { $errors = []; }
+		if ($errors === false) {
+			$errors = [];
+		}
 
-		if ($this->mTemplateId <= 0 ) {
+		if ($this->mTemplateId <= 0) {
 			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('template'));
 		}
 
 		$blocks = $this->get_content_blocks();
-		if( !$blocks ) {
+		if (!$blocks) {
 			$errors[] = $this->mod->Lang('error_parsing_content_blocks');
 		}
 
 		$have_content_en = false;
-		if( $blocks ) {
-			foreach($blocks as $blockName => $blockInfo) {
-				if( $blockInfo['id'] == 'content_en' ) $have_content_en = true;
-				if( isset($blockInfo['required']) && $blockInfo['required'] && ($val = $this->GetPropertyValue($blockName)) == '' ) {
+		if ($blocks) {
+			foreach ($blocks as $blockName => $blockInfo) {
+				if ($blockInfo['id'] == 'content_en') {
+					$have_content_en = true;
+				}
+				if (isset($blockInfo['required']) && $blockInfo['required'] && ($val = $this->GetPropertyValue($blockName)) == '') {
 					$errors[] = $this->mod->Lang('emptyblock', $blockName);
 				}
-				if( isset($blockInfo['type']) && $blockInfo['type'] == 'module' ) {
+				if (isset($blockInfo['type']) && $blockInfo['type'] == 'module') {
 					$mod = Utils::get_module($blockInfo['module']);
-					if( !is_object($mod) ) continue;
-					if( !$mod->HasCapability(CoreCapabilities::CONTENT_BLOCKS) ) continue;
+					if (!is_object($mod)) {
+						continue;
+					}
+					if (!$mod->HasCapability(CoreCapabilities::CONTENT_BLOCKS)) {
+						continue;
+					}
 					$value = $this->GetPropertyValue($blockInfo['id']);
-					$tmp = $mod->ValidateContentBlockFieldValue($blockName,$value,$blockInfo['params'],$this);
-					if( !empty($tmp) ) {
+					$tmp = $mod->ValidateContentBlockFieldValue($blockName, $value, $blockInfo['params'], $this);
+					if (!empty($tmp)) {
 						$errors[] = $tmp;
 					}
 				}
 			}
 		}
 
-		if( !$have_content_en ) {
+		if (!$have_content_en) {
 			$errors[] = $this->mod->Lang('error_no_default_content_block');
 		}
 		return $errors;
-	}
-
-	/**
-	 * Return content blocks in the current page's template.
-	 *
-	 * @access private
-	 * @internal
-	 */
-	private function get_content_blocks() : array
-	{
-		if( is_array($this->_contentBlocks) ) {
-			return $this->_contentBlocks;
-		}
-
-		$smarty = SingleItem::Smarty();
-		try {
-			$parser = new page_template_parser('cms_template:'.$this->TemplateId(),$smarty);
-//redundant  page_template_parser::reset();
-			$parser->compileTemplateSource();
-			$this->_contentBlocks = page_template_parser::get_content_blocks();
-		}
-		catch (SmartyException $e) {
-			$this->_contentBlocks = [];
-			// smarty exceptions here could be a bad template, or missing template, or something else.
-			throw new ContentException($this->mod->Lang('error_parsing_content_blocks').': '.$e->getMessage());
-		}
-		return $this->_contentBlocks;
 	}
 
 	/**
@@ -304,55 +316,21 @@ class Content extends ContentBase
 	 */
 	public function TemplateResource() : string
 	{
-/*
-		$tmp = $this->GetPropertyValue('template_rsrc');
-		if( !$tmp ) $tmp = $this->mTemplateId;
-		if( $tmp ) {
-			$num = (int) $tmp;
-			if( $num > 0 && trim($num) == $tmp ) {
-				// numeric: assume normal (database) template
-				return "cms_template:$tmp";
-			} else {
-				return $tmp;
-			}
-		}
-		return '';
-*/
-		return 'cms_template:'.$this->mTemplateId;
-	}
-
-	/**
-	 * @ignore
-	 * @since 2.0
-	 */
-	protected function get_template_list()
-	{
-		// static properties here >> SingleItem property|ies ?
-		static $_list;
-		if( $_list ) return $_list;
-
-		$_list = [];
-//		$config = SingleItem::Config();
-//		if( !$config['page_template_list'] ) { //WHAAAT ?
-			$_tpl = TemplateOperations::template_query( ['as_list'=>1] );
-			if( $_tpl ) {
-				foreach( $_tpl as $tpl_id => $tpl_name ) {
-					$_list[] = [ 'label'=>$tpl_name, 'value'=>$tpl_id ];
+		/*
+				$tmp = $this->GetPropertyValue('template_rsrc');
+				if( !$tmp ) $tmp = $this->mTemplateId;
+				if( $tmp ) {
+					$num = (int) $tmp;
+					if( $num > 0 && trim($num) == $tmp ) {
+						// numeric: assume normal (database) template
+						return "cms_template:$tmp";
+					} else {
+						return $tmp;
+					}
 				}
-			}
-/*		}
-		else {
-			$raw = $config['page_template_list'];
-			if( is_string($raw) ) $raw = [ $this->mod->Lang('default')=>$raw ];
-
-			foreach( $raw as $label => $rsrc ) {
-				$_list[] = [ 'label'=>$label, 'value'=>$rsrc ];
-			}
-		}
-*/
-		$tmp = array_column($_list, 'label');
-		array_multisort($tmp, SORT_ASC, SORT_NATURAL, $_list); //TODO encoded-strings sort
-		return $_list;
+				return '';
+		*/
+		return 'cms_template:'.$this->mTemplateId;
 	}
 
 	/**
@@ -368,7 +346,7 @@ class Content extends ContentBase
 	 */
 	public function ShowElement($propname, $adding)
 	{
-		// static properties here >> SingleItem property|ies ?
+// static properties here >> SingleItem property|ies ?
 //		static $_designs;
 //		static $_types;
 //		static $_designtree;
@@ -377,7 +355,7 @@ class Content extends ContentBase
 
 		$id = 'm1_';
 
-		switch($propname) {
+		switch ($propname) {
 		case 'design_id':
 /*
 			// get the dflt/current design id
@@ -412,36 +390,34 @@ class Content extends ContentBase
 		case 'template':
 			try {
 				$template_id = $this->TemplateId();
-				if( $template_id < 1 ) {
+				if ($template_id < 1) {
 					try {
 						$dflt_tpl = TemplateOperations::get_default_template_by_type(TemplateType::CORE.'::page');
 						$template_id = $dflt_tpl->get_id();
-					}
-					catch (Throwable $t) {
+					} catch (Throwable $t) {
 						log_error('No default page template found');
 					}
 				}
 
-				if( $_templates == null ) {
+				if ($_templates == null) {
 					$_templates = [];
-// TODO see get_template_list()
-					$list = TemplateOperations::template_query(['as_list'=>1]);
-					if( $list ) {
-						foreach( $list as $tpl_id => $tpl_name ) {
-							$_templates[] = ['value'=>$tpl_id,'label'=>$tpl_name];
+					// TODO see get_template_list()
+					$list = TemplateOperations::template_query(['as_list' => 1]);
+					if ($list) {
+						foreach ($list as $tpl_id => $tpl_name) {
+							$_templates[] = ['value' => $tpl_id, 'label' => $tpl_name];
 						}
 					}
-//			$_designlist = DesignManager\Design::get_list(); DISABLED
+//					$_designlist = DesignManager\Design::get_list(); DISABLED
 				}
 
-				$input = FormUtils::create_dropdown('template_id',$_templates,$template_id,['prefix'=>$id,'id'=>'template_id']);
+				$input = FormUtils::create_dropdown('template_id', $_templates, $template_id, ['prefix' => $id, 'id' => 'template_id']);
 				return [
 				'for="template_id">*'.$this->mod->Lang('template'),
-				AdminUtils::get_help_tag($this->domain,'info_editcontent_template',$this->mod->Lang('help_title_editcontent_template')),
+				AdminUtils::get_help_tag($this->domain, 'info_editcontent_template', $this->mod->Lang('help_title_editcontent_template')),
 				$input
 				];
-			}
-			catch (Throwable $t) {
+			} catch (Throwable $t) {
 				// nothing here (yet?)
 			}
 			break;
@@ -468,65 +444,69 @@ class Content extends ContentBase
 */
 		case 'pagemetadata':
 			$input = FormUtils::create_textarea([
-				'getid'=>$id,
-				'htmlid'=>'idmetadata',
-				'name'=>'pagemetadata',
-				'class'=>'pagesmalltextarea',
-				'value'=>$this->MetaData(),
+				'getid' => $id,
+				'htmlid' => 'idmetadata',
+				'name' => 'pagemetadata',
+				'class' => 'pagesmalltextarea',
+				'value' => $this->MetaData(),
 			]);
 			return [
 			'for="idmetadata">'.$this->mod->Lang('page_metadata'),
-			AdminUtils::get_help_tag($this->domain,'help_content_pagemeta',$this->mod->Lang('help_title_content_pagemeta')),
+			AdminUtils::get_help_tag($this->domain, 'help_content_pagemeta', $this->mod->Lang('help_title_content_pagemeta')),
 			$input
 			];
 
 		case 'pagedata':
 			$input = FormUtils::create_textarea([
-				'getid'=>$id,
-				'htmlid'=>'idpagedata',
-				'name'=>'pagedata',
-				'class'=>'pagesmalltextarea',
-				'value'=>$this->GetPropertyValue('pagedata'),
+				'getid' => $id,
+				'htmlid' => 'idpagedata',
+				'name' => 'pagedata',
+				'class' => 'pagesmalltextarea',
+				'value' => $this->GetPropertyValue('pagedata'),
 			]);
 			return [
 			'for="idpagedata">'.$this->mod->Lang('pagedata_codeblock'),
-			AdminUtils::get_help_tag($this->domain,'help_content_pagedata',$this->mod->Lang('help_title_content_pagedata')),
+			AdminUtils::get_help_tag($this->domain, 'help_content_pagedata', $this->mod->Lang('help_title_content_pagedata')),
 			$input
 			];
 
 		case 'defaultcontent':
 			return [
 			'for="defaultcontent">'.$this->mod->Lang('defaultcontent'),
-			AdminUtils::get_help_tag($this->domain,'help_content_default',$this->mod->Lang('help_title_content_default')),
-			'<input type="hidden" name="'.$id.'defaultcontent" value="0" /><input type="checkbox" id="defaultcontent" name="'.$id.' value="1" defaultcontent"'.($this->mDefaultContent?' checked="checked"':'').' />'
+			AdminUtils::get_help_tag($this->domain, 'help_content_default', $this->mod->Lang('help_title_content_default')),
+			'<input type="hidden" name="'.$id.'defaultcontent" value="0" /><input type="checkbox" id="defaultcontent" name="'.$id.' value="1" defaultcontent"'.($this->mDefaultContent ? ' checked="checked"' : '').' />'
 			];
 
 		case 'searchable':
 			$searchable = $this->GetPropertyValue('searchable');
-			if( $searchable == '' ) { $searchable = 1; }
+			if ($searchable == '') {
+				$searchable = 1;
+			}
 			return [
 			'for="searchable">'.$this->mod->Lang('searchable'),
-			AdminUtils::get_help_tag($this->domain,'help_page_searchable',$this->mod->Lang('help_title_page_searchable')),
-			'<input type="hidden" name="'.$id.'searchable" value="0" /><input type="checkbox" id="searchable" name="'.$id.'searchable" value="1"'.(($searchable)?' checked="checked"':'').' />'
+			AdminUtils::get_help_tag($this->domain, 'help_page_searchable', $this->mod->Lang('help_title_page_searchable')),
+			'<input type="hidden" name="'.$id.'searchable" value="0" /><input type="checkbox" id="searchable" name="'.$id.'searchable" value="1"'.(($searchable) ? ' checked="checked"' : '').' />'
 			];
 
 		case 'disable_wysiwyg':
 			$disable_wysiwyg = $this->GetPropertyValue('disable_wysiwyg');
-		if( $disable_wysiwyg == '' ) { $disable_wysiwyg = 0; }
+		if ($disable_wysiwyg == '') {
+			$disable_wysiwyg = 0;
+		}
 			return [
 			'for="disablewysiwyg">'.$this->mod->Lang('disable_wysiwyg'),
-			AdminUtils::get_help_tag($this->domain,'help_page_disablewysiwyg',$this->mod->Lang('help_title_page_disablewysiwyg')),
-			'<input type="hidden" name="'.$id.'disable_wysiwyg" value="0" /><input type="checkbox" id="disablewysiwyg" name="'.$id.'disable_wysiwyg" value="1"'.(($disable_wysiwyg)?' checked="checked"':'').' />'
+			AdminUtils::get_help_tag($this->domain, 'help_page_disablewysiwyg', $this->mod->Lang('help_title_page_disablewysiwyg')),
+			'<input type="hidden" name="'.$id.'disable_wysiwyg" value="0" /><input type="checkbox" id="disablewysiwyg" name="'.$id.'disable_wysiwyg" value="1"'.(($disable_wysiwyg) ? ' checked="checked"' : '').' />'
 			];
 
 		case 'wantschildren':
 			$showadmin = SingleItem::ContentOperations()->CheckPageOwnership(get_userid(), $this->Id());
-			if( check_permission(get_userid(),'Manage All Content') || $showadmin ) {
+			if (check_permission(get_userid(), 'Manage All Content') || $showadmin) {
 				$wantschildren = $this->WantsChildren();
 				return [
 				'for="wantschildren">'.$this->mod->Lang('wantschildren'),
-				AdminUtils::get_help_tag($this->domain,'help_page_wantschildren',$this->mod->Lang('help_title_page_wantschildren')),
-				'<input type="hidden" name="'.$id.'wantschildren" value="0" /><input type="checkbox" id="wantschildren" name="'.$id.'wantschildren" value="1"'.(($wantschildren)?' checked="checked"':'').' />'
+				AdminUtils::get_help_tag($this->domain, 'help_page_wantschildren', $this->mod->Lang('help_title_page_wantschildren')),
+				'<input type="hidden" name="'.$id.'wantschildren" value="0" /><input type="checkbox" id="wantschildren" name="'.$id.'wantschildren" value="1"'.(($wantschildren) ? ' checked="checked"' : '').' />'
 				];
 			}
 			break;
@@ -534,25 +514,91 @@ class Content extends ContentBase
 		default:
 			// check if it's content block
 			$blocks = $this->get_content_blocks();
-			if( isset($blocks[$propname]) ) {
-				// its a content block
+			if (isset($blocks[$propname])) {
+				// it's a content block
 				$block = $blocks[$propname];
 				$data = $this->GetPropertyValue($block['id']);
-				return $this->display_content_block($propname,$block,$data,$adding);
-			}
-			else {
+				return $this->display_content_block($propname, $block, $data, $adding);
+			} else {
 				// call the parent class
-				return parent::ShowElement($propname,$adding);
+				return parent::ShowElement($propname, $adding);
 			}
 		}
 		return [];
 	}
 
+	/**
+	 * @ignore
+	 * @since 2.0
+	 */
+	protected function get_template_list()
+	{
+		// static properties here >> SingleItem property|ies ?
+		static $_list;
+		if ($_list) {
+			return $_list;
+		}
+
+		$_list = [];
+//		$config = SingleItem::Config();
+//		if (!$config['page_template_list']) { //WHAAAT ?
+		$_tpl = TemplateOperations::template_query(['as_list' => 1]);
+		if ($_tpl) {
+			foreach ($_tpl as $tpl_id => $tpl_name) {
+				$_list[] = ['label' => $tpl_name, 'value' => $tpl_id];
+			}
+		}
+/*		} else {
+			$raw = $config['page_template_list'];
+			if( is_string($raw) ) $raw = [ $this->mod->Lang('default')=>$raw ];
+
+			foreach( $raw as $label => $rsrc ) {
+				$_list[] = [ 'label'=>$label, 'value'=>$rsrc ];
+			}
+		}
+*/
+		$tmp = array_column($_list, 'label');
+		array_multisort($tmp, SORT_ASC, SORT_NATURAL, $_list); //TODO encoded-strings sort
+		return $_list;
+	}
+
+	/**
+	 * Return content blocks in the current page's template.
+	 *
+	 * @access private
+	 * @internal
+	 */
+	private function get_content_blocks() : array
+	{
+		if (is_array($this->_contentBlocks)) {
+			return $this->_contentBlocks;
+		}
+
+		$smarty = SingleItem::Smarty();
+		try {
+			$parser = new page_template_parser('cms_template:'.$this->TemplateId(), $smarty);
+			//redundant  page_template_parser::reset();
+			$parser->compileTemplateSource();
+			$this->_contentBlocks = page_template_parser::get_content_blocks();
+		} catch (SmartyException $e) {
+			$this->_contentBlocks = [];
+			// smarty exceptions here could be a bad template, or missing template, or something else.
+			throw new ContentException($this->mod->Lang('error_parsing_content_blocks').': '.$e->getMessage());
+		}
+		return $this->_contentBlocks;
+	}
+
 	private function _get_param($in, $key, $dflt = null)
 	{
-		if( !is_array($in) ) return $dflt;
-		if( is_array($key) ) return $dflt;
-		if( !isset($in[$key]) ) return $dflt;
+		if (!is_array($in)) {
+			return $dflt;
+		}
+		if (is_array($key)) {
+			return $dflt;
+		}
+		if (!isset($in[$key])) {
+			return $dflt;
+		}
 		return $in[$key];
 	}
 
@@ -571,38 +617,48 @@ class Content extends ContentBase
 			if( !$res ) return '';
 		}
 */
-		if( $this->Id() < 1 && $value === '' ) { // unsaved content without value
-			$value = trim($this->_get_param($blockInfo,'default'));
+		if ($this->Id() < 1 && $value === '') { // unsaved content without value
+			$value = trim($this->_get_param($blockInfo, 'default'));
 		}
-		$required = cms_to_bool($this->_get_param($blockInfo,'required'));
-		$placeholder = trim($this->_get_param($blockInfo,'placeholder'));
-		if( cms_to_bool($this->_get_param($blockInfo,'oneline')) ) {
-			$size = (int) $this->_get_param($blockInfo,'size',50);
-			$maxlength = (int) $this->_get_param($blockInfo,'maxlength',255);
+		$required = cms_to_bool($this->_get_param($blockInfo, 'required'));
+		$placeholder = trim($this->_get_param($blockInfo, 'placeholder'));
+		if (cms_to_bool($this->_get_param($blockInfo, 'oneline'))) {
+			$size = (int) $this->_get_param($blockInfo, 'size', 50);
+			$maxlength = (int) $this->_get_param($blockInfo, 'maxlength', 255);
 			$ret = '<input type="text" size="'.$size.'" maxlength="'.$maxlength.'" name="'.$blockInfo['id'].'" value="'. specialize($value, ENT_NOQUOTES).'"';
-			if( $required ) $ret .= ' required="required"';
-			if( $placeholder ) $ret .= " placeholder=\"{$placeholder}\"";
-			$ret .= ' />';
-		}
-		else {
-			if( $this->GetPropertyValue('disable_wysiwyg') ) {
-				$block_wysiwyg = false;
+			if ($required) {
+				$ret .= ' required="required"';
 			}
-			else {
+			if ($placeholder) {
+				$ret .= " placeholder=\"{$placeholder}\"";
+			}
+			$ret .= ' />';
+		} else {
+			if ($this->GetPropertyValue('disable_wysiwyg')) {
+				$block_wysiwyg = false;
+			} else {
 				$block_wysiwyg = cms_to_bool($blockInfo['usewysiwyg']);
 			}
 
-			$parms = [ 'name'=>$blockInfo['id'],'enablewysiwyg'=>$block_wysiwyg,'value'=>$value,'id'=>$blockInfo['id'] ];
-			if( $required ) $parms['required'] = 'required';
-			if( $placeholder ) $parms['placeholder'] = $placeholder;
-			$parms['width'] = (int) $this->_get_param($blockInfo,'width',80);
-			$parms['height'] = (int) $this->_get_param($blockInfo,'height',10);
-			if( isset($blockInfo['cssname']) && $blockInfo['cssname'] ) $parms['cssname'] = $blockInfo['cssname'];
-			if( (!isset($parms['cssname']) || $parms['cssname'] == '') && AppParams::get('content_cssnameisblockname',1) ) {
+			$parms = ['name' => $blockInfo['id'], 'enablewysiwyg' => $block_wysiwyg, 'value' => $value, 'id' => $blockInfo['id']];
+			if ($required) {
+				$parms['required'] = 'required';
+			}
+			if ($placeholder) {
+				$parms['placeholder'] = $placeholder;
+			}
+			$parms['width'] = (int) $this->_get_param($blockInfo, 'width', 80);
+			$parms['height'] = (int) $this->_get_param($blockInfo, 'height', 10);
+			if (isset($blockInfo['cssname']) && $blockInfo['cssname']) {
+				$parms['cssname'] = $blockInfo['cssname'];
+			}
+			if ((!isset($parms['cssname']) || $parms['cssname'] == '') && AppParams::get('content_cssnameisblockname', 1)) {
 				$parms['cssname'] = $blockInfo['id'];
 			}
-			foreach( $blockInfo as $key => $val ) {
-				if( !startswith($key,'data-') ) continue;
+			foreach ($blockInfo as $key => $val) {
+				if (!startswith($key, 'data-')) {
+					continue;
+				}
 				$parms[$key] = $val;
 			}
 			$ret = FormUtils::create_textarea($parms);
@@ -619,7 +675,7 @@ class Content extends ContentBase
 		$input = '<div class="static_text" data-name="'.$blockInfo['name'].'"}>';
 		$input .= $blockInfo['static_content'];
 		$input .= "</div>\n";
-		return [ ' ',$input ];
+		return [' ', $input];
 	}
 
 	/**
@@ -640,37 +696,51 @@ class Content extends ContentBase
 */
 		$config = SingleItem::Config();
 		$adddir = AppParams::get('contentimage_path');
-		if( $blockInfo['dir'] != '' ) $adddir = $blockInfo['dir'];
-		$dir = cms_join_path($config['uploads_path'],$adddir);
+		if ($blockInfo['dir'] != '') {
+			$adddir = $blockInfo['dir'];
+		}
+		$dir = cms_join_path($config['uploads_path'], $adddir);
 		$rp1 = realpath($config['uploads_path']);
 		$rp2 = realpath($dir);
 
 		$dropdown = null;
-		if( !startswith($rp2,$rp1) ) {
+		if (!startswith($rp2, $rp1)) {
 			$err = $this->mod->Lang('err_invalidcontentimgpath');
 			return '<div class="error">'.$err.'</div>';
 		}
 
 		$id = 'm1_';
 		$inputname = $blockInfo['id'];
-		if( isset($blockInfo['inputname']) ) $inputname = $blockInfo['inputname'];
+		if (isset($blockInfo['inputname'])) {
+			$inputname = $blockInfo['inputname'];
+		}
 		$prefix = '';
-		if( isset($blockInfo['sort']) ) $sort = (int)$blockInfo['sort'];
-		if( isset($blockInfo['exclude']) ) $prefix = $blockInfo['exclude'];
+		if (isset($blockInfo['sort'])) {
+			$sort = (int)$blockInfo['sort'];
+		}
+		if (isset($blockInfo['exclude'])) {
+			$prefix = $blockInfo['exclude'];
+		}
 		$filepicker = Utils::get_filepicker_module();
-		if( $filepicker ) {
+		if ($filepicker) {
 			$profile_name = $blockInfo['profile'] ?? '';
 			$profile = $filepicker->get_profile_or_default($profile_name, $dir, get_userid());
-			$parms = ['top'=>$dir, 'type'=>FileType::IMAGE ];
-			if( $sort ) $parms['sort'] = true;
-			if( $prefix ) $parms['exclude_prefix'] = $prefix;
+			$parms = ['top' => $dir, 'type' => FileType::IMAGE];
+			if ($sort) {
+				$parms['sort'] = true;
+			}
+			if ($prefix) {
+				$parms['exclude_prefix'] = $prefix;
+			}
 			$profile = $profile->overrideWith($parms);
-			$input = $filepicker->get_html($id.$inputname,$value,$profile);
+			$input = $filepicker->get_html($id.$inputname, $value, $profile);
 			return $input;
 		} else {
 			// TODO $id 'm1_'.$inputname if this is an admin request ?
-			$dropdown = create_file_dropdown($id.$inputname,$dir,$value,'jpg,jpeg,png,gif','',true,'',$prefix,1,$sort); //TODO other extensions e.g. webp see FileTypeHelper class
-			if( $dropdown === false ) $dropdown = $this->mod->Lang('error_retrieving_file_list');
+			$dropdown = create_file_dropdown($id.$inputname, $dir, $value, 'jpg,jpeg,png,gif', '', true, '', $prefix, 1, $sort); //TODO other extensions e.g. webp see FileTypeHelper class
+			if ($dropdown === false) {
+				$dropdown = $this->mod->Lang('error_retrieving_file_list');
+			}
 			return $dropdown;
 		}
 	}
@@ -693,15 +763,21 @@ class Content extends ContentBase
 			if( !$res ) return '';
 		}
 */
-		if( !isset($blockInfo['module']) ) return false;
+		if (!isset($blockInfo['module'])) {
+			return false;
+		}
 		$mod = Utils::get_module($blockInfo['module']);
-		if( !is_object($mod) ) return false;
-		if( !$mod->HasCapability(CoreCapabilities::CONTENT_BLOCKS) ) return false;
-		if( !empty($blockInfo['inputname']) ) {
+		if (!is_object($mod)) {
+			return false;
+		}
+		if (!$mod->HasCapability(CoreCapabilities::CONTENT_BLOCKS)) {
+			return false;
+		}
+		if (!empty($blockInfo['inputname'])) {
 			// a hack to allow overriding the input field name.
 			$blockName = $blockInfo['inputname'];
 		}
-		$tmp = $mod->GetContentBlockFieldInput($blockName,$value,$blockInfo['params'],$adding,$this);
+		$tmp = $mod->GetContentBlockFieldInput($blockName, $value, $blockInfo['params'], $adding, $this);
 		return $tmp;
 	}
 
@@ -717,58 +793,64 @@ class Content extends ContentBase
 	{
 		// it'd be nice if the content block was an object..
 		// but I don't have the time to do it at the moment.
-		$noedit = cms_to_bool($this->_get_param($blockInfo,'noedit','false'));
-		if( $noedit ) { return []; }
-
-		$labeltext = trim($this->_get_param($blockInfo,'label'));
-		if( !$labeltext ) { $labeltext = $blockName; }
-		if( $blockName == 'content_en' && $labeltext == $blockName ) {
-			$labeltext = $this->mod->Lang('content');
-			$popup = AdminUtils::get_help_tag($this->domain,'help_content_content_en',$this->mod->Lang('help_title_maincontent'));
+		$noedit = cms_to_bool($this->_get_param($blockInfo, 'noedit', 'false'));
+		if ($noedit) {
+			return [];
 		}
-		else {
+
+		$labeltext = trim($this->_get_param($blockInfo, 'label'));
+		if (!$labeltext) {
+			$labeltext = $blockName;
+		}
+		if ($blockName == 'content_en' && $labeltext == $blockName) {
+			$labeltext = $this->mod->Lang('content');
+			$popup = AdminUtils::get_help_tag($this->domain, 'help_content_content_en', $this->mod->Lang('help_title_maincontent'));
+		} else {
 			$popup = '';
 		}
-		$required = cms_to_bool($this->_get_param($blockInfo,'required','false'));
-		if( $required ) { $labeltext = '* '.$labeltext; }
+		$required = cms_to_bool($this->_get_param($blockInfo, 'required', 'false'));
+		if ($required) {
+			$labeltext = '* '.$labeltext;
+		}
 		$label = 'for="'.$blockName.'">'.$labeltext;
 		$input = '';
 
-		switch( $blockInfo['type'] ) {
+		switch ($blockInfo['type']) {
 		case 'text':
-			$input = $this->_display_text_block($blockInfo,$value/*,$adding*/);
+			$input = $this->_display_text_block($blockInfo, $value/*,$adding*/);
 			break;
 
 		case 'image':
-			$input = $this->_display_image_block($blockInfo,$value/*,$adding*/);
+			$input = $this->_display_image_block($blockInfo, $value/*,$adding*/);
 			break;
 
 		case 'static':
 			$tmp = $this->_display_static_text_block($blockInfo);
-			if( is_array($tmp) ) {
+			if (is_array($tmp)) {
 				$input = $tmp[0];
-				if( count($tmp) == 2 ) {
-					if( !$labeltext || $labeltext == $blockName ) $labeltext = $tmp[0];
+				if (count($tmp) == 2) {
+					if (!$labeltext || $labeltext == $blockName) {
+						$labeltext = $tmp[0];
+					}
 					$input = $tmp[1];
 				}
-			}
-			else {
+			} else {
 				$input = $tmp;
 			}
 			break;
 
 		case 'module':
-			$tmp = $this->_display_module_block($blockName,$blockInfo,$value,$adding);
-			if( is_array($tmp) ) {
-				if( count($tmp) == 2 ) {
-					if( !$labeltext || $labeltext == $blockName ) $labeltext = $tmp[0];
+			$tmp = $this->_display_module_block($blockName, $blockInfo, $value, $adding);
+			if (is_array($tmp)) {
+				if (count($tmp) == 2) {
+					if (!$labeltext || $labeltext == $blockName) {
+						$labeltext = $tmp[0];
+					}
 					$input = $tmp[1];
-				}
-				else {
+				} else {
 					$input = $tmp[0];
 				}
-			}
-			else {
+			} else {
 				$input = $tmp;
 			}
 			break;
@@ -778,9 +860,9 @@ class Content extends ContentBase
 		} // switch
 
 		return [
-		$label,
-		$popup,
-		$input
+			$label,
+			$popup,
+			$input
 		];
 	}
 } // class

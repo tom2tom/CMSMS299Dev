@@ -38,31 +38,50 @@ use function get_userid;
  */
 class Link extends ContentBase
 {
-	public function FriendlyName() : string { return $this->mod->Lang('contenttype_link'); }
-	public function HasSearchableContent() : bool { return false; }
-	public function IsCopyable() : bool { return true; }
-	public function IsViewable() : bool { return false; }
+	public function FriendlyName() : string
+	{
+		return $this->mod->Lang('contenttype_link');
+	}
+
+	public function HasSearchableContent() : bool
+	{
+		return false;
+	}
+
+	public function IsCopyable() : bool
+	{
+		return true;
+	}
+
+	public function IsViewable() : bool
+	{
+		return false;
+	}
 
 	public function SetProperties()
 	{
 		parent::SetProperties([
-			['cachable',true],
-			['secure',false], //deprecated property since 2.0
+			['cachable', true],
+			['secure', false], //deprecated property since 2.0
 		]);
-		$this->AddProperty('url',3,self::TAB_MAIN,true,true);
+		$this->AddProperty('url', 3, self::TAB_MAIN, true, true);
 	}
 
 	public function FillParams($params, $editing = false)
 	{
-		parent::FillParams($params,$editing);
+		parent::FillParams($params, $editing);
 
 		if (isset($params)) {
 			$parameters = ['url'];
 			foreach ($parameters as $oneparam) {
-				if (isset($params[$oneparam])) $this->SetPropertyValue($oneparam, $params[$oneparam]);
+				if (isset($params[$oneparam])) {
+					$this->SetPropertyValue($oneparam, $params[$oneparam]);
+				}
 			}
 
-			if (isset($params['file_url'])) $this->SetPropertyValue('url', $params['file_url']);
+			if (isset($params['file_url'])) {
+				$this->SetPropertyValue('url', $params['file_url']);
+			}
 		}
 	}
 
@@ -74,10 +93,12 @@ class Link extends ContentBase
 	public function ValidateData()
 	{
 		$errors = parent::ValidateData();
-		if( $errors === false )	$errors = [];
+		if ($errors === false) {
+			$errors = [];
+		}
 
 		if ($this->GetPropertyValue('url') == '') {
-			$errors[]= $this->mod->Lang('nofieldgiven', $this->mod->Lang('url'));
+			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('url'));
 			$result = false;
 		}
 		return $errors ? $errors : false;
@@ -86,7 +107,7 @@ class Link extends ContentBase
 	public function GetTabNames() : array
 	{
 		$res = [$this->mod->Lang('main')];
-		if( check_permission(get_userid(),'Manage All Content') ) {
+		if (check_permission(get_userid(), 'Manage All Content')) {
 			$res[] = $this->mod->Lang('options');
 		}
 		return $res;
@@ -94,7 +115,7 @@ class Link extends ContentBase
 
 	public function ShowElement($propname, $adding)
 	{
-		switch($propname) {
+		switch ($propname) {
 		case 'url':
 			$u = urlSpecialize(''.$this->GetPropertyValue('url'));
 			return [
@@ -104,18 +125,18 @@ class Link extends ContentBase
 			];
 
 		default:
-			return parent::ShowElement($propname,$adding);
+			return parent::ShowElement($propname, $adding);
 		}
 	}
 
 	public function EditAsArray($adding = false, $tab = 0, $showadmin = false)
 	{
-		switch($tab) {
+		switch ($tab) {
 		case '0':
 			return $this->display_attributes($adding);
 			break;
 		case '1':
-			return $this->display_attributes($adding,1);
+			return $this->display_attributes($adding, 1);
 			break;
 		}
 	}

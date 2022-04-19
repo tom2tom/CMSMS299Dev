@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManger module action: ajax_check_locks
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -22,10 +22,14 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\AppParams;
 use CMSMS\LockOperations;
 
-if( !$this->CheckContext() ) exit;
+if (!$this->CheckContext()) {
+	exit;
+}
 
 $handlers = ob_list_handlers();
-for( $cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt ) { ob_end_clean(); }
+for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) {
+	ob_end_clean();
+}
 
 $userid = get_userid();
 $lock_timeout = AppParams::get('lock_timeout', 60);
@@ -33,16 +37,15 @@ $now = time();
 
 $list = LockOperations::get_locks('content');
 $locks = [];
-foreach( $list as $lock ) {
-    if( $lock['uid'] != $userid) {
-        $id = $lock['oid'];
-        if( $lock_timeout && $lock['expires'] < $now ) {
-            $locks[$id] = 1; // stealable
-        }
-        else {
-            $locks[$id] = -1; // blocked
-        }
-    }
+foreach ($list as $lock) {
+	if ($lock['uid'] != $userid) {
+		$id = $lock['oid'];
+		if ($lock_timeout && $lock['expires'] < $now) {
+			$locks[$id] = 1; // stealable
+		} else {
+			$locks[$id] = -1; // blocked
+		}
+	}
 }
 
 $out = json_encode($locks, JSON_NUMERIC_CHECK | JSON_FORCE_OBJECT);

@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManager module action: copy content
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -22,42 +22,44 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\SingleItem;
 
-if( !$this->CheckContext() ) exit;
+if (!$this->CheckContext()) {
+	exit;
+}
 
-if( !isset($params['page']) ) {
-    $this->SetError($this->Lang('error_missingparam'));
-    $this->Redirect($id,'defaultadmin',$returnid);
+if (!isset($params['page'])) {
+	$this->SetError($this->Lang('error_missingparam'));
+	$this->Redirect($id, 'defaultadmin', $returnid);
 }
 $page_id = (int)$params['page'];
-if( $page_id < 1 ) {
-    $this->SetError($this->Lang('error_missingparam'));
-    $this->Redirect($id,'defaultadmin',$returnid);
+if ($page_id < 1) {
+	$this->SetError($this->Lang('error_missingparam'));
+	$this->Redirect($id, 'defaultadmin', $returnid);
 }
 
 //
 // get the data
 //
-if( !$this->CanEditContent($page_id) ) {
-    $this->SetError($this->Lang('error_copy_permission'));
-    $this->Redirect($id,'defaultadmin',$returnid);
+if (!$this->CanEditContent($page_id)) {
+	$this->SetError($this->Lang('error_copy_permission'));
+	$this->Redirect($id, 'defaultadmin', $returnid);
 }
 
 $contentops = SingleItem::ContentOperations();
 $from_obj = $contentops->LoadEditableContentFromId($page_id, true);
-if( !$from_obj ) {
-    $this->SetError($this->Lang('error_invalidpageid'));
-    $this->Redirect($id,'defaultadmin',$returnid);
+if (!$from_obj) {
+	$this->SetError($this->Lang('error_invalidpageid'));
+	$this->Redirect($id, 'defaultadmin', $returnid);
 }
 $from_obj->GetAdditionalEditors();
 
 $userid = get_userid();
 $to_obj = clone $from_obj;
-$to_obj->SetURL('');
+$to_obj->SetURL();
 $to_obj->SetName('Copy of '.$from_obj->Name());
 $to_obj->SetMenuText('Copy of '.$from_obj->MenuText());
 $to_obj->SetAlias();
-$to_obj->SetDefaultContent(FALSE);
+$to_obj->SetDefaultContent(false);
 $to_obj->SetOwner($userid);
 $to_obj->SetLastModifiedBy($userid);
 $_SESSION['__cms_copy_obj__'] = serialize($to_obj);
-$this->Redirect($id,'editcontent','',['content_id'=>'copy']);
+$this->Redirect($id, 'editcontent', '', ['content_id' => 'copy']);

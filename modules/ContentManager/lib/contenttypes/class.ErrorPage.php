@@ -21,10 +21,10 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace ContentManager\contenttypes;
 
-use ContentManager\ContentBase;
 use CMSMS\AppState;
 use CMSMS\FormUtils;
 use CMSMS\SingleItem;
+use ContentManager\ContentBase;
 
 /**
  * Implements the ErrorPage content type
@@ -42,7 +42,7 @@ class ErrorPage extends ContentBase
 	{
 		parent::__construct();
 
-		if( AppState::test(AppState::ADMIN_PAGE) ) {
+		if (AppState::test(AppState::ADMIN_PAGE)) {
 			$this->error_types = [
 				'403' => $this->mod->Lang('403description'),
 				'404' => $this->mod->Lang('404description'),
@@ -54,43 +54,66 @@ class ErrorPage extends ContentBase
 		$this->mType = strtolower(get_class($this)); //TODO BAD namespace
 	}
 
-	public function FriendlyName() : string{ return $this->mod->Lang('contenttype_errorpage'); }
-	public function IsDefaultPossible() : bool { return false; }
-	public function IsSystemPage() : bool { return true; }
-	public function HandlesAlias() : bool { return true; }
-	public function HasUsableLink() : bool { return false; }
-	public function WantsChildren() : bool { return false; }
+	public function FriendlyName() : string
+	{
+		return $this->mod->Lang('contenttype_errorpage');
+	}
+
+	public function IsDefaultPossible() : bool
+	{
+		return false;
+	}
+
+	public function IsSystemPage() : bool
+	{
+		return true;
+	}
+
+	public function HandlesAlias() : bool
+	{
+		return true;
+	}
+
+	public function HasUsableLink() : bool
+	{
+		return false;
+	}
+
+	public function WantsChildren() : bool
+	{
+		return false;
+	}
 
 	public function SetProperties()
 	{
 		parent::SetProperties([
-			['accesskey',''],
-			['active',true],
-			['alias',''], //this one is a replacement
-			['cachable',false],
-			['extra1',''],
-			['extra2',''],
-			['extra3',''],
-			['image',''],
-			['menutext',''],
-			['page_url',''],
-			['parent',-1],
+			['accesskey', ''],
+			['active', true],
+			['alias', ''], //this one is a replacement
+			['cachable', false],
+			['extra1', ''],
+			['extra2', ''],
+			['extra3', ''],
+			['image', ''],
+			['menutext', ''],
+			['page_url', ''],
+			['parent', -1],
 //			['searchable',false],
-			['secure',false], //deprecated property since 2.0
-			['showinmenu',false],
-			['target',''],
-			['thumbnail',''],
-			['titleattribute',''],
+			['secure', false], //deprecated property since 2.0
+			['showinmenu', false],
+			['target', ''],
+			['thumbnail', ''],
+			['titleattribute', ''],
 		]);
-		$this->AddProperty('alias',10,parent::TAB_MAIN,true);
+		$this->AddProperty('alias', 10, parent::TAB_MAIN, true);
 
-		#Turn on preview
+		//Turn on preview
 		$this->mPreview = true;
 	}
 
 	public function FillParams($params, $editing = false)
 	{
-		parent::FillParams($params,$editing);
+		parent::FillParams($params, $editing);
 		$this->mParentId = -1;
 		$this->mShowInMenu = false;
 		$this->mCachable = false;
@@ -99,7 +122,7 @@ class ErrorPage extends ContentBase
 
 	public function ShowElement($propname, $adding)
 	{
-		switch($propname) {
+		switch ($propname) {
 		case 'alias': // replacement property
 /*//		$dropdownopts = '<option value="">'.$this->mod->Lang('none').'</option>';
 			$dropdownopts = '';
@@ -110,7 +133,7 @@ class ErrorPage extends ContentBase
 				}
 				$dropdownopts .= ">{$name} ({$code})</option>";
 			}
- $id = 'm1_';
+			$id = 'm1_';
 			$outold = '<select name="'.$id.'alias">'.$dropdownopts.'</select>';
 */
 //			$opts = [$this->mod->Lang('none') => ''];
@@ -136,7 +159,7 @@ class ErrorPage extends ContentBase
 			];
 
 		default:
-			return parent::ShowElement($propname,$adding);
+			return parent::ShowElement($propname, $adding);
 		}
 	}
 
@@ -147,7 +170,7 @@ class ErrorPage extends ContentBase
 
 	public function ValidateData()
 	{
-		// $this->SetPropertyValue('searchable',0);
+//		$this->SetPropertyValue('searchable',0);
 		// force not searchable.
 
 		$errors = parent::ValidateData();
@@ -161,7 +184,7 @@ class ErrorPage extends ContentBase
 		} elseif (in_array($this->mAlias, $this->error_types)) {
 			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('error_type'));
 		} elseif ($this->mAlias != $this->mOldAlias) {
-			//TODO using CM methods only
+			//TODO use module-methods
 			$contentops = SingleItem::ContentOperations();
 			$error = $contentops->CheckAliasError($this->mAlias, $this->mId);
 			if ($error !== false) {

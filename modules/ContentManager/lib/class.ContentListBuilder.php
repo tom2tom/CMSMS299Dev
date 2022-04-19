@@ -65,7 +65,9 @@ final class ContentListBuilder
 		$this->_module = $mod;
 		$this->_userid = get_userid();
 		$tmp = UserParams::get('opened_pages');
-		if( $tmp ) $this->_opened_array = explode(',',$tmp);
+		if ($tmp) {
+			$this->_opened_array = explode(',', $tmp);
+		}
 	}
 
 	/**
@@ -73,7 +75,7 @@ final class ContentListBuilder
 	 * @param string $column
 	 * @param bool $state Default true
 	 */
-	public function column_state($column,$state = TRUE)
+	public function column_state($column, $state = true)
 	{
 		$this->_display_columns[$column] = $state;
 	}
@@ -84,13 +86,15 @@ final class ContentListBuilder
 	public function expand_section($parent_page_id)
 	{
 		$parent_page_id = (int)$parent_page_id;
-		if( $parent_page_id < 1 ) return;
+		if ($parent_page_id < 1) {
+			return;
+		}
 
 		$tmp = $this->_opened_array;
 		$tmp[] = $parent_page_id;
 		asort($tmp);
 		$this->_opened_array = array_unique($tmp);
-		UserParams::set('opened_pages',implode(',',$this->_opened_array));
+		UserParams::set('opened_pages', implode(',', $this->_opened_array));
 	}
 
 	/**
@@ -102,15 +106,19 @@ final class ContentListBuilder
 
 		// find all the pages (recursively) that have children.
 		// anonymous, recursive function.
-		$func = function($node) use(&$func) {
+		$func = function($node) use (&$func) {
 			$out = null;
-			if( $node->has_children() ) {
+			if ($node->has_children()) {
 				$out = [];
-				if( $node->get_tag('id') ) $out[] = $node->get_tag('id');
+				if ($node->get_tag('id')) {
+					$out[] = $node->get_tag('id');
+				}
 				$children = $node->get_children();
-				for( $i = 0, $n = count($children); $i < $n; $i++ ) {
+				for ($i = 0, $n = count($children); $i < $n; ++$i) {
 					$tmp = $func($children[$i]);
-					if( $tmp ) $out = array_merge($out,$tmp);
+					if ($tmp) {
+						$out = array_merge($out, $tmp);
+					}
 				}
 				$out = array_unique($out);
 			}
@@ -118,7 +126,7 @@ final class ContentListBuilder
 		}; // function.
 
 		$this->_opened_array = $func($hm);
-		UserParams::set('opened_pages',implode(',',$this->_opened_array));
+		UserParams::set('opened_pages', implode(',', $this->_opened_array));
 	}
 
 	/**
@@ -136,21 +144,24 @@ final class ContentListBuilder
 	public function collapse_section($parent_page_id)
 	{
 		$parent_page_id = (int)$parent_page_id;
-		if( $parent_page_id < 1 ) return FALSE;
+		if ($parent_page_id < 1) {
+			return false;
+		}
 
 		$tmp = [];
-		foreach( $this->_opened_array as $one ) {
-			if( $one != $parent_page_id ) $tmp[] = $one;
+		foreach ($this->_opened_array as $one) {
+			if ($one != $parent_page_id) {
+				$tmp[] = $one;
+			}
 		}
 		asort($tmp);
 		$this->_opened_array = array_unique($tmp);
-		if( $this->_opened_array ) {
-			UserParams::set('opened_pages',implode(',',$this->_opened_array));
-		}
-		else {
+		if ($this->_opened_array) {
+			UserParams::set('opened_pages', implode(',', $this->_opened_array));
+		} else {
 			UserParams::remove('opened_pages');
 		}
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -160,19 +171,25 @@ final class ContentListBuilder
 	 * @param bool $state
 	 * @return boolean indicating success
 	 */
-	public function set_active($page_id,$state = TRUE)
+	public function set_active($page_id, $state = true)
 	{
 		$page_id = (int)$page_id;
-		if( $page_id < 1 ) return FALSE;
-		if( !$this->_module->CheckPermission('Manage All Content') ) return FALSE;
+		if ($page_id < 1) {
+			return false;
+		}
+		if (!$this->_module->CheckPermission('Manage All Content')) {
+			return false;
+		}
 
 		$contentops = SingleItem::ContentOperations();
 		$content = $contentops->LoadEditableContentFromId($page_id);
-		if( !$content ) return FALSE;
+		if (!$content) {
+			return false;
+		}
 
 		$content->SetActive((bool)$state);
 		$content->Save();
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -195,7 +212,7 @@ final class ContentListBuilder
 	public function set_pagelimit($n)
 	{
 		$n = (int)$n;
-		$n = max(1,min(500,$n));
+		$n = max(1, min(500, $n));
 		$this->_pagelimit = $n;
 	}
 
@@ -218,7 +235,7 @@ final class ContentListBuilder
 	public function set_offset($n)
 	{
 		$n = (int)$n;
-		$n = max(0,$n);
+		$n = max(0, $n);
 		$this->_offset = $n;
 	}
 
@@ -235,15 +252,15 @@ final class ContentListBuilder
 	public function seek_to($n)
 	{
 		$n = (int)$n;
-		$n = max(1,$n);
+		$n = max(1, $n);
 		$this->_seek_to = $n;
 	}
 
 	public function set_page($n)
 	{
 		$n = (int)$n;
-		$n = max(1,$n);
-		$this->_offset = $this->_pagelimit * ($n-1);
+		$n = max(1, $n);
+		$this->_offset = $this->_pagelimit * ($n - 1);
 	}
 
 	/**
@@ -263,9 +280,13 @@ final class ContentListBuilder
 	 */
 	public function get_numpages()
 	{
-		if( !is_array($this->_pagelist) ) return;
+		if (!is_array($this->_pagelist)) {
+			return;
+		}
 		$npages = (int)(count($this->_pagelist) / $this->_pagelimit);
-		if( count($this->_pagelist) % $this->_pagelimit	!= 0 ) $npages++;
+		if (count($this->_pagelist) % $this->_pagelimit != 0) {
+			++$npages;
+		}
 		return $npages;
 	}
 
@@ -275,29 +296,41 @@ final class ContentListBuilder
 	public function set_default($page_id)
 	{
 		$page_id = (int)$page_id;
-		if( $page_id < 1 ) return FALSE;
+		if ($page_id < 1) {
+			return false;
+		}
 
-		if( !$this->_module->CheckPermission('Manage All Content') ) return;
+		if (!$this->_module->CheckPermission('Manage All Content')) {
+			return;
+		}
 
 		$contentops = SingleItem::ContentOperations();
 		$content1 = $contentops->LoadEditableContentFromId($page_id);
-		if( !$content1 ) return FALSE;
-		if( !$content1->IsDefaultPossible() ) return FALSE;
-		if( !$content1->Active() ) return FALSE;
+		if (!$content1) {
+			return false;
+		}
+		if (!$content1->IsDefaultPossible()) {
+			return false;
+		}
+		if (!$content1->Active()) {
+			return false;
+		}
 
 		$page_id2 = $contentops->GetDefaultContent();
-		if( $page_id === $page_id2 ) return TRUE;
+		if ($page_id === $page_id2) {
+			return true;
+		}
 
-		$content1->SetDefaultContent(TRUE);
+		$content1->SetDefaultContent(true);
 		$content1->Save();
 
 		$content2 = $contentops->LoadEditableContentFromId($page_id2);
-		if( $content2 ) {
-			$content2->SetDefaultContent(FALSE);
+		if ($content2) {
+			$content2->SetDefaultContent(false);
 			$content2->Save();
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -307,31 +340,38 @@ final class ContentListBuilder
 	 * @param int $direction < 0 indicates up, > 0 indicates down
 	 * @return boolean indicating success
 	 */
-	public function move_content($page_id,$direction)
+	public function move_content($page_id, $direction)
 	{
 		$page_id = (int)$page_id;
-		if( $page_id < 1 ) return FALSE;
+		if ($page_id < 1) {
+			return false;
+		}
 		$direction = (int)$direction;
-		if( $direction == 0 ) return FALSE;
+		if ($direction == 0) {
+			return false;
+		}
 		$contentops = SingleItem::ContentOperations();
 
-		$test = FALSE;
-		if( $this->_module->CheckPermission('Manage All Content') ) {
-			$test = TRUE;
-		}
-		elseif( $this->_module->CheckPermission('Reorder Content') &&
-				$contentops->CheckPeerAuthorship($this->_userid,$page_id) ) {
-			$test = TRUE;
+		$test = false;
+		if ($this->_module->CheckPermission('Manage All Content')) {
+			$test = true;
+		} elseif ($this->_module->CheckPermission('Reorder Content') &&
+				$contentops->CheckPeerAuthorship($this->_userid, $page_id)) {
+			$test = true;
 		}
 
-		if( !$test ) return FALSE;
+		if (!$test) {
+			return false;
+		}
 
 		$content = $contentops->LoadEditableContentFromId($page_id);
-		if( !$content ) return FALSE;
+		if (!$content) {
+			return false;
+		}
 
 		$content->ChangeItemOrder($direction);
 		$contentops->SetAllHierarchyPositions();
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -343,43 +383,52 @@ final class ContentListBuilder
 	public function delete_content($page_id)
 	{
 		$page_id = (int)$page_id;
-		if( $page_id < 1 ) return $this->_module->Lang('error_invalidpageid');
-
-		if( $this->_module->CheckPermission('Manage All Content') ) {
-			$test = TRUE;
-		}
-		elseif( $this->_module->CheckPermission('Remove Pages') && check_authorship($this->_userid,$page_id) ) {
-			$test = TRUE;
-		}
-		else {
-			$test = FALSE;
+		if ($page_id < 1) {
+			return $this->_module->Lang('error_invalidpageid');
 		}
 
-		if( !$test ) return $this->_module->Lang('error_delete_permission');
+		if ($this->_module->CheckPermission('Manage All Content')) {
+			$test = true;
+		} elseif ($this->_module->CheckPermission('Remove Pages') && check_authorship($this->_userid, $page_id)) {
+			$test = true;
+		} else {
+			$test = false;
+		}
+
+		if (!$test) {
+			return $this->_module->Lang('error_delete_permission');
+		}
 
 		$hm = SingleItem::App()->GetHierarchyManager();
 		$node = $hm->quickfind_node_by_id($page_id);
-		if( !$node ) return $this->_module->Lang('error_invalidpageid');
-		if( $node->has_children() ) return $this->_module->Lang('error_delete_haschildren');
+		if (!$node) {
+			return $this->_module->Lang('error_invalidpageid');
+		}
+		if ($node->has_children()) {
+			return $this->_module->Lang('error_delete_haschildren');
+		}
 
 		$contentops = SingleItem::ContentOperations();
 		$content = $contentops->LoadEditableContentFromId($page_id);
-		if( $content->DefaultContent() ) return $this->_module->Lang('error_delete_defaultcontent');
+		if ($content->DefaultContent()) {
+			return $this->_module->Lang('error_delete_defaultcontent');
+		}
 
 		$parent = $node->get_parent();
-		if( $parent ) {
+		if ($parent) {
 			$parent_id = $parent->get_tag('id');
 			$childcount = $parent->count_children();
-		}
-		else {
+		} else {
 			$parent_id = -1;
 			$childcount = 0;
 		}
 
 		$content->Delete();
-		log_info($page_id,'ContentManager','Deleted content page');
+		log_info($page_id, 'ContentManager', 'Deleted content page');
 
-		if( $childcount == 1 && $parent_id > -1 ) $this->collapse_section($parent_id);
+		if ($childcount == 1 && $parent_id > -1) {
+			$this->collapse_section($parent_id);
+		}
 		$this->collapse_section($page_id);
 
 		$contentops->SetAllHierarchyPositions();
@@ -402,39 +451,41 @@ final class ContentListBuilder
 	{
 		$mod = $this->_module;
 		$flat = $mod->GetPreference('list_visiblecolumns');
-		if( !$flat ) { $flat =
-		'expand,icon1,hier,page,alias,friendlyname,template,active,default,modified,actions,multiselect'; }
-		$cols = explode(',',$flat);
+		if (!$flat) {
+			$flat =
+		'expand,icon1,hier,page,alias,friendlyname,template,active,default,modified,actions,multiselect';
+		}
+		$cols = explode(',', $flat);
 
 		$pall = $mod->CheckPermission('Manage All Content');
 		$padd = $pall || $mod->CheckPermission('Add Pages');
 		$pdel = $pall || $mod->CheckPermission('Remove Pages');
 
 		$displaycols = []; //populated in the order of displayed columns
-		$displaycols['expand'] = (!$this->_filter && in_array('expand',$cols)) ? 'icon' : null;
-		$displaycols['icon1'] = in_array('icon1',$cols) ? 'icon' : null;
-		$displaycols['hier'] = in_array('hier',$cols) ? 'normal' : null;
-		$displaycols['page'] = in_array('page',$cols) ? 'normal' : null;
-		$displaycols['alias'] = in_array('alias',$cols) ? 'normal' : null;
-		$displaycols['url'] = in_array('url',$cols) ? 'normal' : null;
-		$displaycols['friendlyname'] = in_array('friendlyname',$cols) ? 'normal' : null;
-		$displaycols['owner'] = in_array('owner',$cols) ? 'normal' : null;
-		$displaycols['template'] = in_array('template',$cols) ? 'normal' : null;
-		$displaycols['active'] = ($pall && in_array('active',$cols)) ? 'icon' : null;
-		$displaycols['default'] = ($pall && in_array('default',$cols)) ? 'icon' : null;
-		$displaycols['modified'] = ($pall && in_array('modified',$cols)) ? 'normal' : null;
+		$displaycols['expand'] = (!$this->_filter && in_array('expand', $cols)) ? 'icon' : null;
+		$displaycols['icon1'] = in_array('icon1', $cols) ? 'icon' : null;
+		$displaycols['hier'] = in_array('hier', $cols) ? 'normal' : null;
+		$displaycols['page'] = in_array('page', $cols) ? 'normal' : null;
+		$displaycols['alias'] = in_array('alias', $cols) ? 'normal' : null;
+		$displaycols['url'] = in_array('url', $cols) ? 'normal' : null;
+		$displaycols['friendlyname'] = in_array('friendlyname', $cols) ? 'normal' : null;
+		$displaycols['owner'] = in_array('owner', $cols) ? 'normal' : null;
+		$displaycols['template'] = in_array('template', $cols) ? 'normal' : null;
+		$displaycols['active'] = ($pall && in_array('active', $cols)) ? 'icon' : null;
+		$displaycols['default'] = ($pall && in_array('default', $cols)) ? 'icon' : null;
+		$displaycols['modified'] = ($pall && in_array('modified', $cols)) ? 'normal' : null;
 		$displaycols['actions'] = 'icon';
-		$displaycols['multiselect'] = ($pdel && in_array('multiselect',$cols)) ? 'icon' : null;
+		$displaycols['multiselect'] = ($pdel && in_array('multiselect', $cols)) ? 'icon' : null;
 		// the rest are probably actions-menu items, not displayed columns
-		$displaycols['view'] = in_array('view',$cols) ? 'icon' : null;
-		$displaycols['edit'] = in_array('edit',$cols) ? 'icon' : null;
-		$displaycols['delete'] = ($pdel && in_array('delete',$cols)) ? 'icon' : null;
-		$displaycols['copy'] = ($padd && in_array('copy',$cols)) ? 'icon' : null;
-		$displaycols['addchild'] = ($padd && in_array('addchild',$cols)) ? 'icon' : null;
-		$displaycols['move'] = (in_array('move',$cols) && ($pall || $mod->CheckPermission('Reorder Content'))) ? 'icon' : null;
+		$displaycols['view'] = in_array('view', $cols) ? 'icon' : null;
+		$displaycols['edit'] = in_array('edit', $cols) ? 'icon' : null;
+		$displaycols['delete'] = ($pdel && in_array('delete', $cols)) ? 'icon' : null;
+		$displaycols['copy'] = ($padd && in_array('copy', $cols)) ? 'icon' : null;
+		$displaycols['addchild'] = ($padd && in_array('addchild', $cols)) ? 'icon' : null;
+		$displaycols['move'] = (in_array('move', $cols) && ($pall || $mod->CheckPermission('Reorder Content'))) ? 'icon' : null;
 
-		foreach( $displaycols as $key => $val ) {
-			if( isset($this->_display_columns[$key]) && !$this->_display_columns[$key] ) {
+		foreach ($displaycols as $key => $val) {
+			if (isset($this->_display_columns[$key]) && !$this->_display_columns[$key]) {
 				$displaycols[$key] = null;
 			}
 		}
@@ -443,193 +494,18 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Recursive function to generate a list of all content pages.
-	 */
-	private function _get_all_pages(Tree $node)
-	{
-		$out = [];
-		if( $node->get_tag('id') ) $out[] = $node->get_tag('id');
-		if( $node->has_children() ) {
-			$children = $node->get_children();
-			for( $i = 0, $n = count($children); $i < $n; $i++ ) {
-				$child = $children[$i];
-				$tmp = $this->_get_all_pages($child);
-				if( $tmp ) $out = array_merge($out,$tmp);
-			}
-		}
-		return $out;
-	}
-
-	/**
-	 * Load all content that the user has access to.
-	 */
-	private function _load_editable_content()
-	{
-/*		build a display list:
-		1. add in top level items (items with parent == -1) which cannot be closed
-		2. for each item in opened array
-			for each parent
-			 if not in opened array break
-			 if got to root, add items children
-		3. reduce list by items we are able to view (author pages)
-*/
-		$hm = SingleItem::App()->GetHierarchyManager();
-		$display = [];
-
-		// filter the display list by what the user is authorized to view.
-/* TODO support fuzzy-filtering, like
-		foreach( ['page','title','menutext','alias','url'] as $t) {
-			if( !empty($row[$t]) && preg_match($patn,$row[$t]) ) {
-				$keep = true;
-				break;
-			}
-		}
-		if( !$keep ) {
-			continue;
-		}
-with no other filtering/paging
-*/
-		$modify_any_page = $this->_module->CheckPermission('Manage All Content') || $this->_module->CheckPermission('Modify Any Page');
-		if( $this->_filter && $modify_any_page ) {
-			// we display only the pages matching the filter
-			$query = new ContentListQuery($this->_filter);
-			while( !$query->EOF() ) {
-				$display[] = $query->GetObject();
-				$query->MoveNext();
-			}
-		}
-		elseif( $this->_use_perms && $modify_any_page ) {
-			// we can display anything
-
-			$is_opened = function( $node, $opened_array ) {
-				while( $node && $node->get_tag('id') > 0 ) {
-					if( $node && $node->get_tag('id') > 0 ) {
-						if( !in_array($node->get_tag('id'),$opened_array) ) return FALSE;
-					}
-					$node = $node->get_parent();
-				}
-				return TRUE;
-			};
-
-			// add in top level items.
-			$children = $hm->get_children();
-			if( $children ) {
-				foreach( $children as $child ) {
-					$display[] = $child->get_tag('id');
-				}
-			}
-
-			// add children of opened_array items to the list.
-			foreach( $this->_opened_array as $one ) {
-				$node = $hm->quickfind_node_by_id($one);
-				if( !$node ) continue;
-
-				if( ! $is_opened( $node, $this->_opened_array ) ) continue;
-				$display[] = $one;
-
-				$children = $node->get_children();
-				if( $children && count($children) ) {
-					foreach( $children as $child ) {
-						$display[] = $child->get_tag('id');
-					}
-				}
-			}
-		}
-		else {
-			//
-			// user not entitled to edit all pages.
-			//
-/*			for each item
-				if in opened array or has no parent add item
-				if all parents are opened add item
-*/
-			$tmplist = SingleItem::ContentOperations()->GetPageAccessForUser($this->_userid);
-			$display = [];
-			foreach( $tmplist as $item ) {
-				// get all the parents
-				$parents = [];
-				$startnode = $node = $hm->quickfind_node_by_id($item);
-				while( $node && $node->get_tag('id') > 0 ) {
-					$parents[] = $node->get_tag('id');
-					$node = $node->getParent();
-				}
-				// start at root
-				// push items from list on the stack if they are root, or the previous item is in the opened array.
-				$parents = array_reverse($parents);
-				for( $i = 0, $n = count($parents); $i < $n; $i++ ) {
-					if( $i == 0 ) {
-						$display[] = $parents[$i];
-						continue;
-					}
-					if( $i > 0 && in_array($parents[$i-1],$this->_opened_array) && in_array($parents[$i-1],$display) ) {
-						$display[] = $parents[$i];
-					}
-				}
-			}
-		}
-
-		// now order the page id list by hierarchy. and make sure they are unique.
-		$display = array_unique($display);
-		usort($display,function($a,$b) use ($hm)
-		{
-			$node_a = $hm->quickfind_node_by_id($a);
-			$hier_a = $node_a->getHierarchy();
-			$node_b = $hm->quickfind_node_by_id($b);
-			$hier_b = $node_b->getHierarchy();
-			return strcmp($hier_a,$hier_b);
-		});
-
-		$this->_pagelist = $display;
-
-		if( $this->_seek_to > 0 ) {
-			// re-calculate an offset
-			$idx = array_search($this->_seek_to,$this->_pagelist);
-			if( $idx > 0 ) {
-				// item found.
-				$pagenum = (int)($idx / $this->_pagelimit);
-				$this->_offset = (int)($pagenum * $this->_pagelimit);
-			}
-		}
-
-		$offset = min(count($this->_pagelist),$this->_offset);
-		$display = array_slice($display,$offset,$this->_pagelimit);
-
-		SingleItem::ContentOperations()->LoadChildren(-1,FALSE,TRUE,$display);
-		return $display;
-	}
-
-	/**
-	 * Test whether the given|current user has edit-authority for all peers of the given content page.
-	 */
-	private function _check_peer_authorship($content_id,$userid = 0)
-	{
-		if( $content_id < 1 ) return FALSE;
-		if( $userid <= 0 ) $userid = $this->_userid;
-		return SingleItem::ContentOperations()->CheckPeerAuthorship($userid,$content_id);
-	}
-
-	/**
-	 * Test whether the given|current user is the author of the specified content page
-	 */
-	private function _check_authorship($content_id,$userid = 0)
-	{
-		if( $userid <= 0 ) $userid = $this->_userid;
-		return SingleItem::ContentOperations()->CheckPageAuthorship($userid,$content_id);
-	}
-
-	/**
 	 * Get a hash of current page locks.
 	 */
 	public function get_locks()
 	{
-		//if( $this->_module->GetPreference('locktimeout') < 1 ) return;
-		if( is_array($this->_locks) ) {
+//		if( $this->_module->GetPreference('locktimeout') < 1 ) return;
+		if (is_array($this->_locks)) {
 			return $this->_locks;
 		}
 		$this->_locks = [];
 		$tmp = LockOperations::get_locks('content');
-		if( $tmp ) {
-			foreach( $tmp as $lock_obj ) {
+		if ($tmp) {
+			foreach ($tmp as $lock_obj) {
 				$this->_locks[$lock_obj['oid']] = $lock_obj;
 			}
 		}
@@ -641,7 +517,204 @@ with no other filtering/paging
 	 */
 	public function have_locks()
 	{
-		return $this->get_locks() != FALSE;
+		return $this->get_locks() != false;
+	}
+
+	/**
+	 * Return display-data for viewable/editable content | null
+	 */
+	public function get_content_list()
+	{
+		$pagelist = $this->_load_editable_content();
+		if ($pagelist) {
+			return $this->_get_display_data($pagelist);
+		}
+	}
+
+	/**
+	 * Return whether this content list supports multiselect
+	 */
+	public function supports_multiselect()
+	{
+		$cols = $this->get_display_columns();
+		return !empty($cols['multiselect']);
+	}
+
+	/**
+	 * Recursive function to generate a list of all content pages.
+	 */
+	private function _get_all_pages(Tree $node)
+	{
+		$out = [];
+		if ($node->get_tag('id')) {
+			$out[] = $node->get_tag('id');
+		}
+		if ($node->has_children()) {
+			$children = $node->get_children();
+			for ($i = 0, $n = count($children); $i < $n; ++$i) {
+				$child = $children[$i];
+				$tmp = $this->_get_all_pages($child);
+				if ($tmp) {
+					$out = array_merge($out, $tmp);
+				}
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Load all content that the user has access to.
+	 */
+	private function _load_editable_content()
+	{
+		/*		build a display list:
+				1. add in top level items (items with parent == -1) which cannot be closed
+				2. for each item in opened array
+					for each parent
+					 if not in opened array break
+					 if got to root, add items children
+				3. reduce list by items we are able to view (author pages)
+		*/
+		$hm = SingleItem::App()->GetHierarchyManager();
+		$display = [];
+
+		// filter the display list by what the user is authorized to view.
+		$modify_any_page = $this->_module->CheckPermission('Manage All Content') || $this->_module->CheckPermission('Modify Any Page');
+		if ($this->_filter && $modify_any_page) {
+			// we display only the pages matching the filter
+			$query = new ContentListQuery($this->_filter);
+			while (!$query->EOF()) {
+				$display[] = $query->GetObject();
+				$query->MoveNext();
+			}
+		} elseif ($this->_use_perms && $modify_any_page) {
+			// we can display anything
+
+			$is_opened = function($node, $opened_array) {
+				while ($node && $node->get_tag('id') > 0) {
+					if ($node && $node->get_tag('id') > 0) {
+						if (!in_array($node->get_tag('id'), $opened_array)) {
+							return false;
+						}
+					}
+					$node = $node->get_parent();
+				}
+				return true;
+			};
+
+			// add in top level items.
+			$children = $hm->get_children();
+			if ($children) {
+				foreach ($children as $child) {
+					$display[] = $child->get_tag('id');
+				}
+			}
+
+			// add children of opened_array items to the list.
+			foreach ($this->_opened_array as $one) {
+				$node = $hm->quickfind_node_by_id($one);
+				if (!$node) {
+					continue;
+				}
+
+				if (!$is_opened($node, $this->_opened_array)) {
+					continue;
+				}
+				$display[] = $one;
+
+				$children = $node->get_children();
+				if ($children && count($children)) {
+					foreach ($children as $child) {
+						$display[] = $child->get_tag('id');
+					}
+				}
+			}
+		} else {
+			//
+			// we can only edit some pages.
+			//
+
+			/*			for each item
+							if in opened array or has no parent add item
+							if all parents are opened add item
+			*/
+			$tmplist = SingleItem::ContentOperations()->GetPageAccessForUser($this->_userid);
+			$display = [];
+			foreach ($tmplist as $item) {
+				// get all the parents
+				$parents = [];
+				$startnode = $node = $hm->quickfind_node_by_id($item);
+				while ($node && $node->get_tag('id') > 0) {
+					$parents[] = $node->get_tag('id');
+					$node = $node->getParent();
+				}
+				// start at root
+				// push items from list on the stack if they are root, or the previous item is in the opened array.
+				$parents = array_reverse($parents);
+				for ($i = 0, $n = count($parents); $i < $n; ++$i) {
+					if ($i == 0) {
+						$display[] = $parents[$i];
+						continue;
+					}
+					if ($i > 0 && in_array($parents[$i - 1], $this->_opened_array) && in_array($parents[$i - 1], $display)) {
+						$display[] = $parents[$i];
+					}
+				}
+			}
+		}
+
+		// now order the page id list by hierarchy. and make sure they are unique.
+		$display = array_unique($display);
+		usort($display, function($a, $b) use ($hm) {
+			$node_a = $hm->quickfind_node_by_id($a);
+			$hier_a = $node_a->getHierarchy();
+			$node_b = $hm->quickfind_node_by_id($b);
+			$hier_b = $node_b->getHierarchy();
+			return strcmp($hier_a, $hier_b);
+		});
+
+		$this->_pagelist = $display;
+
+		if ($this->_seek_to > 0) {
+			// re-calculate an offset
+			$idx = array_search($this->_seek_to, $this->_pagelist);
+			if ($idx > 0) {
+				// item found.
+				$pagenum = (int)($idx / $this->_pagelimit);
+				$this->_offset = (int)($pagenum * $this->_pagelimit);
+			}
+		}
+
+		$offset = min(count($this->_pagelist), $this->_offset);
+		$display = array_slice($display, $offset, $this->_pagelimit);
+
+		SingleItem::ContentOperations()->LoadChildren(-1, false, true, $display);
+		return $display;
+	}
+
+	/**
+	 * Test whether the given|current user has edit-authority for all peers of the given content page.
+	 */
+	private function _check_peer_authorship($content_id, $userid = 0)
+	{
+		if ($content_id < 1) {
+			return false;
+		}
+		if ($userid <= 0) {
+			$userid = $this->_userid;
+		}
+		return SingleItem::ContentOperations()->CheckPeerAuthorship($userid, $content_id);
+	}
+
+	/**
+	 * Test whether the given|current user is the author of the specified content page
+	 */
+	private function _check_authorship($content_id, $userid = 0)
+	{
+		if ($userid <= 0) {
+			$userid = $this->_userid;
+		}
+		return SingleItem::ContentOperations()->CheckPageAuthorship($userid, $content_id);
 	}
 
 	/**
@@ -649,7 +722,7 @@ with no other filtering/paging
 	 */
 	private function _is_locked($page_id)
 	{
-//		if( $this->_module->GetPreference('locktimeout') < 1 ) return FALSE;
+//		if ($this->_module->GetPreference('locktimeout') < 1) return FALSE;
 		$locks = $this->get_locks();
 		return $locks && isset($locks[$page_id]);
 	}
@@ -660,7 +733,9 @@ with no other filtering/paging
 	private function _is_default_locked()
 	{
 		$locks = $this->get_locks();
-		if( !$locks ) return FALSE;
+		if (!$locks) {
+			return false;
+		}
 		$dflt_content_id = SingleItem::ContentOperations()->GetDefaultContent();
 		return isset($locks[$dflt_content_id]);
 	}
@@ -668,12 +743,16 @@ with no other filtering/paging
 	private function _is_lock_expired($page_id)
 	{
 		$locks = $this->get_locks();
-		if( !$locks ) return FALSE;
-		if( isset($locks[$page_id]) ) {
-			$lock = $locks[$page_id];
-			if( $lock->expired() ) return TRUE;
+		if (!$locks) {
+			return false;
 		}
-		return FALSE;
+		if (isset($locks[$page_id])) {
+			$lock = $locks[$page_id];
+			if ($lock->expired()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -683,11 +762,11 @@ with no other filtering/paging
 	{
 		// static properties here >> SingleItem property|ies ?
 		static $_users = null;
-		if( !$_users ) {
+		if (!$_users) {
 			$tmp = SingleItem::UserOperations()->LoadUsers();
-			if( is_array($tmp) && ($n = count($tmp)) ) {
+			if (is_array($tmp) && ($n = count($tmp))) {
 				$_users = [];
-				for( $i = 0; $i < $n; $i++ ) {
+				for ($i = 0; $i < $n; ++$i) {
 					$oneuser = $tmp[$i];
 					$_users[$oneuser->id] = $oneuser;
 				}
@@ -712,15 +791,15 @@ with no other filtering/paging
 		$contentops = SingleItem::ContentOperations();
 
 		$out = [];
-		foreach( $page_list as $page_id ) {
+		foreach ($page_list as $page_id) {
 			$node = $cache[$page_id] ?? null;
-			if( !$node ) {
+			if (!$node) {
 				continue;
 			}
 			//NOTE CMSMS\contenttypes\ContentBase object
 //			$content = $node->getContent(FALSE,TRUE,TRUE); // get everything
 			$content = $contentops->LoadEditableContentFromId($page_id);
-			if( !$content ) {
+			if (!$content) {
 				continue;
 			}
 
@@ -739,15 +818,15 @@ with no other filtering/paging
 			$rec['wantschildren'] = $content->WantsChildren();
 			$rec['viewable'] = $content->IsViewable();
 			$tmp = $content->LastModifiedBy();
-			if( $tmp > 0 && isset($users[$tmp]) ) {
+			if ($tmp > 0 && isset($users[$tmp])) {
 				$rec['lastmodifiedby'] = strip_tags($users[$tmp]->username);
 			}
-			if( $this->_is_locked($page_id) ) {
+			if ($this->_is_locked($page_id)) {
 				$lock = $this->_locks[$page_id];
 				$rec['lockuser'] = $users[$lock['uid']]->username;
 				$rec['lock'] = $this->_locks[$page_id];
 			}
-			if( $page_id == $this->_seek_to ) {
+			if ($page_id == $this->_seek_to) {
 				$rec['selected'] = 1;
 			}
 			$rec['can_edit'] = ($mod->CheckPermission('Modify Any Page') || $mod->CheckPermission('Manage All Content') ||
@@ -757,12 +836,12 @@ with no other filtering/paging
 			$rec['can_delete'] = $rec['can_edit'] && $mod->CheckPermission('Remove Pages');
 			$rec['can_edit_tpl'] = $mod->CheckPermission('Modify Templates');
 
-			foreach( $columns as $column => $displayable ) {
-				switch( $column ) {
+			foreach ($columns as $column => $displayable) {
+				switch ($column) {
 				case 'expand':
 					$rec[$column] = 'none';
-					if( $node->has_children() ) {
-						if( in_array($page_id,$this->_opened_array) ) {
+					if ($node->has_children()) {
+						if (in_array($page_id, $this->_opened_array)) {
 							$rec[$column] = 'open';
 						} else {
 							$rec[$column] = 'closed';
@@ -775,59 +854,71 @@ with no other filtering/paging
 					break;
 
 				case 'page':
-					if( $content->MenuText() == ContentBase::CMS_CONTENT_HIDDEN_NAME ) break;
-					if( Utils::get_pagenav_display() == 'title' ) { $rec[$column] = strip_tags($content->Name()); }
-					else { $rec[$column] = $rec['menutext']; }
+					if ($content->MenuText() == ContentBase::CMS_CONTENT_HIDDEN_NAME) {
+						break;
+					}
+					if (Utils::get_pagenav_display() == 'title') {
+						$rec[$column] = strip_tags($content->Name());
+					} else {
+						$rec[$column] = $rec['menutext'];
+					}
 					break;
 
 				case 'alias':
-					if( $rec['hasusablelink'] && $content->Alias() ) $rec[$column] = strip_tags($content->Alias());
+					if ($rec['hasusablelink'] && $content->Alias()) {
+						$rec[$column] = strip_tags($content->Alias());
+					}
 					break;
 
 				case 'url':
-					if( $rec['hasusablelink'] && $content->URL() ) { $rec[$column] = strip_tags($content->URL()); }
-					else { $rec[$column] = ''; }
+					if ($rec['hasusablelink'] && $content->URL()) {
+						$rec[$column] = strip_tags($content->URL());
+					} else {
+						$rec[$column] = '';
+					}
 					break;
 
 				case 'template':
-					if( $rec['viewable'] ) {
-						if( $rec['template_id'] > 0 ) {
+					if ($rec['viewable']) {
+						if ($rec['template_id'] > 0) {
 							try {
 								$template = TemplateOperations::get_template($rec['template_id']);
 								$rec[$column] = $template->get_name();
-							}
-							catch( Throwable $t ) {
+							} catch (Throwable $t) {
 								$rec[$column] = $mod->Lang('critical_error');
 							}
-						}
-						else {
+						} else {
 							$rec[$column] = $mod->Lang('none');
 						}
 					}
 					break;
 
 				case 'friendlyname':
-					if( method_exists($content, 'FriendlyName') ) {
+					if (method_exists($content, 'FriendlyName')) {
 						$rec[$column] = $content->FriendlyName();
-						if( !$rec[$column] ) {
+						if (!$rec[$column]) {
 							$rec[$column] = $mod->Lang('contenttype_'.$content->Type());
 						}
-					}
-					else {
+					} else {
 						$rec[$column] = $mod->Lang('contenttype_'.$content->Type());
 					}
 					break;
 
 				case 'owner':
-					if( $content->Owner() > 0 ) { $rec[$column] = strip_tags($users[$content->Owner()]->username); }
+					if ($content->Owner() > 0) {
+						$rec[$column] = strip_tags($users[$content->Owner()]->username);
+					}
 					break;
 
 				case 'active':
 					$rec[$column] = '';
-					if( $mod->CheckPermission('Manage All Content') && !$content->IsSystemPage() && !$this->_is_locked($page_id) ) {
-						if( $content->Active() ) {
-							if( $content->DefaultContent() ) { $rec[$column] = 'default'; }
-							else { $rec[$column] = 'active'; }
+					if ($mod->CheckPermission('Manage All Content') && !$content->IsSystemPage() && !$this->_is_locked($page_id)) {
+						if ($content->Active()) {
+							if ($content->DefaultContent()) {
+								$rec[$column] = 'default';
+							} else {
+								$rec[$column] = 'active';
+							}
 						} else {
 							$rec[$column] = 'inactive';
 						}
@@ -836,21 +927,21 @@ with no other filtering/paging
 
 				case 'default':
 					$rec[$column] = '';
-					if( $mod->CheckPermission('Manage All Content') && !$this->_is_locked($page_id) && !$this->_is_default_locked() ) {
-						if( $content->IsDefaultPossible() && $content->Active() ) $rec[$column] = ($content->DefaultContent())?'yes':'no';
+					if ($mod->CheckPermission('Manage All Content') && !$this->_is_locked($page_id) && !$this->_is_default_locked()) {
+						if ($content->IsDefaultPossible() && $content->Active()) {
+							$rec[$column] = ($content->DefaultContent()) ? 'yes' : 'no';
+						}
 					}
 					break;
 
 				case 'multiselect':
 					$rec[$column] = '';
-					if( !$content->IsSystemPage() && !$this->_is_locked($rec['id']) ) {
-						if( $mod->CheckPermission('Manage All Content') || $mod->CheckPermission('Modify Any Page') ) {
+					if (!$content->IsSystemPage() && !$this->_is_locked($rec['id'])) {
+						if ($mod->CheckPermission('Manage All Content') || $mod->CheckPermission('Modify Any Page')) {
 							$rec[$column] = 'yes';
-						}
-						elseif( $mod->CheckPermission('Remove Pages') && $this->_check_authorship($rec['id']) ) {
+						} elseif ($mod->CheckPermission('Remove Pages') && $this->_check_authorship($rec['id'])) {
 							$rec[$column] = 'yes';
-						}
-						elseif( $this->_check_authorship($rec['id']) ) {
+						} elseif ($this->_check_authorship($rec['id'])) {
 							$rec[$column] = 'yes';
 						}
 					}
@@ -858,28 +949,29 @@ with no other filtering/paging
 				// the rest relate to fields which are normally actions-menu items
 				case 'move':
 					$rec[$column] = '';
-					if( !$this->have_locks() && $this->_check_peer_authorship($rec['id']) && ($nsiblings = $node->count_siblings()) > 1 ) {
-						if( $content->ItemOrder() == 1 ) {
+					if (!$this->have_locks() && $this->_check_peer_authorship($rec['id']) && ($nsiblings = $node->count_siblings()) > 1) {
+						if ($content->ItemOrder() == 1) {
 							$rec[$column] = 'down';
-						}
-						elseif( $content->ItemOrder() == $nsiblings ) {
+						} elseif ($content->ItemOrder() == $nsiblings) {
 							$rec[$column] = 'up';
-						}
-						else {
+						} else {
 							$rec[$column] = 'both';
 						}
 					}
 					break;
 
 				case 'view':
-					if( $rec['hasusablelink'] && $rec['viewable'] && $content->Active() ) { $rec[$column] = $content->GetURL(); }
-					else { $rec[$column] = ''; }
+					if ($rec['hasusablelink'] && $rec['viewable'] && $content->Active()) {
+						$rec[$column] = $content->GetURL();
+					} else {
+						$rec[$column] = '';
+					}
 					break;
 
 				case 'copy':
 					$rec[$column] = '';
-					if( $content->IsCopyable() && !$this->_is_locked($rec['id']) ) {
-						if( ($rec['can_edit'] && $mod->CheckPermission('Add Pages')) || $mod->CheckPermission('Manage All Content') ) {
+					if ($content->IsCopyable() && !$this->_is_locked($rec['id'])) {
+						if (($rec['can_edit'] && $mod->CheckPermission('Add Pages')) || $mod->CheckPermission('Manage All Content')) {
 							$rec[$column] = 'yes';
 						}
 					}
@@ -887,24 +979,23 @@ with no other filtering/paging
 
 				case 'addchild':
 					$rec[$column] = '';
-					if( ($rec['can_edit'] && $mod->CheckPermission('Add Pages')) || $mod->CheckPermission('Manage All Content') ) {
+					if (($rec['can_edit'] && $mod->CheckPermission('Add Pages')) || $mod->CheckPermission('Manage All Content')) {
 						$rec[$column] = 'yes';
 					}
 					break;
 
 				case 'edit':
 					$rec[$column] = '';
-					if( $rec['can_edit'] ) {
+					if ($rec['can_edit']) {
 						$rec[$column] = 'yes';
-					}
-					elseif( $rec['can_steal'] ) {
+					} elseif ($rec['can_steal']) {
 						$rec[$column] = 'steal';
 					}
 					break;
 
 				case 'delete':
 					$rec[$column] = '';
-					if( $rec['can_delete'] && !$content->DefaultContent() && !$node->has_children() && !$this->_is_locked($rec['id']) ) {
+					if ($rec['can_delete'] && !$content->DefaultContent() && !$node->has_children() && !$this->_is_locked($rec['id'])) {
 						$rec[$column] = 'yes';
 					}
 					break;
@@ -915,23 +1006,5 @@ with no other filtering/paging
 		} // foreach
 
 		return $out;
-	}
-
-	/**
-	 * Return display-data for viewable/editable content | null
-	 */
-	public function get_content_list()
-	{
-		$pagelist = $this->_load_editable_content();
-		if( $pagelist ) return $this->_get_display_data($pagelist);
-	}
-
-	/**
-	 * Return whether this content list supports multiselect
-	 */
-	public function supports_multiselect()
-	{
-		$cols = $this->get_display_columns();
-		return !empty($cols['multiselect']);
 	}
 } // class

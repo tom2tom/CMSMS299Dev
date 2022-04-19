@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManager module installation process
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -24,7 +24,9 @@ use CMSMS\Events;
 use CMSMS\Group;
 use CMSMS\SingleItem;
 
-if (empty($this) || !($this instanceof ContentManager)) exit;
+if (empty($this) || !($this instanceof ContentManager)) {
+	exit;
+}
 //$installing = AppState::test(AppState::INSTALL);
 //if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
@@ -49,9 +51,9 @@ if ($flag) {
 	$group->name = 'Editor';
 	$group->description = $this->Lang('group_desc');
 	$group->active = 1;
-	Events::SendEvent('Core', 'AddGroupPre', ['group'=>&$group]);
+	Events::SendEvent('Core', 'AddGroupPre', ['group' => &$group]);
 	$group->Save();
-	Events::SendEvent('Core', 'AddGroupPost', ['group'=>&$group]);
+	Events::SendEvent('Core', 'AddGroupPost', ['group' => &$group]);
 
 	$group->GrantPermission('Manage All Content');
 	$group->GrantPermission('Manage My Account');
@@ -69,12 +71,12 @@ if ($flag) {
 	 'Reorder Content', $this->Lang('perm_reorder'),
 	];
 	for ($i = 0; $i < 10; $i += 2) {
-		$db->execute($sql, [$vals[$i+1], $vals[$i]]);
+		$db->execute($sql, [$vals[$i + 1], $vals[$i]]);
 	}
 }
 
 // register events for which other parts of the system may listen
-foreach([
+foreach ([
  'ContentDeletePost',
  'ContentDeletePre',
  'ContentEditPost',
@@ -84,7 +86,7 @@ foreach([
  'ContentPreCompile',
  'ContentPreRender', // 2.0 ?
 ] as $name) {
-	Events::CreateEvent($me,$name); //since 2.0
+	Events::CreateEvent($me, $name); //since 2.0
 	if ($flag) {
 		Events::CreateEvent('Core', $name); //deprecated since 2.0, replicate ancient infrastructure
 	}

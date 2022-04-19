@@ -37,45 +37,74 @@ use function get_userid;
  */
 class Separator extends ContentBase
 {
-	public function FriendlyName() : string { return $this->mod->Lang('contenttype_separator'); }
-	public function GetURL() : string { return '#';  }
-	public function HasSearchableContent() : bool { return false; }
-	public function HasUsableLink() : bool { return false; }
-	public function IsViewable() : bool { return false; }
-	public function RequiresAlias() : bool { return false; }
-	public function WantsChildren() : bool { return false; }
+	public function FriendlyName() : string
+	{
+		return $this->mod->Lang('contenttype_separator');
+	}
+
+	public function GetURL() : string
+	{
+		return '#';
+	}
+
+	public function HasSearchableContent() : bool
+	{
+		return false;
+	}
+
+	public function HasUsableLink() : bool
+	{
+		return false;
+	}
+
+	public function IsViewable() : bool
+	{
+		return false;
+	}
+
+	public function RequiresAlias() : bool
+	{
+		return false;
+	}
+
+	public function WantsChildren() : bool
+	{
+		return false;
+	}
 
 	public function SetProperties()
 	{
 		parent::SetProperties([
-			['accesskey',''],
-			['alias',''],
-			['cachable',true],
-			['menutext',''],
-			['page_url',''],
-			['secure',false], //deprecated property since 2.0
-			['tabindex',''],
-			['target',''],
-			['template','-1'],
-			['title',''],
-			['titleattribute',''],
+			['accesskey', ''],
+			['alias', ''],
+			['cachable', true],
+			['menutext', ''],
+			['page_url', ''],
+			['secure', false], //deprecated property since 2.0
+			['tabindex', ''],
+			['target', ''],
+			['template', '-1'],
+			['title', ''],
+			['titleattribute', ''],
 		]);
 	}
 
 	public function GetTabNames() : array
 	{
 		$res = [$this->mod->Lang('main')];
-		if( check_permission(get_userid(),'Manage All Content') ) $res[] = $this->mod->Lang('options');
+		if (check_permission(get_userid(), 'Manage All Content')) {
+			$res[] = $this->mod->Lang('options');
+		}
 		return $res;
 	}
 
 	public function EditAsArray($adding = false, $tab = 0, $showadmin = false)
 	{
-		switch($tab) {
+		switch ($tab) {
 		case '0':
 			return $this->display_attributes($adding);
 		case '1':
-			return $this->display_attributes($adding,1);
+			return $this->display_attributes($adding, 1);
 		}
 	}
 

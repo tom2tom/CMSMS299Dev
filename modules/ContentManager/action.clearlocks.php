@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManager module action: clear locks
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -27,14 +27,14 @@ use function CMSMS\log_notice;
 //if( some worthy test fails ) exit;
 
 $uid = get_userid();
-$is_admin = SingleItem::UserOperations()->UserInGroup($uid,1);
+$is_admin = SingleItem::UserOperations()->UserInGroup($uid, 1);
 
-if( $is_admin ) {
+if ($is_admin) {
     // clear all locks of type content
     $db = cmsms()->GetDb();
     $sql = 'DELETE FROM '.CMS_DB_PREFIX. LockOperations::LOCK_TABLE.' WHERE type = ?';
-    $db->execute($sql,['content']);
-    log_notice('ContentManager','Cleared all content locks');
+    $db->execute($sql, ['content']);
+    log_notice('ContentManager', 'Cleared all content locks');
 } else {
     // clear only my locks
     LockOperations::delete_for_user($type);
@@ -42,4 +42,4 @@ if( $is_admin ) {
 }
 
 $this->SetMessage($this->Lang('msg_lockscleared'));
-$this->Redirect($id,'defaultadmin');
+$this->Redirect($id, 'defaultadmin');

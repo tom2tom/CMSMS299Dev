@@ -19,7 +19,6 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace ContentManager;
 
 use ContentManager\ContentBase;
@@ -43,19 +42,19 @@ class ContentAssistantFactory
 	{
 		$classname = get_class($this->_content_obj);
 		$n = 0;
-		while( $n < 10 ) {
-			$n++;
+		while ($n < 10) {
+			++$n;
 			$test = $classname.'EditContentAssistant';
-			if( class_exists($test) ) {
+			if (class_exists($test)) {
 				$obj = new $test($this->_content_obj);
 				return $obj;
 			}
 			$classname = get_parent_class($classname);
-			if( !$classname ) {
+			if (!$classname) {
 				$obj = null;
 				return $obj;
 			}
 		}
 		throw new Exception('Too many levels of hierarchy without finding an assistant');
-  }
+	}
 } // class

@@ -26,107 +26,115 @@ use CMSMS\HookOperations;
 
 final class ContentManager extends CMSModule
 {
-    public function GetAdminDescription() { return $this->Lang('moddescription'); }
-    public function GetAdminSection() { return 'content'; }
-    public function GetAuthor() { return 'Robert Campbell'; }
-    public function GetAuthorEmail() { return ''; }
-    public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
-    public function GetFriendlyName() { return $this->Lang('friendlyname'); }
-    public function GetHelp() { return $this->Lang('help_module'); } // OR un-translated modhelp.htm ?
-    public function GetName() { return 'ContentManager'; }
-    public function GetVersion() { return '2.0'; }
-    public function HasAdmin() { return true; }
-    public function InstallPostMessage() { return $this->Lang('postinstall'); }
-    public function IsAdminOnly() { return true; }
-//  public function LazyLoadAdmin() { return true; }
-//  public function LazyLoadFrontend() { return true; }
-    public function MinimumCMSVersion() { return '2.999'; }
-    public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
-    public function UninstallPreMessage() { return $this->Lang('preuninstall'); }
+	public function GetAdminDescription() { return $this->Lang('moddescription'); }
+	public function GetAdminSection() { return 'content'; }
+	public function GetAuthor() { return 'Robert Campbell'; }
+	public function GetAuthorEmail() { return ''; }
+	public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
+	public function GetFriendlyName() { return $this->Lang('friendlyname'); }
+	public function GetHelp() { return $this->Lang('help_module'); } // OR un-translated modhelp.htm ?
+	public function GetName() { return 'ContentManager'; }
+	public function GetVersion() { return '2.0'; }
+	public function HasAdmin() { return true; }
+	public function InstallPostMessage() { return $this->Lang('postinstall'); }
+	public function IsAdminOnly() { return true; }
+//	public function LazyLoadAdmin() { return true; }
+//	public function LazyLoadFrontend() { return true; }
+	public function MinimumCMSVersion() { return '2.999'; }
+	public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
+	public function UninstallPreMessage() { return $this->Lang('preuninstall'); }
 
-    public function HasCapability($capability, $params = [])
-    {
-        switch ($capability) {
-            case CoreCapabilities::CORE_MODULE:
-            case CoreCapabilities::SITE_SETTINGS:
-                return true;
-            default:
-                return false;
-        }
-    }
+	public function HasCapability($capability, $params = [])
+	{
+		switch ($capability) {
+			case CoreCapabilities::CORE_MODULE:
+			case CoreCapabilities::SITE_SETTINGS:
+				return true;
+			default:
+				return false;
+		}
+	}
 
-    public function InitializeAdmin()
-    {
-        HookOperations::add_hook('ExtraSiteSettings', [$this, 'ExtraSiteSettings']);
-    }
+	public function InitializeAdmin()
+	{
+		HookOperations::add_hook('ExtraSiteSettings', [$this, 'ExtraSiteSettings']);
+	}
 
-    /**
-     * Hook function to populate 'centralised' site settings UI
-     * @internal
-     * @since 2.0
-     * @return array
-     */
-    public function ExtraSiteSettings()
-    {
-        //TODO check permission local or Site Prefs
-        return [
-         'title'=> $this->Lang('settings_title'),
-         //'desc'=> 'useful text goes here', // optional useful text
-         'url'=> $this->create_action_url('', 'settings'), // if permitted
-         //optional 'text' => custom link-text | explanation e.g need permission
-        ];
-    }
+	/**
+	 * Hook function to populate 'centralised' site settings UI
+	 * @internal
+	 * @since 2.0
+	 * @return array
+	 */
+	public function ExtraSiteSettings()
+	{
+		//TODO check permission local or Site Prefs
+		return [
+		 'title'=> $this->Lang('settings_title'),
+		 //'desc'=> 'useful text goes here', // optional useful text
+		 'url'=> $this->create_action_url('', 'settings'), // if permitted
+		 //optional 'text' => custom link-text | explanation e.g need permission
+		];
+	}
 
-    /**
-     * Tests whether the currently logged in user has the ability to edit ANY content page
-     */
-    public function CanEditContent($content_id = -1)
-    {
-        if( $this->CheckPermission('Manage All Content') ) return true;
-        if( $this->CheckPermission('Modify Any Page') ) return true;
+	/**
+	 * Tests whether the currently logged in user has the ability to edit ANY content page
+	 */
+	public function CanEditContent($content_id = -1)
+	{
+		if ($this->CheckPermission('Manage All Content')) {
+			return true;
+		}
+		if ($this->CheckPermission('Modify Any Page')) {
+			return true;
+		}
 
-        $pages = author_pages(get_userid(false));
-        if( !$pages ) return false;
-        if( $content_id <= 0 ) return true;
-        return in_array($content_id, $pages);
-    }
+		$pages = author_pages(get_userid(false));
+		if (!$pages) {
+			return false;
+		}
+		if ($content_id <= 0) {
+			return true;
+		}
+		return in_array($content_id, $pages);
+	}
 
-    public function GetHeaderHTML()
-    {
-        $out = '';
-        $urlpath = $this->GetModuleURLPath();
-        $fmt = '<link rel="stylesheet" type="text/css" href="%s/%s" />';
-        $cssfiles = [
-        'css/module.css'
-        ];
-        foreach( $cssfiles as $one ) {
-            $out .= sprintf($fmt, $urlpath, $one).PHP_EOL;
-        }
-        add_page_headtext($out, false);
-    }
+	public function GetHeaderHTML()
+	{
+		$out = '';
+		$urlpath = $this->GetModuleURLPath();
+		$fmt = '<link rel="stylesheet" type="text/css" href="%s/%s" />';
+		$cssfiles = [
+		'css/module.css'
+		];
+		foreach( $cssfiles as $one ) {
+			$out .= sprintf($fmt, $urlpath, $one).PHP_EOL;
+		}
+		add_page_headtext($out, false);
+	}
 
-    public function GetAdminMenuItems()
-    {
-        $out = [];
+	public function GetAdminMenuItems()
+	{
+		$out = [];
 
-        if( $this->CheckPermission('Add Pages') || $this->CheckPermission('Remove Pages') || $this->CanEditContent() ) {
-            // user is entitled to see the main page in the admin navigation
-            $obj = AdminMenuItem::from_module($this);
-            $obj->title = $this->Lang('title_settingsmenu');
-            $out[] = $obj;
-        }
+		if( $this->CheckPermission('Add Pages') || $this->CheckPermission('Remove Pages') || $this->CanEditContent() ) {
+			// user is entitled to see the main page in the admin navigation
+			$obj = AdminMenuItem::from_module($this);
+			$obj->title = $this->Lang('title_settingsmenu');
+			$out[] = $obj;
+		}
 
-        if( $this->CheckPermission('Modify Site Preferences') ) {
-            $obj = new AdminMenuItem();
-            $obj->module = $this->GetName();
-            $obj->section = 'siteadmin';
-            $obj->title = $this->Lang('title_module_settings');
-            $obj->description = $this->Lang('desc_module_settings');
-            $obj->icon = false;
-            $obj->action = 'settings';
-            $obj->name = 'set';
-            $out[] = $obj;
-        }
-        return $out;
-    }
+		if( $this->CheckPermission('Modify Site Preferences') ) {
+			$obj = new AdminMenuItem();
+			$obj->module = $this->GetName();
+			$obj->section = 'siteadmin';
+			$obj->title = $this->Lang('title_module_settings');
+			$obj->description = $this->Lang('desc_module_settings');
+			$obj->icon = false;
+			$obj->action = 'settings';
+			$obj->name = 'set';
+			$out[] = $obj;
+		}
+		return $out;
+	}
 } // class

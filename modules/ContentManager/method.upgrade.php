@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManager module upgrade process.
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -24,16 +24,18 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\SingleItem;
 use CMSMS\Events;
 
-if( empty($this) || !($this instanceof ContentManager)) exit;
+if (empty($this) || !($this instanceof ContentManager)) {
+    exit;
+}
 //$installing = AppState::test(AppState::INSTALL);
 //if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
 //$dict = new DataDictionary($db);
 
-if( version_compare($oldversion,'2.0') < 0 ) {
+if (version_compare($oldversion, '2.0') < 0) {
     $me = $this->GetName();
     // register events for which other parts of the system may listen
-    foreach([
+    foreach ([
      'ContentDeletePost',
      'ContentDeletePre',
      'ContentEditPost',
@@ -43,12 +45,12 @@ if( version_compare($oldversion,'2.0') < 0 ) {
      'ContentPreCompile',
      'ContentPreRender', // 2.2
     ] as $name) {
-        Events::CreateEvent($me,$name); //since 2.0
+        Events::CreateEvent($me, $name); //since 2.0
     }
 
     // semi-permanent alias for back-compatibility
     $ops = SingleItem::ModuleOperations();
-    $ops->set_module_classname('CMSContentManager',get_class($this));
+    $ops->set_module_classname('CMSContentManager', get_class($this));
 }
 
 SingleItem::ContentTypeOperations()->RebuildStaticContentTypes();

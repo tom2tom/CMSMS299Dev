@@ -29,131 +29,144 @@ use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 use CMSMS\UserParams;
 
-if( !$this->CheckContext() ) exit;
+if (!$this->CheckContext()) {
+	exit;
+}
 
 $modname = $this->GetName();
 $builder = new ContentListBuilder($this);
 
-if( isset($params['curpage']) ) {
-    $curpage = max(1,min(500,(int)$params['curpage']));
+if (isset($params['curpage'])) {
+	$curpage = max(1, min(500, (int)$params['curpage']));
 }
 
-if( isset($params['expandall']) || isset($_GET['expandall']) ) {
-    $builder->expand_all();
-    $curpage = 1;
-}
-elseif( isset($params['collapseall']) || isset($_GET['collapseall']) ) {
-    $builder->collapse_all();
-    $curpage = 1;
+if (isset($params['expandall']) || isset($_GET['expandall'])) {
+	$builder->expand_all();
+	$curpage = 1;
+} elseif (isset($params['collapseall']) || isset($_GET['collapseall'])) {
+	$builder->collapse_all();
+	$curpage = 1;
 }
 
-if( isset($params['setoptions']) ) {
-    $pagelimit = $params['pagelimit'] ?? 500;
-    $pagelimit = max(1,min(500,(int)$pagelimit));
-    UserParams::set($modname.'_pagelimit',$pagelimit);
-    $filter = null;
-    $filter_type = $params['filter_type'] ?? null;
-    switch( $filter_type ) {
-    case ContentListFilter::EXPR_DESIGN:
-        $filter = new ContentListFilter();
-        $filter->type = ContentListFilter::EXPR_DESIGN;
-        $filter->expr = $params['filter_design'];
-        break;
-    case ContentListFilter::EXPR_TEMPLATE:
-        $filter = new ContentListFilter();
-        $filter->type = ContentListFilter::EXPR_TEMPLATE;
-        $filter->expr = $params['filter_template'];
-        break;
-    case ContentListFilter::EXPR_OWNER:
-        $filter = new ContentListFilter();
-        $filter->type = ContentListFilter::EXPR_OWNER;
-        $filter->expr = $params['filter_owner'];
-        break;
-    case ContentListFilter::EXPR_EDITOR:
-        $filter = new ContentListFilter();
-        $filter->type = ContentListFilter::EXPR_EDITOR;
-        $filter->expr = $params['filter_editor'];
-        break;
-    default:
-        UserParams::remove($modname.'_userfilter');
-    }
-    if( $filter ) {
-        //record for use by ajax processor
-        UserParams::set($modname.'_userfilter',serialize($filter));
-    }
-    $curpage = 1;
+if (isset($params['setoptions'])) {
+	$pagelimit = $params['pagelimit'] ?? 500;
+	$pagelimit = max(1, min(500, (int)$pagelimit));
+	UserParams::set($modname.'_pagelimit', $pagelimit);
+	$filter = null;
+	$filter_type = $params['filter_type'] ?? null;
+	switch ($filter_type) {
+	case ContentListFilter::EXPR_DESIGN:
+		$filter = new ContentListFilter();
+		$filter->type = ContentListFilter::EXPR_DESIGN;
+		$filter->expr = $params['filter_design'];
+		break;
+	case ContentListFilter::EXPR_TEMPLATE:
+		$filter = new ContentListFilter();
+		$filter->type = ContentListFilter::EXPR_TEMPLATE;
+		$filter->expr = $params['filter_template'];
+		break;
+	case ContentListFilter::EXPR_OWNER:
+		$filter = new ContentListFilter();
+		$filter->type = ContentListFilter::EXPR_OWNER;
+		$filter->expr = $params['filter_owner'];
+		break;
+	case ContentListFilter::EXPR_EDITOR:
+		$filter = new ContentListFilter();
+		$filter->type = ContentListFilter::EXPR_EDITOR;
+		$filter->expr = $params['filter_editor'];
+		break;
+	default:
+		UserParams::remove($modname.'_userfilter');
+	}
+	if ($filter) {
+		//record for use by ajax processor
+		UserParams::set($modname.'_userfilter', serialize($filter));
+	}
+	$curpage = 1;
 } else {
-    $pagelimit = UserParams::get($modname.'_pagelimit',500);
-    $filter = UserParams::get($modname.'_userfilter', null); // empty string invalid
-    if( $filter ) {
-        $filter = unserialize($filter);
-    }
+	$pagelimit = UserParams::get($modname.'_pagelimit', 500);
+	$filter = UserParams::get($modname.'_userfilter', null); // empty string invalid
+	if ($filter) {
+		$filter = unserialize($filter);
+	}
 }
 
 // see included file $builder->set_filter($filter);
 
-if( isset($params['expand']) ) {
-    $builder->expand_section($params['expand']);
+if (isset($params['expand'])) {
+	$builder->expand_section($params['expand']);
 }
 
-if( isset($params['collapse']) ) {
-    $builder->collapse_section($params['collapse']);
-    $curpage = 1;
+if (isset($params['collapse'])) {
+	$builder->collapse_section($params['collapse']);
+	$curpage = 1;
 }
 
-if( isset($params['setinactive']) ) {
-    $builder->set_active($params['setinactive'],FALSE);
-    if( !$res ) $this->ShowErrors($this->Lang('error_setinactive'));
+if (isset($params['setinactive'])) {
+	$builder->set_active($params['setinactive'], false);
+	if (!$res) {
+		$this->ShowErrors($this->Lang('error_setinactive'));
+	}
 }
 
-if( isset($params['setactive']) ) {
-    $res = $builder->set_active($params['setactive'],TRUE);
-    if( !$res ) $this->ShowErrors($this->Lang('error_setactive'));
+if (isset($params['setactive'])) {
+	$res = $builder->set_active($params['setactive'], true);
+	if (!$res) {
+		$this->ShowErrors($this->Lang('error_setactive'));
+	}
 }
 
-if( isset($params['setdefault']) ) {
-    $res = $builder->set_default($params['setdefault'],TRUE);
-    if( !$res ) $this->ShowErrors($this->Lang('error_setdefault'));
+if (isset($params['setdefault'])) {
+	$res = $builder->set_default($params['setdefault'], true);
+	if (!$res) {
+		$this->ShowErrors($this->Lang('error_setdefault'));
+	}
 }
 
-if( isset($params['moveup']) ) {
-    $res = $builder->move_content($params['moveup'],-1);
-    if( !$res ) $this->ShowErrors($this->Lang('error_movecontent'));
+if (isset($params['moveup'])) {
+	$res = $builder->move_content($params['moveup'], -1);
+	if (!$res) {
+		$this->ShowErrors($this->Lang('error_movecontent'));
+	}
 }
 
-if( isset($params['movedown']) ) {
-    $res = $builder->move_content($params['movedown'],1);
-    if( !$res ) $this->ShowErrors($this->Lang('error_movecontent'));
+if (isset($params['movedown'])) {
+	$res = $builder->move_content($params['movedown'], 1);
+	if (!$res) {
+		$this->ShowErrors($this->Lang('error_movecontent'));
+	}
 }
 
-if( isset($params['delete']) ) {
-    $res = $builder->delete_content($params['delete']);
-    if( $res ) $this->ShowErrors($res);
+if (isset($params['delete'])) {
+	$res = $builder->delete_content($params['delete']);
+	if ($res) {
+		$this->ShowErrors($res);
+	}
 }
 
 function urlsplit(string $u) : array
 {
-//  $u = str_replace('&amp;','&',$u);
-    $parts = parse_url($u);
-    $u = $parts['scheme'].'://'.$parts['host'].$parts['path'];
-    if( $parts['query'] ) {
-        $ob = new stdClass();
-        $parts = explode('&',$parts['query']);
-        foreach ($parts as $one) {
-             list($k,$v) = explode('=',$one);
-             if( is_numeric($v) ) {
-                  $ob->$k = $v;
-             } else {
-                  $ob->$k = "'".addcslashes($v,"'")."'";
-             }
-        }
-        $k = CMS_SECURE_PARAM_NAME;
-        $ob->$k = 'cms_data.user_key';
-        $s = json_encode($ob);
-        $s = str_replace(['{"','"}','":"','","'],["{\n","\n}",': ',",\n"],$s);
-        return [$u, $s];
-    }
-    return [$u, '{}'];
+	//  $u = str_replace('&amp;','&',$u);
+	$parts = parse_url($u);
+	$u = $parts['scheme'].'://'.$parts['host'].$parts['path'];
+	if ($parts['query']) {
+		$ob = new stdClass();
+		$parts = explode('&', $parts['query']);
+		foreach ($parts as $one) {
+			list($k, $v) = explode('=', $one);
+			if (is_numeric($v)) {
+				$ob->$k = $v;
+			} else {
+				$ob->$k = "'".addcslashes($v, "'")."'";
+			}
+		}
+		$k = CMS_SECURE_PARAM_NAME;
+		$ob->$k = 'cms_data.user_key';
+		$s = json_encode($ob);
+		$s = str_replace(['{"', '"}', '":"', '","'], ["{\n", "\n}", ': ', ",\n"], $s);
+		return [$u, $s];
+	}
+	return [$u, '{}'];
 }
 
 $have_locks = 0; // default value, adjusted downstream
@@ -163,16 +176,16 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); 
 
 require __DIR__.DIRECTORY_SEPARATOR.'action.ajax_get_content.php';
 
-if( isset($curpage) ) {
-    $_SESSION[$modname.'_curpage'] = $curpage;
+if (isset($curpage)) {
+	$_SESSION[$modname.'_curpage'] = $curpage;
 }
 
-$find_url = $this->create_action_url($id,'ajax_pagelookup',['forjs'=>1,CMS_JOB_KEY=>1]);
+$find_url = $this->create_action_url($id, 'ajax_pagelookup', ['forjs' => 1, CMS_JOB_KEY => 1]);
 
-$url = $this->create_action_url($id,'ajax_get_content',['forjs'=>1,CMS_JOB_KEY=>1]);
+$url = $this->create_action_url($id, 'ajax_get_content', ['forjs' => 1, CMS_JOB_KEY => 1]);
 list($page_url, $page_data) = urlsplit($url);
 
-$url = $this->create_action_url($id,'ajax_check_locks',['forjs'=>1,CMS_JOB_KEY=>1]);
+$url = $this->create_action_url($id, 'ajax_check_locks', ['forjs' => 1, CMS_JOB_KEY => 1]);
 list($watch_url, $watch_data) = urlsplit($url);
 
 $securekey = CMS_SECURE_PARAM_NAME;
@@ -199,7 +212,7 @@ $jsm->queue_matchedfile('jquery.ContextMenu.js', 2);
 
 $out = $jsm->page_content();
 if ($out) {
-    add_page_foottext($out);
+	add_page_foottext($out);
 }
 
 $js = <<<EOS
@@ -253,28 +266,28 @@ function adjust_locks(json) {
   }
   var n = 0;
   $('#contenttable > tbody > tr').each(function() {
-   var row = $(this),
-    id = row.attr('data-id');
-   if(lockdata.hasOwnProperty(id)) {
-     n++;
-     var status = lockdata[id];
-     //set lock-indicators for this row
-     if(status === 1) {
-       //stealable
-       row.find('.locked').css('display','none');
-       row.find('.steal_lock').css('display','inline');
-     } else if(status === -1) {
-       //blocked
-       row.find('.steal_lock').css('display','none');
-       row.find('.locked').css('display','inline');
-     }
-     row.find('.action').prop('disabled',true).css('pointer-events','none'); //IE 11+ ?
-     row.addClass('locked');
-   } else if(row.hasClass('locked')) {
-     row.find('.locked,.steal_lock').css('display','none');
-     row.find('.action').prop('disabled',false).css('pointer-events','auto');
-     row.removeClass('locked');
-   }
+    var row = $(this),
+     id = row.attr('data-id');
+    if(lockdata.hasOwnProperty(id)) {
+      n++;
+      var status = lockdata[id];
+      //set lock-indicators for this row
+      if(status === 1) {
+        //stealable
+        row.find('.locked').css('display','none');
+        row.find('.steal_lock').css('display','inline');
+      } else if(status === -1) {
+        //blocked
+        row.find('.steal_lock').css('display','none');
+        row.find('.locked').css('display','inline');
+      }
+      row.find('.action').prop('disabled',true).css('pointer-events','none'); //IE 11+ ?
+      row.addClass('locked');
+    } else if(row.hasClass('locked')) {
+      row.find('.locked,.steal_lock').css('display','none');
+      row.find('.action').prop('disabled',false).css('pointer-events','auto');
+      row.removeClass('locked');
+    }
   });
   return n;
 }
@@ -345,7 +358,7 @@ function setuplist(pause) {
       params = $.extend({}, pagedata, {
         {$id}ajax: 1,
         {$id}search: p
-      });
+     });
       Poller.oneshot({
         url: pageurl,
         data: params,
@@ -358,7 +371,7 @@ function setuplist(pause) {
         }
       });
     }
-  }
+   }
  });
  $('#filterdisplay').on('click', function() {
   cms_dialog($('#filterdialog'), {
@@ -513,7 +526,7 @@ $(function() {
      if(data.stealable) {
       cms_confirm($s4).done(function() {
        parms.op = 'unlock';
-// TODO remove single anonymous lock
+ // TODO remove single anonymous lock
        parms.lock_id = data.lock_id;
 // TODO security : parms.X = Y suitable for ScriptsMerger
        $.ajax(lockurl, {
@@ -542,26 +555,26 @@ $(function() {
 EOS;
 add_page_foottext($js); //NOT for ScriptsMerger
 
-if( !isset($pmanage) ) {
-    // this should have been set in the included list-populator file
-    $pmanage = $this->CheckPermission('Manage All Content');
+if (!isset($pmanage)) {
+	// this should have been set in the included list-populator file
+	$pmanage = $this->CheckPermission('Manage All Content');
 }
 
-if( $pmanage ) {
-    // filter-selector items
-    $opts = ['' => $this->Lang('none'),
-//  'DESIGN_ID' => $this->Lang('prompt_design'),
-    'TEMPLATE_ID' => $this->Lang('prompt_template'),
-    'OWNER_UID' => $this->Lang('prompt_owner'),
-    'EDITOR_UID' => $this->Lang('prompt_editor')];
-    $tpl->assign('opts',$opts);
-    // list of templates for filtering
-    $list = TemplateOperations::template_query(['originator'=>TemplateType::CORE, 'as_list'=>1]);
-    $tpl->assign('template_list',$list)
-    // list of admin users for filtering
-     ->assign('user_list',SingleItem::UserOperations()->GetList());
-    // list of designs for filtering
-// ->assign('design_list',DesignManager\Design::get_list()) TODO replacement :: stylesheets and/or groups
+if ($pmanage) {
+	// filter-selector items
+	$opts = ['' => $this->Lang('none'),
+//	'DESIGN_ID' => $this->Lang('prompt_design'),
+	'TEMPLATE_ID' => $this->Lang('prompt_template'),
+	'OWNER_UID' => $this->Lang('prompt_owner'),
+	'EDITOR_UID' => $this->Lang('prompt_editor')];
+	$tpl->assign('opts', $opts);
+	// list of templates for filtering
+	$list = TemplateOperations::template_query(['originator' => TemplateType::CORE, 'as_list' => 1]);
+	$tpl->assign('template_list', $list)
+	// list of admin users for filtering
+		->assign('user_list', SingleItem::UserOperations()->GetList());
+	// list of designs for filtering
+//		->assign('design_list',DesignManager\Design::get_list()) TODO replacement :: stylesheets and/or groups
 }
 
 $tpl->display();

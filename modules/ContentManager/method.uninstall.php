@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManager module uninstallation process
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -24,7 +24,9 @@ use CMSMS\Events;
 use CMSMS\Group;
 use CMSMS\SingleItem;
 
-if (empty($this) || !($this instanceof ContentManager)) exit;
+if (empty($this) || !($this instanceof ContentManager)) {
+    exit;
+}
 //$installing = AppState::test(AppState::INSTALL);
 //if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
@@ -49,7 +51,7 @@ $this->RemovePermission('Reorder Content');
 
 $me = $this->GetName();
 // unregister events
-foreach([
+foreach ([
  'ContentDeletePost',
  'ContentDeletePre',
  'ContentEditPost',
@@ -59,7 +61,7 @@ foreach([
  'ContentPreCompile',
  'ContentPreRender', // 2.2
 ] as $name) {
-    Events::RemoveEvent($me,$name);
+    Events::RemoveEvent($me, $name);
 }
 
 $ops = SingleItem::ModuleOperations();

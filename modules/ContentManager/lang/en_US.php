@@ -11,7 +11,6 @@
 //'prompt_pagedflt_design_id' => 'Page Design',
 
 $lang = [
-
 '403description' => 'Page Forbidden',
 '404description' => 'Page Not Found',
 '503description' => 'Service Not Available',
@@ -437,7 +436,6 @@ $lang = [
 'zz_2logic_tab__' => 'Long Options',
 'zz_3nav_tab__' => 'Navigation',
 'zz_4perms_tab__' => 'Permissions',
-
 ] + $lang;
 
 $lang['help_module'] = <<<'EOT'
