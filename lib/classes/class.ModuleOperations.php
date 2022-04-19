@@ -287,9 +287,9 @@ final class ModuleOperations
 	 * (which is not otherwise handled in this class).
 	 *
 	 * @param string $modname The module name
-	 * @param string $classname The actual class name or falsy to remove the alias
+	 * @param mixed $classname The actual class name string or falsy to remove the alias
 	 */
-	public function set_module_classname(string $modname,string $classname)
+	public function set_module_classname(string $modname,$classname)
 	{
 		$modname = trim($modname);
 		if( !$modname) return;
