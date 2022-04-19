@@ -1895,6 +1895,42 @@ table.pagetable th.pagepos {
 	text-align: center
 }
 
+table.pagetable th.SortAble, table.pagetable th.SortUp, table.pagetable th.SortDown {
+	cursor: pointer;
+}
+
+table.pagetable th.SortAble::before {
+	content: '\f0dc';
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 600; /* FA5Free expects bold, must override other fonticons which allow normal */
+	margin-right: 0.2em;
+	vertical-align: middle;
+}
+
+table.pagetable th.SortUp::before {
+	content: '\f0de';
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 600; /* as above */
+	margin-right: 0.2em;
+	vertical-align: middle;
+}
+
+table.pagetable th.SortDown::before {
+	content: '\f0dd';
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 600; /* as above */
+	margin-right: 0.2em;
+	vertical-align: middle;
+}
+
+table.pagetable td.row1s {
+	background-color:#d9d9d9;
+}
+
+table.pagetable td.row2s {
+	background-color:#e9e9e9;
+}
+
 .move {
 	width: 60px;
 	text-align: left;
@@ -2506,7 +2542,7 @@ ul.sortable .placeholder {
 	display: block;
 	margin: 4px auto;
 	max-width: 12em;
-        max-height: 3.5em
+	max-height: 3.5em
 }
 
 /*#info-wrapper.open {
