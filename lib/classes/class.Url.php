@@ -41,6 +41,7 @@ class Url
 
     /**
      * @ignore
+     * Values are strings or an int for PHP_URL_PORT. Missing parts have null value
      */
     private $_parts = [];
 
@@ -68,6 +69,7 @@ class Url
 
     /**
      * @ignore
+     * @return string | int | null
      */
     protected function _get_part($key)
     {
@@ -81,8 +83,8 @@ class Url
     protected function _set_part($key,$value)
     {
         $key = trim((string)$key);
-        if( !strlen($value) && isset($this->_parts[$key]) ) {
-            unset($this->_parts[$key]);
+        if( !($value || is_numeric($value)) ) {
+            $this->_parts[$key] = null;
         }
         else {
             $this->_parts[$key] = $value;
@@ -293,7 +295,7 @@ class Url
      */
     public function get_path()
     {
-        return $this->_get_part('path');
+        return ''.$this->_get_part('path');
     }
 
     /**
@@ -314,6 +316,7 @@ class Url
     public function get_query()
     {
         if( $this->_query ) return http_build_query($this->_query);
+        return '';
     }
 
     /**
@@ -335,7 +338,7 @@ class Url
      */
     public function get_fragment()
     {
-        return $this->_get_part('fragment');
+        return ''.$this->_get_part('fragment');
     }
 
     /**
@@ -382,7 +385,8 @@ class Url
     public function get_queryvar($key)
     {
         $key = trim((string)$key);
-        if( $this->queryvar_exists($key) ) return $this->_query[$key];
+        if( $this->queryvar_exists($key) ) return ''.$this->_query[$key];
+        return '';
     }
 
     /**
