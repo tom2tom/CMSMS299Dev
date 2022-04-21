@@ -68,6 +68,7 @@ try {
 	$domain = $this->GetName(); // translated-strings domain is this module
 	// get a list of content types and pick a default if necessary
 	$existingtypes = SingleItem::ContentTypeOperations()->ListContentTypes(false, true, false, $domain);
+	//TODO for the default page, diable|omit errorpage, sectionheader, separator, maybe also link, pagelink
 	// load or create the initial content object
 	if ($content_id === 0 && isset($_SESSION['__cms_copy_obj__'])) {
 		// we're copying a content object
@@ -401,6 +402,7 @@ if ($do_locking) {
 $lock_refresh = AppParams::get('lock_refresh', 120);
 $options_tab_name = ContentBase::TAB_OPTIONS;
 $msg = json_encode($this->Lang('msg_lostlock'));
+$msg2 = json_encode($this->Lang('error_editpage_contenttype'));
 $close = $this->Lang('close');
 
 $jsm = new ScriptsMerger();
@@ -490,9 +492,27 @@ EOS;
 }
 	$js .= <<<EOS
   $('#template_id').data('lastValue', $('#template_id').val());
-  // submit the form if disable wysiwyg, template id, and/or content-type fields are changed.
+  // limit the content-type for the default page.
+  $('#content_type')
+   .data('lastValue', $('#content_type').val())
+   .on('change', function(ev) {
+     if ($('#defaultcontent').val()) {
+       var ts = $(this),
+        v = ts.val();
+       if (['errorpage','sectionheader','separator','pagelink','link'].indexOf(v) !== false) {
+         //invalid type
+         v = ts.data('lastValue'); // revert value
+         ts.val(v);
+         cms_notify('error', $msg2);
+         ev.stopImmediatePropagation();
+         ev.preventDefault();
+         return false;
+       }
+     }
+   });
+  // submit the form if disable wysiwyg, template id, or content-type field is changed
   $('#id_disablewysiwyg, #template_id, #content_type').on('change', function() {
-    // disable the dirty form stuff, and unlock because we're gonna relockit on reload.
+    // disable the dirty form stuff, and unlock pending relock after reload.
     var self = this;
     var this_id = $(this).attr('id');
     $('#Edit_Content').dirtyForm('disable');
