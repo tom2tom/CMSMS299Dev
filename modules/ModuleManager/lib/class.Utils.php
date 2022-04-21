@@ -40,10 +40,13 @@ final class Utils
     private function __clone() {}
 
     /**
+     * Return information about installed modules
      *
      * @param bool $include_inactive Whether to also report inactive modules. Default false
      * @param bool $as_hash Whether returned array keys are respective module-names. Default false
      * @return array
+     * [0] = true always
+     * [1] = array of arrays
      */
     public static function get_installed_modules($include_inactive = false, $as_hash = false)
     {
@@ -71,6 +74,14 @@ final class Utils
         return [true,$results];
     }
 
+    /**
+     * Custom sort method
+     * @internal
+     * 
+     * @param mixed $e1 object | array
+     * @param mixed $e2 object | array
+     * @return int
+     */
     private static function uasort_cmp_details($e1, $e2)
     {
         if( is_object($e1) ) {
@@ -99,9 +110,9 @@ final class Utils
 
     /**
      *
-     * @param type $xmldetails
-     * @param type $installdetails
-     * @param type $newest
+     * @param array $xmldetails Reference to ...
+     * @param array $installdetails Reference to ...
+     * @param bool $newest Optional flag whether to retrieve the latest available version
      * @return array maybe empty
      */
     public static function build_module_data(&$xmldetails, &$installdetails, $newest = true)
@@ -182,9 +193,9 @@ final class Utils
 
     /**
      *
-     * @param type $filename
-     * @param type $size
-     * @param type $md5sum
+     * @param string $filename
+     * @param int $size byte-size of download chunks
+     * @param mixed $md5sum string | falsy Optional expected checksum of the retrieved file
      * @return string
      * @throws CommunicationException or RuntimeException
      */
@@ -199,7 +210,7 @@ final class Utils
 
         if( $md5sum != $dl_md5 ) {
             @unlink($xml_filename);
-            throw new RuntimeException($mod->Lang('error_checksum',[$server_md5,$dl_md5]));
+            throw new RuntimeException($mod->Lang('error_checksum',[$md5sum,$dl_md5]));
         }
 
         return $xml_filename;

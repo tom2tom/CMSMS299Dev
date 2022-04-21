@@ -202,7 +202,7 @@ final class ModuleRepClient
     /**
      *
      * @param string $xmlfile name of TBA
-     * @param int $size size of download-chunks
+     * @param int $size Optional custom byte-size of download-chunks
      * @return false | string
      */
     public static function get_repository_xml($xmlfile, $size = -1)
