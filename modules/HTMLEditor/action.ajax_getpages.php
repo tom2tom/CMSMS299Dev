@@ -91,7 +91,6 @@ $alias = 'selpagealias';
 $fill_node = function($node, int $depth = 0) use(&$fill_node, &$page, &$title, &$alias) : array
 {
 	if (!is_object($node)) { return []; }
-	//TODO use already-cached content tree data
 	$content = $node->getContent(false);
 	if (is_object($content)) {
 		if (!$content->Active()) { return []; }
@@ -121,8 +120,7 @@ $fill_node = function($node, int $depth = 0) use(&$fill_node, &$page, &$title, &
 		];
 
 		if ($node->has_children()) {
-			$children = $node->getChildren(false, true); //loads children into cache : SLOW! TODO just get id's
-			// recurse [further]?
+			$children = $node->getChildren(false, true); //TODO ok to include inactive/disabled?
 			if ($children && is_array($children)) {
 				$child_nodes = [];
 				foreach ($children as $cnode) {
@@ -131,7 +129,7 @@ $fill_node = function($node, int $depth = 0) use(&$fill_node, &$page, &$title, &
 						$child_nodes[] = $tmp;
 					}
 				}
-				unset($cnode);
+				unset($cnode); //garbage-cleaner signal
 				if ($child_nodes) {
 					$data['children'] = $child_nodes;
 				}
@@ -152,7 +150,7 @@ foreach ($rootnodes as $node) {
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('pagesmenu.tpl')); //,null,null,$smarty);
 $tpl->assign('nodes', $tree)
-  ->assign('current', $page);
+	->assign('current', $page);
 $body = $tpl->fetch();
 /*
 try {

@@ -598,7 +598,7 @@ EOS;
 	 * @param array   $explicit_ids (optional) array of explicit content ids to load
 	 * @author Ted Kulp
 	 */
-	public function LoadChildren(int $id = null, bool $loadprops = false, bool $all = false, array $explicit_ids = [] )
+	public function LoadChildren(int $id = 0, bool $loadprops = false, bool $all = false, array $explicit_ids = [] )
 	{
 		$db = SingleItem::Db();
 		$cache = SingleItem::SystemCache();

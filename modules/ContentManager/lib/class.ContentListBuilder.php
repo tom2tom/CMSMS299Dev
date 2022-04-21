@@ -206,13 +206,12 @@ final class ContentListBuilder
 	 * Set the page limit.
 	 * This must be called BEFORE get_content_list() is called.
 	 *
-	 * @param integer The page limit (min 1, max 500)
+	 * @param integer The page limit, constrained to 1 .. 500
 	 * @return void
 	 */
 	public function set_pagelimit($n)
 	{
-		$n = (int)$n;
-		$n = max(1, min(500, $n));
+		$n = max(1, min(500, (int)$n));
 		$this->_pagelimit = $n;
 	}
 
@@ -230,12 +229,11 @@ final class ContentListBuilder
 	 * Set the page offset
 	 * This must be called before get_content_list() is called.
 	 *
-	 * @param int page offset (min 0, max is set by get_content_list())
+	 * @param int page maximum offset
 	 */
 	public function set_offset($n)
 	{
-		$n = (int)$n;
-		$n = max(0, $n);
+		$n = max(0, (int)$n);
 		$this->_offset = $n;
 	}
 
@@ -251,15 +249,13 @@ final class ContentListBuilder
 
 	public function seek_to($n)
 	{
-		$n = (int)$n;
-		$n = max(1, $n);
+		$n = max(1, (int)$n);
 		$this->_seek_to = $n;
 	}
 
 	public function set_page($n)
 	{
-		$n = (int)$n;
-		$n = max(1, $n);
+		$n = max(1, (int)$n);
 		$this->_offset = $this->_pagelimit * ($n - 1);
 	}
 
@@ -623,7 +619,7 @@ final class ContentListBuilder
 				$display[] = $one;
 
 				$children = $node->get_children();
-				if ($children && count($children)) {
+				if ($children) {
 					foreach ($children as $child) {
 						$display[] = $child->get_tag('id');
 					}
@@ -646,7 +642,7 @@ final class ContentListBuilder
 				$startnode = $node = $hm->quickfind_node_by_id($item);
 				while ($node && $node->get_tag('id') > 0) {
 					$parents[] = $node->get_tag('id');
-					$node = $node->getParent();
+					$node = $node->get_parent();
 				}
 				// start at root
 				// push items from list on the stack if they are root, or the previous item is in the opened array.

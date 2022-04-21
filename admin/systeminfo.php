@@ -179,7 +179,7 @@ list($minimum, $recommended) = getTestValues('php_version');
 $tmp[0]['phpversion'] = testVersionRange(0, 'phpversion', PHP_VERSION, '', $minimum, $recommended, false);
 
 $default_charset = ini_get('default_charset');
-$test = new CmsInstallTest();
+$test = new CMSMS\InstallTest();
 $test->title = _la('default_charset');
 $test->value = $default_charset;
 $test->display_value = false;

@@ -173,7 +173,7 @@ if( $start_element ) {
             $rootnodes[] = $tmp;
         }
         else {
-            $tmp = $tmp->getParent();
+            $tmp = $tmp->get_parent();
             if( is_object($tmp) && $tmp->has_children() ) {
                 $rootnodes = $tmp->get_children();
             }
@@ -185,7 +185,7 @@ elseif( $start_page ) {
     if( $id ) {
         $tmp = $hm->find_by_tag('id',$id);
         if( $show_root_siblings ) {
-            $tmp = $tmp->getParent();
+            $tmp = $tmp->get_parent();
             if( is_object($tmp) && $tmp->has_children() ) {
                 $rootnodes = $tmp->get_children();
             }

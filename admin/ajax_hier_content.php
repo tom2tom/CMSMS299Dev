@@ -1,7 +1,7 @@
 <?php
 /*
 Ajax processor to retrieve site pages data, used by jquery.cmsms_hierselector.js
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -197,18 +197,18 @@ try {
                 // get the parent
                 $parent_node = $node->get_parent();
 
-                // and get its children
+                // and its (viewable) children
                 $out[$one] = [];
                 $children = $parent_node->getChildren(false,$allow_all);
                 for( $i = 0, $n = count($children); $i < $n; $i++ ) {
-                    $content_obj = $children[$i]->getContent();
-                    if( ! $content_obj->IsViewable() ) continue;
+                    $content = $children[$i]->getContent();
+                    if( ! $content->IsViewable() ) continue;
                     $rec = [];
-                    $rec['content_id'] = $content_obj->Id();
-                    $rec['id_hierarchy'] = $content_obj->IdHierarchy();
-                    $rec['wants_children'] = $content_obj->WantsChildren();
+                    $rec['content_id'] = $content->Id();
+                    $rec['id_hierarchy'] = $content->IdHierarchy();
+                    $rec['wants_children'] = $content->WantsChildren();
                     $rec['has_children'] = $children[$i]->has_children();
-                    $rec['display'] = ($display == 'title') ? $content_obj->Name() : $content_obj->MenuText();
+                    $rec['display'] = ($display == 'title') ? $content->Name() : $content->MenuText();
                     $out[$one][] = $rec;
                 }
             }
