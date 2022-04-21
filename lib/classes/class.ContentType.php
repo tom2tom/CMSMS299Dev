@@ -20,13 +20,15 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
+use ArrayAccess;
+
 /**
  * Convenience class to hold and interact with page-content type parameters
  * @since 3.0 this replaces the former ContentTypePlaceHolder class
  *
  * @package CMS
  */
-class ContentType implements \ArrayAccess
+class ContentType implements ArrayAccess
 {
 	/**
 	 * @var string The type name, must be unique in the installation
@@ -124,7 +126,7 @@ class ContentType implements \ArrayAccess
 		}
 	}
 
-	public function offsetExists($key)
+	public function offsetExists($key) : bool
 	{
 		return !empty($this->$key);
 	}
@@ -134,12 +136,12 @@ class ContentType implements \ArrayAccess
 		if( isset($this->$key) ) return $this->$key;
 	}
 
-	public function offsetSet($key,$value)
+	public function offsetSet($key,$value) : void
 	{
 		$this->$key = $value;
 	}
 
-	public function offsetUnset($key)
+	public function offsetUnset($key) : void
 	{
 		unset($this->$key);
 	}

@@ -1331,28 +1331,28 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @deprecated since 2.0 (at most?)
 	 *
 	 * @param string $name The property name
-	 * @param int	$priority The priority
+	 * @param int    $priority The priority
 	 * @param bool   $is_required Whether this field is required for this content type
 	 */
-	/*	protected function AddBaseProperty($name, $priority, $is_required = false)
-		{
-			$this->AddProperty($name,$priority,self::TAB_MAIN,$is_required);
-		}
-	*/
+/*	protected function AddBaseProperty($name, $priority, $is_required = false)
+	{
+		$this->AddProperty($name,$priority,self::TAB_MAIN,$is_required);
+	}
+*/
 	/* *
 	 * Alias for AddProperty
 	 * @deprecated  since 2.0 (at most?)
 	 *
 	 * @param string $name
-	 * @param int	$priority
+	 * @param int    $priority
 	 * @param bool   $is_required
 	 * @return null
 	 */
-	/*	protected function AddContentProperty($name, $priority, $is_required = false)
-		{
-			return $this->AddProperty($name,$priority,self::TAB_MAIN,$is_required);
-		}
-	*/
+/*	protected function AddContentProperty($name, $priority, $is_required = false)
+	{
+		return $this->AddProperty($name,$priority,self::TAB_MAIN,$is_required);
+	}
+*/
 
 	/**
 	 * Remove a property from the known-properties list, and specify a default
@@ -2519,17 +2519,17 @@ abstract class ContentBase implements IContentEditor, Serializable
 		$this->mAdditionalEditors = $editorarray;
 	}
 
-	/*	public function __serialize() : array
-		{
-			return [relevant key/value pairs];
-		}
-
-		public function __unserialize(array $data)
-		{
-			foreach ($data as $somemember->$val) $this->someprop = $val;
-		}
-	*/
 	// ======= SERIALIZABLE INTERFACE METHODS =======
+
+	public function __serialize()
+	{
+		return $this->serialize();
+	}
+
+	public function __unserialize(string $serialized) : void
+	{
+		$this->unserialize($serialized);
+	}
 
 	public function serialize()
 	{
@@ -2540,10 +2540,10 @@ abstract class ContentBase implements IContentEditor, Serializable
 		$mod = null; //force-garbage
 		//TODO can cachers cope with embedded null's? NB 'internal' cryption is slow!
 		return Crypto::encrypt_string($str, __CLASS__, 'best');
-// 		return $str;
+//		return $str;
 	}
 
-	public function unserialize($serialized)
+	public function unserialize(string $serialized) : void
 	{
 		$serialized = Crypto::decrypt_string($serialized, __CLASS__, 'best');
 		if (!$serialized) {

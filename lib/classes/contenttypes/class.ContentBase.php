@@ -784,6 +784,16 @@ class ContentBase implements Serializable
 
 	// ======= SERIALIZABLE INTERFACE METHODS =======
 
+	public function __serialize()
+	{
+		return $this->serialize();
+	}
+
+	public function __unserialize(string $serialized) : void
+	{
+		$this->unserialize($serialized);
+	}
+
 	public function serialize()
 	{
 		//TODO can all cachers cope with embedded null's in strings ? NB internal cryption is slow!
@@ -791,7 +801,7 @@ class ContentBase implements Serializable
 //		return $this->__toString();
 	}
 
-	public function unserialize($serialized)
+	public function unserialize(string $serialized) : void
 	{
 		$serialized = Crypto::decrypt_string($serialized,__CLASS__,'best');
 		if (!$serialized) {

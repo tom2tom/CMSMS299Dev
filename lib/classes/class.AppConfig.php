@@ -176,7 +176,7 @@ final class AppConfig implements ArrayAccess
      * interface method
      * @ignore
      */
-    public function offsetExists($key)
+    public function offsetExists($key) : bool
     {
         return isset(self::PROPS[$key]) || isset($this->_data[$key]); //TODO do we want to allow 'foreign' parameters in there?
     }
@@ -494,7 +494,7 @@ final class AppConfig implements ArrayAccess
      * instead supply install-time settings directly : Config::get_instance($config)
      * @ignore
      */
-    public function offsetSet($key,$value)
+    public function offsetSet($key,$value) : void
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('Direct setting of a config property is not supported'));
     }
@@ -504,7 +504,7 @@ final class AppConfig implements ArrayAccess
      * instead supply install-time settings directly : Config::get_instance($config)
      * @ignore
      */
-    public function offsetUnset($key)
+    public function offsetUnset($key) : void
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('Direct removal of a config property is not supported'));
     }

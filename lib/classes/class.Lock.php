@@ -132,7 +132,7 @@ final class Lock implements ArrayAccess
      * @param mixed $value
      * @throws LogicException
      */
-    public function OffsetSet($key, $value)
+    public function OffsetSet($key, $value) : void
     {
         switch ($key) {
         case 'modified_date': // deprecated since 3.0
@@ -172,7 +172,7 @@ final class Lock implements ArrayAccess
      * @param string $key
      * @return mixed
      */
-    public function OffsetExists($key)
+    public function OffsetExists($key) : bool
     {
         if ($key != 'created') {
             return isset($this->_data[$key]);
@@ -184,7 +184,7 @@ final class Lock implements ArrayAccess
      * @ignore
      * @param string $key
      */
-    public function OffsetUnset($key)
+    public function OffsetUnset($key) : void
     {
         // do nothing
     }

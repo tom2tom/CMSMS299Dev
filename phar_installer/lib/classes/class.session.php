@@ -55,7 +55,7 @@ final class session implements ArrayAccess
 
     //ArrayAccess methods
 
-    public function offsetExists($key)
+    public function offsetExists($key) : bool
     {
         $this->_expand();
         return isset($this->_data[$key]);
@@ -67,14 +67,14 @@ final class session implements ArrayAccess
         return $this->_data[$key] ?? null;
     }
 
-    public function offsetSet($key, $value)
+    public function offsetSet($key, $value) : bool
     {
         $this->_expand();
         $this->_data[$key] = $value;
         $this->_save();
     }
 
-    public function offsetUnset($key)
+    public function offsetUnset($key) : bool
     {
         $this->_expand();
         if (isset($this->_data[$key])) {

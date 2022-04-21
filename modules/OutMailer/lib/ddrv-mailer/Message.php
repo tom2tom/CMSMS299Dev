@@ -698,6 +698,17 @@ final class Message implements MessageContract
         return $messages;
     }
 
+    //PHP 8.1+ Serializable interface compatibility
+	public function __serialize()
+	{
+		return $this->serialize();
+	}
+
+	public function __unserialize(string $serialized) : void
+	{
+		$this->unserialize($serialized);
+	}
+
     /**
      * @inheritDoc
      */
@@ -713,15 +724,15 @@ final class Message implements MessageContract
             'contents' => $this->contents,
             'recipients' => $this->recipients,
         );
-        return serialize($raw);
+        return \serialize($raw);
     }
 
     /**
      * @inheritDoc
      */
-    public function unserialize($serialized)
+    public function unserialize(string $serialized) : void
     {
-        $raw = unserialize($serialized);
+        $raw = \unserialize($serialized);
         $empty = array(
             'id' => array(),
             'headers' => array(),

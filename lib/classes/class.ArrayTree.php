@@ -482,7 +482,7 @@ class RecursiveArrayTreeIterator extends RecursiveIteratorIterator implements Ou
         parent::__construct($iterator, $mode, $flags);
     }
 
-    public function rewind()
+    public function rewind() : void
     {
         parent::rewind();
         if ($this->noleaves) {
@@ -490,7 +490,7 @@ class RecursiveArrayTreeIterator extends RecursiveIteratorIterator implements Ou
         }
     }
 
-    public function next()
+    public function next() : void
     {
         parent::next();
         if ($this->noleaves) {
