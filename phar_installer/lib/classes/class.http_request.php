@@ -714,7 +714,7 @@ class http_request
 
         // Process cookies, if requested
         $cookieString = '';
-        if (is_array($this->cookies) && count($this->cookies) > 0) {
+        if (is_array($this->cookies) && $this->cookies) {
             // Get a blank slate
             $tempString = [];
 

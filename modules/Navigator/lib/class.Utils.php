@@ -143,12 +143,14 @@ final class Utils
                 }
             }
 
-            // poll all the children ... to see if we have any child that 'could' be displayed SLOW!
+            // poll all children to check for any of them that 'could' be displayed SLOW! TODO why ever include inactive etc ?
             $children = null;
             if( $node->has_children() ) {
-                $children = $node->getChildren($deep,$show_all); //loads children into cache : SLOW! TODO just get id's
+                $children = $node->getChildren(false,$show_all,false); //loads children into cache : TODO just get id's
                 if( $children ) {
-                    $cache = SingleItem::SystemCache();
+                    if( !isset($cache) ) {
+                        $cache = SingleItem::SystemCache();
+                    }
                     foreach( $children as &$node ) {
                         $id = $node->get_tag('id');
                         if( $cache->has($id,'tree_pages') ) {
@@ -161,7 +163,7 @@ final class Utils
             }
 
             // are we able to recurse [further]?
-            if( is_array($children) && count($children)
+            if( is_array($children) && $children
                && ($nlevels < 0 || $depth + 1 < $nlevels)
                && (!$collapse || $obj->parent || $obj->current) ) {
                 $obj->has_children = TRUE;

@@ -549,7 +549,7 @@ class TemplateOperations
 		$ob = new TemplateQuery($params);
 		$out = self::get_bulk_templates($ob->GetMatchedTemplateIds());
 
-		if (isset($params['as_list']) && count($out)) {
+		if (isset($params['as_list']) && $out) {
 			$tmp2 = [];
 			foreach ($out as $tpl) {
 				$tmp2[$tpl->get_id()] = $tpl->get_name();

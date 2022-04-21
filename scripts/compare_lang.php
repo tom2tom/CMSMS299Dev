@@ -248,7 +248,7 @@ ksort( $slave_data );
 $master_keys = array_keys( $master_data );
 $slave_keys = array_keys( $slave_data );
 $missing_keys = array_diff( $master_keys, $slave_keys );
-if( $report_only && count($missing_keys) ) {
+if( $report_only && $missing_keys ) {
     echo 'WARNING: '.count($missing_keys)." strings are not translated\n";
     echo "--\n";
     foreach( $missing_keys as $one ) {
@@ -258,7 +258,7 @@ if( $report_only && count($missing_keys) ) {
 
 // 2.  Get Extra translations
 $extra_keys = array_diff( $slave_keys, $master_keys );
-if( $report_only && count($extra_keys) ) {
+if( $report_only && $extra_keys ) {
     echo 'WARNING: '.count($extra_keys)." strings are no longer valid\n";
     echo "--\n";
     foreach( $extra_keys as $one ) {

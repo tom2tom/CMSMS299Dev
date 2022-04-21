@@ -274,7 +274,7 @@ try {
         $files[$name] = $data;
     }
 
-    if( $profile->show_thumbs && count($thumbs) ) {
+    if( $profile->show_thumbs && $thumbs ) {
         // remove thumbnails that are not orphaned
         foreach( $thumbs as $thumb ) {
             if( isset($files[$thumb]) ) { unset($files[$thumb]); }

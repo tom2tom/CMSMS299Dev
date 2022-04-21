@@ -5,7 +5,7 @@
 // remove the admin dir name from the url (url should be relative to admin dir)
 $sql = 'SELECT user_id,value FROM '.CMS_DB_PREFIX.'userprefs WHERE preference = ?';
 $homepages = $db->getAll($sql, ['homepage']);
-if (is_array($homepages) && count($homepages)) {
+if ($homepages) {
     status_msg('Converting backend users\' homepage preference');
 
     $update_statement = 'UPDATE ' . CMS_DB_PREFIX . 'userprefs SET value = ? WHERE user_id = ? AND preference = ?';

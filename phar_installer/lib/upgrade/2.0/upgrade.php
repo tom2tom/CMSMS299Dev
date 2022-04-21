@@ -330,7 +330,7 @@ $query = 'SELECT * FROM '.CMS_DB_PREFIX.'htmlblobs';
 $sql2 = 'INSERT INTO '.CMS_DB_PREFIX.Template::TABLENAME.' (name,content,description,type_id,type_dflt,owner_id,created,modified) VALUES (?,?,?,?,0,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())';
 $gcblist = null;
 $tmp = $db->getArray($query);
-if (is_array($tmp) && count($tmp)) {
+if ($tmp) {
     // for each gcb, come up wit a new name and if the new name does not exist in the database, create a new template by that name.
     foreach ($tmp as $gcb) {
         $new_name = $fix_template_name($gcb['htmlblob_name']);
@@ -348,7 +348,7 @@ if (is_array($tmp) && count($tmp)) {
         // process all of the additional owners, and sort them into an array of uids, one array for each gcb.
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'additional_htmlblob_users';
         $tmp = $db->getArray($query);
-        if (is_array($tmp) && count($tmp)) {
+        if ($tmp) {
             $users = [];
             foreach ($tmp as $row) {
                 $htmlblob_id = $row['htmlblob_id'];
@@ -396,7 +396,7 @@ $dbdict->ExecuteSQLArray($sqlarray);
 verbose_msg('converting stylesheets');
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'css';
 $tmp = $db->getArray($query);
-if (is_array($tmp) && count($tmp)) {
+if ($tmp) {
     $css_list = [];
     foreach ($tmp as $row) {
         $new_name = $_fix_css_name($row['css_name']);
@@ -404,7 +404,7 @@ if (is_array($tmp) && count($tmp)) {
             verbose_msg('Rename stylesheet '.$row['css_name']." to $new_name");
         }
         try {
-            $tmp = Stylesheet::load($new_name);
+            $tmp2 = Stylesheet::load($new_name);
         } catch (Throwable $t) {
             $css_id = $row['css_id'];
             $stylesheet = new Stylesheet();
@@ -433,7 +433,7 @@ $tpl_insert_query = 'INSERT INTO '.CMS_DB_PREFIX.Template::TABLENAME.' (name,con
 $css_assoc_query = 'SELECT * FROM '.CMS_DB_PREFIX.'css_assoc WHERE assoc_to_id = ? ORDER BY assoc_order ASC';
 $tmp = $db->getArray($tpl_query);
 $template_list = array();
-if( is_array($tmp) && count($tmp) ) {
+if( $tmp ) {
     foreach( $tmp as $row ) {
         $row['template_name'] = $fix_template_name($row['template_name']);
         $is_default = (int) $row['default_template'];
@@ -462,7 +462,7 @@ if( is_array($tmp) && count($tmp) ) {
         // get stylesheet(s) attached to this template
         // and associate them with the design.
         $associations = $db->getArray($css_assoc_query,array($row['template_id']));
-        if( is_array($associations) && count($associations) ) {
+        if( $associations ) {
             foreach( $associations as $assoc ) {
                 $css_id = $assoc['assoc_css_id'];
                 if( !isset($csslist[$css_id]) ) continue;
@@ -481,7 +481,7 @@ $uquery = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id = ? WHERE content_id 
 $iquery = 'INSERT INTO '.CMS_DB_PREFIX.'content_props (content_id,type,prop_name,content,create_date) VALUES (?,?,?,?,NOW())';
 $content_rows = $db->getArray($query);
 $contentops = SingleItem::ContentOperations();
-if( is_array($content_rows) && count($content_rows) ) {
+if( $content_rows ) {
     foreach( $content_rows as $row ) {
         if( $row['template_id'] < 1 ) continue;
         $content_id = $row['content_id'];

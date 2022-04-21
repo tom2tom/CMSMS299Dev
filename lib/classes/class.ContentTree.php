@@ -241,7 +241,7 @@ class ContentTree extends Tree
 	 */
 /*	public function getParentNode()
 	{
-		return $this->getParent();
+		return $this->get_parent();
 	}
 */
 	/* *
@@ -273,7 +273,7 @@ class ContentTree extends Tree
 		if( !$this->cache ) { $this->cache = SingleItem::SystemCache(); }
 		if( !$this->cache->has($id,'tree_pages') ) {
 			// not in cache
-			$parent = $this->getParent();
+			$parent = $this->get_parent();
 			if( !$loadsiblings || !$parent ) {
 				// only load this content object
 				return SingleItem::ContentOperations()->LoadContentFromId($id, $deep);  //TODO ensure relevant content-object?
@@ -341,12 +341,12 @@ class ContentTree extends Tree
 	 * @param bool $deep Optionally load the properties of the children (only used when loadcontent is true)
 	 * @param bool $all Load all children, including inactive/disabled ones (only used when loadcontent is true)
 	 * @param bool $loadcontent Load content objects for children
-	 * @return Array of Tree objects.
+	 * @return reference to array of Tree objects.
 	 */
 	public function &getChildren($deep = false,$all = false,$loadcontent = true)
 	{
 		$children = $this->get_children();
-		if( is_array($children) && count($children) && $loadcontent ) {
+		if( $children && $loadcontent ) {
 			// check to see if we need to load anything.
 			$ids = [];
 			for( $i = 0, $n = count($children); $i < $n; $i++ ) {

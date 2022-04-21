@@ -77,7 +77,7 @@ final class BulkOperations
 			}
 		}
 
-		if ($separate_modules && count($tmpm)) {
+		if ($separate_modules && $tmpm) {
 			$tmpc[-1] = '----------';
 		}
 		$tmpc = array_merge($tmpc, $tmpm);

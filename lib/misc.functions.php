@@ -160,7 +160,7 @@ function get_matching_files(string $dir, string $extensions = '', bool $excluded
         }
 
         $ext = strtolower(substr($file, strrpos($file, '.') + 1));
-        if (is_array($extensions) && count($extensions) && !in_array($ext, $extensions)) {
+        if (is_array($extensions) && $extensions && !in_array($ext, $extensions)) {
             continue;
         }
 
