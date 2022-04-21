@@ -105,17 +105,16 @@ function setup_session(bool $cachable = false)
 		}
 	}
 	if ($cachable) {
-		$cachable = (int) AppParams::get('allow_browser_cache', 0);
+		$cachable = (int)AppParams::get('allow_browser_cache', 0);
 	}
-	if (!$cachable) {
-		// admin pages can't be cached... period, at all.. never.
-		@session_cache_limiter('nocache');
-	} else {
+	if ($cachable) {
 		// frontend request
 		$expiry = (int)max(0, AppParams::get('browser_cache_expiry', 60));
 		session_cache_expire($expiry);
 		session_cache_limiter('public');
-		@header_remove('Last-Modified');
+	} else {
+		// probably an admin request
+		@session_cache_limiter('nocache');
 	}
 
 	// setup session with different (constant) id and start it
@@ -138,6 +137,9 @@ function setup_session(bool $cachable = false)
 		session_start();
 	}
 
+	if ($cachable) {
+		@header_remove('Last-Modified');
+	}
 	/* TODO session-shutdown function(s) processing, from handler(s) recorded in
 		session_set_save_handler(
 			callable1, ... callableN
@@ -217,7 +219,7 @@ function get_userid(bool $redirect = true)
 {
 //  $config = SingleItem::Config();
 //  if (!$config['app_mode']) { MAYBE IN FUTURE
-/* MAYBE IN FUTURE      if (cmsms()->is_cli()) {
+/* MAYBE IN FUTURE		if (cmsms()->is_cli()) {
 		$uname = get_cliuser();
 		if ($uname) {
 			$user = SingleItem::UserOperations()->LoadUserByUsername($uname);
@@ -250,7 +252,7 @@ function get_username(bool $redirect = true)
 {
 //  $config = SingleItem::Config();
 //  if (!$config['app_mode']) { MAYBE IN FUTURE
-/* MAYBE IN FUTURE      if (cmsms()->is_cli()) {
+/* MAYBE IN FUTURE		if (cmsms()->is_cli()) {
 			return get_cliuser();
 		}
 */
@@ -597,7 +599,7 @@ function get_pageid_or_alias_from_url()
 			// get a decent returnid
 			if ($arr['returnid']) {
 				$page = (int) $arr['returnid'];
-//              unset($arr['returnid']);
+//				unset($arr['returnid']);
 			} else {
 				$page = SingleItem::ContentOperations()->GetDefaultContent();
 			}
@@ -991,10 +993,10 @@ function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
 		}
 	}
 	// do not accept browser-executable files
-    if ($helper->is_executable($cleaned)) {
+	if ($helper->is_executable($cleaned)) {
 		//TODO report error or throw new Exception(lang(''))
 		return false;
-    }
+	}
 
 	if (@move_uploaded_file($tmpfile, $destination)) {
 		if ($cleaned != $destination) {
