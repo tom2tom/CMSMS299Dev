@@ -784,16 +784,19 @@ class ContentBase implements Serializable
 
 	// ======= SERIALIZABLE INTERFACE METHODS =======
 
-	public function __serialize()
+	public function __serialize() : array
 	{
-		return $this->serialize();
+		return get_object_vars($this);
 	}
 
-	public function __unserialize(string $serialized) : void
+	public function __unserialize(array $data) : void
 	{
-		$this->unserialize($serialized);
+		foreach ($data as $key => $value) {
+			$this->$key = $value;
+		}
 	}
 
+//	public function serialize() : ?string PHP 8+
 	public function serialize()
 	{
 		//TODO can all cachers cope with embedded null's in strings ? NB internal cryption is slow!
@@ -801,11 +804,12 @@ class ContentBase implements Serializable
 //		return $this->__toString();
 	}
 
-	public function unserialize(string $serialized) : void
+//	public function unserialize(string $serialized) : void PHP 8+
+	public function unserialize($serialized)
 	{
 		$serialized = Crypto::decrypt_string($serialized,__CLASS__,'best');
 		if (!$serialized) {
-			return;
+			throw new Exception('Invalid object data in '.__METHOD__);
 		}
 		$props = json_decode($serialized, true);
 		if ($props) {

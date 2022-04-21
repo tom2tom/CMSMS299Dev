@@ -2521,16 +2521,24 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 	// ======= SERIALIZABLE INTERFACE METHODS =======
 
-	public function __serialize()
+	public function __serialize() : array
 	{
-		return $this->serialize();
+		$mod = $this->mod;
+		$this->mod = null;
+		$props = get_object_vars($this);
+		$this->mod = $mod;
+		return $props;
 	}
 
-	public function __unserialize(string $serialized) : void
+	public function __unserialize(array $data) : void
 	{
-		$this->unserialize($serialized);
+		foreach ($data as $key => $val) {
+			$this->$key = $val;
+		}
+		$this->mod = AppUtils::get_module('ContentManager');
 	}
 
+//	public function serialize() : ?string PHP 8+
 	public function serialize()
 	{
 		$mod = $this->mod;
@@ -2543,11 +2551,12 @@ abstract class ContentBase implements IContentEditor, Serializable
 //		return $str;
 	}
 
-	public function unserialize(string $serialized) : void
+//	public function unserialize(string $serialized) : void PHP 8+
+	public function unserialize($serialized)
 	{
 		$serialized = Crypto::decrypt_string($serialized, __CLASS__, 'best');
 		if (!$serialized) {
-			return;
+			throw new Exception('Invalid object data in '.__METHOD__);
 		}
 		$props = json_decode($serialized, true);
 		if ($props !== null) {

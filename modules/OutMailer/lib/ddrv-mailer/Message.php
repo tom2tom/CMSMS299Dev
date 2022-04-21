@@ -699,19 +699,41 @@ final class Message implements MessageContract
     }
 
     //PHP 8.1+ Serializable interface compatibility
-	public function __serialize()
+	public function __serialize() : array
 	{
-		return $this->serialize();
+        return [
+            'id' => $this->id,
+            'headers' => $this->headers,
+            'boundary' => $this->boundary,
+            'html' => $this->html,
+            'text' => $this->text,
+            'attachments' => $this->attachments,
+            'contents' => $this->contents,
+            'recipients' => $this->recipients,
+        ];
 	}
 
-	public function __unserialize(string $serialized) : void
+	public function __unserialize(array $data) : void
 	{
-		$this->unserialize($serialized);
+        $empty = [
+            'id' => [],
+            'headers' => [],
+            'boundary' => '',
+            'html' => '',
+            'text' => '',
+            'attachments' => [],
+            'contents' =>  [],
+            'recipients' => [],
+        ];
+        foreach ($empty as $key => $default) {
+            $this->$key = array_key_exists($key, $data) ? $data[$key] : $default;
+        }
 	}
 
     /**
      * @inheritDoc
      */
+//    public function serialize() : ?string PHP 8+
     public function serialize()
     {
         $raw = array(
@@ -730,7 +752,8 @@ final class Message implements MessageContract
     /**
      * @inheritDoc
      */
-    public function unserialize(string $serialized) : void
+//    public function unserialize(string $serialized) : void PHP 8+
+    public function unserialize($serialized)
     {
         $raw = \unserialize($serialized);
         $empty = array(
