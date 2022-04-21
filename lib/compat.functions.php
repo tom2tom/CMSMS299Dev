@@ -27,6 +27,7 @@ If not, see <https://www.gnu.org/licenses/>.
  * @license GPL
  */
 if( !function_exists('gzopen') ) {
+    if( function_exists('gzopen64') ) {
     /**
      * Polyfill for gzopen() in case that does not exist.
      * Some installs of PHP (after PHP 5.3) use a different zlib library,
@@ -35,8 +36,13 @@ if( !function_exists('gzopen') ) {
      * @since 2.0
      * @ignore
      */
-    function gzopen( $filename , $mode , $use_include_path = 0 ) {
-        return gzopen64($filename, $mode, $use_include_path);
+        function gzopen($filename, $mode, $use_include_path = 0) {
+            return gzopen64($filename, $mode, $use_include_path);
+        }
+    } else {
+        function gzopen($filename, $mode, $use_include_path = 0) {
+            throw new RuntimeException('Function gzopen is not available'); 
+        }
     }
 }
 
@@ -135,6 +141,7 @@ error_reporting($lvl);
 'CMSMS\HookOperations' => 'CMSMS\HookManager',
 'CMSMS\HttpRequest' => 'cms_http_request',
 'CMSMS\internal\Smarty' => 'CMSMS\internal\Smarty_CMS',
+'CMSMS\InstallTest' => 'CmsInstallTest',
 'CMSMS\IRegularTask' => 'CmsRegularTask',
 'CMSMS\LangOperations' => 'CmsLangOperations',
 'CMSMS\Lock' => 'CmsLock',
