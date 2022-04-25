@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to display an object in a friendly fashion
-Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -118,6 +118,7 @@ function smarty_function_dump($params, $template)
 
 function smarty_cms_about_function_dump()
 {
+	//TODO announce presence of protected, private object-properties
 	$n = _la('none');
 	echo _ld('tags', 'about_generic', 'Robert Campbell 2012',"<li>$n</li>");
 }
@@ -142,6 +143,7 @@ function smarty_cms_help_function_dump()
 
 namespace dump_plugin {
 
+use ReflectionObject;
 use function CMSMS\specialize;
 
 function build_accessor($parent_str, $parent_type, $childname)
@@ -181,13 +183,16 @@ function dump_object($params, &$obj, $level = 1, $ignore = [], $accessor)
 	}
 
 	if( !isset($params['novars']) )	{
-		$vars = get_object_vars($obj);
+		$ref = new ReflectionObject($obj);
+		$vars = $ref->getProperties();
 		if( $vars ) {
 			$str .= str_repeat('  ',$level).'Properties: <br />';
-			foreach( $vars as $name => $value )	{
+			foreach( $vars as $prop ) {
+				$name = $prop->getName();
 				if( in_array($name,$ignore) ) continue;
 				$acc = build_accessor($accessor,'object',$name);
 
+				$value = $prop->getValue($obj);
 				$type = gettype($value);
 				if( $type == 'object' )	{
 					$str .= str_repeat('  ',$level).'- '.'<u>'.$name.': Object</u> <em>{$'.$acc.'}</em><br />';

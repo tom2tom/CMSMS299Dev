@@ -23,6 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace get_template_vars {
 
 use LogicException;
+use ReflectionObject;
 
 	/**
 	 * @param mixed $ptype the parent type
@@ -64,13 +65,17 @@ use LogicException;
 		$depth_str = '&nbsp;&nbsp;&nbsp;';
 		$acc = _cms_output_accessor($ptype,$key,$depth);
 		if( is_object($val) ) {
-			$o_items = get_object_vars($val);
-
+			$ref = new ReflectionObject($val);
+			$o_items = $ref->getProperties();
 			$out .= str_repeat($depth_str,$depth);
 			$out .= "{$acc} <em>(object of type: ".get_class($val).')</em> = {';
-			if( $o_items ) $out .= '<br />';
-			foreach( $o_items as $o_key => $o_val ) {
-				$out .= _cms_output_var($o_key,$o_val,$type,$depth+1);
+			if( $o_items ) {
+				$out .= '<br />';
+				foreach( $o_items as $prop ) {
+					$o_key = $prop->getName();
+					$o_val = $prop->getValue($val);
+					$out .= _cms_output_var($o_key,$o_val,$type,$depth+1);
+				}
 			}
 			$out .= str_repeat($depth_str,$depth).'}<br />';
 		}
@@ -120,6 +125,7 @@ function smarty_function_get_template_vars($params, $template)
 
 function smarty_cms_about_function_get_template_vars()
 {
+	//TODO announce presence of protected, private object-properties
 	$n = _la('none');
 	echo _ld('tags', 'about_generic', 'Robert Campbell', "<li>$n</li>");
 }
