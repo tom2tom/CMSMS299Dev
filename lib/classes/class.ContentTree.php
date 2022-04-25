@@ -347,15 +347,21 @@ class ContentTree extends Tree
 	{
 		$children = $this->get_children();
 		if( $children && $loadcontent ) {
-			// check to see if we need to load anything.
+			// check whether anything to be loaded.
 			$ids = [];
 			for( $i = 0, $n = count($children); $i < $n; $i++ ) {
-				if( !$children[$i]->isContentCached() ) $ids[] = $children[$i]->get_tag('id');
+				if( !$children[$i]->isContentCached() ) {
+					$oid = $children[$i]->get_tag('id');
+					if( $oid ) $ids[] = $oid; // TODO ok if has no tag (hence treated as root page)
+				}
 			}
 
 			if( $ids ) {
-				// load the children that aren't loaded yet.
-				SingleItem::ContentOperations()->LoadChildren($this->get_tag('id'),$deep,$all,$ids);
+				// load children that aren't loaded yet.
+				$oid = $this->get_tag('id');
+				if( $oid ) { // TODO ok if has no tag (hence treated as root page)
+					SingleItem::ContentOperations()->LoadChildren($oid,$deep,$all,$ids);
+				}
 			}
 		}
 
