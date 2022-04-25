@@ -50,7 +50,7 @@ $content_id = isset($params['content_id']) ? (int)$params['content_id'] : 0;
 
 try {
 	if ($content_id < 1) {
-		// adding
+		// adding or cloning
 		if (!$this->CheckPermission('Add Pages')) {
 			// no permission to add pages.
 			$this->SetError($this->Lang('error_editpage_permission'));
@@ -70,8 +70,8 @@ try {
 	$existingtypes = SingleItem::ContentTypeOperations()->ListContentTypes(false, true, false, $domain);
 	//TODO for the default page, diable|omit errorpage, sectionheader, separator, maybe also link, pagelink
 	// load or create the initial content object
-	if ($content_id === 0 && isset($_SESSION['__cms_copy_obj__'])) {
-		// we're copying a content object
+	if (isset($_SESSION['__cms_copy_obj__'])) {
+		// we're cloning a content object
 		$content_obj = unserialize($_SESSION['__cms_copy_obj__']); // IContentEditor-compatible
 		if (isset($params['content_type'])) {
 			$content_type = trim($params['content_type']);

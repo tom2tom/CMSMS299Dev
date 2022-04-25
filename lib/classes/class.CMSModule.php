@@ -410,7 +410,7 @@ abstract class CMSModule
     /**
      * Register the module as a smarty 'function' plugin.
      * This method should be called during module installation or upgrade,
-     *  or from the module's constructor or Initialize*() method.
+     * (with $static=true) or from the module's constructor or Initialize*() method.
      *
      * @final
      * @param bool $static Optional flag whether to record this registration

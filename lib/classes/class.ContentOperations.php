@@ -242,8 +242,10 @@ final class ContentOperations
 	 * specified content id.
 	 * @since 3.0
 	 *
-	 * @param mixed $id int | null The id of the content object to load. If < 1, the default id will be used. TODO OR create empty object of some type
-	 * @param bool $loadprops Optional flag whether to load the properties of that content object. Default false.
+	 * @param mixed $id int | null The id of the content object to load.
+	 *  If < 1, the default id will be used. TODO OR create empty object of some type
+	 * @param bool $loadprops Optional flag whether to also load the
+	 * 'non-core' properties of the content object. Default false.
 	 * @return mixed The loaded content object | null if nothing is found.
 	 */
 	public function LoadEditableContentFromId($id, bool $loadprops = false)
@@ -592,13 +594,13 @@ EOS;
 	/**
 	 * Loads active children into a given tree node
 	 *
-	 * @param int $id The parent of the content objects to load into the tree
+	 * @param mixed $pid Optional id of the parent of the content objects to load
+	 *  A falsy value is treated as -1 i.e. the root of all site-pages. Default 0.
 	 * @param bool $loadprops If true, load the properties of all loaded content objects
 	 * @param bool $all If true, load all content objects, even inactive ones.
 	 * @param array   $explicit_ids (optional) array of explicit content ids to load
-	 * @author Ted Kulp
 	 */
-	public function LoadChildren(int $id = 0, bool $loadprops = false, bool $all = false, array $explicit_ids = [] )
+	public function LoadChildren($pid = 0, bool $loadprops = false, bool $all = false, array $explicit_ids = [] )
 	{
 		$db = SingleItem::Db();
 		$cache = SingleItem::SystemCache();
