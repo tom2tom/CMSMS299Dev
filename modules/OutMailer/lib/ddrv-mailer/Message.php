@@ -710,20 +710,26 @@ final class Message implements MessageContract
             'attachments' => $this->attachments,
             'contents' => $this->contents,
             'recipients' => $this->recipients,
+            'charset' => $this->charset,
+            'encoding' => $this->encoding,
+            'eol' => $this->eol,
         ];
 	}
 
 	public function __unserialize(array $data) : void
 	{
         $empty = [
-            'id' => [],
-            'headers' => [],
+            'id' => array(),
+            'headers' => array(),
             'boundary' => '',
             'html' => '',
             'text' => '',
-            'attachments' => [],
-            'contents' =>  [],
-            'recipients' => [],
+            'attachments' => array(),
+            'contents' =>  array(),
+            'recipients' => array(),
+            'charset' => '',
+            'encoding' => '',
+            'eol' => '',
         ];
         foreach ($empty as $key => $default) {
             $this->$key = array_key_exists($key, $data) ? $data[$key] : $default;
@@ -736,17 +742,7 @@ final class Message implements MessageContract
 //    public function serialize() : ?string PHP 8+
     public function serialize()
     {
-        $raw = array(
-            'id' => $this->id,
-            'headers' => $this->headers,
-            'boundary' => $this->boundary,
-            'html' => $this->html,
-            'text' => $this->text,
-            'attachments' => $this->attachments,
-            'contents' => $this->contents,
-            'recipients' => $this->recipients,
-        );
-        return \serialize($raw);
+        return \serialize($this->__serialize());
     }
 
     /**
@@ -755,20 +751,7 @@ final class Message implements MessageContract
 //    public function unserialize(string $serialized) : void PHP 8+
     public function unserialize($serialized)
     {
-        $raw = \unserialize($serialized);
-        $empty = array(
-            'id' => array(),
-            'headers' => array(),
-            'boundary' => '',
-            'html' => '',
-            'text' => '',
-            'attachments' => array(),
-            'contents' => array(),
-            'recipients' => array(),
-        );
-        foreach ($empty as $key => $default) {
-            $this->$key = array_key_exists($key, $raw) ? $raw[$key] : $default;
-        }
+        $this->__unserialize(\unserialize($serialized));
     }
 
     /**
