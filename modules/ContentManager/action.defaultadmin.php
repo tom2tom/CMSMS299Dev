@@ -20,14 +20,14 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use ContentManager\ContentListBuilder;
-use ContentManager\ContentListFilter;
 use CMSMS\AppParams;
 use CMSMS\SingleItem;
 use CMSMS\ScriptsMerger;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 use CMSMS\UserParams;
+use ContentManager\ContentListBuilder;
+use ContentManager\ContentListFilter;
 
 if (!$this->CheckContext()) {
 	exit;
@@ -221,23 +221,50 @@ $js = <<<EOS
 var pageurl = '$page_url',
  pagedata = $page_data,
  refresher,watcher;
-function cms_CMloadUrl(link, lang) {
+function decode(str) {
+  return str.trim()
+   .replace(/[ +]/g, '%20')
+   .replace(/(%[a-f0-9]{2})+/ig, function(match) {
+     return decodeURIComponent(match);
+   });
+}
+function process_link(link, prompt) {
  $(link).on('click', function(e) {
   e.preventDefault();
-  var url = this.href,
-   params = $.extend({}, pagedata, {
+  var params = $.extend({}, pagedata, {
     {$id}ajax: 1,
-   });
+  });
+  var url = this.href;
+  if(url.indexOf('=') !== -1) {
+    url = this.origin + this.pathname;
+    //pending widespread new URLSearchParams(this.search)
+    var props = this.search.split('&');
+    if (props[0].indexOf('?') === 0) {
+      props[0] = props[0].substring(1);
+    }
+    for(var i = 0; i < props.length; i++) {
+      var value = props[i],
+        index = value.indexOf('='),
+        nm;
+      if (index !== -1) {
+        nm = decode(value.substring(0, index));
+        params[nm] = decode(value.substring(index + 1));
+      } else if (value) {
+        nm = decode(value);
+        params[nm] = '';
+      }
+    }
+  }
   var _do_ajax = function() {
    $.ajax(url, {
      data: params
    }).done(function() {
-    Poller.request(refresher);
+     Poller.request(refresher);
    });
   };
   $('#ajax_find').val('');
-  if(typeof lang === 'string' && lang.length > 0) {
-    cms_confirm(lang).done(_do_ajax);
+  if(typeof prompt === 'string' && prompt.length > 0) {
+    cms_confirm(prompt).done(_do_ajax);
   } else {
     _do_ajax();
   }
@@ -326,8 +353,8 @@ function setuplist(pause) {
   select: function(e, ui) {
    e.preventDefault();
    $(this).val(ui.item.label);
-   params = $.extend({}, pagedata, {
-      {$id}seek: ui.item.value,
+   var params = $.extend({}, pagedata, {
+     {$id}seek: ui.item.value,
    });
    Poller.oneshot({
     url: pageurl,
@@ -355,10 +382,10 @@ function setuplist(pause) {
         pause = false;
       }
     } else {
-      params = $.extend({}, pagedata, {
+      var params = $.extend({}, pagedata, {
         {$id}ajax: 1,
         {$id}search: p
-     });
+      });
       Poller.oneshot({
         url: pageurl,
         data: params,
@@ -391,17 +418,17 @@ function setuplist(pause) {
   return false;
  });
 /* these links can't use ajax as they affect pagination
- cms_CMloadUrl('a.expandall');
- cms_CMloadUrl('a.collapseall');
- cms_CMloadUrl('a.page_collapse');
- cms_CMloadUrl('a.page_expand');
+ process_link('a.expandall');
+ process_link('a.collapseall');
+ process_link('a.page_collapse');
+ process_link('a.page_expand');
 */
- cms_CMloadUrl('a.page_sortup');
- cms_CMloadUrl('a.page_sortdown');
- cms_CMloadUrl('a.page_setinactive', $s1);
- cms_CMloadUrl('a.page_setactive');
- cms_CMloadUrl('a.page_setdefault', $s2);
- cms_CMloadUrl('a.page_delete', $s3);
+ process_link('a.page_sortup');
+ process_link('a.page_sortdown');
+ process_link('a.page_setinactive', $s1);
+ process_link('a.page_setactive');
+ process_link('a.page_setdefault', $s2);
+ process_link('a.page_delete', $s3);
 
  $('a.steal_lock').on('click', function(e) {
   // we're gonna confirm stealing this lock
