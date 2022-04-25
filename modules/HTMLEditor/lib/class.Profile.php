@@ -86,7 +86,7 @@ class Profile implements ArrayAccess
 		}
 	}
 
-	public function OffsetSet($key,$value) : void
+	public function OffsetSet($key,$value)// : void
 	{
 		switch( $key ) {
 		case 'menubar':
@@ -115,14 +115,14 @@ class Profile implements ArrayAccess
 		}
 	}
 
-	public function OffsetExists($key) : bool
+	public function OffsetExists($key)// : bool
 	{
 		if( in_array($key, self::KEYS) ) return isset($this->_data[$key]);
 
 		throw new LogicException("'$key' is not a property of ".__CLASS__.' objects');
 	}
 
-	public function OffsetUnset($key) : void
+	public function OffsetUnset($key)// : void
 	{
 		switch( $key ) {
 		case 'menubar':

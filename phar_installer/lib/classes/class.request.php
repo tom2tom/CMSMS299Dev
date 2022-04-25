@@ -114,7 +114,7 @@ final class request implements ArrayAccess
 
     //ArrayAccess methods
 
-    public function offsetExists($key) : bool
+    public function offsetExists($key)// : bool
     {
         return isset($_REQUEST[$key]);
     }
@@ -126,12 +126,12 @@ final class request implements ArrayAccess
         }
     }
 
-    public function offsetSet($key, $value) : void
+    public function offsetSet($key, $value)// : void
     {
         throw new Exception('Attempt to directly set a request variable');
     }
 
-    public function offsetUnset($key) : void
+    public function offsetUnset($key)// : void
     {
         throw new Exception('Attempt to unset a request variable');
     }

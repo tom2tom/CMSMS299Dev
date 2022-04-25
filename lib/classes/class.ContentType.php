@@ -126,7 +126,7 @@ class ContentType implements ArrayAccess
 		}
 	}
 
-	public function offsetExists($key) : bool
+	public function offsetExists($key)// : bool
 	{
 		return !empty($this->$key);
 	}
@@ -136,12 +136,12 @@ class ContentType implements ArrayAccess
 		if( isset($this->$key) ) return $this->$key;
 	}
 
-	public function offsetSet($key,$value) : void
+	public function offsetSet($key,$value)// : void
 	{
 		$this->$key = $value;
 	}
 
-	public function offsetUnset($key) : void
+	public function offsetUnset($key)// : void
 	{
 		unset($this->$key);
 	}

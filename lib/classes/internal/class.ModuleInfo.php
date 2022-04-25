@@ -101,7 +101,7 @@ class ModuleInfo implements ArrayAccess
         }
     }
 
-    public function OffsetSet($key,$value) : void
+    public function OffsetSet($key,$value)// : void
     {
         switch( $key ) {
             case 'about':
@@ -119,7 +119,7 @@ class ModuleInfo implements ArrayAccess
         }
     }
 
-    public function OffsetExists($key) : bool
+    public function OffsetExists($key)// : bool
     {
         if( !in_array($key,self::MIPROPS) ) {
             throw new LogicException('CMSEX_INVALIDMEMBER',null,$key);
@@ -133,7 +133,7 @@ class ModuleInfo implements ArrayAccess
         ]);
     }
 
-    public function OffsetUnset($key) : void
+    public function OffsetUnset($key)// : void
     {
     }
 
