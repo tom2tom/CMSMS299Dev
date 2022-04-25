@@ -35,15 +35,13 @@ if ($page_id < 1) {
 	$this->SetError($this->Lang('error_missingparam'));
 	$this->Redirect($id, 'defaultadmin', $returnid);
 }
-
-//
-// get the data
-//
 if (!$this->CanEditContent($page_id)) {
 	$this->SetError($this->Lang('error_copy_permission'));
 	$this->Redirect($id, 'defaultadmin', $returnid);
 }
-
+//
+// get the data
+//
 $contentops = SingleItem::ContentOperations();
 $from_obj = $contentops->LoadEditableContentFromId($page_id, true);
 if (!$from_obj) {
@@ -53,13 +51,13 @@ if (!$from_obj) {
 $from_obj->GetAdditionalEditors();
 
 $userid = get_userid();
-$to_obj = clone $from_obj;
-$to_obj->SetURL();
+$to_obj = clone $from_obj; // includes id = -1
 $to_obj->SetName('Copy of '.$from_obj->Name());
 $to_obj->SetMenuText('Copy of '.$from_obj->MenuText());
-$to_obj->SetAlias();
+$to_obj->SetAlias('');
 $to_obj->SetDefaultContent(false);
 $to_obj->SetOwner($userid);
 $to_obj->SetLastModifiedBy($userid);
+$to_obj->SetURL('');
 $_SESSION['__cms_copy_obj__'] = serialize($to_obj);
-$this->Redirect($id, 'editcontent', '', ['content_id' => 'copy']);
+$this->Redirect($id, 'editcontent', '', ['content_id' => -1]); // -1 for not-existing & not adding
