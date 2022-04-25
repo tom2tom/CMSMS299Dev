@@ -104,7 +104,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 */
 	const CMS_CONTENT_HIDDEN_NAME = '--------';
 
-	// NOTE any private or static property will not be serialized
+	// NOTE any undefined or static property will not be serialized
 
 	/**
 	 * Module object
@@ -378,12 +378,30 @@ abstract class ContentBase implements IContentEditor, Serializable
 		$this->mAlias = '';
 	}
 
+	public function __serialize() : array
+	{
+		$this->_load_properties();
+		$tmp = $this->mod;
+		unset($this->mod);
+		$props = get_object_vars($this);
+		$this->mod = $tmp;
+		return $props;
+	}
+
+	public function __unserialize(array $data) : void
+	{
+		foreach ($data as $key => $val) {
+			$this->$key = $val;
+		}
+		$this->mod = AppUtils::get_module('ContentManager');
+	}
+
 	/**
 	 * @ignore
 	 */
 	public function __toString()
 	{
-		return json_encode(get_object_vars($this), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
+		return json_encode($this->__serialize(), JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 	}
 
 	/**
@@ -445,29 +463,29 @@ abstract class ContentBase implements IContentEditor, Serializable
 		$this->mActive = !empty($data['active']);
 		$this->mCachable = !empty($data['cachable']);
 		$this->mId = $data['content_id'] ?? 0;
-		$this->mName = $data['content_name'] ?? null;
-		$this->mAlias = $data['content_alias'] ?? null;
-		$this->mOldAlias = $data['content_alias'] ?? null;
-		$this->mCreationDate = $data['create_date'] ?? null;
+		$this->mName = $data['content_name'] ?? '';
+		$this->mAlias = $data['content_alias'] ?? '';
+		$this->mOldAlias = $data['content_alias'] ?? '';
+		$this->mCreationDate = $data['create_date'] ?? '';
 		$this->mDefaultContent = !empty($data['default_content']);
-		$this->mHierarchy = $data['hierarchy'] ?? null;
-		$this->mHierarchyPath = $data['hierarchy_path'] ?? null;
-		$this->mIdHierarchy = $data['id_hierarchy'] ?? null;
+		$this->mHierarchy = $data['hierarchy'] ?? '';
+		$this->mHierarchyPath = $data['hierarchy_path'] ?? '';
+		$this->mIdHierarchy = $data['id_hierarchy'] ?? '';
 		$this->mItemOrder = $data['item_order'] ?? 0;
 		$this->mLastModifiedBy = $data['last_modified_by'] ?? 0;
-		$this->mMenuText = $data['menu_text'] ?? null;
-		$this->mMetadata = $data['metadata'] ?? null;
+		$this->mMenuText = $data['menu_text'] ?? '';
+		$this->mMetadata = $data['metadata'] ?? '';
 		$this->mModifiedDate = $data['modified_date'] ?? null;
 		$this->mOwner = $data['owner_id'] ?? 0;
-		$this->mURL = $data['page_url'] ?? null;
+		$this->mURL = $data['page_url'] ?? '';
 		$this->mParentId = $data['parent_id'] ?? -1; //root, no parent
 		$this->mSecure = $data['secure'] ?? false; //deprecated since 2.0
 		$this->mShowInMenu = !empty($data['show_in_menu']);
-		$this->mStyles = $data['styles'] ?? null; //since 2.0, replaces design_id
+		$this->mStyles = $data['styles'] ?? ''; //since 2.0, replaces design_id
 		$this->mTabIndex = $data['tabindex'] ?? 0; //since 2.0, default formerly was 1
 		$this->mTemplateId = $data['template_id'] ?? 0;
-		$this->mTitleAttribute = $data['titleattribute'] ?? null;
-//		$this->mType = $data['type'] ?? null;
+		$this->mTitleAttribute = $data['titleattribute'] ?? '';
+//		$this->mType = $data['type'] ?? '';
 
 		$result = true;
 		if ($loadProperties) {
@@ -1087,9 +1105,9 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * Benchmark reported at https://steemit.com/php/@crell/php-use-associative-arrays-basically-never
 	 * recommends (in spite of the URL) against stdClass data-storage in this sort of context.
 	 * And arrays have been benchmarked here, they're faster.
-	 *
 	 * @abstract
 	 * @internal
+	 *
 	 * @param array undeclared since 2.0 optional array of properties to be
 	 * excluded from the initial properties. If present, each member an array
 	 * [0] = name, [1] = value to return if the property is sought
@@ -2143,7 +2161,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 	/**
 	 * Return whether this page should be accessed via a secure protocol.
-	 * The secure flag affects whether the ssl protocol and appropriate config entries are used when generating urls to this page.
+	 * The secure flag affects whether the ssl protocol and appropriate
+	 * config entries are used when generating urls to this page.
 	 * @deprecated since 2.0
 	 *
 	 * @return bool
@@ -2155,7 +2174,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 	/**
 	 * Set whether this page should be accessed via a secure protocol.
-	 * The secure flag affects whether the ssl protocol and appropriate config entries are used when generating urls to this page.
+	 * The secure flag affects whether the ssl protocol and appropriate
+	 * config entries are used when generating urls to this page.
 	 * @deprecated since 2.0
 	 *
 	 * @param bool $secure
@@ -2166,12 +2186,13 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the page URL (if any) associated with this content page.
-	 * The page url is not the complete URL to this content page, but merely the 'stub' or 'slug' appended after the root url when accessing the site
+	 * Return the URL-path (if any) associated with this content page.
+	 * The path is not the complete URL to this content page, but merely the
+	 * 'stub' or 'slug' appended after the root url when accessing the site
 	 * If the page is specified as the default page then the "page url" will be ignored.
 	 * Some content types do not support page urls.
 	 *
-	 * @return string
+	 * @return string, maybe empty
 	 */
 	public function URL() : string
 	{
@@ -2179,14 +2200,14 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the page URL associated with this content page.
+	 * Set the URL-path associated with this content page.
 	 * Verbatim, no immediate validation.
 	 * The URL should be relative to the root URL i.e: /some/path/to/the/page
 	 * Note: some content types do not support page URLs.
 	 *
-	 * @param string $url May be empty.
+	 * @param string $url Optional path. Default ''.
 	 */
-	public function SetURL(string $url)
+	public function SetURL(string $url = '')
 	{
 		$this->mURL = $url;
 	}
@@ -2194,7 +2215,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 	/**
 	 * Return the internally-generated URL for this content.
 	 *
-	 * @param bool $rewrite optional flag, default true. If true, and mod_rewrite is enabled, build an URL suitable for mod_rewrite.
+	 * @param bool $rewrite optional flag, default true. If true, and
+	 *  mod_rewrite is enabled, build an URL suitable for mod_rewrite.
 	 * @return string
 	 */
 	public function GetURL() : string
@@ -2521,52 +2543,27 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 	// ======= SERIALIZABLE INTERFACE METHODS =======
 
-	public function __serialize() : array
-	{
-		$mod = $this->mod;
-		$this->mod = null;
-		$props = get_object_vars($this);
-		$this->mod = $mod;
-		return $props;
-	}
-
-	public function __unserialize(array $data) : void
-	{
-		foreach ($data as $key => $val) {
-			$this->$key = $val;
-		}
-		$this->mod = AppUtils::get_module('ContentManager');
-	}
-
 //	public function serialize() : ?string PHP 8+
 	public function serialize()
 	{
-		$mod = $this->mod;
-		$this->mod = null;
 		$str = $this->__toString();
-		$this->mod = $mod;
-		$mod = null; //force-garbage
 		//TODO can cachers cope with embedded null's? NB 'internal' cryption is slow!
 		return Crypto::encrypt_string($str, __CLASS__, 'best');
-//		return $str;
 	}
 
 //	public function unserialize(string $serialized) : void PHP 8+
 	public function unserialize($serialized)
 	{
-		$serialized = Crypto::decrypt_string($serialized, __CLASS__, 'best');
-		if (!$serialized) {
+		$str = Crypto::decrypt_string($serialized, __CLASS__, 'best');
+		if (!$str) {
 			throw new Exception('Invalid object data in '.__METHOD__);
 		}
-		$props = json_decode($serialized, true);
+		$props = json_decode($str, true);
 		if ($props !== null) {
-			foreach ($props as $key => $val) {
-				$this->$key = $val;
-			}
-			$this->mod = AppUtils::get_module('ContentManager');
-			return;
+			$this->__unserialize($props);
+		} else {
+			throw new Exception('Invalid object data in '.__METHOD__);
 		}
-		throw new Exception('Invalid object data in '.__METHOD__);
 	}
 
 	/**
@@ -2582,13 +2579,13 @@ abstract class ContentBase implements IContentEditor, Serializable
 	/**
 	 * Update the database with this contents of this content object.
 	 *
-	 * This method will calculate a new item order for the object if necessary and then
-	 * save this content record, the additional editors, and the properties.
-	 * Additionally, if a page url is specified a static route will be created
+	 * This method will calculate a new item order for the object if necessary
+	 * and then save this object, its additional editors, and properties.
+	 * Additionally, if a page url is specified a static route will be created.
 	 *
-	 * Because multiple content objects may be modified in one batch
-	 * the calling function is responsible for ensuring that page hierarchies are
-	 * updated.
+	 * Because multiple content objects may be modified in one batch, the
+	 * calling function is responsible for ensuring that page hierarchies
+	 * are updated.
 	 *
 	 * @see ContentOperations::SetAllHierarchyPositions()
 	 * @todo this function should return something, or throw an exception.
@@ -2646,13 +2643,13 @@ WHERE content_id = ?';
 			($this->mShowInMenu ? 1 : 0),
 			($this->mCachable ? 1 : 0),
 			($this->mSecure ? 1 : 0),
-			$this->mURL,
-			$this->mMenuText,
+			($this->mURL ? $this->mURL : null),
+			($this->mMenuText ? $this->mMenuText : null),
 			$this->mAlias,
-			$this->mMetadata,
-			$this->mTitleAttribute,
-			$this->mAccessKey,
-			$this->mStyles,
+			($this->mMetadata ? $this->mMetadata : null),
+			($this->mTitleAttribute ? $this->mTitleAttribute : null),
+			($this->mAccessKey ? $this->mAccessKey : null),
+			($this->mStyles ? $this->mStyles : null),
 			$this->mTabIndex,
 			$this->mModifiedDate,
 			$this->mItemOrder,
@@ -2689,14 +2686,14 @@ WHERE content_id = ?';
 	 * Like the Update method this method will determine a new item order
 	 * save the record, save properties and additional editors, but will not
 	 * update the hierarchy positions.
-	 *
 	 * @see ContentOperations::SetAllHierarchyPositions()
+	 * @throws Exception upon save-failure
 	 */
 	protected function Insert()
 	{
-		# :TODO: This function should return something
-		# :TODO: Careful about hierarchy here, it has no value !
-		# :TODO: Figure out proper item_order
+		//TODO this function should return something
+		//TODO careful about hierarchy here, it has no value !
+		//TODO figure out proper item_order
 		$db = SingleItem::Db();
 
 		$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
@@ -2727,7 +2724,6 @@ WHERE content_id = ?';
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'content (
 content_id,
 content_name,
-content_alias,
 type,
 owner_id,
 parent_id,
@@ -2742,17 +2738,17 @@ cachable,
 secure,
 page_url,
 menu_text,
+content_alias,
 metadata,
 titleattribute,
 accesskey,
 styles,
 tabindex,
 last_modified_by,
-create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		$dbr = $db->execute($query, [
 			$newid,
 			$this->mName,
-			$this->mAlias,
 			$this->Type(),
 			$this->mOwner,
 			$this->mParentId,
@@ -2765,12 +2761,13 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 			($this->mShowInMenu ? 1 : 0),
 			($this->mCachable ? 1 : 0),
 			($this->mSecure ? 1 : 0),
-			$this->mURL,
-			$this->mMenuText,
-			$this->mMetadata,
-			$this->mTitleAttribute,
-			$this->mAccessKey,
-			$this->mStyles,
+			($this->mURL ? $this->mURL : null),
+			($this->mMenuText ? $this->mMenuText : null),
+			$this->mAlias,
+			($this->mMetadata ? $this->mMetadata : null),
+			($this->mTitleAttribute ? $this->mTitleAttribute : null),
+			($this->mAccessKey ? $this->mAccessKey : null),
+			($this->mStyles ? $this->mStyles : null),
 			$this->mTabIndex,
 			$this->mLastModifiedBy,
 			$this->mCreationDate
@@ -2802,6 +2799,8 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	/**
 	 * Sort properties by their attributes - tab, priority, name
 	 * @ignore
+	 * @param array $props
+	 * @return array
 	 */
 	private function _SortProperties(array $props) : array
 	{
@@ -2822,9 +2821,12 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	}
 
 	/**
+	 * Force-load non-core object-properties
 	 * @ignore
+	 * @param bool $force since 2.0 Optional flag whether to overwrite existing properties. Default true
+	 * @return bool indicating successful read (tho' result might be empty anyway)
 	 */
-	private function _load_properties() : bool
+	protected function _load_properties(bool $force = true) : bool
 	{
 		if ($this->mId <= 0) {
 			return false;
@@ -2835,14 +2837,24 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		$query = 'SELECT prop_name,content FROM '.CMS_DB_PREFIX.'content_props WHERE content_id = ?';
 		$dbr = $db->getAssoc($query, [(int)$this->mId]);
 		if ($dbr !== false) {
-			$this->_props = $dbr;
+			if ($force) {
+				$this->_props = $dbr;
+			} else {
+				foreach ($dbr as $key => $value) {
+					if (!isset($this->_props[$key])) {
+						$this->_props[$key] = $value;
+					}
+				}
+			}
 			return true;
 		}
 		return false;
 	}
 
 	/**
+	 * Save non-core object-properties
 	 * @ignore
+	 * @return bool indicating something to save and successful completion
 	 */
 	private function _save_properties() : bool
 	{
@@ -2880,10 +2892,13 @@ VALUES (?,?,?,?,$longnow)";
 	}
 
 	/**
-	 * Set the value (by member) of a base (not addon property) property of the
+	 * Set the value (by member) of a base (not non-core) property of the
 	 * content object for base properties that have been removed from the form.
-	 *
 	 * @ignore
+	 *
+	 * @param string $name
+	 * @param string $member
+	 * @return bool
 	 */
 	private function _handleRemovedBaseProperty(string $name, string $member) : bool
 	{

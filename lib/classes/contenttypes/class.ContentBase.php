@@ -180,9 +180,22 @@ class ContentBase implements Serializable
 		}
 	}
 
+	public function __serialize() : array
+	{
+		$this->_load_properties();
+		return get_object_vars($this);
+	}
+
+	public function __unserialize(array $data) : void
+	{
+		foreach ($data as $key => $value) {
+			$this->$key = $value;
+		}
+	}
+
 	public function __toString()
 	{
-		return json_encode(get_object_vars($this), JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+		return json_encode($this->__serialize(), JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 	}
 
 	/**
@@ -784,18 +797,6 @@ class ContentBase implements Serializable
 
 	// ======= SERIALIZABLE INTERFACE METHODS =======
 
-	public function __serialize() : array
-	{
-		return get_object_vars($this);
-	}
-
-	public function __unserialize(array $data) : void
-	{
-		foreach ($data as $key => $value) {
-			$this->$key = $value;
-		}
-	}
-
 //	public function serialize() : ?string PHP 8+
 	public function serialize()
 	{
@@ -807,18 +808,18 @@ class ContentBase implements Serializable
 //	public function unserialize(string $serialized) : void PHP 8+
 	public function unserialize($serialized)
 	{
-		$serialized = Crypto::decrypt_string($serialized,__CLASS__,'best');
-		if (!$serialized) {
+		$str = Crypto::decrypt_string($serialized,__CLASS__,'best');
+		if (!$str) {
 			throw new Exception('Invalid object data in '.__METHOD__);
 		}
-		$props = json_decode($serialized, true);
+		$props = json_decode($str, true);
 		if ($props) {
 			foreach ($props as $key => $value) {
 				$this->$key = $value;
 			}
-			return;
+		} else {
+			throw new Exception('Invalid object data in '.__METHOD__);
 		}
-		throw new Exception('Invalid object data in '.__METHOD__);
 	}
 } // class
 
