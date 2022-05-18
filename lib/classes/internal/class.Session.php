@@ -37,6 +37,7 @@ class Session extends PHPSession
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $this->key = 'SESSION_'.md5(__FILE__).'_ENDERS';

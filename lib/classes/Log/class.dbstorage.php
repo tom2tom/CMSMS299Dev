@@ -23,7 +23,7 @@ namespace CMSMS\Log;
 use CMSMS\Log\logfilter;
 use CMSMS\Log\logrecord;
 use CMSMS\Log\dbquery;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use const CMS_DB_PREFIX;
 
 class dbstorage
@@ -32,7 +32,7 @@ class dbstorage
 
     public function save(logrecord $rec)
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'INSERT INTO '.self::TABLENAME.' (timestamp, severity, user_id, username, item_id, subject, message, ip_addr) VALUES (?,?,?,?,?,?,?,?)';
         $db->execute($sql, [$rec->timestamp, $rec->severity, $rec->user_id, $rec->username, $rec->item_id, $rec->subject, $rec->message, $rec->ip_addr]);
     }
@@ -44,14 +44,14 @@ class dbstorage
 
     public function clear()
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'TRUNCATE '.self::TABLENAME;
         $db->execute($sql);
     }
 
     public function clear_older_than(int $time)
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'DELETE FROM '.self::TABLENAME.' WHERE timestamp < ?';
         $db->execute( $sql, [$time]);
     }

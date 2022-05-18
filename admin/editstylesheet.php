@@ -1,7 +1,7 @@
 <?php
 /*
-Procedure to edit a stylesheet
-Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Script to edit a stylesheet
+Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -24,13 +24,14 @@ use CMSMS\AppParams;
 use CMSMS\Error403Exception;
 use CMSMS\LockException;
 use CMSMS\LockOperations;
+use CMSMS\Lone;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
 use function CMSMS\add_shutdown;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
+//use function CMSMS\specialize;
 
 $dsep = DIRECTORY_SEPARATOR;
 require ".{$dsep}admininit.php";
@@ -38,7 +39,7 @@ require ".{$dsep}admininit.php";
 check_login();
 
 $urlext = get_secure_param();
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 if (isset($_REQUEST['cancel'])) {
 	$themeObject->ParkNotice('info', _ld('layout', 'msg_cancelled'));
@@ -64,28 +65,24 @@ $extras = get_secure_param_array();
 try {
 	$message = _ld('layout', 'msg_stylesheet_saved');
 	if( !empty($_REQUEST['css']) ) {
-		$val = sanitizeVal($_REQUEST['css'], CMSSAN_FILE);
-		$extras['css'] = $val;
+		$val = sanitizeVal($_REQUEST['css'], CMSSAN_FILE); //TODO CMSSAN_NAME if not file-stored?
 		$css_ob = StylesheetOperations::get_stylesheet($val);
+		if ($css_ob) {
+			$extras['css'] = $val;
+		} else {
+			throw new RuntimeException('Internal error: unrecognised stylesheet identifier: '.$val);
+		}
 	} else {
 		$css_ob = new Stylesheet();
 	}
 
 	try {
 		if (($apply || isset($_REQUEST['dosubmit'])) && $response !== 'error') {
-			// per https://www.w3.org/TR/CSS22/syndata.html#characters
-			// stylesheet content may include anything other than NUL chars,
-			// but in many cases, 'uncommon' chars must be escaped.
-			// Here, we will be just a bit restrictive ...
-			$content = preg_replace(['/\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f/', '    '], ['', "\t"], $content);
-			// revert any munged (stupid|malicious) textarea tag
-			$matches = [];
-			$content = preg_replace_callback('~&lt;(&sol;|&#47;)?(textarea)&gt;~i', function($matches) {
-				$pre = ($matches[1]) ? '/' : '';
-				return '<'.$pre.$matches[2].'>';
-			}, $content);
-			$css_ob->set_content($content);
-
+			//TODO downstream clean changed name per relevant storage-type
+			$val = sanitizeVal(trim($_REQUEST['name']), CMSSAN_FILE); // TODO relevant name-cleaner
+			if ($val != $css_obj->get_name()) {
+				$css_obj->set_name($val);
+			}
 			if (!empty($_REQUEST['description'])) {
 				$val = sanitizeVal(trim($_REQUEST['description']), CMSSAN_NONPRINT); // AND nl2br() ? striptags() other than links ?
 				$val = preg_replace_callback('~&lt;(&sol;|&#47;)?(textarea)&gt;~i', function($matches) {
@@ -105,6 +102,20 @@ try {
 				$val = sanitizeVal($_REQUEST['media_query'], CMSSAN_PUNCT); // letters, numbers, spaces, nons like ()-:
 				$css_ob->set_media_query($val);
 			}
+			/*
+			per https://www.w3.org/TR/CSS22/syndata.html#characters
+			stylesheet content may include anything other than NUL chars,
+			but in many cases, 'uncommon' chars must be escaped.
+			Here, we will be just a bit restrictive ...
+			*/
+			$content = preg_replace(['/\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f/', '    '], ['', "\t"], $content);
+			// revert any munged (stupid|malicious) textarea tag
+			$matches = [];
+			$content = preg_replace_callback('~&lt;(&sol;|&#47;)?(textarea)&gt;~i', function($matches) {
+				$pre = ($matches[1]) ? '/' : '';
+				return '<'.$pre.$matches[2].'>';
+			}, $content);
+			$css_ob->set_content($content);
 /*			if (check_permission($userid, 'Manage Designs')) {
 				$design_list = [];
 				if (isset($_REQUEST['design_list'])) $design_list = $_REQUEST['design_list'];
@@ -262,7 +273,7 @@ try {
 		$themeObject->RecordNotice('error', $message);
 	}
 
-	$smarty = SingleItem::Smarty();
+	$smarty = Lone::get('Smarty');
 /*
 	$designs = DesignManager\Design::get_all(); DISABLED
 	if ($designs) {
@@ -283,7 +294,7 @@ try {
 	$smarty->assign('has_designs_right', check_permission($userid, 'Manage Designs'))
 	 ->assign('css', $props)
 	 ->assign('all_types', $all_types);
-	if (SingleItem::Config()['develop_mode']) {
+	if (Lone::get('Config')['develop_mode']) {
 		$smarty->assign('devmode', 1);
 	}
 

@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\ICookieManager;
-use CMSMS\SingleItem;
+use function CMSMS\is_secure_request;
 use const CMS_ROOT_URL;
 
 /**
@@ -37,7 +37,7 @@ use const CMS_ROOT_URL;
  */
 final class Cookies implements ICookieManager
 {
-    // static properties here >> SingleItem property|ies ?
+    // static properties here >> Lone property|ies ?
     /**
      * @ignore
      */
@@ -46,13 +46,14 @@ final class Cookies implements ICookieManager
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     private function __construct() {}
 
     /**
      * @ignore
      * @return string
      */
-    private static function __path()
+    private static function _path()
     {
         if (!is_array(self::$_parts)) {
             self::$_parts = parse_url(CMS_ROOT_URL);
@@ -65,7 +66,7 @@ final class Cookies implements ICookieManager
      * @ignore
      * @return string
      */
-    private static function __domain() : string
+    private static function _domain() : string
     {
         if (!is_array(self::$_parts)) {
             self::$_parts = parse_url(CMS_ROOT_URL);
@@ -81,14 +82,11 @@ final class Cookies implements ICookieManager
      * @param int $expire
      * @return bool indicating success
      */
-    private static function __setcookie(string $key, string $value, int $expire) : bool
+    private static function _setcookie(string $key, string $value, int $expire) : bool
     {
-        $res = setcookie($key,$value,$expire,
-                     self::__path(),
-                     self::__domain(),
-                     SingleItem::App()->is_https_request(),
-                     true);
-        return $res;
+        $secure = is_secure_request();
+        return setcookie($key, $value, $expire,
+            self::_path(), self::_domain(), $secure, true);
     }
 
     /**
@@ -102,7 +100,7 @@ final class Cookies implements ICookieManager
      */
     public static function set(string $key, string $value, int $expire = 0) : bool
     {
-        return self::__setcookie($key, $value, $expire);
+        return self::_setcookie($key, $value, $expire);
     }
 
     /**
@@ -113,9 +111,7 @@ final class Cookies implements ICookieManager
      */
     public static function get(string $key)
     {
-        if (isset($_COOKIE[$key])) {
-            return $_COOKIE[$key];
-        }
+        return $_COOKIE[$key] ?? null;
     }
 
     /**
@@ -138,6 +134,6 @@ final class Cookies implements ICookieManager
     public static function erase(string $key)
     {
         unset($_COOKIE[$key]);
-        self::__setcookie($key, '', 1);
+        self::_setcookie($key, '', 1);
     }
 } // class

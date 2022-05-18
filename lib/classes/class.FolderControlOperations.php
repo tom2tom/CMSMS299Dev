@@ -26,7 +26,7 @@ use CMSMS\FileType;
 use CMSMS\FileTypeHelper;
 use CMSMS\FolderControls;
 use CMSMS\FolderOperationTypes;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use LogicException;
 use RuntimeException;
 use Throwable;
@@ -76,7 +76,8 @@ class FolderControlOperations
     /**
      * Support (until further notice) old camel-case method-names
      */
-    public static function __callStatic(string $oldname, array $args)
+    #[\ReturnTypeWillChange]
+    public static function __callStatic(string $oldname, array $args)// : mixed
     {
          $newname = preg_replace_callback('/[ABDINP]/', function($m) { return '_'.strtolower($m); }, $oldname);
          try {
@@ -139,7 +140,7 @@ class FolderControlOperations
         if( $id < 1 ) {
             throw new UnexpectedValueException('Invalid set-id provided to '.__METHOD__);
         }
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id=?';
         $row = $db->getRow($sql,[$id]);
         if( $row ) {
@@ -153,7 +154,7 @@ class FolderControlOperations
         if( !$name ) {
             throw new DataException('No set-name provided to '.__METHOD__);
         }
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name=?';
         $row = $db->getRow($sql,[$name]);
         if( $row ) {
@@ -167,7 +168,7 @@ class FolderControlOperations
      */
     public static function load_all(bool $objects = true)
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY name';
         $list = $db->getArray($sql);
         if( !$list ) {
@@ -208,7 +209,7 @@ class FolderControlOperations
         if( $id < 1 ) {
             throw new UnexpectedValueException('Invalid set-id provided to '.__METHOD__);
         }
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id=?';
         $db->execute($sql,[$cset->id]);
         return $cset->withNewId();
@@ -226,7 +227,7 @@ class FolderControlOperations
 
     protected static function insert(FolderControls $cset)
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
         $tmp = $db->getOne($sql,[$cset->name]);
         if( $tmp ) {
@@ -245,7 +246,7 @@ class FolderControlOperations
 
     protected static function update(FolderControls $cset)
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
         $tmp = $db->getOne($sql,[$cset->name,$cset->id]);
         if( $tmp ) {
@@ -278,7 +279,7 @@ class FolderControlOperations
      */
     protected static function processpath($dirpath) : string
     {
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
         $devmode = $config['develop_mode'];
         if (!$devmode) {
             $userid = get_userid(false);
@@ -619,7 +620,7 @@ class FolderControlOperations
 
         if (!$cset->_allcache) {
             $tbl = CMS_DB_PREFIX.self::TABLENAME;
-            $db = SingleItem::Db();
+            $db = Lone::get('Db');
             $cset->_allcache[] = $db->getAssoc('SELECT reltoppath,id,data FROM '.$tbl.' ORDER BY reltoppath');
         }
         // no gain here from a file-cache per the cms_filecache_driver class
@@ -775,7 +776,7 @@ class FolderControlOperations
                 return true;
             }
 
-            $db = SingleItem::Db();
+            $db = Lone::get('Db');
             $grps = $db->getCol('SELECT group_id FROM '.CMS_DB_PREFIX.'user_groups WHERE user_id=?', [$userid]);
             if ($grps) {
                 if (in_array(1, $grps) ||
@@ -796,7 +797,7 @@ class FolderControlOperations
      * @ignore
      *
      * @param string $rootpath Absolute and valid filesystem path, or if empty
-     *  then CMS_ROOT_PATH is used TODO OR CMSMS\SingleItem::Config()['uploads_path'] OR ?
+     *  then CMS_ROOT_PATH is used TODO OR CMSMS\Lone::get('Config')['uploads_path'] OR ?
      * @param string $filepath Absolute or $rootpath-relative filesystem path
      * @return string
      */
@@ -878,7 +879,7 @@ class FolderControlOperations
         if (check_permission($userid, ['Modify Files', 'Modify Restricted Files'])) {
             return true;
         }
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
         return !empty($config['develop_mode']);
     }
 
@@ -892,7 +893,7 @@ class FolderControlOperations
      */
     public static function top_profiled_path() : string
     {
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
         $devmode = $config['develop_mode'];
         if (!$devmode) {
             $userid = get_userid(false);

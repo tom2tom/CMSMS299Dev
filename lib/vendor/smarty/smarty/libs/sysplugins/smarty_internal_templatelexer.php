@@ -229,6 +229,7 @@ class Smarty_Internal_Templatelexer
      * @param   string                             $source template source
      * @param Smarty_Internal_TemplateCompilerBase $compiler
      */
+    #[\ReturnTypeWillChange]
     public function __construct($source, Smarty_Internal_TemplateCompilerBase $compiler)
     {
         $this->data = $source;

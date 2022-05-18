@@ -23,11 +23,12 @@ namespace CMSMS\Log;
 use CMSMS\DbQueryBase;
 use CMSMS\Log\dbstorage;
 use CMSMS\Log\logfilter;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use LogicException;
 
 class dbquery extends DbQueryBase
 {
+    #[\ReturnTypeWillChange]
     public function __construct(logfilter $filter)
     {
         $this->_args = $filter;
@@ -39,7 +40,7 @@ class dbquery extends DbQueryBase
     {
         if ($this->_rs) return;
         $filter = $this->_args;
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'SELECT * FROM '.dbstorage::TABLENAME;
         $where = $parms = [];
         $severity = $filter->severity;

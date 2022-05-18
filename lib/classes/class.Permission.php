@@ -1,7 +1,7 @@
 <?php
 /*
 Class and utilities for working with permissions.
-Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
+use CMSMS\Lone;
 use CMSMS\Permission;
-use CMSMS\SingleItem;
 use CMSMS\SQLException;
 use LogicException;
 use RuntimeException;
@@ -62,7 +62,7 @@ final class Permission
 	 */
 	private $_data;
 
-	// static properties here >> SingleItem property|ies ?
+	// static properties here >> Lone property|ies ?
 	/**
 	 * @ignore
 	 * Intra-request cache of loaded permission-objects
@@ -74,6 +74,7 @@ final class Permission
 	 * Constructor
 	 * @param mixed $props array | null Optional permission-properties Since 3.0
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct($props = null)
 	{
 		$this->_data = [
@@ -100,7 +101,8 @@ final class Permission
 	 * @throws UnexpectedValueException
 	 * @return mixed recorded value | null
 	 */
-	public function __get(string $key)
+	#[\ReturnTypeWillChange]
+	public function __get(string $key)// : mixed
 	{
 		if( !in_array($key,self::PROPS) ) {
 			//try for a deprecated alias
@@ -117,7 +119,8 @@ final class Permission
 	 * @ignore
 	 * @throws LogicException or UnexpectedValueException
 	 */
-	public function __set(string $key,$value)
+	#[\ReturnTypeWillChange]
+	public function __set(string $key,$value)// : void
 	{
 		if( $key == 'id' ) {
 			throw new LogicException($key.' cannot be set this way in '.__CLASS__.' objects');
@@ -144,7 +147,7 @@ final class Permission
 
 		$this->validate();
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		//setting create_date should be redundant with DT default setting, but timezone ?
 		$longnow = $db->DbTimeStamp(time(), false);
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'permissions
@@ -175,7 +178,7 @@ final class Permission
 		}
 		if( !isset($this->_data['id']) || $this->_data['id'] < 1 ) {
 			// Name must be unique for its originator
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.'permissions WHERE name = ? AND originator = ?';
 			$dbr = $db->getOne($query, [$this->_data['name'], $this->_data['originator']]);
 			if( $dbr > 0 ) {
@@ -209,7 +212,7 @@ final class Permission
 			throw new LogicException('Cannnot delete a '.__CLASS__.' object that has not been saved');
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE permission_id = ?';
 //		$dbr =
 		$db->execute($query,[$this->_data['id']]);
@@ -242,7 +245,7 @@ final class Permission
 			}
 			elseif( strpos($a,'::') !== false ) {
 				$parts = explode('::',$a,2);
-				$parts = array_map(function($s) { return trim($s); }, $parts);
+				$parts = array_map('trim',$parts);
 				if( !$parts[0] || strcasecmp($parts[0],'core') == 0 ) { $parts[0] = self::CORE; }
 				foreach( self::$_cache as $perm_id => $perm ) {
 					if( $perm->name == $parts[1] && $perm->originator == $parts[0] ) return $perm;
@@ -264,7 +267,7 @@ final class Permission
 			}
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		if( is_numeric($a) ) {
 			if( $a > 0 ) {
 				$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE id = ?';
@@ -273,7 +276,7 @@ final class Permission
 		}
 		elseif( strpos($a,'::') !== false ) {
 			$parts = explode('::',$a,2);
-			$parts = array_map(function($s) { return trim($s); }, $parts);
+			$parts = array_map('trim',$parts);
 			if( !$parts[0] || strcasecmp($parts[0],'core') == 0 ) { $parts[0] = self::CORE; }
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE originator = ? AND name = ?';
 			$row = $db->getRow($query,$parts);

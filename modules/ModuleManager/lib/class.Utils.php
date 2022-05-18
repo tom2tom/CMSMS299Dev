@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace ModuleManager;
 
 use CMSMS\CommunicationException;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils as AppUtils;
 use ModuleManager\CachedRequest;
 use ModuleManager\ModuleRepClient;
@@ -36,7 +36,9 @@ final class Utils
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     private function __construct() {}
+    #[\ReturnTypeWillChange]
     private function __clone() {}
 
     /**
@@ -50,7 +52,7 @@ final class Utils
      */
     public static function get_installed_modules($include_inactive = false, $as_hash = false)
     {
-        $modops = SingleItem::ModuleOperations();
+        $modops = Lone::get('ModuleOperations');
         $module_list = $modops->GetInstalledModules($include_inactive); // available | all
 
         $results = [];
@@ -223,7 +225,7 @@ final class Utils
      */
     public static function is_connection_ok()
     {
-        // static properties here >> SingleItem property|ies ?
+        // static properties here >> Lone property|ies ?
         static $ok = -1;
         if( $ok != -1 ) return $ok;
 

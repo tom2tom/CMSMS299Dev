@@ -30,10 +30,10 @@
 
   <div id="filesarea">
 {/if} {* !isset($ajax) *}
-    <table style="width:100%;" class="pagetable scrollable">
+    <table class="pagetable scrollable" style="width:100%;">
       <thead>
         <tr>
-          <th class="pageicon">&nbsp;</th>
+          <th class="pageicon"></th>
           <th>{$filenametext}</th>
           <th class="pageicon">{_ld($_module,'mimetype')}</th>
           <th class="pageicon">{$fileinfotext}</th>

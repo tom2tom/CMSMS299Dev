@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use ContentManager\ContentListBuilder;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\de_specialize;
 
 if (!$this->CheckContext()) {
@@ -59,7 +59,7 @@ WHERE (content_name LIKE ? OR menu_text LIKE ? OR page_url LIKE ? OR content_ali
 	if ($list) {
 		$builder = new ContentListBuilder($this);
 		$builder->expand_all(); // it'd be cool to open all parents to each item.
-		$contentops = SingleItem::ContentOperations();
+		$contentops = Lone::get('ContentOperations');
 		foreach ($list as $row) {
 			$label = $contentops->CreateFriendlyHierarchyPosition($row['hierarchy']);
 			$label .= $row['content_name'] . ' / ' . $row['menu_text'];

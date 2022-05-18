@@ -33,8 +33,8 @@ use CMSMS\DeprecationNotice;
 use CMSMS\FormUtils;
 use CMSMS\HookOperations;
 use CMSMS\internal\AdminNotification;
+use CMSMS\Lone;
 use CMSMS\RequestParameters;
-use CMSMS\SingleItem;
 use CMSMS\Url;
 use CMSMS\UserParams;
 use CMSMS\Utils;
@@ -217,6 +217,7 @@ abstract class AdminTheme
      * Init for all specific-theme sub-classes
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     protected function __construct()
     {
         if (is_object(self::$_instance)) {
@@ -256,11 +257,13 @@ abstract class AdminTheme
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     private function __clone() {}
 
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         switch ($key) {
@@ -277,7 +280,7 @@ abstract class AdminTheme
         case 'subtitle':
             return $this->_subtitle;
         case 'root_url':
-            return SingleItem::Config()['admin_url'].'/themes/'.$this->themeName;
+            return Lone::get('Config')['admin_url'].'/themes/'.$this->themeName;
         }
     }
 
@@ -287,7 +290,7 @@ abstract class AdminTheme
      * or else the system default.
      * This method [re]creates the theme object if appropriate.
      * NOTE the hierarchy of theme-classes prevents the theme singleton
-     * from being populated and cached in App|SingleItem like most other
+     * from being populated and cached in App|Lone like most other
      * singletons.
      *
      * @param mixed string|null $name Optional theme name.
@@ -362,7 +365,7 @@ abstract class AdminTheme
                 $userid = get_userid(false);
             }
             $usermoduleinfo = [];
-            $modops = SingleItem::ModuleOperations();
+            $modops = Lone::get('ModuleOperations');
             $availmodules = $modops->GetInstalledModules();
             foreach ($availmodules as $modname) {
                 $mod = $modops->get_module_instance($modname);
@@ -393,7 +396,7 @@ abstract class AdminTheme
             }
             return $usermoduleinfo;
         });
-        SingleItem::LoadedData()->add_type($obj);
+        Lone::get('LoadedData')->add_type($obj);
     }
 
     /* *
@@ -571,7 +574,7 @@ abstract class AdminTheme
      */
     private function _get_user_module_info() : array
     {
-        $cache = SingleItem::LoadedData();
+        $cache = Lone::get('LoadedData');
         // ensure we have data to work from
         $cache->get('modules');
         $cache->get('module_deps');
@@ -724,7 +727,7 @@ abstract class AdminTheme
         $this->_perms['usertagPerms'] = $this->_perms['codeBlockPerms'] ||
             check_permission($this->userid, 'View UserTag Help');
         $this->_perms['modulePerms'] = check_permission($this->userid, 'Modify Modules');
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
         $this->_perms['eventPerms'] = $config['develop_mode'] && check_permission($this->userid, 'Modify Events');
         $this->_perms['taghelpPerms'] = check_permission($this->userid, 'View Tag Help');
         $this->_perms['extensionsPerms'] = $this->_perms['codeBlockPerms'] ||
@@ -759,7 +762,7 @@ abstract class AdminTheme
         }
         $parms += RequestParameters::get_general_params($id);
 
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
         $url_ob = new Url($config['admin_url']);
         $urlroot = $url_ob->get_path();
 
@@ -1257,7 +1260,7 @@ abstract class AdminTheme
      */
     public function get_icon(string $icon, array $attrs = []) : string
     {
-        $smarty = SingleItem::Smarty();
+        $smarty = Lone::get('Smarty');
         $module = $smarty->getTemplateVars('_module');
 
         if ($module) {
@@ -2110,7 +2113,7 @@ EOS;
      */
     public function fetch_menu_page($section_name)
     {
-        $smarty = SingleItem::Smarty();
+        $smarty = Lone::get('Smarty');
         $nodes = ($section_name) ?
             $this->get_navigation_tree($section_name, 0) :
             $this->get_navigation_tree(null, 3, 'root:view:dashboard');
@@ -2289,3 +2292,5 @@ EOS
         return AdminTabs::end_tab();
     }
 } // class
+
+if (!\class_exists('CmsAdminAdminTheme', false)) \class_alias(AdminTheme::class, 'CmsAdminAdminTheme', false);

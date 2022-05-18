@@ -2,7 +2,7 @@
 /*
 A class to work with data cached using the PHP Predis (aka phpredis) extension
 https://github.com/phpredis/phpredis
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -56,6 +56,7 @@ class CachePredis extends CacheDriver
 	 *  password => string
 	 *  database => int
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct(array $params)
 	{
 		if ($this->use_driver()) {
@@ -161,35 +162,35 @@ class CachePredis extends CacheDriver
 		return $out;
 	}
 
-	public function get(string $key, string $space = '')
+	public function get($key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
 		return $this->_read_cache($key);
 	}
 
-	public function has(string $key, string $space = '')
+	public function has($key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
 		return $this->instance->exists($key) > 0;
 	}
 
-	public function set(string $key, $value, string $space = '')
+	public function set($key, $value, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
 		return $this->_write_cache($key, $value);
 	}
 
-	public function set_timed(string $key, $value, int $ttl = 0, string $space = '')
+	public function set_timed($key, $value, int $ttl = 0, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
 		return $this->_write_cache($key, $value, $ttl);
 	}
 
-	public function delete(string $key, string $space = '')
+	public function delete($key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
@@ -206,7 +207,7 @@ class CachePredis extends CacheDriver
 	/**
 	 * @ignore
 	 */
-	private function _read_cache(string $key)
+	private function _read_cache($key)
 	{
 		$value = $this->instance->get($key);
 		if ($value !== false) {
@@ -223,7 +224,7 @@ class CachePredis extends CacheDriver
 	/**
 	 * @ignore
 	 */
-	private function _write_cache(string $key, $value, $ttl = null) : bool
+	private function _write_cache($key, $value, $ttl = null) : bool
 	{
 		if (is_scalar($value)) {
 			$value = (string)$value;

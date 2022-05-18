@@ -6,7 +6,7 @@ use cms_installer\wizard\wizard_step;
 use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\CoreCapabilities;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use Exception;
 use Throwable;
 use const CMS_DB_PREFIX;
@@ -177,7 +177,7 @@ class wizard_step9 extends wizard_step
         $apache = $str && stripos($str, 'apache') !== false;
         $tofn = ($apache) ? '.htaccess' : 'web.config';
         // in the user_plugins folder
-        $ops = SingleItem::UserTagOperations();
+        $ops = Lone::get('UserTagOperations');
         $sp = $ops->FilePath($tofn);
         $fp = str_replace($ops::PLUGEXT, '', $sp); // strip trailing fake-extension
         if ($upgrade && is_file($fp)) {
@@ -229,7 +229,7 @@ class wizard_step9 extends wizard_step
                 // setup some access constraints
                 $this->securitize($destdir, false);
                 // init content types
-                SingleItem::ContentTypeOperations()->RebuildStaticContentTypes();
+                Lone::get('ContentTypeOperations')->RebuildStaticContentTypes();
                 //TODO cache data init etc
                 break;
             case 2: // upgrade
@@ -237,18 +237,18 @@ class wizard_step9 extends wizard_step
                 // clear the caches
                 $this->message(lang('msg_clearcache'));
                 $this->clear_filecaches($destdir); // also populates missing index.html's
-//                SingleItem::SystemCache()->clear('*'); // or just delete?
+//                Lone::get('SystemCache')->clear('*'); // or just delete?
                 //CHECKME clear flag so that normal-request module-operations get done
                 // BUT this has no effect on constructor-flag in ModuleOprations singleton !
                 // AppState::remove(AppState::INSTALL);
-                $cache = SingleItem::LoadedData();
+                $cache = Lone::get('LoadedData');
                 $cache->get('site_params', true); // want 'coremodules' etc
                 // re-populate 'troublesome' (runtime-recursive) caches
                 $cache->get('modules', true);
                 $cache->get('module_deps', true);
                 $cache->get('module_depstree', true);
 
-                $cache2 = SingleItem::LoadedMetadata();
+                $cache2 = Lone::get('LoadedMetadata');
                 if ($cache2->has('capable_modules')) {
                     $cache2->delete('capable_modules', '*'); // capabilities might have changed now
                 }
@@ -264,7 +264,7 @@ class wizard_step9 extends wizard_step
                     $cache->delete('routes');
                 }
                 // re-populate content-types cache
-                SingleItem::ContentTypeOperations()->RebuildStaticContentTypes(); // uses unforced 'methodic_modules' metadata
+                Lone::get('ContentTypeOperations')->RebuildStaticContentTypes(); // uses unforced 'methodic_modules' metadata
                 break;
             case 3: // freshen
                 // freshen permissions for config files
@@ -277,7 +277,7 @@ class wizard_step9 extends wizard_step
                 $this->clear_filecaches($destdir); // OR AdminUtils::clear_cached_files()
                 // no need to alter caches
                 // freshen content-types
-// NOPE         SingleItem::ContentTypeOperations()->RebuildStaticContentTypes();
+// NOPE         Lone::get('ContentTypeOperations')->RebuildStaticContentTypes();
                 break;
         }
     }
@@ -311,20 +311,20 @@ class wizard_step9 extends wizard_step
 
         $this->message(lang('msg_upgrademodules'));
         // upsert core modules
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         //(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
         $stmt1 = $db->prepare('INSERT INTO '.CMS_DB_PREFIX.'modules
 (module_name,version,admin_only,active) VALUES (?,?,?,1)');
         $stmt2 = $db->prepare('INSERT INTO '.CMS_DB_PREFIX.'module_deps
 (parent_module,child_module,minimum_version,create_date) VALUES (?,?,?,NOW())');
 
-        $modops = SingleItem::ModuleOperations();
+        $modops = Lone::get('ModuleOperations');
         $coremodules = $app->get_config()['coremodules'];
         $modops->RegisterSystemModules($coremodules);
 
         $choices = $this->get_wizard()->get_data('sessionchoices');
         $installmodules = $choices['havemodules'] ?? []; //cores maybe plus non-cores
-        $currentmodules = SingleItem::LoadedData()->get('modules'); // installed-module data
+        $currentmodules = Lone::get('LoadedData')->get('modules'); // installed-module data
 
         foreach ($installmodules as $modname) {
             if (isset($currentmodules[$modname])) {
@@ -423,7 +423,7 @@ class wizard_step9 extends wizard_step
                 } else {
                     // update pages hierarchy
                     $this->verbose(lang('install_updatehierarchy'));
-                    SingleItem::ContentOperations()->SetAllHierarchyPositions();
+                    Lone::get('ContentOperations')->SetAllHierarchyPositions();
                 }
             } catch (Throwable $t) {
                 if ($fn != 'initial.xml') {
@@ -440,10 +440,10 @@ class wizard_step9 extends wizard_step
         // modules
         $this->message(lang('install_modules'));
         $coremodules = $app->get_config()['coremodules'];
-        $modops = SingleItem::ModuleOperations();
+        $modops = Lone::get('ModuleOperations');
         $modops->RegisterSystemModules($coremodules);
 
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         //(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
         $stmt1 = $db->prepare('INSERT INTO '.CMS_DB_PREFIX.'modules
 (module_name,version,admin_only,active) VALUES (?,?,?,1)');

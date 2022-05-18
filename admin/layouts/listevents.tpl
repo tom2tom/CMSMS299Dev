@@ -20,9 +20,9 @@
       <th title="{_la('title_event_originator')}">{_la('originator')}</th>
       <th title="{_la('title_event_handlers')}">{_la('handlers')}</th>
       <th title="{_la('title_event_description')}" style="width:50%;">{_la('description')}</th>
-      <th class="pageicon">&nbsp;</th>
+      <th class="pageicon"></th>
       {if $access}
-      <th class="pageicon">&nbsp;</th>
+      <th class="pageicon"></th>
       {/if}
     </tr>
   </thead>
@@ -32,7 +32,7 @@
       {strip}
       <td>
        {if $access}
-        <a href="{$editurl}{$urlext}&amp;action=edit&amp;originator={$one.originator}&amp;event={$one.event_name}" title="{_la('modifyeventhandlers')}">{$one.event_name}</a>
+        <a href="{$editurl}{$urlext}&action=edit&originator={$one.originator}&event={$one.event_name}" title="{_la('modifyeventhandlers')}">{$one.event_name}</a>
        {else}
         {$one.event_name}
        {/if}
@@ -40,16 +40,16 @@
       <td>{$one.originator}</td>
       <td>
        {if $one.usage_count > 0}
-        <a href="{$helpurl}{$urlext}&amp;originator={$one.originator}&amp;event={$one.event_name}" title="{_la('help')}">{$one.usage_count}</a>
+        <a href="{$helpurl}{$urlext}&originator={$one.originator}&event={$one.event_name}" title="{_la('help')}">{$one.usage_count}</a>
        {/if}
       </td>
       <td>{$one.description}</td>
-      <td class="icons_wide">
-        <a href="{$helpurl}{$urlext}&amp;originator={$one.originator}&amp;event={$one.event_name}">{$iconinfo}</a>
+      <td class="pagepos icons_wide">
+        <a href="{$helpurl}{$urlext}&originator={$one.originator}&event={$one.event_name}">{$iconinfo}</a>
       </td>
       {if $access}
-      <td class="icons_wide">
-        <a href="{$editurl}{$urlext}&amp;action=edit&amp;originator={$one.originator}&amp;event={$one.event_name}">{$iconedit}</a>
+      <td class="pagepos icons_wide">
+        <a href="{$editurl}{$urlext}&action=edit&originator={$one.originator}&event={$one.event_name}">{$iconedit}</a>
       </td>
       {/if}
 {/strip}

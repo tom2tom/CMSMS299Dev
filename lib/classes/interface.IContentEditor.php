@@ -350,26 +350,41 @@ interface IContentEditor
 	/**
 	 * Set the title attribute of this page
 	 *
-	 * The title attribute can be used in navigations to set the "title=" attribute of a link
-	 * some menu templates may ignore this.
+	 * The title attribute can be used in navigations to set the
+	 * "title=" attribute of a link.
+	 * Some menu templates may ignore this.
 	 *
 	 * @param string $titleattribute The title attribute
 	 */
 	public function SetTitleAttribute($titleattribute);
 
 	/**
-	 * Return the creation date/time of this page.
+	 * Return the creation date/time of this page
 	 *
 	 * @return int UNIX UTC timestamp
 	 */
 	public function GetCreationDate() : int;
 
 	/**
-	 * Return the date/time of the last modification of this page.
+	 * Set the creation date/time of this page
+	 *
+	 * @param mixed $datevalue  string | null Database DATETIME-field format, not a timestamp
+	 */
+	public function SetCreationDate($datevalue);
+
+	/**
+	 * Return the date/time of the last modification of this page
 	 *
 	 * @return int UNIX UTC timestamp
 	 */
 	public function GetModifiedDate() : int;
+
+	/**
+	 * Set the last-modified date/time of this page
+	 *
+	 * @param mixed $datevalue  string | null Database DATETIME-field format, not a timestamp
+	 */
+	public function SetModifiedDate($datevalue);
 
 	/**
 	 * Get the access key (for accessibility) for this page.

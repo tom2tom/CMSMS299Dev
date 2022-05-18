@@ -59,6 +59,7 @@ abstract class Job
      * @param array $params Optional assoc array of valid class properties
      *  each member like propname => propval
      */
+    #[\ReturnTypeWillChange]
     public function __construct($params = [])
     {
         $now = time();
@@ -75,6 +76,7 @@ abstract class Job
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         switch ($key) {
@@ -89,7 +91,7 @@ abstract class Job
             return trim($this->_data[$key]);
 
         case 'manager_module':
-            return ''; // not used now SingleItem::App()->GetJobManager();
+            return ''; // not used now cmsms()->GetJobManager();
 
         default:
             return $this->_data[$key] ?? null;
@@ -99,6 +101,7 @@ abstract class Job
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __set(string $key, $val)
     {
         switch ($key) {
@@ -158,7 +161,7 @@ abstract class Job
     public function delete()
     {
 /*        // get the asyncmanager module
-        $module = SingleItem::App()->GetJobManager();
+        $module = cmsms()->GetJobManager();
         if ($module) {
             $module->delete_job($this);
             $this->_data['id'] = 0;
@@ -179,7 +182,7 @@ abstract class Job
     public function save()
     {
 /*        // get the asyncmanager module
-        $module = SingleItem::App()->GetJobManager();
+        $module = cmsms()->GetJobManager();
         if ($module) {
             $this->_data['id'] = (int)$module->save_job($this);
             return;

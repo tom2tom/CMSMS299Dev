@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\sanitizeVal;
 
 function smarty_function_page_image($params, $template)
@@ -32,7 +32,7 @@ function smarty_function_page_image($params, $template)
 	unset($params['full'], $params['thumbnail'], $params['tag'], $params['assign']);
 
 	$val = null;
-	$contentobj = SingleItem::App()->get_content_object();
+	$contentobj = cmsms()->get_content_object();
 	if( is_object($contentobj) ) {
 		$propname = ( $thumbnail ) ? 'thumbnail' : 'image';
 		$val = $contentobj->GetPropertyValue($propname);
@@ -42,7 +42,7 @@ function smarty_function_page_image($params, $template)
 	$out = '';
 	if( $val ) {
 		$orig_val = $val;
-		$config = SingleItem::Config();
+		$config = Lone::get('Config');
 		if( $full ) $val = $config['image_uploads_url'].'/'.$val;
 		if( !$tag ) {
 			$out = $val;

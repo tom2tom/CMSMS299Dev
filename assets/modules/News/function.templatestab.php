@@ -1,7 +1,7 @@
 <?php
 /*
 Defaultadmin action templates tab populator.
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -48,7 +48,7 @@ if( $dbr ) {
 	$icon = $themeObj->DisplayImage('icons/system/false.gif',$this->Lang('tip_typedefault'),'','','systemicon default_tpl');
 	$linkdefault = '<a href="'.$url.'" class="default_tpl">'.$icon.'</a>'.PHP_EOL;
 
-	$icontrue = $themeObj->DisplayImage('icons/system/true.gif',lang('yes'),'','','systemicon');
+	$icontrue = $themeObj->DisplayImage('icons/system/true.gif',lang('yes'),'','','systemicon'); // note: might be fonticon i.e. not necessarily an actual image
 	$iconfalse = $themeObj->DisplayImage('icons/system/false.gif',lang('no'),'','','systemicon');
 
 	$templates = [];
@@ -60,11 +60,19 @@ if( $dbr ) {
 		$obj->desc = strip_tags($row['description']);
 		$obj->type = $row['type'];
 		if( strcasecmp($obj->name,'moduleactions') != 0 ) {
-            $obj->dflt = ($row['type_dflt']) ? $icontrue : (($pset) ? str_replace('XXX', $tid, $linkdefault) : $iconfalse);
+			if ($row['type_dflt']) {
+				$obj->dflt = $icontrue;
+				$obj->dflt_mode = 1;
+			}
+			else {
+				$obj->dflt = (($pset) ? str_replace('XXX', $tid, $linkdefault) : $iconfalse);
+				$obj->dflt_mode = 2;
+			}
 		}
 		else {
-    		$obj->dflt = lang('n_a');
-    	}
+			$obj->dflt = lang('n_a');
+			$obj->dflt_mode = 3;
+		}
 		$obj->url  = ($pmod) ? str_replace('XXX', $tid, $editurl) : null;
 		$obj->edit = ($pmod) ? str_replace('XXX', $tid, $linkedit) : null;
 		$obj->copy = ($pmod) ? str_replace('XXX', $tid, $linkcopy) : null;
@@ -77,9 +85,7 @@ if( $dbr ) {
 
 	if ($numrows > $pagerows) {
 		//setup for SSsort paging
-		$tplpages = ceil($numrows/$pagerows);
-		$tpl->assign('totpg2', $tplpages);
-
+		$tplpages = (int)ceil($numrows/$pagerows);
 		$choices = [strval($pagerows) => $pagerows];
 		$f = ($pagerows < 4) ? 5 : 2;
 		$n = $pagerows * $f;
@@ -98,9 +104,9 @@ if( $dbr ) {
 		$tplpages = 1;
 	}
 
-	$tpl->assign('tpllist', $templates)
-	 ->assign('tplcount', $numrows)
-	 ->assign('tplpages', $tplpages);
+	$tpl->assign('tpllist2', $templates)
+	 ->assign('tplcount2', $numrows)
+	 ->assign('tplpages2', $tplpages);
 
 	$s1 = json_encode($this->Lang('confirm_delete'));
 	$s2 = json_encode($this->Lang('confirm_tpldefault'));
@@ -121,10 +127,10 @@ $(function() {
    $(tpltable).SSsort(xopts);
    $('#pagerows2').on('change',function() {
     l = parseInt(this.value);
-    if(l == 0) {
-     //TODO hide move-links, 'rows per page', show 'rows'
+    if(l === 0) {
+     $('#tpglink').hide();//TODO hide label-part 'per page'
     } else {
-     //TODO show move-links, 'rows per page', hide 'rows'
+     $('#tpglink').show();//TODO show label-part 'per page'
     }
     $.fn.SSsort.setCurrent(tpltable,'pagesize',l);
    });

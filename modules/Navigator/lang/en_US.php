@@ -3,7 +3,7 @@
 $lang['description'] = 'This module provides a simple and easy way to generate the HTML needed for a website navigation directly, and dynamically from the CMSMS page structure.  It provides flexible filtering, and templating capabilities to build powerful, fast, and appealing website navigations with no interaction from the content editor.';
 
 //F
-$lang['friendlyname'] = 'CMSMS Navigation Builder';
+$lang['friendlyname'] = 'Sitepages Navigation Builder';
 
 //H
 //  <li>\$node->tabindex -- Tab index, if defined.</li> irrlevant in nodes

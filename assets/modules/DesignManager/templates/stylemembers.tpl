@@ -1,5 +1,5 @@
 <h4 class="pregap">{_ld($_module,'included')}</h4>
-<table id="designsheets" class="pagetable draggable" style="width:auto;">
+<table class="pagetable draggable" id="designsheets">
  <thead>
   <tr>
    <th>{_ld($_module,'prompt_name')}</th>
@@ -15,7 +15,7 @@
  </tbody>
 </table>
 <h4 class="pregap">{_ld($_module,'others')}</h4>
-<table id="othersheets" class="pagetable draggable" style="width:auto;">
+<table class="pagetable draggable" id="othersheets">
  <thead>
   <tr>
    <th>{_ld($_module,'prompt_name')}</th>

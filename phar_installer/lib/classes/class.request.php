@@ -12,14 +12,17 @@ final class request implements ArrayAccess
     private static $_instance;
     private $_data;
 
+    #[\ReturnTypeWillChange]
     private function __construct()
     {
     }
 
+    #[\ReturnTypeWillChange]
     private function __clone()
     {
     }
 
+    #[\ReturnTypeWillChange]
     public function __call(string $fn, array $args)
     {
         $key = strtoupper($fn);
@@ -114,23 +117,27 @@ final class request implements ArrayAccess
 
     //ArrayAccess methods
 
+    #[\ReturnTypeWillChange]
     public function offsetExists($key)// : bool
     {
         return isset($_REQUEST[$key]);
     }
 
-    public function offsetGet($key)
+    #[\ReturnTypeWillChange]
+    public function offsetGet($key)// : mixed
     {
         if (isset($_REQUEST[$key])) {
             return $_REQUEST[$key];
         }
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetSet($key, $value)// : void
     {
         throw new Exception('Attempt to directly set a request variable');
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetUnset($key)// : void
     {
         throw new Exception('Attempt to unset a request variable');

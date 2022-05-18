@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\log_error;
 use function CMSMS\log_notice;
 
@@ -41,7 +41,7 @@ if (!isset($params['bulk_content'])) {
 	$this->Redirect($id, 'defaultadmin', $returnid);
 }
 
-$contentops = SingleItem::ContentOperations();
+$contentops = Lone::get('ContentOperations');
 $pagelist = $params['bulk_content'];
 
 if (isset($params['submit'])) {
@@ -78,11 +78,11 @@ if (isset($params['submit'])) {
 		log_error('Multi-page ownership change failed', $t->getMessage());
 		$this->SetError($t->getMessage());
 	}
-	$cache = SingleItem::LoadedData();
+//	$cache = Lone::get('LoadedData');
 	// TODO or refresh() & save, ready for next stage ?
-	$cache->delete('content_quicklist');
-	$cache->delete('content_tree');
-	$cache->delete('content_flatlist');
+//	$cache->delete('content_quicklist');
+//	$cache->delete('content_tree');
+//	$cache->delete('content_flatlist');
 
 	$this->Redirect($id, 'defaultadmin', $returnid);
 }
@@ -105,7 +105,7 @@ foreach ($pagelist as $pid) {
 	$displaydata[] = $rec;
 }
 
-$userlist = SingleItem::UserOperations()->LoadUsers();
+$userlist = Lone::get('UserOperations')->LoadUsers();
 $tmp = [];
 foreach ($userlist as $user) {
 	$tmp[$user->id] = $user->username;

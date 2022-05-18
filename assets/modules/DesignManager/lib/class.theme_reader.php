@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace DesignManager;
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
 use CMSMS\Template;
@@ -61,8 +61,7 @@ class theme_reader extends reader_base
     $in = [];
     $cur_key = null;
 
-    $__get_in = function() use ($in) {
-      global $in;
+    $get_in = function() use ($in) {
       if( ($n = count($in)) ) return $in[$n-1];
     };
 
@@ -83,7 +82,7 @@ class theme_reader extends reader_base
             break;
 
           case 'name':
-            if( $__get_in() != 'theme' ) {
+            if( $get_in() != 'theme' ) {
               // validity error.
             }
             $this->_xml->read();
@@ -91,7 +90,7 @@ class theme_reader extends reader_base
             break;
 
           case 'tname':
-            if( $__get_in() != 'template' ) {
+            if( $get_in() != 'template' ) {
               // validity error.
             }
             $this->_xml->read();
@@ -109,7 +108,7 @@ class theme_reader extends reader_base
             break;
 
           case 'tdata':
-            if( $__get_in() != 'template' ) {
+            if( $get_in() != 'template' ) {
               // validity error.
             }
             $this->_xml->read();
@@ -117,7 +116,7 @@ class theme_reader extends reader_base
             break;
 
           case 'mmtemplate_name':
-            if( $__get_in() != 'template' ) {
+            if( $get_in() != 'template' ) {
               // validity error.
             }
             $this->_xml->read();
@@ -136,7 +135,7 @@ class theme_reader extends reader_base
             break;
 
           case 'mmtemplate_data':
-            if( $__get_in() != 'template' ) {
+            if( $get_in() != 'template' ) {
               // validity error.
             }
             $this->_xml->read();
@@ -144,7 +143,7 @@ class theme_reader extends reader_base
             break;
 
           case 'cssname':
-            if( $__get_in() != 'stylesheet' ) {
+            if( $get_in() != 'stylesheet' ) {
               // validity error.
             }
             $this->_xml->read();
@@ -157,7 +156,7 @@ class theme_reader extends reader_base
             break;
 
           case 'cssdata':
-            if( $__get_in() != 'stylesheet' ) {
+            if( $get_in() != 'stylesheet' ) {
               // validity error.
             }
             $this->_xml->read();
@@ -165,7 +164,7 @@ class theme_reader extends reader_base
             break;
 
           case 'cssmediatype':
-            if( $__get_in() != 'stylesheet' ) {
+            if( $get_in() != 'stylesheet' ) {
               // validity error.
             }
             $this->_xml->read();
@@ -173,7 +172,7 @@ class theme_reader extends reader_base
             break;
 
           case 'refname':
-            if( $__get_in() != 'reference' ) {
+            if( $get_in() != 'reference' ) {
               // validity error.
             }
             $this->_xml->read();
@@ -186,7 +185,7 @@ class theme_reader extends reader_base
             break;
 
           case 'refdata':
-            if( $__get_in() != 'reference' ) {
+            if( $get_in() != 'reference' ) {
               // validity error.
             }
             $this->_xml->read();
@@ -194,7 +193,7 @@ class theme_reader extends reader_base
             break;
 
           case 'reflocation':
-            if( $__get_in() != 'reference' ) {
+            if( $get_in() != 'reference' ) {
               // validity error.
             }
             $this->_xml->read();
@@ -293,7 +292,7 @@ class theme_reader extends reader_base
   {
     $name = $this->get_new_name();
     $dirname = sanitizeVal($name,CMSSAN_FILE);
-    $config = SingleItem::Config();
+    $config = Lone::get('Config');
     $dir = cms_join_path($config['uploads_path'],'themes',$dirname);
     @mkdir($dir,0770,TRUE); // $perms = get_server_permissions()[3];
     if( !is_dir($dir) || !is_writable($dir) ) {
@@ -379,7 +378,7 @@ class theme_reader extends reader_base
     }
 
     $design->set_description($description);
-    $config = SingleItem::Config();
+    $config = Lone::get('Config');
 
     // part2 .. expand files.
     foreach( $this->_ref_map as $key => &$rec ) {
@@ -489,7 +488,7 @@ class theme_reader extends reader_base
 
     // part6 ... Make sure MenuManager is activated.
     if( $have_mm_template ) {
-      SingleItem::ModuleOperations()->ActivateModule('MenuManager',1);
+      Lone::get('ModuleOperations')->ActivateModule('MenuManager',1);
     }
   }
 } // class

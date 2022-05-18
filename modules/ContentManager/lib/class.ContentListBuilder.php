@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace ContentManager;
 
 use CMSMS\LockOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\TemplateOperations;
 use CMSMS\Tree;
 use CMSMS\UserParams;
@@ -33,6 +33,7 @@ use ContentManager\ContentListQuery;
 use ContentManager\Utils;
 use Throwable;
 use function check_authorship;
+use function cmsms;
 use function CMSMS\log_info;
 use function get_userid;
 
@@ -60,6 +61,7 @@ final class ContentListBuilder
 	 *
 	 * Caches the opened pages, and user id
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct(ContentManager $mod)
 	{
 		$this->_module = $mod;
@@ -102,7 +104,7 @@ final class ContentListBuilder
 	 */
 	public function expand_all()
 	{
-		$hm = SingleItem::App()->GetHierarchyManager(); //TODO below find all children better
+		$hm = cmsms()->GetHierarchyManager(); //TODO below find all children better
 
 		// find all the pages (recursively) that have children.
 		// anonymous, recursive function.
@@ -181,7 +183,7 @@ final class ContentListBuilder
 			return false;
 		}
 
-		$contentops = SingleItem::ContentOperations();
+		$contentops = Lone::get('ContentOperations');
 		$content = $contentops->LoadEditableContentFromId($page_id);
 		if (!$content) {
 			return false;
@@ -300,7 +302,7 @@ final class ContentListBuilder
 			return;
 		}
 
-		$contentops = SingleItem::ContentOperations();
+		$contentops = Lone::get('ContentOperations');
 		$content1 = $contentops->LoadEditableContentFromId($page_id);
 		if (!$content1) {
 			return false;
@@ -346,7 +348,7 @@ final class ContentListBuilder
 		if ($direction == 0) {
 			return false;
 		}
-		$contentops = SingleItem::ContentOperations();
+		$contentops = Lone::get('ContentOperations');
 
 		$test = false;
 		if ($this->_module->CheckPermission('Manage All Content')) {
@@ -395,8 +397,8 @@ final class ContentListBuilder
 			return $this->_module->Lang('error_delete_permission');
 		}
 
-		$hm = SingleItem::App()->GetHierarchyManager();
-		$node = $hm->quickfind_node_by_id($page_id);
+		$hm = cmsms()->GetHierarchyManager();
+		$node = $hm->get_node_by_id($page_id);
 		if (!$node) {
 			return $this->_module->Lang('error_invalidpageid');
 		}
@@ -404,7 +406,7 @@ final class ContentListBuilder
 			return $this->_module->Lang('error_delete_haschildren');
 		}
 
-		$contentops = SingleItem::ContentOperations();
+		$contentops = Lone::get('ContentOperations');
 		$content = $contentops->LoadEditableContentFromId($page_id);
 		if ($content->DefaultContent()) {
 			return $this->_module->Lang('error_delete_defaultcontent');
@@ -432,7 +434,7 @@ final class ContentListBuilder
 
 	public function pretty_urls_configured()
 	{
-		$config = SingleItem::Config();
+		$config = Lone::get('Config');
 		return isset($config['url_rewriting']) && $config['url_rewriting'] != 'none';
 	}
 
@@ -563,15 +565,15 @@ final class ContentListBuilder
 	 */
 	private function _load_editable_content()
 	{
-		/*		build a display list:
-				1. add in top level items (items with parent == -1) which cannot be closed
-				2. for each item in opened array
-					for each parent
-					 if not in opened array break
-					 if got to root, add items children
-				3. reduce list by items we are able to view (author pages)
+		/* build a display list:
+		 1. add in top level items (items with parent == -1) which cannot be closed
+		 2. for each item in opened array
+			 for each parent
+			  if not in opened array break
+			  if got to root, add items children
+		 3. reduce list by items we are able to view (author pages)
 		*/
-		$hm = SingleItem::App()->GetHierarchyManager();
+		$hm = cmsms()->GetHierarchyManager();
 		$display = [];
 
 		// filter the display list by what the user is authorized to view.
@@ -608,7 +610,7 @@ final class ContentListBuilder
 
 			// add children of opened_array items to the list.
 			foreach ($this->_opened_array as $one) {
-				$node = $hm->quickfind_node_by_id($one);
+				$node = $hm->get_node_by_id($one);
 				if (!$node) {
 					continue;
 				}
@@ -630,16 +632,16 @@ final class ContentListBuilder
 			// we can only edit some pages.
 			//
 
-			/*			for each item
-							if in opened array or has no parent add item
-							if all parents are opened add item
-			*/
-			$tmplist = SingleItem::ContentOperations()->GetPageAccessForUser($this->_userid);
+/*			for each item
+				if in opened array or has no parent add item
+				if all parents are opened add item
+*/
+			$tmplist = Lone::get('ContentOperations')->GetPageAccessForUser($this->_userid);
 			$display = [];
 			foreach ($tmplist as $item) {
 				// get all the parents
 				$parents = [];
-				$startnode = $node = $hm->quickfind_node_by_id($item);
+				$startnode = $node = $hm->get_node_by_id($item);
 				while ($node && $node->get_tag('id') > 0) {
 					$parents[] = $node->get_tag('id');
 					$node = $node->get_parent();
@@ -662,9 +664,9 @@ final class ContentListBuilder
 		// now order the page id list by hierarchy. and make sure they are unique.
 		$display = array_unique($display);
 		usort($display, function($a, $b) use ($hm) {
-			$node_a = $hm->quickfind_node_by_id($a);
+			$node_a = $hm->get_node_by_id($a);
 			$hier_a = $node_a->getHierarchy();
-			$node_b = $hm->quickfind_node_by_id($b);
+			$node_b = $hm->get_node_by_id($b);
 			$hier_b = $node_b->getHierarchy();
 			return strcmp($hier_a, $hier_b);
 		});
@@ -684,7 +686,7 @@ final class ContentListBuilder
 		$offset = min(count($this->_pagelist), $this->_offset);
 		$display = array_slice($display, $offset, $this->_pagelimit);
 
-		SingleItem::ContentOperations()->LoadChildren(-1, false, true, $display);
+		Lone::get('ContentOperations')->LoadChildren(-1, false, true, $display);
 		return $display;
 	}
 
@@ -699,7 +701,7 @@ final class ContentListBuilder
 		if ($userid <= 0) {
 			$userid = $this->_userid;
 		}
-		return SingleItem::ContentOperations()->CheckPeerAuthorship($userid, $content_id);
+		return Lone::get('ContentOperations')->CheckPeerAuthorship($userid, $content_id);
 	}
 
 	/**
@@ -710,7 +712,7 @@ final class ContentListBuilder
 		if ($userid <= 0) {
 			$userid = $this->_userid;
 		}
-		return SingleItem::ContentOperations()->CheckPageAuthorship($userid, $content_id);
+		return Lone::get('ContentOperations')->CheckPageAuthorship($userid, $content_id);
 	}
 
 	/**
@@ -732,7 +734,7 @@ final class ContentListBuilder
 		if (!$locks) {
 			return false;
 		}
-		$dflt_content_id = SingleItem::ContentOperations()->GetDefaultContent();
+		$dflt_content_id = Lone::get('ContentOperations')->GetDefaultContent();
 		return isset($locks[$dflt_content_id]);
 	}
 
@@ -756,10 +758,10 @@ final class ContentListBuilder
 	 */
 	private function _get_users()
 	{
-		// static properties here >> SingleItem property|ies ?
+		// static properties here >> Lone property|ies ?
 		static $_users = null;
 		if (!$_users) {
-			$tmp = SingleItem::UserOperations()->LoadUsers();
+			$tmp = Lone::get('UserOperations')->LoadUsers();
 			if (is_array($tmp) && ($n = count($tmp))) {
 				$_users = [];
 				for ($i = 0; $i < $n; ++$i) {
@@ -783,12 +785,13 @@ final class ContentListBuilder
 		$mod = $this->_module;
 		$users = $this->_get_users();
 		$columns = $this->get_display_columns();
-		$cache = SingleItem::LoadedData()->get('content_quicklist');
-		$contentops = SingleItem::ContentOperations();
+//		$cache = Lone::get('LoadedData')->get('content_quicklist');
+		$contentops = Lone::get('ContentOperations');
+		$hm = Lone::get('HierarchyManager');
 
 		$out = [];
 		foreach ($page_list as $page_id) {
-			$node = $cache[$page_id] ?? null;
+			$node = $hm->get_node_by_id($page_id); //$cache[$page_id] ?? null;
 			if (!$node) {
 				continue;
 			}

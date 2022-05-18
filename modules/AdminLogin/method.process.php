@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Events;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\User;
 use CMSMS\UserParams;
 use CMSMS\Utils;
@@ -37,11 +37,11 @@ use function CMSMS\sanitizeVal;
  * $login_url e.g. $config['admin_url'].'/login.php' OR module-action url
  */
 
-$login_ops = SingleItem::LoginOperations();
+$login_ops = Lone::get('LoginOperations');
 $salt = $login_ops->get_salt();
 $usecsrf = true;
 $csrf_key = hash('tiger128,3', $salt); // 32 hexits
-$userops = SingleItem::UserOperations();
+$userops = Lone::get('UserOperations');
 $infomessage = $warnmessage = $errmessage = $changepwhash = '';
 
 /**

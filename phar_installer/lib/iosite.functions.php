@@ -1,7 +1,7 @@
 <?php
 /*
 Admin functions: site-content export/import
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -23,9 +23,9 @@ namespace cms_installer;
 use CMSMS\AppState;
 use CMSMS\Database\Connection;
 use CMSMS\DataException;
+use CMSMS\Lone;
 use CMSMS\Route;
 use CMSMS\RouteOperations;
-use CMSMS\SingleItem;
 use CMSMS\Stylesheet;
 //use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
@@ -688,7 +688,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 
 	$xw->text("\n");
 
-	$config = SingleItem::Config();
+	$config = Lone::get('Config');
 	$frombase = $config['uploads_path'];
 	if (is_dir($frombase)) {
 		$copyfiles = is_dir($uploadspath);
@@ -1221,7 +1221,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 					}
 					break;
 				case 'uploadfiles':
-					$config = SingleItem::Config();
+					$config = Lone::get('Config');
 					$tobase = $config['uploads_path'];
 					if ($tobase) {
 						$tobase .= DIRECTORY_SEPARATOR;
@@ -1291,7 +1291,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 					if ($runtime) {
 						verbose_msg(lang('install_usertags'));
 					}
-					$db = SingleItem::Db();
+					$db = Lone::get('Db');
 					$query = 'INSERT INTO '.CMS_DB_PREFIX.'userplugins (
 name,
 description,
@@ -1535,7 +1535,7 @@ code) VALUES (?,?,?,?,?)';
 
 	if ($pages) {
 		$map = [-1 => -1]; // maps proffered id's to installed id's
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		foreach ($pages as $val => $arr) {
 	//TODO revert to using ContentManager\contenttypes\whatever class
 			$map[$val] = SavePage($arr, $map, $db);

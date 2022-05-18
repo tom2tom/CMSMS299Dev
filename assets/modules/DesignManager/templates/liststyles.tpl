@@ -23,12 +23,13 @@
 </div>
 {/if}
 {if $list_groups}
-<table id="grouplist" class="pagetable" style="width:auto;">
+<table class="pagetable" id="grouplist">
   <thead>
     <tr>
       {if $manage_stylesheets}<th title="{_ld($_module,'title_group_id')}">{_ld($_module,'prompt_id')}</th>{/if}
       <th title="{_ld($_module,'title_group_name')}">{_ld($_module,'prompt_name')}</th>
-      {if $manage_stylesheets}<th class="pageicon"></th>{/if}
+      {if $manage_stylesheets}<th class="pageicon"></th>
+      <th class="pageicon"></th>{/if}
     </tr>
   </thead>
   <tbody>
@@ -37,8 +38,11 @@
     <tr class="{cycle values='row1,row2'} sortable-table" id="cat_{$gid}">
       {if $manage_stylesheets}<td><a href="{$edit_url}" title="{_ld($_module,'prompt_edit')}">{$gid}</a></td>{/if}
       <td>{if $manage_stylesheets}<a href="{$edit_url}" title="{_ld($_module,'prompt_edit')}">{$group->get_name()}</a>{else}{$group->get_name()}{/if}</td>
-      {if $manage_stylesheets}<td>
+      {if $manage_stylesheets}
+      <td class="pagepos icons_wide">
         <a href="{$edit_url}" title="{_ld($_module,'prompt_edit')}">{admin_icon icon='edit.gif'}</a>
+      </td>
+      <td class="pagepos icons_wide">
         <a href="{cms_action_url action='delete_category' cat=$gid}" class="del_cat" title="{_ld($_module,'prompt_delete')}">{admin_icon icon='delete.gif'}</a>
       </td>{/if}
     </tr>

@@ -29,6 +29,7 @@ class PruneLogJob extends CronJob
 {
     const LIFETIME_SITEPREF = 'adminlog_lifetime'; // value recorded via siteprefs UI, not this-job-specific
 
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();

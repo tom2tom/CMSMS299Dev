@@ -28,7 +28,7 @@ use CMSMS\CoreCapabilities;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\internal\page_template_parser;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 use CMSMS\Utils;
@@ -346,7 +346,7 @@ class Content extends ContentBase
 	 */
 	public function ShowElement($propname, $adding)
 	{
-// static properties here >> SingleItem property|ies ?
+// static properties here >> Lone property|ies ?
 //		static $_designs;
 //		static $_types;
 //		static $_designtree;
@@ -500,7 +500,7 @@ class Content extends ContentBase
 			];
 
 		case 'wantschildren':
-			$showadmin = SingleItem::ContentOperations()->CheckPageOwnership(get_userid(), $this->Id());
+			$showadmin = Lone::get('ContentOperations')->CheckPageOwnership(get_userid(), $this->Id());
 			if (check_permission(get_userid(), 'Manage All Content') || $showadmin) {
 				$wantschildren = $this->WantsChildren();
 				return [
@@ -533,14 +533,14 @@ class Content extends ContentBase
 	 */
 	protected function get_template_list()
 	{
-		// static properties here >> SingleItem property|ies ?
+		// static properties here >> Lone property|ies ?
 		static $_list;
 		if ($_list) {
 			return $_list;
 		}
 
 		$_list = [];
-//		$config = SingleItem::Config();
+//		$config = Lone::get('Config');
 //		if (!$config['page_template_list']) { //WHAAAT ?
 		$_tpl = TemplateOperations::template_query(['as_list' => 1]);
 		if ($_tpl) {
@@ -574,7 +574,7 @@ class Content extends ContentBase
 			return $this->_contentBlocks;
 		}
 
-		$smarty = SingleItem::Smarty();
+		$smarty = Lone::get('Smarty');
 		try {
 			$parser = new page_template_parser('cms_template:'.$this->TemplateId(), $smarty);
 			//redundant  page_template_parser::reset();
@@ -613,7 +613,7 @@ class Content extends ContentBase
 /* TODO any valid page-editor
 		if( cms_to_bool($this->_get_param($blockInfo,'adminonly',0)) ) {
 			$uid = get_userid(false);
-			$res = SingleItem::UserOperations()->UserInGroup($uid,1);
+			$res = Lone::get('UserOperations')->UserInGroup($uid,1);
 			if( !$res ) return '';
 		}
 */
@@ -690,11 +690,11 @@ class Content extends ContentBase
 		$adminonly = cms_to_bool($this->_get_param($blockInfo,'adminonly',0));
 		if( $adminonly ) {
 			$uid = get_userid(false);
-			$res = SingleItem::UserOperations()->UserInGroup($uid,1);
+			$res = Lone::get('UserOperations')->UserInGroup($uid,1);
 			if( !$res ) return '';
 		}
 */
-		$config = SingleItem::Config();
+		$config = Lone::get('Config');
 		$adddir = AppParams::get('contentimage_path');
 		if ($blockInfo['dir'] != '') {
 			$adddir = $blockInfo['dir'];
@@ -746,7 +746,9 @@ class Content extends ContentBase
 	}
 
 	/**
-	 * @ignore
+	 * NOTE $blockInfo['module']/$mod needs to self-manage
+	 * delivery of any ancillaries e.g. block-related css, js
+	 * @internal
 	 * @param string $blockName content block name
 	 * @param array $blockInfo method/element parameters
 	 * @param mixed $value string|null initial value of the element to be created
@@ -759,7 +761,7 @@ class Content extends ContentBase
 		$adminonly = cms_to_bool($this->_get_param($blockInfo,'adminonly',0));
 		if( $adminonly ) {
 			$uid = get_userid(false);
-			$res = SingleItem::UserOperations()->UserInGroup($uid,1);
+			$res = Lone::get('UserOperations')->UserInGroup($uid,1);
 			if( !$res ) return '';
 		}
 */

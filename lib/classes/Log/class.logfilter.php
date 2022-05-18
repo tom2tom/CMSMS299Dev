@@ -33,6 +33,7 @@ class logfilter
         'username' => null,
     ];
 
+    #[\ReturnTypeWillChange]
     public function __get( $key)
     {
         switch( $key) {
@@ -51,6 +52,7 @@ class logfilter
         }
     }
 
+    #[\ReturnTypeWillChange]
     public function __set( $key, $val)
     {
         switch( $key) {

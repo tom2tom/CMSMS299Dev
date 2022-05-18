@@ -138,7 +138,7 @@ namespace {
 
 use CMSMS\AppState;
 use CMSMS\Crypto;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\StylesheetQuery;
 use function cms_stylesheet\toString;
 use function cms_stylesheet\writeCache;
@@ -151,7 +151,7 @@ function smarty_function_cms_stylesheet($params, $template)
 
 	// initialize
 	AppState::add(AppState::STYLESHEET);
-	$config = SingleItem::Config();
+	$config = Lone::get('Config');
 	$root_url = $config['css_url'];
 	$cache_dir = $config['css_path'];
 
@@ -186,7 +186,7 @@ function smarty_function_cms_stylesheet($params, $template)
 */
 		else {
 			//TODO support $params['templatetype'] related to a theme
-			$content_obj = SingleItem::App()->get_content_object();
+			$content_obj = cmsms()->get_content_object();
 			if( !is_object($content_obj) ) {
 				throw new RuntimeException('Cannot find page-content object');
 			}

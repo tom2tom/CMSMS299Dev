@@ -35,6 +35,7 @@ class Smarty_Internal_Resource_Php extends Smarty_Internal_Resource_File
     /**
      * Create a new PHP Resource
      */
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $this->short_open_tag = function_exists('ini_get') ? ini_get('short_open_tag') : 1;

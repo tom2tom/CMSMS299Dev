@@ -22,6 +22,7 @@ final class langtools
     private $_langdata;
     private $_realm = '__:DFLT:__';
 
+    #[\ReturnTypeWillChange]
     private function __construct()
     {
     }

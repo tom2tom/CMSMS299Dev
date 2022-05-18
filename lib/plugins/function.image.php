@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 function smarty_function_image($params, $template)
 {
@@ -40,7 +40,7 @@ case 'addtext':
 	if( !empty($params['src'] ) ) {
 		$imgstart = '<img src=';
 		$imgend = ' />';
-		$config = SingleItem::Config();
+		$config = Lone::get('Config');
 		$text = $imgstart .= '"'.$config['image_uploads_url'].'/'.strtr($params['src'], '\\', '/').'"';
 		$size = @getimagesize($config['image_uploads_path'].DIRECTORY_SEPARATOR.strtr($params['src'], '\/', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR));
 

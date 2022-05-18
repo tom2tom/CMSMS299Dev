@@ -20,30 +20,33 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Log;
 
-//use CMSMS\Log\dbstorage; 
+//use CMSMS\Log\dbstorage;
 use CMSMS\Log\logfilter;
 
 class logquery
 {
     private $_realquery;
 
+    #[\ReturnTypeWillChange]
     public function __construct(logfilter $filter)
     {
         $this->_realquery = new dbquery($filter); // TODO relevant store c.f. logger->_store
     }
 
+    #[\ReturnTypeWillChange]
     public function __set(string $key, $value)
     {
         $this->_realquery->$key = $value;
     }
 
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         return $this->_realquery->$key;
     }
 
     //DbQueryBase-compatible methods
- 
+
     public function execute()
     {
         $this->_realquery->execute();

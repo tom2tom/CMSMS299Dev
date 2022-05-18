@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Events;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\UserParams;
 use function CMSMS\log_info;
 
@@ -37,14 +37,14 @@ check_login();
 $urlext = get_secure_param();
 $cur_userid = get_userid();
 if( !check_permission($cur_userid, 'Manage Users') ) {
-    SingleItem::Theme()->ParkNotice('error', _la('needpermissionto', '"Manage Users"'));
+    Lone::get('Theme')->ParkNotice('error', _la('needpermissionto', '"Manage Users"'));
     redirect('listusers.php'.$urlext);
 }
 
 $key = '';
 $userid = (int)$_GET['user_id'];
 if ($userid != $cur_userid) {
-    $userops = SingleItem::UserOperations();
+    $userops = Lone::get('UserOperations');
     $ownercount = $userops->CountPageOwnershipByID($userid);
     if ($ownercount <= 0) {
         $oneuser = $userops->LoadUserByID($userid);
@@ -70,6 +70,6 @@ if ($userid != $cur_userid) {
 }
 
 if ($key) {
-    SingleItem::Theme()->ParkNotice('error', _la($key));
+    Lone::get('Theme')->ParkNotice('error', _la($key));
 }
 redirect('listusers.php'.$urlext);

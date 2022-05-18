@@ -1,4 +1,5 @@
 <?php
+use CMSMS\Lone;
 use FileManager\Utils;
 use FileManager\ImageEditor;
 
@@ -19,7 +20,7 @@ if( count($sel)>1 ) {
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 
-$config = cmsms()->getConfig();
+$config = Lone::get('Config');
 $basedir = CMS_ROOT_PATH;
 $filename=$this->decodefilename($sel[0]);
 $src = cms_join_path($basedir,Utils::get_cwd(),$filename);
@@ -49,7 +50,7 @@ if(empty($params['reset'])
   //Get the mimeType
   $mimeType = ImageEditor::getMime($src);
 
-  //Open new Instance
+  //Open new instance
   $instance = ImageEditor::open($src);
 
   //Resize it if necessary

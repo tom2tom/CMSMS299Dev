@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppParams;
 use CMSMS\AppState;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\UserParams;
 use CMSMS\Utils;
 
@@ -77,7 +77,7 @@ function smarty_function_recently_updated($params, $template)
 		$output = '<ul>';
 	}
 
-	$db = SingleItem::Db();
+	$db = Lone::get('Db');
 	// Get list of most recently updated pages excluding the home page
 	$sql = 'SELECT * FROM '.CMS_DB_PREFIX."content
 WHERE (type='content' OR type='link') AND default_content!=1 AND active=1 AND show_in_menu=1
@@ -92,7 +92,7 @@ ORDER BY IF(modified_date, modified_date, create_date) DESC LIMIT ".((int)$numbe
 		}
 		return $output;
 	}
-	$hm = SingleItem::App()->GetHierarchyManager();
+	$hm = cmsms()->GetHierarchyManager();
 	while( $rst && $updated_page = $rst->FetchRow() ) {
 		$curnode = $hm->find_by_tag('id', $updated_page['content_id']);
 		$curcontent = $curnode->getContent();

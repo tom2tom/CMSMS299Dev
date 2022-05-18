@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use ContentManager\Utils;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 
@@ -71,9 +71,9 @@ $tpl->assign('list_visiblecolumns', $tmp);
 
 $prefs = Utils::get_pagedefaults();
 $templates = TemplateOperations::template_query(['originator' => TemplateType::CORE, 'as_list' => 1]);
-$eds = SingleItem::ContentOperations()->ListAdditionalEditors();
+$eds = Lone::get('ContentOperations')->ListAdditionalEditors();
 $realm = $this->GetName();
-$types = SingleItem::ContentTypeOperations()->ListContentTypes(false, false, false, $realm);
+$types = Lone::get('ContentTypeOperations')->ListContentTypes(false, false, false, $realm);
 
 if ($types) {
 	//exclude types which are nonsense for default (maybe make this a preference?)

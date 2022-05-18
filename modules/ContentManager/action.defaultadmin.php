@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppParams;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\ScriptsMerger;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
@@ -146,24 +146,29 @@ if (isset($params['delete'])) {
 
 function urlsplit(string $u) : array
 {
-	//  $u = str_replace('&amp;','&',$u);
+//  $u = str_replace('&amp;', '&', $u);
 	$parts = parse_url($u);
 	$u = $parts['scheme'].'://'.$parts['host'].$parts['path'];
 	if ($parts['query']) {
 		$ob = new stdClass();
 		$parts = explode('&', $parts['query']);
 		foreach ($parts as $one) {
-			list($k, $v) = explode('=', $one);
-			if (is_numeric($v)) {
-				$ob->$k = $v;
+			if (strpos($one, '=') !== false) {
+				list($k, $v) = explode('=', $one);
+				if (is_numeric($v)) {
+					$ob->$k = $v;
+				} else {
+					$ob->$k = "'".addcslashes($v, "'")."'";
+				}
 			} else {
-				$ob->$k = "'".addcslashes($v, "'")."'";
+				$k = trim($one);
+				$ob->$k = '\1'; // replace this later
 			}
 		}
 		$k = CMS_SECURE_PARAM_NAME;
 		$ob->$k = 'cms_data.user_key';
 		$s = json_encode($ob);
-		$s = str_replace(['{"', '"}', '":"', '","'], ["{\n", "\n}", ': ', ",\n"], $s);
+		$s = str_replace(['{"', '"}', '":"', '","', '\\\\1'], ["{\n  ", "\n }", ': ', ",\n  ", "''"], $s);
 		return [$u, $s];
 	}
 	return [$u, '{}'];
@@ -214,6 +219,39 @@ $out = $jsm->page_content();
 if ($out) {
 	add_page_foottext($out);
 }
+/* replaced
+ $('#ajax_find').autocomplete({
+  source: '$find_url', //TODO widget expects only array|string|function?
+  minLength: 2,
+  position: {
+   my: 'right top',
+   at: 'right bottom'
+  },
+  change: function(e, ui) {
+   // goes back to the full list, no options
+   $('#ajax_find').val('');
+   Poller.request(refresher);
+  },
+  select: function(e, ui) {
+   e.preventDefault();
+   $(this).val(ui.item.label);
+   var params = $.extend({}, pagedata, {
+     {$id}seek: ui.item.value,
+   });
+   Poller.oneshot({
+    url: pageurl,
+    data: params,
+    done_handler: function() {
+     Poller.request(refresher).done(function() {
+      $('html,body').animate({
+       scrollTop: $('#row_' + ui.item.value).offset().top
+      });
+     });
+    }
+   });
+  }
+ });
+*/
 
 $js = <<<EOS
 <script type="text/javascript">
@@ -319,7 +357,7 @@ function adjust_locks(json) {
   return n;
 }
 function setuplist(pause) {
- var el = $('#bulk_action');
+ var el = $('#bulkaction');
  el.prop('disabled',true);
  var btn = $('#bulk_submit');
  cms_button_able(btn,false);
@@ -337,39 +375,6 @@ function setuplist(pause) {
   cb.prop('checked',(this.checked || false)).eq(0).trigger('change');
  });
  $('[context-menu]').ContextMenu();
-/*
- $('#ajax_find').autocomplete({
-  source: '$find_url', //TODO widget expects only array|string|function?
-  minLength: 2,
-  position: {
-   my: 'right top',
-   at: 'right bottom'
-  },
-  change: function(e, ui) {
-   // goes back to the full list, no options
-   $('#ajax_find').val('');
-   Poller.request(refresher);
-  },
-  select: function(e, ui) {
-   e.preventDefault();
-   $(this).val(ui.item.label);
-   var params = $.extend({}, pagedata, {
-     {$id}seek: ui.item.value,
-   });
-   Poller.oneshot({
-    url: pageurl,
-    data: params,
-    done_handler: function() {
-     Poller.request(refresher).done(function() {
-      $('html,body').animate({
-       scrollTop: $('#row_' + ui.item.value).offset().top
-      });
-     });
-    }
-   });
-  }
- });
-*/
  $('#ajax_find').on('keypress', function(e) {
    if(e.which == 13) {
     e.preventDefault();
@@ -599,7 +604,7 @@ if ($pmanage) {
 	$list = TemplateOperations::template_query(['originator' => TemplateType::CORE, 'as_list' => 1]);
 	$tpl->assign('template_list', $list)
 	// list of admin users for filtering
-		->assign('user_list', SingleItem::UserOperations()->GetList());
+		->assign('user_list', Lone::get('UserOperations')->GetList());
 	// list of designs for filtering
 //		->assign('design_list',DesignManager\Design::get_list()) TODO replacement :: stylesheets and/or groups
 }

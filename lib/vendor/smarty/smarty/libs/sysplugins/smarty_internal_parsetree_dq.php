@@ -22,6 +22,7 @@ class Smarty_Internal_ParseTree_Dq extends Smarty_Internal_ParseTree
      * @param object                    $parser  parser object
      * @param Smarty_Internal_ParseTree $subtree parse tree buffer
      */
+    #[\ReturnTypeWillChange]
     public function __construct($parser, Smarty_Internal_ParseTree $subtree)
     {
         $this->subtrees[] = $subtree;

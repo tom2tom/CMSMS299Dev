@@ -12,7 +12,7 @@
   {if $content_id}
     <button type="submit" name="{$actionid}apply" title="{_ld($_module,'title_editpage_apply')}" class="adminsubmit icon apply">{_ld($_module,'apply')}</button>
   {/if}
-  {if ($content_id != '') && $content_obj->IsViewable() && $content_obj->Active()}
+  {if ($content_id > 0) && $content_obj->IsViewable() && $content_obj->Active()}
     <a id="viewpage" rel="external" href="{$content_obj->GetURL()}" title="{_ld($_module,'title_editpage_view')}">{admin_icon icon='view.gif' alt=_ld($_module,'view_page')}</a>
   {/if}
 {/function}

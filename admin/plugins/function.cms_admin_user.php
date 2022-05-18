@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppState;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 function smarty_function_cms_admin_user($params, $template)
 {
@@ -30,7 +30,7 @@ function smarty_function_cms_admin_user($params, $template)
 	if( AppState::test(AppState::ADMIN_PAGE) ) {
 		$uid = (int)($params['uid'] ?? 0);
 		if( $uid > 0 ) {
-			$user = SingleItem::UserOperations()->LoadUserByID((int)$params['uid']);
+			$user = Lone::get('UserOperations')->LoadUserByID((int)$params['uid']);
 			if( is_object($user) ) {
 				$mode = trim($params['mode'] ?? 'username');
 				switch( $mode ) {

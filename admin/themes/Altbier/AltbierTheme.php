@@ -29,10 +29,10 @@ namespace CMSMS; // TODO PHP5.4+ OK if pre-3.0?
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AppParams;
 use CMSMS\LangOperations;
+use CMSMS\Lone;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
 use CMSMS\StylesMerger;
 use CMSMS\UserParams;
 use CMSMS\Utils;
@@ -288,7 +288,7 @@ EOS;
 
 		if ($this->currentversion()) {
 			$auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
-			$mod = SingleItem::ModuleOperations()->get_module_instance($auth_module, '', true);
+			$mod = Lone::get('ModuleOperations')->get_module_instance($auth_module, '', true);
 			if ($mod) {
 				$data = $mod->fetch_login_panel();
 				if (isset($data['infomessage'])) { $data['message'] = $data['infomessage']; unset($data['infomessage']); }
@@ -301,7 +301,7 @@ EOS;
 			$smarty->assign($data);
 
 			//extra shared parameters for the form TODO get from the current login-module
-			$config = SingleItem::Config(); // for the inclusion
+			$config = Lone::get('Config'); // for the inclusion
 			$fp = cms_join_path(dirname(__DIR__), 'assets', 'function.extraparms.php');
 			require_once $fp;
 			$smarty->assign($tplvars);
@@ -574,7 +574,7 @@ EOS;
 		  ->assign('content', str_replace('</body></html>', '', $html))
 		  ->assign('theme', $this)
 		  ->assign('secureparam', $secureparam);
-		$user = SingleItem::UserOperations()->LoadUserByID($userid);
+		$user = Lone::get('UserOperations')->LoadUserByID($userid);
 		$smarty->assign('username', $user->username); //TODO only if user != effective user
 		// user-selected language
 		$lang = UserParams::get_for_user($userid, 'default_cms_language');

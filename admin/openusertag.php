@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\de_specialize;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
@@ -56,7 +56,7 @@ $unmunge = function($text) {
     return $clean;
 };
 
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 if (isset($_POST['submit']) || isset($_POST['apply']) ) {
     //these $_POST variables are further-sanitized downstream,
@@ -78,7 +78,7 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
     if ($lic) { $lic = $unmunge($lic); } // AND nl2br() ? striptags() ?
     if ($code) { $code = $unmunge($code); } // AND nl2br() ? striptags() ?
 
-    $ops = SingleItem::UserTagOperations();
+    $ops = Lone::get('UserTagOperations');
 //if event exists : $ops->DoEvent( add | edit userpluginpre  etc)
     $props = [
         'id' => (int)$_POST['id'],
@@ -118,7 +118,7 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
 }
 
 if ($tagname != '-1') {
-    if (!isset($ops)) { $ops = SingleItem::UserTagOperations(); }
+    if (!isset($ops)) { $ops = Lone::get('UserTagOperations'); }
     $props = $ops->GetUserTag($tagname, '*');
     if ($props) {
         $props['oldname'] = $tagname;
@@ -196,7 +196,7 @@ $extras = get_secure_param_array();
 $extras['id'] = $props['id'];
 $extras['oldname'] = $props['oldname'];
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
     'selfurl' => $selfurl,
     'extraparms' => $extras,

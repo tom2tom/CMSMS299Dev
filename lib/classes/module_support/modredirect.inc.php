@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\module_support;
 
+use CMSMS\Lone;
 use CMSMS\RequestParameters;
-use CMSMS\SingleItem;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
@@ -85,7 +85,7 @@ function Redirect($mod, $id, $action, $returnid = '', array $params = [], bool $
 	}
 
 	if ($returnid != '') {
-		$contentops = SingleItem::ContentOperations();
+		$contentops = Lone::get('ContentOperations');
 		$content = $contentops->LoadContentFromId($returnid); //both types of Content class support GetURL()
 		if (!is_object($content)) {
 			// no destination content object

@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use OutMailer\PrefCrypter;
 
 if (empty($this) || !($this instanceof OutMailer)) exit;
@@ -44,7 +44,7 @@ $this->RemovePermission('View Email Gateways');
 
 $this->RemoveEvent($this->GetName(), 'EmailDeliveryReported');
 
-$ops = SingleItem::ModuleOperations();
+$ops = Lone::get('ModuleOperations');
 $alias = $ops->get_module_classname('CMSMailer');
 $mine = get_class($this);
 if ($alias && strpos($alias, $mine) !== false) {

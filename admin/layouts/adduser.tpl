@@ -101,7 +101,7 @@
           {foreach $groups as $onegroup}
           <tr>
             {strip}{$gid=$onegroup->id}
-            <td>
+            <td class="pagepos">
             <input type="checkbox" id="g{$gid}" name="sel_groups[]" value="{$gid}"
 {if $sel_groups && in_array($gid,$sel_groups)} checked="checked"
 {elseif ($gid == 1 && $my_userid != 1)} disabled

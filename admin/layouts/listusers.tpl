@@ -22,37 +22,37 @@
     {strip}
     <td>
     {if $can_edit}
-    <a href="{$editurl}{$urlext}&amp;user_id={$user->id}" title="{_la('edituser')}">{$user->username}</a>
+    <a href="{$editurl}{$urlext}&user_id={$user->id}" title="{_la('edituser')}">{$user->username}</a>
     {else}
     <span title="{_la('info_noedituser')}">{$user->username}</span>
     {/if}
     </td>
 
-    <td style="text-align: center;">
+    <td class="pagepos">
     {if $can_edit && $user->id != $my_userid}
-    <a href="{$selfurl}{$urlext}&amp;toggleactive={$user->id}" title="{_la('info_user_active2')}" class="toggleactive">
+    <a href="{$selfurl}{$urlext}&toggleactive={$user->id}" title="{_la('info_user_active2')}" class="toggleactive">
     {if $user->active}{$icontrue}{else}{$iconfalse}{/if}
     </a>
     {/if}
     </td>
 
     {if $is_admin}
-    <td>
+    <td class="pagepos icons_wide">
     {if $user->active && $user->id != $my_userid}
-    <a href="{$selfurl}{$urlext}&amp;switchuser={$user->id}" title="{_la('info_user_switch')}" class="switchuser">{$iconrun}</a>
+    <a href="{$selfurl}{$urlext}&switchuser={$user->id}" title="{_la('info_user_switch')}" class="switchuser">{$iconrun}</a>
     {/if}
     </td>
     {/if}
 
-    <td>
+    <td class="pagepos icons_wide">
     {if $can_edit}
-    <a href="{$editurl}{$urlext}&amp;user_id={$user->id}" title="{_la('edituser')}">{$iconedit}</a>
+    <a href="{$editurl}{$urlext}&user_id={$user->id}" title="{_la('edituser')}">{$iconedit}</a>
     {/if}
     </td>
 
-    <td>
+    <td class="pagepos icons_wide">
     {if $can_edit && $user->id != $my_userid}
-    <a href="{$deleteurl}{$urlext}&amp;user_id={$user->id}" class="js-delete" title="{_la('deleteuser')}">{$icondel}</a>
+    <a href="{$deleteurl}{$urlext}&user_id={$user->id}" class="js-delete" title="{_la('deleteuser')}">{$icondel}</a>
     {/if}
     </td>
 

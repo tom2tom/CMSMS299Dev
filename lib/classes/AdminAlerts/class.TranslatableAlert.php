@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\AdminAlerts;
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 use InvalidArgumentException;
 use function lang;
@@ -75,6 +75,7 @@ class TranslatableAlert extends Alert
      * @param mixed $perms A single permission name, or array of permission name(s), or null.
      * @throws InvalidArgumentException
      */
+    #[\ReturnTypeWillChange]
     public function __construct($perms = null)
     {
         if( $perms ) {
@@ -94,6 +95,7 @@ class TranslatableAlert extends Alert
      * @return mixed
      * @throws InvalidArgumentException
      */
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         switch( $key ) {
@@ -121,6 +123,7 @@ class TranslatableAlert extends Alert
      * @param mixed $val
      * @throws InvalidArgumentException
      */
+    #[\ReturnTypeWillChange]
     public function __set(string $key,$val)
     {
         switch( $key ) {
@@ -164,7 +167,7 @@ class TranslatableAlert extends Alert
     {
         if( !$this->_perms ) return FALSE;
         $admin_uid = (int) $admin_uid;
-        $userops = SingleItem::UserOperations();
+        $userops = Lone::get('UserOperations');
         $perms = $this->_perms;
         if( !is_array($this->_perms) ) $perms = [$this->_perms];
         foreach( $perms as $permname ) {

@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace News;
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils as AppUtils;
 use DateTime;
 use DateTimeZone;
@@ -30,7 +30,7 @@ use const CMS_DB_PREFIX;
 
 final class Utils
 {
-    //NOTE static properties here >> SingleItem property|ies ?
+    //NOTE static properties here >> Lone property|ies ?
     private static $_categories_loaded = FALSE;
     private static $_cached_categories = [];
 
@@ -118,7 +118,7 @@ final class Utils
 
         // get counts.
         $depth = 1;
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $counts = [];
         $longnow = $db->DbTimeStamp(time());
 
@@ -172,7 +172,7 @@ final class Utils
     public static function get_all_categories() : array
     {
         if( !self::$_categories_loaded ) {
-            $db = SingleItem::Db();
+            $db = Lone::get('Db');
             $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
             $dbresult = $db->getArray($query);
             if( $dbresult ) { self::$_cached_categories = $dbresult; }
@@ -235,7 +235,7 @@ final class Utils
      */
     public static function fill_article_from_formparams(Article &$news,array $params,bool $handle_uploads = FALSE,$handle_deletes = FALSE) : Article
     {
-        $cz = SingleItem::Config()['timezone'];
+        $cz = Lone::get('Config')['timezone'];
         $tz = new DateTimeZone($cz);
         $dt = new DateTime(null,$tz);
         $toffs = $tz->getOffset($dt);
@@ -389,7 +389,7 @@ final class Utils
      */
     public static function get_latest_article(bool $for_display = TRUE)
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $nonull = $db->ifNull('start_time','2000-1-1');
         $longnow = $db->DbTimeStamp(time());
         $pref = CMS_DB_PREFIX;
@@ -416,7 +416,7 @@ EOS;
      */
     public static function get_article_by_id($article_id,bool $for_display = TRUE,bool $allow_expired = FALSE)
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $nonull = $db->ifNull('start_time','2000-1-1');
         $longnow = $db->DbTimeStamp(time());
         $pref = CMS_DB_PREFIX;

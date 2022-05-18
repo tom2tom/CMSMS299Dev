@@ -26,6 +26,7 @@ final class wizard
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     private function __construct()
     {
     }
@@ -33,6 +34,7 @@ final class wizard
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     private function __clone()
     {
     }

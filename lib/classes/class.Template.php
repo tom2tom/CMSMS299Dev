@@ -26,7 +26,7 @@ use CMSMS\DataException;
 use CMSMS\DeprecationNotice;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateQuery;
@@ -116,7 +116,7 @@ class Template
 	 */
 	private $filecontent;
 
-	// static properties here >> SingleItem properties ?
+	// static properties here >> Lone properties ?
 	/**
 	 * @var array
 	 * @ignore
@@ -138,6 +138,7 @@ class Template
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	public function __clone()
 	{
 		unset($this->props['id']);
@@ -148,6 +149,7 @@ class Template
 	/**
 	* @ignore
 	*/
+	#[\ReturnTypeWillChange]
 	public function __set(string $key,$value)
 	{
 		switch( $key ) {
@@ -222,6 +224,7 @@ class Template
 	/**
 	* @ignore
 	*/
+	#[\ReturnTypeWillChange]
 	public function __get(string $key)
 	{
 		switch( $key ) {
@@ -727,7 +730,7 @@ class Template
 		}
 		elseif( is_string($a) && $a !== '' ) {
 			// load the user by name.
-			$ob = SingleItem::UserOperations()->LoadUserByUsername($a);
+			$ob = Lone::get('UserOperations')->LoadUserByUsername($a);
 			if( $ob instanceof User ) $id = $a->id;
 		}
 		elseif( $a instanceof User ) {
@@ -781,7 +784,7 @@ class Template
 	{
 		if( is_numeric($a) && $a > 0 ) return $a;
 		if( is_string($a) && $a !== '' ) {
-			$ob = SingleItem::UserOperations()->LoadUserByUsername($a);
+			$ob = Lone::get('UserOperations')->LoadUserByUsername($a);
 			if( $ob instanceof User ) return $a->id;
 		}
 		if( $a instanceof User ) return $a->id;
@@ -878,7 +881,7 @@ class Template
 	 */
 	public function process()
 	{
-		$smarty = SingleItem::Smarty();
+		$smarty = Lone::get('Smarty');
 		return $smarty->fetch('cms_template:'.$this->props['id']);
 	}
 

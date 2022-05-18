@@ -1,6 +1,6 @@
 <?php
 /*
-Procedure to edit a template
+Script to edit a template
 Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -25,8 +25,8 @@ use CMSMS\AppParams;
 use CMSMS\Exception;
 use CMSMS\LockException;
 use CMSMS\LockOperations;
+use CMSMS\Lone;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplatesGroup;
@@ -42,7 +42,7 @@ require ".{$dsep}admininit.php";
 check_login();
 
 $urlext = get_secure_param();
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 if (isset($_REQUEST['cancel'])) {
 	$themeObject->ParkNotice('info',_ld('layout','msg_cancelled'));
@@ -89,14 +89,18 @@ try {
 	} elseif (isset($_REQUEST['tpl'])) {
 		$val = (is_numeric($_REQUEST['tpl'])) ? (int)$_REQUEST['tpl'] : sanitizeVal($_REQUEST['tpl'], CMSSAN_FILE);
 		$tpl_obj = TemplateOperations::get_template($val);
-//		$tpl_obj->get_designs();
-		$extraparms['tpl'] = $val;
+		if ($tpl_obj) {
+//			$tpl_obj->get_designs();
+			$extraparms['tpl'] = $val;
+		} else {
+			throw new RuntimeException('Internal error: unrecognised template identifier: '.$val);
+		}
 	} else {
 		$tpl_obj = new Template();
 	}
 
 	$defaultable = false;
-	$type_id = $tpl_obj->get_type_id();
+	$type_id = $tpl_obj->get_type_id(); // 0 for a new template
 	if ($type_id) {
 		try {
 			$type_obj = TemplateType::load($type_id);
@@ -109,6 +113,11 @@ try {
 	try {
 		if ($apply || isset($_REQUEST['dosubmit'])) {
 			// do the magic.
+			//TODO downstream clean changed name per relevant storage-type
+			$val = sanitizeVal(trim($_REQUEST['name']), CMSSAN_FILE); // TODO relevant name-cleaner
+			if ($val != $tpl_obj->get_name()) {
+				$tpl_obj->set_name($val);
+			}
 			if (isset($_REQUEST['description'])) {
 				$val = sanitizeVal(trim($_REQUEST['description']), CMSSAN_NONPRINT); // AND nl2br() ? striptags() other than links ?
 				// revert any munged textarea tag
@@ -293,6 +302,7 @@ try {
 		$themeObject->SetSubTitle(_ld('layout','create_template'));
 		$desc = '';
 		$content = '';
+        //TODO ensure cleared type-default property
 	}
 
 	$props = [
@@ -327,7 +337,7 @@ try {
 		}
 	}
 
-	$smarty = SingleItem::Smarty();
+	$smarty = Lone::get('Smarty');
 	$smarty->assign('userid', $userid)
 	 ->assign('can_manage', $pmod)
 //	 ->assign('has_themes_right', check_permission($userid,'Manage Designs'));
@@ -372,7 +382,7 @@ try {
 	}
 */
 	if ($pmod || $tpl_obj->get_owner_id() == $userid) {
-		$userops = SingleItem::UserOperations();
+		$userops = Lone::get('UserOperations');
 		$allusers = $userops->LoadUsers();
 		$tmp = [];
 		foreach ($allusers as $one) {
@@ -382,7 +392,7 @@ try {
 		}
 		if ($tmp) { $smarty->assign('user_list', $tmp); }
 
-		$groupops = SingleItem::GroupOperations();
+		$groupops = Lone::get('GroupOperations');
 		$allgroups = $groupops->LoadGroups();
 		foreach ($allgroups as $one) {
 			if ($one->id == 1) continue;
@@ -393,7 +403,7 @@ try {
 		if ($tmp) { $smarty->assign('addt_editor_list', $tmp); }
 	}
 
-	if (SingleItem::Config()['develop_mode']) {
+	if (Lone::get('Config')['develop_mode']) {
 		$smarty->assign('devmode', 1);
 	}
 

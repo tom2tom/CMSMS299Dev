@@ -22,7 +22,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 //if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
@@ -39,7 +39,7 @@ try {
         $this->RedirectToAdminTab();
     }
 
-    $ops = SingleItem::ModuleOperations();
+    $ops = Lone::get('ModuleOperations');
     $mod = $ops->get_module_instance($modname, '', true);
     if( !is_object($mod) ) {
         // uh-oh

@@ -7,6 +7,7 @@ class matchany_test extends test_base
 {
     private $_children;
 
+    #[\ReturnTypeWillChange]
     public function __construct(...$args)
     {
         $args[1] = '';
@@ -14,18 +15,19 @@ class matchany_test extends test_base
         $this->pass_key = false;
     }
 
+    #[\ReturnTypeWillChange]
     public function __set(string $key, $value)
     {
         switch ($key) {
-      case 'recommended': //unused
-        $this->$key = $value;
-        break;
-      case 'success_key':
-        $key = 'pass_key';
-        // no break here
-      default:
-        parent::__set($key, $value);
-    }
+          case 'recommended': //unused
+            $this->$key = $value;
+            break;
+          case 'success_key':
+            $key = 'pass_key';
+            // no break here
+          default:
+            parent::__set($key, $value);
+        }
     }
 
     public function execute() : string
@@ -79,7 +81,6 @@ class matchany_test extends test_base
             }
             return $msg;
         }
-
         return parent::msg();
     }
 
@@ -92,6 +93,5 @@ class matchany_test extends test_base
         if ($this->pass_key !== false) {
             return $this->_children[$this->pass_key];
         }
-        return null;
     }
 } //class

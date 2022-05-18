@@ -32,11 +32,11 @@ use CMSMS\Events;
 use CMSMS\internal\LoadedMetadata;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\LoadedDataType;
+use CMSMS\Lone;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
 use CMSMS\RequestParameters;
 use CMSMS\RouteOperations;
-use CMSMS\SingleItem;
 use CMSMS\TreeOperations;
 use function CMSMS\add_shutdown;
 use function CMSMS\do_template_processing;
@@ -83,17 +83,17 @@ If a process is started in development mode, zend.assertions cannot be set to -1
 }
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.App.php'; // used in autoloader
 require_once $dirpath.'module.functions.php'; // used in autoloader
-require_once $dirpath.'autoloader.php';  //uses defines, modulefuncs and (for module-class loads) SingleItem::App()
+require_once $dirpath.'autoloader.php';  //uses defines, modulefuncs and (for module-class loads) Lone::get('App')
 require_once $dirpath.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'; // Composer's autoloader makes light work of 'foreign' classes
-require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.SingleItem.php'; // uses cms_autoloader()
+require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.Lone.php'; // uses cms_autoloader()
 // begin to populate the singletons cache
-$_app = App::get_instance(); // for use in this file | upstream, not downstream
-SingleItem::insert('App', $_app); // cache this singleton like all others
-SingleItem::insert('CmsApp', $_app); // an alias for the oldies
+$_app = new App(); // for use in this file | upstream, not downstream
+Lone::insert('App', $_app); // cache this singleton like all others
+Lone::insert('CmsApp', $_app); // an alias for the oldies
 $config = AppConfig::get_instance(); // this object was already used during defines-processing, above
-SingleItem::insert('Config', $config); // now we can cache it with other singletons
-//SingleItem::insert('AppConfig', $config); // and an alias
-//SingleItem::insert('cms_config', $config); // and another
+Lone::insert('Config', $config); // now we can cache it with other singletons
+//Lone::insert('AppConfig', $config); // and an alias
+//Lone::insert('cms_config', $config); // and another
 
 // check for valid inclusion
 $includer = $_SERVER['SCRIPT_FILENAME'] ?? '';
@@ -116,7 +116,7 @@ register_shutdown_function('CMSMS\run_shutters');
 add_shutdown(500, 'CSMS\dbshutdown');
 
 $db = new Connection($config);
-SingleItem::insert('Db', $db);
+Lone::insert('Db', $db);
 require_once $dirpath.'compat.functions.php'; // old function- and/or class-aliases
 //deprecated since 3.0 (at most): make old stuff available
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'Database'.DIRECTORY_SEPARATOR.'class.compatibility.php';
@@ -164,7 +164,7 @@ if ($config['debug']) {
 
 // parameter used in cache construction
 $val = AppParams::getraw('site_uuid');
-SingleItem::set('site_uuid', $val);
+Lone::set('app.site_uuid', $val);
 
 AppParams::load_setup();
 
@@ -183,7 +183,7 @@ if ($administering) {
     setup_session();
 }
 
-$cache = SingleItem::LoadedData();
+$cache = Lone::get('LoadedData');
 // deprecated since 3.0 useless, caching saves minimal time | effort
 $obj = new LoadedDataType('schema_version', function() {
     return get_installed_schema_version();
@@ -191,41 +191,64 @@ $obj = new LoadedDataType('schema_version', function() {
 $cache->add_type($obj);
 if ($CMS_JOB_TYPE < 2) {
     $obj = new LoadedDataType('latest_content_modification', function() {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $query = 'SELECT modified_date FROM '.CMS_DB_PREFIX.'content ORDER BY IF(modified_date, modified_date, create_date) DESC';
         $tmp = $db->getOne($query);
         return $db->UnixTimeStamp($tmp);
     });
     $cache->add_type($obj);
     $obj = new LoadedDataType('default_content', function() {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
         return $db->getOne($query);
     });
     $cache->add_type($obj);
-
-    // the pages flat list
+/*
+    // the pages flat list (depth-first array)
     $obj = new LoadedDataType('content_flatlist', function() {
-        $query = 'SELECT content_id,parent_id,item_order,content_alias,active FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy';
-        $db = SingleItem::Db();
-        return $db->getArray($query);
+        debug_buffer('Start loading content flatlist');
+        $query = 'SELECT content_id,parent_id,content_alias,active FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy';
+        $db = Lone::get('Db');
+/*      if (constant('CMS_DEBUG')) {
+            $tmp = $db->getArray($query);
+            debug_buffer('End loading content flatlist');
+            return $tmp;
+        } else {
+* /
+            return $db->getArray($query);
+//      }
     });
     $cache->add_type($obj);
 
-    // hence the tree
+    // hence the tree of ContentTree node-objects
     $obj = new LoadedDataType('content_tree', function(bool $force) {
-        $flatlist = SingleItem::LoadedData()->get('content_flatlist', $force);
-        return TreeOperations::load_from_list($flatlist);
+        debug_buffer('Start loading content tree');
+        $flatlist = Lone::get('LoadedData')->get('content_flatlist', $force);
+/*        if (constant('CMS_DEBUG')) {
+            $tmp = TreeOperations::load_from_list($flatlist);
+            debug_buffer('End loading content tree');
+            return $tmp;
+        } else{
+* /
+            return TreeOperations::load_from_list($flatlist);
+//      }
     });
     $cache->add_type($obj);
-    // SingleItem::HierarchyManager will be $obj->fetch() when wanted
 
-    // hence the flat/quick list
+    // hence a flat array, each member like conntent_id => ContentTree object
     $obj = new LoadedDataType('content_quicklist', function(bool $force) {
-        $tree = SingleItem::LoadedData()->get('content_tree', $force);
-        return $tree->getFlatList(); // c.f. LoadedDataType('content_flatlist') ??
+        debug_buffer('Start loading content quicklist');
+        $tree = Lone::get('LoadedData')->get('content_tree', $force);
+        if (constant('CMS_DEBUG')) {
+            $tmp = $tree->getFlatList(); // c.f. LoadedDataType('content_flatlist') ??
+            debug_buffer('End loading content quicklist');
+            return $tmp;
+        } else {
+            return $tree->getFlatList(); // c.f. LoadedDataType('content_flatlist') ??
+        }
     });
     $cache->add_type($obj);
+*/
 }
 
 // other LoadedData populators
@@ -265,9 +288,9 @@ if (!$installing) {
     }
 
 /*  // After autoloader & modules
-    $modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::JOBS_MODULE);
+    $modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::JOBS_MODULE);
     if ($modnames) {
-        $mod = SingleItem::ModuleOperations()->get_module_instance($modnames[0]);
+        $mod = Lone::get('ModuleOperations')->get_module_instance($modnames[0]);
         $_app->jobmgrinstance = $mod; //cache it
         if ($CMS_JOB_TYPE == 0) {
             $callable = $modnames[0].'::begin_async_work';
@@ -282,12 +305,12 @@ if ($CMS_JOB_TYPE < 2) {
     if ($administering) {
         // Setup language stuff.... will auto-detect languages (launch only to admin at this point)
         NlsOperations::set_language();
-        SingleItem::insert('Theme', AdminTheme::get_instance());
+        Lone::insert('Theme', AdminTheme::get_instance());
     }
 
     if (!$installing) {
         debug_buffer('Initialize Smarty');
-        $smarty = SingleItem::Smarty();
+        $smarty = Lone::get('Smarty');
         debug_buffer('Finished initializing Smarty');
 //      $smarty->assignGlobal('sitename', AppParams::get('sitename', 'CMSMS Site'));
     }

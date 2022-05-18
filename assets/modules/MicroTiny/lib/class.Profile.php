@@ -45,10 +45,11 @@ class Profile implements ArrayAccess
 		'showstatusbar',
 		'system',
 	];
-	// static properties here >> SingleItem property|ies ?
+	// static properties here >> Lone property|ies ?
 	private static $_module = null;
 	private $_data = [];
 
+	#[\ReturnTypeWillChange]
 	public function __construct($data = [])
 	{
 		if( $data ) {
@@ -58,7 +59,8 @@ class Profile implements ArrayAccess
 		}
 	}
 
-	public function OffsetGet($key)
+	#[\ReturnTypeWillChange]
+	public function offsetGet($key)// : mixed
 	{
 		switch( $key ) {
 		case 'menubar':
@@ -86,7 +88,8 @@ class Profile implements ArrayAccess
 		}
 	}
 
-	public function OffsetSet($key,$value)// : void
+	#[\ReturnTypeWillChange]
+	public function offsetSet($key,$value)// : void
 	{
 		switch( $key ) {
 		case 'menubar':
@@ -115,14 +118,16 @@ class Profile implements ArrayAccess
 		}
 	}
 
-	public function OffsetExists($key)// : bool
+	#[\ReturnTypeWillChange]
+	public function offsetExists($key)// : bool
 	{
 		if( in_array($key, self::KEYS) ) return isset($this->_data[$key]);
 
 		throw new LogicException("'$key' is not a property of ".__CLASS__.' objects');
 	}
 
-	public function OffsetUnset($key)// : void
+	#[\ReturnTypeWillChange]
+	public function offsetUnset($key)// : void
 	{
 		switch( $key ) {
 		case 'menubar':

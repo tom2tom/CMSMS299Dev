@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 use function CMSMS\sanitizeVal;
@@ -30,7 +30,7 @@ require ".{$dsep}admininit.php";
 check_login();
 $userid = get_userid();
 $pmod = check_permission($userid,'Manage Templates');
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 if (isset($_REQUEST['tpl'])) {
 	$tpl_id = (int)$_REQUEST['tpl']; //< 0 for a group
@@ -40,16 +40,14 @@ if (isset($_REQUEST['tpl'])) {
 	$tpl_id = null;
 }
 
-if (isset($_REQUEST['tpl_select'])) {  //id(s) array for a bulk operation
+if (isset($_POST['tpl_select'])) {  //id(s) array for a bulk operation
 	//sanitize
-	$template_multi = array_map($_REQUEST['tpl_select'], function ($v) {
-		return (int)$v;
-	});
+	$tpl_multi = array_map('intval', $_POST['tpl_select']);
 } else {
-	$template_multi = null;
+	$tpl_multi = null;
 }
 
-$op = $_REQUEST['op'] ?? ''; // no sanitizeVal() etc due to specific acceptable values
+$op = $_GET['op'] ?? $_POST['bulk_action'] ?? ''; // no sanitizeVal() etc due to specific acceptable values
 switch (trim($op)) {
 	case 'copy':
 		$padd = $pmod || check_permission($userid,'Add Templates');
@@ -68,7 +66,7 @@ switch (trim($op)) {
 		break;
 	case 'delete':
 		if (!$pmod) exit;
-		if ($template_multi) { $tpl_id = $template_multi; }
+		if ($tpl_multi) { $tpl_id = $tpl_multi; }
 		if ($tpl_id) {
 			try {
 				// TODO appropriate '_activetab' value
@@ -83,7 +81,7 @@ switch (trim($op)) {
 		break;
 	case 'deleteall':
 		if (!$pmod) exit;
-		if ($template_multi) { $tpl_id = $template_multi; }
+		if ($tpl_multi) { $tpl_id = $tpl_multi; }
 		if ($tpl_id) {
 			try {
 				// TODO appropriate '_activetab' value
@@ -143,7 +141,7 @@ switch (trim($op)) {
 		break;
 	case 'import':
 		if (!$pmod) exit;
-		if ($template_multi) { $tpl_id = $template_multi; }
+		if ($tpl_multi) { $tpl_id = $tpl_multi; }
 		if ($tpl_id) {
 			try {
 				$n = TemplateOperations::operation_import($tpl_id);
@@ -156,7 +154,7 @@ switch (trim($op)) {
 		break;
 	case 'export':
 		if (!$pmod) exit;
-		if ($template_multi) { $tpl_id = $template_multi; }
+		if ($tpl_multi) { $tpl_id = $tpl_multi; }
 		if ($tpl_id) {
 			try {
 				// TODO appropriate '_activetab' value
@@ -170,6 +168,6 @@ switch (trim($op)) {
 		break;
 }
 
-$root = SingleItem::Config()['admin_url']; // relative URL's don't work here
+$root = Lone::get('Config')['admin_url']; // relative URL's don't work here
 $urlext = get_secure_param();
 redirect($root.'/listtemplates.php'.$urlext); // TODO .'&_activetab=' relevant tab name 'templates'|'types'|'groups'

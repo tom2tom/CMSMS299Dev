@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 $dsep = DIRECTORY_SEPARATOR;
 require ".{$dsep}admininit.php";
@@ -31,7 +31,7 @@ $userid = get_userid();
 $pmod = check_permission($userid, 'Manage User Plugins');
 $access = $pmod || check_permission($userid, 'View UserTag Help');
 
-$ops = SingleItem::UserTagOperations();
+$ops = Lone::get('UserTagOperations');
 $items = $ops->ListUserTags();
 foreach ($items as $id=>$name) {
     $data = $ops->GetUserTag($name, 'description');
@@ -42,7 +42,7 @@ foreach ($items as $id=>$name) {
     ];
 }
 
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 $iconadd = $themeObject->DisplayImage('icons/system/newobject.png', _la('add'),'','','systemicon');
 $iconedit = $themeObject->DisplayImage('icons/system/edit.png', _la('edit'),'','','systemicon');
@@ -52,7 +52,7 @@ $iconinfo = $themeObject->DisplayImage('icons/system/help.png', _la('parameters'
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
     'access' => $access,
     'pmod' => $pmod,

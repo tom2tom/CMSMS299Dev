@@ -121,57 +121,6 @@ ul ol {
 	margin-left: 2em;
 }
 
-ul.sortableList {
-	list-style-type: none;
-	padding: 0;
-}
-
-ul.sortableList .ui-draggable-dragging {
-	border: 2px dashed #414658;
-	background-color: #5c5e70;
-}
-
-ul.sortableList li {
-	margin-top: 15px;
-	margin-left: 2em;
-	width: 30em;
-}
-
-ul.sortableList li div.label em {
-	display: block;
-	margin-left: 2.5em;
-	color: #fef9ec;
-	font-size: 0.75em;
-	font-weight: bold;
-}
-
-ul.sortableList > li {
-	margin-left: 0;
-}
-
-ul.sortableList div.label {
-	border: solid 1px #414658;
-	padding: 2px;
-	background-color: #505262;
-	width: 30em;
-	font-size: 0.8em;
-	color: #fef9ec;
-	word-wrap: break-word;
-	-webkit-border-radius: 0.25rem;
-	-moz-border-radius: 0.25rem;
-	border-radius: 0.25rem;
-	cursor: move;
-}
-
-ul.sortableList span.haschildren.expanded {
-	display: none;
-}
-
-ul.sortable .placeholder {
-	border: 2px dashed #414658;
-	background-color: #5c5e70;
-}
-
 ol {
 	list-style: none;
 	margin: 0;
@@ -184,6 +133,85 @@ ol ol {
 
 ol ul {
 	margin-left: 2em;
+}
+
+ul.sortableList ul {
+	margin-left: 0;
+}
+
+.sortableList {
+	list-style-type: none;
+	padding: 0;
+}
+
+.sortableList li {
+	margin-top: 0.5em;
+	margin-left: 1em;
+	width: 30em;
+}
+
+.sortableList > li {
+	margin-left: 0;
+}
+
+.sortableList div.label {
+	border: solid 1px #414658;
+	padding: 0.25rem;
+	background-color: #505262;
+	width: 30em;
+	font-size: 0.8em;
+	color: #fef9ec;
+	word-wrap: break-word;
+	-webkit-border-radius: 0.25rem;
+	-moz-border-radius: 0.25rem;
+	border-radius: 0.25rem;
+	cursor: move;
+}
+
+.sortableList div.label > .expanded::before {
+	content: '';
+	display: inline-block;
+	width: 1.5em;
+	height: 1.5em;
+	background: url(../images/icons/system/contract.svg);
+	background-size: 1.5em 1.5em;
+}
+
+.sortableList div.label > .collapsed::before {
+	content: '';
+	display: inline-block;
+	width: 1.5em;
+	height: 1.5em;
+	background: url(../images/icons/system/expand.svg);
+	background-size: 1.5em 1.5em;
+}
+
+.sortableList div.label > .haschildren {
+	height: 1.5em;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.sortableList div.label > .haschildren,
+.sortableList div.label > .nomarker {
+	display: inline-block;
+	width: 1.5em;
+}
+
+.sortableList div.label > em {
+	color: #fef9ec;
+	font-size: 0.75em;
+	font-weight: bold;
+}
+
+.sortableList .ui-draggable-dragging {
+	border: 2px dashed #414658;
+	background-color: #5c5e70;
+}
+
+ul.sortable .placeholder {
+	border: 2px dashed #414658;
+	background-color: #5c5e70;
 }
 
 h1 {
@@ -357,7 +385,7 @@ span.helptext a {
 	display: inline-block;
 	padding-right: 24px;
 	vertical-align: middle;
-	background: url(../images/icons/system/sprite.svg#info) no-repeat right;
+	background: url(../images/icons/system/info.svg) no-repeat right;
 	background-size: 1.5rem 1.5rem;
 }
 
@@ -365,7 +393,7 @@ span.helptext a.external {
 	display: inline-block;
 	padding-right: 24px;
 	vertical-align: middle;
-	background: url(../images/icons/system/sprite.svg#help) no-repeat right;
+	background: url(../images/icons/system/help.svg) no-repeat right;
 	background-size: 1.5rem 1.5rem;
 }
 
@@ -399,7 +427,7 @@ div.dialog h3 {
 
 div.dialog a.bookmark {
 	padding-left: 20px;
-	background: url(../images/icons/system/sprite.svg#bookmark) no-repeat left;
+	background: url(../images/icons/system/bookmark.svg) no-repeat left;
 	background-size: 1.5rem 1.5rem;
 	line-height: 1.25;
 }
@@ -464,7 +492,6 @@ table.pagetable {
 	border-radius: 0.25rem;
 	border-collapse: inherit;
 	border: 1px solid #414658;
-	width: auto;
 	table-layout: auto;
 	margin: 3px 0;
 	font-size: 0.8em;
@@ -498,7 +525,7 @@ table.pagetable th.pagepos {
 }
 
 table.pagetable th.pageicon {
-	min-width: 16px;
+	min-width: 1rem;
 	border: none;
 }
 
@@ -2128,7 +2155,7 @@ button.ui-button.ui-dialog-titlebar-close .ui-button-icon:hover {
 }
 
 .file {
-	background: url(../images/icons/system/sprite.svg#document-list) no-repeat left;
+	background: url(../images/icons/system/document-list.svg) no-repeat left;
 	background-size: 1.5rem 1.5rem;
 	padding-left: 25px;
 }
@@ -3557,7 +3584,7 @@ ETC?
 	table.pagetable {
 		border-collapse: collapse;
 		width: 100%;
-		margin: 5px 0 1rem 0;
+		margin: 5px 0 1rem 1rem;
 		overflow-x: auto;
 		display: block;
 	}

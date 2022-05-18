@@ -25,8 +25,8 @@ use CMSMS\AppParams;
 use CMSMS\Crypto;
 use CMSMS\FormUtils;
 use CMSMS\LangOperations;
+use CMSMS\Lone;
 use CMSMS\RequestParameters;
-use CMSMS\SingleItem;
 use LogicException;
 use ReflectionClass;
 use ReflectionException;
@@ -47,12 +47,14 @@ class ResourceMethods
 	protected $mod;
 	protected $modpath;
 
+	#[\ReturnTypeWillChange]
 	public function __construct($mod, $modpath)
 	{
 		$this->mod = $mod;
 		$this->modpath = $modpath;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function __call(string $name, array $args)
 	{
 		if (method_exists($this->mod, $name)) {
@@ -60,7 +62,7 @@ class ResourceMethods
 		}
 		if (strncmp($name, 'Create', 6) == 0) {
 			//maybe it's a now-removed form-element call
-			// static properties here >> SingleItem property|ies ?
+			// static properties here >> Lone property|ies ?
 			static $flect = null;
 
 			if ($flect === null) {
@@ -98,14 +100,14 @@ class ResourceMethods
 	// default versions of methods required/accessed by the module-manager module
 	// NOTE no event-processing, permission-changes(checks are ok), redirections, messaging like ShowErrors() etc
 
-    public function CheckContext() : bool
-    {
-        $str = $_SERVER['PHP_SELF'] ?? '';
-        if (!$str) {
-            $str = reset(get_included_files());
-        }
-        return basename($str, '.php') === 'moduleinterface';
-    }
+	public function CheckContext() : bool
+	{
+		$str = $_SERVER['PHP_SELF'] ?? '';
+		if (!$str) {
+			$str = reset(get_included_files());
+		}
+		return basename($str, '.php') === 'moduleinterface';
+	}
 
 	public function CheckPermission(...$perms) : bool
 	{
@@ -192,8 +194,8 @@ class ResourceMethods
 		return '';
 	}
 
-    public function GetDependencies()
-    {
+	public function GetDependencies()
+	{
 		return [];
 	}
 
@@ -207,10 +209,10 @@ class ResourceMethods
 		return cms_path_to_url($this->modpath);
 	}
 
-	// deprecated use SingleItem::LoadedMetadata()->get('capable_modules',$force, ...)
+	// deprecated use Lone::get('LoadedMetadata')->get('capable_modules',$force, ...)
 	public function GetModulesWithCapability(string $capability, array $params = []) : array
 	{
-		return SingleItem::LoadedMetadata()->get('capable_modules', false, $capability, $params);
+		return Lone::get('LoadedMetadata')->get('capable_modules', false, $capability, $params);
 	}
 
 	public function GetName() : string
@@ -256,7 +258,7 @@ class ResourceMethods
 			$resource = $tpl_name;
 		}
 
-		$smarty = SingleItem::Smarty();
+		$smarty = Lone::get('Smarty');
 		$tpl = $smarty->createTemplate($resource); //, null, null, $smarty);
 		$tpl->assign([
 			'mod' => $this->mod, //or just $this ?
@@ -285,11 +287,11 @@ class ResourceMethods
 	{
 		$fp = $this->modpath.DIRECTORY_SEPARATOR.'method.install.php';
 		if (is_file($fp)) {
-			$gCms = SingleItem::App();
-			$db = SingleItem::Db();
-			$config = SingleItem::Config();
+			$gCms = Lone::get('App');
+			$db = Lone::get('Db');
+			$config = Lone::get('Config');
 			//TODO other in-scope vars?
-			//$smarty = SingleItem::Smarty(); c.f. CMSModule::Install()
+			//$smarty = Lone::get('Smarty'); c.f. CMSModule::Install()
 			$res = include_once $fp;
 			return ($res && $res !== 1) ? $res : false;
 		}
@@ -322,10 +324,10 @@ class ResourceMethods
 			// sort out relevant variables c.f. module-action in-scope vars
 			$id = $params['id'] ?? '';
 			$returnid = $params['returnid'] ?? 0;
-			$gCms = SingleItem::App();
-			$db = SingleItem::Db();
-			$config = SingleItem::Config();
-			$smarty = SingleItem::Smarty();
+			$gCms = Lone::get('App');
+			$db = Lone::get('Db');
+			$config = Lone::get('Config');
+			$smarty = Lone::get('Smarty');
 			$uuid = get_site_UUID(); //since 3.0
 			try {
 				ob_start();
@@ -364,11 +366,11 @@ class ResourceMethods
 	{
 		$fp = $this->modpath.DIRECTORY_SEPARATOR.'method.uninstall.php';
 		if (is_file($fp)) {
-			$gCms = SingleItem::App();
-			$db = SingleItem::Db();
-			$config = SingleItem::Config();
+			$gCms = Lone::get('App');
+			$db = Lone::get('Db');
+			$config = Lone::get('Config');
 			//TODO other in-scope vars?
-			//$smarty = SingleItem::Smarty(); c.f. CMSModule::Uninstall()
+			//$smarty = Lone::get('Smarty'); c.f. CMSModule::Uninstall()
 			$res = include_once $fp;
 			return ($res && $res !== 1) ? $res : false;
 		}
@@ -379,11 +381,11 @@ class ResourceMethods
 	{
 		$fp = $this->modpath.DIRECTORY_SEPARATOR.'method.upgrade.php';
 		if (is_file($fp)) {
-			$gCms = SingleItem::App();
-			$db = SingleItem::Db();
-			$config = SingleItem::Config();
+			$gCms = Lone::get('App');
+			$db = Lone::get('Db');
+			$config = Lone::get('Config');
 			// TODO other in-scope vars?
-			//$smarty = SingleItem::Smarty(); c.f. CMSModule::Upgrade()
+			//$smarty = Lone::get('Smarty'); c.f. CMSModule::Upgrade()
 			$res = include_once $fp;
 			return ($res && $res !== 1) ? $res : false;
 		}

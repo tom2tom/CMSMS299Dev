@@ -47,6 +47,7 @@ final class LogOperations implements ILogManager
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $this->init();
@@ -55,6 +56,7 @@ final class LogOperations implements ILogManager
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     private function __clone() {}
 
     /**
@@ -63,8 +65,8 @@ final class LogOperations implements ILogManager
      */
     public static function get_instance() : self
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\SingleItem::LogOperations()'));
-        return SingleItem::LogOperations();
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\Lone::get(\'LogOperations\')'));
+        return Lone::get('LogOperations');
     }
 
     /**

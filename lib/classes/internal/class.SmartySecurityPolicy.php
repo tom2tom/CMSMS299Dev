@@ -21,9 +21,10 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\internal;
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 //use Smarty;
 use Smarty_Security;
+use function CMSMS\is_frontend_request;
 
 /**
  * Generic smarty security policy.
@@ -36,6 +37,7 @@ use Smarty_Security;
  */
 final class SmartySecurityPolicy extends Smarty_Security
 {
+    #[\ReturnTypeWillChange]
     public function __construct($smarty)
     {
         parent::__construct($smarty);
@@ -44,9 +46,9 @@ final class SmartySecurityPolicy extends Smarty_Security
         $this->secure_dir = null; // block stuff happening outside the specified directories
         $this->streams = null; // no streams allowed
 //      $this->allow_super_globals = false;
-        if( SingleItem::App()->is_frontend_request() ) { // TODO AppState...
+        if( is_frontend_request() ) {
             $this->allow_constants = false;
-            if( !SingleItem::Config()['permissive_smarty'] ) {
+            if( !Lone::get('Config')['permissive_smarty'] ) {
                 $this->static_classes = null;
                 // allow most methods that do data interpretation,
                 // modification or formatting ahead of or during display

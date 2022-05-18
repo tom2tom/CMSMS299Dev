@@ -42,6 +42,7 @@ abstract class base_email_platform
     protected $status;
     protected $emailid;
 
+    #[\ReturnTypeWillChange]
     public function __construct($mod)
     {
         if (!function_exists('curl_version')) {

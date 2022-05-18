@@ -43,6 +43,7 @@ class RegularJob extends CronJob
      *
      * @param CmsRegularTask | IRegularTask $task
      */
+    #[\ReturnTypeWillChange]
     public function __construct($task)
     {
         parent::__construct();
@@ -60,7 +61,8 @@ class RegularJob extends CronJob
      * @param string $key
      * @return mixed
      */
-/*    public function __get(string $key)
+/*    #[\ReturnTypeWillChange]
+    public function __get(string $key)
     {
         return parent::__get($key);
     }
@@ -73,6 +75,7 @@ class RegularJob extends CronJob
      * @param mixed $val
      * @throws UnexpectedValueException
      */
+    #[\ReturnTypeWillChange]
     public function __set(string $key, $val)
     {
         switch ($key) {

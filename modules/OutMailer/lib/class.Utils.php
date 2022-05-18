@@ -11,7 +11,7 @@ namespace OutMailer;
 //use CMSMS\Utils as AppUtils;
 use CMSMS\Crypto;
 use CMSMS\FormUtils;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use const CMS_DB_PREFIX;
 use function cms_join_path;
 
@@ -24,7 +24,7 @@ class Utils
      */
     public static function get_platforms_full($mod = null) : array
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $aliases = $db->getCol('SELECT alias FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE enabled>0');
         if (!$aliases) {
             return [];
@@ -55,7 +55,7 @@ class Utils
      */
     public static function get_platform(bool $title = false, $mod = null)
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $alias = ($title) ?
             $db->getOne('SELECT alias FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE title=? AND enabled>0', [$title]) :
             $db->getOne('SELECT alias FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE active>0 AND enabled>0');
@@ -121,7 +121,7 @@ class Utils
             $desc = null;
         }
 
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         //upsert, sort-of
         $sql = 'SELECT id FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE alias=?';
         $gid = $db->getOne($sql, [$alias]);
@@ -148,7 +148,7 @@ class Utils
         if (!$files) {
             return;
         }
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'SELECT id FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE alias=?';
         $found = [];
         foreach ($files as &$one) {
@@ -180,7 +180,7 @@ class Utils
      */
     public static function setprops(int $gid, array $props)
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $pref = CMS_DB_PREFIX;
         //upsert, sort-of
         //NOTE new parameters added with apiname 'todo' & signature NULL
@@ -222,7 +222,7 @@ EOS;
     public static function getprops($mod, int $gid) : array
     {
         $pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY);
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $props = $db->getAssoc('SELECT signature,apiname,plainvalue,encvalue,encrypt FROM '.CMS_DB_PREFIX.
          'module_outmailer_props WHERE gate_id=? AND enabled>0 ORDER BY apiorder',
          [$gid]);
@@ -306,7 +306,7 @@ EOS;
 /*
   public static function log_send($ip_address, $mobile, $msg, $statuOutMailer = '')
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'INSERT INTO '.CMS_DB_PREFIX.'module_outmailer_sent (mobile,ip,msg,sdate) VALUES (?,?,?,NOW())';
         $db->execute($sql, [$mobile, $ip_address, $msg]);
     }
@@ -324,7 +324,7 @@ EOS;
             $days = 1;
         }
         $time -= $days * 86400;
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         if ($mod->GetPreference('logsends')) {
             $limit = $db->DbTimeStamp($time);
             $db->execute('DELETE FROM '.CMS_DB_PREFIX.'module_outmailer_sent WHERE sdate<'.$limit);
@@ -335,7 +335,7 @@ EOS;
 
     public static function ip_can_send(&$mod, $ip_address)
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $t = time();
         $longnow = $db->DbTimeStamp($t);
 

@@ -1,6 +1,6 @@
 {if empty($_module)}{$_module='ContentManager'}{/if}
 {if $sheets}
-<table id="allsheets" class="pagetable" style="width:auto;">
+<table id="allsheets" class="pagetable">
  <thead>
   <tr>
    <th>{_ld($_module,'colhdr_id')}</th>

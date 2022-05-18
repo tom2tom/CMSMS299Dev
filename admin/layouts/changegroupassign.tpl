@@ -58,7 +58,7 @@
       <td>{$user->name}</td>
       {foreach $displaygroups as $thisgroup}
         {if $thisgroup->id != -1} {$gid=$thisgroup->id}
-        <td class="g{$gid}">
+        <td class="pagepos g{$gid}">
         <input type="hidden" name="ug_{$user->id}_{$gid}" value="0" />
         <input type="checkbox" name="ug_{$user->id}_{$gid}" value="1"
 {if $usr1perm}

@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\module_support;
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\TemplateOperations;
 use CMSMS\Utils;
 use const CMS_DB_PREFIX;
@@ -44,7 +44,7 @@ use function endswith;
  */
 function ListTemplates($mod, $modname = '')
 {
-	$db = SingleItem::Db();
+	$db = Lone::get('Db');
 	if (!$modname) {
 		$modname = $mod->GetName();
 	}
@@ -63,7 +63,7 @@ function ListTemplates($mod, $modname = '')
  */
 function GetTemplate($mod, $tpl_name, $modname = '')
 {
-	$db = SingleItem::Db();
+	$db = Lone::get('Db');
 	if (!$modname) {
 		$modname = $mod->GetName();
 	}
@@ -113,7 +113,7 @@ function GetTemplateFromFile($mod, $tpl_name, $modname = '')
  */
 function SetTemplate($mod, $tpl_name, $content, $modname = '')
 {
-	$db = SingleItem::Db();
+	$db = Lone::get('Db');
 	if (!$modname) {
 		$modname = $mod->GetName();
 	}
@@ -161,7 +161,7 @@ EOS;
  */
 function DeleteTemplate($mod, $tpl_name = '', $modname = '')
 {
-	$db = SingleItem::Db();
+	$db = Lone::get('Db');
 	$query = 'DELETE FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE originator=?';
 	if (!$modname) {
 		$modname = $mod->GetName();

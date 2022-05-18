@@ -20,10 +20,10 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Crypto;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 //variables for included method
-$config = SingleItem::Config();
+$config = Lone::get('Config');
 $login_url = $config['admin_url'].'/login.php';
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'method.process.php';
@@ -31,7 +31,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'method.process.php';
 $csrf = Crypto::random_string(16, true); //encryption-grade hash not needed
 $_SESSION[$csrf_key] = $csrf;
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 
 $tpl = $this->GetTemplateObject('login-form.tpl');
 $tpl->assign([

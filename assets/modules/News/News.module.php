@@ -19,12 +19,12 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminMenuItem;
-use CMSMS\AppParams;
+//use CMSMS\AppParams;
 use CMSMS\CoreCapabilities;
 use CMSMS\HookOperations;
 use CMSMS\Route;
 use CMSMS\RouteOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\TemplateType;
 use CMSMS\Utils;
 use News\AdjustStatusJob;
@@ -41,6 +41,7 @@ class News extends CMSModule
     const DAYBLOCK = 3;
 
 /* for CMSMS < 3.0
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();
@@ -209,7 +210,6 @@ class News extends CMSModule
             $row = $db->getRow($query, [$articleid]);
 
             if( $row ) {
-                $gCms = SingleItem::App();
                 //position 0 is the prefix displayed in the list results
                 $result[0] = $this->GetFriendlyName();
 
@@ -219,7 +219,7 @@ class News extends CMSModule
                 //position 2 is the URL to the title
                 $detailpage = $returnid;
                 if( isset($params['detailpage']) ) {
-                    $hm = $gCms->GetHierarchyManager();
+                    $hm = cmsms()->GetHierarchyManager();
                     $id = $hm->find_by_identifier($params['detailpage'], false);
                     if( $id ) {
                         $detailpage = $id;
@@ -228,7 +228,7 @@ class News extends CMSModule
 
                 $detailtemplate = '';
                 if( isset($params['detailtemplate']) ) {
-                    if( !isset($hm) ) { $hm = $gCms->GetHierarchyManager(); }
+                    if( !isset($hm) ) { $hm = cmsms()->GetHierarchyManager(); }
                     $node = $hm->find_by_tag('alias', $params['detailtemplate']);
                     if( $node ) {
                         $detailtemplate = '/d,' . $params['detailtemplate'];
@@ -323,7 +323,7 @@ class News extends CMSModule
         $str = $this->GetName();
         RouteOperations::del_static('', $str);
 
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $c = strtoupper($str[0]);
         $x = substr($str, 1);
         $x1 = '['.$c.strtolower($c).']'.$x;

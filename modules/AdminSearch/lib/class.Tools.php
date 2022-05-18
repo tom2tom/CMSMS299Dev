@@ -8,7 +8,7 @@ See license details at the top of file AdminSearch.module.php
 namespace AdminSearch;
 
 use CMSMS\DeprecationNotice;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 use const CMS_DEPREC;
 use function get_userid;
@@ -18,7 +18,7 @@ class Tools
     public static function get_slave_classes()
     {
         $key = 'slaves'.get_userid(false);
-        $cache = SingleItem::SystemCache();
+        $cache = Lone::get('SystemCache');
         $results = $cache->get($key, __CLASS__);
         if (!$results) {
             // cache needs populating

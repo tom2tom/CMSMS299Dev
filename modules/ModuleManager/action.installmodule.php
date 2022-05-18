@@ -24,7 +24,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Crypto;
 use CMSMS\DataException;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use ModuleManager\ModuleInfo;
 use ModuleManager\ModuleRepClient;
 use ModuleManager\Operations;
@@ -93,7 +93,7 @@ try {
         unset($_SESSION[$key]);
 
         // install/upgrade the modules that need to be installed or upgraded.
-        $ops = SingleItem::ModuleOperations();
+        $ops = Lone::get('ModuleOperations');
         foreach( $modlist as $name => $rec ) {
             switch( $rec['action'] ) {
             case 'i': // install
@@ -157,7 +157,7 @@ try {
                 } else {
                     // module not found in forge?? could be a system module,
                     // but it's still a dependency.
-                    if( !SingleItem::ModuleOperations()->IsSystemModule($name) ) throw new Exception($mod->Lang('error_dependencynotfound2',$name,$onedep['version']));
+                    if( !Lone::get('ModuleOperations')->IsSystemModule($name) ) throw new Exception($mod->Lang('error_dependencynotfound2',$name,$onedep['version']));
                     $out[$name] = $onedep;
                 }
             }

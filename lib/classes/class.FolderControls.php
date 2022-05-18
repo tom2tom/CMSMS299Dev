@@ -25,7 +25,7 @@ use CMSMS\DataException;
 use CMSMS\FileType;
 //use CMSMS\FileTypeHelper;
 use CMSMS\FSControlValue;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use Exception;
 use UnexpectedValueException;
 use const CMS_ROOT_PATH;
@@ -75,6 +75,7 @@ class FolderControls
      * @param array $params Associative array of profile properties to
      *  be used instead of class-defaults
      */
+    #[\ReturnTypeWillChange]
     public function __construct($params = [])
     {
         $longnow = date('Y-m-d H:i:s', time()); // i.e. $db->DbTimeStamp(time())
@@ -164,7 +165,7 @@ class FolderControls
             return $s;
         }
         else {
-            $ups = SingleItem::Config()['uploads_path'];
+            $ups = Lone::get('Config')['uploads_path'];
             if (is_dir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.$ups.DIRECTORY_SEPARATOR.$s) ) {
                 return $ups.DIRECTORY_SEPARATOR.$s;
             }
@@ -175,6 +176,7 @@ class FolderControls
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __clone()
     {
         $this->data['id'] = 0;
@@ -187,6 +189,7 @@ class FolderControls
      * @param string $key Property name
      * @param mixed $val Property value
      */
+    #[\ReturnTypeWillChange]
     public function __set(string $key, $val)
     {
         // TODO all 3.0 props
@@ -325,6 +328,7 @@ class FolderControls
      * @param string $key
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         // TODO all 3.0 props

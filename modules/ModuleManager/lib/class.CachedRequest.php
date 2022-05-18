@@ -24,7 +24,7 @@ namespace ModuleManager;
 
 use CMSMS\Crypto;
 use CMSMS\HttpRequest;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 
 final class CachedRequest //was modmgr_cached_request
@@ -48,14 +48,14 @@ final class CachedRequest //was modmgr_cached_request
     $mod = Utils::get_module('ModuleManager');
     $force = $mod->GetPreference('disable_caching',0);
     if( !$force ) {
-      $val = SingleItem::SystemCache()->get($signature.'_set',__CLASS__);
+      $val = Lone::get('SystemCache')->get($signature.'_set',__CLASS__);
       if( $val ) {
         $limit = $age ? min(1,$age) : $this->_ttl;
         $force = $limit > 0 && (time() > $val + $limit * 60);
       }
     }
     if( !$force ) {
-      $val = SingleItem::SystemCache()->get($signature,__CLASS__);
+      $val = Lone::get('SystemCache')->get($signature,__CLASS__);
       if( $val ) {
         $data = unserialize($val,['allowed_classes'=>false]);
         $this->_status = $data[0];
@@ -73,8 +73,8 @@ final class CachedRequest //was modmgr_cached_request
 
     if( $this->_status == 200 ) {
       $val = serialize([$this->_status,$this->_result]);
-      SingleItem::SystemCache()->set($signature,$val,__CLASS__);
-      SingleItem::SystemCache()->set($signature.'_set',time(),__CLASS__);
+      Lone::get('SystemCache')->set($signature,$val,__CLASS__);
+      Lone::get('SystemCache')->set($signature.'_set',time(),__CLASS__);
     }
   }
 
@@ -103,6 +103,6 @@ final class CachedRequest //was modmgr_cached_request
 
   public function clearCache()
   {
-    SingleItem::SystemCache()->clear(__CLASS__);
+    Lone::get('SystemCache')->clear(__CLASS__);
   }
 } // class

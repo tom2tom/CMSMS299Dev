@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Bookmark;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Url;
 use function CMSMS\de_specialize;
 use function CMSMS\sanitizeVal;
@@ -39,7 +39,7 @@ if (isset($_POST['cancel'])) {
 }
 
 $userid = get_userid();
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 if (isset($_GET['bookmark_id'])) {
     $bookmark_id = (int)$_GET['bookmark_id'];
@@ -85,7 +85,7 @@ if (isset($_POST['editbookmark'])) {
     $title = specialize($title);
     $url = specialize($url);
 } elseif ($bookmark_id != -1) {
-    $db = SingleItem::Db();
+    $db = Lone::get('Db');
     $query = 'SELECT user_id,title,url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE bookmark_id = ?';
     $row = $db->getRow($query, [$bookmark_id]);
     if ($row) {
@@ -107,7 +107,7 @@ if (isset($_POST['editbookmark'])) {
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
     'bookmark_id' => $bookmark_id,
     'selfurl' => $selfurl,

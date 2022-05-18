@@ -22,13 +22,14 @@ namespace CMSMS\contenttypes;
 
 //use CMSMS\AppParams;
 use CMSMS\Crypto;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use Exception;
 use Serializable;
 use const CMS_DB_PREFIX;
 //use const CMS_DEBUG;
 use const CMS_ROOT_URL;
 use function cms_to_stamp;
+//use function cmsms;
 
 /**
  * Page content-display base class.
@@ -100,6 +101,7 @@ class ContentBase implements Serializable
 	 *
 	 * @param mixed $params Properties to be set (optional, to support legacy sub-classes)
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct($params)
 	{
 		if (!empty($params)) {
@@ -120,6 +122,7 @@ class ContentBase implements Serializable
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	public function __clone()
 	{
 		$this->_fields['content_alias'] = '';
@@ -132,6 +135,7 @@ class ContentBase implements Serializable
 	 * This should only be used during construction
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	public function __set(string $key, $value)
 	{
 		$use = strtolower($key);
@@ -157,6 +161,7 @@ class ContentBase implements Serializable
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	public function __get(string $key)
 	{
 		$use = strtolower($key);
@@ -193,6 +198,7 @@ class ContentBase implements Serializable
 		}
 	}
 
+	#[\ReturnTypeWillChange]
 	public function __toString()
 	{
 		return json_encode($this->__serialize(), JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -203,6 +209,7 @@ class ContentBase implements Serializable
 	 * NOTE URL() is distinct from GetURL()
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	public function __call(string $name, array $args)
 	{
 		$chk = strtolower($name);
@@ -265,7 +272,7 @@ class ContentBase implements Serializable
 	protected function _load_properties() : bool
 	{
 		if (isset($this->_fields['content_id']) && $this->_fields['content_id'] > 0) {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$query = 'SELECT prop_name,content FROM '.CMS_DB_PREFIX.'content_props WHERE content_id = ?';
 			$dbr = $db->getAssoc($query, [(int)$this->_fields['content_id'] ]);
 			$this->_props = $dbr; // might be empty
@@ -430,7 +437,7 @@ class ContentBase implements Serializable
 	public function Hierarchy() : string
 	{
 		if (isset($this->_fields['hierarchy'])) {
-			return SingleItem::ContentOperations()->CreateFriendlyHierarchyPosition($this->_fields['hierarchy']);
+			return Lone::get('ContentOperations')->CreateFriendlyHierarchyPosition($this->_fields['hierarchy']);
 		}
 		return '';
 	}
@@ -610,8 +617,8 @@ class ContentBase implements Serializable
 	 */
 /*	public function SetAlias(string $alias = '', bool $doAutoAliasIfEnabled = true)
 	{
-		$contentops = SingleItem::ContentOperations();
-		$config = SingleItem::Config();
+		$contentops = Lone::get('ContentOperations');
+		$config = Lone::get('Config');
 		if ($alias === '' && $this->doAutoAliasIfEnabled && $config['auto_alias_content']) {
 			$alias = trim($this->_fields['menu_text']);
 			if ($alias === '') {
@@ -662,10 +669,10 @@ class ContentBase implements Serializable
 
 		$this->_fields['content_alias'] = $alias;
 		//CHECME are these caches worth retaining? if not, ->delete()
-		$cache = SingleItem::LoadedData()
-		$cache->refresh('content_quicklist');
-		$cache->refresh('content_tree');
-		$cache->refresh('content_flatlist');
+//		$cache = Lone::get('LoadedData')
+//		$cache->refresh('content_quicklist');
+//		$cache->refresh('content_tree');
+//		$cache->refresh('content_flatlist');
 	}
 */
 
@@ -722,7 +729,7 @@ class ContentBase implements Serializable
 			return $base_url . '/';
 		}
 
-		$config = SingleItem::Config();
+		$config = Lone::get('Config');
 		if ($rewrite) {
 			$url_rewriting = $config['url_rewriting'];
 			$page_extension = $config['page_extension'];
@@ -757,8 +764,8 @@ class ContentBase implements Serializable
 		if ($this->_fields['content_id'] <= 0) {
 			return false;
 		}
-		$hm = SingleItem::App()->GetHierarchyManager();
-		$node = $hm->quickfind_node_by_id($this->_fields['content_id']);
+		$hm = cmsms()->GetHierarchyManager();
+		$node = $hm->get_node_by_id($this->_fields['content_id']);
 		if (!$node || !$node->has_children()) {
 			return false;
 		}
@@ -786,7 +793,7 @@ class ContentBase implements Serializable
 	 */
 /*	public function ChildCount() : int
 	{
-		$hm = SingleItem::App()->GetHierarchyManager();
+		$hm = cmsms()->GetHierarchyManager();
 		$node = $hm->find_by_tag('id', $this->_fields['content_id']);
 		if ($node) {
 			return $node->count_children();
@@ -797,16 +804,16 @@ class ContentBase implements Serializable
 
 	// ======= SERIALIZABLE INTERFACE METHODS =======
 
-//	public function serialize() : ?string PHP 8+
-	public function serialize()
+	#[\ReturnTypeWillChange]
+	public function serialize()// : ?string
 	{
 		//TODO can all cachers cope with embedded null's in strings ? NB internal cryption is slow!
 		return Crypto::encrypt_string($this->__toString(),__CLASS__,'best');
 //		return $this->__toString();
 	}
 
-//	public function unserialize(string $serialized) : void PHP 8+
-	public function unserialize($serialized)
+	#[\ReturnTypeWillChange]
+	public function unserialize($serialized)// : void
 	{
 		$str = Crypto::decrypt_string($serialized,__CLASS__,'best');
 		if (!$str) {

@@ -15,6 +15,7 @@ abstract class jquery_upload_handler
 {
     private $options;
 
+    #[\ReturnTypeWillChange]
     public function __construct($options=null) {
         $this->options = [
             'script_url' => $this->getFullUrl().'/'.basename(__FILE__),

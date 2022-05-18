@@ -66,7 +66,7 @@ if ($pmod) {
     $formstart = $this->CreateFormStart($id,'defaultadmin');
     $hash = $this->GetPreference('source_sri'); //e.g. 'hashtype-base64string'
     $url = $this->GetPreference('source_url'); //e.g. 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.9.11' TODO support preconnection, SRI hash
-    $url2 = $this->GetPreference('skin_url'); // c.f. App/User Params:: ['wysiwyg_theme']
+    $url2 = $this->GetPreference('skin_url'); // c.f. UserParams:: ['wysiwyg_theme']
 
     $tpl->assign('form_start',$formstart)
      ->assign('info',$this->Lang('info_source'))

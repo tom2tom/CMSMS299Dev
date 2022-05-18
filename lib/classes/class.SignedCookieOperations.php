@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\ICookieManager;
-use CMSMS\SingleItem;
 use function CMSMS\get_site_UUID;
+use function CMSMS\is_secure_request;
 use const CMS_ROOT_URL;
 use const CMS_VERSION;
 
@@ -52,10 +52,9 @@ final class SignedCookieOperations implements ICookieManager
 
     /**
      * Constructor.
-     *
-     * @param mixed $app App | null. Optional since 3.0
      */
-    public function __construct($app = null)
+    #[\ReturnTypeWillChange]
+    public function __construct()
     {
         $this->_parts = parse_url(CMS_ROOT_URL);
         if (empty($this->_parts['host'])) {
@@ -64,10 +63,7 @@ final class SignedCookieOperations implements ICookieManager
         if (empty($this->_parts['path'])) {
             $this->_parts['path'] = '/'; // default to entire domain
         }
-        if (!$app) {
-            $app = SingleItem::App();
-        }
-        $this->_secure = $app->is_https_request();
+        $this->_secure = is_secure_request();
         $this->_uuid = get_site_UUID();
     }
 

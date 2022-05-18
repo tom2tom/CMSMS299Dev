@@ -70,6 +70,7 @@ class ContentType implements ArrayAccess
 	 * The latter 2 are filepaths of display- and edit-classes, if needed
 	 * because auto-loading cannot retrieve them
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct($parms = null)
 	{
 		if ($parms) {
@@ -109,7 +110,8 @@ class ContentType implements ArrayAccess
 		}
 	}
 
-	public function __call(string $name, array $args)
+	#[\ReturnTypeWillChange]
+	public function __call(string $name, array $args)// : mixed
 	{
 		$chk = strtolower($name);
 		$pre = substr($chk, 0, 3);
@@ -126,23 +128,28 @@ class ContentType implements ArrayAccess
 		}
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetExists($key)// : bool
 	{
 		return !empty($this->$key);
 	}
 
-	public function offsetGet($key)
+	#[\ReturnTypeWillChange]
+	public function offsetGet($key)// : mixed
 	{
 		if( isset($this->$key) ) return $this->$key;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetSet($key,$value)// : void
 	{
 		$this->$key = $value;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetUnset($key)// : void
 	{
 		unset($this->$key);
 	}
 }
+//if (!\class_exists('', false)) \class_alias(ContentType::class, '', false);

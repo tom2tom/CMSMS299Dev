@@ -16,6 +16,7 @@ class Smarty_Undefined_Variable extends Smarty_Variable
      *
      * @return null
      */
+    #[\ReturnTypeWillChange]
     public function __get($name)
     {
         return null;
@@ -26,6 +27,7 @@ class Smarty_Undefined_Variable extends Smarty_Variable
      *
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return '';

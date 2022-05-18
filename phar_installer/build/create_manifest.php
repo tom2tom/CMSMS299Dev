@@ -980,6 +980,7 @@ class compare_dirs
     private $_ignored = [];
     private $_donotdelete = [];
 
+    #[\ReturnTypeWillChange]
     public function __construct(string $dir_a, string $dir_b, bool $do_md5 = false)
     {
         if (!is_dir($dir_a)) {

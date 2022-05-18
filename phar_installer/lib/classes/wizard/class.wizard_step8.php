@@ -7,7 +7,7 @@ use cms_installer\wizard\wizard_step;
 use CMSMS\AppConfig;
 use CMSMS\AppParams;
 use CMSMS\AppState;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use Exception;
 //use RuntimeException;
 use Throwable;
@@ -75,7 +75,7 @@ class wizard_step8 extends wizard_step
         catch( Throwable $t ) {
             return $t->getMessage();
         }
-        SingleItem::insert('Db', $db)
+        Lone::insert('Db', $db)
         return $db;
     }
 */
@@ -281,7 +281,7 @@ EOS
         $this->connect_to_cmsms($destdir);
         // connect to the database, if possible
         //$db = $this->db_connect($destconfig);
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         if (!is_object($db)) {
             throw new Exception($db);
         }
@@ -381,7 +381,7 @@ EOS
         $this->connect_to_cmsms($destdir);
         // database connection for use by included scripts
 //        $db = $this->db_connect($destconfig);
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         // also in-scope for inclusions: the installer-smarty-instance for say error message assignment
         $smarty = smarty();
 

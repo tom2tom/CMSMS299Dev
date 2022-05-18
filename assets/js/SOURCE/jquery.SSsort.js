@@ -189,18 +189,18 @@ Dual licensed: MIT and GPL
 
  Here are some example parsers:
      {  id: 'itext',
-        is: function (s) { return true; },
+        is: function (s) { return typeof s === 'string'; },
         format: function (s) { return $.toLocaleLowerCase(s.trim()); },
         type: 'text'
      }
 
      { id: 'textinput',
-        is: function(s,node) {
+        is: function(s, node) {
             var n = node.childNodes[0];
             return (n && n.nodeName.toLowerCase() == 'input' && n.type.toLowerCase() == 'text'));
         },
         watch: true,
-        format: function(s,node) {
+        format: function(s, node) {
             return node.childNodes[0].value.trim();
         },
         type: 'text'
@@ -319,12 +319,12 @@ Dual licensed: MIT and GPL
      }
 
      {  id: 'checked',
-        is: function(s,node) {
+        is: function(s, node) {
             var n = node.childNodes[0];
             return (n && n.nodeName.toLowerCase() == 'input' && n.type.toLowerCase() == 'checkbox');
         },
         watch: true,
-        format: function(s,node) {
+        format: function(s, node) {
             return (node.childNodes[0].value == 'checked');
         },
         type: 'numeric'
@@ -451,7 +451,7 @@ Dual licensed: MIT and GPL
             if (vers >= '1.7') {
               $cell.on('click', doSort);
             } else {
-              $cell.bind('click',doSort);
+              $cell.bind('click', doSort);
             }
           }
         }
@@ -510,7 +510,8 @@ Dual licensed: MIT and GPL
           return true;
         },
         format: function (s) {
-          return s.trim();
+          if (s) return s.trim();
+          return '';
         },
         type: 'text'
       },
@@ -642,7 +643,7 @@ Dual licensed: MIT and GPL
   // private methods
 
   function pageCount(cfg) {
-    cfg.pagecount = ((cfg.rows.length / cfg.pagesize) | 0) + 1; //Math.ceil() replacement
+    cfg.pagecount = (cfg.pagesize > 0) ? Math.ceil(cfg.rows.length / cfg.pagesize) : 1;
   }
 
   function showPage(firstrow, cfg) {

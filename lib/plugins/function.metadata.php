@@ -23,18 +23,18 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\AppParams;
 use CMSMS\Events;
 use CMSMS\HookOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
+use function CMSMS\is_secure_request;
 
 function smarty_function_metadata($params, $template)
 {
-	$gCms = SingleItem::App();
-	$content_obj = $gCms->get_content_object();
+	$content_obj = cmsms()->get_content_object();
 	$cid = $content_obj->Id();
 
 	$result = '';
 	$showbase = true;
 
-	$config = SingleItem::Config();
+	$config = Lone::get('Config');
 	// Show a base tag unless showbase is false in config.php
 	// It really can't hinder, only help
 	if( isset($config['showbase'])) $showbase = cms_to_bool($config['showbase']);
@@ -48,8 +48,7 @@ function smarty_function_metadata($params, $template)
 	Events::SendEvent('Core','MetadataPrerender', ['content_id'=>$cid, 'showbase'=>&$showbase, 'html'=>&$result]);
 
 	if( $showbase ) {
-		if( $gCms->is_https_request() ) $base = $config['ssl_url'];
-		else $base = CMS_ROOT_URL;
+		$base = ( is_secure_request() ) ? $config['ssl_url'] : CMS_ROOT_URL;
 		$result .= "\n<base href=\"".$base."/\" />\n";
 	}
 

@@ -23,7 +23,7 @@ namespace DesignManager;
 
 use CMSMS\AdminUtils;
 use CMSMS\Events;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\SQLException;
 use CMSMS\Stylesheet;
 use CMSMS\Template;
@@ -79,7 +79,7 @@ class Design
 	 */
 	private $tpl_members = [];
 
-    // static properties here >> SingleItem property|ies ?
+    // static properties here >> Lone property|ies ?
 	/**
 	 * @ignore
 	 */
@@ -398,7 +398,7 @@ class Design
 			if( count($t1) != count($this->css_members) ) throw new LogicException('Duplicate CSS ids exist in the design.');
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$tmp = null;
 		if( $this->get_id() ) {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
@@ -422,7 +422,7 @@ class Design
 		if( !$this->dirty ) return;
 		$this->validate();
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		//TODO DT fields for created, modified
 		// ,dflt,created,modified
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description) VALUES (?,?)'; //,?,?,?
@@ -470,7 +470,7 @@ class Design
 		$this->validate();
 
 		$did = $this->get_id();
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ? WHERE id = ?'; //, dflt = ?, modified = ?
 //		$dbr = useless for update
 		$db->execute($query,[$this->get_name(),$this->get_description(),$did]); //,($this->get_default())?1:0, time(),
@@ -608,7 +608,7 @@ class Design
 	 */
 	public static function load($x)
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$row = null;
 		if( is_numeric($x) && $x > 0 ) {
 			if( self::$raw_cache ) {
@@ -655,7 +655,7 @@ class Design
 	{
 		$out = null;
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY name ASC';
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$dbr = $db->getArray($query);
 		if( $dbr ) {
 			$ids = [];
@@ -728,7 +728,7 @@ class Design
 /*		$tmp = null;
 		if( self::$_dflt_id == '' ) {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE dflt = 1';
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$tmp = (int) $db->getOne($query);
 			if( $tmp > 0 ) self::$_dflt_id = $tmp;
 		}

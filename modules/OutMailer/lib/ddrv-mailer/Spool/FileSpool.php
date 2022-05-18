@@ -12,6 +12,7 @@ final class FileSpool implements Spool
      */
     private $dir;
 
+    #[\ReturnTypeWillChange]
     public function __construct($dir)
     {
         if (!is_dir($dir)) {

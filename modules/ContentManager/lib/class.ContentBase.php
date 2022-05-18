@@ -32,13 +32,13 @@ use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\IContentEditor;
 use CMSMS\internal\content_assistant;
+use CMSMS\Lone;
 use CMSMS\Route;
 use CMSMS\RouteOperations;
-use CMSMS\SingleItem;
 use CMSMS\Url;
 use CMSMS\Utils as AppUtils;
-use Exception;
 use ContentManager\Utils;
+use Exception;
 use RuntimeException;
 use Serializable;
 use const CMS_DB_PREFIX;
@@ -48,6 +48,7 @@ use function add_page_foottext;
 use function check_permission;
 use function cms_join_path;
 use function cms_to_stamp;
+use function cmsms;
 use function CMSMS\specialize;
 use function create_file_dropdown;
 use function debug_buffer;
@@ -354,7 +355,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 	/**
 	 * @param mixed $params Optional array of property names and values, or null
 	 */
-	public function __construct($params = null)
+	#[\ReturnTypeWillChange]
+	public function __construct($params = null)// : void
 	{
 		$this->mod = AppUtils::get_module('ContentManager');
 		$this->domain = $this->mod->GetName();
@@ -370,12 +372,15 @@ abstract class ContentBase implements IContentEditor, Serializable
 	/**
 	 * @ignore
 	 */
-	public function __clone()
+	#[\ReturnTypeWillChange]
+	public function __clone()// : void
 	{
 		$this->mId = -1;
 		$this->mItemOrder = -1;
 		$this->mURL = '';
 		$this->mAlias = '';
+		$this->mCreationDate = '';
+		$this->mModifiedDate = '';
 	}
 
 	public function __serialize() : array
@@ -399,7 +404,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 	/**
 	 * @ignore
 	 */
-	public function __toString()
+	#[\ReturnTypeWillChange]
+	public function __toString()// : string
 	{
 		return json_encode($this->__serialize(), JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 	}
@@ -777,7 +783,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 		case 'page_url':
 			if (!$this->DefaultContent()) {
-				$config = SingleItem::Config();
+				$config = Lone::get('Config');
 				$pretty_urls = $config['url_rewriting'] == 'none' ? 0 : 1;
 				if ($pretty_urls != 0) {
 					$marker = (AppParams::get('content_mandatory_urls', 0)) ? '*' : '';
@@ -797,7 +803,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 				if ($js) {
 					add_page_foottext($js);
 				}
-				$smarty = SingleItem::Smarty();
+				$smarty = Lone::get('Smarty');
 				$tpl = $smarty->createTemplate($this->mod->GetTemplateResource('setstyles.tpl')); //,null,null,$smarty);
 				$tpl->assign('mod', $this->mod)
 					->assign('_module', $this->mod->GetName())
@@ -833,7 +839,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 			];
 */
 		case 'image':
-			$config = SingleItem::Config();
+			$config = Lone::get('Config');
 			$dir = cms_join_path($config['image_uploads_path'], AppParams::get('content_imagefield_path'));
 			$data = $this->GetPropertyValue('image');
 			$filepicker = AppUtils::get_filepicker_module();
@@ -854,7 +860,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 			];
 
 		case 'thumbnail':
-			$config = SingleItem::Config();
+			$config = Lone::get('Config');
 			$dir = cms_join_path($config['image_uploads_path'], AppParams::get('content_thumbnailfield_path'));
 			$data = $this->GetPropertyValue('thumbnail');
 			$filepicker = AppUtils::get_filepicker_module();
@@ -918,9 +924,9 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 		case 'owner':
 			$userid = get_userid();
-			$showadmin = SingleItem::ContentOperations()->CheckPageOwnership($userid, $this->Id());
+			$showadmin = Lone::get('ContentOperations')->CheckPageOwnership($userid, $this->Id());
 			if (!$adding && (check_permission($userid, 'Manage All Content') || $showadmin)) {
-				$users = SingleItem::UserOperations()->GetList(); // TODO get public names in preference to account-names
+				$users = Lone::get('UserOperations')->GetList(); // TODO get public names in preference to account-names
 				$input = FormUtils::create_select([
 					'type' => 'drop',
 					'name' => 'owner_id',
@@ -941,7 +947,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 		case 'additionaleditors':
 			// do owner/additional-editor stuff
 			$userid = get_userid();
-			$contentops = SingleItem::ContentOperations();
+			$contentops = Lone::get('ContentOperations');
 			if ($adding || check_permission($userid, 'Manage All Content') ||
 				$contentops->CheckPageOwnership($userid, $this->Id())) {
 				$addteditors = $this->GetAdditionalEditors();
@@ -992,7 +998,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	public static function GetAdditionalEditorOptions() : array
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'ContentOperations->ListAdditionalEditors()'));
-		return SingleItem::ContentOperations()->ListAdditionalEditors();
+		return Lone::get('ContentOperations')->ListAdditionalEditors();
 	}
 
 	/**
@@ -1427,7 +1433,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 			$this->Insert();
 		}
 
-		$contentops = SingleItem::ContentOperations();
+		$contentops = Lone::get('ContentOperations');
 		$contentops->SetContentModified();
 		$contentops->SetAllHierarchyPositions();
 		Events::SendEvent('Core', 'ContentEditPost', ['content' => &$this]); //TODO deprecate? module for originator?
@@ -1444,7 +1450,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	{
 		Events::SendEvent('Core', 'ContentDeletePre', ['content' => &$this]); //TODO deprecate? module for originator?
 		if ($this->mId > 0) {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'content WHERE content_id = ?';
 			$dbr = $db->execute($query, [$this->mId]);
@@ -1514,7 +1520,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 		if (!$this->HandlesAlias()) {
 			if ($this->mAlias != $this->mOldAlias || ($this->mAlias === '' && $this->RequiresAlias())) {
-				$error = SingleItem::ContentOperations()->CheckAliasError($this->mAlias, $this->mId);
+				$error = Lone::get('ContentOperations')->CheckAliasError($this->mAlias, $this->mId);
 				if ($error !== false) {
 					$errors[] = $error;
 				}
@@ -1530,7 +1536,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 					$this->mURL = $this->mAlias;
 				} else {
 					// if it doesn't explicitly say 'flat' we're creating a hierarchical url.
-					$hm = SingleItem::App()->GetHierarchyManager();
+					$hm = cmsms()->GetHierarchyManager();
 					$node = $hm->find_by_tag('id', $this->ParentId());
 					$stack = [$this->mAlias];
 					$parent_url = '';
@@ -1648,8 +1654,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 */
 	public function SetAlias(string $alias = '', bool $doAutoAliasIfEnabled = true)
 	{
-		$contentops = SingleItem::ContentOperations();
-		$config = SingleItem::Config();
+		$contentops = Lone::get('ContentOperations');
+		$config = Lone::get('Config');
 		if ($alias === '' && $doAutoAliasIfEnabled && $config['auto_alias_content']) {
 			$alias = trim($this->mMenuText);
 			if ($alias === '') {
@@ -1699,11 +1705,11 @@ abstract class ContentBase implements IContentEditor, Serializable
 		}
 
 		$this->mAlias = $alias;
-		$cache = SingleItem::LoadedData();
+//		$cache = Lone::get('LoadedData');
 		// TODO or refresh() & save, ready for next stage ?
-		$cache->delete('content_quicklist');
-		$cache->delete('content_tree');
-		$cache->delete('content_flatlist');
+//		$cache->delete('content_quicklist');
+//		$cache->delete('content_tree');
+//		$cache->delete('content_flatlist');
 	}
 
 	/**
@@ -1810,6 +1816,21 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
+	 * Set the creation date/time of the page
+	 *
+	 * @param mixed $dateval string | null. Not a timestamp
+	 */
+	public function SetCreationDate($dateval)
+	{
+		//TODO some validation
+		$this->mCreationDate = $dateval;
+		//TODO useful consequential for $this->mModifiedDate
+		if (!$dateval) {
+			$this->mModifiedDate = '';
+		}
+	}
+
+	/**
 	 * Return the creation date/time of this content object.
 	 *
 	 * @return int UNIX UTC timestamp. Default 1.
@@ -1818,6 +1839,17 @@ abstract class ContentBase implements IContentEditor, Serializable
 	{
 		$value = $this->mCreationDate ?? '';
 		return ($value) ? cms_to_stamp($value) : 1;
+	}
+
+	/**
+	 * Set the modification date/time of the page
+	 *
+	 * @param mixed $dateval string | null. Not a timestamp
+	 */
+	public function SetModifiedDate($dateval)
+	{
+		//TODO some validation
+		$this->mModifiedDate = $dateval;
 	}
 
 	/**
@@ -1976,7 +2008,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 */
 	public function ChangeItemOrder($direction)
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$longnow = $db->DbTimeStamp(time());
 		$parentid = $this->ParentId();
 		$order = $this->ItemOrder();
@@ -1997,11 +2029,11 @@ abstract class ContentBase implements IContentEditor, Serializable
  WHERE content_id = ?';
 			$db->execute($query, [$this->Id()]);
 		}
-		$cache = SingleItem::LoadedData();
+//		$cache = Lone::get('LoadedData');
 		// TODO or refresh() & save, ready for next stage ?
-		$cache->delete('content_quicklist');
-		$cache->delete('content_tree');
-		$cache->delete('content_flatlist');
+//		$cache->delete('content_quicklist');
+//		$cache->delete('content_tree');
+//		$cache->delete('content_flatlist');
 	}
 
 	/**
@@ -2014,7 +2046,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 */
 	public function Hierarchy() : string
 	{
-		return SingleItem::ContentOperations()->CreateFriendlyHierarchyPosition($this->mHierarchy); //should match this->mIdHierarchy
+		return Lone::get('ContentOperations')->CreateFriendlyHierarchyPosition($this->mHierarchy); //should match this->mIdHierarchy
 	}
 
 	/**
@@ -2225,7 +2257,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 			// use root_url for default content
 			return CMS_ROOT_URL . '/';
 		}
-		$config = SingleItem::Config();
+		$config = Lone::get('Config');
 		$alias = ($this->mAlias ? $this->mAlias : $this->mId);
 		return CMS_ROOT_URL . '/index.php?' . $config['query_var'] . '=' . $alias;
 	}
@@ -2298,7 +2330,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 */
 	public function IsEditable(bool $main = true, bool $extra = true) : bool
 	{
-		$userops = SingleItem::UserOperations();
+		$userops = Lone::get('UserOperations');
 		$userid = get_userid();
 		if ($main) {
 			if ($userops->CheckPermission($userid, 'Manage All Content')
@@ -2455,7 +2487,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 */
 	public function ChildCount() : int
 	{
-		$hm = SingleItem::App()->GetHierarchyManager();
+		$hm = cmsms()->GetHierarchyManager();
 		$node = $hm->find_by_tag('id', $this->mId);
 		if ($node) {
 			return $node->count_children();
@@ -2473,8 +2505,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 		if ($this->mId <= 0) {
 			return false;
 		}
-		$hm = SingleItem::App()->GetHierarchyManager();
-		$node = $hm->quickfind_node_by_id($this->mId);
+		$hm = cmsms()->GetHierarchyManager();
+		$node = $hm->get_node_by_id($this->mId);
 		if (!$node || !$node->has_children()) {
 			return false;
 		}
@@ -2517,7 +2549,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	public function GetAdditionalEditors()
 	{
 		if (!isset($this->mAdditionalEditors)) {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 
 			$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'additional_users WHERE content_id = ?';
 			$dbr = $db->getCol($query, [$this->mId]);
@@ -2543,16 +2575,16 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 	// ======= SERIALIZABLE INTERFACE METHODS =======
 
-//	public function serialize() : ?string PHP 8+
-	public function serialize()
+    #[\ReturnTypeWillChange]
+	public function serialize()// : ?string
 	{
 		$str = $this->__toString();
 		//TODO can cachers cope with embedded null's? NB 'internal' cryption is slow!
 		return Crypto::encrypt_string($str, __CLASS__, 'best');
 	}
 
-//	public function unserialize(string $serialized) : void PHP 8+
-	public function unserialize($serialized)
+    #[\ReturnTypeWillChange]
+	public function unserialize($serialized)// : void
 	{
 		$str = Crypto::decrypt_string($serialized, __CLASS__, 'best');
 		if (!$str) {
@@ -2581,7 +2613,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * This method will calculate a new item order for the object if necessary
 	 * and then save this object, its additional editors, and properties.
-	 * Additionally, if a page url is specified a static route will be created.
+	 * Additionally, if a page URL is specified a static route will be created.
 	 *
 	 * Because multiple content objects may be modified in one batch, the
 	 * calling function is responsible for ensuring that page hierarchies
@@ -2592,7 +2624,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 */
 	protected function Update()
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 
 		// Figure out the item_order (if necessary)
 		if ($this->mItemOrder < 1) {
@@ -2694,7 +2726,7 @@ WHERE content_id = ?';
 		//TODO this function should return something
 		//TODO careful about hierarchy here, it has no value !
 		//TODO figure out proper item_order
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 
 		$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
 		$dflt_pageid = (int)$db->getOne($query);
@@ -2833,7 +2865,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		}
 
 		$this->_props = [];
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT prop_name,content FROM '.CMS_DB_PREFIX.'content_props WHERE content_id = ?';
 		$dbr = $db->getAssoc($query, [(int)$this->mId]);
 		if ($dbr !== false) {
@@ -2865,7 +2897,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 			return false;
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT prop_name FROM '.CMS_DB_PREFIX.'content_props WHERE content_id = ?';
 		$gotprops = $db->getCol($query, [$this->mId]);
 

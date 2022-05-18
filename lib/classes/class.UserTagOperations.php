@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\DeprecationNotice;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use Throwable;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -96,11 +96,12 @@ final class UserTagOperations
 	 * @ignore
 	 * Needed when using local $_instance
 	 */
-//	private function __construct() {} TODO public iff wanted by SingleItem ?
+//	private function __construct() {} TODO public iff wanted by Lone ?
 
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**
@@ -110,7 +111,8 @@ final class UserTagOperations
 	 * @param array $args plugin-API variable(s) in some form.
 	 *  $args OR $args[0] should include: [0]=$params[], [1]=$template/smarty object
 	 */
-	public function __call(string $name, array $args)
+	#[\ReturnTypeWillChange]
+	public function __call(string $name, array $args)// : mixed
 	{
 		if (strpos($name, 'User') !== false) {
 			$sn = str_replace('User', 'Simple', $name);
@@ -139,9 +141,10 @@ final class UserTagOperations
 	 *  [0] if present = array of $params for the plugin
 	 *  [1] if present = template object (Smarty_Internal_Template or wrapper)
 	 */
-	public static function __callStatic(string $name, array $args)
+	#[\ReturnTypeWillChange]
+	public static function __callStatic(string $name, array $args)// : mixed
 	{
-		$handler = SingleItem::UserTagOperations()->GetHandler($name); // what is self:: here
+		$handler = Lone::get('UserTagOperations')->GetHandler($name); // what is self:: here
 		try {
 			return $handler(...$args);
 		} catch (Throwable $t) {
@@ -151,13 +154,13 @@ final class UserTagOperations
 
 	/**
 	 * Get the singleton instance of this class
-	 * @deprecated since 3.0 instead use CMSMS\SingleItem::UserTagOperations()
+	 * @deprecated since 3.0 instead use CMSMS\Lone::get('UserTagOperations')
 	 * @return self i.e. UserTagOperations
 	 */
 	public static function get_instance() : self
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::UserTagOperations()'));
-		return SingleItem::UserTagOperations();
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'UserTagOperations\')'));
+		return Lone::get('UserTagOperations');
 	}
 
 	/**
@@ -349,7 +352,7 @@ final class UserTagOperations
 			$res = array_combine($props, array_fill(0, count($props), ''));
 			if (isset($res['id'])) {
 				if (!$this->ArrayHas($name, $this->cache)) {
-					$db = SingleItem::Db();
+					$db = Lone::get('Db');
 					//TODO case-insensitive name-match if table|field definition is not *_ci
 					$query = 'SELECT id,contentfile FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
 					$dbr = $db->getRow($query, [$name]);
@@ -437,7 +440,7 @@ final class UserTagOperations
 	public function GetUserTag(string $name, $props = 'code')
 	{
 		if (!$this->ArrayHas($name, $this->cache)) {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			//TODO case-sensitive name-match if table|field definition is *_ci ?
 			$query = 'SELECT id,contentfile FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
 			$dbr = $db->getRow($query, [$name]);
@@ -489,7 +492,7 @@ final class UserTagOperations
 				$fields = 'id,contentfile';
 			}
 			// TODO FilterforUse if relevant
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$query = 'SELECT '.$fields.' FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
 			//TODO case-sensitive name-match if table|field definition is *_ci ?
 			$dbr = $db->getRow($query, [$name]);
@@ -551,7 +554,7 @@ final class UserTagOperations
 	{
 		if ($check_functions) {
 			// might be registered by something else... a module perhaps
-			$smarty = SingleItem::Smarty();
+			$smarty = Lone::get('Smarty');
 			if ($smarty->is_registered($name)) {
 				return true;
 			}
@@ -576,6 +579,9 @@ final class UserTagOperations
 	 */
 	private function SetFileTag(string $name, array $params)
 	{
+/* TODO for a new file (maybe $params['id'] == -1 ?)
+ try to also record new tag in DB, with contentfile = 1, fail if say the name exists ...
+*/
 		$bare = empty($params['detail']);
 		if (!$this->IsValidName($name)) {
 			$this->ArraySet($name, 0, $this->misses);
@@ -730,10 +736,10 @@ EOS;
 			return $this->SetFileTag($name, $params);
 		} else {
 			//upsert dB
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$tbl = CMS_DB_PREFIX.'userplugins';
-			if ($id === 0) {
-				$query = "INSERT INTO $tbl (name,description,parameters,code,contentfile) VALUES (?,?,?,?,0)";
+			if ($id == -1) {
+				$query = "INSERT INTO $tbl (name,description,parameters,contentfile,code) VALUES (?,?,?,0,?)";
 				$dbr = $db->execute($query, [$name, $description, $parameters, $code]);
 				if ($dbr) {
 					$id = (int)$dbr; // CHECKME last-insert works now?
@@ -744,12 +750,12 @@ EOS;
 			} else {
 				//prevent duplicate names
 				$query = <<<EOS
-UPDATE $tbl SET name=?,description=?,parameters=?,contentfile=0,code=?,
+UPDATE $tbl SET name=?,description=?,parameters=?,contentfile=0,code=?
 WHERE id=?
-AND NOT id IN (SELECT id FROM $tbl WHERE name=? AND id!=?)
+AND id NOT IN (SELECT id FROM $tbl WHERE name=? AND id!=?)
 EOS;
 				$dbr = $db->execute($query, [$name, $description, $parameters, $code, $id, $name, $id]);
-				$res = (bool)$dbr;
+				$res = $db->affected_rows() > 0;
 				if ($res) {
 					//update cache if renamed
 					if ($oldname && $name != $oldname) {
@@ -757,6 +763,8 @@ EOS;
 // no longer needed? if () { unset($this->map[$oldname]); }
 						$this->ArraySet($name, [$id, false, null], $this->cache);
 					}
+				} else {
+					//TODO relevant feedback message
 				}
 				return ($bare) ? $res : [$res, (($res) ? '' : 'error_internal')];
 			}
@@ -778,7 +786,7 @@ EOS;
 		}
 		if ($this->ArrayHas($name, $this->cache)) {
 			// TODO if case-sensitive name in _ci field
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
 			$dbr = $db->execute($query, [$name]);
 			$res = ($dbr != false);
@@ -806,7 +814,7 @@ EOS;
 	public function ListUserTags() : array
 	{
 		if (!$this->cache_full) {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$query = 'SELECT id,name,contentfile FROM '.CMS_DB_PREFIX.'userplugins ORDER BY name';
 			$dbr = $db->getAssoc($query);
 			foreach ($dbr as $id=>$row) {
@@ -836,7 +844,7 @@ EOS;
 
 	/**
 	 * @internal
-	 * @param string $name   The name of the user defined tag
+	 * @param string $name The name of the user defined tag
 	 * @return anonymous function
 	 */
 	private function GetHandler(string $name)
@@ -860,12 +868,12 @@ EOS;
 				if ($params) {
 					extract($params);
 				}
-				$gCms = SingleItem::App();
-				$config = SingleItem::Config();
-				$db = SingleItem::Db(); // TODO enforce read-only db here
-				$smarty = SingleItem::Smarty(); // TODO restrict methods : assign[byref]* or define { } replacements
-//				TODO sandbox this :: protect caches, global vars, class properties etc
-//				any security-enhancements instigated here could be reversed by malicious eval'd code
+				$gCms = Lone::get('App');
+				$config = Lone::get('Config');
+				$db = Lone::get('Db'); // TODO enforce read-only db here
+				$smarty = Lone::get('Smarty'); // TODO restrict methods : assign[byref]* or define { } replacements
+//TODO sandbox this :: protect caches, global vars, class properties etc
+//any security-enhancements instigated here could be reversed by malicious eval'd code
 //				$fakesmarty = new trapperclass();
 				if (!$template) {
 					$template = $smarty;
@@ -885,12 +893,15 @@ EOS;
 				if ($out && !is_scalar($out)) {
 //				$db->multi_execute('SET GLOBAL read_only = 0;UNLOCK TABLES');
 					ob_end_clean();
-					return '';
+//former UserTagOperations::CreateTagFunction() could deliver DANGEROUS executable stuff
+					return $out;
+//TODO consider merit of returning [sanitised] flattened $out
+//OR sanitize $strfunc then re-eval(that)
 				}
 //				$db->multi_execute('SET GLOBAL read_only = 0;UNLOCK TABLES');
 				$ret = ob_get_clean().$out;
 				$ret = strtr($ret, '`' , '');
-//				TODO further sanitize $ret :: text | Element(s), non-dodgy etc
+//TODO sanitize $ret :: text | Element(s), non-dodgy etc
 				return $ret;
 			};
 		} else { //bad call
@@ -908,7 +919,7 @@ EOS;
 	 * callable would instead be called directly by smarty.
 	 *
 	 * @param string $name   The name of the user defined tag
-	 * @param array  $params Optional tag parameters. Default []
+	 * @param array reference $params Optional tag parameters. Default []
 	 * @param mixed object|null $smarty_ob Optional Smarty_Internal_Template
 	 *  (or descendant) for the caller's context
 	 * Compiled smarty provides a Smarty_Internal_Template-object as the
@@ -920,7 +931,7 @@ EOS;
 	{
 		$row = $this->ArrayGet($name, $this->cache);
 		if ($row && $row[2]) {
-			$fname = $row[2];
+			$fname = $row[2]; // callable
 		} else {
 			$fname = $this->GetHandler($name); // downstream updates stuff for next time
 		}

@@ -27,13 +27,15 @@ use CMSMS\FileType;
 use CMSMS\FileTypeHelper;
 use CMSMS\FolderControlOperations;
 use CMSMS\IFilePicker;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use FilePicker\Utils;
+use function CMSMS\is_frontend_request;
 
 final class FilePicker extends CMSModule implements IFilePicker
 {
     public $_typehelper;
 
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();
@@ -54,7 +56,7 @@ final class FilePicker extends CMSModule implements IFilePicker
     {
         $ret = $this->GetActionTemplateObject();
         if( is_object($ret) ) return $ret;
-        return SingleItem::Smarty();
+        return Lone::get('Smarty');
     }
     /*
      * end of private methods
@@ -113,7 +115,7 @@ final class FilePicker extends CMSModule implements IFilePicker
     protected function HeaderJsContent() : string
     {
         $url1 = str_replace('&amp;', '&', $this->get_browser_url());
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
         $url2 = $config['uploads_url'];
         $max = $config['max_upload_size'];
         $choose = $this->Lang('choose');
@@ -317,7 +319,7 @@ $(function() {
 </script>
 
 EOS;
-        $smarty = SingleItem::Smarty();
+        $smarty = Lone::get('Smarty');
         $tpl = $smarty->createTemplate($this->GetTemplateResource('contentblock.tpl')); //, null, null, $smarty);
         $tpl->assign([
          'blockName' => $name,
@@ -327,7 +329,7 @@ EOS;
          ]);
         $out = $tpl->fetch();
 
-        if( SingleItem::App()->is_frontend_request() ) {
+        if( is_frontend_request() ) {
             return $out."\n".$js;
         }
         else {

@@ -28,7 +28,7 @@ use CMSMS\AppConfig;
 //define('CMS_VERSION_NAME', $CMS_VERSION_NAME);
 //define('CMS_SCHEMA_VERSION', $CMS_SCHEMA_VERSION);
 
-$config = AppConfig::get_instance(); // SingleItem etc not yet set up
+$config = AppConfig::get_instance(); // Lone etc not yet set up
 
 // These 2 are before other $config accesses, in case CMS_DEPREC is needed there
 /**

@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
 use CMSMS\FileTypeHelper;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\de_specialize;
 use function CMSMS\sanitizeVal;
 
@@ -240,8 +240,8 @@ function export_theme(string $themename) : bool
 
 /*
 	TODO handle database stuff - design, styles, templates etc
-	$config = SingleItem::Config();
-	$db = SingleItem::Db();
+	$config = Lone::get('Config');
+	$db = Lone::get('Db');
 */
 
 	$xw->endElement(); // cmsmsadmintheme
@@ -271,7 +271,7 @@ function delete_theme(string $themename) : bool
 			if ($deftheme && $deftheme == $themename) {
 				unset($all[$themename]);
 				AppParams::set('logintheme', key($all));
-				SingleItem::LoadedData()->refresh('site_params');
+				Lone::get('LoadedData')->refresh('site_params');
 			}
 			return true;
 		}

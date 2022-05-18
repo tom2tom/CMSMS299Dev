@@ -33,10 +33,12 @@ use function startswith;
  **/
 final class BulkOperations
 {
-	// static properties here >> SingleItem property|ies ?
+	// static properties here >> Lone property|ies ?
 	private static $_list = [];
 
+	#[\ReturnTypeWillChange]
 	private function __construct() {}
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**

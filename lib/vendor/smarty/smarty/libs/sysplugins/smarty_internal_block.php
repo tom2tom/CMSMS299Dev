@@ -73,6 +73,7 @@ class Smarty_Internal_Block
      * @param string   $name     block name
      * @param int|null $tplIndex index of outer level {block} if nested
      */
+    #[\ReturnTypeWillChange]
     public function __construct($name, $tplIndex)
     {
         $this->name = $name;

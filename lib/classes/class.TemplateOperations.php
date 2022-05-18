@@ -1,7 +1,7 @@
 <?php
 /*
 Methods for interacting with template objects
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -23,7 +23,7 @@ namespace CMSMS;
 use CMSMS\AdminUtils;
 use CMSMS\DataException;
 use CMSMS\Events;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\SQLException;
 use CMSMS\Template;
 use CMSMS\TemplateQuery;
@@ -68,7 +68,7 @@ class TemplateOperations
 	 */
 	const ADDUSERSTABLE = 'layout_tpl_addusers';
 
-	// static properties here >> SingleItem property|ies ?
+	// static properties here >> Lone property|ies ?
 	/**
 	 * @ignore
 	 */
@@ -100,7 +100,7 @@ class TemplateOperations
 		if ($tpl->get_type_id() <= 0) {
 			throw new LogicException('Each template must be associated with a type');
 		}
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$tid = $tpl->get_id();
 		// check unique name
 		if ($tid) {
@@ -158,7 +158,7 @@ class TemplateOperations
 
 		$key = get_class($tpl);
 		Events::SendEvent('Core', 'DeleteTemplatePre', [$key => &$tpl]);
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 		$db->execute($sql, [$tid]);
 
@@ -168,7 +168,7 @@ class TemplateOperations
 
 		log_info($tid, 'CMSMS', 'Template \''.$tpl->get_name().'\' Deleted');
 		Events::SendEvent('Core', 'DeleteTemplatePost', [$key => &$tpl]);
-		//		SingleItem::LoadedData()->refresh('LayoutTemplates'); if that cache exists
+//TODO	Lone::get('LoadedData')->refresh('LayoutTemplates'); if that cache exists
 	}
 
 	/**
@@ -183,7 +183,7 @@ class TemplateOperations
 	{
 		$tid = self::resolve_template($a);
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id=?';
 		$row = $db->getRow($sql, [$tid]);
 		$editors = null; // TODO ignored editors and groups ok ?
@@ -197,7 +197,7 @@ class TemplateOperations
 	 * [Re]set all properties of a template, using properties from another one
 	 *
 	 * @since 3.0
-	 * @deprecated since 3.0 this enables the deprecated CmsLaoutTemplate::load() method
+	 * @deprecated since 3.0 this enables the deprecated CmsLayoutTemplate::load() method
 	 * @param Template $tpl The template to be updated (or perhaps a deprecated CmsLayoutTemplate)
 	 * @param mixed $a The id or name of the template from which to source the replacement properties
 	 * @throws DataException
@@ -223,7 +223,7 @@ class TemplateOperations
 		}
 
 		$out = [];
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$str = implode(',', $ids);
 		$sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.$str.')';
 		$rows = $db->getArray($sql);
@@ -285,7 +285,7 @@ class TemplateOperations
 		$list = $ob->GetMatchedTemplateIds();
 		if ($list) {
 			if ($by_name) {
-				$db = SingleItem::Db();
+				$db = Lone::get('Db');
 				$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN('.implode(',', $list).') ORDER BY name';
 				return $db->getAssoc($sql);
 			} else {
@@ -308,10 +308,10 @@ class TemplateOperations
 		if ($id <= 0) {
 			throw new LogicException('Invalid user specified to '.__METHOD__);
 		}
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME;
 		$parms = $where = [];
-		if (!SingleItem::UserOperations()->CheckPermission($id, 'Modify Templates')) {
+		if (!Lone::get('UserOperations')->CheckPermission($id, 'Modify Templates')) {
 			$sql .= ' WHERE owner_id = ?';
 			$parms[] = $id;
 		}
@@ -344,8 +344,7 @@ class TemplateOperations
 	 */
 	public static function get_all_templates(bool $by_name = false) : array
 	{
-		$db = SingleItem::Db();
-
+		$db = Lone::get('Db');
 		if ($by_name) {
 			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY IF(modified_date,modified_date,create_date) DESC';
 			return $db->getAssoc($sql);
@@ -365,7 +364,7 @@ class TemplateOperations
 	 */
 	public static function get_all_templates_by_type($type)
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_id=?';
 		$list = $db->getCol($sql, [$type->get_id()]);
 		if ($list) {
@@ -387,7 +386,7 @@ class TemplateOperations
 		if (is_numeric($a)) {
 			$tid = (int)$a;
 		} elseif (is_string($a)) {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$corename = TemplateType::CORE;
 			$parts = explode('::', $a, 2);
 			if (count($parts) == 1) {
@@ -410,7 +409,7 @@ class TemplateOperations
 			throw new LogicException('Invalid identifier provided to '.__METHOD__);
 		}
 		if (!isset($db)) {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 		}
 		$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_dflt=1 AND type_id=?';
 		$id = $db->getOne($sql, [$tid]);
@@ -430,20 +429,20 @@ class TemplateOperations
 	public static function get_bulk_groups($prefix = '', $by_name = false)
 	{
 		$out = [];
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		if ($prefix) {
 			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.TemplatesGroup::TABLENAME.' WHERE name LIKE ? ORDER BY name';
 			$wm = $db->escStr($prefix).'%';
-			$res = $db->getAssoc($sql, [$wm]);
+			$dbr = $db->getAssoc($sql, [$wm]);
 		} else {
 			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.TemplatesGroup::TABLENAME.' ORDER BY name';
-			$res = $db->getAssoc($sql);
+			$dbr = $db->getAssoc($sql);
 		}
-		if ($res) {
+		if ($dbr) {
 			if ($by_name) {
-				$out = $res;
+				$out = $dbr;
 			} else {
-				foreach ($res as $id => $name) {
+				foreach ($dbr as $id => $name) {
 					$id = (int)$id;
 					try {
 						$out[$id] = TemplatesGroup::load($id);
@@ -464,7 +463,7 @@ class TemplateOperations
 	 */
 	public static function get_all_originators(bool $friendly = false) : array
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$sql = 'SELECT DISTINCT originator FROM '.CMS_DB_PREFIX.self::TABLENAME;
 		if ($friendly) {
 			$sql .= ' ORDER BY originator';
@@ -522,7 +521,7 @@ class TemplateOperations
 		if (!$prototype) {
 			throw new LogicException('Prototype name cannot be empty');
 		}
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$sql = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name LIKE ?';
 		$wm = $db->escStr($prototype);
 		$all = $db->getCol($sql, ['%'.$wm.'%']);
@@ -588,7 +587,7 @@ class TemplateOperations
 				return true;
 			}
 
-			$grouplist = SingleItem::UserOperations()->GetMemberGroups();
+			$grouplist = Lone::get('UserOperations')->GetMemberGroups();
 			if ($grouplist) {
 				foreach ($editors as $id) {
 					if ($id < 0 && in_array(-((int)$id), $grouplist)) {
@@ -608,7 +607,7 @@ class TemplateOperations
 	 */
 	public static function process_named_template(string $name)
 	{
-		$smarty = SingleItem::Smarty();
+		$smarty = Lone::get('Smarty');
 		return $smarty->fetch('cms_template:'.$name);
 	}
 
@@ -620,12 +619,40 @@ class TemplateOperations
 	 */
 	public static function process_default_template($t)
 	{
-		$smarty = SingleItem::Smarty();
+		$smarty = Lone::get('Smarty');
 		$tpl = self::get_default_template_by_type($t);
 		return $smarty->fetch('cms_template:'.$tpl->get_id());
 	}
 
 	//============= TEMPLATE-OPERATION BACKENDS ============
+
+	/**
+	 * Get a unique name for a template
+	 *
+	 * @param string $prototype A prototype template name
+	 * @param string $prefix An optional name prefix. Default ''.
+	 * @return string
+	 * @throws LogicException
+	 */
+	public static function get_unique_name(string $prototype, string $prefix = '') : string
+	{
+		if (!$prototype) {
+			throw new LogicException('Prototype name cannot be empty');
+		}
+		$db = Lone::get('Db');
+		$wm = $db->escStr($prototype);
+		$sql = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name LIKE ?';
+		$all = $db->getCol($sql, ['%'.$wm.'%']);
+		if ($all) {
+			$name = $prototype;
+			$i = 0;
+			while (in_array($name, $all)) {
+				$name = $prefix.$prototype.'_'.++$i;
+			}
+			return $name;
+		}
+		return $prototype;
+	}
 
 	/**
 	 * Clone template(s) and/or group(s)
@@ -636,10 +663,11 @@ class TemplateOperations
 	public static function operation_copy($ids) : int
 	{
 		$n = 0;
+		$db = Lone::get('Db');
 		list($tpls, $grps) = self::items_split($ids);
 		if ($tpls) {
 			$sql = 'SELECT name,content,description,contentfile FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,', count($tpls) - 1).'?)';
-			$from = $db->getArray($sql, $shts);
+			$from = $db->getArray($sql, $tpls);
 			$sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,content,description,contentfile) VALUES (?,?,?,?)';
 			foreach ($from as $row) {
 				if ($row['name']) {
@@ -647,12 +675,12 @@ class TemplateOperations
 				} else {
 					$row['name'] = self::get_unique_name('Unnamed Template');
 				}
-				$db->execute($sql, $row);
+				$db->execute($sql, array_values($row));
 				if ($row['contentfile']) {
 					$id = $db->Insert_ID();
 					$fn = sanitizeVal($row['name'], CMSSAN_FILE).'.'.$id.'.css';
 					if (!isset($config)) {
-						$config = SingleItem::Config();
+						$config = Lone::get('Config');
 					}
 					$from = cms_join_path(CMS_ASSETS_PATH, 'layouts', $row['content']);
 					$to = cms_join_path(CMS_ASSETS_PATH, 'layouts', $fn);
@@ -700,7 +728,7 @@ class TemplateOperations
 	 */
 	public static function operation_delete($ids) : int
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$c = 0;
 		list($tpls, $grps) = self::items_split($ids);
 		if ($grps) {
@@ -717,14 +745,14 @@ class TemplateOperations
 			} else {
 				$n = 0;
 			}
-			/* N/A in some db versions
-						$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' T WHERE T.id IN ('.str_repeat('?,',count($tpls)-1).'?)';
-						$sql .= ' AND T.id NOT IN (SELECT template_id FROM '.CMS_DB_PREFIX.'content WHERE template_id=T.id LIMIT 1)';
-			*/
-			/* MAYBE AVAILABLE, SLOWER
-						$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' T WHERE T.id IN ('.str_repeat('?,',count($tpls)-1).'?)';
-						$sql .= ' AND T.id NOT IN (SELECT DISTINCT template_id FROM '.CMS_DB_PREFIX.'content WHERE template_id=T.id)';
-			*/
+/* N/A in some db versions
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' T WHERE T.id IN ('.str_repeat('?,',count($tpls)-1).'?)';
+			$sql .= ' AND T.id NOT IN (SELECT template_id FROM '.CMS_DB_PREFIX.'content WHERE template_id=T.id LIMIT 1)';
+*/
+/* MAYBE AVAILABLE, SLOWER
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' T WHERE T.id IN ('.str_repeat('?,',count($tpls)-1).'?)';
+			$sql .= ' AND T.id NOT IN (SELECT DISTINCT template_id FROM '.CMS_DB_PREFIX.'content WHERE template_id=T.id)';
+*/
 			//* ULTIMATE FALLBACK
 			$sql = 'SELECT DISTINCT template_id FROM '.CMS_DB_PREFIX.'content WHERE template_id IN ('.str_repeat('?,', count($tpls) - 1).'?)';
 			$keeps = $db->getCol($sql, $tpls);
@@ -747,7 +775,7 @@ class TemplateOperations
 	 */
 	public static function operation_deleteall($ids) : int
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		list($tpls, $grps) = self::items_split($ids);
 		if ($grps) {
 			$sql = 'SELECT DISTINCT tpl_id FROM '.CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,', count($grps) - 1).'?)';
@@ -800,7 +828,7 @@ class TemplateOperations
 			$sql .= ' AND owner_id=?';
 			$args = [$to, $from, $uid];
 		}
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$n = $db->execute($sql, $args);
 		return (int)$n;
 	}
@@ -825,7 +853,7 @@ class TemplateOperations
 			$sql .= ' WHERE owner_id=?';
 			$args = [$to, $uid];
 		}
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$n = $db->execute($sql, $args);
 		return (int)$n;
 	}
@@ -841,11 +869,11 @@ class TemplateOperations
 		$n = 0;
 		list($tpls, $grps) = self::items_split($ids);
 		if ($tpls) {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=0 AND id IN ('.str_repeat('?,', count($tpls) - 1).'?)';
 			$from = $db->getArray($sql, $tpls);
 			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=?,contentfile=1 WHERE id=?';
-			$config = SingleItem::Config();
+			$config = Lone::get('Config');
 			foreach ($from as $row) {
 				if ($row['name']) {
 					//replicate object::set_content_file()
@@ -857,7 +885,7 @@ class TemplateOperations
 						$db->execute($sql, [$fn, $row['id']]);
 						++$n;
 					} else {
-						//some signal needed
+						//TODO some signal needed
 					}
 				}
 			}
@@ -876,10 +904,11 @@ class TemplateOperations
 		$n = 0;
 		list($tpls, $grps) = self::items_split($ids);
 		if ($tpls) {
+			$db = Lone::get('Db');
 			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=1 AND id IN ('.str_repeat('?,', count($tpls) - 1).'?)';
-			$from = $db->getArray($sql, $shts);
+			$from = $db->getArray($sql, $tpls);
 			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=?,contentfile=0 WHERE id=?';
-			$config = SingleItem::Config();
+			$config = Lone::get('Config');
 			foreach ($from as $row) {
 				if ($row['name']) {
 					//replicate object::set_content_file()
@@ -911,7 +940,7 @@ class TemplateOperations
 		if (is_string($a)) {
 			$a = trim($a);
 			if ($a !== '') {
-				$ob = SingleItem::UserOperations()->LoadUserByUsername($a);
+				$ob = Lone::get('UserOperations')->LoadUserByUsername($a);
 				if ($ob instanceof User) {
 					return $ob->id;
 				}
@@ -936,7 +965,7 @@ class TemplateOperations
 			$a = trim($a);
 			if ($a !== '') {
 				if (!isset(self::$identifiers)) {
-					$db = SingleItem::Db();
+					$db = Lone::get('Db');
 					$sql = 'SELECT id,originator,name FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY id';
 					self::$identifiers = $db->getAssoc($sql);
 				}
@@ -983,7 +1012,7 @@ class TemplateOperations
 		}
 		$id = $tpl->get_type_id();
 		if ($id > 0) {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$sql = 'SELECT originator FROM '.CMS_DB_PREFIX.TemplateType::TABLENAME.' WHERE id = ?';
 			$dbr = $db->getOne($sql, [$id]);
 			if ($dbr) {
@@ -1005,7 +1034,7 @@ class TemplateOperations
 	protected static function create_template(array $props, $editors = null, $groups = null) : Template
 	{
 		if ($editors == null) {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$sql = 'SELECT user_id FROM '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' WHERE tpl_id=? ORDER BY user_id';
 			$editors = $db->getCol($sql, [$props['id']]);
 		} elseif (is_numeric($editors)) {
@@ -1014,7 +1043,7 @@ class TemplateOperations
 
 		if ($groups == null) {
 			if (!isset($db)) {
-				$db = SingleItem::Db();
+				$db = Lone::get('Db');
 			}
 			// table aka TemplatesGroup::MEMBERSTABLE
 			$sql = 'SELECT DISTINCT group_id FROM '.CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE.' WHERE tpl_id=? ORDER BY group_id';
@@ -1066,7 +1095,7 @@ class TemplateOperations
 	 */
 	protected static function update_template($tpl)
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET
 originator=?,
 name=?,
@@ -1075,7 +1104,7 @@ type_id=?,
 type_dflt=?,
 owner_id=?,
 listable=?,
-contentfile=?
+contentfile=?,
 content=?
 WHERE id=?';
 		$tid = $tpl->id;
@@ -1095,21 +1124,19 @@ WHERE id=?';
 			$tid
 		];
 		$db->execute($sql, $args);
-//		if( db error ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
+		if ($db->errorNo() > 0) { throw new SQLException($db->sql.' -- '.$db->errorMsg()); }
 		self::contentfile_operations($tpl);
 
 		if ($tpl->type_dflt) {
 			// if it's default for its type, clear default flag for all other records with this type
 			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET type_dflt = 0 WHERE type_id = ? AND type_dflt = 1 AND id != ?';
 			$db->execute($sql, [$tpl->type_id, $tid]);
-//			if( db error ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
+			if ($db->errorNo() > 0) { throw new SQLException($db->sql.' -- '.$db->errorMsg()); }
 		}
 
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' WHERE tpl_id = ?';
-		$db->execute($sql, [$tid]);
-//		if( !db affected rows ) { might validly be 0 affected rows
-//			throw new SQLException($db->sql.' --5 '.$db->errorMsg());
-//		}
+		$dbr = $db->execute($sql, [$tid]); // interpret return value?
+		if ($db->errorNo() > 0) { throw new SQLException($db->sql.' --5 '.$db->errorMsg()); }
 
 		$all = $tpl->get_additional_editors();
 		if ($all) {
@@ -1132,7 +1159,7 @@ WHERE id=?';
 			$stmt->close();
 		}
 
-//		SingleItem::LoadedData()->refresh('LayoutTemplates'); if that cache exists
+//TODO	Lone::get('LoadedData')->refresh('LayoutTemplates'); if that cache exists
 		log_info($tid, $orig, 'Template \''.$name.'\' Updated');
 		return $tpl; //TODO what use ? event ? chain-methods?
 	}
@@ -1145,7 +1172,7 @@ WHERE id=?';
 	 */
 	protected static function insert_template($tpl) : Template
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (
 originator,
 name,
@@ -1174,7 +1201,13 @@ content) VALUES (?,?,?,?,?,?,?,?,?)';
 		if (!$dbr) {
 			throw new SQLException($db->sql.' --7 '.$db->errorMsg());
 		}
-
+/* OR
+INSERT INTO CMS_DB_PREFIX.self::TABLENAME (named fields as above)
+SELECT ?,?,?,?,?,?,?,?,? FROM (SELECT 1 AS dmy) Z
+WHERE NOT EXISTS (SELECT name from CMS_DB_PREFIX.self::TABLENAME T WHERE T.name=?)
+$args as above + $name
+fail if nothing inserted
+*/
 		$tid = $db->Insert_ID();
 		$tpl->set_id($tid);
 
@@ -1184,11 +1217,12 @@ content) VALUES (?,?,?,?,?,?,?,?,?)';
 			// if it's default for its type, clear default flag for all other records with this type
 			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET type_dflt = 0 WHERE type_id = ? AND type_dflt = 1 AND id != ?';
 			$db->execute($sql, [$tpl->get_type_id(), $tid]);
-//			if( db error ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
+//			if ($db->errorNo() > 0) { throw new SQLException($db->sql.' -- '.$db->errorMsg()); }
 		}
 
 		$editors = $tpl->get_additional_editors();
 		if ($editors) {
+			//TODO prepare statement
 			$sql = 'INSERT INTO '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' (tpl_id,user_id) VALUES (?,?)';
 			foreach ($editors as $id) {
 				//TODO use prepared statement
@@ -1198,15 +1232,17 @@ content) VALUES (?,?,?,?,?,?,?,?,?)';
 
 		$groups = $tpl->get_groups();
 		if ($groups) {
+			//TODO prepare statement c.f. StylesheetOperations
 			$sql = 'INSERT INTO '.CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE.' (group_id,tpl_id,item_order) VALUES (?,?,?)';
 			$i = 1;
 			foreach ($groups as $id) {
+				//TODO use prepared statement
 				$db->execute($sql, [(int)$id, $tid, $i]);
 				++$i;
 			}
 		}
 
-//		SingleItem::LoadedData()->refresh('LayoutTemplates'); if that cache exists
+//TODO	Lone::get('LoadedData')->refresh('LayoutTemplates'); if that cache exists
 
 		log_info($tid, $orig, 'Template \''.$name.'\' Created');
 
@@ -1264,7 +1300,7 @@ content) VALUES (?,?,?,?,?,?,?,?,?)';
 		} else {
 			$args = null;
 		}
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$valid = $db->getArray($sql, $args);
 
 		if (!$modify_all) {

@@ -42,5 +42,6 @@ interface IContentAssistant
 	 * @abstract
 	 * @param ContentBase the object for which the assistant will be used.
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct(ContentBase $content);
 }

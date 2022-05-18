@@ -23,7 +23,7 @@ namespace ModuleManager;
 
 use CMSMS\internal\ExtendedModuleInfo;
 use CMSMS\internal\ModuleInfo as TopInfo;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use ModuleManager\ModuleRepClient;
 use Throwable;
 use function debug_display;
@@ -42,7 +42,7 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
 
     private const DEPRECATED = ['MenuManager'];
 
-    // static properties >> SingleItem props?
+    // static properties >> Lone props?
     private static $minfo;
 
     private static $allmodules;
@@ -57,6 +57,7 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
      * @param bool $can_load
      * @param bool $can_check_forge
      */
+    #[\ReturnTypeWillChange]
     public function __construct($modname,$can_load = true,$can_check_forge = true)
     {
         parent::__construct($modname,$can_load);
@@ -144,7 +145,7 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
         }
 
         if( self::$allmodules === null ) {
-            self::$allmodules = SingleItem::ModuleOperations()->FindAllModules();
+            self::$allmodules = Lone::get('ModuleOperations')->FindAllModules();
         }
 
         $out = [];
@@ -225,7 +226,8 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
 
     // ArrayInterface methods
 
-    public function OffsetGet($key)
+    #[\ReturnTypeWillChange]
+    public function offsetGet($key)// : mixed
     {
         if( !in_array($key,self::MMPROPS) ) return parent::OffsetGet($key);
         if( isset($this->mmdata[$key]) ) return $this->mmdata[$key];
@@ -274,7 +276,8 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
         } // switch
     }
 
-    public function OffsetSet($key,$value)
+    #[\ReturnTypeWillChange]
+    public function offsetSet($key,$value)// : void
     {
         if( !in_array($key,self::MMPROPS) ) parent::OffsetSet($key,$value);
         // only this may be set directly
@@ -283,7 +286,8 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
         }
     }
 
-    public function OffsetExists($key)
+    #[\ReturnTypeWillChange]
+    public function offsetExists($key)// : bool
     {
         if( !in_array($key,self::MMPROPS) ) {
             return parent::OffsetExists($key);
@@ -296,5 +300,10 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
              'missing_deps',
              'needs_upgrade',
              'need_upgrade',]);
+    }
+
+    #[\ReturnTypeWillChange]
+    public function offsetUnset($key)// : void
+    {
     }
 }

@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Bookmark;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Url;
 use function CMSMS\de_specialize;
 use function CMSMS\sanitizeVal;
@@ -66,7 +66,7 @@ if (isset($_POST['addbookmark'])) {
         }
     }
 
-    SingleItem::Theme()->RecordNotice('error', $errors);
+    Lone::get('Theme')->RecordNotice('error', $errors);
 
     $title = specialize($title);
     $url = specialize($url);
@@ -78,7 +78,7 @@ if (isset($_POST['addbookmark'])) {
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
     'title' => $title,
     'url' => $url,

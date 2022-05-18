@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\log_error;
 use function CMSMS\log_notice;
 
@@ -39,7 +39,7 @@ if (empty($params['bulk_content'])) {
 
 $mod = $this;
 $userid = get_userid(false);
-$contentops = SingleItem::ContentOperations();
+$contentops = Lone::get('ContentOperations');
 
 $can_bulk_delete = function($node) use ($mod,$userid,$contentops) : bool {
 	// test whether the user may delete specified node (not its children)
@@ -117,10 +117,10 @@ if (isset($params['submit'])) {
 	}
 }
 
-$hm = SingleItem::App()->GetHierarchyManager();
+$hm = $gCms->GetHierarchyManager();
 $xlist = [];
 foreach ($pagelist as $pid) {
-	$node = $hm->quickfind_node_by_id($pid);
+	$node = $hm->get_node_by_id($pid);
 	if (!$node) {
 		continue;
 	}

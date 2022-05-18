@@ -30,10 +30,10 @@ use CMSMS\DeprecationNotice;
 use CMSMS\FileTypeHelper;
 use CMSMS\FormUtils;
 use CMSMS\internal\ModulePluginOperations;
+use CMSMS\Lone;
 use CMSMS\NlsOperations;
 use CMSMS\RequestParameters;
 use CMSMS\RouteOperations;
-use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use CMSMS\Utils;
 use function CMSMS\de_entitize;
@@ -42,6 +42,8 @@ use function CMSMS\execSpecialize;
 use function CMSMS\add_debug_message;
 use function CMSMS\get_debug_messages;
 use function CMSMS\get_site_UUID;
+use function CMSMS\is_frontend_request;
+use function CMSMS\is_secure_request;
 use function CMSMS\log_error;
 use function CMSMS\specialize;
 use function CMSMS\urlencode;
@@ -58,14 +60,14 @@ use function CMSMS\urlencode;
 
 /**
  * Return the App singleton object
- * @see SingleItem::App()
+ * @see CMSMS\App class
  * @since 1.7
  *
  * @return App
  */
 function cmsms() : App
 {
-	return SingleItem::App();
+	return Lone::get('App');
 }
 
 /**
@@ -217,12 +219,12 @@ function is_sitedown() : bool
  */
 function get_userid(bool $redirect = true)
 {
-//  $config = SingleItem::Config();
+//  $config = Lone::get('Config');
 //  if (!$config['app_mode']) { MAYBE IN FUTURE
 /* MAYBE IN FUTURE		if (cmsms()->is_cli()) {
 		$uname = get_cliuser();
 		if ($uname) {
-			$user = SingleItem::UserOperations()->LoadUserByUsername($uname);
+			$user = Lone::get('UserOperations')->LoadUserByUsername($uname);
 			if ($user) {
 				return $user->id;
 			}
@@ -231,9 +233,9 @@ function get_userid(bool $redirect = true)
 	}
 */
 	// TODO alias etc during 'remote admin'
-	$userid = SingleItem::LoginOperations()->get_effective_uid();
+	$userid = Lone::get('LoginOperations')->get_effective_uid();
 	if (!$userid && $redirect) {
-		redirect(SingleItem::Config()['admin_url'].'/login.php');
+		redirect(Lone::get('Config')['admin_url'].'/login.php');
 	}
 	return $userid;
 //  }
@@ -250,16 +252,16 @@ function get_userid(bool $redirect = true)
  */
 function get_username(bool $redirect = true)
 {
-//  $config = SingleItem::Config();
+//  $config = Lone::get('Config');
 //  if (!$config['app_mode']) { MAYBE IN FUTURE
 /* MAYBE IN FUTURE		if (cmsms()->is_cli()) {
 			return get_cliuser();
 		}
 */
 	//TODO alias etc during 'remote admin'
-	$uname = SingleItem::LoginOperations()->get_effective_username();
+	$uname = Lone::get('LoginOperations')->get_effective_username();
 	if (!$uname && $redirect) {
-		redirect(SingleItem::Config()['admin_url'].'/login.php');
+		redirect(Lone::get('Config')['admin_url'].'/login.php');
 	}
 	return $uname;
 //  }
@@ -279,7 +281,7 @@ function check_login(bool $no_redirect = false)
 {
 	$redirect = !$no_redirect;
 	$userid = get_userid($redirect);
-	$ops = SingleItem::LoginOperations();
+	$ops = Lone::get('LoginOperations');
 	if ($userid > 0) {
 		if ($ops->validate_requestkey()) {
 			return true;
@@ -293,7 +295,7 @@ function check_login(bool $no_redirect = false)
 			$_SESSION['login_redirect_to'] = $_SERVER['REQUEST_URI'];
 		}
 		$ops->deauthenticate();
-		redirect(SingleItem::Config()['admin_url'].'/login.php');
+		redirect(Lone::get('Config')['admin_url'].'/login.php');
 	}
 	return false;
 }
@@ -339,7 +341,7 @@ function restricted_cms_permissions() : array
  */
 function check_permission(int $userid, ...$perms)
 {
-	return SingleItem::UserOperations()->CheckPermission($userid, ...$perms);
+	return Lone::get('UserOperations')->CheckPermission($userid, ...$perms);
 }
 
 /**
@@ -355,7 +357,7 @@ function check_permission(int $userid, ...$perms)
  */
 function check_authorship(int $userid, $contentid = null)
 {
-	return SingleItem::ContentOperations()->CheckPageAuthorship($userid, $contentid);
+	return Lone::get('ContentOperations')->CheckPageAuthorship($userid, $contentid);
 }
 
 /**
@@ -368,7 +370,7 @@ function check_authorship(int $userid, $contentid = null)
  */
 function author_pages(int $userid)
 {
-	return SingleItem::ContentOperations()->GetPageAccessForUser($userid);
+	return Lone::get('ContentOperations')->GetPageAccessForUser($userid);
 }
 
 /**
@@ -384,7 +386,7 @@ function author_pages(int $userid)
  */
 function redirect(string $to)
 {
-	$app = SingleItem::App();
+//	$app = Lone::get('App');
 /* MAYBE IN FUTURE  if ($app->is_cli()) {
 		TODO throw new LogicException (' message below ');
 		exit("ERROR: no redirect on cli-based scripts ---\n");
@@ -392,7 +394,7 @@ function redirect(string $to)
 */
 	$_SERVER['PHP_SELF'] = null;
 	//TODO generally support the websocket protocol 'wss' : 'ws'
-	$schema = ($app->is_https_request()) ? 'https' : 'http';
+	$schema = (is_secure_request()) ? 'https' : 'http';
 
 	$host = $_SERVER['HTTP_HOST'];
 	$components = parse_url($to);
@@ -485,7 +487,7 @@ $to2.
  */
 function redirect_to_alias(string $alias)
 {
-	$hm = SingleItem::App()->GetHierarchyManager();
+	$hm = cmsms()->GetHierarchyManager();
 	$node = $hm->find_by_tag('alias', $alias);
 	if (!$node) {
 		// put mention into the admin log
@@ -515,7 +517,7 @@ function redirect_to_alias(string $alias)
  */
 function get_pageid_or_alias_from_url()
 {
-	$config = SingleItem::Config();
+	$config = Lone::get('Config');
 	$page = RequestParameters::get_request_values($config['query_var']);
 	if ($page !== null) {
 		// using non-friendly urls... get the page alias/id from the query var.
@@ -533,7 +535,7 @@ function get_pageid_or_alias_from_url()
 	}
 	if (!$page) {
 		// use the default page id
-		return SingleItem::ContentOperations()->GetDefaultContent();
+		return Lone::get('ContentOperations')->GetDefaultContent();
 	}
 
 	// by here, if we're not assuming pretty urls of any sort and we
@@ -601,7 +603,7 @@ function get_pageid_or_alias_from_url()
 				$page = (int) $arr['returnid'];
 //				unset($arr['returnid']);
 			} else {
-				$page = SingleItem::ContentOperations()->GetDefaultContent();
+				$page = Lone::get('ContentOperations')->GetDefaultContent();
 			}
 		} else {
 			$page = $to;
@@ -1003,7 +1005,7 @@ function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
 			rename($destination, $cleaned);
 			$destination = $cleaned;
 		}
-		return @chmod($destination, octdec(SingleItem::Config()['default_upload_permission']));
+		return @chmod($destination, octdec(Lone::get('Config')['default_upload_permission']));
 	} else {
 		//TODO report error or throw new Exception(lang('TODO'))
 	}
@@ -1031,7 +1033,7 @@ function cms_to_stamp($datevar, bool $is_utc = false) : int
 		}
 		if (!$is_utc) {
 			if ($offs === null) {
-				$dtz = new DateTimeZone(SingleItem::Config()['timezone']);
+				$dtz = new DateTimeZone(Lone::get('Config')['timezone']);
 				$offs = timezone_offset_get($dtz, $dt);
 			}
 		}
@@ -1275,7 +1277,7 @@ function cms_get_script(string $filename, bool $as_url = true, $custompaths = ''
 		 CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery',
 		 CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui',
 		];
-		$xp = SingleItem::Config()['jqversion'];
+		$xp = Lone::get('Config')['jqversion'];
 		if ($xp) {
 //			$places[] = $places[3];
 			$places[3] .= DIRECTORY_SEPARATOR.(int)$xp; // ignore any minor|micro version no.
@@ -1291,7 +1293,7 @@ function cms_get_script(string $filename, bool $as_url = true, $custompaths = ''
 		$places = [
 		 $base_path,
 		 CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'js',
-		 SingleItem::Config()['uploads_path'],
+		 Lone::get('Config')['uploads_path'],
 		 CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'js',
 		 CMS_SCRIPTS_PATH,
 		 CMS_ROOT_PATH,
@@ -1346,7 +1348,7 @@ function cms_get_css(string $filename, bool $as_url = true, $custompaths = '')
 		$places = [
 		 $base_path,
 		 CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'styles',
-		 SingleItem::Config()['uploads_path'],
+		 Lone::get('Config')['uploads_path'],
 		 CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'styles',
 		 CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'styles',
 		 CMS_ROOT_PATH,
@@ -1510,7 +1512,7 @@ function create_file_dropdown(
  */
 function get_richeditor_setup(array $params) : array
 {
-	if (SingleItem::App()->is_frontend_request()) {
+	if (is_frontend_request()) {
 		$val = AppParams::get('frontendwysiwyg'); //module name
 	} else {
 		$userid = get_userid();
@@ -1571,7 +1573,7 @@ function get_richeditor_setup(array $params) : array
  */
 function get_syntaxeditor_setup(array $params) : array
 {
-	if (SingleItem::App()->is_frontend_request()) {
+	if (is_frontend_request()) {
 		return [];
 	}
 
@@ -1617,7 +1619,7 @@ function get_syntaxeditor_setup(array $params) : array
  */
 function debug_bt_to_log()
 {
-	if (SingleItem::Config()['debug_to_log'] ||
+	if (Lone::get('Config')['debug_to_log'] ||
 		(function_exists('get_userid') && get_userid(false))) {
 		$bt = debug_backtrace();
 		$file = $bt[0]['file'];
@@ -1797,7 +1799,7 @@ function debug_display($var, string $title = '', bool $echo_to_screen = true, bo
  */
 function debug_output($var, string $title = '')
 {
-	if (SingleItem::Config()['debug']) {
+	if (Lone::get('Config')['debug']) {
 		debug_display($var, $title, true);
 	}
 }
@@ -1812,7 +1814,7 @@ function debug_output($var, string $title = '')
  */
 function debug_to_log($var, string $title = '', string $filename = '')
 {
-	if (SingleItem::Config()['debug_to_log'] ||
+	if (Lone::get('Config')['debug_to_log'] ||
 		(function_exists('get_userid') && get_userid(false))) {
 		if ($filename == '') {
 			$filename = TMP_CACHE_LOCATION . DIRECTORY_SEPARATOR. 'debug.log';
@@ -1856,7 +1858,7 @@ function debug_buffer($var, string $title = '')
 function audit($itemid, string $subject, string $msg = '')
 {
 	assert(!CMS_DEPREC, new DeprecationNotice('function', 'CMSMS\log_info()'));
-	SingleItem::LogOperations()->info($msg, $subject, $itemid);
+	Lone::get('LogOperations')->info($msg, $subject, $itemid);
 }
 
 /**
@@ -1900,7 +1902,7 @@ use CMSMS\AutoCookieOperations;
 use CMSMS\Events;
 use CMSMS\PageLoader;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\StylesMerger;
 use CMSMS\Url;
 use Throwable;
@@ -2043,7 +2045,7 @@ function sendheaders($media_type = 'text/html', $charset = '')
  */
 function log_info($itemid, string $subject, string $msg = '')
 {
-	SingleItem::LogOperations()->info($msg, $subject, $itemid);
+	Lone::get('LogOperations')->info($msg, $subject, $itemid);
 }
 
 /**
@@ -2053,7 +2055,7 @@ function log_info($itemid, string $subject, string $msg = '')
  */
 function log_notice(string $msg, string $subject = '')
 {
-	SingleItem::LogOperations()->notice($msg, $subject);
+	Lone::get('LogOperations')->notice($msg, $subject);
 }
 
 /**
@@ -2063,7 +2065,7 @@ function log_notice(string $msg, string $subject = '')
  */
 function log_warning(string $msg, string $subject = '')
 {
-	SingleItem::LogOperations()->warning($msg, $subject);
+	Lone::get('LogOperations')->warning($msg, $subject);
 }
 
 /**
@@ -2073,7 +2075,7 @@ function log_warning(string $msg, string $subject = '')
  */
 function log_error(string $msg, string $subject = '')
 {
-	SingleItem::LogOperations()->error($msg, $subject);
+	Lone::get('LogOperations')->error($msg, $subject);
 }
 
 /**
@@ -2085,7 +2087,7 @@ function log_error(string $msg, string $subject = '')
  */
 function add_debug_message(string $str)
 {
-	SingleItem::add('App.DumpMessages', $str);
+	Lone::add('app.DumpMessages', $str);
 }
 
 /**
@@ -2097,7 +2099,7 @@ function add_debug_message(string $str)
  */
 function get_debug_messages() : array
 {
-	return SingleItem::get('App.DumpMessages') ?? [];
+	return Lone::fastget('app.DumpMessages') ?? [];
 }
 
 /**
@@ -2108,7 +2110,7 @@ function get_debug_messages() : array
  */
 function dbshutdown()
 {
-	SingleItem::Db()->Close();
+	Lone::get('Db')->Close();
 }
 
 /**
@@ -2120,7 +2122,7 @@ function dbshutdown()
  */
 function preferred_lang() : int
 {
-	$val = str_toupper(SingleItem::Config()['content_language']);
+	$val = str_toupper(Lone::get('Config')['content_language']);
 	switch ($val) {
 		case 'HTML5':
 			return ENT_HTML5;
@@ -2418,7 +2420,7 @@ function urlSpecialize(string $url) : string
  */
 function disable_template_processing()
 {
-	SingleItem::set('app.showtemplate', false);
+	Lone::set('app.showtemplate', false);
 }
 
 /**
@@ -2431,7 +2433,7 @@ function disable_template_processing()
  */
 function do_template_processing(bool $state = true)
 {
-	SingleItem::set('app.showtemplate', $state);
+	Lone::set('app.showtemplate', $state);
 }
 
 /**
@@ -2443,39 +2445,7 @@ function do_template_processing(bool $state = true)
 function template_processing_allowed() : bool
 {
 	//TODO reconcile: ($gCms->JOBTYPE < 2) = no template-processing, no $smarty
-	return (bool)SingleItem::get('app.showtemplate');
-}
-
-/**
- * Get the intra-request shared scripts-combiner object.
- * @since 3.0
- *
- * @return object ScriptsMerger
- */
-function get_scripts_manager() : ScriptsMerger
-{
-	$sm = SingleItem::get('ScriptsMerger');
-	if( !$sm ) {
-		$sm = new ScriptsMerger();
-		SingleItem::set('ScriptsMerger', $sm);
-	}
-	return $sm;
-}
-
-/**
- * Get the intra-request shared styles-combiner object.
- * @since 3.0
- *
- * @return object StylesMerger
- */
-function get_styles_manager() : StylesMerger
-{
-	$sm = SingleItem::get('StylesMerger');
-	if( !$sm ) {
-		$sm = new StylesMerger();
-		SingleItem::set('StylesMerger', $sm);
-	}
-	return $sm;
+	return (bool)Lone::fastget('app.showtemplate');
 }
 
 /**
@@ -2497,7 +2467,7 @@ function get_cookie_manager() : AutoCookieOperations
  */
 function get_site_UUID() : string
 {
-	return SingleItem::get('site_uuid');
+	return Lone::fastget('app.site_uuid');
 }
 
 /**
@@ -2520,6 +2490,18 @@ function get_installed_schema_version() : int
 		$val = $CMS_SCHEMA_VERSION ?? 0; // no force-load here, might not be installed
 	}
 	return (int)$val; // maybe 0
+}
+
+/**
+ * Report whether the current request is a frontend request.
+ * @since 3.0
+ * @since 1.11.2 as CmsApp::is_frontend_request
+ *
+ * @return bool
+ */
+function is_frontend_request() : bool
+{
+	return AppState::test(AppState::FRONT_PAGE);
 }
 
 /**

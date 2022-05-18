@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\Crypto;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use Throwable;
 use const CMS_JOB_KEY;
 use const CMS_SECURE_PARAM_NAME;
@@ -145,15 +145,15 @@ class RequestParameters
         }
         $str .= get_site_UUID();
         if ($onetime) {
-            $db = SingleItem::Db();
+            $db = Lone::get('Db');
             $tmpl = 'INSERT INTO '.CMS_DB_PREFIX."job_records (token,hash) VALUES ('%s','%s')";
             $chars = Crypto::random_string(20, true);
 //          $chars = preg_replace('/[^\w.~!@$()*#\-+]/', '', $chars); // pre-empt behaviour of create_action_params()
-            $swaps = str_shuffle('eFgHkLmN24680'); // >= 9 chars
+            $swaps = str_shuffle('eFgHkLmN24680'); // >= 12 chars
             while (1) {
                 $key = str_shuffle($chars);
-                $subkey = substr($key, 0, 10);
-                $subkey = strtr($subkey, '%+"?&;()`', $swaps); // replace chars which crap on url-decoding or SQL
+                $subkey = substr($key, 0, 12);
+                $subkey = strtr($subkey, '%+"?&;/\\()`', $swaps); // replace chars which crap on url-decoding or SQL
                 $subkey = strtr($subkey, "'", $swaps[7]); // must do this separately ? (escaping ' fails for strtr?)
                 // NOTE $subkey might be encoded in create_action_params() >> clean1()
                 $val = hash('tiger128,3', $subkey.$str); // 32-hexits
@@ -372,7 +372,7 @@ class RequestParameters
         if (isset($parms[self::JOBONCEKEY])) {
             $key = $parms[self::JOBONCEKEY];
             $key2 = rawurldecode($key);
-            $db = SingleItem::Db();
+            $db = Lone::get('Db');
             $row = $db->getRow('SELECT token,hash FROM '.CMS_DB_PREFIX.'job_records WHERE token=? OR token=?', [$key, $key2]);
             if (!$row) {
                 return false;
@@ -426,7 +426,7 @@ class RequestParameters
 				else {
 					$matches = explode(',',$names);
 				}
-				$matches = array_map(function($val) { return trim($val); },$matches);
+				$matches = array_map('trim',$matches);
 			}
 			else {
 				$matches = FALSE;

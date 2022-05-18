@@ -65,6 +65,8 @@ final class FileType extends BasicEnum
     const TYPE_XML      = 20;
     const TYPE_ANY      = 99;
 
+    #[\ReturnTypeWillChange]
     private function __construct() {}
+    #[\ReturnTypeWillChange]
     private function __clone() {}
 }

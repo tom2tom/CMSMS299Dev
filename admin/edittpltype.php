@@ -22,8 +22,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppParams;
 use CMSMS\Error403Exception;
+use CMSMS\Lone;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
 use CMSMS\TemplateType;
 use function CMSMS\add_shutdown;
 use function CMSMS\de_specialize_array;
@@ -41,7 +41,7 @@ if( !check_permission($userid, 'Modify Templates') ) {
 }
 
 $urlext = get_secure_param();
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 if( isset($_REQUEST['cancel']) ) {
 	$themeObject->ParkNotice('info', _ld('layout', 'msg_cancelled'));
@@ -166,7 +166,7 @@ EOS;
 	$selfurl = basename(__FILE__);
 	$extras = get_secure_param_array();
 
-	$smarty = SingleItem::Smarty();
+	$smarty = Lone::get('Smarty');
 	$smarty->assign([
 	 'selfurl' => $selfurl,
 	 'urlext' => $urlext,

@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\FolderControlOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 
 $dsep = DIRECTORY_SEPARATOR;
@@ -31,7 +31,7 @@ check_login();
 $userid = get_userid(false);
 $pmod = check_permission($userid, 'Modify Site Preferences');
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $allsets = FolderControlOperations::load_all(); // TODO as arrays ?
 
 if ($allsets) {

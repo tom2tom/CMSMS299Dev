@@ -55,7 +55,8 @@ final class AdminMenuItem
     /**
      * @ignore
      */
-    public function __get(string $key)
+    #[\ReturnTypeWillChange]
+    public function __get(string $key)// : mixed
     {
         if( !in_array($key,self::ITEMKEYS) ) throw new LogicException('Property \''.$key.'\' is not valid in '.__CLASS__.' objects');
         switch( $key ) {
@@ -78,7 +79,8 @@ final class AdminMenuItem
     /**
      * @ignore
      */
-    public function __set(string $key,$val)
+    #[\ReturnTypeWillChange]
+    public function __set(string $key,$val)// : void
     {
         if( !in_array($key,self::ITEMKEYS) ) throw new LogicException('Property \''.$key.'\' is not valid in '.__CLASS__.' objects');
         $this->_data[$key] = $val;
@@ -87,7 +89,8 @@ final class AdminMenuItem
     /**
      * @ignore
      */
-    public function __isset(string $key)
+    #[\ReturnTypeWillChange]
+    public function __isset(string $key)// : bool
     {
         if( !in_array($key,self::ITEMKEYS) ) throw new LogicException('Property \''.$key.'\' is not valid in '.__CLASS__.' objects');
         return isset($this->_data[$key]);
@@ -96,7 +99,8 @@ final class AdminMenuItem
     /**
      * @ignore
      */
-    public function __unset(string $key)
+    #[\ReturnTypeWillChange]
+    public function __unset(string $key)// : void
     {
         if( !in_array($key,self::ITEMKEYS) ) throw new LogicException('Property \''.$key.'\' is not valid in '.__CLASS__.' objects');
         throw new LogicException('Cannot unset properties of a '.__CLASS__.' object');
@@ -181,3 +185,4 @@ final class AdminMenuItem
         }
     }
 } // class
+//if (!\class_exists('CmsAdminMenuItem', false)) \class_alias(AdminMenuItem::class, 'CmsAdminMenuItem', false);

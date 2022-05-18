@@ -23,7 +23,7 @@ use CMSMS\CommunicationException;
 use CMSMS\Crypto;
 use CMSMS\DataException;
 use CMSMS\HttpRequest;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 use Exception;
 use ModuleManager\CachedRequest;
@@ -37,9 +37,10 @@ class ModuleNotFoundException extends ModuleManagerException {}
 
 final class ModuleRepClient
 {
-    // static properties here >> SingleItem property|ies ?
+    // static properties here >> Lone property|ies ?
     private static $_latest_installed_modules;
 
+    #[\ReturnTypeWillChange]
     private function __construct() {}
 
     /**
@@ -380,7 +381,7 @@ final class ModuleRepClient
     public static function get_allmoduleversions()
     {
         if( self::$_latest_installed_modules  === NULL ) {
-            $availmodules = SingleItem::ModuleOperations()->GetInstalledModules();
+            $availmodules = Lone::get('ModuleOperations')->GetInstalledModules();
             self::$_latest_installed_modules = self::get_modulelatest($availmodules);
         }
         return self::$_latest_installed_modules;

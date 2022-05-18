@@ -22,11 +22,12 @@ namespace CMSMS\jobs;
 
 use CMSMS\Async\CronJob;
 use CMSMS\Async\RecurType;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use const CMS_DB_PREFIX;
 
 class ClearJobRecordJob extends CronJob
 {
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();
@@ -40,12 +41,11 @@ class ClearJobRecordJob extends CronJob
       */
     public function execute()
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $limit = $db->dbTimeStamp(time() - 86400);
         $sql = 'DELETE FROM '.CMS_DB_PREFIX.'job_records WHERE create_date < '.$limit;
         $db->execute($sql);
         return 2;
     }
 }
-
 \class_alias('CMSMS\jobs\ClearJobRecordJob', 'ClearJobRecordTask', false);

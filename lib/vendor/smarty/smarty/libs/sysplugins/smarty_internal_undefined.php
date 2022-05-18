@@ -23,6 +23,7 @@ class Smarty_Internal_Undefined
      *
      * @param null|string $class name of undefined extension class
      */
+    #[\ReturnTypeWillChange]
     public function __construct($class = null)
     {
         $this->class = $class;
@@ -56,6 +57,7 @@ class Smarty_Internal_Undefined
      * @return mixed
      * @throws SmartyException
      */
+    #[\ReturnTypeWillChange]
     public function __call($name, $args)
     {
         if (isset($this->class)) {

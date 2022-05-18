@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminAlerts\TranslatableAlert;
 use CMSMS\AppParams;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\UserParams;
 use MicroTiny\Profile;
 
@@ -93,7 +93,7 @@ if (!$val) {
 	AppParams::set('frontendwysiwyg', $me);
 }
 
-$users = SingleItem::UserOperations()->GetList();
+$users = Lone::get('UserOperations')->GetList();
 foreach ($users as $uid => $uname) {
 	$val = UserParams::get_for_user($uid, 'wysiwyg');
 	if (!$val) {

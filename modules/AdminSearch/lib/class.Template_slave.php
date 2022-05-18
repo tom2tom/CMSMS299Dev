@@ -7,7 +7,7 @@ See license details at the top of file AdminSearch.module.php
 */
 namespace AdminSearch;
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\Utils;
@@ -47,7 +47,7 @@ final class Template_slave extends Base_slave
         if (!$this->check_permission()) {
             return [];
         }
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         // get all template ids
         $sql = 'SELECT id FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' ORDER BY name';
         $all_ids = $db->getCol($sql);
@@ -69,7 +69,7 @@ final class Template_slave extends Base_slave
 
     private function get_mod()
     {
-        // static properties here >> SingleItem property|ies ?
+        // static properties here >> Lone property|ies ?
         static $_mod;
         if (!$_mod) {
             $_mod = Utils::get_module('AdminSearch');

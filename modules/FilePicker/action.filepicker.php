@@ -338,7 +338,7 @@ try {
     // c.f. admintheme::AdminHeaderSetup() etc which populate via an admin-request hooklist
     // i.e. also needs at least: admin + theme js & admin + theme css
 /*
- 	$frontend = SingleItem::App()->is_frontend_request();
+ 	$frontend = CMSMS\is_frontend_request();
     if ($frontend) { $incs = cms_installed_jquery(true, true, true, true); }
     // no StylessMerger BUT TODO CSP support ??
     if ($frontend) {$url = cms_path_to_url($incs['jquicss']); }

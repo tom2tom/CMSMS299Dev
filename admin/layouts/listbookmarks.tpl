@@ -14,11 +14,11 @@
 <table class="pagetable">
   <thead>
     <tr>
-      <th class="pagew60">{_la('name')}</th>
-      <th class="pagew60">{_la('url')}</th>
+      <th>{_la('name')}</th>
+      <th>{_la('url')}</th>
       {if $access}
-      <th class="pageicon">&nbsp;</th>
-      <th class="pageicon">&nbsp;</th>
+      <th class="pageicon"></th>
+      <th class="pageicon"></th>
       {/if}
     </tr>
   </thead>
@@ -28,19 +28,19 @@
       {strip}
       <td>
         {if $access}
-        <a href="{$editurl}{$urlext}&amp;bookmark_id={$one->bookmark_id}">{$one->title}</a>
+        <a href="{$editurl}{$urlext}&bookmark_id={$one->bookmark_id}">{$one->title}</a>
         {else}
         {$one->title}
         {/if}
       </td>
       <td>{$one->url}</td>
       {if $access}
-      <td>
-        <a href="{$editurl}{$urlext}&amp;bookmark_id={$one->bookmark_id}">{$iconedit}</a>
+      <td class="pagepos icons_wide">
+        <a href="{$editurl}{$urlext}&bookmark_id={$one->bookmark_id}">{$iconedit}</a>
       </td>
-      <td>
+      <td class="pagepos icons_wide">
 {*TODO replace onclick handler*}
-        <a href="{$deleteurl}{$urlext}&amp;bookmark_id={$one->bookmark_id}" onclick="cms_confirm_linkclick(this,'{cms_html_entity_decode(_la('deleteconfirm', $one->title))}');return false;">{$icondel}</a>
+        <a href="{$deleteurl}{$urlext}&bookmark_id={$one->bookmark_id}" onclick="cms_confirm_linkclick(this,'{cms_html_entity_decode(_la('deleteconfirm', $one->title))}');return false;">{$icondel}</a>
       </td>
       {/if}
 {/strip}

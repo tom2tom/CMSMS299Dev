@@ -19,12 +19,13 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-//use CMSMS\Utils;
 use CMSMS\AppState;
 use CMSMS\Events;
+use CMSMS\Lone;
 use CMSMS\RequestParameters;
-use CMSMS\SingleItem;
+//use CMSMS\Utils;
 use function CMSMS\get_site_UUID;
+//use function cmsms;
 
 //$logfile = dirname(__DIR__).DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR.'cache'.DIRECTORY_SEPARATOR.'debug.log';
 //error_log('moduleinterface.php @start'."\n", 3, $logfile);
@@ -45,7 +46,7 @@ require_once __DIR__.DIRECTORY_SEPARATOR.'include.php';
 TODO CIRCULAR WITH include.php
 $params = RequestParameters::get_action_params();
 $CMS_JOB_TYPE = $params[CMS_JOB_KEY] ?? 0
-SingleItem::App()->JOBTYPE = $CMS_JOB_TYPE;
+cmsms()->JOBTYPE = $CMS_JOB_TYPE;
 
 BACK HERE ...
 if ($CMS_JOB_TYPE < 2) {
@@ -59,7 +60,7 @@ if ($params) {
 //		error_log('moduleinterface.php parameters: '.json_encode($params)."\n", 3, ASYNCLOG);
 //	}
 	$modname = $params['module'] ?? '';
-	$mact_mod = SingleItem::ModuleOperations()->get_module_instance($modname);
+	$mact_mod = Lone::get('ModuleOperations')->get_module_instance($modname);
 	if (!$mact_mod) {
 		if ($CMS_JOB_TYPE == 0) {
 			debug_to_log('Module '.$modname.' not found. This could indicate that the module is awaiting upgrade, or that there are other problems');
@@ -91,18 +92,18 @@ if ($params) {
 if ($mact_mod->SuppressAdminOutput($_REQUEST)) {
 	if ($CMS_JOB_TYPE == 0) {
 		$CMS_JOB_TYPE = 1; //too bad about irrelevant includes
-//		SingleItem::App()->JOBTYPE = $CMS_JOB_TYPE = 1;
+//		cmsms()->JOBTYPE = $CMS_JOB_TYPE = 1;
 	}
 }
 
 switch ($CMS_JOB_TYPE) {
 	case 0:
-		$themeObject = SingleItem::Theme();
+		$themeObject = Lone::get('Theme');
 		$themeObject->set_action_module($modname);
-		SingleItem::insert('Theme', $themeObject);
-		$base = SingleItem::Config()['admin_path'].DIRECTORY_SEPARATOR;
+		Lone::insert('Theme', $themeObject);
+		$base = Lone::get('Config')['admin_path'].DIRECTORY_SEPARATOR;
 		// create a dummy template to be a proxy-parent for the action's template
-//		$smarty = SingleItem::Smarty();
+//		$smarty = Lone::get('Smarty');
 //		$template = $smarty->createTemplate('string:DUMMY PARENT');
 		$template = null;
 		// retrieve and park the action-output first, in case the action also generates header content
@@ -118,10 +119,10 @@ switch ($CMS_JOB_TYPE) {
 		require $base.'footer.php';
 		break;
 	case 1: // not full-page output
-		$themeObject = SingleItem::Theme();
+		$themeObject = Lone::get('Theme');
 		$themeObject->set_action_module($modname);
-		SingleItem::insert('Theme', $themeObject);
-//		$smarty =  SingleItem::Smarty();
+		Lone::insert('Theme', $themeObject);
+//		$smarty =  Lone::get('Smarty');
 //		$template = $smarty->createTemplate('string:DUMMY PARENT');
 		$template = null;
 		echo $mact_mod->DoActionBase($action, $id, $params, null, $template);
@@ -135,9 +136,9 @@ switch ($CMS_JOB_TYPE) {
 			$dojob = Closure::bind(function($filepath, $id, $params)
 			{
 				// variables in scope for convenience c.f. CMSModeule::DoAction()
-				$gCms = SingleItem::App();
-				$db = SingleItem::Db();
-				$config = SingleItem::Config();
+				$gCms = Lone::get('App');
+				$db = Lone::get('Db');
+				$config = Lone::get('Config');
 				//no $smarty (no template-processing)
 				$uuid = get_site_UUID(); //since 3.0
 				include $filepath;

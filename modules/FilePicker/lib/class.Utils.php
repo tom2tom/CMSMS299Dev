@@ -25,9 +25,9 @@ use CMSMS\FileType;
 use CMSMS\FolderControlOperations;
 use CMSMS\FolderControls;
 use CMSMS\FSControlValue;
+use CMSMS\Lone;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
 use CMSMS\Utils as AppUtils;
 use Collator;
 use FilePicker;
@@ -40,6 +40,7 @@ use function cms_get_script;
 use function cms_installed_jquery;
 use function cms_join_path;
 use function cms_path_to_url;
+use function CMSMS\is_frontend_request;
 use function CMSMS\sanitizeVal;
 use function get_userid;
 use function lang;
@@ -62,7 +63,7 @@ class Utils
      */
     public static function get_file_icon(string $extension, bool $isdir = false) : string
     {
-        // static properties here >> SingleItem property|ies ?
+        // static properties here >> Lone property|ies ?
         static $mod = null;
         if ($mod == null) {
             $mod = AppUtils::get_module('FilePicker');
@@ -260,7 +261,7 @@ class Utils
 
     protected static function processpath($dirpath) : string
     {
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
         $devmode = $config['develop_mode'];
         if (!$devmode) {
             $userid = get_userid(false);
@@ -305,7 +306,7 @@ class Utils
             $profile = FolderControlOperations::get_profile($profile, $dirpath);
         }
 
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
         $devmode = $config['develop_mode'];
         if (!$devmode) {
             $userid = get_userid(false);
@@ -672,7 +673,7 @@ EOS;
             return [$headinc, $footinc];
         } else { // !$framed
             $paths = [];
-            $frontend = SingleItem::App()->is_frontend_request();
+            $frontend = is_frontend_request();
             if ($frontend) {
                 $paths[] = $incs['jquicss'];
             }

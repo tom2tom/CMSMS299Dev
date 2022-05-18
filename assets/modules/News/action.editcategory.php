@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
 use CMSMS\FileType;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use News\AdminOperations;
 use News\Utils;
 use function CMSMS\log_info;
@@ -156,7 +156,7 @@ foreach( $tmp2 as $k => $v ) {
 $parms = ['catid'=>$catid];
 //CHECKME secure params too?
 
-$picker = SingleItem::ModuleOperations()->GetFilePickerModule();
+$picker = Lone::get('ModuleOperations')->GetFilePickerModule();
 $dir = $config['uploads_path'];
 $userid = get_userid(false);
 $tmp = $picker->get_default_profile($dir,$userid);

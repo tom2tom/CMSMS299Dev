@@ -1429,6 +1429,7 @@ nav h3.DesignManager-default a::before, #ab_pagemenu li a.DesignManager-default:
 nav h3.FileManager-default a::before, #ab_pagemenu li a.FileManager-default::before { content: '\f0a0' }
 nav h3.FileManager-set a::before, #ab_pagemenu li a.FileManager-set::before { content: '\f61f' }
 nav h3.FilePicker-default a::before, #ab_pagemenu li a.FilePicker-default::before { content: '\f233' }
+nav h3.HTMLEditor-default a::before, #ab_pagemenu li a.HTMLEditor-default::before { content: '\f14b' }
 nav h3.MicroTiny-default a::before, #ab_pagemenu li a.MicroTiny-default::before { content: '\f14b' }
 nav h3.ModuleManager-default a::before, #ab_pagemenu li a.ModuleManager-default::before { content: '\f1b3' }
 nav h3.MultiSyntaxEditor-default a::before, #ab_pagemenu li a.MultiSyntaxEditor-default::before { content: '\f121' }
@@ -1733,7 +1734,6 @@ table.pagetable {
     border-collapse: inherit;
     font-size: 0.9rem;
     border: 1px solid #cecef3;
-    width: 100%;
     margin: 5px 0
 }
 
@@ -1840,7 +1840,7 @@ table.pagetable td.row2s {
 }
 
 table.pagetable th.pageicon {
-    min-width: 16px;
+    min-width: 1rem;
     border: none
 }
 
@@ -2404,25 +2404,34 @@ ul.sortableList div.label {
     -webkit-hyphens: auto;
     -moz-hyphens: auto;
     hyphens: auto;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
-    cursor: move;
-    padding: 3px 35px 3px 10px;
+    -webkit-border-radius: .25rem;
+    -moz-border-radius: .25rem;
+    border-radius: .25rem;
+    padding: .25rem 1rem;
     text-shadow: 0 1px 0 #fff;
     font-weight: bold;
-    color: #4d4d4d
-}
-ul.sortableList div.label::before {
-/*  background: #f1f1fd url(../images/icons/extra/reorder.gif) no-repeat 10px 50%;*/
-    content: '\f338';
-    font-family: 'Font Awesome 5 Free';
-/*    font-weight: 600;*/
+    color: #4d4d4d;
+    cursor: move
 }
 
-ul.sortableList li div.label em {
-    display: block;
-    text-indent: 10px;
+ul.sortableList li div.label > .expanded::before {
+    content: '\f077';
+    font-family: 'Font Awesome 5 Free';
+    cursor: pointer
+}
+
+ul.sortableList li div.label > .collapsed::before {
+    content: '\f078';
+    font-family: 'Font Awesome 5 Free';
+    cursor: pointer
+}
+
+ul.sortableList li div.label > .nomarker {
+    display: inline-block;
+    width: 1rem;
+}
+
+ul.sortableList li div.label > em {
     font-weight: normal;
     font-size: 0.8rem;
     color: #147fdb
@@ -2941,19 +2950,6 @@ ul.social-icons li a {
     .dashboard-box img {
         display: inline
     }
-
-    /* Responsive table -- CSS solution: scroll left/right */
-    .table-responsive, table.pagetable {
-        border-collapse: collapse;
-        width: 100%;
-        margin: 5px 0 1rem;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        -ms-overflow-style: -ms-autohiding-scrollbar;
-        display: block;
-/*        padding-bottom: 2rem;*/
-    }
-
 /*
 fieldset,
 form,
@@ -3009,6 +3005,17 @@ select {
     #headerlogo {
         min-width: 2em;
         background-image: url(../../assets/images/cmsms-logo.svg);
+    }
+    /* responsive table -- CSS solution: scroll left/right */
+    .table-responsive, table.pagetable {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 5px 1rem 1rem 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        -ms-overflow-style: -ms-autohiding-scrollbar;
+        display: block;
+/*        padding-bottom: 2rem;*/
     }
 }
 

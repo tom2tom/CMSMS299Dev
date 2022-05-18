@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\GroupOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use LogicException;
 use const CMS_DB_PREFIX;
 use function cms_to_bool;
@@ -48,7 +48,7 @@ use function lang;
 	 */
 	private const PROPS = ['id','name','description','active'];
 
-    // static properties here >> SingleItem property|ies ?
+    // static properties here >> Lone property|ies ?
 	/**
 	 * GroupOperations object populated on demand
 	 * @ignore
@@ -67,6 +67,7 @@ use function lang;
 	/**
 	 * @ignore
 	 */
+    #[\ReturnTypeWillChange]
 	public function __get(string $key)
 	{
 		if( in_array($key,self::PROPS) ) return $this->$key;
@@ -76,6 +77,7 @@ use function lang;
 	/**
 	 * @ignore
 	 */
+    #[\ReturnTypeWillChange]
 	public function __set(string $key,$val)
 	{
 		if( !in_array($key,self::PROPS) ) {
@@ -107,7 +109,7 @@ use function lang;
 	private static function get_operations()
 	{
 		if( empty(self::$_operations) ) {
-			self::$_operations = SingleItem::GroupOperations();
+			self::$_operations = Lone::get('GroupOperations');
 		}
 		return self::$_operations;
 	}
@@ -121,7 +123,7 @@ use function lang;
 	public function validate()
 	{
 		if( !$this->name ) throw new LogicException('No name specified for this group');
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$sql = 'SELECT group_id FROM `'.CMS_DB_PREFIX.'groups` WHERE group_name = ? AND group_id != ?';
 		$dbresult = $db->getOne($sql,[$this->name,$this->id]);
 		if( $dbresult ) throw new LogicException(lang('errorgroupexists',$this->name));
@@ -142,7 +144,7 @@ use function lang;
 		if( $this->id < 0 ) {
 			$this->id = $res;
 		}
-// TODO SingleItem::LoadedData()->delete('menu_modules'); for all users in group, if not installing
+// TODO Lone::get('LoadedData')->delete('menu_modules'); for all users in group, if not installing
 	}
 
 	/**
@@ -154,7 +156,7 @@ use function lang;
 	 */
 	public function Delete()
 	{
-// TODO SingleItem::LoadedData()->delete('menu_modules'); for all users in group, if not installing
+// TODO Lone::get('LoadedData')->delete('menu_modules'); for all users in group, if not installing
 		return self::get_operations()->DeleteGroupByID($this->id);
 	}
 
@@ -218,7 +220,7 @@ use function lang;
 //		if( is_numeric($perm) ) { $perm = $TODO; }
 		if( $this->HasPermission($perm) ) { return false; }
 		return self::get_operations()->GrantPermission($this->id,$perm);
-// TODO SingleItem::LoadedData()->delete('menu_modules'); for all users in group, if not installing
+// TODO Lone::get('LoadedData')->delete('menu_modules'); for all users in group, if not installing
 	}
 
 	/**
@@ -239,7 +241,7 @@ use function lang;
 //		if( is_numeric($perm) ) { $perm = $TODO; }
 		if( !$this->HasPermission($perm) ) { return false; }
 		return self::get_operations()->RemovPermission($this->id,$perm);
-// TODO SingleItem::LoadedData()->delete('menu_modules'); for all users in group, if not installing
+// TODO Lone::get('LoadedData')->delete('menu_modules'); for all users in group, if not installing
 	}
 }
 

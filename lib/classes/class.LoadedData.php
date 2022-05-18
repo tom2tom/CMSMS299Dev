@@ -1,7 +1,7 @@
 <?php
 /*
 Mechanism for automatic in-memory and in-global-cache caching of 'slow' system-data.
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -23,6 +23,7 @@ namespace CMSMS;
 
 use CMSMS\AppState;
 use CMSMS\DeprecationNotice;
+use CMSMS\Lone;
 use UnexpectedValueException;
 use const CMS_DEPREC;
 
@@ -99,14 +100,16 @@ class LoadedData
 
     /* *
      * @ignore
-     * @private to prevent direct creation (even by SingleItem class)
+     * @private to prevent direct creation (even by Lone class)
      */
-//  public function __construct() {} //TODO public iff wanted by SingleItem ?
+//  public function __construct() {} //TODO public iff wanted by Lone ?
+    #[\ReturnTypeWillChange]
     private function __clone() {}
 
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         $this->save();
@@ -117,22 +120,23 @@ class LoadedData
      * @param string $name method name
      * @param array $args enumerated method argument(s)
      */
+    #[\ReturnTypeWillChange]
     public static function __callStatic(string $name, array $args)
     {
-        $obj = SingleItem::LoadedData();
+        $obj = Lone::get('LoadedData');
         return $obj->$name(...$args);
     }
 
     /**
      * Get the singleton instance of this class
      * @since 3.0
-     * @deprecated since 3.0 Instead use CMSMS\SingleItem::LoadedData()
+     * @deprecated since 3.0 Instead use CMSMS\Lone::get('LoadedData')
      * @return LoadedData object
      */
     public static function get_instance()
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::LoadedData()'));
-        return SingleItem::LoadedData();
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'LoadedData\')'));
+        return Lone::get('LoadedData');
     }
 
     /**
@@ -433,7 +437,7 @@ class LoadedData
     protected function get_main_cache() : SystemCache
     {
         if( empty($this->maincache) ) {
-            $this->maincache = SingleItem::SystemCache();
+            $this->maincache = Lone::get('SystemCache');
         }
         return $this->maincache;
     }

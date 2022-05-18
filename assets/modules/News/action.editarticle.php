@@ -23,8 +23,8 @@ use CMSMS\AdminUtils;
 use CMSMS\Events;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
+use CMSMS\Lone;
 use CMSMS\RouteOperations;
-use CMSMS\SingleItem;
 use CMSMS\TemplateType;
 use CMSMS\Url;
 use CMSMS\Utils as AppUtils;
@@ -313,7 +313,7 @@ WHERE news_id=?';
     $detail_returnid = $this->GetPreference('detail_returnid', -1);
     if ($detail_returnid <= 0) {
         // get the default content id
-        $detail_returnid = SingleItem::ContentOperations()->GetDefaultContent();
+        $detail_returnid = Lone::get('ContentOperations')->GetDefaultContent();
     }
     if (isset($params['previewpage']) && (int)$params['previewpage'] > 0) {
         $detail_returnid = (int)$params['previewpage'];
@@ -436,7 +436,7 @@ $tpl->assign('formaction', 'editarticle')
 
 // TODO allow author change if current user is owner, or a member of supergroup 1
 if ($author_id > 0) {
-    $theuser = SingleItem::UserOperations()->LoadUserById($author_id);
+    $theuser = Lone::get('UserOperations')->LoadUserById($author_id);
     if ($theuser) {
         $tpl->assign('inputauthor', $theuser->username);
     } else {
@@ -519,7 +519,7 @@ if ($this->CheckPermission('Approve News')) {
 //   ->assign('statustext', lang('status'));
 }
 
-$picker = SingleItem::ModuleOperations()->GetFilePickerModule();
+$picker = Lone::get('ModuleOperations')->GetFilePickerModule();
 $dir = $config['uploads_path'];
 $userid = get_userid(false);
 $tmp = $picker->get_default_profile($dir, $userid);

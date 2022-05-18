@@ -8,8 +8,8 @@
 <br />
 {if $pmod && count($tags) > 20}
 <div class="pageoptions">
-  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{_la('add_usrplg')}">{$iconadd}</a>
-  <a href="{$addurl}{$urlext}&amp;tagname=-1">{_la('add_usrplg')}</a>
+  <a href="{$addurl}{$urlext}&tagname=-1" title="{_la('add_usrplg')}">{$iconadd}</a>
+  <a href="{$addurl}{$urlext}&tagname=-1">{_la('add_usrplg')}</a>
 </div>
 <br />
 {/if}
@@ -30,7 +30,7 @@
       {strip}{$n=$tag.name}
       <td>
        {if $pmod}
-        <a href="{$editurl}{$urlext}&amp;tagname={$n}" title="{_la('edit_usrplg', {$n})}">{$n}</a>
+        <a href="{$editurl}{$urlext}&tagname={$n}" title="{_la('edit_usrplg', {$n})}">{$n}</a>
        {else}
         {$n}
        {/if}
@@ -39,7 +39,7 @@
       <td>{$tag.description}</td>
       {if $pmod}
       <td>
-        <a href="{$editurl}{$urlext}&amp;tagname={$n}">{$iconedit}</a>
+        <a href="{$editurl}{$urlext}&tagname={$n}">{$iconedit}</a>
       </td>
       <td>
         <a href="javascript:doDelete('{$n}')">{$icondel}</a>
@@ -53,8 +53,8 @@
 {if $pmod}
 <br />
 <div class="pageoptions">
-  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{_la('add_usrplg')}">{$iconadd}</a>
-  <a href="{$addurl}{$urlext}&amp;tagname=-1">{_la('add_usrplg')}</a>
+  <a href="{$addurl}{$urlext}&tagname=-1" title="{_la('add_usrplg')}">{$iconadd}</a>
+  <a href="{$addurl}{$urlext}&tagname=-1">{_la('add_usrplg')}</a>
 </div>
 {/if}
 

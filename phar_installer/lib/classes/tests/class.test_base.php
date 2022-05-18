@@ -81,6 +81,7 @@ abstract class test_base
     /**
      * @param string $name (if provided) is assumed to be a lang key, and processed immediately
      */
+    #[\ReturnTypeWillChange]
     public function __construct(string $name, $value, string $key = '')
     {
         if (!($name || $key)) {
@@ -93,6 +94,7 @@ abstract class test_base
         $this->required = 0;
     }
 
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         if (!in_array($key, self::KEYS)) {
@@ -103,6 +105,7 @@ abstract class test_base
         }
     }
 
+    #[\ReturnTypeWillChange]
     public function __isset(string $key)
     {
         if (!in_array($key, self::KEYS)) {
@@ -111,6 +114,7 @@ abstract class test_base
         return isset($this->_data[$key]);
     }
 
+    #[\ReturnTypeWillChange]
     public function __set(string $key, $value)
     {
         if (!in_array($key, self::KEYS)) {
@@ -123,6 +127,7 @@ abstract class test_base
         }
     }
 
+    #[\ReturnTypeWillChange]
     public function __unset(string $key)
     {
         unset($this->_data[$key]);

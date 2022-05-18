@@ -1,7 +1,7 @@
 <?php
 /*
 Module Manager action: display help
-Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of ModuleManager, an addon module for
@@ -22,8 +22,8 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\Lone;
 use CMSMS\NlsOperations;
-use CMSMS\SingleItem;
 use CMSMS\Utils;
 use function CMSMS\sanitizeVal;
 
@@ -38,7 +38,7 @@ if( !isset($params['mod']) ) {
 $modname = sanitizeVal($params['mod'], CMSSAN_FILE); //module-identifier == foldername and in file-name
 if( $modname ) {
     // get the module instance... force it to load if necessary, without priors
-    $mod = SingleItem::ModuleOperations()->get_module_instance($modname, '', true);
+    $mod = Lone::get('ModuleOperations')->get_module_instance($modname, '', true);
 }
 else {
     $modname = lang('notspecified');

@@ -138,9 +138,30 @@ ul.sortableList li {
 	width: 30em;
 }
 
-ul.sortableList li div.label em {
-	display: block;
-	margin-right: 2.5em;
+.sortableList div.label > .expanded::before {
+	content: '';
+	display: inline-block;
+	width: 1.5em;
+	height: 1.5em;
+	background: url(../images/icons/system/contract.svg);
+	background-size: 1.5em 1.5em;
+}
+
+.sortableList div.label > .collapsed::before {
+	content: '';
+	display: inline-block;
+	width: 1.5em;
+	height: 1.5em;
+	background: url(../images/icons/system/expand.svg);
+	background-size: 1.5em 1.5em;
+}
+
+ul.sortableList li div.label > .nomarker {
+	display: inline-block;
+	width: 1.5rem;
+}
+
+ul.sortableList li div.label > em {
 	color: #fef9ec;
 	font-size: 0.75em;
 	font-weight: bold;
@@ -152,7 +173,7 @@ ul.sortableList > li {
 
 ul.sortableList div.label {
 	border: solid 1px #414658;
-	padding: 2px;
+	padding: 0.25rem;
 	background-color: #505262;
 	width: 30em;
 	font-size: 0.8em;
@@ -162,10 +183,6 @@ ul.sortableList div.label {
 	-moz-border-radius: 0.25rem;
 	border-radius: 0.25rem;
 	cursor: move;
-}
-
-ul.sortableList span.haschildren.expanded {
-	display: none;
 }
 
 ul.sortable .placeholder {
@@ -358,7 +375,7 @@ span.helptext a {
 	display: inline-block;
 	padding-left: 24px;
 	vertical-align: middle;
-	background: url(../images/icons/system/sprite.svg#info) no-repeat left;
+	background: url(../images/icons/system/info.svg) no-repeat left;
 	background-size: 1.5rem 1.5rem;
 }
 
@@ -366,7 +383,7 @@ span.helptext a.external {
 	display: inline-block;
 	padding-left: 24px;
 	vertical-align: middle;
-	background: url(../images/icons/system/sprite.svg#help) no-repeat left;
+	background: url(../images/icons/system/help.svg) no-repeat left;
 	background-size: 1.5rem 1.5rem;
 }
 
@@ -400,7 +417,7 @@ div.dialog h3 {
 
 div.dialog a.bookmark {
 	padding-right: 20px;
-	background: url(../images/icons/system/sprite.svg#bookmark) no-repeat right;
+	background: url(../images/icons/system/bookmark.svg) no-repeat right;
 	background-size: 1.5rem 1.5rem;
 	line-height: 1.25;
 }
@@ -465,7 +482,6 @@ table.pagetable {
 	border-radius: 0.25rem;
 	border-collapse: inherit;
 	border: 1px solid #414658;
-	width: auto;
 	table-layout: auto;
 	margin: 3px 0;
 	font-size: 0.8em;
@@ -488,9 +504,9 @@ table.pagetable th {
 	color: #fef9ec;
 	text-align: right;
 	white-space: nowrap;
-      /*            input:focus {
-                outline: 2px solid #f7ce3e; //TODO DISABLED intra table input
-            }
+      /*	    input:focus {
+		outline: 2px solid #f7ce3e; //TODO DISABLED intra table input
+	    }
 */;
 }
 
@@ -499,7 +515,7 @@ table.pagetable th.pagepos {
 }
 
 table.pagetable th.pageicon {
-	min-width: 16px;
+	min-width: 1rem;
 	border: none;
 }
 
@@ -726,7 +742,7 @@ input[type="button"] {
 }
 
 input[type="button"]:hover {
-    /*        cursor: pointer;*/
+    /*	cursor: pointer;*/
 	background-color: #8992b1;
 }
 
@@ -746,7 +762,7 @@ input[type="submit"] {
 }
 
 input[type="submit"]:hover {
-    /*        cursor: pointer;*/
+    /*	cursor: pointer;*/
 	background-color: #8992b1;
 }
 
@@ -2129,7 +2145,7 @@ button.ui-button.ui-dialog-titlebar-close .ui-button-icon:hover {
 }
 
 .file {
-	background: url(../images/icons/system/sprite.svg#document-list) no-repeat right;
+	background: url(../images/icons/system/document-list.svg) no-repeat right;
 	background-size: 1.5rem 1.5rem;
 	padding-right: 25px;
 }
@@ -2635,10 +2651,10 @@ BODY
 
      WAS ggp_content
 
-          pagecontainer OFLOW: auto AT LEAST WHEN NO TABS PRESENT
-          whatever from generator
-             #page_content > div OFLOW auto
-             #page_tabs
+	  pagecontainer OFLOW: auto AT LEAST WHEN NO TABS PRESENT
+	  whatever from generator
+	     #page_content > div OFLOW auto
+	     #page_tabs
 
      WAS /ggp_content
 
@@ -2682,10 +2698,10 @@ BODY
 	box-shadow: -0 0.06em 0.1em rgba(255, 255, 255, 0.3) inset, -0 0.06em 0.1em #0f253d inset;
 	line-height: 1;
   /*    > div {
-        @include flexbox;
-        @include flex-wrap(wrap);
-        @include justify-content(space-between);
-        @include align-items(center);
+	@include flexbox;
+	@include flex-wrap(wrap);
+	@include justify-content(space-between);
+	@include align-items(center);
     }
 */;
 }
@@ -3558,7 +3574,7 @@ ETC?
 	table.pagetable {
 		border-collapse: collapse;
 		width: 100%;
-		margin: 5px 0 1rem 0;
+		margin: 5px 1rem 1rem 0;
 		overflow-x: auto;
 		display: block;
 	}

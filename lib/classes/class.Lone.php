@@ -23,28 +23,27 @@ namespace CMSMS;
 use RuntimeException;
 //use SplObjectStorage;
 use Throwable;
+use function cms_autoloader;
 
 /**
- * Singleton class that records, for later supply on-demand, classes
- * and properties that should not, or cannot properly, be 'static' for
- * the duration of the current request.
+ * Singleton class that records, for later supply on-demand, classes and
+ * properties that should not, or cannot properly, be 'static' for the
+ * duration of the current request.
  *
  * Notably the main 'system' singleton objects. Those will be autoloaded
  * on demand from namespaces: CMSMS | global | CMSMS\internal, or else
  * must be manually insert()'d by some external process before retrieval
- * from here. Those objects can be retrieved by CMSMS\SingleItem::Classname(),
- * or CMSMS\SingleItem::get(Classname).
- *
- * Store and retrieve other properties using CMSMS\SingleItem::{set|get}propkey
+ * from here. Those objects can be retrieved by CMSMS\Lone::get('Classname').
+ * Store and retrieve other properties using CMSMS\Lone::{set|get}propkey
  *
  * @final
  * @since 3.0
  * @package CMS
  * @license GPL
  * @throws RuntimeException if the supplied classname or property name
- *  is not recognised
+ *  is not recognized
  */
-final class SingleItem //extends SplObjectStorage worth doing this subclass? (iteration, ArrayAccess etc)
+final class Lone //extends SplObjectStorage worth doing this subclass? (iteration, ArrayAccess etc)
 {
 	/**
 	 * @var object Preserves this object through the request
@@ -61,17 +60,19 @@ final class SingleItem //extends SplObjectStorage worth doing this subclass? (it
 	public $singles = [];
 
 	/**
-	 * @var array Cached properties other than system-singletons
+	 * @var array Cached properties other than class-singletons
 	 * Each member like 'identifier' => value
-	 * The identifier includes suitable namespace differentiation
+	 * The identifier includes suitable namespace differentiation e.g. myspace.propname
 	 * @ignore
 	 */
 	public $properties = [];
 
+	#[\ReturnTypeWillChange]
 	private function __construct() {}
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
-	/**
+	/* *
 	 * Retrieve a class singleton-object, after construction if necessary.
 	 * Typically this requires existence of cms_autoloader().
 	 * Some singletons e.g. the database connection (::Db()) and the
@@ -84,6 +85,8 @@ final class SingleItem //extends SplObjectStorage worth doing this subclass? (it
 	 * @return object | not at all
 	 * @throws RuntimeException if the class is not found or its constructor bombs
 	 */
+/*
+	#[\ReturnTypeWillChange]
 	public static function __callStatic(string $name, array $args)
 	{
 		if (!self::$instance) {
@@ -128,14 +131,15 @@ final class SingleItem //extends SplObjectStorage worth doing this subclass? (it
 			}
 		}
 	}
-
+*/
 	/**
 	 * Cache a property
-	 * Not for singletons. PHP (7 at least) doesn't support syntax like SingleItem->classname
+	 * Not for singletons. PHP (7 at least) doesn't support syntax like Lone->classname
 	 *
 	 * @param string $name Property name, with suitable namespace-differentiation
 	 * @param mixed $value The data to be cached
 	 */
+	#[\ReturnTypeWillChange]
 	public function __set(string $name, $value)
 	{
 		if (!self::$instance) {
@@ -146,11 +150,12 @@ final class SingleItem //extends SplObjectStorage worth doing this subclass? (it
 
 	/**
 	 * Retrieve a cached property
-	 * Not for singletons. PHP (7 at least) doesn't support syntax like SingleItem->classname
+	 * Not for singletons. PHP (7 at least) doesn't support syntax like Lone->classname
 	 *
 	 * @param string $name Property name, with suitable namespace-differentiation
 	 * @return mixed Cached property value | null if not found
 	 */
+	#[\ReturnTypeWillChange]
 	public function __get(string $name)
 	{
 		if (!self::$instance || !isset(self::$instance->properties[$name])) {
@@ -161,6 +166,7 @@ final class SingleItem //extends SplObjectStorage worth doing this subclass? (it
 
 	/**
 	 * Static analog of magic method __set()
+	 * For properties, not class-singletons
 	 */
 	public static function set(string $name, $val)
 	{
@@ -172,13 +178,77 @@ final class SingleItem //extends SplObjectStorage worth doing this subclass? (it
 
 	/**
 	 * Static analog of magic method __get()
+	 * For properties, not class-singletons
+	 * @see also Lone::get()
+	 * 
+	 * @param string $name Property name, with suitable namespace-differentiation
+	 * @return mixed
 	 */
-	public static function get(string $name)
+	public static function fastget(string $name)
 	{
 		if (!self::$instance) {
 			return null;
 		}
 		return self::$instance->__get($name);
+	}
+
+	/**
+	 * Retrieve a class or non-class property recorded here, after
+	 * autoloading and construction if necessary and possible.
+	 * @see also Lone::fastget()
+	 *
+	 * @param array $args varargs, of which [0] is the instance/property
+	 * identifier (string) and any other array members will be passed
+	 * to the class constructor for a not-yet-recorded object
+	 * @return mixed
+	 * @throws RuntimeException if the requested item is not recognized
+	 */
+	public static function get(...$args)
+	{
+		if (!self::$instance) {
+			self::$instance = new self();
+		}
+		$inst = self::$instance;
+
+		$name = $args[0];
+		if (isset($inst->singles[$name])) {
+			return $inst->singles[$name];
+		} else {
+			unset($args[0]);
+			$obj = null;
+			foreach ([
+				'CMSMS\\'.$name, //most likely namespace
+				$name,
+				'CMSMS\internal\\'.$name, //least likely (mainly Smarty)
+			] as $i => $classname) {
+				if (class_exists($classname, false)) {
+					try {
+						$obj = new $classname(...$args);
+						break;
+					} catch (Throwable $t) {
+						throw new RuntimeException($t->GetMessage().': '.__CLASS__.'::'.$name.'()');
+					}
+				} elseif ($i != 1) { // global- and CMSMS-namespace class files are in the same place
+					// there's no trap for class-not-found errors i.e. must workaround namespace here
+					// this could autoload a class-file even though the loaded class has wrong namespace
+					cms_autoloader($classname);
+					if (class_exists($classname, false)) {
+						try {
+							$obj = new $classname(...$args);
+							break;
+						} catch (Throwable $t) {
+							throw new RuntimeException($t->GetMessage().': '.__CLASS__.'::'.$name.'()');
+						}
+					}
+				}
+			}
+			if ($obj) {
+				$inst->singles[$name] = $obj;
+				return $obj;
+			} else {
+				throw new RuntimeException('Unrecognized class requested '.__CLASS__.'::'.$name.'()');
+			}
+		}
 	}
 
 	/**

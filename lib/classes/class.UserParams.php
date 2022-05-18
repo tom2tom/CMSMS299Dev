@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS {
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 /**
  * A class for working with preferences associated with admin users
@@ -46,7 +46,7 @@ final class UserParams
 	 */
 	private const PREF_CLASSES = ['stdClass'];
 
-    // static properties here >> SingleItem property|ies ?
+    // static properties here >> Lone property|ies ?
 	/**
 	 * @ignore
 	 * Intra-request cache
@@ -56,7 +56,9 @@ final class UserParams
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __construct() {}
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**
@@ -66,7 +68,7 @@ final class UserParams
 	{
 		if( is_array(self::$_prefs) && isset(self::$_prefs[$userid]) && is_array(self::$_prefs[$userid]) ) return;
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT preference,value FROM '.CMS_DB_PREFIX.'userprefs WHERE user_id = ?';
 		$dbr = $db->getAssoc($query,[$userid]);
 		if( $dbr ) {
@@ -189,7 +191,7 @@ final class UserParams
 			$value = self::SERIAL.serialize($value);
 		}
 		self::_read($userid);
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		if(  !isset(self::$_prefs[$userid][$key]) ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.'userprefs (user_id,preference,value) VALUES (?,?,?)';
 //			$dbr =
@@ -225,7 +227,7 @@ final class UserParams
 	{
 		$userid = (int)$userid;
 		self::_read($userid);
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'userprefs WHERE user_id = ?';
 		$parms = [$userid];
 		if( $key ) {

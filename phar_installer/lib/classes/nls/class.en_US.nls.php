@@ -5,6 +5,7 @@ use cms_installer\nls;
 
 class en_US_nls extends nls
 {
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $this->_fullname = 'English';

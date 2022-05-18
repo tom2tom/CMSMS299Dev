@@ -1,4 +1,5 @@
 <?php
+use CMSMS\Lone;
 use FileManager\Utils;
 
 //if( some worthy test fails ) exit;
@@ -16,7 +17,7 @@ foreach( $sel as &$one ) {
     $one = $this->decodefilename($one);
 }
 
-$config=cmsms()->GetConfig();
+$config = Lone::get('Config');
 $cwd = Utils::get_cwd();
 $dirlist = Utils::get_dirlist();
 if( !$dirlist ) {

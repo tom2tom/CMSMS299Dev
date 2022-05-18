@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace DesignManager;
 
 use CMSMS\Exception;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
 use CMSMS\Template;
@@ -48,6 +48,7 @@ class design_reader extends reader_base
     private $_file_map = [];
     private $_new_design_description;
 
+    #[\ReturnTypeWillChange]
     public function __construct($fn)
     {
         $this->_xml = new xml_reader();
@@ -70,8 +71,7 @@ class design_reader extends reader_base
         $in = [];
         $cur_key = null;
 
-        $__get_in = function() use ($in) {
-            global $in;
+        $get_in = function() use ($in) {
             if( ($n = count($in)) ) {
                 return $in[$n-1];
             }
@@ -91,7 +91,7 @@ class design_reader extends reader_base
                         break;
 
                     case 'name':
-                        if( $__get_in() != 'design' ) {
+                        if( $get_in() != 'design' ) {
                             // validity error.
                         }
                         $name = $this->_xml->localName;
@@ -102,7 +102,7 @@ class design_reader extends reader_base
                     case 'description':
                     case 'generated':
                     case 'cmsversion':
-                        if( $__get_in() != 'design' ) {
+                        if( $get_in() != 'design' ) {
                             // validity error.
                         }
                         $name = $this->_xml->localName;
@@ -111,7 +111,7 @@ class design_reader extends reader_base
                         break;
 
                     case 'tkey':
-                        if( $__get_in() != 'template' ) {
+                        if( $get_in() != 'template' ) {
                             // validity error.
                         }
                         $this->_xml->read();
@@ -120,7 +120,7 @@ class design_reader extends reader_base
                         break;
 
                     case 'tname':
-                        if( $__get_in() != 'template' || !$cur_key ) {
+                        if( $get_in() != 'template' || !$cur_key ) {
                             // validity error.
                         }
                         $this->_xml->read();
@@ -128,7 +128,7 @@ class design_reader extends reader_base
                         break;
 
                     case 'tdesc':
-                        if( $__get_in() != 'template' || !$cur_key ) {
+                        if( $get_in() != 'template' || !$cur_key ) {
                             // validity error.
                         }
                         $this->_xml->read();
@@ -136,7 +136,7 @@ class design_reader extends reader_base
                         break;
 
                     case 'tdata':
-                        if( $__get_in() != 'template' || !$cur_key ) {
+                        if( $get_in() != 'template' || !$cur_key ) {
                             // validity error.
                         }
                         $this->_xml->read();
@@ -145,7 +145,7 @@ class design_reader extends reader_base
 
                     case 'ttype_originator':
                     case 'ttype_name':
-                        if( $__get_in() != 'template' || !$cur_key ) {
+                        if( $get_in() != 'template' || !$cur_key ) {
                             // validity error.
                         }
                         $key = $this->_xml->localName;
@@ -154,7 +154,7 @@ class design_reader extends reader_base
                         break;
 
                     case 'csskey':
-                        if( $__get_in() != 'stylesheet' ) {
+                        if( $get_in() != 'stylesheet' ) {
                             // validity error.
                         }
                         $this->_xml->read();
@@ -163,7 +163,7 @@ class design_reader extends reader_base
                         break;
 
                     case 'cssname':
-                        if( $__get_in() != 'stylesheet' || !$cur_key ) {
+                        if( $get_in() != 'stylesheet' || !$cur_key ) {
                             // validity error.
                         }
                         $this->_xml->read();
@@ -171,7 +171,7 @@ class design_reader extends reader_base
                         break;
 
                     case 'cssdesc':
-                        if( $__get_in() != 'stylesheet' || !$cur_key ) {
+                        if( $get_in() != 'stylesheet' || !$cur_key ) {
                             // validity error.
                         }
                         $this->_xml->read();
@@ -179,7 +179,7 @@ class design_reader extends reader_base
                         break;
 
                     case 'cssdata':
-                        if( $__get_in() != 'stylesheet' || !$cur_key ) {
+                        if( $get_in() != 'stylesheet' || !$cur_key ) {
                             // validity error.
                         }
                         $this->_xml->read();
@@ -187,7 +187,7 @@ class design_reader extends reader_base
                         break;
 
                     case 'cssmediatype':
-                        if( $__get_in() != 'stylesheet' || !$cur_key ) {
+                        if( $get_in() != 'stylesheet' || !$cur_key ) {
                             // validity error.
                         }
                         $this->_xml->read();
@@ -195,7 +195,7 @@ class design_reader extends reader_base
                         break;
 
                     case 'cssmediaquery':
-                        if( $__get_in() != 'stylesheet' || !$cur_key ) {
+                        if( $get_in() != 'stylesheet' || !$cur_key ) {
                             // validity error.
                         }
                         $this->_xml->read();
@@ -203,7 +203,7 @@ class design_reader extends reader_base
                         break;
 
                     case 'fkey':
-                        if( $__get_in() != 'file' ) {
+                        if( $get_in() != 'file' ) {
                             // validity error.
                         }
                         $this->_xml->read();
@@ -212,7 +212,7 @@ class design_reader extends reader_base
                         break;
 
                     case 'fvalue':
-                        if( $__get_in() != 'file' || !$cur_key ) {
+                        if( $get_in() != 'file' || !$cur_key ) {
                             // validity error.
                         }
                         $this->_xml->read();
@@ -220,7 +220,7 @@ class design_reader extends reader_base
                         break;
 
                     case 'fdata':
-                        if( $__get_in() != 'file' || !$cur_key ) {
+                        if( $get_in() != 'file' || !$cur_key ) {
                             // validity error.
                         }
                         $this->_xml->read();
@@ -358,7 +358,7 @@ class design_reader extends reader_base
     {
         $name = $this->get_new_name();
         $dirname = sanitizeVal($name,CMSSAN_FILE);
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
         $dir = cms_join_path($config['uploads_path'],'designs',$dirname);
         $perms = get_server_permissions()[3];
         @mkdir($dir,$perms,TRUE);
@@ -374,7 +374,7 @@ class design_reader extends reader_base
         $this->validate_template_names();
         $this->validate_stylesheet_names();
 
-        $config  = SingleItem::Config();
+        $config  = Lone::get('Config');
         $newname = $this->get_new_name();
         $destdir = $this->get_destination_dir();
         $info    = $this->get_design_info();

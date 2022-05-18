@@ -25,8 +25,8 @@ use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
+use CMSMS\Lone;
 use CMSMS\SignedCookieOperations;
-use CMSMS\SingleItem;
 use CMSMS\User;
 use LogicException;
 use RuntimeException;
@@ -52,6 +52,7 @@ final class LoginOperations
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct()
 	{
 		if (!isset($this->_loginkey)) $this->_loginkey = $this->get_salt();
@@ -60,17 +61,18 @@ final class LoginOperations
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**
 	 * Get the singleton instance of this class.
-	 * @deprecated since 3.0 instead use CMSMS\SingleItem::LoginOperations()
+	 * @deprecated since 3.0 instead use CMSMS\Lone::get('LoginOperations')
 	 * @return self i.e. LoginOperations
 	 */
 	public static function get_instance() : self
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::LoginOperations()'));
-		return SingleItem::LoginOperations();
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'LoginOperations\')'));
+		return Lone::get('LoginOperations');
 	}
 
 	public function deauthenticate()
@@ -105,7 +107,7 @@ final class LoginOperations
 			$private_data['eff_username'] = $effective_user->username;
 		}
 
-		$config = SingleItem::Config();
+		$config = Lone::get('Config');
 		$k = $config['db_credentials'];
 		if ($k) {
 			$k = substr($k, 0, 12);
@@ -155,7 +157,7 @@ final class LoginOperations
 			if (!$salt) {
 				$salt = $this->create_csrf_token();
 				AppParams::set('loginsalt', $salt);
-				SingleItem::LoadedData()->refresh('site_params');
+				Lone::get('LoadedData')->refresh('site_params');
 			}
 			return $salt;
 		} else {  //must avoid siteprefs circularity
@@ -179,7 +181,7 @@ final class LoginOperations
 
 		// validate the key in the request against what we have in the session.
 		if ($v != $_SESSION[CMS_USER_KEY]) {
-//			$config = CMSMS\SingleItem::Config();
+//			$config = CMSMS\Lone::get('Config');
 //			if( !isset($config['stupidly_ignore_xss_vulnerability']) )
 			return false;
 		}
@@ -206,7 +208,7 @@ final class LoginOperations
 	{
 		$uid = $this->get_loggedin_uid();
 		if ($uid > 0) {
-			return SingleItem::UserOperations()->LoadUserByID($uid);
+			return Lone::get('UserOperations')->LoadUserByID($uid);
 		}
 	}
 
@@ -261,7 +263,7 @@ final class LoginOperations
 		if ($e_user) {
 			$li_user = $this->get_loggedin_user();
 			if ($e_user->id != $li_user->id) {
-				if (SingleItem::UserOperations()->UserInGroup($li_user->id, 1)) {
+				if (Lone::get('UserOperations')->UserInGroup($li_user->id, 1)) {
 					$this->save_authentication($li_user, $e_user);
 				}
 			}
@@ -277,7 +279,7 @@ final class LoginOperations
 	private function _check_passhash(int $uid, string $hash) : bool
 	{
 		// we already confirmed that the payload is not corrupt
-		$user = SingleItem::UserOperations()->LoadUserByID($uid);
+		$user = Lone::get('UserOperations')->LoadUserByID($uid);
 		if (!$user || !$user->active) {
 			return hash_equals(__DIR__, __FILE__); // waste some time
 		}
@@ -303,7 +305,7 @@ final class LoginOperations
 			return;
 		}
 
-		$config = SingleItem::Config();
+		$config = Lone::get('Config');
 		$k = $config['db_credentials'];
 		if ($k) {
 			$k = substr($k, 0, 12);
@@ -340,7 +342,7 @@ final class LoginOperations
 		}
 
 		// authenticate
-		if (/*!SingleItem::App()->is_frontend_request() && */!$this->_check_passhash($private_data['uid'], $private_data['hash'])) {
+		if (/*!CMSMS\is_frontend_request() && */!$this->_check_passhash($private_data['uid'], $private_data['hash'])) {
 			return;
 		}
 

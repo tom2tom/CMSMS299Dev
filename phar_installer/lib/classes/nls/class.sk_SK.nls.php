@@ -5,6 +5,7 @@ use cms_installer\nls;
 
 final class sk_SK_nls extends nls
 {
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $this->_fullname = 'Slovak';

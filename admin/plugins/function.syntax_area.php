@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-//use CMSMS\SingleItem;
+//use CMSMS\Lone;
 use CMSMS\AppState;
 use CMSMS\FormUtils;
 
@@ -82,7 +82,7 @@ function smarty_function_syntax_area($params, $template)
 	$jscript = get_syntaxeditor_setup($parms);
 	if( $jscript ) {
 		if( AppState::test(AppState::ADMIN_PAGE) ) {
-//			$themeObject = SingleItem::Theme();
+//			$themeObject = Lone::get('Theme');
 			if( !empty($jscript['head']) ) {
 				add_page_headtext($jscript['head']); // css ?
 			}

@@ -25,6 +25,7 @@ class wizard_step4 extends wizard_step
     private $_params;
     private $_dbms_options;
 
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         if (!extension_loaded('mysqli')) {

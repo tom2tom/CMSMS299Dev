@@ -45,7 +45,7 @@ namespace CMSMS;
  */
 final class AdminTabs
 {
-    // static properties here >> SingleItem property|ies ?
+    // static properties here >> Lone property|ies ?
     /**
      * @ignore
      */
@@ -86,8 +86,10 @@ final class AdminTabs
      * @ignore
      * Treat as singleton
      */
+    #[\ReturnTypeWillChange]
     private function __construct() {}
 
+    #[\ReturnTypeWillChange]
     private function __clone() {}
 
     /**
@@ -260,3 +262,4 @@ final class AdminTabs
         return "\n".'</div> <!-- EndTab -->';
     }
 } // class
+//if (!\class_exists('cms_admin_tabs', false)) \class_alias(AdminTabs::class, 'cms_admin_tabs', false);

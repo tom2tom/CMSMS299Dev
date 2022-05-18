@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+//use CMSMS\Lone;
 use function CMSMS\specialize;
 
 //if (some worthy test fails) exit;
@@ -28,7 +28,7 @@ use function CMSMS\specialize;
 $handlers = ob_list_handlers();
 for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
-$hm = SingleItem::App()->GetHierarchyManager();
+$hm = $gCms->GetHierarchyManager();
 
 if (!empty($params['page'])) {
 	$page = $params['page'];

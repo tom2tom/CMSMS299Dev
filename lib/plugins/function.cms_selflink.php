@@ -21,13 +21,13 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\LangOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\de_specialize;
 use function CMSMS\specialize;
 
 function smarty_function_cms_selflink($params, $template)
 {
-	$gCms = SingleItem::App();
+	$gCms = Lone::get('App');
 	$hm = $gCms->GetHierarchyManager();
 	$url = '';
 	$urlparam = '';
@@ -154,7 +154,7 @@ function smarty_function_cms_selflink($params, $template)
 
 		case 'start':
 			// default home page
-			$pageid = SingleItem::ContentOperations()->GetDefaultPageId();
+			$pageid = Lone::get('ContentOperations')->GetDefaultPageId();
 			break;
 
 		case 'up':

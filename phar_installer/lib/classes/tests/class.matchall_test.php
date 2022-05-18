@@ -7,12 +7,14 @@ class matchall_test extends test_base
 {
     private $_children;
 
+    #[\ReturnTypeWillChange]
     public function __construct(...$args)
     {
         $args[1] = '';
         parent::__construct(...$args);
     }
 
+    #[\ReturnTypeWillChange]
     public function __set(string $key, $value)
     {
         switch ($key) {

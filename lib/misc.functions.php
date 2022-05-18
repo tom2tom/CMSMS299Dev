@@ -679,7 +679,7 @@ use const CMSSAN_ACCOUNT;
 use function CMSMS\de_entitize;
 use function CMSMS\entitize;
 
-// TODO migrate these vars and their handlers to page.functions script, use SingleItem methods
+// TODO migrate these vars and their handlers to page.functions script, use Lone methods
 /**
  * @var array Accumulator for content to be included in the page header
  */
@@ -1039,6 +1039,18 @@ function execSpecialize(string $val) : string
 function create_guid() : string
 {
     return bin2hex(random_bytes(16));
+}
+
+/**
+ * Report whether the current request was over HTTPS.
+ * @since 3.0
+ * @since 1.11.2 as CmsApp::is_https_request
+ *
+ * @return bool
+ */
+function is_secure_request() : bool
+{
+    return !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off';
 }
 
 /**

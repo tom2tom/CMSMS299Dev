@@ -24,8 +24,8 @@ namespace CMSMS;
 use CMSMS\DataException;
 use CMSMS\DeprecationNotice;
 use CMSMS\Group;
+use CMSMS\Lone;
 use CMSMS\Permission;
-use CMSMS\SingleItem;
 use LogicException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -56,25 +56,26 @@ final class GroupOperations
 
 	/* *
 	 * @ignore
-	 * @private to prevent direct creation (even by SingleItem class)
+	 * @private to prevent direct creation (even by Lone class)
 	 */
-//	private function __construct() {} TODO public iff wanted by SingleItem ?
+//	private function __construct() {} TODO public iff wanted by Lone ?
 
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**
 	 * Get the singleton instance of this class
-	 * @deprecated since 3.0 instead use CMSMS\SingleItem::GroupOperations()
+	 * @deprecated since 3.0 instead use CMSMS\Lone::get('GroupOperations')
 	 *
 	 * @return GroupOperations
 	 */
 	public static function get_instance() : self
 	{
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\SingleItem::GroupOperations()'));
-		return SingleItem::GroupOperations();
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\Lone::get(\'GroupOperations\')'));
+		return Lone::get('GroupOperations');
 	}
 
 	/**
@@ -86,7 +87,7 @@ final class GroupOperations
 	 */
 	public function GetGroupMembers($from = NULL) : array
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT group_id,user_id FROM '.CMS_DB_PREFIX.'user_groups';
 		$args = [];
 		if( $from ) {
@@ -116,7 +117,7 @@ final class GroupOperations
 	 */
 	public function LoadGroups()
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT group_id,group_name,group_desc,active FROM `'.CMS_DB_PREFIX.'groups` ORDER BY group_id';
 		$list = $db->getArray($query);
 		$out = [];
@@ -144,7 +145,7 @@ final class GroupOperations
 		$id = (int) $id;
 		if( $id < 1 ) throw new DataException(lang('missingparams'));
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT group_name,group_desc,active FROM `'.CMS_DB_PREFIX.'groups` WHERE group_id = ?';
 		$row = $db->getRow($query, [$id]);
 
@@ -169,7 +170,7 @@ final class GroupOperations
 	public function LoadGroupByName(string $name)
 	{
 		if( !$name ) throw new DataException(lang('missingparams'));
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT group_id,group_desc,active FROM `'.CMS_DB_PREFIX.'groups` WHERE group_name = ?';
 		$row = $db->getRow($query, [$name]);
 		if( $row ) {
@@ -188,7 +189,7 @@ final class GroupOperations
 	 */
 	public function Upsert(Group $group)
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$id = $group->id;
 		if( $id < 1 ) {
 			//setting create_date should be redundant with DT setting
@@ -252,7 +253,7 @@ VALUES (?,?,?,NOW())';
 	{
 		if( $id < 1 ) throw new DataException(lang('missingparams'));
 		if( $id == 1 ) throw new LogicException(lang('error_deletespecialgroup'));
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id = ?';
 		$dbr = $db->execute($query, [$id]);
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ?';
@@ -260,7 +261,7 @@ VALUES (?,?,?,NOW())';
 		$query = 'DELETE FROM `'.CMS_DB_PREFIX.'groups` WHERE group_id = ?';
 		if( $dbr ) $dbr = $db->execute($query, [$id]);
 		return $dbr;
-// TODO SingleItem::LoadedData()->delete('menu_modules' for all users in group, if not installing?
+// TODO Lone::get('LoadedData')->delete('menu_modules' for all users in group, if not installing?
 	}
 
 	/**
@@ -292,7 +293,7 @@ VALUES (?,?,?,NOW())';
 		}
 
 		if( !isset($this->_perm_cache) || !is_array($this->_perm_cache) || !isset($this->_perm_cache[$groupid]) ) {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$query = 'SELECT permission_id FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ?';
 			$dbr = $db->getCol($query,[(int)$groupid]);
 			if( $dbr ) {
@@ -356,14 +357,14 @@ VALUES (?,?,?,NOW())';
 			}
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 
 		//setting create_date should be redundant with DT setting
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."group_perms (group_id,permission_id,create_date) VALUES (?,?,NOW())";
 // 		$dbr =
 		$db->execute($query,[$groupid,$permid]);
 		unset($this->_perm_cache);
-// TODO SingleItem::LoadedData()->delete('menu_modules' for all users in group, if not installing?
+// TODO Lone::get('LoadedData')->delete('menu_modules' for all users in group, if not installing?
 	}
 
 	/**
@@ -384,13 +385,13 @@ VALUES (?,?,?,NOW())';
 			}
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ? AND perm_id = ?';
 //		$dbr =
 		$db->execute($query,[$groupid,$permid]);
 		unset($this->_perm_cache);
-// TODO SingleItem::LoadedData()->delete('menu_modules' for all users in group, if not installing?
+// TODO Lone::get('LoadedData')->delete('menu_modules' for all users in group, if not installing?
 	}
 } // class
 

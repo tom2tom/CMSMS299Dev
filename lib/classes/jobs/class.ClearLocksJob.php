@@ -27,6 +27,7 @@ use Throwable;
 
 class ClearLocksJob extends CronJob
 {
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();
@@ -48,5 +49,4 @@ class ClearLocksJob extends CronJob
         }
     }
 }
-
 \class_alias('CMSMS\jobs\ClearLocksJob', 'ClearLocksTask', false);

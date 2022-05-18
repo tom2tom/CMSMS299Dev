@@ -444,6 +444,7 @@ class ArrayTreeIterator extends RecursiveArrayIterator implements RecursiveItera
     protected $flags;
     protected $childkey;
 
+    #[\ReturnTypeWillChange]
     public function __construct($array = [], int $flags = 0, string $childkey = self::CHILDKEY)
     {
         parent::__construct($array, $flags | RecursiveArrayIterator::CHILD_ARRAYS_ONLY);
@@ -471,6 +472,7 @@ class RecursiveArrayTreeIterator extends RecursiveIteratorIterator implements Ou
     const NONLEAVES_ONLY = 16384;
     protected $noleaves;
 
+    #[\ReturnTypeWillChange]
     public function __construct(Traversable $iterator, int $mode = RecursiveIteratorIterator::LEAVES_ONLY, int $flags = 0)
     {
         if ($mode & self::NONLEAVES_ONLY) {

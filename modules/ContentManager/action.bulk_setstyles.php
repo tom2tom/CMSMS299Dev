@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use ContentManager\Utils;
 use function CMSMS\log_error;
 use function CMSMS\log_notice;
@@ -41,7 +41,7 @@ if (empty($params['bulk_content'])) {
     $this->Redirect($id, 'defaultadmin', $returnid);
 }
 
-$contentops = SingleItem::ContentOperations();
+$contentops = Lone::get('ContentOperations');
 $pagelist = $params['bulk_content'];
 //$hm = $gCms->GetHierarchyManager();
 
@@ -73,11 +73,11 @@ if (isset($params['submit'])) {
         log_error('Failed to change styles on multiple pages', $t->getMessage());
         $this->SetError($t->getMessage());
     }
-    $cache = SingleItem::LoadedData();
+//    $cache = Lone::get('LoadedData');
     // TODO or refresh() & save, ready for next stage ?
-    $cache->delete('content_quicklist');
-    $cache->delete('content_tree');
-    $cache->delete('content_flatlist');
+//    $cache->delete('content_quicklist');
+//    $cache->delete('content_tree');
+//    $cache->delete('content_flatlist');
 
     $this->Redirect($id, 'defaultadmin', $returnid);
 }

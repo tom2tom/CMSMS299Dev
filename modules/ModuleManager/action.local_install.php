@@ -22,7 +22,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\log_notice;
 use function CMSMS\sanitizeVal;
 
@@ -37,7 +37,7 @@ if( !$modname ) {
     $this->RedirectToAdminTab();
 }
 
-$ops = SingleItem::ModuleOperations();
+$ops = Lone::get('ModuleOperations');
 $result = $ops->InstallModule($modname);
 if( !is_array($result) || !isset($result[0]) ) $result = [false, $this->Lang('error_moduleinstallfailed')];
 

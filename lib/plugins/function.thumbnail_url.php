@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 function smarty_function_thumbnail_url($params, $template)
 {
@@ -31,7 +31,7 @@ function smarty_function_thumbnail_url($params, $template)
 
 	//TODO parse $file which might be abs/rel path/url, or just basename
 
-	$dir = SingleItem::Config()['uploads_path'];
+	$dir = Lone::get('Config')['uploads_path'];
 	$add_dir = trim(($params['dir'] ?? ''), ' \/');
 
 	if( $add_dir ) {

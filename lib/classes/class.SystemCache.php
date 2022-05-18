@@ -25,7 +25,7 @@ use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\CacheDriver;
 use CMSMS\DeprecationNotice;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use Exception;
 use Throwable;
 use const CMS_DEPREC;
@@ -63,11 +63,12 @@ final class SystemCache
 	 * Constructor
 	 *
 	 * @param $params Optional connection-parameters. Default []
-	 * NOTE: if this instance is created as a SingleItem
+	 * NOTE: if this instance is created as a Lone
 	 * (normally the case), then no $params will be supplied, and
 	 * any parameter-tailoring will need to happen via
 	 * get,tweak,set_driver() calls.
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct(array $params = [])
 	{
 		$this->connect($params);
@@ -76,19 +77,20 @@ final class SystemCache
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**
 	 * Get the singleton general-purpose cache object.
-	 * @deprecated since 3.0 Instead use CMSMS\SingleItem::SystemCache()
+	 * @deprecated since 3.0 Instead use CMSMS\Lone::get('SystemCache')
 	 *
 	 * @return self | not at all
 	 * @throws Exception if driver-connection fails
 	 */
 	public static function get_instance() : self
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::SystemCache()'));
-		return SingleItem::SystemCache();
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'SystemCache\')'));
+		return Lone::get('SystemCache');
 	}
 
 	/**
@@ -234,12 +236,12 @@ final class SystemCache
 	 * Get a cached value
 	 * @see SystemCache::set_space()
 	 *
-	 * @param string $key The key/identifier of the cached value
+	 * @param mixed $key The key/identifier of the cached value
 	 * @param string $space Optional keys-space name, default ''.
 	 *  If not specified, the default keys-space will be used.
 	 * @return mixed cached value | null if there is no cache-data for $key
 	 */
-	public function get(string $key, string $space = '')
+	public function get($key, string $space = '')
 	{
 		if( self::$driver instanceof CacheDriver ) {
 			return self::$driver->get($key, $space);
@@ -283,12 +285,12 @@ final class SystemCache
 	 * Report whether a value-key is present in the cache
 	 * @see SystemCache::set_space()
 	 *
-	 * @param string $key The key/identifier of the cached value
+	 * @param mixed $key The key/identifier of the cached value
 	 * @param string $space Optional keys-space name, default ''.
 	 *  If not specified, the default keys-space will be used.
 	 * @return bool
 	 */
-	public function has(string $key, string $space = '') : bool
+	public function has($key, string $space = '') : bool
 	{
 		if( self::$driver instanceof CacheDriver ) {
 			return self::$driver->has($key, $space);
@@ -300,7 +302,7 @@ final class SystemCache
 	 * Report whether a value-key is present in the cache
 	 * @deprecated since 3.0 Instead use interface-compatible SystemCache::has()
 	 */
-	public function exists(string $key, string $space = '') : bool
+	public function exists($key, string $space = '') : bool
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SystemCache::has()'));
 		return $this->has($key, $space);
@@ -310,12 +312,12 @@ final class SystemCache
 	 * Remove a value from the cache
 	 * @see SystemCache::set_space()
 	 *
-	 * @param string $key The key/identifier of the cached value
+	 * @param mixed $key The key/identifier of the cached value
 	 * @param string $space Optional keys-space name, default ''.
 	 *  If not specified, the default keys-space will be used.
 	 * @return bool
 	 */
-	public function delete(string $key, string $space = '') : bool
+	public function delete($key, string $space = '') : bool
 	{
 		if( self::$driver instanceof CacheDriver ) {
 			return self::$driver->delete($key, $space);
@@ -327,7 +329,7 @@ final class SystemCache
 	 * Remove a value from the cache
 	 * @deprecated since 3.0 Instead use interface-compatible Systemcache::delete()
 	 */
-	public function erase(string $key, string $space = '') : bool
+	public function erase($key, string $space = '') : bool
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Systemcache::delete()'));
 		return $this->delete($key, $space);
@@ -340,13 +342,13 @@ final class SystemCache
 	 * will be converted to 0
 	 * @see SystemCache::set_space()
 	 *
-	 * @param string $key The key/identifier of the cached value
+	 * @param mixed $key The key/identifier of the cached value
 	 * @param mixed  $value the value to save
 	 * @param string $space Optional keys-space name, default ''.
 	 *  If not specified, the default keys-space will be used.
 	 * @return bool
 	 */
-	public function set(string $key, $value, string $space = '') : bool
+	public function set($key, $value, string $space = '') : bool
 	{
 		if( self::$driver instanceof CacheDriver ) {
 			if ($value === null ) { $value = 0; }
@@ -361,13 +363,13 @@ final class SystemCache
 	 * @since 3.0
 	 * @see SystemCache::set(), SystemCache::set_space()
 	 *
-	 * @param string $key
+	 * @param mixed $key
 	 * @param mixed $value
 	 * $param int $ttl Optional value-lifetime (seconds), default 0. Hence unlimited.
 	 * @param string $space Optional keys-space name, default ''.
 	 *  If not specified, the default keys-space will be used.
 	 */
-	public function set_timed(string $key, $value, int $ttl, string $space = '') : bool
+	public function set_timed($key, $value, int $ttl, string $space = '') : bool
 	{
 		if( self::$driver instanceof CacheDriver ) {
 			if ($value === null ) { $value = 0; }

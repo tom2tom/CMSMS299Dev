@@ -5,6 +5,7 @@ use cms_installer\nls;
 
 final class nb_NO_nls extends nls
 {
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $this->_fullname = 'Norwegian bokmål';

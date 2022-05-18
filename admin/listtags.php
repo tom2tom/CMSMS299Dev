@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Error403Exception;
 use CMSMS\LangOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 
@@ -61,10 +61,10 @@ $plugin = (isset($_GET['plugin'])) ? sanitizeVal($_GET['plugin'], CMSSAN_FILE) :
 $type = (!empty($_GET['type'])) ? preg_replace('/[^a-zA-Z]/','',$_GET['type']) : ''; //'function', 'modifier' etc letters-only
 $action = (!empty($_GET['action'])) ? preg_replace('/[^a-z]/','',$_GET['action']) : ''; //'showpluginhelp' etc specific, letters-only
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $selfurl = basename(__FILE__);
 $urlext = get_secure_param();
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 if ($action == 'showpluginhelp') {
     $content = '';

@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\FormUtils;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 // since 3.0
 function smarty_function_cms_init_editor($params, $template)
@@ -41,7 +41,7 @@ function smarty_function_cms_init_editor($params, $template)
 	}
 
 //	$force = cms_to_bool($params['force'] ?? false);
-	$mod = SingleItem::ModuleOperations()->GetWYSIWYGModule($wysiwyg);
+	$mod = Lone::get('ModuleOperations')->GetWYSIWYGModule($wysiwyg);
 	if( !is_object($mod) ) return '';
 
 	// get the output

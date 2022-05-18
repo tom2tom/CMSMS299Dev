@@ -23,7 +23,7 @@ namespace ContentManager\contenttypes;
 
 use CMSMS\AppState;
 use CMSMS\FormUtils;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use ContentManager\ContentBase;
 
 /**
@@ -38,6 +38,7 @@ class ErrorPage extends ContentBase
 	public $doAliasCheck = false;
 	public $error_types = [];
 
+	#[\ReturnTypeWillChange]
 	public function __construct()
 	{
 		parent::__construct();
@@ -185,7 +186,7 @@ class ErrorPage extends ContentBase
 			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('error_type'));
 		} elseif ($this->mAlias != $this->mOldAlias) {
 			//TODO use module-methods
-			$contentops = SingleItem::ContentOperations();
+			$contentops = Lone::get('ContentOperations');
 			$error = $contentops->CheckAliasError($this->mAlias, $this->mId);
 			if ($error !== false) {
 				if ($error == $this->mod->Lang('aliasalreadyused')) {

@@ -65,6 +65,7 @@ class Mailer implements IMailer
 	 *
 	 * @param bool $throw Optionally enable exception when autoloader registration fails.
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct($throw = false)
 	{
 		if (spl_autoload_register([$this, 'MailerAutoload'], $throw)) {
@@ -79,6 +80,7 @@ class Mailer implements IMailer
 	 * @param string $method method to call in downstream mailer class
 	 * @param array $args Arguments passed to method
 	 */
+	#[\ReturnTypeWillChange]
 	public function __call(string $method, array $args)
 	{
 		if (method_exists($this->message, $method)) {

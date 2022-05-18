@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 //use CMSMS\Database\DataDictionary;
-use CMSMS\SingleItem;
 use CMSMS\Events;
+use CMSMS\Lone;
 
 if (empty($this) || !($this instanceof ContentManager)) {
     exit;
@@ -49,8 +49,8 @@ if (version_compare($oldversion, '2.0') < 0) {
     }
 
     // semi-permanent alias for back-compatibility
-    $ops = SingleItem::ModuleOperations();
+    $ops = Lone::get('ModuleOperations');
     $ops->set_module_classname('CMSContentManager', get_class($this));
 }
 
-SingleItem::ContentTypeOperations()->RebuildStaticContentTypes();
+Lone::get('ContentTypeOperations')->RebuildStaticContentTypes();

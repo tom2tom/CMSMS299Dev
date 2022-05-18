@@ -24,7 +24,7 @@ namespace CMSMS;
 use CMSMS\DataException;
 use CMSMS\Events;
 use CMSMS\LockOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\SQLException;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
@@ -101,7 +101,7 @@ class TemplateType
 	 */
 	private $props;
 
-	// static properties here >> SingleItem property|ies ?
+	// static properties here >> Lone property|ies ?
 	/**
 	 * @ignore
 	 * Intra-request cache of loaded type-objects
@@ -133,6 +133,7 @@ class TemplateType
 	 * Constructor
 	 * @param mixed $props array | null Optional type-properties Since 3.0
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct($props = NULL)
 	{
 		$this->props = [
@@ -544,7 +545,7 @@ class TemplateType
 			if( !isset($this->props['id']) || (int)$this->props['id'] < 1 ) throw new LogicException('Type id is not set');
 
 			// check for item with the same name
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.
 			' WHERE originator = ? AND name = ? AND id != ?';
 			$dbr = $db->getOne($query,[$this->get_originator(),$this->get_name(),$this->get_id()]);
@@ -552,7 +553,7 @@ class TemplateType
 		}
 		else {
 			// check for item with the same name
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.
 			' WHERE originator = ? AND name = ?';
 			$dbr = $db->getOne($query,[$this->get_originator(),$this->get_name()]);
@@ -603,7 +604,7 @@ class TemplateType
 		else {
 			$cbc = NULL;
 		}
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.
 ' (
 originator,
@@ -684,7 +685,7 @@ create_date
 			$cbc = NULL;
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$args = [
 			$this->get_originator(),
 			$this->get_name(),
@@ -762,7 +763,7 @@ WHERE id = ?';
 		Events::SendEvent('Core', 'DeleteTemplateTypePre', [ get_class($this) => &$this ]);
 		$tmp = TemplateOperations::template_query(['t:'.$this->get_id()]);
 		if( $tmp ) throw new LogicException('Cannot delete a template-type with existing templates');
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 		$dbr = $db->execute($query,[$this->props['id']]);
 		if( !$dbr ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
@@ -942,7 +943,7 @@ WHERE id = ?';
 	 */
 	public static function load($a)
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$row = NULL;
 		if( is_numeric($a) && (int)$a > 0 ) {
 			$a = (int)$a;
@@ -1003,7 +1004,7 @@ WHERE id = ?';
 	{
 		if( !$originator ) throw new LogicException('Orignator is empty');
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE originator = ?';
 		if( self::$cache ) $query .= ' AND id NOT IN ('.implode(',',array_keys(self::$cache)).')';
 		$query .= ' ORDER BY IF(modified_date, modified_date, create_date) DESC';
@@ -1028,7 +1029,7 @@ WHERE id = ?';
 	 */
 	public static function get_all()
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME;
 		if( self::$cache && count(self::$cache) ) $query .= ' WHERE id NOT IN ('.implode(',',array_keys(self::$cache)).')';
 		$query .= '	ORDER BY IF(modified_date, modified_date, create_date)';
@@ -1060,7 +1061,7 @@ WHERE id = ?';
 		}
 		if( !$list2 ) return [];
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.implode(',',$list2).')';
 		$dbr = $db->getArray($query);
 		if( !$dbr ) return [];

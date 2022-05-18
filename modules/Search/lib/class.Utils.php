@@ -20,12 +20,12 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace Search;
 
-// TODO support non-english lang
 use CMSMS\Events;
-use CMSMS\SingleItem;
-use PorterStemmer;
+use CMSMS\Lone;
+use PorterStemmer; // TODO support non-english lang
 use Search; // search-module class in global space
 use const CMS_DB_PREFIX;
+use function cmsms;
 use function CMSMS\de_entitize;
 
 /**
@@ -137,7 +137,7 @@ class Utils
                 $q .= ' AND extra_attr=?';
                 $parms[] = $attr;
             }
-            $db = SingleItem::Db();
+            $db = Lone::get('Db');
             //pre-prepare this to reduce later delay n' raciness
             $stmt = $db->prepare('INSERT INTO '.CMS_DB_PREFIX.'module_search_index (item_id,word,count) VALUES (?,?,?)');
 
@@ -191,7 +191,7 @@ $until,
             $q .= ' AND extra_attr=?';
             $parms[] = $attr;
         }
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $db->BeginTrans(); // hence prefer InnoDB tables
         $scrubs = $db->getCol($q, $parms);
         if ($scrubs) {
@@ -215,7 +215,7 @@ $until,
 
     public static function DeleteAllWords()
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $db->execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_index');
         $db->execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_items');
         $db->execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_words');
@@ -243,12 +243,12 @@ $until,
         self::DeleteAllWords();
 
         // must load all content and properties (in chunks)
-        $hm = SingleItem::App()->GetHierarchyManager();
+        $hm = cmsms()->GetHierarchyManager();
         $full_list = array_keys($hm->getFlatList());
         $n = count($full_list);
         $nperloop = min(200, $n);
-        $contentops = SingleItem::ContentOperations();
-//      $cache = SingleItem::SystemCache();
+        $contentops = Lone::get('ContentOperations');
+//      $cache = Lone::get('SystemCache');
         $offset = 0;
 
         while ($offset < $n) {
@@ -272,7 +272,7 @@ $until,
             }
         }
 
-        $modops = SingleItem::ModuleOperations();
+        $modops = Lone::get('ModuleOperations');
         $availmodules = $modops->GetInstalledModules();
         foreach ($availmodules as $modname) {
             if (!$modname || $modname == 'Search') {

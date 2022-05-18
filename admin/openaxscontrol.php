@@ -24,7 +24,7 @@ use CMSMS\FileType;
 use CMSMS\FolderControls;
 use CMSMS\FolderControlOperations;
 use CMSMS\FormUtils;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 
 $dsep = DIRECTORY_SEPARATOR;
@@ -59,14 +59,14 @@ try {
     if (isset($_POST['submit'])) {
         if ($_POST['exclude_patterns']) {
             $arr = explode(';', $_POST['exclude_patterns']);
-            $arr = array_map(function($s) { return trim($s); }, $arr);
+            $arr = array_map('trim', $arr);
             $_POST['exclude_patterns'] = $arr;
         } else {
             $_POST['exclude_patterns'] = [];
         }
         if ($_POST['match_patterns']) {
             $arr = explode(';', $_POST['match_patterns']);
-            $arr = array_map(function($s) { return trim($s); }, $arr);
+            $arr = array_map('trim', $arr);
             $_POST['match_patterns'] = $arr;
         } else {
             $_POST['match_patterns'] = [];
@@ -257,7 +257,7 @@ try {
          CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'phar_installer',
         ];
     } else {
-        $ups = SingleItem::Config()['uploads_path'];
+        $ups = Lone::get('Config')['uploads_path'];
         $excludes = array_diff(
             glob(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'*', GLOB_NOSORT|GLOB_NOESCAPE|GLOB_ONLYDIR),
             [$ups]);
@@ -423,7 +423,7 @@ EOS;
         ];
     }
 
-    $smarty = SingleItem::Smarty();
+    $smarty = Lone::get('Smarty');
     $smarty->assign([
      'selfurl' => $selfurl,
      'extras' => $extras,

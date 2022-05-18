@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 function smarty_function_page_attr($params, $template)
 {
@@ -41,17 +41,17 @@ function smarty_function_page_attr($params, $template)
 		// gotta find it by id or alias
 		if( is_numeric($page) && $page > 0 ) {
 			// it's an id
-			$hm = SingleItem::App()->GetHierarchyManager();
+			$hm = cmsms()->GetHierarchyManager();
 			$node = $hm->find_by_tag('id', $page);
 			if( $node ) $contentobj = $node->getContent(true, true, $inactive);
 		}
 		else { //if( !is_numeric($page) ) {
 			// this is quicker if using an alias
-			$contentobj = SingleItem::ContentOperations()->LoadContentFromAlias($page, !$inactive);
+			$contentobj = Lone::get('ContentOperations')->LoadContentFromAlias($page, !$inactive);
 		}
 	}
 	else {
-		$contentobj = SingleItem::App()->get_content_object();
+		$contentobj = cmsms()->get_content_object();
 	}
 
 	$result = '';

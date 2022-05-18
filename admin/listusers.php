@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\AppParams;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\UserParams;
 use function CMSMS\de_specialize;
 use function CMSMS\log_error;
@@ -43,14 +43,14 @@ if (!check_permission($userid, 'Manage Users')) {
 }
 
 //--------- Variables ---------
-$themeObject = SingleItem::Theme();
-$db = SingleItem::Db();
+$themeObject = Lone::get('Theme');
+$db = Lone::get('Db');
 $templateuser = AppParams::get('template_userid');
 $page = 1;
 $limit = 100;
 $message = '';
 $error = '';
-$userops = SingleItem::UserOperations();
+$userops = Lone::get('UserOperations');
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 $urlext = get_secure_param();
@@ -67,7 +67,7 @@ if (isset($_GET['switchuser'])) {
         } elseif (!$to_user->active) {
             $themeObject->RecordNotice('error', _la('userdisabled'));
         } else {
-            SingleItem::LoginOperations()->set_effective_user($to_user);
+            Lone::get('LoginOperations')->set_effective_user($to_user);
             redirect('menu.php'.$urlext.'&section=usersgroups'); // TODO bad section hardcode
         }
     } else {
@@ -96,9 +96,9 @@ if (isset($_GET['switchuser'])) {
         }
     }
 } elseif (isset($_POST['bulk']) && !empty($_POST['multiselect'])) {
-//   CMSMS\de_specialize_array($_POST);
-    $action = sanitizeVal($_POST['bulk_action'], CMSSAN_PURE); //letters only, specific values
-    switch ($action) {
+//  CMSMS\de_specialize_array($_POST);
+    $op = $_GET['op'] ?? $_POST['bulk_action'] ?? ''; // no sanitizeVal() etc, only exact matches accepted
+    switch (trim($op)) {
         case 'delete':
             $ndeleted = 0;
             foreach ($_POST['multiselect'] as $uid) {
@@ -399,7 +399,7 @@ $icontrue = $themeObject->DisplayImage('icons/system/true.gif', _la('yes'), '', 
 $iconfalse = $themeObject->DisplayImage('icons/system/false.gif', _la('no'), '', '', 'systemicon');
 $iconrun = $themeObject->DisplayImage('icons/system/run.gif', _la('switchuser'), '', '', 'systemicon');
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
     'addurl' => 'adduser.php',
     'editurl' => 'edituser.php',

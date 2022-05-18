@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 /**
  * A function for auto-loading core- and module-related- CMSMS classes.
@@ -85,7 +85,7 @@ function cms_autoloader(string $classname)
 /* since 3.0 don't also autoload a module-object
 				if (!($sysp || class_exists($space, false))) {
 					//deprecated since 3.0 - some modules require existence of this, or assume, and actually use it
-					$gCms = SingleItem::App();
+					$gCms = Lone::get('App');
 					require_once $mpath;
 				}
 */
@@ -195,7 +195,7 @@ function cms_autoloader(string $classname)
 	$fp = cms_module_path($base);
 	if ($fp) {
 		//deprecated since 3.0 - some modules require existence of this, or assume, and actually use it
-		$gCms = SingleItem::App();
+		$gCms = Lone::get('App');
 		require_once $fp;
 		if (class_exists($classname, false)) return;
 	}

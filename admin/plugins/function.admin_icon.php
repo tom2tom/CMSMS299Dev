@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppState;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 function smarty_function_admin_icon($params, $template)
 {
@@ -64,7 +64,7 @@ function smarty_function_admin_icon($params, $template)
 	}
 
 	if( $icon ) {
-		$themeObject = SingleItem::Theme();
+		$themeObject = Lone::get('Theme');
 		if( !isset($tagparms['alt']) ) $tagparms['alt'] = pathinfo($icon, PATHINFO_FILENAME);
 
 		if( isset($params['module']) ) {

@@ -140,7 +140,7 @@ namespace {
     use CMSMS\Database\Connection;
     use CMSMS\Database\DataDictionary;
     use CMSMS\DeprecationNotice;
-    use CMSMS\SingleItem;
+    use CMSMS\Lone;
 
     // root namespace stuff
     /*
@@ -180,7 +180,7 @@ namespace {
     {
         // now that our connection object is stateless... this is just a wrapper
         // for our global db instance.... but should not be called.
-        return SingleItem::Db();
+        return Lone::get('Db');
     }
 
     /**

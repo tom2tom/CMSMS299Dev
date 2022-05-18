@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\DbQueryBase;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\SQLException;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
@@ -81,7 +81,7 @@ class StylesheetQuery extends DbQueryBase
 		$sortby = 'S.name';
 		$this->_limit = 1000;
 		$this->_offset = 0;
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$where = [];
 		foreach( $this->_args as $key => $val ) {
 			if( empty($val) ) continue;

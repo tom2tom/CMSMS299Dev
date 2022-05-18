@@ -12,6 +12,7 @@ final class FileTransport implements Transport
      */
     private $dir;
 
+    #[\ReturnTypeWillChange]
     public function __construct($dir)
     {
         if ($dir && !is_dir($dir)) {

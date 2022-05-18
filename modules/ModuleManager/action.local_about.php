@@ -22,7 +22,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\sanitizeVal;
 
 //if( some worthy test fails ) exit;
@@ -35,7 +35,7 @@ if( !isset($params['mod']) ) {
 $modname = sanitizeVal($params['mod'], CMSSAN_FILE);
 
 if( $modname ) {
-    $mod = SingleItem::ModuleOperations()->get_module_instance($modname, '', true);
+    $mod = Lone::get('ModuleOperations')->get_module_instance($modname, '', true);
 }
 else {
     $modname = lang('notspecified');

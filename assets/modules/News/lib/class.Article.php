@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace News;
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils as AppUtils;
 use News\Utils;
 use function munge_string_to_url;
@@ -68,7 +68,7 @@ class Article
             $this->_meta['author'] = $mod->Lang('anonymous');
             $this->_meta['authorname'] = $mod->Lang('unknown');
             if( $author_id > 0 ) {
-                $userops = SingleItem::UserOperations();
+                $userops = Lone::get('UserOperations');
                 $theuser = $userops->LoadUserById($author_id);
                 if( is_object($theuser) ) {
                     $this->_meta['author'] = $theuser->username;
@@ -88,7 +88,7 @@ class Article
         if( !isset($this->_meta['returnid']) ) {
             $mod = AppUtils::get_module('News');
             $tmp = $mod->GetPreference('detail_returnid',-1);
-            if( $tmp <= 0 ) $tmp = SingleItem::ContentOperations()->GetDefaultContent();
+            if( $tmp <= 0 ) $tmp = Lone::get('ContentOperations')->GetDefaultContent();
             $this->_meta['returnid'] = $tmp;
         }
         return $this->_meta['returnid'];
@@ -150,7 +150,7 @@ class Article
         }
     }
 */
-
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         switch( $key ) {
@@ -185,7 +185,7 @@ class Article
             return strtotime($this->_getdata('modified_date')); // TODO if NULL
 
         case 'file_location':
-            $config = SingleItem::Config();
+            $config = Lone::get('Config');
             $url = $config['uploads_url'].'/news/id'.$this->id;
             return $url;
 
@@ -232,6 +232,7 @@ class Article
         }
     }
 
+    #[\ReturnTypeWillChange]
     public function __isset(string $key)
     {
         switch( $key )
@@ -279,6 +280,7 @@ class Article
         return FALSE;
     }
 
+    #[\ReturnTypeWillChange]
     public function __set(string $key,$value)
     {
         switch( $key ) {

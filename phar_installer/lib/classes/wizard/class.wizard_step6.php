@@ -21,6 +21,7 @@ class wizard_step6 extends wizard_step
 {
     private $_adminacct;
 
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();

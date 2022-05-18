@@ -31,6 +31,7 @@ use function cms_join_path;
 
 class SecurityCheckJob extends CronJob
 {
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();
@@ -83,5 +84,4 @@ class SecurityCheckJob extends CronJob
         return 2; // TODO
     }
 }
-
 \class_alias('CMSMS\jobs\SecurityCheckJob', 'CmsSecurityCheckTask', false);

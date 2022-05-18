@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Events;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 use function CMSMS\sanitizeVal;
 
@@ -54,7 +54,7 @@ if ($sender == 'Core') {
 }
 $hlist = Events::ListEventHandlers($sender, $event);
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
 	'desctext' => $desctext,
 	'event' => $event,

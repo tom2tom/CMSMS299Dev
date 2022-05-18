@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin which aggregates accumulated javascript for use in a page or template
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -20,13 +20,12 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use function CMSMS\get_scripts_manager;
+use CMSMS\Lone;
 // since 3.0
 function smarty_function_cms_render_scripts($params, $template)
 {
-	$combiner = get_scripts_manager();
-	$force = cms_to_bool($params['force'] ?? false);
-
+	$force = isset($params['force']) ? cms_to_bool($params['force']) : false;
+	$combiner = Lone::get('ScriptsMerger');
 	$out = '';
 	$filename = $combiner->render_scripts(TMP_CACHE_LOCATION, $force, false);
 	if( $filename ) {
@@ -39,7 +38,7 @@ function smarty_function_cms_render_scripts($params, $template)
 		$out = "<script type=\"text/javascript\" src=\"$url\"$defer></script>";
 	}
 	else {
-		//TODO handle error
+		trigger_error('Failed to merge recorded javascripts');
 	}
 	if( !empty($params['assign']) ) {
 		$template->assign(trim($params['assign']), $out);

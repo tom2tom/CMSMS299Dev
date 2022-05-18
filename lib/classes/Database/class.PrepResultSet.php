@@ -40,6 +40,7 @@ class PrepResultSet extends ResultSet
      * @param object $statmt mysqli_stmt
      * @param bool   $buffer optional flag whether to buffer results. Default true
      */
+    #[\ReturnTypeWillChange]
     public function __construct(mysqli_stmt &$statmt, $buffer = true)
     {
         $this->_stmt = $statmt;
@@ -81,6 +82,7 @@ class PrepResultSet extends ResultSet
         }
     }
 
+    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         $this->_stmt->free_result();

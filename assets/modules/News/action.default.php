@@ -197,6 +197,32 @@ if( isset($params['start']) ) {
     $startelement = $startelement + (int)$params['start'];
 }
 
+//pre-define recordable properties, for PHP optimisation
+class NewsData
+{
+    public $author;
+    public $author_id;
+    public $authorname;
+    public $category;
+    public $content;
+    public $created;
+    public $detail_url;
+    public $enddate;
+    public $extra;
+    public $id;
+    public $image;
+    public $imagealt;
+    public $link;
+    public $modified;
+    public $morelink;
+    public $moreurl;
+    public $postdate;
+    public $startdate;
+    public $summary;
+    public $title;
+    public $titlelink;
+}
+
 $rst = $db->SelectLimit($query1, $pagelimit, $startelement, $args);
 $entryarray = [];
 if( $rst ) {
@@ -212,7 +238,7 @@ if( $rst ) {
     $rst->MoveFirst();
     while( !$rst->EOF() ) {
         $row = $rst->fields;
-        $onerow = new stdClass();
+        $onerow = new NewsData(); //OR stdClass();
 
         $onerow->author_id = $row['author_id'];
         if( $onerow->author_id > 0 ) {

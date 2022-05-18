@@ -23,7 +23,7 @@ use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\Error403Exception;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
 use function CMSMS\add_shutdown;
@@ -43,7 +43,7 @@ if (!check_permission($userid, 'Manage Stylesheets')) {
 }
 
 $urlext = get_secure_param();
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 if (isset($_REQUEST['cancel'])) {
 	$themeObject->ParkNotice('info', _ld('layout', 'msg_cancelled'));
 	redirect('liststyles.php'.$urlext.'&_activetab=groups');
@@ -233,7 +233,7 @@ if ($gid) {
 	$extras['grp'] = $gid;
 }
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
 	'selfurl' => $selfurl,
 	'extraparms' => $extras,

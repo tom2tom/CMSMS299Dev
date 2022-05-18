@@ -1,7 +1,7 @@
 <?php
 /*
 A class to work with cache data in filesystem files.
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -79,6 +79,7 @@ class CacheFile extends CacheDriver
 	 *  group => string (no default) TODO migrate to 'space'
 	 *  myspace => string cache differentiator (default cms_)
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct(array $params)
 	{
 		parent::__construct($params);
@@ -139,7 +140,7 @@ class CacheFile extends CacheDriver
 		return $out;
 	}
 
-	public function get(string $key, string $space = '')
+	public function get($key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$this->_auto_clean_files();
@@ -147,7 +148,7 @@ class CacheFile extends CacheDriver
 		return $this->_read_cache_file($fn);
 	}
 
-	public function has(string $key, string $space = '')
+	public function has($key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$this->_auto_clean_files();
@@ -156,7 +157,7 @@ class CacheFile extends CacheDriver
 		return is_file($fn);
 	}
 
-	public function set(string $key, $value, string $space = '')
+	public function set($key, $value, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$fn = $this->_get_filename($key, $space);
@@ -165,12 +166,12 @@ class CacheFile extends CacheDriver
 	}
 
 	// custom lifetime N/A for file-cache
-	public function set_timed(string $key, $value, int $ttl = 0, string $space = '')
+	public function set_timed($key, $value, int $ttl = 0, string $space = '')
 	{
 		return $this->set($key, $value, $space);
 	}
 
-	public function delete(string $key, string $space = '')
+	public function delete($key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$fn = $this->_get_filename($key, $space);
@@ -192,7 +193,7 @@ class CacheFile extends CacheDriver
 	 * @ignore
 	 * TODO need distinguishable "group" files
 	 */
-	private function _get_filename(string $key, string $space) : string
+	private function _get_filename($key, string $space) : string
 	{
 		$fn = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->get_cachekey($key, static::class, $space) . $space . '.cache';
 		return $fn;
@@ -299,7 +300,7 @@ class CacheFile extends CacheDriver
 	private function _auto_clean_files() : int
 	{
 		if ($this->_auto_cleaning) {
-			// static properties here >> SingleItem property|ies ?
+			// static properties here >> Lone property|ies ?
 			// only clean files once per request.
 			static $_have_cleaned = false;
 			if (!$_have_cleaned) {

@@ -23,13 +23,14 @@ If not, see <https://www.gnu.org/licenses/>.
 //Deprecated since 3.0 - just include the relevant .css file(s) in the page header during its construction
 
 use CMSMS\AppState;
+use CMSMS\Lone;
 use CMSMS\NlsOperations;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 AppState::set(AppState::LOGIN_PAGE | AppState::ADMIN_PAGE);
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-$theme = SingleItem::Theme()->themeName;
+$theme = Lone::get('Theme')->themeName;
 $defaulttheme = 'Marigold'; //TODO some sensible default
 
 $cms_readfile = function($filename) {

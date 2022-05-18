@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\UserParams;
 
 if (empty($this) || !($this instanceof AdminSearch)) exit;
@@ -47,5 +47,5 @@ $me = $this->GetName();
 UserParams::remove_for_user($userid,$me.'saved_search');
 // and all the others
 $query = 'DELETE FROM '.CMS_DB_PREFIX.'userprefs WHERE preference = '.$me.'saved_search';
-$db = SingleItem::Db();
+$db = Lone::get('Db');
 $db->execute($query);

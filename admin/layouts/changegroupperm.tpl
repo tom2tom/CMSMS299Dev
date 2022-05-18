@@ -56,7 +56,7 @@
           {/if}
         </td>
         {foreach $group_list as $thisgroup} {if $thisgroup->id != -1} {$gid=$thisgroup->id}
-        <td class="g{$gid}">
+        <td class="pagepos g{$gid}">
         <input type="hidden" name="pg_{$perm->id}_{$gid}" value="0" />
         <input type="checkbox" name="pg_{$perm->id}_{$gid}" value="1"{strip}
           {if $gid == 1}

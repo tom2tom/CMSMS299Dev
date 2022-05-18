@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
 use CMSMS\Database\DataDictionary;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Template;
 use CMSMS\TemplateType;
 use function CMSMS\log_error;
@@ -152,6 +152,6 @@ $this->RegisterSmartyPlugin('search', 'function', 'function_plugin');
 
 if ($newsite) {
     // ensure demo-pages are loadable for searching
-    SingleItem::ContentTypeOperations()->RebuildStaticContentTypes();
+    Lone::get('ContentTypeOperations')->RebuildStaticContentTypes();
 }
 $this->Reindex();

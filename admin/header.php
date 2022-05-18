@@ -24,7 +24,7 @@ use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\FormUtils;
 use CMSMS\HookOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\StylesheetOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
@@ -38,14 +38,14 @@ if (!AppState::test(AppState::LOGIN_PAGE)) {
 	}
 }
 if (!isset($themeObject)) {
-	$themeObject = SingleItem::Theme();
+	$themeObject = Lone::get('Theme');
 }
 
 if (!isset($smarty)) {
-	$smarty = SingleItem::Smarty();
+	$smarty = Lone::get('Smarty');
 }
 if (!isset($config)) {
-	$config = SingleItem::Config();
+	$config = Lone::get('Config');
 }
 
 $aout = HookOperations::do_hook_accumulate('AdminHeaderSetup');
@@ -222,7 +222,7 @@ if ($list) {
 	}
 }
 
-if (SingleItem::App()->JOBTYPE == 0) {
+if (cmsms()->JOBTYPE == 0) {
 	sendheaders();
 }
 

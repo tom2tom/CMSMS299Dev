@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -79,6 +79,7 @@ abstract class DbQueryBase
 	 * @param mixed $args optional associative array (key=>value) of arguments
 	 *  for the query, or a comma-separated string of arguments.
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct($args = '')
 	{
 //		if( empty($args) ) return;
@@ -94,24 +95,25 @@ abstract class DbQueryBase
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	public function __get(string $key)
 	{
 		$this->execute();
 		switch( $key ) {
-		    case 'fields':
+			case 'fields':
 				if( $this->_rs && !$this->_rs->EOF() ) {
 					return $this->_rs->fields;
 				}
 				return;
-		    case 'EOF':
+			case 'EOF':
 				return $this->_rs->EOF();
-		    case 'limit':
+			case 'limit':
 				return $this->_limit;
 			case 'offset':
 				return $this->_offset;
-		    case 'totalrows':
+			case 'totalrows':
 				return $this->_totalmatchingrows;
-		    case 'numpages':
+			case 'numpages':
 				return ceil($this->_totalmatchingrows / $this->_limit);
 		}
 	}
@@ -187,7 +189,7 @@ abstract class DbQueryBase
 	 */
 	public function Rewind()
 	{
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','MoveFirst'));
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','MoveFirst'));
 		$this->execute();
 		if( $this->_rs ) return $this->_rs->MoveFirst();
 	}

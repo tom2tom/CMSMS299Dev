@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\BookmarkOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 $dsep = DIRECTORY_SEPARATOR;
 require ".{$dsep}admininit.php";
@@ -47,7 +47,7 @@ if ($n > $limit) {
 	$maxsee = $n;
 }
 
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 $iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', _la('addbookmark'),'','','systemicon');
 $iconedit = $themeObject->DisplayImage('icons/system/edit.gif', _la('edit'),'','','systemicon');
 $icondel = $themeObject->DisplayImage('icons/system/delete.gif', _la('delete'),'','','systemicon');
@@ -55,7 +55,7 @@ $icondel = $themeObject->DisplayImage('icons/system/delete.gif', _la('delete'),'
 $extras = get_secure_param_array();
 $urlext = get_secure_param();
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
 	'access' => $access,
 	'addurl' => 'addbookmark.php',

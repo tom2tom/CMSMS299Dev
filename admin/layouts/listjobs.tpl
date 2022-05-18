@@ -1,6 +1,6 @@
 {if $jobs}{$core=_ld('jobs','core')}
   <div class="pageinfo">{_ld('jobs','info_background_jobs')}</div>
-  <table class="pagetable" style="width:auto;">
+  <table class="pagetable">
     <thead>
       <tr>
         <th>{_ld('jobs','name')}</th>

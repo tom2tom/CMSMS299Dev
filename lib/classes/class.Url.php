@@ -55,6 +55,7 @@ class Url
      *
      * @param string $url the URL to work with
      */
+    #[\ReturnTypeWillChange]
     public function __construct($url = '')
     {
         $url = trim((string) $url);
@@ -408,7 +409,8 @@ class Url
     /**
      * @ignore
      */
-    public function __toString()
+    #[\ReturnTypeWillChange]
+    public function __toString()// : string
     {
         $this->_clean_parts();
         // build the query array back into a string.
@@ -442,3 +444,4 @@ class Url
         return $url;
     }
 } // class
+//if (!\class_exists('cms_url', false)) \class_alias(Url::class, 'cms_url', false);

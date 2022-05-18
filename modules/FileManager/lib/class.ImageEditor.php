@@ -26,6 +26,7 @@ namespace FileManager;
  */
 final class ImageEditor
 {
+	#[\ReturnTypeWillChange]
 	private function __construct() {}
 
 	/**

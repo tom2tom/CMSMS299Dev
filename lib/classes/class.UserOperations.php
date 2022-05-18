@@ -24,7 +24,7 @@ namespace CMSMS;
 use CMSMS\AppParams;
 use CMSMS\DeprecationNotice;
 use CMSMS\Events;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\User;
 use CMSMS\Utils;
 use Throwable;
@@ -67,24 +67,25 @@ final class UserOperations
 	private $_saved_users = [];
 
 	// @ignore
-	// @private to prevent direct creation (even by SingleItem class)
-	//	private function __construct() {} TODO public iff wanted by SingleItem ?
+	// @private to prevent direct creation (even by Lone class)
+	//	private function __construct() {} TODO public iff wanted by Lone ?
 
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**
 	 * Get the singleton instance of this class
-	 * @deprecated since 3.0 use CMSMS\SingleItem::UserOperations()
+	 * @deprecated since 3.0 use CMSMS\Lone::get('UserOperations')
 	 *
 	 * @return UserOperations object
 	 */
 	public static function get_instance() : self
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::UserOperations()'));
-		return SingleItem::UserOperations();
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'UserOperations\')'));
+		return Lone::get('UserOperations');
 	}
 
 	/**
@@ -98,7 +99,7 @@ final class UserOperations
 	public function LoadUsers(int $limit = 10000, int $offset = 0) //: array
 	{
 		if (!is_array($this->_users)) {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$result = [];
 			$query = 'SELECT user_id,username,password,first_name,last_name,email,active FROM '.
 				CMS_DB_PREFIX.'users ORDER BY username';
@@ -132,7 +133,7 @@ final class UserOperations
 	 */
 	public function LoadUsersInGroup(int $gid) //: array
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$pref = CMS_DB_PREFIX;
 		$result = [];
 		$query = <<<EOS
@@ -175,7 +176,7 @@ EOS;
 	public function LoadUserByUsername(string $username, string $password = '', bool $activeonly = true, bool $adminaccessonly = false)
 	{
 		// note: does not use cache
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 
 		$query = 'SELECT user_id,password FROM '.CMS_DB_PREFIX.'users WHERE ';
 		$where = ['username = ?'];
@@ -230,7 +231,7 @@ EOS;
 		}
 
 		$result = false;
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT username, password, active, pwreset, first_name, last_name, email FROM '.
 			CMS_DB_PREFIX.'users WHERE user_id = ?';
 		$row = $db->getRow($query, [$uid]);
@@ -268,7 +269,7 @@ INSERT INTO {$pref}users
 SELECT ?,?,?,?,?,?,?,?,? FROM (SELECT 1 AS dmy) Z
 WHERE NOT EXISTS (SELECT 1 FROM {$pref}users T WHERE T.username=?) LIMIT 1
 EOS;
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$newid = $db->genID(CMS_DB_PREFIX.'users_seq');
 		$nm = $db->addQ($user->username);
 		//setting create_date should be redundant with DT setting on MySQL 5.6.5+
@@ -298,7 +299,7 @@ EOS;
 	 */
 	public function UpdateUser($user) //: bool
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		// check for username conflict
 		$query = 'SELECT 1 FROM '.CMS_DB_PREFIX.'users WHERE username = ? AND user_id != ?';
 		$dbr = $db->getOne($query, [$user->username, $user->id]);
@@ -340,7 +341,7 @@ EOS;
 			return false;
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 
 		//TODO at least report failed attempts at related deletions
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE user_id = ?';
@@ -374,7 +375,7 @@ EOS;
 	 */
 	public function CountPageOwnershipByID(int $uid) //: int
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT COUNT(*) AS count FROM '.CMS_DB_PREFIX.'content WHERE owner_id = ?';
 		$dbr = $db->getOne($query, [$uid]);
 		return (int)$dbr;
@@ -479,7 +480,7 @@ EOS;
 	public function GetMemberGroups(int $uid) //: array
 	{
 		if (!is_array($this->_user_groups) || !isset($this->_user_groups[$uid])) {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$query = 'SELECT group_id FROM '.CMS_DB_PREFIX.'user_groups WHERE user_id = ?';
 			$col = $db->getCol($query, [(int) $uid]);
 			if (!is_array($this->_user_groups)) {
@@ -502,7 +503,7 @@ EOS;
 			return;
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$longnow = $db->DbTimeStamp(time());
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."user_groups
 (group_id,user_id,create_date) VALUES (?,?,$longnow)";
@@ -511,7 +512,7 @@ EOS;
 		if (isset($this->_user_groups[$uid])) {
 			unset($this->_user_groups[$uid]);
 		}
-// TODO SingleItem::LoadedData()->delete('menu_modules', $userid); if not installing
+// TODO Lone::get('LoadedData')->delete('menu_modules', $userid); if not installing
 	}
 
 	/**
@@ -545,7 +546,7 @@ EOS;
 		} else {
 			return false;
 		}
-		$ops = SingleItem::GroupOperations();
+		$ops = Lone::get('GroupOperations');
 		try {
 			foreach ($groups as $gid) {
 				if ($ops->CheckPermission($gid, ...$perms)) {
@@ -574,12 +575,12 @@ EOS;
 			if ($user) {
 				$uid = $user->id;
 			} else {
-				$uid = (SingleItem::LoginOperations())->get_loggedin_uid();
+				$uid = (Lone::get('LoginOperations'))->get_loggedin_uid();
 			}
 			if ($uid < 1) {
 				return true;
 			}
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 //			$stamp = $db->GetOne('SELECT UNIX_TIMESTAMP(passmodified_date) FROM '.CMS_DB_PREFIX.'users WHERE user_id = ?', [$uid]);
 //			if ((int)$stamp + $val * 86400 < time()) {
 //				return true;
@@ -638,7 +639,7 @@ EOS;
 	public function PreparePassword(string $password) : string
 	{
 /*		// for 'new' passwords, factor in a not-in-db string, per NIST recommendation
-		$config = SingleItem::Config();
+		$config = Lone::get('Config');
 		$fp = cms_join_path(CMS_ASSETS_PATH, 'configs', 'siteuuid.dat');
 		$str = @file_get_contents($fp);
 		if ($str) {
@@ -661,7 +662,7 @@ EOS;
 	 */
 	public function UsernameCheck(User $user, string $candidate, bool $update = false) : bool
 	{
-//		$mod = SingleItem::ModuleOperations()->GetAdminLoginModule();
+//		$mod = Lone::get('ModuleOperations')->GetAdminLoginModule();
 //		list($valid, $msg) = $mod->check_username($user, $candidate, $update);
 //		$aout = HookOperations::do_hook_accumulate('Core::UsernameTest', $user, $candidate);
 //		if ($this->ReserveUsername($candidate)) { // TODO support no-change during update process
@@ -692,7 +693,7 @@ EOS;
 	 */
 	private function UsernameAvailable(User $user, string $candidate, bool $update) : bool
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$save = $db->addQ(trim($candidate));
 		$id = ($update) ? $user->id : 0;
 		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE username=? AND user_id!=?';
@@ -740,7 +741,7 @@ EOS;
 	 */
 /*	public function ReserveUsername(string $username, int $updateby = 0) : bool
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$save = $db->addQ(trim($username));
 		$pref = CMS_DB_PREFIX;
 		if ($updateby == 0) {
@@ -771,7 +772,7 @@ EOS;
 	 */
 	public function GetRecoveryData(string $username = '', int $uid = -1)
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE ';
 		if ($username) {
 			$query .= 'username=?';
@@ -817,8 +818,8 @@ EOS;
 		}
 		$name = AppParams::get('sitename', 'CMSMS Site');
 		$subject = _la('lostpwemailsubject', $name);
-		$salt = SingleItem::LoginOperations()->get_salt();
-		$url = SingleItem::Config()['admin_url'] . '/login.php?repass=' . hash_hmac('tiger128,3', $user->password, $salt ^ $user->username);
+		$salt = Lone::get('LoginOperations')->get_salt();
+		$url = Lone::get('Config')['admin_url'] . '/login.php?repass=' . hash_hmac('tiger128,3', $user->password, $salt ^ $user->username);
 		$message = _la('lostpwemail', $name, $user->username, $url);
 		return Utils::send_email($to, $subject, $message);
 	}
@@ -838,8 +839,8 @@ EOS;
 		}
 		$name = AppParams::get('sitename', 'CMSMS Site');
 		$subject = _la('replacepwemailsubject', $name);
-		$salt = SingleItem::LoginOperations()->get_salt();
-		$url = SingleItem::Config()['admin_url'] . '/login.php?onepass=' . hash_hmac('tiger128,3', $user->password, $salt ^ $user->username);
+		$salt = Lone::get('LoginOperations')->get_salt();
+		$url = Lone::get('Config')['admin_url'] . '/login.php?onepass=' . hash_hmac('tiger128,3', $user->password, $salt ^ $user->username);
 		$message = _la('replacepwemail', $name, $user->username, $url);
 		return Utils::send_email($to, $subject, $message);
 	}

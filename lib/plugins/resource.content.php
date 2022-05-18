@@ -21,7 +21,6 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Error404Exception;
-use CMSMS\SingleItem;
 
 /**
  * A simple class for handling the content smarty resource.
@@ -42,7 +41,7 @@ class Smarty_Resource_content extends Smarty_Resource_Custom
      */
     protected function fetch($name, &$source, &$mtime)
     {
-        $contentobj = SingleItem::App()->get_content_object();
+        $contentobj = cmsms()->get_content_object();
 
         if ($contentobj) {
             $source = $contentobj->Show($name);  //TODO maybe disable SmartyBC-supported {php}{/php}

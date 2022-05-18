@@ -36,6 +36,7 @@
 {if !empty($templates)}
 {if $navpages > 1}
 <div class="browsenav postgap">
+ <span id="tblpagelink">
  <a href="javascript:pagefirst(tpltable)">{_ld('layout','pager_first')}</a>&nbsp;|&nbsp;
 {if $navpages > 2}
  <a href="javascript:pageback(tpltable)">{_ld('layout','pager_previous')}</a>&nbsp;&lt;&gt;&nbsp;
@@ -43,6 +44,7 @@
 {/if}
  <a href="javascript:pagelast(tpltable)">{_ld('layout','pager_last')}</a>&nbsp;
  ({_ld('layout','pageof','<span id="cpage">1</span>',"<span id='tpage'>`$navpages`</span>")})&nbsp;&nbsp;
+ </span>
  <select id="pagerows" name="pagerows">
   {html_options options=$pagelengths selected=$currentlength}
  </select>&nbsp;&nbsp;{_ld('layout','pager_rows')}

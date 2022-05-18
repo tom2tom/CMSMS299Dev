@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\LoadedDataType;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use const CMS_DB_PREFIX;
 
 /**
@@ -55,7 +55,9 @@ final class AppParams
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __construct() {}
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**
@@ -67,7 +69,7 @@ final class AppParams
 		$obj = new LoadedDataType('site_params',function() {
 			return self::_read();
 		});
-		SingleItem::LoadedData()->add_type($obj);
+		Lone::get('LoadedData')->add_type($obj);
 	}
 
 	/**
@@ -78,7 +80,7 @@ final class AppParams
 	 */
 	private static function _read()
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 
 		// Note: extra '\' follows spacer, to prevent escaping what's next
 		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name NOT LIKE \'%'.self::NAMESPACER.'\%\' ORDER BY sitepref_name';
@@ -104,7 +106,7 @@ final class AppParams
 	 */
 	public static function getraw($key = '',$dflt = '',bool $like = FALSE)
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 
 		if( !$db ) {
 			return $dflt;
@@ -157,7 +159,7 @@ final class AppParams
 	 */
 	public static function get(string $key = '',$dflt = '',bool $like = FALSE)
 	{
-		$prefs = SingleItem::LoadedData()->get('site_params');
+		$prefs = Lone::get('LoadedData')->get('site_params');
 		if( $like ) {
 			$arr = array_filter($prefs,function($name) use($key) {
 				return fnmatch($name,$key);
@@ -186,7 +188,7 @@ final class AppParams
 	 */
 	public static function exists($key)
 	{
-		$prefs = SingleItem::LoadedData()->get('site_params');
+		$prefs = Lone::get('LoadedData')->get('site_params');
 		return ( is_array($prefs) && isset($prefs[$key]) && $prefs[$key] !== '' );
 	}
 
@@ -198,7 +200,7 @@ final class AppParams
 	 */
 	public static function set(string $key,$value)
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$tbl = CMS_DB_PREFIX.'siteprefs';
 		$longnow = $db->DbTimeStamp(time());
 		if( !(is_scalar($value) || is_null($value)) ) {
@@ -219,7 +221,7 @@ EOS;
 		$db->execute($query,[$key,$value,$key]);
 
 		if( strpos($key,self::NAMESPACER) === FALSE ) {
-			SingleItem::LoadedData()->refresh('site_params');
+			Lone::get('LoadedData')->refresh('site_params');
 		}
 	}
 
@@ -244,10 +246,10 @@ EOS;
 		else {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name = ?';
 		}
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$db->execute($query,[$key]);
 		if( strpos($key,self::NAMESPACER) === FALSE) {
-			SingleItem::LoadedData()->refresh('site_params');
+			Lone::get('LoadedData')->refresh('site_params');
 		}
 	}
 
@@ -262,10 +264,11 @@ EOS;
 	{
 		if( !$prefix ) return [];
 		$query = 'SELECT sitepref_name FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE ?';
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$wm = $db->escStr($prefix).'%';
 		$dbr = $db->getCol($query,[$wm]);
 		if( $dbr ) return $dbr;
 		return [];
 	}
 } // class
+//if (!\class_exists('cms_siteprefs', false)) \class_alias(AppParams::class, 'cms_siteprefs', false);

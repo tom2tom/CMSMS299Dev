@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace FileManager;
 
 use CMSMS\AppParams;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\UserParams;
 use CMSMS\Utils as AppUtils;
 use Exception;
@@ -36,11 +36,13 @@ use function startswith;
 
 final class Utils
 {
-    // static properties here >> SingleItem property|ies ?
+    // static properties here >> Lone property|ies ?
     private static $_can_do_advanced = -1;
 
+    #[\ReturnTypeWillChange]
     private function __construct() {}
-	private function __clone() {}
+    #[\ReturnTypeWillChange]
+    private function __clone() {}
 
     public static function is_valid_filename($name)
     {
@@ -61,7 +63,7 @@ final class Utils
     {
         if( self::$_can_do_advanced < 0 ) {
             $filemod = AppUtils::get_module('FileManager');
-            $config = SingleItem::Config();
+            $config = Lone::get('Config');
             if( startswith($config['uploads_path'],CMS_ROOT_PATH) && $filemod->AdvancedAccessAllowed() ) {
                 self::$_can_do_advanced = 1;
             }
@@ -87,7 +89,7 @@ final class Utils
             $dir = CMS_ROOT_PATH;
         }
         else {
-            $dir = SingleItem::Config()['uploads_path'];
+            $dir = Lone::get('Config')['uploads_path'];
             if( !startswith($dir,CMS_ROOT_PATH) ) $dir = cms_join_path(CMS_ROOT_PATH, 'uploads');
         }
 
@@ -98,7 +100,7 @@ final class Utils
     public static function test_valid_path($path)
     {
         // returns false if invalid.
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
         $advancedmode = self::check_advanced_mode();
 
         $prefix = CMS_ROOT_PATH;
@@ -169,7 +171,7 @@ final class Utils
     {
         $path = self::get_cwd();
         if( !self::test_valid_path($path) ) $path = self::get_default_cwd();
-        $url = SingleItem::Config()['root_url'].'/'. str_replace('\\','/',$path);
+        $url = Lone::get('Config')['root_url'].'/'. str_replace('\\','/',$path);
         return $url;
     }
 
@@ -337,7 +339,7 @@ final class Utils
 
     public static function get_dirlist()
     {
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
         $mod = AppUtils::get_module('FileManager');
         $showhiddenfiles = $mod->GetPreference('showhiddenfiles');
         $advancedmode = self::check_advanced_mode();
@@ -461,6 +463,27 @@ final class Utils
             if ($mode & 0002) $others.='w'; else $others.='-';
             if ($mode & 0001) $others.='x'; else $others.='-';
             return $owner.$group.$others;
+        }
+    }
+
+    /**
+     * Autoloader for archive-processor classes
+     * @since 1.7.0
+     * @param string $classname
+     */
+    public static function ArchAutoloader($classname)
+    {
+        $p = strpos($classname, 'wapmorgan\UnifiedArchive\\');
+        if ($p === 0 || ($p == 1 && $classname[0] == '\\')) {
+            $parts = explode('\\', $classname);
+            if ($p == 1) {
+                unset($parts[0]);
+            }
+            unset($parts[$p], $parts[$p+1]);
+            $fp = cms_join_path(__DIR__, 'UnifiedArchive', ...$parts) . '.php';
+            if (is_readable($fp)) {
+                include_once $fp;
+            }
         }
     }
 } // class

@@ -24,7 +24,7 @@ use CMSMS\AdminUtils;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\Group;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\de_specialize;
 use function CMSMS\log_info;
 use function CMSMS\sanitizeVal;
@@ -87,7 +87,7 @@ if (isset($_POST['addgroup'])) {
         }
     }
 
-    SingleItem::Theme()->RecordNotice('error', $errors);
+    Lone::get('Theme')->RecordNotice('error', $errors);
 
     $group = specialize($group);
     $description = specialize($description);
@@ -100,7 +100,7 @@ if (isset($_POST['addgroup'])) {
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
 //    'access' => $access,
     'active' => $active,

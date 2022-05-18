@@ -36,6 +36,7 @@ class LoadedDataType
      * @param string $name Type identifier
      * @param callable $fetcher Data retriever
      */
+    #[\ReturnTypeWillChange]
     public function __construct($name, callable $fetcher)
     {
         $this->name = trim($name);

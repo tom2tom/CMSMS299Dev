@@ -27,7 +27,7 @@ jsruntime.php at a suitable place in a script.
 */
 
 use CMSMS\AppState;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 AppState::set(AppState::ADMIN_PAGE);
@@ -36,7 +36,7 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 check_login();
 
 $urlext = get_secure_param();
-$config = SingleItem::Config();
+$config = Lone::get('Config');
 
 // get some urls and language strings
 $data = [];

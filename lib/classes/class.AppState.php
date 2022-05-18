@@ -104,7 +104,7 @@ final class AppState
         'stylesheet_request' => self::STYLESHEET,
    ];
 
-    // static properties here >> SingleItem property|ies ?
+    // static properties here >> Lone property|ies ?
     /**
      * Array of current states. Each member like stateflag => stateflag.
      * @ignore
@@ -114,11 +114,13 @@ final class AppState
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     private function __construct() {}
 
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     private function __clone() {}
 
     /**

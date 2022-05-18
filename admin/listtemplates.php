@@ -24,7 +24,7 @@ use CMSMS\FormUtils;
 use CMSMS\LockOperations;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplatesGroup;
@@ -53,9 +53,9 @@ if( $padd ) {
 */
 }
 
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 $lock_timeout = AppParams::get('lock_timeout', 60);
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 
 // individual templates
 // $_REQUEST members all cleaned individually, as needed
@@ -159,17 +159,15 @@ try {
             'tplmenus' => $menus,
         ]);
 
-        $pagerows = 10;
-        $navpages = ceil($n / $pagerows);
-        if( $navpages > 1 ) {
+        if( $n > 10 ) {
+            $navpages = (int)ceil($n / 10);
             $pagelengths = [10=>10];
-            $pagerows += $pagerows;
-            if( $pagerows < $n ) $pagelengths[20] = 20;
-            $pagerows += $pagerows;
-            if( $pagerows < $n ) $pagelengths[40] = 40;
+            if( $n > 20 ) $pagelengths[20] = 20;
+            if( $n > 40 ) $pagelengths[40] = 40;
             $pagelengths[0] = _la('all');
         }
         else {
+            $navpages = 1;
             $pagelengths = null;
         }
         $sellength = 10; //OR some $_REQUEST[]
@@ -179,7 +177,7 @@ try {
         $pagelengths = [];
         $sellength = 1;
 
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $query = 'SELECT EXISTS (SELECT 1 FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.')';
         if( $db->getOne($query) ) {
             $smarty->assign('templates', false); //signal row(s) exist, but none matches
@@ -202,7 +200,7 @@ try {
             $tmp2[$types[$i]->get_id()] = $types[$i]->get_langified_display_value();
         }
 
-        $typepages = ceil($n / 10);
+        $typepages = (int)ceil($n / 10);
         //TODO $pagelengths if N/A already
         $smarty->assign([
             'list_all_types' => $tmp, //objects
@@ -222,7 +220,7 @@ try {
 
     $locks = LockOperations::get_locks('template');
 //  $selfurl = basename(__FILE__);
-    $extras = get_secure_param_array();
+    $extras = get_secure_param_array(); //see also: above for ..2, ..3
     $smarty->assign([
         'have_locks' => ($locks ? count($locks) : 0),
         'lock_timeout' => $lock_timeout,
@@ -351,6 +349,19 @@ function adjust_locks(tblid,lockdata) {
   return n;
 }
 $(function() {
+  $.fn.SSsort.addParser({
+   id: 'intfor',
+   is: function(s,node) {
+    var \$el = $(node).find('span');
+    return \$el.length > 0;
+   },
+   format: function(s,node) {
+    var \$el = $(node).find('span');
+    return (\$el.length > 0) ? parseInt(\$el[0].innerText) : 0;
+   },
+   watch: false,
+   type: 'numeric'
+  });
   tpltable = document.getElementById('tpllist');
   var opts = {
    sortClass: 'SortAble',
@@ -373,9 +384,9 @@ $(function() {
     $('#pagerows').on('change',function() {
      var l = parseInt(this.value);
      if(l === 0) {
-     //TODO hide|disable move-links, 'rows per page', show 'rows'
+      $('#tblpagelink').hide();//TODO hide label-part 'per page'
      } else {
-     //TODO show|enable move-links, 'rows per page', hide 'rows'
+      $('#tblpagelink').show();//TODO show label-part 'per page'
      }
      $.fn.SSsort.setCurrent(tpltable,'pagesize',l);
     });
@@ -423,7 +434,7 @@ $(function() {
   });
   $('#bulk_submit').on('click',function(e) {
     e.preventDefault();
-    var l = $('input:checkbox:checked.tpl_select').length;
+    var l = $('.tpl_select:checked').length;
     if(l > 0) {
       cms_confirm_btnclick(this,$s1);
     } else {
@@ -445,9 +456,9 @@ $(function() {
    $('#typepagerows').on('change',function() {
     var l = parseInt(this.value);
     if(l === 0) {
-     //TODO hide move-links, 'rows per page', show 'rows'
+     $('#tbl2pagelink').hide();//TODO hide label-part 'per page'
     } else {
-     //TODO show move-links, 'rows per page', hide 'rows'
+     $('#tbl2pagelink').show();//TODO show label-part 'per page'
     }
     $.fn.SSsort.setCurrent(typetable,'pagesize',l);
    });
@@ -682,14 +693,15 @@ $extras2 = [
     'op' => 'replace',
     'tpl' => '', //populated by js
 ];
-$selfurl = basename(__FILE__);
+//$selfurl = basename(__FILE__);
 $seetab = isset($_REQUEST['_activetab']) ? sanitizeVal($_REQUEST['_activetab'], CMSSAN_NAME) : null;
 
 $smarty->assign([
    'curuser' => $userid,
    'manage_templates' => $pmod,
    'has_add_right' => $pmod || check_permission($userid, 'Add Templates'),
-   'selfurl' => $selfurl,
+   'bulkurl' => 'templateoperations.php',
+// 'selfurl' => $selfurl,
    'urlext' => $urlext,
    'activetab' => $seetab,
    'extraparms2' => $extras,

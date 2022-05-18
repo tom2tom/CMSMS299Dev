@@ -24,7 +24,7 @@ If not, see <https://www.gnu.org/licenses/>.
 //use CMSMS\UserParams;
 use CMSMS\AppParams;
 use CMSMS\Log\logfilter;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\UserParams;
 use function CMSMS\de_specialize_array;
 use function CMSMS\log_notice;
@@ -34,14 +34,14 @@ require ".{$dsep}admininit.php";
 
 check_login();
 
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 $userid = get_userid(false);
 $pclear = check_permission($userid, 'Clear Admin Log');
 $psee = $pclear || check_permission($userid, 'View Admin Log');
 
 if ($pclear && isset($_GET['clear'])) {
-    SingleItem::LogOperations()->clear();
+    Lone::get('LogOperations')->clear();
     unset($_SESSION['adminlog_filter']);
     log_notice('Admin log cleared');
     $themeObject->RecordNotice('success', _la('adminlogcleared'));
@@ -53,7 +53,7 @@ if ($pclear && isset($_GET['clear'])) {
     }
     // override the limit to 1000000 lines
     $filter->limit = 1000000;
-    $query = SingleItem::LogOperations()->query($filter);
+    $query = Lone::get('LogOperations')->query($filter);
     if ($query && !$query->EOF()) {
         $format = trim(UserParams::get_for_user($userid, 'datetime_format'));
         if (!$format) $format = trim(AppParams::get('datetime_format'));
@@ -100,7 +100,7 @@ if ($page > 1) {
 }
 
 $pagelist = [];
-$query = SingleItem::LogOperations()->query($filter);
+$query = Lone::get('LogOperations')->query($filter);
 $np = $query->numpages;
 if ($np > 0) {
     if ($np < 25) {
@@ -188,7 +188,7 @@ $severity_list = [
 $urlext = get_secure_param();
 $extras = get_secure_param_array();
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 
 $smarty->assign([
     'selfurl' => $selfurl,

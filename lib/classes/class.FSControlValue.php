@@ -35,6 +35,8 @@ class FSControlValue extends BasicEnum
     const FLAG_YES = 1;
     const FLAG_BYGROUP = 2;
 
+    #[\ReturnTypeWillChange]
     private function __construct() {}
+    #[\ReturnTypeWillChange]
     private function __clone() {}
 }

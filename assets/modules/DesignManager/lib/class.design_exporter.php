@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace DesignManager;
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
 use CMSMS\Template;
@@ -45,7 +45,7 @@ class design_exporter
     private $_files;
     private $_image = null;
     private $_description;
-    // static properties here >> SingleItem property|ies ?
+    // static properties here >> Lone property|ies ?
     public static $_mm_types;
     public static $_nav_types;
 
@@ -78,6 +78,7 @@ class design_exporter
 
 EOT;
 
+    #[\ReturnTypeWillChange]
     public function __construct(Design $design)
     {
         $this->_design = $design;
@@ -122,7 +123,7 @@ EOT;
         $regex='/url\s*\(\"*(.*)\"*\)/i';
         $content = preg_replace_callback($regex, function($matches) use ($ob)
             {
-                $config = SingleItem::Config();
+                $config = Lone::get('Config');
                 $url = $matches[1];
 	            //TODO generally support the websocket protocol 'wss' : 'ws'
                 if( !startswith($url,'http') || startswith($url,CMS_ROOT_URL) || startswith($url,'[[root_url]]') ) {
@@ -485,7 +486,7 @@ EOT;
         $nkey = substr($nkey,2);
 
         $mod = Utils::get_module('DesignManager');
-        $smarty = SingleItem::Smarty();
+        $smarty = Lone::get('Smarty');
         $output = $this->_open_tag('file',$lvl);
         $output .= $this->_output('fkey',$key,$lvl+1);
         switch($nkey) {

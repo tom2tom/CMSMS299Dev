@@ -80,6 +80,7 @@ class Smarty_Internal_Config_File_Compiler
      * @param string $parser_class class name
      * @param Smarty $smarty       global instance
      */
+    #[\ReturnTypeWillChange]
     public function __construct($lexer_class, $parser_class, Smarty $smarty)
     {
         $this->smarty = $smarty;

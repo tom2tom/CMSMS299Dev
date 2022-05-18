@@ -24,7 +24,7 @@ namespace CMSMS\internal;
 use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\internal\ModulePluginOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use Exception;
 use LogicException;
 use Smarty_Internal_Template;
@@ -36,6 +36,7 @@ use const CMS_DEBUG;
 use const CMS_ROOT_PATH;
 use const TMP_CACHE_LOCATION;
 use const TMP_TEMPLATES_C_LOCATION;
+use function CMSMS\is_frontend_request;
 use function CMSMS\log_error;
 use function cms_join_path;
 use function get_userid;
@@ -71,6 +72,7 @@ class Smarty extends SmartyParent
      * Constructor
      * Although this is a singleton, the constructor must be public to conform with class ancestors
      */
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();
@@ -125,7 +127,7 @@ smarty cache lifetime != global cache ttl, probably
              ->addTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'styles')
              ->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'styles');
 
-        if( SingleItem::App()->is_frontend_request() ) {
+        if( is_frontend_request() ) {
             // just for frontend actions
             // Check if we are at install page, don't register anything if so, as nothing below is needed.
             if( AppState::test(AppState::INSTALL) ) return;
@@ -162,7 +164,7 @@ smarty cache lifetime != global cache ttl, probably
             }
 
             // Make site places available for general use
-            $config = SingleItem::Config();
+            $config = Lone::get('Config');
             $this->assignGlobal('_site_root_path',CMS_ROOT_PATH)
                  ->assignGlobal('_site_root_url',CMS_ROOT_URL)
                  ->assignGlobal('_site_themes_path',CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'themes')
@@ -320,7 +322,7 @@ smarty cache lifetime != global cache ttl, probably
         //Deprecated pre-3.0 approach - non-system plugins were never cachable
         //In future, allow caching and expect users to override that in templates where needed
         //Otherwise, module-plugin cachability is opaque to page-builders
-        if( SingleItem::App()->is_frontend_request() ) {
+        if( is_frontend_request() ) {
             // check if it's a module-plugin (tabled or not)
             $row = ModulePluginOperations::load_plugin($name,$type);
             if( $row && is_callable($row['callable']) ) {
@@ -337,7 +339,7 @@ smarty cache lifetime != global cache ttl, probably
             }
 
             // check if it's a user-plugin
-            $callback = SingleItem::UserTagOperations()->CreateTagFunction($name);
+            $callback = Lone::get('UserTagOperations')->CreateTagFunction($name);
             if( $callback ) {
 //                if (0) {
                     $val = AppParams::get('smarty_cacheusertags',false);
@@ -459,4 +461,4 @@ smarty cache lifetime != global cache ttl, probably
 } // class
 
 //when Smarty2 (BC) no longer needed
-//class_alias('CMSMS\internal\CmsSmarty', 'CMSMS\internal\Smarty', false);
+//\class_alias('CMSMS\internal\CmsSmarty', 'CMSMS\internal\Smarty', false);

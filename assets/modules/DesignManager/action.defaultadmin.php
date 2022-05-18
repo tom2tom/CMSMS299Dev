@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use DesignManager\Design;
 
 //if( some worthy test fails ) exit;
@@ -71,7 +71,7 @@ if( $designs && ($n = count($designs)) ) {
 }
 
 if( $pmod ) {
-    $allusers = SingleItem::UserOperations()->LoadUsers();
+    $allusers = Lone::get('UserOperations')->LoadUsers();
     $users = [-1=>$this->Lang('prompt_unknown')];
     $tmp = [];
     for( $i = 0, $n = count($allusers); $i < $n; $i++ ) {

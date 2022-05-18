@@ -217,10 +217,11 @@ final class Connection
      *  'set_db_timezone' (opt)
      *  'timezone' used only if 'set_db_timezone' is true (normally the case)
      */
+    #[\ReturnTypeWillChange]
     public function __construct($config) // = null)
     {
         if (class_exists('mysqli')) {
-//          if (!$config) $config = SingleItem::Config(); //normal API
+//          if (!$config) $config = Lone::get('Config'); //normal API
             if (!empty($config['db_credentials'])) {
                 $creds = base64_decode($config['db_credentials']);
                 $raw = Crypto::decrypt_string($creds, '', 'internal');
@@ -314,6 +315,7 @@ final class Connection
      * Abandon any hanging transaction(s)
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         if (is_object($this->_mysql)) {
@@ -327,6 +329,7 @@ final class Connection
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         switch ($key) {
@@ -349,6 +352,7 @@ final class Connection
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __isset(string $key)
     {
         switch ($key) {
@@ -367,6 +371,7 @@ final class Connection
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __set(string $key, $value)
     {
         switch ($key) {

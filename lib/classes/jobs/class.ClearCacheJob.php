@@ -31,6 +31,7 @@ class ClearCacheJob extends CronJob
 
     private $_age_days;
 
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();
@@ -60,5 +61,4 @@ class ClearCacheJob extends CronJob
         return 1;
     }
 }
-
 \class_alias('CMSMS\jobs\ClearCacheJob', 'ClearCacheTask', false);

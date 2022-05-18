@@ -25,7 +25,7 @@ use CMSMS\AppParams;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\User;
 use CMSMS\UserParams;
 use function CMSMS\de_specialize_array;
@@ -54,11 +54,11 @@ if (!check_permission($userid, 'Manage Users')) {
 //--------- Variables ---------
 
 $superusr = ($userid == 1); //group 1 addition|removal allowed
-$groupops = SingleItem::GroupOperations();
+$groupops = Lone::get('GroupOperations');
 $admins = array_column($groupops->GetGroupMembers(1), 1);
 $supergrp = $superusr || in_array($userid, $admins); //group 1 removal allowed
 $manage_groups = check_permission($userid, 'Manage Groups');
-$userops = SingleItem::UserOperations();
+$userops = Lone::get('UserOperations');
 $errors = [];
 
 //--------- Logic ---------
@@ -162,7 +162,7 @@ if (isset($_POST['submit'])) {
                 }
 
                 if ($manage_groups && $sel_groups) {
-                    $db = SingleItem::Db();
+                    $db = Lone::get('Db');
                     $iquery = 'INSERT INTO ' . CMS_DB_PREFIX . 'user_groups (user_id,group_id) VALUES (?,?)';
                     foreach ($sel_groups as $gid) {
                         if ($gid > 0) {
@@ -226,7 +226,7 @@ if ($out) {
 }
 
 if ($errors) {
-    SingleItem::Theme()->RecordNotice('error', $errors);
+    Lone::get('Theme')->RecordNotice('error', $errors);
 }
 
 //data for user-selector
@@ -251,7 +251,7 @@ if ($manage_groups) {
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 
 $smarty->assign([
     'active' => $active,

@@ -29,7 +29,7 @@ use CMSMS\Events;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\HookOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Url;
 use CMSMS\Utils;
 use ContentManager\ContentBase;
@@ -49,7 +49,7 @@ if (isset($_POST['cancel'])) {
 
 $userid = get_userid();
 $access = check_permission($userid, 'Modify Site Preferences');
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 if (!$access) {
     //TODO a push-notification $themeObject->RecordNotice('error', _la('needpermissionto', '"Modify Site Preferences"'));
@@ -126,7 +126,7 @@ function siteprefs_display_permissions(array $permsarr) : string
 $errors = [];
 $messages = [];
 
-$config = SingleItem::Config();
+$config = Lone::get('Config');
 $pretty_urls = $config['url_rewriting'] == 'none' ? 0 : 1;
 $devmode = $config['develop_mode'];
 
@@ -481,7 +481,7 @@ if (isset($_POST['submit'])) {
                 break;
         } //switch tab
 
-        SingleItem::LoadedData()->refresh('site_params');
+        Lone::get('LoadedData')->refresh('site_params');
 
         if (!$errors) {
             // put mention into the admin log
@@ -612,11 +612,11 @@ foreach ([
 }
 $mailprefs['password'] = Crypto::decrypt_string(base64_decode($mailprefs['password']));
 */
-$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::SITE_SETTINGS);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::SITE_SETTINGS);
 if ($modnames) {
     // load them, if not already done
     for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
-        $modnames[$i] = Utils::get_module($modnames[$i]); // TODO $modops = SingleItem::ModuleOperations() ->get ....
+        $modnames[$i] = Utils::get_module($modnames[$i]); // TODO $modops = Lone::get('ModuleOperations') ->get ....
         if ($modnames[$i]) { $modnames[$i]->InitializeAdmin(); }
     }
     $list = HookOperations::do_hook_accumulate('ExtraSiteSettings');
@@ -817,10 +817,10 @@ $(function() {
 EOS;
 add_page_foottext($out);
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 
 $tmp = [-1 => _la('none')];
-$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::SEARCH_MODULE);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::SEARCH_MODULE);
 if ($modnames) {
     for ($i = 0, $n = count($modnames); $i < $n; $i++) {
         $tmp[$modnames[$i]] = $modnames[$i];
@@ -835,7 +835,7 @@ if ($devmode) {
     $smarty->assign('help_url', $help_url);
 }
 
-$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::LOGIN_MODULE);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::LOGIN_MODULE);
 if ($modnames && count($modnames) > 1) {
     for ($i = 0, $n = count($modnames); $i < $n; $i++) {
         if ($modnames[$i] == $modops::STD_LOGIN_MODULE) {
@@ -886,7 +886,7 @@ if ($tmp) {
 $smarty->assign('modtheme', check_permission($userid, 'Modify Site Preferences'));
 
 // Rich-text (html) editors
-$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::WYSIWYG_MODULE);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::WYSIWYG_MODULE);
 if ($modnames) {
   $editors = []; //for backend
   $fronts = [];
@@ -946,7 +946,7 @@ $smarty->assign('wysiwyg', $fronts)
   ->assign('frontendwysiwyg', $frontendwysiwyg);
 
 // Syntax-highlight editors
-$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::SYNTAX_MODULE);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::SYNTAX_MODULE);
 if ($modnames) {
   $editors = [];
   for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
@@ -1132,7 +1132,7 @@ if ($list) {
 //$txt = FormUtils::create_option($all_attributes);
 
 $realm = 'ContentManager'; //TODO generalize
-$contentops = SingleItem::ContentTypeOperations();
+$contentops = Lone::get('ContentTypeOperations');
 $all_contenttypes = $contentops->ListContentTypes(false, false, false, $realm);
 
 $selfurl = basename(__FILE__);

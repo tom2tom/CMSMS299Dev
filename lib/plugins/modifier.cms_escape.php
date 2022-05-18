@@ -49,7 +49,7 @@ function escape_one($string, $_type)
 
 namespace {
 */
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\entitize;
 use function CMSMS\specialize;
 
@@ -58,7 +58,7 @@ function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
 	$esc_type = strtolower($esc_type);
 /*
 	if (strpos($esc_type, ',') !== false) {
-		$all = array_map(function($_type) { return trim($_type); }, explode(',', $esc_type));
+		$all = array_map('trim', explode(',', $esc_type));
 	}
 	else {
 		$all = [trim($esc_type)];
@@ -142,7 +142,7 @@ function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
 			return str_replace('<', '&lt;', $string);
 
 		case 'smartyphp':
-			$smarty = SingleItem::Smarty();
+			$smarty = Lone::get('Smarty');
 			$ldl = $smarty->left_delimiter;
 			$rdl = $smarty->right_delimiter;
 			$lsep = '';

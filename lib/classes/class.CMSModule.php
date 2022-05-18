@@ -33,10 +33,10 @@ use CMSMS\HookOperations;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\internal\Smarty;
 use CMSMS\LangOperations;
+use CMSMS\Lone;
 use CMSMS\Permission;
 use CMSMS\Route;
 use CMSMS\RouteOperations;
-use CMSMS\SingleItem;
 use CMSMS\Utils;
 use ContentManager\BulkOperations;
 use function CMSMS\get_site_UUID;
@@ -159,6 +159,7 @@ abstract class CMSModule
     /**
      * Constructor
      */
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $n = func_num_args();
@@ -169,7 +170,7 @@ abstract class CMSModule
                 return;
             }
         }
-// MAYBE IN FUTURE if( SingleItem::App()->is_cli() ) return;
+// MAYBE IN FUTURE if( Lone::get('App')->is_cli() ) return;
 
         if( AppState::test(AppState::FRONT_PAGE) ) {
             //some generic parameters, always accepted in submitted data
@@ -190,15 +191,16 @@ abstract class CMSModule
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         switch( $key ) {
         case 'cms':
-            return SingleItem::App();
+            return Lone::get('App');
         case 'config':
-            return SingleItem::Config();
+            return Lone::get('Config');
         case 'db':
-            return SingleItem::Db();
+            return Lone::get('Db');
         }
         return null;
     }
@@ -208,11 +210,12 @@ abstract class CMSModule
      *
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __call(string $name, array $args)
     {
         if (strncmp($name, 'Create', 6) == 0) {
             //maybe it's a now-removed form-element call
-            // static properties here >> SingleItem property|ies ?
+            // static properties here >> Lone property|ies ?
             static $flect = null;
 
             if ($flect === null) {
@@ -517,7 +520,7 @@ abstract class CMSModule
      */
     final public function GetModulePath() : string
     {
-        return SingleItem::ModuleOperations()->get_module_path($this->GetName());
+        return Lone::get('ModuleOperations')->get_module_path($this->GetName());
     }
 
     /**
@@ -597,10 +600,10 @@ abstract class CMSModule
     {
         if( AppState::test(AppState::ADMIN_PAGE) ) {
             $text = trim($text);
-            $themeObject = SingleItem::Theme();
+            $themeObject = Lone::get('Theme');
             if( $text && $themeObject ) $themeObject->set_content($text);
         }
-        elseif( SingleItem::App()->JOBTYPE > 0 ) {
+        elseif( cmsms()->JOBTYPE > 0 ) {
             echo $text;
         }
     }
@@ -998,11 +1001,11 @@ abstract class CMSModule
      *
      * @final
      * @return array The config hash.
-     * @deprecated Use CMSMS\SingleItem::Config()
+     * @deprecated Use CMSMS\Lone::get('Config')
      */
     final public function GetConfig()
     {
-        return SingleItem::Config();
+        return Lone::get('Config');
     }
 
     /**
@@ -1010,11 +1013,11 @@ abstract class CMSModule
      *
      * @final
      * @return Database object
-     * @deprecated Use CMSMS\SingleItem::Db()
+     * @deprecated Use CMSMS\Lone::get('Db')
      */
     final public function GetDb()
     {
-        return SingleItem::Db();
+        return Lone::get('Db');
     }
 
     /**
@@ -1160,7 +1163,7 @@ abstract class CMSModule
             'editorlocator' => $editorlocator,
         ];
         $obj = new ContentType($parms);
-        SingleItem::ContentTypeOperations()->AddContentType($obj);
+        Lone::get('ContentTypeOperations')->AddContentType($obj);
     }
 
     /**
@@ -1198,10 +1201,10 @@ abstract class CMSModule
     {
         $filename = $this->GetModulePath().'/method.install.php';
         if (@is_file($filename)) {
-            $gCms = SingleItem::App();
-            $db = SingleItem::Db();
-            $config = SingleItem::Config();
-            if( !AppState::test(AppState::INSTALL) ) $smarty = SingleItem::Smarty();
+            $gCms = Lone::get('App');
+            $db = Lone::get('Db');
+            $config = Lone::get('Config');
+            if( !AppState::test(AppState::INSTALL) ) $smarty = Lone::get('Smarty');
 
             $res = include $filename;
             if ($res && $res !== 1) { return $res; }
@@ -1240,10 +1243,10 @@ abstract class CMSModule
     {
         $filename = $this->GetModulePath().'/method.uninstall.php';
         if( @is_file($filename) ) {
-            $gCms = SingleItem::App();
-            $db = SingleItem::Db();
-            $config = SingleItem::Config();
-            $smarty = SingleItem::Smarty(); //needed?
+            $gCms = Lone::get('App');
+            $db = Lone::get('Db');
+            $config = Lone::get('Config');
+            $smarty = Lone::get('Smarty'); //needed?
             $res = include $filename;
             if( $res == 1 || !$res ) return false;
             if( is_string($res) ) {
@@ -1312,10 +1315,10 @@ abstract class CMSModule
     {
         $filename = $this->GetModulePath().'/method.upgrade.php';
         if( @is_file($filename) ) {
-            $gCms = SingleItem::App();
-            $db = SingleItem::Db();
-            $config = SingleItem::Config();
-            $smarty = SingleItem::Smarty();
+            $gCms = Lone::get('App');
+            $db = Lone::get('Db');
+            $config = Lone::get('Config');
+            $smarty = Lone::get('Smarty');
 
             $this->modinstall = true; // too bad if this method is sub-classed!
             $res = include $filename;
@@ -1349,7 +1352,7 @@ abstract class CMSModule
      */
     final public function CheckForDependents() : bool
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
 
         $query = 'SELECT child_module FROM '.CMS_DB_PREFIX.'module_deps WHERE parent_module = ? LIMIT 1';
         $tmp = $db->getOne($query,[$this->GetName()]);
@@ -1366,7 +1369,7 @@ abstract class CMSModule
      */
     final public function CreateXMLPackage(&$message, &$filecount)
     {
-        return SingleItem::ModuleOperations()->CreateXmlPackage($this, $message, $filecount);
+        return Lone::get('ModuleOperations')->CreateXmlPackage($this, $message, $filecount);
     }
 
     /**
@@ -1513,7 +1516,7 @@ abstract class CMSModule
      * /
     public function get_cli_commands($app)
     {
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
         //TODO a better approach for this stuff
         if( !$config['app_mode'] ) return null;
         if( ! $app instanceof CMSMS\CLI\App ) return null;
@@ -1694,12 +1697,12 @@ abstract class CMSModule
                     // no generic de-specialize for $params - there may be valid entities e.g. when editiing page content via ContentManager action
                     $name = $action; // former name of the action, might be expected by an action
                     // convenient in-scope vars for the included file
-                    $gCms = SingleItem::App();
-                    $db = SingleItem::Db();
-                    $config = SingleItem::Config();
+                    $gCms = Lone::get('App');
+                    $db = Lone::get('Db');
+                    $config = Lone::get('Config');
                     $uuid = get_site_UUID(); //since 3.0
                     if( template_processing_allowed() ) {
-                        $smarty = (!empty($this->_action_tpl)) ? $this->_action_tpl : SingleItem::Smarty();
+                        $smarty = (!empty($this->_action_tpl)) ? $this->_action_tpl : Lone::get('Smarty');
                     }
                     ob_start();
                     $result = include $filename;
@@ -1779,7 +1782,7 @@ abstract class CMSModule
             if( $smartob instanceof Smarty ) {
                 $smarty = $smartob;
             } else {
-                $smarty = SingleItem::Smarty();
+                $smarty = Lone::get('Smarty');
             }
             // create a template object to hold some default variables
             // the module-action will normally use another template created/derived fom this one
@@ -2381,7 +2384,7 @@ abstract class CMSModule
      */
     final public static function GetModuleInstance(string $modname)
     {
-        return SingleItem::ModuleOperations()->get_module_instance($modname);
+        return Lone::get('ModuleOperations')->get_module_instance($modname);
     }
 
     /**
@@ -2394,7 +2397,7 @@ abstract class CMSModule
      */
     final public function GetModulesWithCapability(string $capability, array $params = []) : array
     {
-        return SingleItem::LoadedMetadata()->get('capable_modules', false, $capability, $params);
+        return Lone::get('LoadedMetadata')->get('capable_modules', false, $capability, $params);
     }
 
     /**
@@ -2596,7 +2599,7 @@ abstract class CMSModule
         if( strpos($tpl_name, '..') !== false ) return '';
         $tpl = $this->_action_tpl;
         if( !$tpl ) {
-            $tpl = SingleItem::Smarty();
+            $tpl = Lone::get('Smarty');
         }
         return $tpl->fetch('module_file_tpl:'.$this->GetName().';'.$tpl_name);
     }
@@ -2645,7 +2648,7 @@ abstract class CMSModule
     final public function ListUserTags() : array
     {
         assert(!CMS_DEPREC, new DeprecationNotice('method','CMSMS\UserTagOperations-instance->ListUserTags()'));
-        $ops = SingleItem::UserTagOperations();
+        $ops = Lone::get('UserTagOperations');
         return $ops->ListUserTags();
     }
 
@@ -2662,7 +2665,7 @@ abstract class CMSModule
     final public function CallUserTag(string $name, $arguments = [])
     {
         assert(!CMS_DEPREC, new DeprecationNotice('method','CMSMS\UserTagOperations-instance->CallUserTag()'));
-        $ops = SingleItem::UserTagOperations();
+        $ops = Lone::get('UserTagOperations');
         return $ops->CallUserTag($name, $arguments);
     }
 
@@ -2825,7 +2828,7 @@ abstract class CMSModule
      */
     public function SetContentType($contenttype)
     {
-        SingleItem::App()->set_content_type($contenttype);
+        cmsms()->set_content_type($contenttype);
     }
 
     /**
@@ -2854,7 +2857,7 @@ abstract class CMSModule
      */
     public function SetInfo($str)
     {
-        $themeObject = SingleItem::Theme();
+        $themeObject = Lone::get('Theme');
         if( is_object($themeObject) ) $themeObject->RecordNotice('info', $str, '', true);
     }
 
@@ -2869,7 +2872,7 @@ abstract class CMSModule
      */
     public function SetMessage($str)
     {
-        $themeObject = SingleItem::Theme();
+        $themeObject = Lone::get('Theme');
         if( is_object($themeObject) ) $themeObject->RecordNotice('success', $str, '', true);
     }
 
@@ -2884,7 +2887,7 @@ abstract class CMSModule
      */
     public function SetWarning($str)
     {
-        $themeObject = SingleItem::Theme();
+        $themeObject = Lone::get('Theme');
         if( is_object($themeObject) ) $themeObject->RecordNotice('warn', $str, '', true);
     }
 
@@ -2899,7 +2902,7 @@ abstract class CMSModule
      */
     public function SetError($str)
     {
-        $themeObject = SingleItem::Theme();
+        $themeObject = Lone::get('Theme');
         if( is_object($themeObject) ) $themeObject->RecordNotice('error', $str, '', true);
     }
 
@@ -2916,7 +2919,7 @@ abstract class CMSModule
     {
 
         if( AppState::test(AppState::ADMIN_PAGE) ) {
-            $themeObject = SingleItem::Theme();
+            $themeObject = Lone::get('Theme');
             if( is_object($themeObject) ) $themeObject->RecordNotice('info', $message);
         }
         return '';
@@ -2934,7 +2937,7 @@ abstract class CMSModule
     {
 
         if( AppState::test(AppState::ADMIN_PAGE) ) {
-            $themeObject = SingleItem::Theme();
+            $themeObject = Lone::get('Theme');
             if( is_object($themeObject) ) $themeObject->RecordNotice('success', $message);
         }
         return '';
@@ -2953,7 +2956,7 @@ abstract class CMSModule
     {
 
         if( AppState::test(AppState::ADMIN_PAGE) ) {
-            $themeObject = SingleItem::Theme();
+            $themeObject = Lone::get('Theme');
             if( is_object($themeObject) ) $themeObject->RecordNotice('warn', $message);
         }
         return '';
@@ -2971,7 +2974,7 @@ abstract class CMSModule
     public function ShowErrors($message)
     {
         if( AppState::test(AppState::ADMIN_PAGE) ) {
-            $themeObject = SingleItem::Theme();
+            $themeObject = Lone::get('Theme');
             if (is_object($themeObject)) $themeObject->RecordNotice('error', $message);
         }
         return '';
@@ -3045,7 +3048,7 @@ abstract class CMSModule
             return check_permission($userid, ...$perms);
         }
         //session expired
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
         redirect($config['admin_url'].'/login.php');
     }
 
@@ -3237,10 +3240,10 @@ abstract class CMSModule
             $filename = $this->GetModulePath().'/event.' . $originator . '.' . $eventname . '.php';
 
             if (@is_file($filename)) {
-                $gCms = SingleItem::App();
-                $db = SingleItem::Db();
-                $config = SingleItem::Config();
-                $smarty = SingleItem::Smarty();
+                $gCms = Lone::get('App');
+                $db = Lone::get('Db');
+                $config = Lone::get('Config');
+                $smarty = Lone::get('Smarty');
                 include $filename;
             }
         }

@@ -102,6 +102,7 @@ abstract class Alert
      *
      * Initialize the name to a unique name, the priority to normal, and the creation time.
      */
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $this->_name = Crypto::random_string(24, true);
@@ -119,6 +120,7 @@ abstract class Alert
      * @param string $key
      * @return string;
      */
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         switch( $key ) {
@@ -148,6 +150,7 @@ abstract class Alert
      * @param string $val
      * @throws InvalidArgumentException or LogicException
      */
+    #[\ReturnTypeWillChange]
     public function __set(string $key,$val)
     {
         if( $this->_loaded ) throw new LogicException('Alerts cannot be altered once saved');

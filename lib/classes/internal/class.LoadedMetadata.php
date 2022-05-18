@@ -25,7 +25,7 @@ use CMSMS\DataException;
 use CMSMS\DeprecationNotice;
 use CMSMS\internal\LoadedMetadataType;
 use CMSMS\LoadedData;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use ReflectionMethod;
 use Throwable;
 use UnexpectedValueException;
@@ -69,30 +69,31 @@ final class LoadedMetadata extends LoadedData
 
 	/* *
 	 * @ignore
-	 * @private to prevent direct creation (even by SingleItem class)
+	 * @private to prevent direct creation (even by Lone class)
 	 */
-//	private function __construct() {} TODO public iff wanted by SingleItem ?
+//	private function __construct() {} TODO public iff wanted by Lone ?
 
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**
 	 * Get the singleton instance of this class
-	 * @deprecated since 3.0 Instead use SingleItem::LoadedMetadata()
+	 * @deprecated since 3.0 Instead use Lone::get('LoadedMetadata')
 	 *
 	 * @return LoadedMetadata object
 	 */
 	public static function get_instance()
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::LoadedMetadata()'));
-		return SingleItem::LoadedMetadata();
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'LoadedMetadata\')'));
+		return Lone::get('LoadedMetadata');
 	}
 
 	public static function load_setup()
 	{
-		SingleItem::LoadedMetadata()->set_custom_callables();
+		Lone::get('LoadedMetadata')->set_custom_callables();
 	}
 
 	/**
@@ -138,7 +139,7 @@ final class LoadedMetadata extends LoadedData
 		}
 
 		debug_buffer("Start adding '$capability' capability to modules metadata");
-		$modops = SingleItem::ModuleOperations();
+		$modops = Lone::get('ModuleOperations');
 		$availmodules = $modops->GetInstalledModules();
 		$out = [];
 		foreach( $availmodules as $modname ) {
@@ -180,7 +181,7 @@ final class LoadedMetadata extends LoadedData
 
 		debug_buffer("Start adding '$method()' to modules metadata");
 		// TODO some ReflectionClass process instead of the following, if method-calling is supported
-		$modops = SingleItem::ModuleOperations();
+		$modops = Lone::get('ModuleOperations');
 		$availmodules = $modops->GetInstalledModules();
 		$out = [];
 		foreach( $availmodules as $modname ) {
@@ -482,7 +483,7 @@ final class LoadedMetadata extends LoadedData
 	 * Return names of installed modules which have, or don't have, the
 	 * specified capability. Modules' availability setting is ignored.
 	 * @deprecated since 3.0 Instead use
-	 *  SingleItem::LoadedMetadata()->get('capable_modules',$force,$capability[,...)
+	 *  Lone::get('LoadedMetadata')->get('capable_modules',$force,$capability[,...)
 	 *
 	 * @param string $capability The capability name
 	 * @param array  $params Optional capability parameters
@@ -491,8 +492,8 @@ final class LoadedMetadata extends LoadedData
 	 */
 	public function module_list_by_capability(string $capability, $params = [], bool $match = true) : array
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::LoadedMetadata()->get(\'capable_modules\', $forced, parms ...)'));
-		return SingleItem::LoadedMetadata()->get('capable_modules', false, $capability, $params, $match);
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'LoadedMetadata\')->get(\'capable_modules\', $forced, parms ...)'));
+		return Lone::get('LoadedMetadata')->get('capable_modules', false, $capability, $params, $match);
 	}
 
 	/**
@@ -500,7 +501,7 @@ final class LoadedMetadata extends LoadedData
 	 * and that method returns the specified result.
 	 * Modules' availability setting is ignored.
 	 * @deprecated since 3.0 Instead use
-	 *  SingleItem::LoadedMetadata()->get('methodic_modules',$force,$method[,$returnvalue])
+	 *  Lone::get('LoadedMetadata')->get('methodic_modules',$force,$method[,$returnvalue])
 	 *
 	 * @param string $method Method name
 	 * @param mixed  $returnvalue Optional value to (non-strictly) compare
@@ -510,8 +511,8 @@ final class LoadedMetadata extends LoadedData
 	 */
 	public function module_list_by_method(string $method, $returnvalue = true) : array
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::LoadedMetadata()->get(\'methodic_modules\', parms ...)'));
-		return SingleItem::LoadedMetadata()->get('methodic_modules', false, $method, $returnvalue);
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'LoadedMetadata\')->get(\'methodic_modules\', parms ...)'));
+		return Lone::get('LoadedMetadata')->get('methodic_modules', false, $method, $returnvalue);
 	}
 
 	/**

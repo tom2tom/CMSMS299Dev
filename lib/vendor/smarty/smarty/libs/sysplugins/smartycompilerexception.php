@@ -10,6 +10,7 @@ class SmartyCompilerException extends SmartyException
     /**
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return ' --> Smarty Compiler: ' . $this->message . ' <-- ';

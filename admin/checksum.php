@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Error403Exception;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\get_site_UUID;
 
 $orig_memory = (function_exists('memory_get_usage') ? memory_get_usage() : 0);
@@ -38,7 +38,7 @@ if (!$access) {
     throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 $urlext = get_secure_param();
 
 require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'test.functions.php');
@@ -247,7 +247,7 @@ function generate_checksum_file(&$report)
     exit;
 }
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 // Get ready
 $smarty->registerPlugin('function', 'lang', 'checksum_lang');
 $smarty->force_compile = true;

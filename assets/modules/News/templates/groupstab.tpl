@@ -13,7 +13,7 @@
 {/if}
 
 {if !empty($catcount)}
-<table class="pagetable" style="width:auto;">
+<table class="pagetable">
  <thead>
   <tr>
     <th>{_ld($_module,'category')}</th>

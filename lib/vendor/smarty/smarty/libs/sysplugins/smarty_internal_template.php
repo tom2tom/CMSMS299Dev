@@ -145,6 +145,7 @@ class Smarty_Internal_Template extends Smarty_Internal_TemplateBase
      *
      * @throws \SmartyException
      */
+    #[\ReturnTypeWillChange]
     public function __construct(
         $template_resource,
         Smarty $smarty,
@@ -663,6 +664,7 @@ class Smarty_Internal_Template extends Smarty_Internal_TemplateBase
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function __call($name, $args)
     {
         // method of Smarty object?
@@ -681,6 +683,7 @@ class Smarty_Internal_Template extends Smarty_Internal_TemplateBase
      * @return mixed|Smarty_Template_Cached
      * @throws SmartyException
      */
+    #[\ReturnTypeWillChange]
     public function __get($property_name)
     {
         switch ($property_name) {
@@ -710,6 +713,7 @@ class Smarty_Internal_Template extends Smarty_Internal_TemplateBase
      *
      * @throws SmartyException
      */
+    #[\ReturnTypeWillChange]
     public function __set($property_name, $value)
     {
         switch ($property_name) {
@@ -731,6 +735,7 @@ class Smarty_Internal_Template extends Smarty_Internal_TemplateBase
     /**
      * Template data object destructor
      */
+    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         if ($this->smarty->cache_locking && isset($this->cached) && $this->cached->is_locked) {

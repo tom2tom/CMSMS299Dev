@@ -12,7 +12,7 @@
   <a href="{$url}">{$t}</a>
   {/if}
   {if $manage_stylesheets}
-  &nbsp;&nbsp;<a id="clearlocks" style="display:none;" accesskey="l" title="{_ld('layout','title_clearlocks')}" href="clearlocks.php{$urlext}&amp;type=stylesheet">{admin_icon icon='run.gif' alt=''}&nbsp;{_ld('layout','prompt_clearlocks')}</a>
+  &nbsp;&nbsp;<a id="clearlocks" style="display:none;" accesskey="l" title="{_ld('layout','title_clearlocks')}" href="clearlocks.php{$urlext}&type=stylesheet">{admin_icon icon='run.gif' alt=''}&nbsp;{_ld('layout','prompt_clearlocks')}</a>
   {/if}
   </div>
 </div>

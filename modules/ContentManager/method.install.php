@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
 use CMSMS\Group;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 if (empty($this) || !($this instanceof ContentManager)) {
 	exit;
@@ -30,14 +30,14 @@ if (empty($this) || !($this instanceof ContentManager)) {
 //$installing = AppState::test(AppState::INSTALL);
 //if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
-SingleItem::ContentTypeOperations()->RebuildStaticContentTypes();
+Lone::get('ContentTypeOperations')->RebuildStaticContentTypes();
 
 $this->SetPreference('locktimeout', 60);
 $this->SetPreference('lockrefresh', 120);
 
 $me = $this->GetName();
 
-$obj = SingleItem::GroupOperations()->LoadGroupByName('Editor');
+$obj = Lone::get('GroupOperations')->LoadGroupByName('Editor');
 $flag = ($obj == null);
 if ($flag) {
 	// new site
@@ -93,5 +93,5 @@ foreach ([
 }
 
 // semi-permanent alias for back-compatibility
-$ops = SingleItem::ModuleOperations();
+$ops = Lone::get('ModuleOperations');
 $ops->set_module_classname('CMSContentManager', get_class($this));

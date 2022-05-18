@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\UserOperations;
 use function CMSMS\de_specialize_array;
 use function CMSMS\log_info;
@@ -42,14 +42,14 @@ if (isset($_POST['cancel'])) {
 
 $userid = get_userid();
 
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 if (!check_permission($userid, 'Manage My Account')) {
 //TODO some pushed popup c.f. javascript:cms_notify('error', _la('no_permission') OR _la('needpermissionto', _la('perm_Manage My Account')), ...);
     throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
-$userobj = SingleItem::UserOperations()->LoadUserByID($userid);
+$userobj = Lone::get('UserOperations')->LoadUserByID($userid);
 
 /* DEBUG
 $tester = function($user, $pw)
@@ -224,7 +224,7 @@ $userobj->email = specialize($userobj->email);
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
     'selfurl' => $selfurl,
     'extraparms' => $extras,

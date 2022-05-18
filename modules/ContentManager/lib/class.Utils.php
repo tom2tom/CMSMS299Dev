@@ -42,6 +42,7 @@ use function get_userid;
  */
 final class Utils
 {
+	#[\ReturnTypeWillChange]
 	private function __construct() {}
 
 	public static function get_pagedefaults() : array
@@ -136,18 +137,18 @@ final class Utils
 			$selrows = [];
 			$unselrows = [];
 			foreach ($sheets as $one) {
-				$ob = new stdClass();
-				$ob->id = $one['id'];
-				$ob->name = ($ob->id > 0) ? $one['name'] : $gname.$one['name'];
+				$obj = new stdClass();
+				$obj->id = $one['id'];
+				$obj->name = ($obj->id > 0) ? $one['name'] : $gname.$one['name'];
 				if ($grouped) {
-					$ob->members = $one['members'];
+					$obj->members = $one['members'];
 				}
 				if ($selected && in_array($one['id'], $selected)) {
-					$ob->checked = true;
-					$selrows[] = $ob;
+					$obj->checked = true;
+					$selrows[] = $obj;
 				} else {
-					$ob->checked = false;
-					$unselrows[] = $ob;
+					$obj->checked = false;
+					$unselrows[] = $obj;
 				}
 			}
 

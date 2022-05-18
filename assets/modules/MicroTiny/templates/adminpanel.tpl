@@ -14,17 +14,17 @@
   {$t=_ld($_module,'label_sourceurl')}<label class="pagetext" for="fromurl">* {$t}:</label>
   {cms_help 0=$_module key='help_sourceurl' title=$t}
   <div class="pageinput">
-   <input type="text" id="fromurl" name="{$actionid}source_url" value="{$source_url}" size="50" maxlength="80" required="required" />
+   <input type="text" id="fromurl" name="{$actionid}source_url" value="{$source_url}" size="70" required="required" />
   </div>
   {$t=_ld($_module,'label_sourcesri')}<label class="pagetext" for="srihash">{$t}:</label>
   {cms_help 0=$_module key='help_sourcesri' title=$t}
   <div class="pageinput">
-   <input type="text" id="srihash" name="{$actionid}source_sri" value="{$source_sri}" size="98" maxlength="100" />
+   <input type="text" id="srihash" name="{$actionid}source_sri" value="{$source_sri}" size="98" />
   </div>
   {$t=_ld($_module,'label_skin')}<label class="pagetext" for="skinurl">{$t}:</label>
   {cms_help 0=$_module key='help_skin' title=$t}
   <div class="pageinput">
-   <input type="text" id="skinurl" name="{$actionid}skin_url" value="{$skin_url}" size="50" maxlength="80" />
+   <input type="text" id="skinurl" name="{$actionid}skin_url" value="{$skin_url}" size="70" />
   </div>
   <div class="pageinput pregap">
    <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{_la('apply')}</button>
@@ -36,7 +36,7 @@
  <fieldset>
   <legend>{_ld($_module,'prompt_profiles')}</legend>
 {if $profiles}
-  <table class="pagetable" style="width:auto;">
+  <table class="pagetable">
     <thead>
       <tr>
         <th>{_ld($_module,'prompt_name')}</th>

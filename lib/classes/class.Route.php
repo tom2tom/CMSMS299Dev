@@ -75,6 +75,7 @@ class Route implements ArrayAccess
 	 *  May be specified to tailor static-route deletion in a case where
 	 *  dest1 and page are both non-falsy i.e. the destination is a content page.
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct($pattern,$dest1 = NULL,$defaults = [],$is_exact = FALSE,$page = NULL,$delmatch = NULL)
 	{
 		$this->_data['term'] = $pattern;
@@ -100,7 +101,8 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	public function __set(string $key,$value)
+	#[\ReturnTypeWillChange]
+	public function __set(string $key,$value)// : void
 	{
 		if( in_array($key,self::KEYS) ) $this->_data[$key] = $value;
 	}
@@ -108,7 +110,8 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	public function __isset(string $key)
+	#[\ReturnTypeWillChange]
+	public function __isset(string $key)// : bool
 	{
 		return in_array($key,self::KEYS) && isset($this->_data[$key]);
 	}
@@ -116,7 +119,8 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	public function __get(string $key)
+	#[\ReturnTypeWillChange]
+	public function __get(string $key)// : mixed
 	{
 		return $this->_data[$key] ?? NULL;
 	}
@@ -124,7 +128,8 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	public function OffsetGet($key)
+	#[\ReturnTypeWillChange]
+	public function offsetGet($key)// : mixed
 	{
 		if( in_array($key,self::KEYS) && isset($this->_data[$key]) ) return $this->_data[$key];
 	}
@@ -132,7 +137,8 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	public function OffsetSet($key,$value)
+	#[\ReturnTypeWillChange]
+	public function offsetSet($key,$value)// : void
 	{
 		if( in_array($key,self::KEYS) ) $this->_data[$key] = $value;
 	}
@@ -140,7 +146,8 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	public function OffsetExists($key)
+	#[\ReturnTypeWillChange]
+	public function offsetExists($key)// : bool
 	{
 		return in_array($key,self::KEYS) && isset($this->_data[$key]);
 	}
@@ -148,7 +155,8 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	public function OffsetUnset($key)
+	#[\ReturnTypeWillChange]
+	public function offsetUnset($key)// : void
 	{
 		if( in_array($key,self::KEYS) && isset($this->_data[$key]) ) unset($this->_data[$key]);
 	}
@@ -277,3 +285,4 @@ class Route implements ArrayAccess
 		return RouteOperations::is_match($this,$str,$exact);
 	}
 } // class
+//if (!\class_exists('CmsRoute', false)) \class_alias(Route::class, 'CmsRoute', false);

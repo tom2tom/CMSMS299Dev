@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\UserParams;
 use FileManager\Utils;
 
@@ -43,7 +43,7 @@ if( count($sel)>1 ) {
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 
-$config = SingleItem::Config();
+$config = Lone::get('Config');
 $basedir = CMS_ROOT_PATH;
 $filename = $this->decodefilename($sel[0]);
 $src = cms_join_path($basedir,Utils::get_cwd(),$filename);

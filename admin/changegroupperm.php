@@ -24,7 +24,7 @@ use CMSMS\AppParams;
 use CMSMS\Error403Exception;
 use CMSMS\HookOperations;
 use CMSMS\LangOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\UserParams;
 use function CMSMS\log_info;
 
@@ -49,7 +49,7 @@ $superusr = $userid == 1;
 if ($superusr) {
     $supergrp = true;
 } else {
-    $userops = SingleItem::UserOperations();
+    $userops = Lone::get('UserOperations');
     $supergrp = $userops->UserInGroup($userid, 1);
 }
 
@@ -60,7 +60,7 @@ if (isset($_POST['filter'])) {
 }
 $disp_group = UserParams::get_for_user($userid, 'changegroupassign_group', -1);
 
-$db = SingleItem::Db();
+$db = Lone::get('Db');
 
 $ultras = json_decode(AppParams::get('ultraroles'));
 if ($ultras) {
@@ -105,11 +105,11 @@ if (isset($_POST['submit'])) {
     log_info($userid, 'Permission Group ID: '.$userid, 'Changed');
     $message = _la('permissionschanged');
 //    AdminUtils::clear_cached_files();
-//    SingleItem::LoadedData()->refresh('IF ANY');
+//    Lone::get('LoadedData')->refresh('IF ANY');
 }
 
 if (!empty($message)) {
-    SingleItem::Theme()->RecordNotice('success', $message);
+    Lone::get('Theme')->RecordNotice('success', $message);
 }
 
 // setup to get default values for localized permission-strings from admin realm
@@ -129,7 +129,7 @@ HookOperations::add_hook('getperminfo', function ($perm_source, $perm_name) {
 }, HookOperations::PRIORITY_LOW);
 
 //populate displayed-group(s) selector
-$groupops = SingleItem::GroupOperations();
+$groupops = Lone::get('GroupOperations');
 $group_list = $groupops->LoadGroups();
 $allgroups = []; //ditto
 $sel_groups = [];
@@ -218,7 +218,7 @@ if (count($perm_struct) > 1) {
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
     'group_list' => $sel_groups,
     'allgroups' => $allgroups,

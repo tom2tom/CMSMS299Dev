@@ -78,6 +78,27 @@ $query1 .= ' ORDER by N.news_title';
 $rst = $db->execute($query1, $parms);
 
 if( $rst ) {
+
+// pre-defined data structure to support PHP optimisation
+class NewsItemData
+{
+    public $approve_link;
+    public $approve_mode;
+    public $category;
+    public $copylink;
+    public $deletelink;
+    public $edit_url;
+    public $editlink;
+    public $end;
+    public $enddate;
+    public $expired;
+    public $id;
+    public $movelink;
+    public $start;
+    public $startdate;
+    public $title;
+}
+
     if( $papp ) {
 //      $iconcancel = $themeObj->DisplayImage('icons/system/true', $this->Lang('revert'), null, '', 'systemicon');
 //      $iconapprove = $themeObj->DisplayImage('icons/system/false', $this->Lang('approve'), null, '', 'systemicon');
@@ -111,7 +132,7 @@ if( $rst ) {
     $entryarray = [];
 
     while( ($row = $rst->FetchRow()) ) {
-        $onerow = new stdClass();
+        $onerow = new NewsItemData(); //stdClass();
 
         $onerow->id = $row['news_id'];
         if( $pmod || $pprop ) {
@@ -132,19 +153,23 @@ if( $rst ) {
         if( $papp ) {
             if ($onerow->expired) {
                 $onerow->approve_link = $labelarchived;
+                $onerow->approve_mode = 3;
             }
             elseif( $row['status'] == 'published' ) {
                 $onerow->approve_link = $this->CreateLink(
                     $id, 'approvearticle', $returnid, $labelpublished, ['approve'=>0, 'articleid'=>$row['news_id']], '', false, false, 'title="'.$titlepublished.'"');
+                $onerow->approve_mode = 2;
             }
             else {
                 //TODO properly handle draft | final | pending
                 $onerow->approve_link = $this->CreateLink(
                     $id, 'approvearticle', $returnid, $labelfinal, ['approve'=>1, 'articleid'=>$row['news_id']], '', false, false, 'title="'.$titlefinal.'"');
+                $onerow->approve_mode = 1;
             }
         }
         else {
             $onerow->approve_link = $stati[$row['status']];
+            $onerow->approve_mode = 9;
         }
 
         if( $pmod || $pprop ) {
@@ -258,7 +283,7 @@ $(function() {
   type: 'text'
  });
  $.fn.SSsort.addParser({
-  id: 'stamp',
+  id: 'intfor',
   is: function(s,node) {
    var \$el = $(node).find('span');
    return \$el.length > 0;
@@ -281,10 +306,10 @@ $(function() {
   $(itemstbl).SSsort(xopts);
   $('#pagerows').on('change',function() {
    l = parseInt(this.value);
-   if(l == 0) {
-     $('.ipglink').hide();//TODO hide label 'rows per page', show 'rows'
+   if(l === 0) {
+     $('#ipglink').hide();//TODO hide label-part 'per page'
    } else {
-     $('.ipglink').show();//TODO show label 'rows per page', hide 'rows'
+     $('#ipglink').show();//TODO show label-part 'per page'
    }
    $.fn.SSsort.setCurrent(itemstbl,'pagesize',l);
   });

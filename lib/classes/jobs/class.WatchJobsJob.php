@@ -32,6 +32,7 @@ class WatchJobsJob extends CronJob
     const ENABLED_SITEPREF = 'WatchJobsJob'.AppParams::NAMESPACER.'jobschanged';
     const STATUS_SITEPREF = 'WatchJobsJob'.AppParams::NAMESPACER.'signature';
 
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();
@@ -76,5 +77,4 @@ class WatchJobsJob extends CronJob
         return 1;
     }
 }
-
 //\class_alias('CMSMS\jobs\WatchJobsJob','WatchTasksTask', false); N/A

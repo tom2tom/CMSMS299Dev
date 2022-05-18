@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\Bookmark;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use const CMS_DB_PREFIX;
 use const CMS_ROOT_URL;
 use function get_secure_param;
@@ -44,7 +44,8 @@ final class BookmarkOperations
 	 * @param array $args
 	 * @return mixed
 	 */
-	public static function __callStatic(string $name, array $args)
+	#[\ReturnTypeWillChange]
+	public static function __callStatic(string $name, array $args)// : mixed
 	{
 		return (new CMSMS\BookmarkOperations())->$name(...$args); //TODO may bomb with same method-names
 	}
@@ -93,7 +94,7 @@ final class BookmarkOperations
 	 */
 	public function LoadBookmarks(int $user_id) : array
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT bookmark_id, user_id, title, url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE user_id = ? ORDER BY title';
 		$rs = $db->execute($query, [$user_id]);
 
@@ -121,7 +122,7 @@ final class BookmarkOperations
 	public function LoadBookmarkByID(int $id)
 	{
 		$result = null;
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 
 		$query = 'SELECT bookmark_id, user_id, title, url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE bookmark_id = ?';
 		$rs = $db->execute($query, [$id]);
@@ -147,7 +148,7 @@ final class BookmarkOperations
 	 */
 	public function InsertBookmark(Bookmark $bookmark) : int
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$bookmark->url = $this->_prep_for_saving($bookmark->url);
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'admin_bookmarks (user_id, url, title) VALUES (?,?,?)';
 		$dbr = $db->execute($query, [$bookmark->user_id, $bookmark->url, $bookmark->title]);
@@ -162,7 +163,7 @@ final class BookmarkOperations
 	 */
 	public function UpdateBookmark(Bookmark $bookmark) : bool
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$bookmark->url = $this->_prep_for_saving($bookmark->url);
 		$query = 'UPDATE '.CMS_DB_PREFIX.'admin_bookmarks SET user_id = ?, title = ?, url = ? WHERE bookmark_id = ?';
 //		$dbr = useless for update
@@ -179,7 +180,7 @@ final class BookmarkOperations
 	 */
 	public function DeleteBookmarkByID(int $id) : bool
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE bookmark_id = ?';
 		$dbr = $db->execute($query, [$id]);
 		return ($dbr != false);

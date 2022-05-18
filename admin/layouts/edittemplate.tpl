@@ -7,7 +7,8 @@
 {/if}
 
 <form id="form_edittemplate" action="{$selfurl}" enctype="multipart/form-data" method="post">
-{foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />{/foreach}
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
 <fieldset>
 <div class="rowbox">
   <div class="boxchild">

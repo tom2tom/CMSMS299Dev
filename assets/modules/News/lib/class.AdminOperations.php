@@ -21,15 +21,15 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace News;
 
-//use function cms_move_uploaded_file;
 use CMSMS\Events;
+use CMSMS\Lone;
 use CMSMS\Route;
 use CMSMS\RouteOperations;
-use CMSMS\SingleItem;
 use CMSMS\Utils;
 use const CMS_DB_PREFIX;
 use function CMSMS\log_info;
 use function get_userid;
+//use function cms_move_uploaded_file;
 
 final class AdminOperations
 {
@@ -46,7 +46,7 @@ final class AdminOperations
     {
         if (!$articleid) return false;
 
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
         $row = $db->getRow($query, [$articleid]);
         if ($row) {
@@ -108,7 +108,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     public static function move_article($articleid, $categoryid)
     {
         if (!$articleid) return false;
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET
 news_category_id = ?,
 modified_date = ?
@@ -131,7 +131,7 @@ WHERE news_id = ?';
     {
         if (!$articleid) return false;
 
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         // remove the article
         $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
         $db->execute($query, [$articleid]);
@@ -161,7 +161,7 @@ WHERE news_id = ?';
 /*
     public static function handle_upload($itemid,$fieldname,&$error)
     {
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
 
         $mod = Utils::get_module('News');
         $p = cms_join_path($config['uploads_path'],'news');
@@ -211,7 +211,7 @@ WHERE news_id = ?';
     */
     public static function UpdateHierarchyPositions()
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $query = 'SELECT news_category_id, item_order, news_category_name FROM '.CMS_DB_PREFIX.'module_news_categories';
         $rst = $db->execute($query);
         if ($rst) {
@@ -276,7 +276,7 @@ WHERE news_id = ?';
             $mod = Utils::get_module('News');
             $detailpage = $mod->GetPreference('detail_returnid',-1);
             if( $detailpage == -1 ) {
-                $detailpage = SingleItem::ContentOperations()->GetDefaultContent();
+                $detailpage = Lone::get('ContentOperations')->GetDefaultContent();
             }
         }
         $dflts = ['action'=>'detail','returnid'=>$detailpage,'articleid'=>$news_article_id];

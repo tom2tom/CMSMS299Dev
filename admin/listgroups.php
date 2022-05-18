@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 $dsep = DIRECTORY_SEPARATOR;
 require ".{$dsep}admininit.php";
@@ -30,7 +30,7 @@ check_login();
 $userid = get_userid();
 $access = check_permission($userid, 'Manage Groups');
 
-$groupops = SingleItem::GroupOperations();
+$groupops = Lone::get('GroupOperations');
 $grouplist = $groupops->LoadGroups();
 $n = count($grouplist);
 $page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
@@ -46,7 +46,7 @@ if ($n > $limit) {
     $maxsee = $n;
 }
 
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 $icontrue = $themeObject->DisplayImage('icons/system/true.gif', _la('true'), '', '', 'systemicon');
 $iconfalse = $themeObject->DisplayImage('icons/system/false.gif', _la('false'), '', '', 'systemicon');
 $iconassign = $themeObject->DisplayImage('icons/system/groupassign.gif', _la('assignments'), '', '', 'systemicon');
@@ -59,7 +59,7 @@ $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 $urlext = get_secure_param();
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
     'pmod' => $access,
     'addurl' => 'addgroup.php',

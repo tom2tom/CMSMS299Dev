@@ -21,6 +21,7 @@ class manifest_reader
     private $_changed = [];
     private $_deleted = [];
 
+    #[\ReturnTypeWillChange]
     public function __construct($dir)
     {
         if (!is_dir($dir)) {

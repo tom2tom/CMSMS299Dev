@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\log_error;
 use function CMSMS\log_notice;
 
@@ -37,7 +37,7 @@ if (empty($params['bulk_content'])) {
 	$this->Redirect($id, 'defaultadmin', $returnid);
 }
 
-$contentops = SingleItem::ContentOperations();
+$contentops = Lone::get('ContentOperations');
 $pagelist = $params['bulk_content'];
 $cachable = isset($params['cachable']) && cms_to_bool($params['cachable']);
 $user_id = get_userid();
@@ -61,10 +61,10 @@ try {
 	log_error('Multi-page cachability change failed', $t->getMessage());
 	$this->SetError($t->getMessage());
 }
-$cache = SingleItem::LoadedData();
+//$cache = Lone::get('LoadedData');
 // TODO or refresh() & save, ready for next stage ?
-$cache->delete('content_quicklist');
-$cache->delete('content_tree');
-$cache->delete('content_flatlist');
+//$cache->delete('content_quicklist');
+//$cache->delete('content_tree');
+//$cache->delete('content_flatlist');
 
 $this->Redirect($id, 'defaultadmin', $returnid);

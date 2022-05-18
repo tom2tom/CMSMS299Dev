@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 //NOTE since 3.0, something like this is performed by an async Job
 
 use CMSMS\LockOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\log_notice;
 
 $dsep = DIRECTORY_SEPARATOR;
@@ -59,7 +59,7 @@ default:
 }
 
 $userid = get_userid();
-$is_admin = SingleItem::UserOperations()->UserInGroup($userid,1);
+$is_admin = Lone::get('UserOperations')->UserInGroup($userid,1);
 if ($is_admin) {
 	// clear all locks of type content
 	$db = cmsms()->GetDb();
@@ -72,6 +72,6 @@ if ($is_admin) {
 	log_notice("Cleared user's $type locks");
 }
 
-SingleItem::Theme()->ParkNotice('info',_ld('layout','msg_lockscleared'));
+Lone::get('Theme')->ParkNotice('info',_ld('layout','msg_lockscleared'));
 $urlext = get_secure_param();
 redirect($op.'.php'.$urlext);

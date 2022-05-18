@@ -41,6 +41,7 @@ class PageLink extends ContentBase
 	/**
 	 * @param mixed $params
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct($params)
 	{
 		parent::__construct($params);

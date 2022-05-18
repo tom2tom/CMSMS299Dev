@@ -8,7 +8,7 @@
  <a href="{$url}">{_ld('layout','create_group')}</a>
 </div>
 {if isset($list_groups)}
-<table id="grouplist" class="pagetable" style="width:auto;">
+<table class="pagetable" id="grouplist">
  <thead>
   <tr>
     <th title="{_ld('layout','title_group_id')}">{_ld('layout','prompt_id')}</th>
@@ -29,7 +29,7 @@
       {$t=_ld('layout','prompt_locked')}
       <span class="locked" data-grp-id="{$gid}" title="{$t}"{if $ul} style="display:none;"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
       {$t=_ld('layout','prompt_steal_lock')}
-      <a class="steal_lock" href="{$url}&amp;steal=1" data-grp-id="{$gid}" title="{$t}" accesskey="e"{if $ul} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
+      <a class="steal_lock" href="{$url}&steal=1" data-grp-id="{$gid}" title="{$t}" accesskey="e"{if $ul} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
       <span class="action" context-menu="Templategroup{$gid}"{if !$ul} style="display:none;"{/if}>{admin_icon icon='menu.gif' alt='menu' title=_ld('layout','title_menu') class='systemicon'}</span>
     </td>{/strip}
   </tr>

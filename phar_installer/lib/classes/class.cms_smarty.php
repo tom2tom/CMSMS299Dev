@@ -11,6 +11,7 @@ final class cms_smarty extends Smarty
 {
     private static $_instance;
 
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();

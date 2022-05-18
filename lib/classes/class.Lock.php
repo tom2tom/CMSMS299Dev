@@ -75,6 +75,7 @@ final class Lock implements ArrayAccess
      *  be stolen. If not specified, the system default value will be used.
      * @throws LogicException or DataException
      */
+    #[\ReturnTypeWillChange]
     public function __construct(...$params)
     {
         switch (count($params)) {
@@ -105,7 +106,8 @@ final class Lock implements ArrayAccess
      * @return mixed
      * @throws LogicException
      */
-    public function OffsetGet($key)
+    #[\ReturnTypeWillChange]
+    public function offsetGet($key)// : mixed
     {
         switch ($key) {
         case 'type':
@@ -132,7 +134,8 @@ final class Lock implements ArrayAccess
      * @param mixed $value
      * @throws LogicException
      */
-    public function OffsetSet($key, $value)// : void
+    #[\ReturnTypeWillChange]
+    public function offsetSet($key, $value)// : void
     {
         switch ($key) {
         case 'modified_date': // deprecated since 3.0
@@ -172,7 +175,8 @@ final class Lock implements ArrayAccess
      * @param string $key
      * @return mixed
      */
-    public function OffsetExists($key)// : bool
+    #[\ReturnTypeWillChange]
+    public function offsetExists($key)// : bool
     {
         if ($key != 'created') {
             return isset($this->_data[$key]);
@@ -184,7 +188,8 @@ final class Lock implements ArrayAccess
      * @ignore
      * @param string $key
      */
-    public function OffsetUnset($key)// : void
+    #[\ReturnTypeWillChange]
+    public function offsetUnset($key)// : void
     {
         // do nothing
     }
@@ -328,3 +333,4 @@ final class Lock implements ArrayAccess
         return LockOperations::load($type, $oid, $userid);
     }
 } // class
+//if (!\class_exists('CmsLock', false)) \class_alias(Lock::class, 'CmsLock', false);

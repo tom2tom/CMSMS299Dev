@@ -83,6 +83,7 @@ final class SmtpTransport implements Transport
      * @param string $domain optional default same as $host
      * @param int $timeout since 5.1 optional 0 OR 5..120 seconds, default 25
      */
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $vals = array(
@@ -146,11 +147,13 @@ final class SmtpTransport implements Transport
         $this->streamer = function_exists('stream_socket_client');
     }
 /*
+    #[\ReturnTypeWillChange]
     public function __set($key, $value)
     {
         $this->$key = $value;
     }
 
+    #[\ReturnTypeWillChange]
     public function __get($key)
     {
         if (isset($this->$key)) return $this->$key;
@@ -414,6 +417,7 @@ final class SmtpTransport implements Transport
         return $options;
     }
 
+    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         //TODO handle persistent connection

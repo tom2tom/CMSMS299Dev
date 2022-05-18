@@ -7,7 +7,7 @@ See license details at the top of file AdminSearch.module.php
 */
 namespace AdminSearch;
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 use const CMS_DB_PREFIX;
 use function check_permission;
@@ -35,7 +35,7 @@ final class Content_slave extends Base_slave
     // returns array of arrays
     public function get_matches()
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $query = 'SELECT
 C.content_id,
 C.content_name,
@@ -71,7 +71,7 @@ C.page_url) LIKE ?'];
         $dbr = $db->getArray($query, [$wm, $wm]);
         if ($dbr) {
             $content_manager = Utils::get_module('ContentManager');
-            $content_ops = SingleItem::ContentOperations(); // OR CMSMS\ContentOperations->get_instance()
+            $content_ops = Lone::get('ContentOperations'); // OR CMSMS\ContentOperations->get_instance()
             $userid = get_userid();
             $pmod1 = check_permission($userid, 'Manage All Content') || check_permission($userid, 'Modify Any Page');
             $output = [];

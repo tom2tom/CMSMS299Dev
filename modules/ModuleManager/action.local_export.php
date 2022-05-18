@@ -23,8 +23,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Events;
+use CMSMS\Lone;
 use CMSMS\NlsOperations;
-use CMSMS\SingleItem;
 use function CMSMS\log_error;
 use function CMSMS\log_notice;
 use function CMSMS\sanitizeVal;
@@ -41,7 +41,7 @@ if( !isset($params['mod']) ) {
 $modname = sanitizeVal($params['mod'], CMSSAN_FILE);
 try {
     if( $modname ) {
-        $mod = SingleItem::ModuleOperations()->get_module_instance($modname, '', true);
+        $mod = Lone::get('ModuleOperations')->get_module_instance($modname, '', true);
     }
     else {
         $modname = 'Not Specified'; // not translated - export could go to anywhere

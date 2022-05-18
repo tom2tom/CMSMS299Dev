@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\log_error;
 use function CMSMS\sanitizeVal;
 
@@ -37,7 +37,7 @@ use function CMSMS\sanitizeVal;
  */
 class Smarty_Resource_cms_stylesheet extends Smarty_Resource_Custom
 {
-    // static properties here >> SingleItem property|ies ?
+    // static properties here >> Lone property|ies ?
     /**
      * @var array intra-request cache of used templates, each member like
      *  name => [ 'id' => props-array, 'name' => ref. to props-array ]
@@ -102,7 +102,7 @@ class Smarty_Resource_cms_stylesheet extends Smarty_Resource_Custom
                 $args = [$name, $name];
             }
 
-            $db = SingleItem::Db();
+            $db = Lone::get('Db');
             $sql = 'SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_stylesheets WHERE'.$so.' (id=? OR name=?)';
             $rst = $db->execute($sql, $args);
             if( !$rst || $rst->EOF() ) {

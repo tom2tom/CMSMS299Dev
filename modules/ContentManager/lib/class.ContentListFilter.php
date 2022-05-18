@@ -46,6 +46,7 @@ final class ContentListFilter
 	 * @return mixed
 	 * @throws InvalidArgumentException upon unrecognized $key
 	 */
+    #[\ReturnTypeWillChange]
 	public function __get(string $key)
 	{
 		switch ($key) {
@@ -65,6 +66,7 @@ final class ContentListFilter
 	 * @param mixed $val normally a string
 	 * @throws InvalidArgumentException upon unrecognized $key or $val
 	 */
+    #[\ReturnTypeWillChange]
 	public function __set(string $key, $val)
 	{
 		switch ($key) {

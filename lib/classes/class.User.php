@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\AppParams;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 /**
  * Generic admin user class.
@@ -91,6 +91,7 @@ use CMSMS\SingleItem;
 	/**
 	 * Generic constructor.  Runs the SetInitialValues method.
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct()
 	{
 		$this->SetInitialValues();
@@ -135,7 +136,7 @@ use CMSMS\SingleItem;
 	 */
 	public function SetPassword($password)
 	{
-		$userops = SingleItem::UserOperations();
+		$userops = Lone::get('UserOperations');
 		if ($userops->PasswordCheck($this, $password)) {
 			$this->newpass = true;
 			$this->password = $userops->PreparePassword($password);
@@ -174,7 +175,7 @@ use CMSMS\SingleItem;
 	 */
 	public function Save()
 	{
-		$userops = SingleItem::UserOperations();
+		$userops = Lone::get('UserOperations');
 		if ($this->id > 0) {
 			$result = $userops->UpdateUser($this);
 		} else {
@@ -200,7 +201,7 @@ use CMSMS\SingleItem;
 	{
 		$result = false;
 		if ($this->id > 0) {
-			$userops = SingleItem::UserOperations();
+			$userops = Lone::get('UserOperations');
 			$result = $userops->DeleteUserByID($this->id);
 			if ($result) { $this->SetInitialValues(); }
 		}

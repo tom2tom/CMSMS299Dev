@@ -23,8 +23,8 @@ use CMSMS\AppParams;
 use CMSMS\Crypto;
 use CMSMS\Events;
 use CMSMS\Group;
+use CMSMS\Lone;
 use CMSMS\Permission;
-use CMSMS\SingleItem;
 use CMSMS\User;
 use CMSMS\UserParams;
 use function cms_installer\get_server_permissions;
@@ -377,7 +377,7 @@ $group->GrantPermission('Modify Templates');
 // initial user account
 //
 verbose_msg(lang('install_initsiteusers'));
-$ops = SingleItem::UserOperations();
+$ops = Lone::get('UserOperations');
 $admin_user = new User();
 $admin_user->username = $adminaccount['username'];
 $admin_user->firstname = 'Site';

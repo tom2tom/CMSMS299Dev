@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 use function CMSMS\log_error;
 use function CMSMS\sanitizeVal;
@@ -85,7 +85,7 @@ class Smarty_Resource_theme_template extends Smarty_Resource_Custom
         //TODO support inherited/extended templates
 
         // here we replicate CMSMS\Template::get_content() without the overhead of loading that class
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'SELECT id,name,content,contentfile,COALESCE(modified_date,create_date,\'2000-1-1 00:00:01\') AS modified FROM '.CMS_DB_PREFIX.'layout_templates WHERE id=? OR name=?';
         $data = $db->getRow($sql,[$name,$name]);
         if( $data ) {

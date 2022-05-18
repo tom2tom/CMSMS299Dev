@@ -63,7 +63,7 @@ class HookOperations
      */
     const PRIORITY_LOW = 3;
 
-    // static properties here >> SingleItem property|ies ?
+    // static properties here >> Lone property|ies ?
     /**
      * @ignore
      */
@@ -77,6 +77,7 @@ class HookOperations
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     private function __construct() {}
 
     /**

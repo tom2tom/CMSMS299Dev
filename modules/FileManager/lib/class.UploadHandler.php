@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace FileManager;
 
 use CMSMS\Events;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils as AppUtils;
 use FileManager\Utils;
 use FilePicker\jquery_upload_handler;
@@ -32,6 +32,7 @@ use function startswith;
 
 class UploadHandler extends jquery_upload_handler
 {
+    #[\ReturnTypeWillChange]
     public function __construct($options = null)
     {
         if (!is_array($options)) {
@@ -55,7 +56,7 @@ class UploadHandler extends jquery_upload_handler
 	 */
     protected function is_file_acceptable($file)
     {
-        if (!SingleItem::Config()['developer_mode']) {
+        if (!Lone::get('Config')['developer_mode']) {
             $ext = strtolower(substr(strrchr($file, '.'), 1));
             if (startswith($ext, 'php') || endswith($ext, 'php')) {
                 return false;

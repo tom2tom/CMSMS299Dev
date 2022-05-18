@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminMenuItem;
-//use CMSMS\SingleItem;
+//use CMSMS\Lone;
 
 final class DesignManager extends CMSModule
 {
@@ -88,7 +88,7 @@ final class DesignManager extends CMSModule
             $obj->icon = false;
             $out[] = $obj;
 
-            $config = SingleItem::Config();
+            $config = Lone::get('Config');
             if (1) { //DEBUG $config['develop_mode']) {
                 $obj = new CMSMS\AdminMenuItem();
                 $obj->module = $this->GetName();

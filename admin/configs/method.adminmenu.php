@@ -19,9 +19,9 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 /*
-This is a 2-D array of data for generating admin-menu items.
-These data will be interpreted, then translated into a tree using
-ArrayTree class methods.
+This is a depth-first 2-D array of hierarchical data for generating
+admin-menu items. These data will be interpreted, then translated into
+a tree using ArrayTree class methods.
 Normally, other menu-items will be merged (by modules) at runtime.
 
 Some of the values e.g. lang keys are 'internal', and anybody changing

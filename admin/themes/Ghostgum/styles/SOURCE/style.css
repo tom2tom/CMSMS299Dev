@@ -120,57 +120,6 @@ ul ol {
 	margin-left: 2em;
 }
 
-ul.sortableList {
-	list-style-type: none;
-	padding: 0;
-}
-
-ul.sortableList .ui-draggable-dragging {
-	border: 2px dashed #cbd4cb;
-	background-color: #e8d0a1;
-}
-
-ul.sortableList li {
-	margin-top: 15px;
-	margin-left: 2em;
-	width: 30em;
-}
-
-ul.sortableList li div.label em {
-	display: block;
-	margin-left: 2.5em;
-	color: #244323;
-	font-size: 0.75em;
-	font-weight: bold;
-}
-
-ul.sortableList > li {
-	margin-left: 0;
-}
-
-ul.sortableList div.label {
-	border: solid 1px #cbd4cb;
-	padding: 2px;
-	background-color: #f2e5ca;
-	width: 30em;
-	font-size: 0.8em;
-	color: #244323;
-	word-wrap: break-word;
-	-webkit-border-radius: 0.25rem;
-	-moz-border-radius: 0.25rem;
-	border-radius: 0.25rem;
-	cursor: move;
-}
-
-ul.sortableList span.haschildren.expanded {
-	display: none;
-}
-
-ul.sortable .placeholder {
-	border: 2px dashed #cbd4cb;
-	background-color: #e8d0a1;
-}
-
 ol {
 	list-style: none;
 	margin: 0;
@@ -183,6 +132,85 @@ ol ol {
 
 ol ul {
 	margin-left: 2em;
+}
+
+ul.sortableList ul {
+	margin-left: 0;
+}
+
+.sortableList {
+	list-style-type: none;
+	padding: 0;
+}
+
+.sortableList li {
+	margin-top: 0.5em;
+	margin-left: 1em;
+	width: 30em;
+}
+
+.sortableList > li {
+	margin-left: 0;
+}
+
+.sortableList div.label {
+	border: solid 1px #cbd4cb;
+	padding: 0.25rem;
+	background-color: #f2e5ca;
+	width: 30em;
+	font-size: 0.8em;
+	color: #244323;
+	word-wrap: break-word;
+	-webkit-border-radius: 0.25rem;
+	-moz-border-radius: 0.25rem;
+	border-radius: 0.25rem;
+	cursor: move;
+}
+
+.sortableList div.label > .expanded::before {
+	content: '';
+	display: inline-block;
+	width: 1.5em;
+	height: 1.5em;
+	background: url(../images/icons/system/contract.svg);
+	background-size: 1.5em 1.5em;
+}
+
+.sortableList div.label > .collapsed::before {
+	content: '';
+	display: inline-block;
+	width: 1.5em;
+	height: 1.5em;
+	background: url(../images/icons/system/expand.svg);
+	background-size: 1.5em 1.5em;
+}
+
+.sortableList div.label > .haschildren {
+	height: 1.5em;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.sortableList div.label > .haschildren,
+.sortableList div.label > .nomarker {
+	display: inline-block;
+	width: 1.5em;
+}
+
+.sortableList div.label > em {
+	color: #244323;
+	font-size: 0.75em;
+	font-weight: bold;
+}
+
+.sortableList .ui-draggable-dragging {
+	border: 2px dashed #cbd4cb;
+	background-color: #e8d0a1;
+}
+
+ul.sortable .placeholder {
+	border: 2px dashed #cbd4cb;
+	background-color: #e8d0a1;
 }
 
 h1 {
@@ -356,7 +384,7 @@ span.helptext a {
 	display: inline-block;
 	padding-right: 24px;
 	vertical-align: middle;
-	background: url(../images/icons/system/sprite.svg#info) no-repeat right;
+	background: url(../images/icons/system/info.svg) no-repeat right;
 	background-size: 1.5rem 1.5rem;
 }
 
@@ -364,7 +392,7 @@ span.helptext a.external {
 	display: inline-block;
 	padding-right: 24px;
 	vertical-align: middle;
-	background: url(../images/icons/system/sprite.svg#help) no-repeat right;
+	background: url(../images/icons/system/help.svg) no-repeat right;
 	background-size: 1.5rem 1.5rem;
 }
 
@@ -398,7 +426,7 @@ div.dialog h3 {
 
 div.dialog a.bookmark {
 	padding-left: 20px;
-	background: url(../images/icons/system/sprite.svg#bookmark) no-repeat left;
+	background: url(../images/icons/system/bookmark.svg) no-repeat left;
 	background-size: 1.5rem 1.5rem;
 	line-height: 1.25;
 }
@@ -463,7 +491,6 @@ table.pagetable {
 	border-radius: 0.25rem;
 	border-collapse: inherit;
 	border: 1px solid #cbd4cb;
-	width: auto;
 	table-layout: auto;
 	margin: 3px 0;
 	font-size: 0.8em;
@@ -486,9 +513,9 @@ table.pagetable th {
 	color: #244323;
 	text-align: left;
 	white-space: nowrap;
-      /*            input:focus {
-                outline: 2px solid #f7ce3e; //TODO DISABLED intra table input
-            }
+      /*	    input:focus {
+		outline: 2px solid #f7ce3e; //TODO DISABLED intra table input
+	    }
 */;
 }
 
@@ -497,7 +524,7 @@ table.pagetable th.pagepos {
 }
 
 table.pagetable th.pageicon {
-	min-width: 16px;
+	min-width: 1rem;
 	border: none;
 }
 
@@ -733,7 +760,7 @@ input[type="button"] {
 }
 
 input[type="button"]:hover {
-    /*        cursor: pointer;*/
+    /*	cursor: pointer;*/
 	background-color: #7daa6f;
 }
 
@@ -753,7 +780,7 @@ input[type="submit"] {
 }
 
 input[type="submit"]:hover {
-    /*        cursor: pointer;*/
+    /*	cursor: pointer;*/
 	background-color: #7daa6f;
 }
 
@@ -2175,7 +2202,7 @@ button.ui-button.ui-dialog-titlebar-close .ui-button-icon:hover {
 }
 
 .file {
-	background: url(../images/icons/system/sprite.svg#document-list) no-repeat left;
+	background: url(../images/icons/system/document-list.svg) no-repeat left;
 	background-size: 1.5rem 1.5rem;
 	padding-left: 25px;
 }
@@ -2690,10 +2717,10 @@ BODY
 
      WAS ggp_content
 
-          pagecontainer OFLOW: auto AT LEAST WHEN NO TABS PRESENT
-          whatever from generator
-             #page_content > div OFLOW auto
-             #page_tabs
+	  pagecontainer OFLOW: auto AT LEAST WHEN NO TABS PRESENT
+	  whatever from generator
+	     #page_content > div OFLOW auto
+	     #page_tabs
 
      WAS /ggp_content
 
@@ -2737,10 +2764,10 @@ BODY
 	box-shadow: -0.06em -0.06em 0.2em rgba(0, 0, 0, 0.4) inset, -0.06em -0.06em 0.2em #f5faeb inset;
 	line-height: 1;
   /*    > div {
-        @include flexbox;
-        @include flex-wrap(wrap);
-        @include justify-content(space-between);
-        @include align-items(center);
+	@include flexbox;
+	@include flex-wrap(wrap);
+	@include justify-content(space-between);
+	@include align-items(center);
     }
 */;
 }
@@ -3613,7 +3640,7 @@ ETC?
 	table.pagetable {
 		border-collapse: collapse;
 		width: 100%;
-		margin: 5px 0 1rem 0;
+		margin: 5px 0 1rem 1rem;
 		overflow-x: auto;
 		display: block;
 	}

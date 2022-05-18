@@ -19,8 +19,8 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\Lone;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
@@ -205,12 +205,12 @@ if( $can_manage ) {
         }
     }
 
-    $allusers = SingleItem::UserOperations()->LoadUsers();
+    $allusers = Lone::get('UserOperations')->LoadUsers();
     foreach( $allusers as &$one ) {
         $user_list[$one->id] = $one->username;
     }
 
-    $allgroups = SingleItem::GroupOperations()->LoadGroups();
+    $allgroups = Lone::get('GroupOperations')->LoadGroups();
     foreach( $allgroups as &$one ) {
         if( $one->id == 1) continue;
         if( !$one->active) continue;

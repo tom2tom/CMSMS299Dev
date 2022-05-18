@@ -26,7 +26,7 @@ use CMSMS\Database\Connection;
 use CMSMS\DataException;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\SQLException;
 use CMSMS\TemplateOperations;
 use LogicException;
@@ -76,7 +76,7 @@ class TemplatesGroup
 	 */
 	protected $members = [];
 
-	// static properties here >> SingleItem property|ies ?
+	// static properties here >> Lone property|ies ?
 	/**
 	 * @ignore
 	 */
@@ -203,7 +203,7 @@ class TemplatesGroup
 
 		$out = [];
 		if( $by_name ) {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE id IN ('.implode(',',$this->members).')';
 			$dbr = $db->getAssoc($query);
 			foreach( $this->members as $id ) {
@@ -234,7 +234,7 @@ class TemplatesGroup
 				}
 				else {
 					$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE name IN ('.str_repeat('?,',count($a)-1).'?)';
-					$db = SingleItem::Db();
+					$db = Lone::get('Db');
 					$dbr = $db->getAssoc($query,[$a]);
 					if( $dbr ) {
 						$ids = [];
@@ -250,7 +250,7 @@ class TemplatesGroup
 			}
 			else {
 				$query = 'SELECT id FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE name = ?';
-				$db = SingleItem::Db();
+				$db = Lone::get('Db');
 				$id = $db->getOne($query,[$a]);
 				if( $id ) return [$id];
 			}
@@ -386,7 +386,7 @@ class TemplatesGroup
 			throw new UnexpectedValueException('Name may contain only letters, numbers and/or these \'_ /+-,.\'.');
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$gid = $this->get_id();
 		if( $gid > 0 ) {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
@@ -434,11 +434,11 @@ class TemplatesGroup
 		if( !$this->dirty ) return;
 		$this->validate();
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description) VALUES (?,?)';
 		$dbr = $db->execute($query,[
 			$this->get_name(),
-			$this->get_description(),
+			$this->get_description()
 		]);
 		if( !$dbr ) {
 			throw new SQLException($db->sql.' -- '.$db->errorMsg());
@@ -457,7 +457,7 @@ class TemplatesGroup
 		if( !$this->dirty ) return;
 		$this->validate();
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ? WHERE id = ?';
 		$db->execute($query,[
 			$this->get_name(),
@@ -494,7 +494,7 @@ class TemplatesGroup
 		$gid = $this->get_id();
 		if( !$gid ) return;
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 		$dbr = $db->execute($query,[$gid]);
 		if( !$dbr ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
@@ -515,7 +515,7 @@ class TemplatesGroup
 	 */
 	public static function load($val)
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		if( is_numeric($val) && $val > 0 ) {
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 			$row = $db->getRow($query,[(int)$val]);
@@ -548,3 +548,4 @@ class TemplatesGroup
 		return TemplateOperations::get_bulk_groups($prefix);
 	}
 } // class
+//if (!\class_exists('CmsLayoutTemplateCategory', false)) \class_alias(TemplatesGroup::class, 'CmsLayoutTemplateCategory', false);

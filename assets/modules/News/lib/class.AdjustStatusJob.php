@@ -11,11 +11,12 @@ namespace News;
 
 use CMSMS\Async\CronJob;
 use CMSMS\Async\RecurType;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use const CMS_DB_PREFIX;
 
 class AdjustStatusJob extends CronJob
 {
+    #[\ReturnTypeWillChange]
     public function __construct($params = [])
     {
         parent:: __construct($params);
@@ -30,7 +31,7 @@ class AdjustStatusJob extends CronJob
     public function execute()
     {
         $time = time();
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status=\'archived\' WHERE (status=\'published\' OR status=\'final\') AND end_time IS NOT NULL AND end_time BETWEEN 1 AND ?';
         $db->execute($query,[$time]);
         $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status=\'published\' WHERE status=\'final\' AND start_time IS NOT NULL AND start_time BETWEEN 1 AND ?';

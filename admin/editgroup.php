@@ -24,7 +24,7 @@ use CMSMS\AdminUtils;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\Group;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\de_specialize_array;
 use function CMSMS\log_info;
 use function CMSMS\sanitizeVal;
@@ -98,7 +98,7 @@ if (isset($_POST['editgroup'])) {
             $errors[] = _la('errorupdatinggroup');
         }
     }
-    SingleItem::Theme()->RecordNotice('error', $errors);
+    Lone::get('Theme')->RecordNotice('error', $errors);
 
     $group = specialize($group);
     if ($description) { $description = specialize($description); }
@@ -114,10 +114,10 @@ if (isset($_POST['editgroup'])) {
 
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
-$userops = SingleItem::UserOperations();
+$userops = Lone::get('UserOperations');
 $useringroup = $userops->UserInGroup($userid, $group_id);
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
     'active' => $active,
     'description' => $description,

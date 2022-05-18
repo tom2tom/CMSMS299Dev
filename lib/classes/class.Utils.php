@@ -29,7 +29,7 @@ use CMSMS\AppConfig;
 use CMSMS\CoreCapabilities;
 use CMSMS\Database\Connection;
 use CMSMS\internal\Smarty;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
@@ -37,6 +37,7 @@ use IntlDateFormatter;
 //use Mailchimp_User_MissingEmail;
 use Throwable;
 //use const CMS_DEPREC;
+use function cmsms;
 
 /**
  * A class of static utility/convenience methods.
@@ -63,7 +64,7 @@ final class Utils
 	 */
 	public static function set_app_data(string $key, $value)
 	{
-		SingleItem::set($key, $value);
+		Lone::set($key, $value);
 	}
 
 	/**
@@ -76,43 +77,43 @@ final class Utils
 	 */
 	public static function get_app_data(string $key)
 	{
-		return SingleItem::get($key);
+		return Lone::fastget($key);
 	}
 
 	/**
 	 * Return the database connection singleton.
-	 * @see SingleItem::Db()
+	 * @see Lone::get('Db')
 	 * @since 1.9
 	 *
 	 * @return mixed CMSMS\Database\Connection object | null
 	 */
 	public static function get_db() : Connection
 	{
-		return SingleItem::Db();
+		return Lone::get('Db');
 	}
 
 	/**
 	 * Return the application config singleton.
-	 * @see SingleItem::Config()
+	 * @see Lone::get('Config')
 	 * @since 1.9
 	 *
 	 * @return AppConfig The global configuration object.
 	 */
 	public static function get_config() : AppConfig
 	{
-		return SingleItem::Config();
+		return Lone::get('Config');
 	}
 
 	/**
 	 * Return the application Smarty singleton.
-	 * @see SingleItem::Smarty()
+	 * @see Lone::get('Smarty')
 	 * @since 1.9
 	 *
 	 * @return Smarty handle to the Smarty object
 	 */
 	public static function get_smarty() : Smarty
 	{
-		return SingleItem::Smarty();
+		return Lone::get('Smarty');
 	}
 
 	/**
@@ -124,7 +125,7 @@ final class Utils
 	 */
 	public static function get_current_content()
 	{
-		return SingleItem::App()->get_content_object();
+		return cmsms()->get_content_object();
 	}
 
 	/**
@@ -136,7 +137,7 @@ final class Utils
 	 */
 	public static function get_current_alias()
 	{
-		$obj = SingleItem::App()->get_content_object();
+		$obj = cmsms()->get_content_object();
 		if( $obj ) return $obj->Alias();
 	}
 
@@ -149,12 +150,12 @@ final class Utils
 	 */
 	public static function get_current_pageid()
 	{
-		return SingleItem::App()->get_content_id();
+		return cmsms()->get_content_id();
 	}
 
 	/**
 	 * Report whether a module is available.
-	 * @see get_module(), SingleItem::LoadedData()->get('modules')
+	 * @see get_module(), Lone::get('LoadedData')->get('modules')
 	 * @since 1.11
 	 *
 	 * @param string $name The module name
@@ -162,7 +163,7 @@ final class Utils
 	 */
 	public static function module_available(string $name) : bool
 	{
-		return SingleItem::ModuleOperations()->IsModuleActive($name);
+		return Lone::get('ModuleOperations')->IsModuleActive($name);
 	}
 
 	/**
@@ -180,7 +181,7 @@ final class Utils
 	 */
 	public static function get_module(string $name, string $version = '')
 	{
-		return SingleItem::ModuleOperations()->get_module_instance($name, $version);
+		return Lone::get('ModuleOperations')->get_module_instance($name, $version);
 	}
 
 	/**
@@ -197,7 +198,7 @@ final class Utils
 	 */
 	public static function get_wysiwyg_module($module_name = null)
 	{
-		return SingleItem::ModuleOperations()->GetWYSIWYGModule($module_name);
+		return Lone::get('ModuleOperations')->GetWYSIWYGModule($module_name);
 	}
 
 	/**
@@ -208,7 +209,7 @@ final class Utils
 	 */
 	public static function get_syntax_highlighter_module()
 	{
-		return SingleItem::ModuleOperations()->GetSyntaxHighlighter();
+		return Lone::get('ModuleOperations')->GetSyntaxHighlighter();
 	}
 
 	/**
@@ -219,7 +220,7 @@ final class Utils
 	 */
 	public static function get_search_module()
 	{
-		return SingleItem::ModuleOperations()->GetSearchModule();
+		return Lone::get('ModuleOperations')->GetSearchModule();
 	}
 
 	/**
@@ -230,7 +231,7 @@ final class Utils
 	 */
 	public static function get_filepicker_module()
 	{
-		return SingleItem::ModuleOperations()->GetFilePickerModule();
+		return Lone::get('ModuleOperations')->GetFilePickerModule();
 	}
 
 	/**
@@ -241,9 +242,9 @@ final class Utils
 	 */
 	public static function get_email_module()
 	{
-		$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::EMAIL_MODULE);
+		$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::EMAIL_MODULE);
 		if ($modnames) {
-			return SingleItem::ModuleOperations()->get_module_instance($modnames[0]);
+			return Lone::get('ModuleOperations')->get_module_instance($modnames[0]);
 		}
 	}
 
@@ -428,7 +429,7 @@ final class Utils
 	private static function custom(int $st, string $mode) : string
 	{
 		if (extension_loaded('Intl')) {
-			$zone = SingleItem::Config()['timezone'];
+			$zone = Lone::get('Config')['timezone'];
 			$dt = new DateTime(null, new DateTimeZone($zone));
 			$dt->setTimestamp($st);
 			$locale = NlsOperations::get_current_language();
@@ -600,3 +601,4 @@ final class Utils
 		return $text;
 	}
 } // class
+//if (!\class_exists('cms_utils', false)) \class_alias(Utils::class, 'cms_utils', false);

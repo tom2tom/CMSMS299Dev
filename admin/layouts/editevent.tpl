@@ -23,9 +23,9 @@
       <th>{_la('order')}</th>
       <th>{_la('tag')}</th>
       <th>{_la('originator')}</th>
-      <th class="pageicon">&nbsp;</th>
-      <th class="pageicon">&nbsp;</th>
-      <th class="pageicon">&nbsp;</th>
+      <th class="pageicon"></th>
+      <th class="pageicon"></th>
+      <th class="pageicon"></th>
     </tr>
   </thead>
   <tbody>{foreach $handlers as $one}
@@ -34,20 +34,20 @@
       <td>{$one.handler_order}</td>
       <td>{$one.tag_name}</td>
       <td>{$one.module_name}</td>
-      <td>
+      <td class="pagepos icons_wide">
       {if !$one@first}
-      <a href="{$selfurl}{$urlext}&amp;event={$event}&amp;originator={$originator}&amp;action=up&amp;order={$one.handler_order}&amp;handler={$one.handler_id}">{$iconup}</a>
+      <a href="{$selfurl}{$urlext}&event={$event}&originator={$originator}&action=up&order={$one.handler_order}&handler={$one.handler_id}">{$iconup}</a>
       {/if}
       </td>
-      <td>
+      <td class="pagepos icons_wide">
       {if !$one@last}
-      <a href="{$selfurl}{$urlext}&amp;event={$event}&amp;originator={$originator}&amp;action=down&amp;order={$one.handler_order}&amp;handler={$one.handler_id}">{$icondown}</a>
+      <a href="{$selfurl}{$urlext}&event={$event}&originator={$originator}&action=down&order={$one.handler_order}&handler={$one.handler_id}">{$icondown}</a>
       {/if}
       </td>
-      <td>
+      <td class="pagepos icons_wide">
       {if $one.removable}{if $one.tag_name}{$myname=$one.tag_name}{else}{$myname=$one.module_name}{/if}
 {*TODO replace link onclick handler*}
-      <a href="{$selfurl}{$urlext}&amp;event={$event}&amp;originator={$originator}&amp;action=delete&amp;handler={$one.handler_id}" onclick="cms_confirm_linkclick(this,'{_la('deleteconfirm', $myname)}');return false;">{$icondel}</a>
+      <a href="{$selfurl}{$urlext}&event={$event}&originator={$originator}&action=delete&handler={$one.handler_id}" onclick="cms_confirm_linkclick(this,'{_la('deleteconfirm', $myname)}');return false;">{$icondel}</a>
       {/if}
       </td>
 {/strip}

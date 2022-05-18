@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Error403Exception;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\de_specialize;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
@@ -35,7 +35,7 @@ $userid = get_userid(false);
 if (check_permission($userid, 'View UserTag Help')) {
     $tmp = de_specialize($_GET['name']);
     $name = sanitizeVal($tmp, CMSSAN_FILE);
-    $info = SingleItem::UserTagOperations()->GetUserTag($name, 'parameters');
+    $info = Lone::get('UserTagOperations')->GetUserTag($name, 'parameters');
     if (!empty($info)) {
         echo nl2br(specialize(trim($info, " \t\n\r")), ENT_XML1 | ENT_QUOTES);
     }

@@ -1,7 +1,7 @@
 <?php
 /*
 Class of utilities for interacting with locks
-Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -23,8 +23,8 @@ namespace CMSMS;
 
 use CMSMS\AppParams;
 use CMSMS\Lock;
+use CMSMS\Lone;
 use CMSMS\NoLockException;
-use CMSMS\SingleItem;
 use CMSMS\SQLException;
 use LogicException;
 use const CMS_DB_PREFIX;
@@ -58,7 +58,7 @@ final class LockOperations
      */
     public static function load(string $type, int $oid, $userid = null)
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE type = ? AND oid = ?';
         $parms = [$type,$oid];
         if( $userid > 0 ) {
@@ -86,7 +86,7 @@ final class LockOperations
      */
     public static function load_by_id(int $lock_id, string $type, int $oid, $userid = null)
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE id=? AND type=? AND oid=?';
         $parms = [$lock_id,$type,$oid];
         if( $userid > 0 ) {
@@ -145,7 +145,7 @@ final class LockOperations
      */
     public static function is_locked(string $type, int $oid) : int
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $query = 'SELECT id FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE type = ? AND oid = ?';
         for( $i = 0; $i < 4; $i++ ) {
             $dbr = $db->getOne($query,[$type,$oid]);
@@ -170,7 +170,7 @@ final class LockOperations
     public static function get_locks(string $type = '', bool $by_state = false) : array
     {
         $locks = [];
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         if( $by_state ) {
             $query = 'SELECT type,oid AS object_id,uid AS user_id,expires AS status FROM '.CMS_DB_PREFIX.self::LOCK_TABLE;
             if( $type ) $query .= ' WHERE type = ?';
@@ -210,7 +210,7 @@ final class LockOperations
      */
     public static function is_stealable(string $type, int $oid) : bool
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $query = 'SELECT uid,expires FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE type = ? AND oid = ?';
         $row = $db->getRow($query,[$type,$oid]);
         if( $row ) {
@@ -218,7 +218,7 @@ final class LockOperations
             $userid = get_userid(false);
             return ($row['uid'] == $userid
               || $userid == 1
-              || SingleItem::UserOperations()->UserInGroup($userid, 1));
+              || Lone::get('UserOperations')->UserInGroup($userid, 1));
         }
         return false;
 //        throw new NoLockException('CMSEX_L005','',[$type,$userid,$userid]); TODO params
@@ -255,7 +255,7 @@ final class LockOperations
             $props['expires'] = time() + $props['lifetime'] * 60;
         }
 
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         if( empty($props['id']) ) {
             // insert
             $query = 'INSERT INTO '.CMS_DB_PREFIX.self::LOCK_TABLE.'
@@ -315,7 +315,7 @@ VALUES (?,?,?,?)';
                 throw new LockOwnerException('CMSEX_L001');
             }
         }
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $query = 'DELETE FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE id = ?';
         $dbr = $db->execute($query, [$props['id']]);
         return $dbr != false;
@@ -344,7 +344,7 @@ VALUES (?,?,?,?)';
     public static function delete_expired($limit = 0, string $type = '')
     {
         if( !$limit ) { $limit == time(); }
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $query = 'DELETE FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE expires < ?';
         $parms = [$limit];
         if( $type ) {
@@ -361,7 +361,7 @@ VALUES (?,?,?,?)';
      */
     public static function delete_for_user(string $type = '')
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $userid = get_userid(false);
         $parms = [$userid];
         $query = 'DELETE FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE uid = ?';
@@ -382,7 +382,7 @@ VALUES (?,?,?,?)';
      */
     public static function delete_for_nameduser (int $userid, string $type = '', int $oid = 0)
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         if( !$db ) return; //during shutdown, connection gone ?
         $parms = [$userid];
         $query = 'DELETE FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE uid = ?';

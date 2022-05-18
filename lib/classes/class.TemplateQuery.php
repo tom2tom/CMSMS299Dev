@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\DbQueryBase;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\SQLException;
 use CMSMS\TemplateOperations;
 use LogicException;
@@ -85,7 +85,7 @@ class TemplateQuery extends DbQueryBase
 			return;
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$tbl1 = CMS_DB_PREFIX.TemplateOperations::TABLENAME;
 		$tbl2 = CMS_DB_PREFIX.TemplateType::TABLENAME;
 		$typejoin = false;

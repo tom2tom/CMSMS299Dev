@@ -48,7 +48,7 @@ final class LangOperations
 	 */
 	const CMSMS_ADMIN_REALM = 'admin';
 
-	// static properties here >> SingleItem property|ies ?
+	// static properties here >> Lone property|ies ?
 	/**
 	 * In-memory cache of loaded translations, a 2-D array keyed by [locale][domain]
 	 * 'locale' is a recorded or inferred frontend|backend locale-identifier e.g. 'fr_FR'.
@@ -78,7 +78,9 @@ final class LangOperations
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __construct() {}
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**

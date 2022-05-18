@@ -1,4 +1,5 @@
 <?php
+use CMSMS\Lone;
 use FileManager\Utils;
 use function CMSMS\log_notice;
 
@@ -24,7 +25,7 @@ if (count($sel)>1) {
     $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 
-$config = cmsms()->GetConfig();
+$config = Lone::get('Config');
 
 $oldname = $this->decodefilename($sel[0]);
 $newname = $oldname; //for initial input box

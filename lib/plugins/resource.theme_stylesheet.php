@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\log_error;
 use function CMSMS\sanitizeVal;
 
@@ -82,7 +82,7 @@ class Smarty_Resource_theme_stylesheet extends Smarty_Resource_Custom
            //TODO get content from all relevant theme stylesheet(s)
            //TODO support inherited/extended styling
 
-            $db = SingleItem::Db();
+            $db = Lone::get('Db');
             $sql = 'SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_stylesheets WHERE id=? OR name=?';
             $rst = $db->execute(self::$stmt, [$name, $name]);
             if( !$rst || $rst->EOF() ) {

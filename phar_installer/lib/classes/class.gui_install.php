@@ -24,6 +24,7 @@ class gui_install extends installer_base
      *  containing installer settings to be used instead of defaults. Default ''.
      * @throws Exception
      */
+    #[\ReturnTypeWillChange]
     public function __construct(string $configfile = '')
     {
         parent::__construct($configfile);

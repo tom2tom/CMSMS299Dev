@@ -51,6 +51,7 @@ class Exception extends MainException
     *
     * @see Exception
     */
+    #[\ReturnTypeWillChange]
     public function __construct(...$args)
     {
         $msg = $args[0] ?? 'Unknown error'; // $args[0] may be explicitly ''
@@ -183,6 +184,7 @@ function prefix_message($msg, &$args)
  */
 class Error400Exception extends Exception
 {
+    #[\ReturnTypeWillChange]
     public function __construct(...$args)
     {
         prefix_message('Bad request', $args);
@@ -199,6 +201,7 @@ class Error400Exception extends Exception
  */
 class Error403Exception extends Exception
 {
+    #[\ReturnTypeWillChange]
     public function __construct(...$args)
     {
         prefix_message('Forbidden', $args);
@@ -215,6 +218,7 @@ class Error403Exception extends Exception
  */
 class Error404Exception extends Exception
 {
+    #[\ReturnTypeWillChange]
     public function __construct(...$args)
     {
         prefix_message('Not found', $args);
@@ -232,6 +236,7 @@ class Error404Exception extends Exception
  */
 class Error503Exception extends Exception
 {
+    #[\ReturnTypeWillChange]
     public function __construct(...$args)
     {
         prefix_message('Service unavailable', $args);
@@ -249,6 +254,7 @@ class Error503Exception extends Exception
  */
 class StopProcessingContentException extends Exception
 {
+    #[\ReturnTypeWillChange]
     public function __construct(...$args)
     {
         $args[0] = '';
@@ -346,6 +352,7 @@ class LockOwnerException extends LockException {}
  */
 class DeprecationNotice extends AssertionError
 {
+    #[\ReturnTypeWillChange]
     public function __construct(...$args)
     {
         $type = $args[0] ?? '';

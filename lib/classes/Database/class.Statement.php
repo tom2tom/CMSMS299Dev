@@ -75,6 +75,7 @@ final class Statement
      * @param Connection      $conn The database connection
      * @param optional string $sql  The SQL query, default null
      */
+    #[\ReturnTypeWillChange]
     public function __construct(Connection $conn, $sql = null)
     {
         $this->_conn = $conn;
@@ -82,6 +83,7 @@ final class Statement
     }
 
 /* BAD !! TODO check proper cleanup happens anyway, upon destruction
+    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         $this->close();
@@ -90,6 +92,7 @@ final class Statement
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         switch ($key) {
@@ -239,13 +242,14 @@ final class Statement
         }
 
         if (is_array($bindvars)) {
-            if (is_array($bindvars[0])) {
-                if (count($bindvars) == 1) {
-                    $bindvars = $bindvars[0];
-                } else {
-                    //2-D array of vars deprecated since 3.0
-                    $this->all_tobind = $bindvars;
-                    $bindvars = $this->now_bind = reset($this->all_tobind);
+            if (isset($bindvars[0]) && is_array($bindvars[0])) {
+                //2-D array of vars deprecated since 3.0
+                $this->all_tobind = $bindvars;
+                $bindvars = $this->now_bind = reset($this->all_tobind);
+            } elseif (count($bindvars) == 1) {
+                $k = key($bindvars);
+                if (is_array($bindvars[$k])) {
+                    $bindvars = $bindvars[$k];
                 }
             }
         } else {
@@ -356,8 +360,11 @@ final class Statement
         }
 
         if ($bindvars) {
-            if (is_array($bindvars) && count($bindvars) == 1 && is_array($bindvars[0])) {
-                $bindvars = $bindvars[0];
+            if (is_array($bindvars) && count($bindvars) == 1) {
+                $k = key($bindvars);
+                if (is_array($bindvars[$k])) {
+                    $bindvars = $bindvars[$k];
+                }
             }
             if ($pc == count($bindvars)) {
                 $this->bind($bindvars);

@@ -9,13 +9,17 @@
 {/if}
 
 {if isset($list_designs)}
-<table class="pagetable" style="width:auto;">
+<table class="pagetable">
   <thead>
     <tr>
 {*      <th>{_ld($_module,'prompt_id')}</th> *}
       <th>{_ld($_module,'prompt_name')}</th>
 {*      <th class="pageicon"><span title="{_ld($_module,'title_designs_default')}">{_la('default')}</span></th> *}
       <th class="pageicon"></th>
+      {if $pmod}
+      <th class="pageicon"></th>
+      <th class="pageicon"></th>
+      {/if}
     </tr>
   </thead>
   <tbody>
@@ -38,15 +42,21 @@
        {/if}
       </td>
 *}
-      <td>
+      <td class="pagepos icons_wide">
       {if $pmod}
       <a href="{$edit_url}" title="{_ld($_module,'title_edit_design')}">{admin_icon icon='edit.gif'}</a>
-      <a href="{cms_action_url action=export_design design=$d}" title="{_ld($_module,'export_design')}">{admin_icon icon='export.gif'}</a>
-      <a href="{cms_action_url action=delete_design design=$d}" title="{_ld($_module,'delete_design')}">{admin_icon icon='delete.gif'}</a>
       {else}
       <a href="{$edit_url}" title="{_ld($_module,'view_design')}">{admin_icon icon='view.gif'}</a>
       {/if}
       </td>
+      {if $pmod}
+      <td class="pagepos icons_wide">
+      <a href="{cms_action_url action=export_design design=$d}" title="{_ld($_module,'export_design')}">{admin_icon icon='export.gif'}</a>
+      </td>
+      <td class="pagepos icons_wide">
+      <a href="{cms_action_url action=delete_design design=$d}" title="{_ld($_module,'delete_design')}">{admin_icon icon='delete.gif'}</a>
+      </td>
+      {/if}
     </tr>
   {/foreach}
   </tbody>

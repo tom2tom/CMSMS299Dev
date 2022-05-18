@@ -22,7 +22,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 //if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
@@ -36,7 +36,7 @@ else $state = false;
 $module = trim($params['mod'] ?? '');
 
 if( $module) {
-    $res = SingleItem::ModuleOperations()->ActivateModule($module, $state);
+    $res = Lone::get('ModuleOperations')->ActivateModule($module, $state);
 }
 else {
     $res = false;

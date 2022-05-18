@@ -29,6 +29,7 @@ class Smarty_Internal_ParseTree_Text extends Smarty_Internal_ParseTree
      * @param string $data text
      * @param bool $toBeStripped wether this section should be stripped on output to smarty php
      */
+    #[\ReturnTypeWillChange]
     public function __construct($data, $toBeStripped = false)
     {
         $this->data = $data;

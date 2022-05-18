@@ -7,6 +7,7 @@ See license details at the top of file AdminSearch.module.php
 */
 namespace AdminSearch;
 
+use CMSMS\Lone;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
 use CMSMS\Utils;
@@ -33,7 +34,7 @@ final class Css_slave extends Base_slave
 
     private function get_mod()
     {
-        // static properties here >> SingleItem property|ies ?
+        // static properties here >> Lone property|ies ?
         static $_mod;
         if (!$_mod) {
             $_mod = Utils::get_module('AdminSearch');
@@ -53,7 +54,7 @@ final class Css_slave extends Base_slave
     public function get_matches()
     {
         // get all stylesheets' ids
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'SELECT id FROM '.CMS_DB_PREFIX. StylesheetOperations::TABLENAME.' ORDER BY name';
         $all_ids = $db->getCol($sql);
         $output = [];

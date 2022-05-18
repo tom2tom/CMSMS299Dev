@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Error403Exception;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\sanitizeVal;
 
 $dsep = DIRECTORY_SEPARATOR;
@@ -34,10 +34,10 @@ if (!check_permission($userid, 'Manage User Plugins')) {
     throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 $tagname = sanitizeVal($_GET['name'], CMSSAN_FILE); // UDT might be file-stored BUT no space(s) ?
-$ops = SingleItem::UserTagOperations();
+$ops = Lone::get('UserTagOperations');
 if ($ops->UserTagExists($tagname)) {  // UDT-files included
 //if exists $ops->DoEvent( deleteuserpluginpre etc);
     if ($ops->RemoveUserTag($tagname)) {

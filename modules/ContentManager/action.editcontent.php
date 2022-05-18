@@ -1,6 +1,6 @@
 <?php
 /*
-ContentManager module action: edit page content
+ContentManager module action: edit an existing or cloned page
 Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -27,8 +27,8 @@ use CMSMS\EditContentException;
 use CMSMS\FormUtils;
 use CMSMS\LockException;
 use CMSMS\LockOperations;
+use CMSMS\Lone;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use ContentManager\ContentBase;
 use ContentManager\Utils;
@@ -38,47 +38,52 @@ use function CMSMS\log_info;
 //if( some worthy test fails ) exit;
 
 if (isset($params['cancel'])) {
-	unset($_SESSION['__cms_copy_obj__']);
 	$this->SetInfo($this->Lang('msg_cancelled'));
 	$this->Redirect($id, 'defaultadmin', $returnid);
 }
 
-$userid = get_userid();
-$content_id = isset($params['content_id']) ? (int)$params['content_id'] : 0;
-
-// init
-
-try {
+if (isset($params['content_id'])) {
+	$content_id = (int)$params['content_id'];
+	$copy = $content_id == -1 || !empty($params['clone_id']); // TODO if submitted/applied
+	if ((!$copy && $content_id < 0) || ($copy && $content_id < 1)) {
+		$this->SetError($this->Lang('error_invalidpageid'));
+		$this->Redirect($id, 'defaultadmin', $returnid);
+	}
+} elseif (isset($params['clone_id'])) {
+	$content_id = (int)$params['clone_id'];
 	if ($content_id < 1) {
-		// adding or cloning
-		if (!$this->CheckPermission('Add Pages')) {
-			// no permission to add pages.
-			$this->SetError($this->Lang('error_editpage_permission'));
-			$this->Redirect($id, 'defaultadmin', $returnid);
-		}
-	} elseif (!$this->CanEditContent($content_id)) {
-		// nope, can't edit this page anyways
+		$this->SetError($this->Lang('error_invalidpageid'));
+		$this->Redirect($id, 'defaultadmin', $returnid);
+	}
+	$copy = true;
+} else {
+	// default - addition
+	$content_id = 0;
+	$copy = false;
+}
+
+if ($content_id == 0 || $copy) {
+	// adding or cloning
+	if (!$this->CheckPermission('Add Pages')) {
+		// no permission to add page
 		$this->SetError($this->Lang('error_editpage_permission'));
 		$this->Redirect($id, 'defaultadmin', $returnid);
 	}
+} elseif (!$this->CanEditContent($content_id)) {
+	// nope, can't edit this page anyways
+	$this->SetError($this->Lang('error_editpage_permission'));
+	$this->Redirect($id, 'defaultadmin', $returnid);
+}
 
-	$parent_id = $error = null;
-	$pagedefaults = Utils::get_pagedefaults();
-	$contentops = SingleItem::ContentOperations();
-	$domain = $this->GetName(); // translated-strings domain is this module
-	// get a list of content types and pick a default if necessary
-	$existingtypes = SingleItem::ContentTypeOperations()->ListContentTypes(false, true, false, $domain);
-	//TODO for the default page, diable|omit errorpage, sectionheader, separator, maybe also link, pagelink
+$userid = get_userid();
+$parent_id = $error = null;
+$pagedefaults = Utils::get_pagedefaults();
+$contentops = Lone::get('ContentOperations');
+$domain = $this->GetName(); // translated-strings domain is this module
+
+try {
 	// load or create the initial content object
-	if (isset($_SESSION['__cms_copy_obj__'])) {
-		// we're cloning a content object
-		$content_obj = unserialize($_SESSION['__cms_copy_obj__']); // IContentEditor-compatible
-		if (isset($params['content_type'])) {
-			$content_type = trim($params['content_type']);
-		} else {
-			$content_type = $content_obj->Type();
-		}
-	} elseif ($content_id < 1) {
+	if ($content_id == 0) {
 		// we're creating a new content object
 		if (isset($params['content_type'])) {
 			$content_type = trim($params['content_type']);
@@ -102,8 +107,8 @@ try {
 			}
 			// double check if this parent is valid... if it is not, we use -1
 			if ($dflt_parent > 0) {
-				$hm = SingleItem::App()->GetHierarchyManager();
-				$node = $hm->quickfind_node_by_id($dflt_parent);
+				$hm = $gCms->GetHierarchyManager();
+				$node = $hm->get_node_by_id($dflt_parent);
 				if (!$node) {
 					$dflt_parent = -1;
 				}
@@ -135,9 +140,30 @@ try {
 		$content_obj->SetPropertyValue('extra2', $pagedefaults['extra2']);
 		$content_obj->SetPropertyValue('extra3', $pagedefaults['extra3']);
 		$content_obj->SetAdditionalEditors($pagedefaults['addteditors']);
+	} elseif ($copy) {
+		// we're cloning an existing content object
+		$from_obj = $contentops->LoadEditableContentFromId($content_id, true);
+		if (!$from_obj) {
+			$this->SetError($this->Lang('error_invalidpageid'));
+			$this->Redirect($id, 'defaultadmin', $returnid);
+		}
+		$from_obj->GetAdditionalEditors();
+
+		$content_obj = clone $from_obj; // includes id = -1 etc
+		$content_obj->SetName('Copy of '.$from_obj->Name());
+		$content_obj->SetMenuText('Copy of '.$from_obj->MenuText());
+		$content_obj->SetAlias('copyof-' . $from_obj->Alias());
+		$content_obj->SetDefaultContent(false);
+		$content_obj->SetOwner($userid);
+		$content_obj->SetLastModifiedBy($userid);
+		$content_type = $content_obj->Type();
+		$content_id = -1;
 	} else {
 		// we're editing an existing content object
 		$content_obj = $contentops->LoadEditableContentFromId($content_id);
+		if (!$content_obj) {
+			throw new Exception('Failed to load the content object to be edited');
+		}
 		if (isset($params['content_type'])) {
 			// maybe the user wants to change type ...
 			$content_type = trim($params['content_type']);
@@ -147,10 +173,12 @@ try {
 	}
 
 	// validate the content type
+	$existingtypes = Lone::get('ContentTypeOperations')->ListContentTypes(false, true, false, $domain);
 	if (!$existingtypes || !in_array($content_type, array_keys($existingtypes))) {
 		$this->SetError($this->Lang('error_editpage_contenttype'));
 		$this->Redirect($id, 'defaultadmin', $returnid);
 	}
+	//TODO for the default page, diable|omit errorpage, sectionheader, separator, maybe also link, pagelink
 } catch (Throwable $t) {
 	// An error here means we can't display anything
 	$this->SetError($t->getMessage());
@@ -161,31 +189,12 @@ try {
 // or a POST
 
 try {
-	if ($content_id != -1 && $content_type != $content_obj->Type()) {
+	if (!$copy && $content_type != $content_obj->Type()) {
 		// content type changed - create a new content object with the same id etc.
-/*
-		$tmpobj = $contentops->CreateNewContent($content_type);
-		$tmpobj->SetId($content_obj->Id());
-		$tmpobj->SetName($content_obj->Name());
-		$tmpobj->SetMenuText($content_obj->MenuText());
-		$tmpobj->SetTemplateId($content_obj->TemplateId());
-		if( $tmpobj->TemplateId() < 1 ) $tmpobj->SetTemplateId($pagedefaults['template_id']);
-		if( $tmpobj->GetPropertyValue('design_id') < 1 ) $tmpobj->SetPropertyValue('design_id',$pagedefaults['design_id']);
-
-		$tmpobj->SetParentId($content_obj->ParentId());
-		$tmpobj->SetAlias($content_obj->Alias());
-		$tmpobj->SetOwner($content_obj->Owner());
-		$tmpobj->SetActive($content_obj->Active());
-		$tmpobj->SetItemOrder($content_obj->ItemOrder());
-		$tmpobj->SetShowInMenu($content_obj->ShowInMenu());
-		$tmpobj->SetCachable($content_obj->Cachable());
-		$tmpobj->SetHierarchy($content_obj->Hierarchy());
-//TODO replace        $tmpobj->SetLastModifiedBy($content_obj->LastModifiedBy());
-//TODO replace        $tmpobj->SetAdditionalEditors($content_obj->GetAdditionalEditors());
-*/
 		$props = $content_obj->ToData();
 		unset($props['create_date'], $props['last_modified_by'], $props['modified_date']);
 		$tmpobj = $contentops->CreateNewContent($content_type, $props, true);
+		//TODO $tmpobj AdditionalEditors
 		$tmpobj->Properties(); // TODO deal with now-irrelevant props
 		$content_obj = $tmpobj;
 	}
@@ -256,7 +265,7 @@ try {
 
 // BUILD THE DISPLAY
 
-if ($content_id && Utils::locking_enabled()) {
+if ($content_id > 0 && Utils::locking_enabled()) {
 	try {
 		$lock_id = null;
 		// check if this thing is locked

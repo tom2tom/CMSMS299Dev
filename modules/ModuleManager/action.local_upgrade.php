@@ -22,7 +22,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 //if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
@@ -34,7 +34,7 @@ if( !$modname ) {
     $this->RedirectToAdminTab();
 }
 
-$result = SingleItem::ModuleOperations()->UpgradeModule($modname);
+$result = Lone::get('ModuleOperations')->UpgradeModule($modname);
 if( !is_array($result) || !isset($result[0]) ) {
     $result = [FALSE, $this->Lang('error_moduleupgradefailed')];
 }

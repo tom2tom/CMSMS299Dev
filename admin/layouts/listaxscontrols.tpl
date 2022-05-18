@@ -11,11 +11,11 @@
    <th>{_la('name')}</th>
    <th>{_ld('controlsets','reltop2')}</th>
    <th>{_ld('controlsets','default')}</th>
-   {if $pmod}
    <th>{_ld('controlsets','created')}</th>
    <th>{_ld('controlsets','modified2')}</th>
-   <th class="pageicon">&nbsp;</th>
-   <th class="pageicon">&nbsp;</th>
+   {if $pmod}
+   <th class="pageicon"></th>
+   <th class="pageicon"></th>
    {/if}
   </tr>
  </thead>
@@ -30,17 +30,20 @@
     {/if}</td>
    <td>{$cset->reltop}</td>
    {if $pmod}
-   <td>{if $cset->id == $dfltset_id}
+   <td class="pagepos icons_wide">{if $cset->id == $dfltset_id}
     {$iyes}
-   {else}
+       {else}
     <a href="{$selfurl}{$urlext}&default={$cset->id}">{$ino}</a>
-   {/if}</td>
+       {/if}
+   </td>
+   {else}
+   <td class="pagepos icons_wide">{if $cset->id == $dfltset_id}{$iyes}{else}{$ino}{/if}</td>
+   {/if}
    <td>{$cset->create_date|cms_date_format:'timed'}</td>
    <td>{$cset->modified_date|cms_date_format:'timed'}</td>
-   <td><a href="{$openurl}{$urlext}&id={$cset->id}" class="pageoptions">{$iedt}</a></td>
-   <td><a href="{$selfurl}{$urlext}&delete={$cset->id}" class="pageoptions delete">{$idel}</a></td>
-   {else}
-   <td>{if $cset->id == $dfltset_id}{$iyes}{else}{$ino}{/if}</td>
+   {if $pmod}
+   <td class="pagepos icons_wide"><a href="{$openurl}{$urlext}&id={$cset->id}" class="pageoptions">{$iedt}</a></td>
+   <td class="pagepos icons_wide"><a href="{$selfurl}{$urlext}&delete={$cset->id}" class="pageoptions delete">{$idel}</a></td>
    {/if}
 {/strip}</tr>
 {/foreach}

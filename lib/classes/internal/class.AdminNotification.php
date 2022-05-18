@@ -57,6 +57,7 @@ class AdminNotification
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         switch( $key ) {
@@ -72,6 +73,7 @@ class AdminNotification
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __set(string $key,$value)
     {
         switch( $key ) {

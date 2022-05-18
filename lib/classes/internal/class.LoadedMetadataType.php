@@ -38,6 +38,7 @@ class LoadedMetadataType
      * @param string $prop Secondary part of the type-identifier
      * @param callable $fetcher Data retriever
      */
+    #[\ReturnTypeWillChange]
     public function __construct(string $name, string $prop, callable $fetcher)
     {
         $this->name = trim($name);

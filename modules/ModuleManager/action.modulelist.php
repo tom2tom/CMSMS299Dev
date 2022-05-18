@@ -1,7 +1,7 @@
 <?php
 /*
 ModuleManager module action: modulelist
-Copyright (C) 2011-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2011-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -49,6 +49,23 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('showmodule.tpl')); //
 
 $data = Utils::build_module_data($repmodules,$instmodules,FALSE);
 if( $data ) {
+
+// defined data structure to support PHP optimisation
+class ModuleListData
+{
+    public $aboutlink;
+    public $age;
+    public $date;
+    public $dependslink;
+    public $description;
+    public $downloads;
+    public $helplink;
+    public $name;
+    public $size;
+    public $status;
+    public $version;
+}
+
     $size = count($data);
 
     $dirlist = cms_module_places();
@@ -61,7 +78,7 @@ if( $data ) {
     $rowarray = [];
     $newestdisplayed = '';
     foreach( $data as $row ) {
-        $onerow = new stdClass();
+        $onerow = new ModuleListData(); //stdClass();
         $onerow->age = Utils::get_status($row['date']);
         $onerow->date = $row['date'];
         $onerow->description = ( !empty($row['description']) ) ? $row['description'] : null;

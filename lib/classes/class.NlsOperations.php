@@ -1,7 +1,7 @@
 <?php
 /*
 Class of methods for dealing with language/encoding/locale
-Copyright (C) 2015-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2015-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -24,18 +24,19 @@ namespace CMSMS;
 use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\LanguageDetector;
+use CMSMS\Lone;
 use CMSMS\Nls;
-use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use const CMS_ROOT_PATH;
 use const CMSSAN_NONPRINT;
 use function cms_join_path;
+use function CMSMS\is_frontend_request;
 use function CMSMS\sanitizeVal;
 use function get_userid;
 
 /**
- * A singleton class to provide simple, generic mechanism for dealing with
- * language encodings and locales.
+ * A singleton class to provide simple, generic mechanism for dealing
+ * with language encodings and locales.
  * This class does not handle translation strings.
  *
  * @final
@@ -45,7 +46,7 @@ use function get_userid;
  */
 final class NlsOperations
 {
-	// static properties here >> SingleItem property|ies ?
+	// static properties here >> Lone property|ies ?
 	/**
 	 * @ignore
 	 */
@@ -79,7 +80,9 @@ final class NlsOperations
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __construct() {}
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**
@@ -89,7 +92,7 @@ final class NlsOperations
 	{
 		if( !is_array(self::$_nls) ) {
 			self::$_nls = [];
-			$config = SingleItem::Config();
+			$config = Lone::get('Config');
 			$nlsdir = cms_join_path(CMS_ROOT_PATH,'lib','nls');
 			$langdir = cms_join_path(CMS_ROOT_PATH,$config['admin_dir'],'lang');
 			$files = glob($nlsdir.DIRECTORY_SEPARATOR.'*nls.php');
@@ -174,13 +177,13 @@ final class NlsOperations
 	{
 		$curlang = ( self::$_cur_lang != '' ) ? self::$_cur_lang : '';
 
-		if( $lang == '' && SingleItem::App()->is_frontend_request() && is_object(self::$_fe_language_detector) ) {
+		if( !$lang && is_frontend_request() && is_object(self::$_fe_language_detector) ) {
 			$lang = self::$_fe_language_detector->find_language();
 		}
-		if( $lang != '' ) {
+		if( $lang ) {
 			$lang = self::find_nls_match($lang); // resolve input string
 		}
-		if( $lang == '' ) {
+		if( !$lang ) {
 			$lang = self::get_default_language();
 		}
 		if( $curlang == $lang ) return TRUE; // nothing to do.
@@ -209,7 +212,7 @@ final class NlsOperations
 		if( isset(self::$_cur_lang) ) {
 			return self::$_cur_lang;
 		}
-		if( is_object(self::$_fe_language_detector) && SingleItem::App()->is_frontend_request() ) {
+		if( is_object(self::$_fe_language_detector) && is_frontend_request() ) {
 			return self::$_fe_language_detector->find_language();
 		}
 		return self::get_default_language();
@@ -393,7 +396,7 @@ final class NlsOperations
 			return self::$_encoding;
 		}
 		// is it specified in the config.php?
-		$config = SingleItem::Config();
+		$config = Lone::get('Config');
 		if( !empty($config['default_encoding']) ) {
 			return strtoupper($config['default_encoding']);
 		}
@@ -429,7 +432,7 @@ final class NlsOperations
 	protected static function set_locale()
 	{
 		static $_locale_set = FALSE;
-		$config = SingleItem::Config();
+		$config = Lone::get('Config');
 
 		$locale = '';
 		if( isset($config['locale']) && $config['locale'] != '' ) {
@@ -487,3 +490,4 @@ final class NlsOperations
 		}
 	}
 } // class
+//if (!\class_exists('CmsNlsOperations', false)) \class_alias(NlsOperations::class, 'CmsNlsOperations', false);

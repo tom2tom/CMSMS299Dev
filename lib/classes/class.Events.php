@@ -25,12 +25,12 @@ use CMSModule;
 use CMSMS\AppState;
 use CMSMS\HookOperations;
 use CMSMS\LoadedDataType;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 use Throwable;
 use const CMS_DB_PREFIX;
 use function debug_buffer;
-use function lang_by_realm;
+//use function lang_by_realm;
 
 /**
  * Class for handling and dispatching system and other defined events.
@@ -40,7 +40,7 @@ use function lang_by_realm;
  */
 final class Events
 {
-	// static properties here >> SingleItem property|ies ?
+	// static properties here >> Lone property|ies ?
 	/**
 	 * Cache data for 'static' event-handlers (stored in database)
 	 * @ignore
@@ -56,11 +56,13 @@ final class Events
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __construct() {}
 
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**
@@ -70,7 +72,7 @@ final class Events
 	public static function load_setup()
 	{
 		$obj = new LoadedDataType('events', function() {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$pref = CMS_DB_PREFIX;
 			$sql = <<<EOS
 SELECT e.event_id, eh.type, eh.class, eh.method, e.originator, e.event_name, eh.handler_order, eh.handler_id, eh.removable
@@ -80,7 +82,7 @@ ORDER BY originator,event_name,handler_order
 EOS;
 			return $db->getArray($sql);
 		});
-		SingleItem::LoadedData()->add_type($obj);
+		Lone::get('LoadedData')->add_type($obj);
 	}
 
 	/**
@@ -92,7 +94,7 @@ EOS;
 	 */
 	public static function CreateEvent(string $originator, string $eventname) : bool
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$originator = trim($originator);
 		$eventname = trim($eventname);
 		$pref = CMS_DB_PREFIX;
@@ -103,7 +105,7 @@ WHERE NOT EXISTS (SELECT 1 FROM {$pref}events T WHERE T.originator=? AND T.event
 EOS;
 		$dbr = $db->execute($sql, [$originator, $eventname, $originator, $eventname]);
 		if ($dbr) {
-			SingleItem::LoadedData()->refresh('events');
+			Lone::get('LoadedData')->refresh('events');
 			return true;
 		}
 		return false;
@@ -119,7 +121,7 @@ EOS;
 	 */
 	public static function RemoveEvent(string $originator, string $eventname) : bool
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 
 		// get the id
 		$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=? AND event_name=?';
@@ -137,7 +139,7 @@ EOS;
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'events WHERE event_id=?';
 		$db->execute($sql, [$id]); // ignore failed result
 
-		SingleItem::LoadedData()->refresh('events');
+		Lone::get('LoadedData')->refresh('events');
 		return true;
 	}
 
@@ -180,7 +182,7 @@ EOS;
 				  case 'U': //UDT
 					if (!empty($handler)) {
 						if ($mgr === null) {
-							$mgr = SingleItem::UserTagOperations();
+							$mgr = Lone::get('UserTagOperations');
 						}
 						debug_buffer($eventname.' event notice to user-plugin ' . $row['method']);
 						$mgr->DoEvent($handler, $originator, $eventname, $params); //CHECKME $handler for UDTfiles
@@ -188,7 +190,7 @@ EOS;
 					break;
 				  case 'P': //regular plugin
 					if ($smarty === null) {
-						$smarty = SingleItem::Smarty();
+						$smarty = Lone::get('Smarty');
 					}
 					if ($smarty->is_plugin($handler)) {
 						if (function_exists('smarty_function_'.$handler)) {
@@ -227,7 +229,7 @@ EOS;
 	 */
 	public static function ListEvents()
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$pref = CMS_DB_PREFIX;
 		$sql = <<<EOS
 SELECT e.*, COALESCE(times,0) AS usage_count FROM {$pref}events e
@@ -289,7 +291,7 @@ EOS;
 				//eventhandlers cache has probably been cleared, and an event reporting that has been immediatley initiated
 				self::load_setup();
 			}
-			$cache = SingleItem::LoadedData();
+			$cache = Lone::get('LoadedData');
 			try {
 				self::$_handlercache = $cache->get('events');
 			} catch (Throwable $t) { // might fail without pre-check for setup!
@@ -322,7 +324,7 @@ EOS;
 	public static function GetEventHandler(int $handler_id)
 	{
 		if (self::$_handlercache === null) {
-			self::$_handlercache = SingleItem::LoadedData()->get('events');
+			self::$_handlercache = Lone::get('LoadedData')->get('events');
 		}
 		if (self::$_handlercache) {
 			foreach (self::$_handlercache as $row) {
@@ -355,7 +357,7 @@ EOS;
 		if (!$params || (empty($params[0]) && empty($params[1]))) {
 			return false;
 		}
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		// find the event, if any
 		$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=? AND event_name=?';
 		$id = (int) $db->getOne($sql, [$originator, $eventname]);
@@ -400,7 +402,7 @@ EOS;
 (event_id,class,method,type,removable,handler_order) VALUES (?,?,?,?,?,?)';
 		$dbr = $db->execute($sql, [$id, $class, $method, $type, $mode, $order]);
 		if ($dbr) {
-			SingleItem::LoadedData()->refresh('events');
+			Lone::get('LoadedData')->refresh('events');
 			return true;
 		}
 		return false;
@@ -502,7 +504,7 @@ EOS;
 			return false;
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		// find the event id
 		$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=? AND event_name=?';
 		$id = (int) $db->getOne($sql, [$originator, $eventname]);
@@ -572,7 +574,7 @@ EOS;
 	 */
 	public static function RemoveAllEventHandlers(string $originator, string $eventname)
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 
 		// find the event id
 		$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=? AND event_name=?';
@@ -585,7 +587,7 @@ EOS;
 		// delete handler(s) if any
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id= ?';
 		$dbr = $db->execute($sql, [$id]);
-		SingleItem::LoadedData()->refresh('events');
+		Lone::get('LoadedData')->refresh('events');
 		return ($dbr != false);
 	}
 
@@ -601,12 +603,12 @@ EOS;
 			return;
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order + 1 WHERE event_id = ? AND handler_order = ?';
 		$db->execute($sql, [$handler['event_id'], $handler['handler_order'] - 1]);
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order - 1 WHERE handler_id = ? AND event_id = ?';
 		$db->execute($sql, [$handler['handler_id'], $handler['event_id']]);
-		SingleItem::LoadedData()->refresh('events');
+		Lone::get('LoadedData')->refresh('events');
 	}
 
 	/**
@@ -625,12 +627,12 @@ EOS;
 			return;
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order - 1 WHERE event_id = ? AND handler_order = ?';
 		$db->execute($sql, [$handler['event_id'], $handler['handler_order'] + 1]);
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order + 1 WHERE handler_id = ? AND event_id = ?';
 		$db->execute($sql, [$handler['handler_id'], $handler['event_id']]);
-		SingleItem::LoadedData()->refresh('events');
+		Lone::get('LoadedData')->refresh('events');
 	}
 
 	/**
@@ -726,7 +728,7 @@ EOS;
 	 */
 	private static function InternalRemoveHandler($handler)
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$id = $handler['event_id'];
 
 		// update any subsequent handlers
@@ -737,7 +739,7 @@ EOS;
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE handler_id=? AND event_id=?';
 		$db->execute($sql, [$handler['handler_id'], $id]);
 
-		SingleItem::LoadedData()->refresh('events');
+		Lone::get('LoadedData')->refresh('events');
 	}
 } //class
 

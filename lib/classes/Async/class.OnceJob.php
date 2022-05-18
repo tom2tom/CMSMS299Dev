@@ -35,6 +35,7 @@ abstract class OnceJob extends Job
     /**
      * Constructor
      */
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();

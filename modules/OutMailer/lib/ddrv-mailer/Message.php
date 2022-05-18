@@ -180,6 +180,7 @@ final class Message implements MessageContract
      * @param string|null $html
      * @param string|null $text
      */
+    #[\ReturnTypeWillChange]
     public function __construct($subject = null, $html = null, $text = null)
     {
         $this->id = $this->randomString(32, false);
@@ -200,6 +201,7 @@ final class Message implements MessageContract
         $this->setText('' . $text);
     }
 
+    #[\ReturnTypeWillChange]
     public function __clone()
     {
         $this->boundary = '-+' . $this->randomString(12, false);
@@ -699,8 +701,8 @@ final class Message implements MessageContract
     }
 
     //PHP 8.1+ Serializable interface compatibility
-	public function __serialize() : array
-	{
+    public function __serialize() : array
+    {
         return [
             'id' => $this->id,
             'headers' => $this->headers,
@@ -714,10 +716,10 @@ final class Message implements MessageContract
             'encoding' => $this->encoding,
             'eol' => $this->eol,
         ];
-	}
+    }
 
-	public function __unserialize(array $data) : void
-	{
+    public function __unserialize(array $data) : void
+    {
         $empty = [
             'id' => array(),
             'headers' => array(),
@@ -734,13 +736,13 @@ final class Message implements MessageContract
         foreach ($empty as $key => $default) {
             $this->$key = array_key_exists($key, $data) ? $data[$key] : $default;
         }
-	}
+    }
 
     /**
      * @inheritDoc
      */
-//    public function serialize() : ?string PHP 8+
-    public function serialize()
+    #[\ReturnTypeWillChange]
+    public function serialize()// : ?string
     {
         return \serialize($this->__serialize());
     }
@@ -748,8 +750,8 @@ final class Message implements MessageContract
     /**
      * @inheritDoc
      */
-//    public function unserialize(string $serialized) : void PHP 8+
-    public function unserialize($serialized)
+    #[\ReturnTypeWillChange]
+    public function unserialize($serialized)// : void
     {
         $this->__unserialize(\unserialize($serialized));
     }

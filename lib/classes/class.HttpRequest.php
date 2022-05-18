@@ -267,6 +267,7 @@ class HttpRequest
     /**
      * Constructor for initializing the class with default values.
      */
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $this->clear();
@@ -319,7 +320,7 @@ class HttpRequest
      */
     public function clear()
     {
-//        $config = SingleItem::Config();
+//        $config = Lone::get('Config');
 
         // Set the request defaults
         $this->host         = '';
@@ -686,7 +687,7 @@ class HttpRequest
      */
     public static function is_curl_suitable()
     {
-        // static properties here >> SingleItem property|ies ?
+        // static properties here >> Lone property|ies ?
         static $_curlgood = null;
 
         if ($_curlgood === null) {

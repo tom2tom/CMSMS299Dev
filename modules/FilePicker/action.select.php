@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\FileType;
-use CMSMS\SingleItem;
+use function CMSMS\is_frontend_request;
 
 /*
 Display an input-text element with ancillaries which support file picking.
@@ -28,7 +28,7 @@ Associated js is pushed into the page footer.
 */
 
 //if( some worthy test fails ) exit;
-if( SingleItem::App()->is_frontend_request() ) exit;
+if( is_frontend_request() ) exit;
 
 try {
     $name = $params['name'] ?? ''; //html element name

@@ -32,7 +32,7 @@ use CMSMS\Events;
 use CMSMS\IRegularTask;
 use CMSMS\LoadedDataType;
 use CMSMS\RequestParameters;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 use CmsRegularTask;
 use InvalidArgumentException;
@@ -206,7 +206,7 @@ final class JobOperations
         }
 
         // we have job(s) whose error count needs to be increased
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'UPDATE '.self::TABLE_NAME.' SET errors = errors + 1 WHERE id IN ('.implode(',', $job_ids).')';
         $db->execute($sql);
         debug_to_log('Increased error count on '.count($job_ids).' jobs ');
@@ -251,7 +251,7 @@ final class JobOperations
         $res = 0;
 
         if ($force) {
-            $db = SingleItem::Db();
+            $db = Lone::get('Db');
             $db->execute('DELETE FROM '.self::TABLE_NAME); // TRUNCATE ?
             $db->execute('ALTER TABLE '.self::TABLE_NAME.' AUTO_INCREMENT=1');
         }
@@ -293,18 +293,18 @@ final class JobOperations
         }
 
         // Get job objects from modules
-        $cache = SingleItem::LoadedData();
+        $cache = Lone::get('LoadedData');
         if (!$cache->get('modules')) {
 			// see also ModuleOperations::load_setup()
             $obj = new LoadedDataType('modules', function() {
-                $db = SingleItem::Db();
+                $db = Lone::get('Db');
                 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules WHERE active != 0';
                 return $db->getArray($query);
             });
             $cache->add_type($obj);
         }
 
-        $modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::TASKS);
+        $modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::TASKS);
         if (!$modnames) {
             if (defined('ASYNCLOG')) {
                 error_log('async action No task-capable modules present'."\n", 3, ASYNCLOG);
@@ -358,7 +358,7 @@ final class JobOperations
      */
     public function load_job(Job $job) : int
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         if ($job->id == 0) {
             $sql = 'SELECT id,start FROM '.self::TABLE_NAME.' WHERE name = ? AND module = ?';
             $dbr = $db->getRow($sql, [$job->name, $job->module]);
@@ -409,7 +409,7 @@ final class JobOperations
     {
         $job_id = (int) $job_id;
         if ($job_id > 0) {
-            $db = SingleItem::Db();
+            $db = Lone::get('Db');
             $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE id = ?';
             $row = $db->getRow($sql, [$job_id]);
             if (!$row) {
@@ -470,7 +470,7 @@ final class JobOperations
     public function unload_job(Job $job)
     {
         if ($job->id > 0) {
-            $db = SingleItem::Db();
+            $db = Lone::get('Db');
             $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE id = ?';
             if ($db->execute($sql, [$job->id])) {
                 return;
@@ -490,7 +490,7 @@ final class JobOperations
     {
         $job_id = (int) $job_id;
         if ($job_id > 0) {
-            $db = SingleItem::Db();
+            $db = Lone::get('Db');
             $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE id = ?';
             if ($db->execute($sql, [$job_id])) {
                 return;
@@ -509,7 +509,7 @@ final class JobOperations
     public function unload_job_by_name($module_name, $job_name)
     {
         if ($module_name) {
-            $db = SingleItem::Db();
+            $db = Lone::get('Db');
             $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE module = ? AND name = ?';
             if ($db->execute($sql, [$module_name, $job_name])) {
                 return;
@@ -527,7 +527,7 @@ final class JobOperations
     public function unload_jobs_by_module($module_name)
     {
         if ($module_name) {
-            $db = SingleItem::Db();
+            $db = Lone::get('Db');
             $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE module = ?';
             $db->execute($sql, [$module_name]); // don't care if this fails i.e. no jobs
             return;
@@ -567,7 +567,7 @@ final class JobOperations
     {
         $now = time();
         $sql = 'SELECT * FROM '.self::TABLE_NAME." WHERE created < $now ORDER BY created";
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $rst = $db->SelectLimit($sql, self::MAXJOBS);
         if (!$rst) {
             return [];
@@ -585,7 +585,7 @@ final class JobOperations
                 }
             }
             try {
-                $obj = unserialize($row['data']/*, ['allowed_classes' => ['allowed_classes' => Job-descentants, interface*-implmentors]]*/);
+                $obj = unserialize($row['data']);//, ['allowed_classes' => [no whitelist subclassing, must name each Job-descendent, interface*-implmentor]]
             } catch (Throwable $t) {
                 $obj = null;
             }
@@ -613,7 +613,7 @@ final class JobOperations
      */
     public function get_jobs(bool $check_only = false)
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $now = time();
 
         if ($check_only) {
@@ -645,7 +645,7 @@ final class JobOperations
                 }
             }
             try {
-                $obj = unserialize($row['data']/*, ['allowed_classes' => Job-descentants, interface*-implmentors]*/);
+                $obj = unserialize($row['data']);//, ['allowed_classes' => [no whitelist subclassing, must name each Job-descendent, interface*-implmentor]]
             } catch (Throwable $t) {
                 $obj = null;
             }
@@ -686,14 +686,14 @@ final class JobOperations
             return;
         }
 
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE errors >= ?';
         $list = $db->getArray($sql, [self::MINERRORS]);
         if ($list) {
             $idlist = [];
             foreach ($list as &$row) {
                 try {
-                    $obj = unserialize($row['data']/*, ['allowed_classes' => ['allowed_classes' => Job-descentants, interface*-implmentors]]*/);
+                    $obj = unserialize($row['data']);//, ['allowed_classes' => [no whitelist subclassing, must name each Job-descendent, interface*-implmentor]]
                 } catch (Throwable $t) {
                     $obj = null;
                 }

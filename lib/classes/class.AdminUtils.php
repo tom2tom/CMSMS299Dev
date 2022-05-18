@@ -26,7 +26,7 @@ use CMSMS\DeprecationNotice;
 use CMSMS\Events;
 use CMSMS\HookOperations;
 use CMSMS\HttpRequest;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use ErrorException;
 use FilesystemIterator;
 use LogicException;
@@ -76,10 +76,12 @@ final class AdminUtils
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __construct() {}
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**
@@ -196,7 +198,7 @@ final class AdminUtils
 	public static function get_icon(string $icon, array $attrs = []) : string
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AdminTheme::get_icon'));
-		$themeObject = SingleItem::Theme();
+		$themeObject = Lone::get('Theme');
 		return $themeObject->get_icon($icon, $attrs);
 	}
 
@@ -216,7 +218,7 @@ final class AdminUtils
 	{
 		if (!AppState::test(AppState::ADMIN_PAGE)) return;
 
-		$themeObject = SingleItem::Theme();
+		$themeObject = Lone::get('Theme');
 		if (!is_object($themeObject)) return;
 
 		$icon = $themeObject->get_icon('info', ['class'=>'cms_helpicon']);
@@ -253,7 +255,7 @@ final class AdminUtils
 		}
 
 		if (!$key1) {
-			$smarty = SingleItem::Smarty();
+			$smarty = Lone::get('Smarty');
 			$module = $smarty->getTemplateVars('_module');
 			if ($module) {
 				$key1 = $module;
@@ -325,9 +327,9 @@ final class AdminUtils
 	 * This method uses the CMSMS jQuery hierselector widget.
 	 * @since 3.0 This method was migrated from the ContentOperations class
 	 *
-	 * @param int The id of the content object we are working with. Default 0.
+	 * @param mixed The int|string id of the content object we are working with. Default 0.
 	 *   Used with $allow_current to ignore this object and its descendants.
-	 * @param int $selected The id of the currently selected content object. Or -1 if none. Default 0.
+	 * @param mixed $selected The int|string id of the currently selected content object. Or -1 if none. Default 0.
 	 * @param string $name The html name of the created dropdown. Default 'parent_id'. ('m1_' will be prepended)
 	 * @param bool $allow_current Ensures that the current value cannot be selected, or $current and its children.
 	 *   Used to prevent circular deadlocks.
@@ -340,15 +342,15 @@ final class AdminUtils
 	 * @return string js and html to display an ajax-populated dropdown, with fallback to text-input
 	 */
 	public static function CreateHierarchyDropdown(
-		int $current = 0,
-		int $selected = 0,
+		$current = 0,
+		$selected = 0,
 		string $name = 'parent_id',
 		bool $allow_current = false,
 		bool $use_perms = false,
 		bool $allow_all = false,
 		bool $for_child = false) : string
 	{
-		// static properties here >> SingleItem property|ies ?
+		// static properties here >> Lone property|ies ?
 		static $count = 1;
 
 		$userid = get_userid(false);
@@ -417,3 +419,5 @@ add_page_foottext($out);
 EOS;
 	}
 } // class
+//if (!\class_exits('CmsAdminUtils')) \class_alias(AdminUtils::class, 'CmsAdminUtils', false);
+//if (!\class_exits('cms_admin_utils') \class_alias(AdminUtils::class, 'cms_admin_utils', false);

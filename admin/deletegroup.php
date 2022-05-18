@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Error403Exception;
 use CMSMS\Events;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\log_info;
 
 if (!isset($_GET['group_id'])) {
@@ -41,7 +41,7 @@ if (!check_permission($userid, 'Manage Groups')) {
     throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 $urlext = get_secure_param();
 
 $group_id = (int) $_GET['group_id'];
@@ -51,14 +51,14 @@ if ($group_id == 1) {
     redirect('listgroups.php'.$urlext);
 }
 
-$userops = SingleItem::UserOperations();
+$userops = Lone::get('UserOperations');
 if ($userops->UserInGroup($userid,$group_id)) {
     // can't delete a group to which the current user belongs
     $themeObject->ParkNotice('error', _la('cantremove')); //TODO
     redirect('listgroups.php'.$urlext);
 }
 
-$groupops = SingleItem::GroupOperations();
+$groupops = Lone::get('GroupOperations');
 $groupobj = $groupops->LoadGroupByID($group_id);
 
 if ($groupobj) {

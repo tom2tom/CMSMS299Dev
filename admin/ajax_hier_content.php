@@ -22,8 +22,9 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\DataException;
 use CMSMS\Error403Exception;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use ContentManager\Utils;
+use function cmsms;
 //use function CMSMS\sanitizeVal;
 
 $dsep = DIRECTORY_SEPARATOR;
@@ -34,9 +35,8 @@ for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
 //$urlext = get_secure_param();
 $userid = get_userid(false);
-$gCms = SingleItem::App();
-$hm = $gCms->GetHierarchyManager();
-$contentops = SingleItem::ContentOperations();
+$hm = cmsms()->GetHierarchyManager();
+$contentops = Lone::get('ContentOperations');
 try {
     $display = Utils::get_pagenav_display();
 }
@@ -65,7 +65,7 @@ try {
             foreach( $tmplist as $item ) {
                 // get all the parents
                 $parents = [];
-                $startnode = $node = $hm->quickfind_node_by_id($item);
+                $startnode = $node = $hm->get_node_by_id($item);
                 while( $node && $node->get_tag('id') > 0 ) {
                     $content = $node->getContent();
                     $rec = $content->ToData();
@@ -131,9 +131,9 @@ try {
         if( $page < 1 ) $page = -1;
         $node = $thiscontent = null;
         if( $page == -1 ) {
-            $node = $hm; // root, cloned
+            $node = $hm; // HierarchyManager object, not a Tree node
         } else {
-            $node = $hm->quickfind_node_by_id($page);
+            $node = $hm->get_node_by_id($page);
         }
         do {
             $out[] = $children_to_data($node); // get children of current page.
@@ -151,10 +151,10 @@ try {
             if( $page < 1 ) $page = -1;
             $node = null;
             if( $page == -1 ) {
-                $node = $hm;
+                $node = $hm; // HierarchyManager, not a Tree node
             }
             else {
-                $node = $hm->quickfind_node_by_id($page);
+                $node = $hm->get_node_by_id($page);
             }
             if( $node ) {
                 $children = $node->getChildren(false,$allow_all);
@@ -184,7 +184,7 @@ try {
             $tmp = [];
             foreach( $_REQUEST['pages'] as $one ) {
                 $one = (int)$one;
-                // discard negative values
+                // ignore invalid identifiers
                 if( $one > 0 ) $tmp[] = $one;
             }
             $peers = array_unique($tmp);

@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
 use CMSMS\Group;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 if (empty($this) || !($this instanceof ContentManager)) {
     exit;
@@ -64,7 +64,7 @@ foreach ([
     Events::RemoveEvent($me, $name);
 }
 
-$ops = SingleItem::ModuleOperations();
+$ops = Lone::get('ModuleOperations');
 $alias = $ops->get_module_classname('CMSContentManager');
 $mine = get_class($this);
 if ($alias && strpos($alias, $mine) !== false) {

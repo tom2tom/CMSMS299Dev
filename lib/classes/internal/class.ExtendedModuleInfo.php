@@ -23,7 +23,7 @@ namespace CMSMS\internal;
 
 use CMSMS\internal\ModuleInfo;
 use CMSMS\LogicException;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 class ExtendedModuleInfo extends ModuleInfo
 {
@@ -42,11 +42,12 @@ class ExtendedModuleInfo extends ModuleInfo
 
     protected $emdata = [];
 
+    #[\ReturnTypeWillChange]
     public function __construct($module_name,$can_load = false)
     {
         parent::__construct($module_name,$can_load);
 
-        $ops = SingleItem::ModuleOperations();
+        $ops = Lone::get('ModuleOperations');
         $minfo = $ops->GetInstalledModuleInfo();
         if( isset($minfo[$module_name]) ) {
             $this->emdata['active'] = (int)$minfo[$module_name]['active'];
@@ -64,7 +65,8 @@ class ExtendedModuleInfo extends ModuleInfo
         }
     }
 
-    public function OffsetGet($key)
+    #[\ReturnTypeWillChange]
+    public function offsetGet($key)// : mixed
     {
         if( !in_array($key,self::EMPROPS) ) { return parent::OffsetGet($key); }
         if( isset($this->emdata[$key]) ) { return $this->emdata[$key]; }
@@ -85,7 +87,8 @@ class ExtendedModuleInfo extends ModuleInfo
         }
     }
 
-    public function OffsetSet($key,$value)
+    #[\ReturnTypeWillChange]
+    public function offsetSet($key,$value)// : void
     {
         if( !in_array($key,self::EMPROPS) ) {
             parent::OffsetSet($key,$value);
@@ -99,12 +102,18 @@ class ExtendedModuleInfo extends ModuleInfo
         }
     }
 
-    public function OffsetExists($key)
+    #[\ReturnTypeWillChange]
+    public function offsetExists($key)// : bool
     {
         if( !in_array($key,self::EMPROPS) ) {
             return parent::OffsetExists($key);
         }
         return isset($this->emdata[$key]) || in_array($key, // some props are generated, not stored
             ['missingdeps']);
+    }
+
+    #[\ReturnTypeWillChange]
+    public function offsetUnset($key)// : void
+    {
     }
 }

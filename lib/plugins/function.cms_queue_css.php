@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin which records a stylesheet file to be accumulated for inclusion in a page or template
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -19,17 +19,20 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use function CMSMS\get_styles_manager;
+use CMSMS\Lone;
 // since 3.0
 function smarty_function_cms_queue_css($params, $template)
 {
-	if( !isset($params['file']) ) return '';
-	$combiner = get_styles_manager();
+	if( empty($params['file']) ) {
+		return '';
+	}
 	$file = trim($params['file']);
+	$combiner = Lone::get('StylesMerger');
 	$priority = (int)($params['priority'] ?? 0);
-	$res = $combiner->queue_file($file, $priority);
-	if (!$res) trigger_error('TODO');
-	return '';
+	if( $combiner->queue_file($file, $priority) ) {
+		return '';
+	}
+	trigger_error('Failed to merge stylesheet '.$file);
 }
 
 function smarty_cms_help_function_cms_queue_css()

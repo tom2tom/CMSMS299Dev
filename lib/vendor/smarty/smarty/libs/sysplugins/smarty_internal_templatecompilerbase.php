@@ -360,6 +360,7 @@ abstract class Smarty_Internal_TemplateCompilerBase
      *
      * @param Smarty $smarty global instance
      */
+    #[\ReturnTypeWillChange]
     public function __construct(Smarty $smarty)
     {
         $this->smarty = $smarty;

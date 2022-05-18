@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Events;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 use function CMSMS\sanitizeVal;
 
@@ -61,7 +61,7 @@ if (is_array($events)) {
     $senders = [-1 => _la('all')] + $senders;
 }
 
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 if ($pmod) {
     $iconedit = $themeObject->DisplayImage('icons/system/edit.gif',_la('modifyeventhandlers'),'','','systemicon');
@@ -74,7 +74,7 @@ $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 $urlext = get_secure_param();
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
     'access' => $pmod,
     'editurl' => 'editevent.php',

@@ -1,7 +1,7 @@
 <?php
 /*
 Functions for managing CMSMS routes
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -24,8 +24,8 @@ namespace CMSMS;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use CMSMS\LoadedDataType;
+use CMSMS\Lone;
 use CMSMS\Route;
-use CMSMS\SingleItem;
 use Exception;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -59,7 +59,7 @@ if( !function_exists('__internal_cmp_routes') ) {
  */
 final class RouteOperations
 {
-    // static properties here >> SingleItem property|ies ?
+    // static properties here >> Lone property|ies ?
 	/**
 	 * @var bool Whether the 'static' routes array has been populated
 	 * @ignore
@@ -101,11 +101,13 @@ final class RouteOperations
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __construct() {}
 
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**
@@ -127,10 +129,10 @@ final class RouteOperations
 			self::$_dynamic_routes = [];
 
 			//eventually we should be able to just ...
-			//$polls = SingleItem::LoadedMetadata()->get('capable_modules',$force,CMSMS\CoreCapabilities::ROUTE_MODULE);
-			$modops = SingleItem::ModuleOperations();
+			//$polls = Lone::get('LoadedMetadata')->get('capable_modules',$force,CMSMS\CoreCapabilities::ROUTE_MODULE);
+			$modops = Lone::get('ModuleOperations');
 			$extras = $modops->GetLoadableModuleNames(); // hence incremental changes
-			$skips = SingleItem::LoadedMetadata()->get('methodic_modules',$force,'RegisterRoute',FALSE ); //deprecated since 3.0
+			$skips = Lone::get('LoadedMetadata')->get('methodic_modules',$force,'RegisterRoute',FALSE ); //deprecated since 3.0
 			$polls = array_diff($extras,$skips);
 
 			foreach( $polls as $modname ) {
@@ -142,12 +144,12 @@ final class RouteOperations
 			}
 
 			$fresh = array_merge($data,self::$_dynamic_routes);
-			SingleItem::LoadedData()->set('routes',$fresh);
+			Lone::get('LoadedData')->set('routes',$fresh);
 			self::$_dynamic_routes = $fresh;
 			--$sema4;
 			return self::$_dynamic_routes; // old and/or new, or maybe nothing
 		});
-		SingleItem::LoadedData()->add_type($obj);
+		Lone::get('LoadedData')->add_type($obj);
 	}
 
 	// ========== FINDING|MATCHING ==========
@@ -429,7 +431,7 @@ final class RouteOperations
 	{
 		if( self::$_dynamic_routes_loaded ) return;
 		self::load_setup();
-		self::$_dynamic_routes = SingleItem::LoadedData()->get('routes');
+		self::$_dynamic_routes = Lone::get('LoadedData')->get('routes');
 		self::$_dynamic_routes_loaded = TRUE;
 	}
 
@@ -462,7 +464,7 @@ final class RouteOperations
 		$page = ( isset($props['page']) && ($props['page'] || is_numeric($props['page'])) ) ? $props['page'] : NULL;
 		$delmatch = ( isset($props['delmatch']) && ($props['delmatch'] || is_numeric($props['delmatch'])) ) ? $props['delmatch'] : NULL;
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$tbl = CMS_DB_PREFIX.'routes';
 		$query = "UPDATE $tbl SET term=?,delmatch=?,data=? WHERE dest1=? AND page=?"; // TODO dest1+page not a unique combination
 		$db->execute($query,[$term,$delmatch,$data,$dest1,$page]);
@@ -521,7 +523,7 @@ EOS;
 
 		if( !$where ) return FALSE;
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'routes WHERE ';
 		$query .= implode(' AND ',$where);
 		$dbr = $db->execute($query,$parms);
@@ -542,13 +544,13 @@ EOS;
 	{
 		// clear the route table and local cache
 		self::clear_static_routes();
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'TRUNCATE '.CMS_DB_PREFIX.'routes';
 		$db->execute($query);
 
 		// get module routes
-		$modops = SingleItem::ModuleOperations();
-		$modnames = SingleItem::LoadedMetadata()->get('methodic_modules',TRUE,'CreateStaticRoutes');
+		$modops = Lone::get('ModuleOperations');
+		$modnames = Lone::get('LoadedMetadata')->get('methodic_modules',TRUE,'CreateStaticRoutes');
 		if( $modnames ) {
 			foreach( $modnames as $modname ) {
 				$mod = $modops->get_module_instance($modname);
@@ -557,7 +559,7 @@ EOS;
 			}
 		}
 		// and routes from module-method alias
-		$modnames = SingleItem::LoadedMetadata()->get('methodic_modules',TRUE,'CreateRoutes');
+		$modnames = Lone::get('LoadedMetadata')->get('methodic_modules',TRUE,'CreateRoutes');
 		if( $modnames ) {
 			foreach( $modnames as $modname ) {
 				$mod = $modops->get_module_instance($modname);
@@ -588,7 +590,7 @@ EOS;
 		if( self::$_routes_loaded ) return;
 
 		self::$_routes = [];
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT data FROM '.CMS_DB_PREFIX."routes WHERE data != '' AND data IS NOT NULL";
 		$rows = $db->getCol($query);
 		if( $rows ) {

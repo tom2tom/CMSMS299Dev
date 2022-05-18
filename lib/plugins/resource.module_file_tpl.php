@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\log_error;
 use function CMSMS\log_warning;
 use function CMSMS\sanitizeVal;
@@ -35,7 +35,7 @@ use function CMSMS\sanitizeVal;
  */
 class Smarty_Resource_module_file_tpl extends Smarty_Resource_Custom
 {
-    // static properties here >> SingleItem ?
+    // static properties here >> Lone ?
     /**
      * @var array intra-request cache of used templates, each member like
      *  name => [ 'content' => whatever, 'modified' => non-0 timestamo ]
@@ -76,7 +76,7 @@ class Smarty_Resource_module_file_tpl extends Smarty_Resource_Custom
         }
         $modname = trim($parts[0]);
         // not cms_module_path($modname), module might be present but uninstalled
-        $mod = SingleItem::ModuleOperations()->get_module_instance($modname);
+        $mod = Lone::get('ModuleOperations')->get_module_instance($modname);
         if( $mod ) {
             $module_path = $mod->GetModulePath();
             $filename = trim($parts[1]);

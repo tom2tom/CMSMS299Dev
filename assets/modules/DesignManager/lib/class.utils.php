@@ -37,7 +37,7 @@ final class utils
 
     public static function get_template_locks()
     {
-		// static properties here >> SingleItem property|ies ?
+		// static properties here >> Lone property|ies ?
         static $_locks = null;
         static $_locks_loaded = FALSE;
         if( !$locks_loaded ) {

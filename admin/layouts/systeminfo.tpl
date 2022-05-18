@@ -1,6 +1,6 @@
 {if empty($smarty.get.cleanreport)}
 <p class="pageshowrows">
-  <a href="{$sysinfurl}{$urlext}&amp;cleanreport=1" class="link_button icon do">
+  <a href="{$sysinfurl}{$urlext}&cleanreport=1" class="link_button icon do">
    {si_lang a=copy_paste_forum}
   </a>
 </p>

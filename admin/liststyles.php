@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppParams;
 use CMSMS\FormUtils;
+use CMSMS\Lone;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetQuery;
 use function CMSMS\sanitizeVal;
@@ -41,8 +41,8 @@ if( $pmanage ) {
     }
 }
 
-$themeObject = SingleItem::Theme();
-$smarty = SingleItem::Smarty();
+$themeObject = Lone::get('Theme');
+$smarty = Lone::get('Smarty');
 
 // individual stylesheets
 
@@ -119,16 +119,15 @@ try {
         $smarty->assign('stylesheets',$sheetslist)
          ->assign('cssmenus',$menus);
 
-        $pagerows = 10;
-        $navpages = ceil($n / $pagerows);
-        if( $navpages > 1 ) {
+        if( $n > 10 ) {
+            $navpages = (int)ceil($n / 10);
             $pagelengths = [10=>10];
-            $pagerows += $pagerows;
-            if( $pagerows < $n ) $pagelengths[20] = 20;
-            $pagerows += $pagerows;
-            if( $pagerows < $n ) $pagelengths[40] = 40;
+            if( $n > 20 ) $pagelengths[20] = 20;
+            if( $n > 40 ) $pagelengths[40] = 40;
             $pagelengths[0] = _la('all');
-        } else {
+        }
+        else {
+            $navpages = 1;
             $pagelengths = null;
         }
         $sellength = 10; //OR some $_REQUEST[]
@@ -138,7 +137,7 @@ try {
          ->assign('currentlength', $sellength);
     }
     else {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $query = 'SELECT EXISTS (SELECT 1 FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.')';
         if( $db->getOne($query) ) {
             $smarty->assign('stylesheets',false); //signal rows exist, but none matches
@@ -244,32 +243,32 @@ $(function() {
     $(pagetable).SSsort(xopts);
     $('#pagerows').on('change',function() {
       l = parseInt(this.value);
-      if(l == 0) {
-       //TODO disable move-links, 'rows per page', show 'rows'
+      if(l === 0) {
+        $('.tplpagelink').hide();//TODO hide label-part 'per page'
       } else {
-        //TODO enable move-links, 'rows per page', hide 'rows'
+        $('.tplpagelink').show();//TODO show label-part 'per page'
       }
       $.fn.SSsort.setCurrent(tpltable,'pagesize',l);
     });
   } else {
     $(pagetable).SSsort(opts);
   }
-  $('#bulk_action').prop('disabled',true);
+  $('#bulkaction').prop('disabled',true);
   cms_button_able($('#bulk_submit'),false);
   $('#css_selall').cmsms_checkall();
   $('#css_selall,.css_select').on('click',function() {
-    l = $('.css_select:checked').length;
+    var l = $('.css_select:checked').length;
     if(l === 0) {
-      $('#bulk_action').prop('disabled',true);
+      $('#bulkaction').prop('disabled',true);
       cms_button_able($('#bulk_submit'),false);
     } else {
-      $('#bulk_action').prop('disabled',false);
+      $('#bulkaction').prop('disabled',false);
       cms_button_able($('#bulk_submit'),true);
     }
   });
   $('#bulk_submit').on('click', function(e) {
     e.preventDefault();
-    var l = $('input:checkbox:checked.css_select').length;
+    var l = $('.css_select:checked').length;
     if(l > 0) {
       cms_confirm_btnclick(this,$s1);
     } else {
@@ -526,6 +525,7 @@ $smarty->assign([
     'manage_stylesheets' => $pmanage,
     'has_add_right' => $pmanage,
     'activetab' => $seetab,
+    'bulkurl' => 'stylesheetoperations.php',
 //  'selfurl' => $selfurl,
     'urlext' => $urlext,
     'extraparms' => $extras,

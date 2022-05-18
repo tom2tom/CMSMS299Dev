@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 //see also: class CMSMS\TemplateQuery which (for now at least) this replicates
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\SQLException;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplatesGroup;
@@ -45,7 +45,7 @@ $offset = 0;
 $sortby = 'name';
 $sortorder = 'ASC';
 
-$db = SingleItem::Db();
+$db = Lone::get('Db');
 
 /*
  Acceptable filter-array keys (optional content in []):

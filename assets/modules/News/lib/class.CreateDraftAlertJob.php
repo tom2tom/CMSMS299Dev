@@ -11,12 +11,13 @@ namespace News;
 
 use CMSMS\Async\CronJob;
 use CMSMS\Async\RecurType;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use News\DraftMessageAlert;
 use CMS_DB_PREFIX;
 
 class CreateDraftAlertJob extends CronJob
 {
+    #[\ReturnTypeWillChange]
     public function __construct($params = [])
     {
         parent:: __construct($params);
@@ -30,7 +31,7 @@ class CreateDraftAlertJob extends CronJob
      */
     public function execute()
     {
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $longnow = $db->DbTimeStamp(time());
         $query = 'SELECT COUNT(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status = \'draft\' AND (end_time IS NULL OR end_time > '.$longnow.')';
         $count = $db->getOne($query);

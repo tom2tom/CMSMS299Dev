@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin which records a javascript file to be accumulated for inclusion in a page or template
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -20,18 +20,20 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use function CMSMS\get_scripts_manager;
-
+use CMSMS\Lone;
 // since 3.0
 function smarty_function_cms_queue_script($params, $template)
 {
-	if( !isset($params['file']) ) { return ''; }
-	$combiner = get_scripts_manager();
+	if( empty($params['file']) ) {
+		return '';
+	}
 	$file = trim($params['file']);
+	$combiner = Lone::get('ScriptsMerger');
 	$priority = (int)($params['priority'] ?? 0);
-	$res = $combiner->queue_file($file, $priority);
-	if (!$res) trigger_error('TODO');
-	return '';
+	if( $combiner->queue_file($file, $priority) ) {
+		return '';
+	}
+	trigger_error('Failed to merge script '.$file);
 }
 /*
 D function smarty_cms_help_function_cms_queue_script()

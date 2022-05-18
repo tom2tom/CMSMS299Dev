@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Async;
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 use RuntimeException;
 use function cms_to_bool;
@@ -52,6 +52,7 @@ class ExternalHandlerJob extends Job
      * @param array $params Optional assoc array of valid class properties
      *  each member like propname => propval
      */
+    #[\ReturnTypeWillChange]
     public function __construct($params = [])
     {
         parent::__construct();
@@ -66,6 +67,7 @@ class ExternalHandlerJob extends Job
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         switch ($key) {
@@ -83,6 +85,7 @@ class ExternalHandlerJob extends Job
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __set(string $key, $val)
     {
         switch ($key) {
@@ -118,7 +121,7 @@ class ExternalHandlerJob extends Job
     public function execute()
     {
         if ($this->is_udt) {
-            SingleItem::UserTagOperations()->CallUserTag($this->function /*, $params = [], $smarty_ob = null*/);  //TODO plugin parameters missing
+            Lone::get('UserTagOperations')->CallUserTag($this->function /*, $params = [], $smarty_ob = null*/);  //TODO plugin parameters missing
 //TODO also support regular plugins
         } elseif ($this->module && preg_match('/^action\.(.+)\.php$/', $this->function, $matches)) {
             $mod = Utils::get_module($this->module);

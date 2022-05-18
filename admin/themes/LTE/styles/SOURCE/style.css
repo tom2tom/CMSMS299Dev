@@ -1832,7 +1832,6 @@ table.pagetable {
 	border-collapse: inherit;
 	font-size: .875rem;
 	border: 1px solid #aaa;
-	width: 100%;
 	margin: 5px 0
 }
 
@@ -2472,25 +2471,32 @@ ul.sortableList li {
 ul.sortableList div.label {
 	border: solid 1px #aaa;
 	word-wrap: break-word;
-/*	-webkit-border-radius: 4px;
-	-moz-border-radius: 4px;
-	border-radius: 4px;*/
-	cursor: move;
-	padding: 11px 10px 10px 10px;
+	padding: 0.75rem;
 	background: #eee;
 	text-shadow: 0 1px 0 #fff;
 	font-weight: bold;
-	color: #6c757d
-}
-ul.sortableList div.label::before {
-/*	background: #eee url(../images/icons/extra/reorder.gif) no-repeat 10px 50%; */
-	font-family: 'Font Awesome 5 Free';
-	content: '\f338';
+	color: #6c757d;
+	cursor: move
 }
 
-ul.sortableList li div.label em {
-	display: block;
-	text-indent: 10px;
+ul.sortableList li div.label > .expanded::before {
+    content: '\f077';
+    font-family: 'Font Awesome 5 Free';
+    cursor: pointer
+}
+
+ul.sortableList li div.label > .collapsed::before {
+    content: '\f078';
+    font-family: 'Font Awesome 5 Free';
+    cursor: pointer
+}
+
+ul.sortableList li div.label > .nomarker {
+    display: inline-block;
+    width: 1rem;
+}
+
+ul.sortableList li div.label > em {
 	font-weight: normal;
 	color: #007bff;
 	font-size: .75rem
@@ -2690,11 +2696,11 @@ TODO <button class="btn" type="submit"></button> visibility hidden toggle
 	th.pagew25,
 	th.pagew50,
 	th.pagew60,
-	th.pagew70,
-	td.pagew30 {
+	th.pagew70
+/*,	td.pagew30*/ {
 		width: auto;
 		padding: 0;
-		max-width: 30px;
+		max-width: 2rem;
 		word-wrap: break-word;
 		text-overflow: elipsis
 	}
@@ -2814,15 +2820,6 @@ TODO <button class="btn" type="submit"></button> visibility hidden toggle
 	.dashboard-box img {
 		display: inline
 	}
-	/* responsive table -- CSS solution: scroll left/right */
-	table.pagetable {
-		border-collapse: collapse;
-		width: 100%;
-		margin: 5px 0 1rem;
-		overflow-x: auto;
-		display: block;
-		padding-bottom: 2rem;
-	}
 	/* position:fixed doesn't work well with mobile devices */
 	footer#oe_footer {
 		clear: both;
@@ -2880,6 +2877,15 @@ TODO <button class="btn" type="submit"></button> visibility hidden toggle
 	#headerlogo {
 		min-width: 2.3em;
 		background-image: url(../../assets/images/cmsms-logo.svg);
+	}
+	/* responsive table -- CSS solution: scroll left/right */
+	table.pagetable {
+		border-collapse: collapse;
+		width: 100%;
+		margin: 5px 0 1rem 1rem;
+		overflow-x: auto;
+		display: block;
+		padding-bottom: 2rem;
 	}
 }
 

@@ -20,11 +20,12 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\module_support;
 
+use CMSMS\Lone;
 use CMSMS\RequestParameters;
-use CMSMS\SingleItem;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
+use function cmsms;
 use function CMSMS\entitize;
 use function startswith;
 
@@ -99,7 +100,7 @@ function CreateActionUrl(
 	}
 
 	$base_url = ($relative) ? '' : CMS_ROOT_URL.'/';
-	$config = SingleItem::Config();
+	$config = Lone::get('Config');
 
 	if (!$prettyurl && $config['url_rewriting'] != 'none') {
 		// attempt to get a pretty url from the module
@@ -233,7 +234,7 @@ function CreatePageUrl(
 	) : string
 {
 	$text = '';
-	$hm = SingleItem::App()->GetHierarchyManager(); // TODO SingleItem::get('HierarchyManager') after that's set up
+	$hm = cmsms()->GetHierarchyManager();
 	$node = $hm->find_by_tag('id',$returnid);
 	if ($node) {
 		$contentobj = $node->getContent();
@@ -252,7 +253,7 @@ function CreatePageUrl(
 				$params['id'] = $id;
 
 				$text = ($relative) ? str_replace(CMS_ROOT_URL.'/', '', $pageurl) : $pageurl;
-				$config = SingleItem::Config();
+				$config = Lone::get('Config');
 				if ($config['url_rewriting'] != 'none') {
 					// attempt to get a pretty url from the module TODO support empty action-name
 					$prettyurl = $mod->get_pretty_url($id, '', $returnid, $params, false);

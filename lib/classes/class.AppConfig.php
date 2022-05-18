@@ -35,6 +35,7 @@ use const CONFIG_FILE_LOCATION;
 use const TMP_CACHE_LOCATION;
 use function cms_join_path;
 use function cms_to_bool;
+use function CMSMS\is_secure_request;
 use function CMSMS\sanitizeVal;
 use function get_server_permissions;
 use function stack_trace;
@@ -144,20 +145,22 @@ final class AppConfig implements ArrayAccess
 
     /**
      * ignore
-     * @private to prevent direct creation (even by SingleItem class)
+     * @private to prevent direct creation (even by Lone class)
      */
-    private function __construct() {}
+    #[\ReturnTypeWillChange]
+    private function __construct() {} // : void
 
     /**
      * @ignore
      */
-    private function __clone() {}
+    #[\ReturnTypeWillChange]
+    private function __clone() {} // : void
 
     /**
      * Retrieve the singleton instance of this class.
      * This method is used during request-setup, when caching via the
-     * SingleItem class might not yet be possible.
-     * Later, use CMSMS\SingleItem::Config() instead of this method,
+     * Lone class might not yet be possible.
+     * Later, use CMSMS\Lone::get('Config') instead of this method,
      * to get the (same) singleton.
      *
      * @return self
@@ -176,6 +179,7 @@ final class AppConfig implements ArrayAccess
      * interface method
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($key)// : bool
     {
         return isset(self::PROPS[$key]) || isset($this->_data[$key]); //TODO do we want to allow 'foreign' parameters in there?
@@ -185,7 +189,8 @@ final class AppConfig implements ArrayAccess
      * interface method
      * @ignore
      */
-    public function offsetGet($key)
+    #[\ReturnTypeWillChange]
+    public function offsetGet($key)// : mixed
     {
         // hardcoded config vars
         // usually old values valid in past versions.
@@ -315,7 +320,7 @@ final class AppConfig implements ArrayAccess
                 $path = '';
             }
             //TODO generally support the websocket protocol 'wss' : 'ws'
-            if(!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off') { //c.f. SingleItem::App()->is_https_request() but SingleItem N/A at this stage
+            if( is_secure_request() ) {
                 $prefix = 'https://';
             }
             else {
@@ -494,6 +499,7 @@ final class AppConfig implements ArrayAccess
      * instead supply install-time settings directly : Config::get_instance($config)
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($key,$value)// : void
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('Direct setting of a config property is not supported'));
@@ -504,6 +510,7 @@ final class AppConfig implements ArrayAccess
      * instead supply install-time settings directly : Config::get_instance($config)
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($key)// : void
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('Direct removal of a config property is not supported'));
@@ -864,5 +871,4 @@ EOS;
         return $this->offsetGet('image_uploads_url');
     }
 } // class
-
-\class_alias(AppConfig::class, 'cms_config', false);
+//if (!\class_exists('cms_config', false)) \class_alias(AppConfig::class, 'cms_config', false);

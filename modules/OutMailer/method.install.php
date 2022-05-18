@@ -23,7 +23,7 @@ use CMSMS\AdminAlerts\TranslatableAlert;
 use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\Crypto;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use OutMailer\PrefCrypter;
 
 if (empty($this) || !($this instanceof OutMailer)) exit;
@@ -127,7 +127,7 @@ $this->SetPreference('platform', null); //TODO alias
 $this->CreateEvent('EmailDeliveryReported');
 
 // semi-permanent alias for back-compatibility
-$ops = SingleItem::ModuleOperations();
+$ops = Lone::get('ModuleOperations');
 $ops->set_module_classname('CMSMailer', get_class($this));
 
 if( $installer_working && 1 ) { // TODO && is new site

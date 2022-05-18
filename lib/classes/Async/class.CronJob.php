@@ -43,6 +43,7 @@ abstract class CronJob extends Job
      * @param array $params Optional assoc array of valid class properties
      *  each member like propname => propval
      */
+    #[\ReturnTypeWillChange]
     public function __construct($params = [])
     {
         parent::__construct();
@@ -57,6 +58,7 @@ abstract class CronJob extends Job
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         switch ($key) {
@@ -75,6 +77,7 @@ abstract class CronJob extends Job
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __set(string $key, $val)
     {
         switch ($key) {

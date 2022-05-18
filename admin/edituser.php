@@ -22,8 +22,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Error403Exception;
 use CMSMS\Events;
+use CMSMS\Lone;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use function CMSMS\de_specialize_array;
 use function CMSMS\log_error;
@@ -59,17 +59,17 @@ if (!($selfedit || check_permission($userid, 'Manage Users'))) {
     throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 //$tplmaster = 0; //CHECKME
 $copyusersettings = 0; // NOT 1! default superuser for properties-migration
 
 $superusr = ($userid == 1); //group 1 addition|removal allowed
-$groupops = SingleItem::GroupOperations();
+$groupops = Lone::get('GroupOperations');
 $admins = array_column($groupops->GetGroupMembers(1), 1);
 $supergrp = $superusr || in_array($userid, $admins); //group 1 removal allowed
 $access_group = in_array($userid, $admins) || !in_array($user_id, $admins); // ??
 $access = $selfedit && $access_group;
-$userops = SingleItem::UserOperations();
+$userops = Lone::get('UserOperations');
 $userobj = $userops->LoadUserByID($user_id);
 $group_list = $groupops->LoadGroups();
 $manage_groups = check_permission($userid, 'Manage Groups');
@@ -163,7 +163,7 @@ if (isset($_POST['submit'])) {
             $result = $userobj->Save();
             if ($result) {
                 if ($manage_groups && isset($_POST['groups'])) {
-                    $db = SingleItem::Db();
+                    $db = Lone::get('Db');
 //* TODO manage warning "property access is not allowed yet"
 //                  $stmt1 = $db->prepare('DELETE FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=? AND group_id=?');
 //                  $stmt2 = $db->prepare('SELECT 1 FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=? AND group_id=?');
@@ -244,7 +244,7 @@ if (isset($_POST['submit'])) {
 
             Events::SendEvent('Core', 'EditUserPost', ['user' => &$userobj]);
 //          AdminUtils::clear_cached_files();
-//          SingleItem::LoadedData()->refresh('IF ANY');
+//          Lone::get('LoadedData')->refresh('IF ANY');
             if ($message) {
                 $themeObject->ParkNotice('success', $message);
             }
@@ -330,7 +330,7 @@ foreach ($userlist as $one) {
     }
 }
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 
 if ($manage_groups) {
     $smarty->assign('groups', $group_list)

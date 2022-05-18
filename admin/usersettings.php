@@ -25,7 +25,7 @@ use CMSMS\AdminUtils;
 use CMSMS\CoreCapabilities;
 use CMSMS\Error403Exception;
 use CMSMS\HookOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\UserParams;
 use CMSMS\Utils;
 use function CMSMS\de_specialize_array;
@@ -44,15 +44,15 @@ if (isset($_POST['cancel'])) {
 }
 
 $userid = get_userid();
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 if (!check_permission($userid, 'Manage My Settings')) {
 //TODO some pushed popup $themeObject->RecordNotice('error', _la('needpermissionto', '"Modify Site Preferences"'));
     throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
-$userobj = SingleItem::UserOperations()->LoadUserByID($userid); // <- Safe : if get_userid() fails, it redirects automatically to login.
-$db = SingleItem::Db();
+$userobj = Lone::get('UserOperations')->LoadUserByID($userid); // <- Safe : if get_userid() fails, it redirects automatically to login.
+$db = Lone::get('Db');
 
 if (isset($_POST['submit'])) {
     /*
@@ -154,7 +154,7 @@ if (isset($_POST['submit'])) {
     log_info($userid, 'Admin User '.$userobj->username, 'Edited');
     $themeObject->RecordNotice('success', _la('prefsupdated'));
 //    AdminUtils::clear_cached_files();
-// TODO  SingleItem::LoadedData()->delete('menu_modules', $userid);
+// TODO  Lone::get('LoadedData')->delete('menu_modules', $userid);
 
     if ($themenow != $admintheme) {
         redirect(basename(__FILE__).$urlext); //go refresh stuff
@@ -189,7 +189,7 @@ if ($wysiwygtype) { $wysiwyg .= '::'.$wysiwygtype; }
 //TODO in/UI by relevant module
 $wysiwygtheme = UserParams::get_for_user($userid, 'wysiwyg_theme');
 
-$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::USER_SETTINGS);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::USER_SETTINGS);
 if ($modnames) {
     // load those modules if not already done
     for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
@@ -218,12 +218,12 @@ if ($modnames) {
 /*
  * Build page
  */
-$contentops = SingleItem::ContentOperations();
-$smarty = SingleItem::Smarty();
+$contentops = Lone::get('ContentOperations');
+$smarty = Lone::get('Smarty');
 
 // Rich-text (html) editors
 $editors = [];
-$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::WYSIWYG_MODULE);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::WYSIWYG_MODULE);
 if ($modnames) {
     for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
         $mod = Utils::get_module($modnames[$i]);
@@ -279,7 +279,7 @@ $smarty -> assign('wysiwyg_opts', $editors);
 
 // Syntax-highlight editors
 $editors = [];
-$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::SYNTAX_MODULE);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::SYNTAX_MODULE);
 if ($modnames) {
     for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
         $mod = Utils::get_module($modnames[$i]);
@@ -343,7 +343,7 @@ if (count($tmp) < 2) {
 $smarty->assign('themes_opts', $tmp);
 
 // Modules
-$availmodules = SingleItem::ModuleOperations()->GetInstalledModules();
+$availmodules = Lone::get('ModuleOperations')->GetInstalledModules();
 if ($availmodules) {
     $modules = array_combine($availmodules, $availmodules);
 } else {

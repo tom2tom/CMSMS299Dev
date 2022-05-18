@@ -19,10 +19,10 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 if (empty($smarty)) {
-	$smarty = SingleItem::Smarty();
+	$smarty = Lone::get('Smarty');
 }
 
 $tplvars = [];

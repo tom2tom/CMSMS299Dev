@@ -78,23 +78,24 @@ final class ContentManager extends CMSModule
 	}
 
 	/**
-	 * Tests whether the currently logged in user has the ability to edit ANY content page
+	 * Report whether the current user is authorized to edit the
+	 * content page whose id is specified
 	 */
 	public function CanEditContent($content_id = -1)
 	{
-		if ($this->CheckPermission('Manage All Content')) {
+		if( $this->CheckPermission('Manage All Content') ) {
 			return true;
 		}
-		if ($this->CheckPermission('Modify Any Page')) {
+		if( $this->CheckPermission('Modify Any Page') ) {
 			return true;
 		}
-
 		$pages = author_pages(get_userid(false));
-		if (!$pages) {
+		if( !$pages ) {
 			return false;
 		}
+		// user has some edit-authority ...
 		if ($content_id <= 0) {
-			return true;
+			return true; // and so may add or clone
 		}
 		return in_array($content_id, $pages);
 	}
@@ -102,10 +103,10 @@ final class ContentManager extends CMSModule
 	public function GetHeaderHTML()
 	{
 		$out = '';
-		$urlpath = $this->GetModuleURLPath();
 		$fmt = '<link rel="stylesheet" type="text/css" href="%s/%s" />';
+		$urlpath = $this->GetModuleURLPath();
 		$cssfiles = [
-		'css/module.css'
+			'css/module.min.css'
 		];
 		foreach( $cssfiles as $one ) {
 			$out .= sprintf($fmt, $urlpath, $one).PHP_EOL;

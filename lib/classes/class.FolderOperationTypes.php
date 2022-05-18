@@ -33,6 +33,8 @@ final class FolderOperationTypes extends BasicEnum
     const SHOWHIDDEN = 20;
     const SHOWTHUMBS = 21;
 
+    #[\ReturnTypeWillChange]
     private function __construct() {}
+    #[\ReturnTypeWillChange]
     private function __clone() {}
 }

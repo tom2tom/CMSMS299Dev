@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\UserParams;
 
 if (empty($this) || !($this instanceof AdminSearch)) exit;
@@ -44,7 +44,7 @@ if (version_compare($oldversion,'1.2') < 0) {
     }
 
     $me = $this->GetName();
-    $userlist = SingleItem::UserOperations()->LoadUsers();
+    $userlist = Lone::get('UserOperations')->LoadUsers();
     foreach ($userlist as $user) {
         $userid = $user->id;
         $tmp = UserParams::get_for_user($userid,$me.'saved_search');

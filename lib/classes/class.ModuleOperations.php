@@ -36,9 +36,9 @@ use CMSMS\IAuthModule;
 use CMSMS\internal\JobOperations;
 use CMSMS\IResource;
 use CMSMS\LoadedDataType;
+use CMSMS\Lone;
 use CMSMS\ModuleOperations;
 use CMSMS\RequestParameters;
-use CMSMS\SingleItem;
 //use CMSMS\SystemCache;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
@@ -52,7 +52,9 @@ use const CMS_VERSION;
 use const CMSSAN_FILE;
 use function cms_module_path;
 use function cms_module_places;
+//use function cmsms;
 use function CMSMS\de_entitize;
+use function CMSMS\is_frontend_request;
 use function CMSMS\log_error;
 use function CMSMS\log_notice;
 use function CMSMS\log_warning;
@@ -152,7 +154,7 @@ final class ModuleOperations
 	/* *
 	 * @var string name of module currently 'running the show' during init
 	 * One of the keys in $modules[], maybe also in
-	 *  SingleItem::LoadedData()->get('module_depstree') etc
+	 *  Lone::get('LoadedData')->get('module_depstree') etc
 	 * @ignore
 	 */
 //	private $currentparent;
@@ -178,6 +180,7 @@ final class ModuleOperations
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct()
 	{
 		$this->installing = AppState::test(AppState::INSTALL);
@@ -186,17 +189,18 @@ final class ModuleOperations
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**
 	 * Get the singleton instance of this class.
-	 * @deprecated since 3.0 use CMSMS\SingleItem::ModuleOperations()
+	 * @deprecated since 3.0 use CMSMS\Lone::get('ModuleOperations')
 	 * @return ModuleOperations
 	 */
 	public static function get_instance() : self
 	{
-		assert(empty(CMS_DEPREC),new DeprecationNotice('method','CMSMS\SingleItem::ModuleOperations()'));
-		return SingleItem::ModuleOperations();
+		assert(empty(CMS_DEPREC),new DeprecationNotice('method','CMSMS\Lone::get(\'ModuleOperations\')'));
+		return Lone::get('ModuleOperations');
 	}
 
 	/**
@@ -205,17 +209,17 @@ final class ModuleOperations
 	 */
 	public static function load_setup()
 	{
-		$cache = SingleItem::LoadedData();
+		$cache = Lone::get('LoadedData');
 		// see also JobOperations::refresh_jobs()
 		$obj = new LoadedDataType('modules',function() {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules';
 			return $db->getAssoc($query); // keyed by module_name
 		});
 		$cache->add_type($obj);
 		// the dependencies flat list
 		$obj = new LoadedDataType('module_deps',function() {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$query = 'SELECT parent_module,child_module,minimum_version FROM '.CMS_DB_PREFIX.'module_deps ORDER BY parent_module';
 			$data = $db->getArray($query);
 			if (!$data || !is_array($data)) { return '-'; } // something non-empty, for cache storage
@@ -228,7 +232,7 @@ final class ModuleOperations
 		$cache->add_type($obj);
 		// hence the dependencies tree
 		$obj = new LoadedDataType('module_depstree',function(bool $force) {
-			$flatlist = SingleItem::LoadedData()->get('module_deps',$force);
+			$flatlist = Lone::get('LoadedData')->get('module_deps',$force);
 			if ($flatlist !== '-') {
 				$items = [['name' => 'all','version' => '','parent' => NULL]];
 				foreach ($flatlist as $child => $row) {
@@ -382,8 +386,8 @@ final class ModuleOperations
 		$modname = $mod->GetName();
 		debug_buffer('install_module '.$modname);
 
-		$gCms = SingleItem::App(); // vars in scope for Install()
-		$db = SingleItem::Db();
+		$gCms = Lone::get('App'); // vars in scope for Install()
+		$db = Lone::get('Db');
 
 		$result = $mod->Install(); // this might initiate other-module engagement, maybe circular
 		if( $result && $result !== 1 ) {
@@ -427,13 +431,13 @@ VALUES (?,?,?,?)');
 			// installer will do this stuff after processing all modules
 //			$this->generate_moduleinfo($mod);
 			unset($this->moduleinfo); // start again when wanted
-			$cache = SingleItem::LoadedData();
+			$cache = Lone::get('LoadedData');
 			$cache->refresh('modules');
 			$cache->refresh('module_deps');
 			$cache->refresh('module_depstree');
 			$cache->refresh('module_plugins');
 			$cache->delete('menu_modules');
-			SingleItem::LoadedMetadata()->refresh('*');
+			Lone::get('LoadedMetadata')->refresh('*');
 
 			log_notice('Installed module '.$modname.' version '.$mod->GetVersion());
 			Events::SendEvent('Core','ModuleInstalled',['name' => $modname,'version' => $mod->GetVersion()]);
@@ -497,7 +501,7 @@ VALUES (?,?,?,?)');
 			$requisites = $mod->GetDependencies();
 			if( $requisites ) {
 //TODO use known ordering to re-order $requisites, if possible BUT should be managed upstream in installer
-//				$tree = SingleItem::LoadedData()->get('module_depstree');
+//				$tree = Lone::get('LoadedData')->get('module_depstree');
 				foreach( $requisites as $mname => $mversion ) {
 					if( $mname == '' || $mversion == '' ) continue; // invalid entry
 					if( $core ) {
@@ -612,7 +616,7 @@ VALUES (?,?,?,?)');
 			return [true,'']; // nothing to do
 		}
 
-		$gCms = SingleItem::App(); // deprecated - some modules check this
+		$gCms = Lone::get('App'); // deprecated - some modules check this
 		$result = $mod->Upgrade($dbversion,$to_version);
 		if( $result && $result !== 1 ) {
 			if( is_numeric($result) ) {
@@ -624,7 +628,7 @@ VALUES (?,?,?,?)');
 			return [false,$result];
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		//TODO handle module re-location, if any
 //		$lazyload_fe    = (method_exists($mod,'LazyLoadFrontend') && $mod->LazyLoadFrontend())?1:0;
 //		$lazyload_admin = (method_exists($mod,'LazyLoadAdmin') && $mod->LazyLoadAdmin())?1:0;
@@ -662,18 +666,18 @@ VALUES (?,?,?,$longnow)");
 			// installer will do this stuff after processing all modules
 //			$this->generate_moduleinfo($mod);
 			unset($this->moduleinfo); // TODO check what havoc this causes
-			$cache = SingleItem::LoadedData();
+			$cache = Lone::get('LoadedData');
 			$cache->refresh('modules');
 			$cache->refresh('module_deps');
 			$cache->refresh('module_depstree');
 			$cache->refresh('module_plugins'); // TODO might this actually change via upgrade?
-			SingleItem::LoadedMetadata()->refresh('*');
+			Lone::get('LoadedMetadata')->refresh('*');
 
 			$vers = $mod->GetVersion();
 			log_notice('Upgraded module '.$modname.' to version '.$vers);
 			Events::SendEvent('Core','ModuleUpgraded',
 				['name' => $modname,'oldversion' => $dbversion,'newversion' => $vers]);
-			SingleItem::LoadedData()->delete('events'); // WHY ??
+			Lone::get('LoadedData')->delete('events'); // WHY ??
 		}
 		else {
 			log_notice('Upgraded module '.$modname.' to version '.$mod->GetVersion());
@@ -751,7 +755,7 @@ VALUES (?,?,?,$longnow)");
 			return [false,$result];
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		// delete the record
 		$db->execute('DELETE FROM '.CMS_DB_PREFIX.'modules WHERE module_name=?',[$modname]);
 
@@ -785,7 +789,7 @@ VALUES (?,?,?,$longnow)");
 				}
 			}
 
-//			$jobmgr = SingleItem::App()->GetJobManager();
+//			$jobmgr = cmsms()->GetJobManager();
 //			if( $jobmgr ) $jobmgr->unload_jobs_by_module($modname);
 			(new JobOperations())->unload_jobs_by_module($modname);
 
@@ -802,14 +806,14 @@ VALUES (?,?,?,$longnow)");
 			// Remove module from info
 			unset($this->moduleinfo[$modname]);
 			// clear related caches
-			$cache = SingleItem::LoadedData();
+			$cache = Lone::get('LoadedData');
 			$cache->refresh('modules');
 			$cache->refresh('module_deps');
 			$cache->refresh('module_depstree');
 			$cache->refresh('module_plugins');
 			$cache->delete('menu_modules','*');
 
-			SingleItem::LoadedMetadata()->refresh('*');
+			Lone::get('LoadedMetadata')->refresh('*');
 
 			log_notice('Uninstalled module',$modname);
 			Events::SendEvent('Core','ModuleUninstalled',['name' => $modname]);
@@ -859,17 +863,17 @@ VALUES (?,?,?,$longnow)");
 		$info = $this->moduleinfo;
 		if( $info[$modname]['active'] != $current ) {
 			Events::SendEvent('Core','BeforeModuleActivated',['name'=>$modname,'activated'=>$activate]);
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET active = ? WHERE module_name = ?';
 //			$dbr =
 			$db->execute($query,[$info[$modname]['active'],$modname]);
-			$cache = SingleItem::LoadedData();
+			$cache = Lone::get('LoadedData');
 			$cache->refresh('modules'); //force refresh of the cached active property
 			$cache->refresh('module_deps');
 			$cache->refresh('module_depstree');
 			$cache->refresh('module_plugins');
 //TODO			$cache->delete('menu_modules','*'); // if not installing ?
-			SingleItem::LoadedMetadata()->refresh('*');
+			Lone::get('LoadedMetadata')->refresh('*');
 
 			Events::SendEvent('Core','AfterModuleActivated',['name'=>$modname,'activated'=>$activate]);
 			if( $activate ) {
@@ -964,7 +968,7 @@ VALUES (?,?,?,$longnow)");
 	{
 		if( $force || !isset($this->moduleinfo) ) {
 			$this->moduleinfo = [];
-			$data = SingleItem::LoadedData()->get('modules', $force);
+			$data = Lone::get('LoadedData')->get('modules', $force);
 			if( $data && is_array($data) ) {
 				foreach( $data as $modname => $props ) {
 					//double-check that cache data are current TODO ignore it if upgrade needed
@@ -1062,10 +1066,10 @@ VALUES (?,?,?,$longnow)");
 	private function _get_module_dependencies($flat = true)
 	{
 		if( $flat ) {
-			$out = SingleItem::LoadedData()->get('module_deps');
+			$out = Lone::get('LoadedData')->get('module_deps');
 		}
 		else {
-			$out = SingleItem::LoadedData()->get('module_depstree');
+			$out = Lone::get('LoadedData')->get('module_depstree');
 		}
 		if( $out !== '-' ) {
 			return $out;
@@ -1121,7 +1125,7 @@ VALUES (?,?,?,$longnow)");
 			return false;
 		}
 
-		$gCms = SingleItem::App(); // some crappy old modules expect this during loading. Deprecated since 3.0
+		$gCms = Lone::get('App'); // some crappy old modules expect this during loading. Deprecated since 3.0
 
 		if( !($this->installing || $this->polling) ) {
 			// okay, lessee if we can load dependencies/prerequisites
@@ -1290,10 +1294,7 @@ VALUES (?,?,?,$longnow)");
 		}
 		if( $val ) {
 			if( !is_array($val) ) {
-				$arr = explode(',',$val);
-				$val = array_map(function($modname) {
-					return trim($modname);
-				}, $arr);
+				$val = array_map('trim',explode(',',$val));
 			}
 		}
 		else {
@@ -1303,7 +1304,7 @@ VALUES (?,?,?,$longnow)");
 			// during installation, poll
 			$val = [];
 			$names = $this->FindAllModules();
-			$gCms = SingleItem::App(); // compatibility for some crappy old modules, deprecated since 3.0
+			$gCms = Lone::get('App'); // compatibility for some crappy old modules, deprecated since 3.0
 			// processing order doesn't matter: only HasCapability() calls here
 			foreach( $names as $modname ) {
 				$classname = $this->modulespace.$modname;
@@ -1431,7 +1432,7 @@ VALUES (?,?,?,$longnow)");
 	public function GetWYSIWYGModule($modname = NULL)
 	{
 		if( !$modname ) {
-			if( SingleItem::App()->is_frontend_request() ) {
+			if( is_frontend_request() ) {
 				$modname = AppParams::get('frontendwysiwyg');
 			}
 			else {

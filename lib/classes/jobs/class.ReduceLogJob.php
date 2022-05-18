@@ -24,7 +24,7 @@ use CMSMS\AppParams;
 use CMSMS\Async\CronJob;
 use CMSMS\Async\RecurType;
 use CMSMS\Log\dbstorage;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 class ReduceLogJob extends CronJob
 {
@@ -32,6 +32,7 @@ class ReduceLogJob extends CronJob
 
     private $_queue;
 
+    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();
@@ -51,7 +52,7 @@ class ReduceLogJob extends CronJob
         $mintime = max($last_execute - 60,$time - 24 * 3600);
         $table = dbstorage::TABLENAME;
         $sql = "SELECT * FROM $table WHERE timestamp >= ? ORDER BY timestamp";
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $rst = $db->execute($sql,[$mintime]);
 
         $prev = [];
@@ -110,7 +111,7 @@ class ReduceLogJob extends CronJob
         $lastrec = $this->_queue[$n - 1];
         $this->_queue = array_slice($this->_queue,0,-1);
 
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $table = dbstorage::TABLENAME;
         $lastrec['message'] .= sprintf(' (repeated %d times)',$n);
         $sql = "UPDATE $table SET message = ? WHERE timestamp = ? AND user_id = ? AND username = ? AND item_id = ? AND subject = ? AND ip_addr = ?";
@@ -124,7 +125,7 @@ class ReduceLogJob extends CronJob
         if ($n < 1) { return; }
 
         $table = dbstorage::TABLENAME;
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         $sql = "DELETE FROM $table WHERE timestamp = ? AND user_id = ? AND username = ? AND item_id = ? AND subject = ? AND message = ? AND ip_addr = ?";
         for ($i = 0; $i < $n; $i++) {
             $rec = $this->_queue[$i];

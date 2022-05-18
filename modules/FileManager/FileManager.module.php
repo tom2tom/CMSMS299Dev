@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminMenuItem;
 use CMSMS\CoreCapabilities;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use FileManager\Utils;
 use FilePicker\Utils as PickerUtils;
 
@@ -79,7 +79,7 @@ final class FileManager extends CMSModule
 
     public function GetModeWin($path, $file)
     {
-        $realpath=cms_join_path(CMS_ROOT_PATH, $path, $file);
+        $realpath = cms_join_path(CMS_ROOT_PATH, $path, $file);
         if (is_writable($realpath)) {
             return '777';
         } else {
@@ -89,7 +89,7 @@ final class FileManager extends CMSModule
 
     public function GetModeTable($id, $permissions)
     {
-        $smarty=SingleItem::Smarty();
+        $smarty = Lone::get('Smarty');
         $tpl = $smarty->createTemplate($this->GetTemplateResource('modetable.tpl')); //, null, null, $smarty);
 
         $tpl->assign('ownertext', $this->Lang('owner'))
@@ -128,15 +128,15 @@ final class FileManager extends CMSModule
 
     public function GetModeFromTable($params)
     {
-        $owner=0;
+        $owner = 0;
         if (isset($params['ownerr'])) $owner+=4;
         if (isset($params['ownerw'])) $owner+=2;
         if (isset($params['ownerx'])) $owner+=1;
-        $group=0;
+        $group = 0;
         if (isset($params['groupr'])) $group+=4;
         if (isset($params['groupw'])) $group+=2;
         if (isset($params['groupx'])) $group+=1;
-        $others=0;
+        $others = 0;
         if (isset($params['othersr'])) $others+=4;
         if (isset($params['othersw'])) $others+=2;
         if (isset($params['othersx'])) $others+=1;

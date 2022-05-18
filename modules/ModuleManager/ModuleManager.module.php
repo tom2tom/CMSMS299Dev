@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\CoreCapabilities;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use ModuleManager\Operations;
 
 const MINIMUM_REPOSITORY_VERSION = '1.5';
@@ -76,7 +76,7 @@ class ModuleManager extends CMSModule
     {
         @set_time_limit(9999);
 /*
-        $smarty = SingleItem::Smarty();
+        $smarty = Lone::get('Smarty');
         $smarty->assign($this->GetName(), $this);
         $smarty->assign('mod', $this);
 */
@@ -98,7 +98,7 @@ class ModuleManager extends CMSModule
     public function DisplayErrorPage(string $message = '', array $params = [])
     {
         if( !$message ) { $message = 'WTF !!'; }// TODO
-        $smarty = SingleItem::Smarty();
+        $smarty = Lone::get('Smarty');
         $tpl = $smarty->createTemplate($this->GetTemplateResource('error.tpl')); //,null,null,$smarty);
 
         $tpl->assign('title_error', $this->Lang('error'))

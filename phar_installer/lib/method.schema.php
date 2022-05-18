@@ -107,6 +107,9 @@ $tbl = CMS_DB_PREFIX.'content';
 //hierarchy_path is akin to a site-relative URL-path composed
 // of page-aliases: 500 chars =~ 10 levels @ 50 each
 // NOTE index 'i_contentid_hierarchy' on (content_id,hierarchy) is used in FORCE INDEX queries
+// ditto for i_contental_active, i_hierarchy
+//TODO some of the contet-table indices are largely irrelevant, given
+// that content is cached and mostly interrogated in there
 $flds = '
 content_id I UNSIGNED KEY XKEY,
 content_name C(255) CHARACTER SET utf8mb4,

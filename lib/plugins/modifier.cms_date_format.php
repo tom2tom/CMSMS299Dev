@@ -18,9 +18,9 @@
  */
 
 use CMSMS\AppParams;
-use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use CMSMS\Utils;
+use function CMSMS\is_frontend_request;
 use function CMSMS\specialize;
 
 function smarty_modifier_cms_date_format($datevar, $format = '', $default_date = '')
@@ -33,7 +33,7 @@ function smarty_modifier_cms_date_format($datevar, $format = '', $default_date =
 	}
 
 	if (!$format) {
-		if (!SingleItem::App()->is_frontend_request()) {
+		if (!is_frontend_request()) {
 			$userid = get_userid(false);
 			if ($userid) {
 				$format = UserParams::get_for_user($userid, 'date_format');

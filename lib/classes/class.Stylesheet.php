@@ -96,7 +96,7 @@ class Stylesheet
 	 */
 	private $filecontent;
 
-	// static properties here >> SingleItem properties ?
+	// static properties here >> Lone properties ?
 	/**
 	 * @var array
 	 * @ignore
@@ -118,6 +118,7 @@ class Stylesheet
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	public function __clone()
 	{
 		unset($this->props['id']);
@@ -128,6 +129,7 @@ class Stylesheet
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	public function __set(string $key, $value)
 	{
 		switch( $key ) {
@@ -198,6 +200,7 @@ class Stylesheet
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	public function __get(string $key)
 	{
 		switch( $key ) {

@@ -149,6 +149,7 @@ class Smarty_Internal_Templateparser
      * @param Smarty_Internal_Templatelexer        $lex
      * @param Smarty_Internal_TemplateCompilerBase $compiler
      */
+    #[\ReturnTypeWillChange]
     public function __construct(Smarty_Internal_Templatelexer $lex, Smarty_Internal_TemplateCompilerBase $compiler)
     {
         $this->lex = $lex;
@@ -1372,6 +1373,7 @@ public static $yy_action = array(
         return $yymajor;
     }
 
+    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         while ($this->yystack !== Array()) {

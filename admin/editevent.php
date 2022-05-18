@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Error403Exception;
 use CMSMS\Events;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
@@ -47,7 +47,7 @@ if (!$access) {
     throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 $action = '';
 $description = '';
 $event = '';
@@ -128,7 +128,7 @@ if (1) { //$access) {
 		} // switch
 	} // not adding
 
-	$modops = SingleItem::ModuleOperations();
+	$modops = Lone::get('ModuleOperations');
 
 	if ($sender == 'Core') {
 		$sendername = _la('core');
@@ -145,7 +145,7 @@ if (1) { //$access) {
 	// get all available event handlers
 	$allhandlers = [];
 	// user-defined tags (lowest priority, may be replaced by same-name below)
-	$ops = SingleItem::UserTagOperations();
+	$ops = Lone::get('UserTagOperations');
 	$plugins = $ops->ListUserTags(); //UDTfiles included
 	foreach ($plugins as $name) {
 		$allhandlers[$name] = $name;
@@ -171,7 +171,7 @@ if (1) { //$access) {
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
 	'access' => $access,
 	'allhandlers' => $allhandlers,

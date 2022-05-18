@@ -26,8 +26,8 @@ Slow and inefficient, avoid using it if possible.
 */
 
 use CMSMS\AppState;
+use CMSMS\Lone;
 use CMSMS\NlsOperations;
-use CMSMS\SingleItem;
 use function CMSMS\sendheaders;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
@@ -52,14 +52,14 @@ if( $dir == 'rtl' ) $style .= '-rtl';
 if( isset($_GET['ie']) ) $style .= '_ie';
 $style .= '.css';
 
-$theme = SingleItem::Theme()->themeName;
+$theme = Lone::get('Theme')->themeName;
 $fn = cms_join_path(__DIR__,'themes',$theme,'styles',$style);
 if( is_file($fn) ) { $cms_readfile($fn); }
 $fn = cms_join_path(__DIR__,'themes',$theme,'extstyles',$style);
 if( is_file($fn) ) { $cms_readfile($fn); }
 
 // this is crappily slow and inefficient !!
-$allmodules = SingleItem::ModuleOperations()->GetLoadedModules();
+$allmodules = Lone::get('ModuleOperations')->GetLoadedModules();
 if( $allmodules ) {
   foreach( $allmodules as &$object ) {
     if( !is_object($object) ) continue;

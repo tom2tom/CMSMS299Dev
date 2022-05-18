@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace News;
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 use CmsRegularTask; // TODO migrate to Job
 use News\DraftMessageAlert;
@@ -62,7 +62,7 @@ class CreateDraftAlertTask implements CmsRegularTask
   public function execute($time = 0)
   {
     if( !$time ) $time = time();
-    $db = SingleItem::Db();
+    $db = Lone::get('Db');
     $longnow = $db->DbTimeStamp(time());
     $query = 'SELECT COUNT(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status = \'draft\' AND (end_time IS NULL OR end_time > '.$longnow.')';
     $count = $db->getOne($query);

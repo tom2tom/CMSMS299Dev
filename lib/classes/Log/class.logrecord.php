@@ -41,6 +41,7 @@ class logrecord
        'username' => null,
     ];
 
+    #[\ReturnTypeWillChange]
     public function __construct(array $params)
     {
         $this->_data['timestamp'] = time();
@@ -75,6 +76,7 @@ class logrecord
         if (!($this->message || $this->subject)) throw new InvalidArgumentException('Message and/or subject is required in '.__CLASS__);
     }
 
+    #[\ReturnTypeWillChange]
     public function __get( $key)
     {
         switch( $key) {

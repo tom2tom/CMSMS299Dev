@@ -22,8 +22,8 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS\internal;
 
 use CMSMS\Events;
-use CMSMS\SingleItem;
 use Smarty_Internal_Template;
+use function CMSMS\is_frontend_request;
 
 /**
  * Default Smarty template class for CMSMS
@@ -55,7 +55,7 @@ class template_wrapper extends Smarty_Internal_Template
     public function fetch($template = null, $cache_id = null, $compile_id = null, $parent = null)
     {
         // send an event before fetching... which enables tailoring template content
-        if( SingleItem::App()->is_frontend_request() ) {
+        if( is_frontend_request() ) {
             $display = false;
             $parms = [
              'template'=>&$template,

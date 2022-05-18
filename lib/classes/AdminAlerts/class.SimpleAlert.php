@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\AdminAlerts;
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use InvalidArgumentException;
 
 /**
@@ -66,6 +66,7 @@ class SimpleAlert extends Alert
      * @param string[] $perms An array of permission names.  Or null.
      * @throws InvalidArgumentException
      */
+    #[\ReturnTypeWillChange]
     public function __construct($perms = null)
     {
         if( $perms && !is_array($perms) ) throw new InvalidArgumentException('perms must be an array of permission name strings');
@@ -82,6 +83,7 @@ class SimpleAlert extends Alert
      * @return mixed
      * @throws InvalidArgumentException
      */
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         switch( $key ) {
@@ -106,6 +108,7 @@ class SimpleAlert extends Alert
      * @param string $key
      * @param mixed $val
      */
+    #[\ReturnTypeWillChange]
     public function __set(string $key,$val)
     {
         switch( $key ) {
@@ -145,7 +148,7 @@ class SimpleAlert extends Alert
     {
         if( !$this->_perms ) return FALSE;
         $admin_uid = (int) $admin_uid;
-        $userops = SingleItem::UserOperations();
+        $userops = Lone::get('UserOperations');
         $perms = $this->_perms;
         if( !is_array($this->_perms) ) $perms = [$this->_perms];
         foreach( $perms as $permname ) {

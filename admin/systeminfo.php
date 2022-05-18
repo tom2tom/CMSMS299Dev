@@ -22,8 +22,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppParams;
 use CMSMS\Error403Exception;
+use CMSMS\Lone;
 use CMSMS\NlsOperations;
-use CMSMS\SingleItem;
 
 $dsep = DIRECTORY_SEPARATOR;
 require ".{$dsep}admininit.php";
@@ -36,7 +36,7 @@ if (0) { //!check_permission($userid, TODO relevant permission)) {
     throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 $urlext = get_secure_param();
 $selfurl = basename(__FILE__);
 
@@ -84,7 +84,7 @@ EOS;
 }
 
 // smarty
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->registerPlugin('function', 'si_lang', function($params, $smarty)
 {
     if ($params) {
@@ -106,7 +106,7 @@ $smarty->assign([
   'cms_version' => CMS_VERSION,
 ]);
 
-$db = SingleItem::Db();
+$db = Lone::get('Db');
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules WHERE active=1';
 $modules = $db->getArray($query);
 asort($modules);
@@ -158,7 +158,7 @@ $res = AppParams::get('smarty_compilecheck', 1);
 $tmp[0]['smarty_compilecheck'] = testBoolean(0, _la('smarty_compilecheck'), $res, _la('test_smarty_compilecheck'), false, true);
 $res = AppParams::get('auto_clear_cache_age', 0);
 $tmp[0]['auto_clear_cache_age'] = testRange(0, _la('autoclearcache2'), $res, _la('test_auto_clear_cache_age'), 0, 30, false);
-$cache = SingleItem::SystemCache();
+$cache = Lone::get('SystemCache');
 $type = get_class($cache->get_driver());
 $c = stripos($type, 'Cache');
 $res = ucfirst(substr($type, $c+5));
@@ -298,7 +298,7 @@ if (!$hascurl) {
 $smarty->assign('count_php_information', count($tmp[0]))
  ->assign('php_information', $tmp);
 
-//$config = SingleItem::Config();
+//$config = Lone::get('Config');
 
 /* Server Information */
 $tmp = [[],[]];

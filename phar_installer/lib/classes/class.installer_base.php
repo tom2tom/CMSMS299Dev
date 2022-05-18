@@ -29,6 +29,7 @@ class FilePatternFilter extends FilterIterator
 {
     private $pattern;
 
+    #[\ReturnTypeWillChange]
     public function __construct(Iterator $iterator, $pattern)
     {
         parent::__construct($iterator);

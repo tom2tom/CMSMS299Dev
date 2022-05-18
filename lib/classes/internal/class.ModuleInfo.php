@@ -23,7 +23,7 @@ namespace CMSMS\internal;
 
 use ArrayAccess;
 use CMSMS\LogicException;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use const CMS_ASSETS_PATH;
 use const CMS_VERSION;
 use function cms_join_path;
@@ -60,6 +60,7 @@ class ModuleInfo implements ArrayAccess
      */
     protected $midata = [];
 
+    #[\ReturnTypeWillChange]
     public function __construct($modname,$can_load = true)
     {
         $arr = $this->_read_from_module_cache($modname);
@@ -73,13 +74,14 @@ class ModuleInfo implements ArrayAccess
         }
     }
 
-    public function OffsetGet($key)
+    #[\ReturnTypeWillChange]
+    public function offsetGet($key)// : mixed
     {
         switch( $key ) {
 //      case 'about':
 //          return;
         case 'dir':
-            return SingleItem::ModuleOperations()->get_module_path((string)$this->midata['name']);
+            return Lone::get('ModuleOperations')->get_module_path((string)$this->midata['name']);
         case 'writable':
             $dir = $this['dir'];
             if( $dir && is_dir($dir) ) {
@@ -90,7 +92,7 @@ class ModuleInfo implements ArrayAccess
             $dir = $this['dir'];
             return ($dir && is_writable($dir));
         case 'system_module':
-            return SingleItem::ModuleOperations()->IsSystemModule((string)$this->midata['name']);
+            return Lone::get('ModuleOperations')->IsSystemModule((string)$this->midata['name']);
         case 'ver_compatible':
             return version_compare((string)$this['mincmsversion'],CMS_VERSION,'<=');
         default:
@@ -101,7 +103,8 @@ class ModuleInfo implements ArrayAccess
         }
     }
 
-    public function OffsetSet($key,$value)// : void
+    #[\ReturnTypeWillChange]
+    public function offsetSet($key,$value)// : void
     {
         switch( $key ) {
             case 'about':
@@ -119,7 +122,8 @@ class ModuleInfo implements ArrayAccess
         }
     }
 
-    public function OffsetExists($key)// : bool
+    #[\ReturnTypeWillChange]
+    public function offsetExists($key)// : bool
     {
         if( !in_array($key,self::MIPROPS) ) {
             throw new LogicException('CMSEX_INVALIDMEMBER',null,$key);
@@ -133,7 +137,8 @@ class ModuleInfo implements ArrayAccess
         ]);
     }
 
-    public function OffsetUnset($key)// : void
+    #[\ReturnTypeWillChange]
+    public function offsetUnset($key)// : void
     {
     }
 
@@ -197,7 +202,7 @@ class ModuleInfo implements ArrayAccess
      */
     private function _read_from_module_cache(string $modname)
     {
-        $data = SingleItem::LoadedData()->get('modules');
+        $data = Lone::get('LoadedData')->get('modules');
         if( $data ) {
             if( isset($data[$modname]) ) {
                 if( /*$data[$modname]['status'] != 'installed' ||*/ !$data[$modname]['active'] ) {
@@ -206,7 +211,7 @@ class ModuleInfo implements ArrayAccess
                 if( isset($data[$modname][self::MIPROPS[1]]) ) { // anything not in raw table data
                     return $data[$modname];
                 }
-                $mod = SingleItem::ModuleOperations()->get_module_instance($modname);
+                $mod = Lone::get('ModuleOperations')->get_module_instance($modname);
                 if( is_object($mod) ) {
                     unset($data[$modname]['version']); // we will use the version reported by the module
                     $data[$modname] += ['name' => $modname];
@@ -225,7 +230,7 @@ class ModuleInfo implements ArrayAccess
                     $arr['changelog'] = $mod->GetChangelog();
 
                     $data[$modname] += $arr;
-//                  SingleItem::LoadedData()->set('modules', $data); BAD if available-module is not installed!
+//                  Lone::get('LoadedData')->set('modules', $data); BAD if available-module is not installed!
                     return $data[$modname];
                 }
             }
@@ -243,7 +248,7 @@ class ModuleInfo implements ArrayAccess
     /* return array maybe empty */
 /*    private function _read_from_module_meta(string $modname)
     {
-        $dir = SingleItem::ModuleOperations()->get_module_path($modname);
+        $dir = Lone::get('ModuleOperations')->get_module_path($modname);
         $fn = $this->_get_module_meta_file($modname);
         if( !is_file($fn) ) return [];
         $inidata = @parse_ini_file($fn,true);
@@ -306,7 +311,7 @@ class ModuleInfo implements ArrayAccess
 /*
     private function _read_from_module(string $modname)
     {
-        $mod = SingleItem::ModuleOperations()->get_module_instance($modname, '', true);
+        $mod = Lone::get('ModuleOperations')->get_module_instance($modname, '', true);
         if( !is_object($mod) ) {
             // if the module is not installed, try to interrogate it anyway
             $path = cms_module_path($modname);

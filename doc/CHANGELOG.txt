@@ -188,6 +188,7 @@ DETAILS
          register_endsession_function(),
          set_session_value(),get_session_value()
          restricted_cms_permissions(),
+         _la(), _ld() are shortform alternates to lang(), lang_by_realm() - to facilitate (possibly automated) source-file scanning for translatable stings c.f. _() and gettext()
          CMSMS\add_page_header(), CMSMS\remove_page_header(), CMSMS\get_page_headers(), CMSMS\sendheaders()
          add_page_headtext(),remove_page_headtext()
          add_page_foottext(),remove_page_foottext()
@@ -204,41 +205,42 @@ DETAILS
   - New content-security methods: CMSMS\execSpecialchars(), CMSMS\sanitizeVal(),
          CMSMS\Database\Connection::escStr();
   - New method: AdminUtils::get_module_icon()
-  - New methods: _la(), _ld() are shortform alternates to lang(), lang_by_realm(), to facilitate (possibly automated) source-file scanning for translatable stings c.f. _() and gettext()
-  - New classes: TemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum, RequestParameters, Crypto, AppSingle
+  - New classes: HierarchyManager, TemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum, RequestParameters, Crypto, AppSingle
   - Renamed classes: App, AppConfig, AppParams, UserParams (their old names are still usable)
   - New content-security methods: Crypto::encrypt_string(),decrypt_string(),hash_string(),random_string(),scramble_string()
   - New hook-replacement events: MetadataPostRender, MetadataPreRender, PageTopPostRender, PageTopPreRender,
       PageHeadPostRender, PageHeadPreRender, PageBodyPostRender, PageBodyPreRender, PostRequest
+  - CHANGE: improved scalability, peformance on large sites     
   - CHANGE: parameter-seprarators in generated URL strings default to '&' instead of '&amp;' (per RFC 3986)
-  - CHANGE: Formerly hard-coded admin-menu data have been migrated into a standalone file. Those data can be tailored e.g. by the theme at runtime or by the site-developer anytime
-  - FEATURE: New globally-available context-validation functions e.g. in module-actions :: if (!checkuuid($uuid)) exit; OR if (!$this->CheckContext()) exit;
-  - CHANGE: Management of page styles is much more flexible
-  - CHANGE: Database connection supports parameterized commands with a single non-array value (other than null) instead of an array including just that value
-  - CHANGE: Database connection reports success as the insert-id after an INSERT command applied to a table with an autoincrement field, instead of just true
-  - CHANGE: Database connection reports success as the the no. of affected rows after a DELETE command
-  - CHANGE: Database connection reliably reports success (as the no. of affected rows) after an UPDATE command
+  - CHANGE: formerly hard-coded admin-menu data have been migrated into a standalone file. Those data can be tailored e.g. by the theme at runtime or by the site-developer anytime
+  - FEATURE: new globally-available context-validation functions e.g. in module-actions :: if (!checkuuid($uuid)) exit; OR if (!$this->CheckContext()) exit;
+  - CHANGE: database connection also supports parameterized commands with a single non-array value (other than null) instead of an array including just that value
+  - CHANGE: database connection reports success as the insert-id after an INSERT command applied to a table with an autoincrement field, instead of just true
+  - CHANGE: database connection reports success as the the no. of affected rows after a DELETE command
+  - CHANGE: database connection reliably reports success (as the no. of affected rows) after an UPDATE command
   - CHANGE: URL-string constructor methods support non-scalar paramter values
-  - CHANGE: Page style(s) are applied directly, insead of via a Design. Each design is now just a tool to facilitate site development
-  - REMOVED: All strftime() usage, per PHP 8.1 deprecation. Instead use date() and related methods and classes
+  - CHANGE: management of page styles is much more flexible
+  - CHANGE: page style(s) are applied directly, insead of via a Design. Each design is now just a tool to facilitate site development
+  - REMOVED: all strftime() usage, per PHP 8.1 deprecation. Instead use date() and related methods and classes
   - DEPRECATED: strftime()-compatibile site-preference 'defaultdateformat'. Instead use date()-compatible 'date_format' or 'datetime_format'
   - CHANGE: Smarty modifier-plugin cms_date_format undertands formats which are or include 'timed'
   - CHANGE: Smarty modifier-plugin cms_date_format sanitizes generated text, so no need to supplement in templates with '|cms_escape'
   - CHANGE: Smarty tolerates additional functions: _la(),_ld(),_lm(),cms_join_path(),CMSMS\entitize(),CMSMS\specialize(),CMSMS\sanitizeVal(),CMSMS\tailorpage(),date(),lang_by_realm(),str_contains(),str_ends_with(),str_starts_with(),strtotime(),stripos(),strripos(),strrpos()
   - CHANGE: global-scope Smarty-variables: $_site_root_path,$_site_root_url,$_site_themes_path,$_site_themes_url,$_site_uploads_path,$_site_uploads_url are automatically defined during each frontend request
   - CHANGE: Smarty resource-identifiers for templates and stylesheets support optional source/originator, like 'originator;name'
-  - BREAKING: Renamed permission 'Modify User-defined Tags' to 'Manage User Plugins'
+  - BREAKING: renamed permission 'Modify User-defined Tags' to 'Manage User Plugins'
+  - FEATURE: pages-reordering UI supports collapse selected/all levels, expand selected/all levels, search
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.99 at least, the module is still operational.)
-  - CHANGE: Renamed CMSContentManager module to ContentManager (shorter module-names help deal with a Smarty 25-character limit on resource-names)
-  - CHANGE: Renamed CMSMailer module to OutMailer (with pending support for sending via external platforms like Mailchimp)
+  - CHANGE: renamed CMSContentManager module to ContentManager (shorter module-names help deal with a Smarty 25-character limit on resource-names)
+  - CHANGE: renamed CMSMailer module to OutMailer (with pending support for sending via external platforms like Mailchimp)
   - CHANGE: News module is non-core, and in future will be distributed independently of the core files (and possibly replaced)
-  - BREAKING: Long-deprecated frontend creation of news items has been removed
-  - BREAKING: Newly created pages and newly-stored module-plugins default to cachable. This can be overridden when the page is saved, or the plugin deployed {nocache}{/nocache}.
-  - ADD: Extra permissions: 'Remote Administration', 'View Admin Log'
+  - BREAKING: long-deprecated frontend creation of news items has been removed
+  - BREAKING: newly created pages and newly-stored module-plugins default to cachable. This can be overridden when the page is saved, or the plugin deployed {nocache}{/nocache}.
+  - ADD: extra permissions: 'Remote Administration', 'View Admin Log'
   - ADD: extra member of CmsCoreCapabilities - ROUTE_MODULE, for polling the modules which create route(s) during contruction or initialization
   - CHANGE: DesignManager module is non-core, and in future will be distributed independently of the core files
-  - FEATURE: Registered event handlers may be a callable, or a regular plugin, supplementing the existing support for modules and UDT's
-  - FEATURE: Event handlers may be registered intra-session, instead of using a hooklist (which 'send' events regardless of the event originator)
+  - FEATURE: registered event handlers may be a callable, or a regular plugin, supplementing the existing support for modules and UDT's
+  - FEATURE: event handlers may be registered intra-session, instead of using a hooklist (which 'send' events regardless of the event originator)
   - FEATURE: get-support URL (for display in admin pages) may be specified in 'developer mode'
   - FEATURE: added jQuery Poller object, a more-flexible alternative to the autoRefresh widget
   - FEATURE: added (non-core) module SyntaxMultiEditor allowing (for now) Ace|CodeMirror, to edit templates, stylesheets, UDT's,

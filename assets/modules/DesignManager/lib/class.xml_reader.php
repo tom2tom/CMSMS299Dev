@@ -28,11 +28,11 @@ use function CMSMS\log_error;
 
 class xml_reader extends XMLReader
 {
-  private $_setup;
+  private $_setup = false;
   private $_old_err_handler;
   private $_old_internal_errors;
 
-  public static function __errhandler($errno,$errstr,$errfile,$errline)
+  public static function errhandler($errno,$errstr,$errfile,$errline)
   {
     if( strpos($errstr,'XMLReader') !== FALSE ) {
       log_error($errstr, 'DesignManger\xml_reader');
@@ -41,15 +41,16 @@ class xml_reader extends XMLReader
     }
   }
 
-  public function __setup()
+  public function setup()
   {
     if( !$this->_setup ) {
       $this->_old_internal_errors = libxml_use_internal_errors(FALSE);
-      $this->_old_err_handler = set_error_handler([$this,'__errhandler']);
-      $this->_setup = 1;
+      $this->_old_err_handler = set_error_handler([$this,'errhandler']);
+      $this->_setup = true;
     }
   }
 
+  #[\ReturnTypeWillChange]
   public function __destruct()
   {
     if( $this->_old_err_handler )
@@ -58,7 +59,7 @@ class xml_reader extends XMLReader
 
   public function read()
   {
-    $this->__setup();
+    $this->setup();
     return parent::read();
   }
 } // class

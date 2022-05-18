@@ -23,7 +23,6 @@ namespace MicroTiny;
 
 use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
 use CMSMS\StylesheetOperations;
 use CMSMS\Utils as AppUtils;
 use MicroTiny;
@@ -37,6 +36,8 @@ use const TMP_CACHE_LOCATION;
 use function add_page_headtext;
 use function cms_join_path;
 use function cms_path_to_url;
+use function cmsms;
+use function CMSMS\is_frontend_request;
 
 class Utils
 {
@@ -61,7 +62,7 @@ class Utils
 	 */
 	public static function WYSIWYGGenerateHeader($selector='', $css_name='', $params=[])
 	{
-		// static properties here >> SingleItem property|ies ?
+		// static properties here >> Lone property|ies ?
 		static $usedselectors = []; //selectors cache
 
 		extract($params + [
@@ -98,7 +99,7 @@ class Utils
 		}
 
 		if( !isset($frontend) ) {
-			$frontend = SingleItem::App()->is_frontend_request();
+			$frontend = is_frontend_request();
 		}
 
 		try {
@@ -222,7 +223,7 @@ EOS;
 		$base_url = $mod->GetModuleURLPath();
 		$root_url = CMS_ROOT_URL;
 		if( $frontend ) {
-			$page_id = SingleItem::App()->get_content_object()->Id();
+			$page_id = cmsms()->get_content_object()->Id();
 		}
 		else {
 			$page_id = '';
@@ -245,7 +246,7 @@ EOS;
 		if( $fp ) {
 			$url = $fp->get_browser_url();
 			$filepicker_url = str_replace('&amp;', '&', $url);
-//			$config = SingleItem::Config();
+//			$config = Lone::get('Config');
 //			$max = $config['max_upload_size'];
 //			$url2 = $config['uploads_url'];
 			$js .= <<<EOS

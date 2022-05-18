@@ -1,7 +1,7 @@
 <?php
 /*
 A class to work with data cached using the PHP APCu extension.
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -46,6 +46,7 @@ class CacheApcu extends CacheDriver
 	 *  group => string (default 'default') TODO migrate to 'space'
 	 *  globlspace => string cache differentiator (default hashed const)
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct(array $params)
 	{
 		if ($this->use_driver()) {
@@ -111,7 +112,7 @@ class CacheApcu extends CacheDriver
 		return $out;
 	}
 
-	public function get(string $key, string $space = '')
+	public function get($key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
@@ -120,28 +121,28 @@ class CacheApcu extends CacheDriver
 		return ($success) ? $value : null;
 	}
 
-	public function has(string $key, string $space = '')
+	public function has($key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
 		return apcu_exists($key);
 	}
 
-	public function set(string $key, $value, string $space = '')
+	public function set($key, $value, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
 		return $this->_write_cache($key, $value);
 	}
 
-	public function set_timed(string $key, $value, int $ttl = 0, string $space = '')
+	public function set_timed($key, $value, int $ttl = 0, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
 		return apcu_store($key, $value, $ttl);
 	}
 
-	public function delete(string $key, string $space = '')
+	public function delete($key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
@@ -158,7 +159,7 @@ class CacheApcu extends CacheDriver
 	/**
 	 * @ignore
 	 */
-	private function _write_cache(string $key, $value) : bool
+	private function _write_cache($key, $value) : bool
 	{
 		$ttl = ($this->_auto_cleaning) ? 0 : $this->_lifetime;
 		return apcu_store($key, $value, $ttl);

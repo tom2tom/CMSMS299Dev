@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\sanitizeVal;
 
 $dsep = DIRECTORY_SEPARATOR;
@@ -36,7 +36,7 @@ if( !isset($_GET[CMS_SECURE_PARAM_NAME]) && isset($_SESSION[CMS_USER_KEY]) ) {
 
 $section = (isset($_GET['section'])) ? sanitizeVal($_GET['section'], CMSSAN_PURE) : ''; // valid non-words are '.' '-' TODO AND de_specialize()?
 
-$content = SingleItem::Theme()->fetch_menu_page($section);
+$content = Lone::get('Theme')->fetch_menu_page($section);
 require ".{$dsep}header.php";
 echo $content;
 require ".{$dsep}footer.php";

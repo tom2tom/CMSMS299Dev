@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
 use CMSMS\Error403Exception;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 AppState::set(AppState::ADMIN_PAGE);
@@ -34,7 +34,7 @@ if ($_N_ === $_K_) {
 }
 if (defined('CMS_ROOT_URL')) {
 // TODO cookie-check to perhaps avoid a force-login see LoginOperations::save_authentication() & related
-    redirect(SingleItem::Config()['admin_url'].'/login.php');
+    redirect(Lone::get('Config')['admin_url'].'/login.php');
 } else {
     unset($_N_, $_K_);
     throw new Error403Exception(_la('error_informationbad'));

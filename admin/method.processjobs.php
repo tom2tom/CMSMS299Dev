@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppParams;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\log_error;
 use function CMSMS\log_notice;
 
@@ -75,7 +75,7 @@ try {
         error_log('process - '.count($jobs).' job(s)'."\n", 3, $log);
     }
 
-    $config = SingleItem::Config();
+    $config = Lone::get('Config');
     $dev = !empty($config['develop_mode']);
     foreach ($jobs as $job) {
         // check we have not timed-out

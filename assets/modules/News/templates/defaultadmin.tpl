@@ -23,27 +23,31 @@
   </div>{*boxchild*}
 {if $itemcount > 0 && isset($rowchanger)}
   <div class="boxchild">
+   <span id="ipglink">
+   <a href="javascript:pagefirst(itemstbl)">{_ld('layout','pager_first')}</a>
+   {if $tplpages > 2}
+   <a href="javascript:pageprev(itemstbl)">{_ld('layout','pager_previous')}</a>
+   <a href="javascript:pagenext(itemstbl)">{_ld('layout','pager_next')}</a>
+   {/if}
+   <a href="javascript:pagelast(itemstbl)">{_ld('layout','pager_last')}</a>
    {_ld($_module,'pageof','<span id="cpage">1</span>',"<span id='tpage' style='margin-right:0.5em;'>`$totpg`</span>")}
+   </span>
    {$rowchanger}{_ld($_module,'pagerows')}
-   <a class="ipglink" href="javascript:pagefirst(itemstbl)">{_ld($_module,'first')}</a>
-   <a class="ipglink" href="javascript:pageprev(itemstbl)">{_ld($_module,'previous')}</a>
-   <a class="ipglink" href="javascript:pagenext(itemstbl)">{_ld($_module,'next')}</a>
-   <a class="ipglink" href="javascript:pagelast(itemstbl)">{_ld($_module,'last')}</a>
   </div>{*boxchild*}
 {/if}
 </div>{*rowbox*}
 {if $itemcount > 0}
 {form_start}
-<table class="pagetable{if $itemcount > 1} table_sort{/if}" id="articlelist" style="width:auto;">
+<table class="pagetable{if $itemcount > 1} table_sort{/if}" id="articlelist">
   <thead>
     <tr>
       <th{if $itemcount > 1} class="nosort"{/if}>#</th>
-      <th{if $itemcount > 1} class="{ldelim}sss:'text'{rdelim}"{/if}>{$titletext}</th>
-      <th{if $itemcount > 1} class="{ldelim}sss:'text'{rdelim}"{/if}>{$categorytext}</th>
-      <th{if $itemcount > 1} class="{ldelim}sss:'stamp'{rdelim}"{/if}>{$startdatetext}</th>
-      <th{if $itemcount > 1} class="{ldelim}sss:'stamp'{rdelim}"{/if}>{$enddatetext}</th>
-      <th class="pageicon{if $itemcount > 1} {ldelim}sss:'icon'{rdelim}{/if}">{$statustext}</th>{*if papp*}
-      <th class="pageicon{if $itemcount > 1} nosort{/if}">&nbsp;</th>{*if pmod &|| $pdel*}
+      <th{if $itemcount > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{$titletext}</th>
+      <th{if $itemcount > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{$categorytext}</th>
+      <th{if $itemcount > 1} class="{literal}{sss:'intfor'}{/literal}"{/if}>{$startdatetext}</th>
+      <th{if $itemcount > 1} class="{literal}{sss:'intfor'}{/literal}"{/if}>{$enddatetext}</th>
+      <th class="pageicon{if $itemcount > 1} {literal}{sss:'intfor'}{/literal}{/if}">{$statustext}</th>{*if papp*}
+      <th class="pageicon{if $itemcount > 1} nosort{/if}"></th>{*if pmod &/| $pdel 0..4 icons in this column TODO replace by context menu *}
       <th class="pageicon{if $itemcount > 1} nosort{/if}"><input type="checkbox" id="selectall" value="1" title="{_ld($_module,'selectall')}" /></th>{*if pANY*}
     </tr>
   </thead>
@@ -60,7 +64,7 @@
           {$entry->enddate}
         {/if}
       </td>
-      <td{if isset($entry->approve_link)}>{$entry->approve_link}{else}>{/if}</td>
+      <td><span style="display:none">$entry->approve_mode</span>>{if isset($entry->approve_link)}>{$entry->approve_link}{/if}</td>
       <td>
         {if isset($entry->editlink)}{$entry->editlink} {$entry->copylink}{if $xcats} {$entry->movelink}{/if}{/if}
         {if isset($entry->deletelink)} {$entry->deletelink}{/if}

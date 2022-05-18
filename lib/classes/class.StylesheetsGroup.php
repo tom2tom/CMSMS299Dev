@@ -24,7 +24,7 @@ use CMSMS\AdminUtils;
 use CMSMS\Database\Connection;
 use CMSMS\DataException;
 use CMSMS\Lock;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\SQLException;
 use CMSMS\StylesheetOperations;
 use LogicException;
@@ -70,7 +70,7 @@ class StylesheetsGroup
 	 */
 	protected $members = [];
 
-	// static properties here >> SingleItem property|ies ?
+	// static properties here >> Lone property|ies ?
 	/**
 	 * @ignore
 	 */
@@ -194,7 +194,7 @@ class StylesheetsGroup
 
 		$out = [];
 		if( $by_name ) {
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE id IN ('.implode(',',$this->members).')';
 			$dbr = $db->getAssoc($query);
 			foreach( $this->members as $id ) {
@@ -225,7 +225,7 @@ class StylesheetsGroup
 				}
 				else {
 					$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE name IN ('.str_repeat('?,',count($a)-1).'?)';
-					$db = SingleItem::Db();
+					$db = Lone::get('Db');
 					$dbr = $db->getAssoc($query,[$a]);
 					if( $dbr ) {
 						$ids = [];
@@ -241,7 +241,7 @@ class StylesheetsGroup
 			}
 			else {
 				$query = 'SELECT id FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE name = ?';
-				$db = SingleItem::Db();
+				$db = Lone::get('Db');
 				$id = $db->getOne($query,[$a]);
 				if( $id ) return [$id];
 			}
@@ -371,7 +371,7 @@ class StylesheetsGroup
 			throw new UnexpectedValueException('Name may contain only letters, numbers and/or these \'_ /+-,.\'.');
 		}
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$gid = $this->get_id();
 		if( $gid > 0 ) {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
@@ -418,11 +418,11 @@ class StylesheetsGroup
 		if( !$this->dirty ) return;
 		$this->validate();
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description) VALUES (?,?)';
 		$dbr = $db->execute($query,[
 			$this->get_name(),
-			$this->get_description(),
+			$this->get_description()
 		]);
 		if( !$dbr ) {
 			throw new SQLException($db->sql.' -- '.$db->errorMsg());
@@ -441,7 +441,7 @@ class StylesheetsGroup
 		if( !$this->dirty ) return;
 		$this->validate();
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ? WHERE id = ?';
 		$db->execute($query,[
 			$this->get_name(),
@@ -478,7 +478,7 @@ class StylesheetsGroup
 		$gid = $this->get_id();
 		if( !$gid ) return;
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 		$dbr = $db->execute($query,[$gid]);
 		if( !$dbr ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
@@ -499,7 +499,7 @@ class StylesheetsGroup
 	 */
 	public static function load($val) : self
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		if( is_numeric($val) && $val > 0 ) {
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 			$row = $db->getRow($query,[(int)$val]);

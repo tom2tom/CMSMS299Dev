@@ -1,7 +1,7 @@
 <?php
 /*
 Entry point for all non-admin pages
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -28,10 +28,12 @@ use CMSMS\Error503Exception;
 use CMSMS\Events;
 use CMSMS\IContentEditor;
 use CMSMS\internal\content_plugins;
+use CMSMS\Lone;
 use CMSMS\NlsOperations;
 use CMSMS\PageLoader;
 use CMSMS\StopProcessingContentException;
 use function CMSMS\get_debug_messages;
+use function CMSMS\is_secure_request;
 use function CMSMS\template_processing_allowed;
 
 /**
@@ -67,7 +69,9 @@ Please contact the website administrator to request that this problem be correct
 
 // further setup (see also include.php)
 $params = array_merge($_GET, $_POST);
-if (!isset($smarty)) $smarty = $_app->GetSmarty();
+if (!isset($smarty)) {
+	$smarty = Lone::get('Smarty');
+}
 $page = get_pageid_or_alias_from_url();
 $contentobj = null;
 $showtemplate = true;
@@ -116,7 +120,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 		}
 
 		// deprecated (since 3.0) secure-page processing
-		if ($contentobj->Secure() && !$_app->is_https_request()) {
+		if ($contentobj->Secure() && !is_secure_request()) {
 			// redirect to the secure page
 			$url = $contentobj->GetURL(); // CMS_ROOT_URL... i.e. absolute
 			if (startswith($url, 'http://')) {
@@ -314,7 +318,7 @@ if ($debug || isset($config['log_performance_info']) || (isset($config['show_per
 	$memory = (function_exists('memory_get_usage')?memory_get_usage():0);
 	$memory = $memory - $orig_memory;
 	$memory_peak = (function_exists('memory_get_peak_usage')?memory_get_peak_usage():'n/a');
-	$db = $_app->GetDb();
+	$db = Lone::get('Db');
 	$sql_time = round($db->query_time_total,5);
 	$sql_queries = $db->query_count;
 

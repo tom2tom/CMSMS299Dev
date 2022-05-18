@@ -24,11 +24,11 @@ namespace CMSMS; //3.0+
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
 use CMSMS\LangOperations;
+use CMSMS\Lone;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
 use CMSMS\RequestParameters;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
 use CMSMS\StylesMerger;
 use CMSMS\UserParams;
 use CMSMS\Utils;
@@ -105,18 +105,18 @@ EOS;
     public function display_login_page()
     {
         $auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
-        $mod = SingleItem::ModuleOperations()->get_module_instance($auth_module, '', true);
+        $mod = Lone::get('ModuleOperations')->get_module_instance($auth_module, '', true);
         if ($mod) {
             $data = $mod->fetch_login_panel();
         } else {
             exit('System error');
         }
 
-        $smarty = SingleItem::Smarty();
+        $smarty = Lone::get('Smarty');
         $smarty->assign($data);
 
         //extra shared parameters for the form TODO get from the current login-module
-        $config = SingleItem::Config(); // for the inclusion
+        $config = Lone::get('Config'); // for the inclusion
         $fp = cms_join_path(dirname(__DIR__), 'assets', 'function.extraparms.php');
         require_once $fp;
         $smarty->assign($tplvars);
@@ -177,8 +177,8 @@ EOS;
             $nodes = $this->get_navigation_tree(-1, 2, FALSE);
         }
 
-        $config = SingleItem::Config();
-        $smarty = SingleItem::Smarty();
+        $config = Lone::get('Config');
+        $smarty = Lone::get('Smarty');
 
         // custom js
         $js = <<<'EOS'
@@ -221,7 +221,7 @@ EOS;
 //      $tree =
         $this->get_navigation_tree(); //TODO if section
 
-        $smarty = SingleItem::Smarty();
+        $smarty = Lone::get('Smarty');
         $userid = get_userid(false);
 
         /* possibly-cached value-names
@@ -299,7 +299,7 @@ EOS;
         }
         $smarty->assign('pageicon', $tag);
 
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
         // site logo?
         $sitelogo = AppParams::get('site_logo');
         if ($sitelogo) {
@@ -400,7 +400,7 @@ EOS;
             'secureparam' => CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY],
         ]);
 
-        $userops = SingleItem::UserOperations();
+        $userops = Lone::get('UserOperations');
         $smarty->assign('user', $userops->LoadUserByID($userid));
         // get user selected language
         $smarty->assign('lang', UserParams::get_for_user($userid, 'default_cms_language'));

@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace ContentManager;
 
 use CMSMS\DbQueryBase;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\SQLException;
 use RuntimeException;
 use const CMS_DB_PREFIX;
@@ -42,6 +42,7 @@ final class ContentListQuery extends DbQueryBase
 	 *
 	 * @param ContentListFilter $filter
 	 */
+	#[\ReturnTypeWillChange]
 	public function __construct(ContentListFilter $filter)
 	{
 		$this->_filter = $filter;
@@ -110,7 +111,7 @@ final class ContentListQuery extends DbQueryBase
 		}
 		$sql .= ' ORDER BY C.id_hierarchy';
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$this->_rs = $db->SelectLimit($sql, $this->_limit, $this->_offset, $parms);
 		if (!$this->_rs || $this->_rs->errno !== 0) {
 			throw new SQLException($db->sql.' -- '.$db->errorMsg());

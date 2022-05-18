@@ -98,7 +98,7 @@ class Collection implements ArrayAccess, IteratorAggregate, Countable {
      *
      * @return bool
      */
-    public function offsetExists($key)// : bool
+    public function offsetExists($key)
     {
         return array_key_exists($key, $this->items);
     }
@@ -123,7 +123,7 @@ class Collection implements ArrayAccess, IteratorAggregate, Countable {
      *
      * @return void
      */
-    public function offsetSet($key, $value)// : void
+    public function offsetSet($key, $value)
     {
         if (is_null($key)) {
             $this->items[] = $value;
@@ -139,7 +139,7 @@ class Collection implements ArrayAccess, IteratorAggregate, Countable {
      *
      * @return void
      */
-    public function offsetUnset($key)// : void
+    public function offsetUnset($key)
     {
         unset($this->items[$key]);
     }

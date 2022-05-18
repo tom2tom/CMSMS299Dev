@@ -33,7 +33,7 @@ use function startswith;
  */
 class page_template_parser extends Smarty_Internal_Template
 {
-    // static properties here >> SingleItem property|ies ?
+    // static properties here >> Lone property|ies ?
     /**
      * @ignore
      * @var int
@@ -65,6 +65,7 @@ class page_template_parser extends Smarty_Internal_Template
      * @param boolean $_caching  optional, default false
      * @param int $_cache_lifetime  optional, default 0
      */
+    #[\ReturnTypeWillChange]
     public function __construct(
         string $template_resource,
         $smarty,

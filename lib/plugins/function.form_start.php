@@ -21,7 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppState;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
+use function CMSMS\is_frontend_request;
 
 function smarty_function_form_start($params, $template)
 {
@@ -37,7 +38,7 @@ function smarty_function_form_start($params, $template)
 	'method' => 'post',
 	'enctype' => 'multipart/form-data',
 	];
-	$gCms = SingleItem::App();
+	$gCms = Lone::get('App');
 	if( AppState::test(AppState::LOGIN_PAGE) ) {
 		$tagparms['action'] = 'login.php'; // TODO might be using a login-module action
 	}
@@ -53,13 +54,13 @@ function smarty_function_form_start($params, $template)
 			if( empty($mactparms['mid']) ) $mactparms['mid'] = 'm1_';
 		}
 	}
-	elseif( $gCms->is_frontend_request() ) {
+	elseif( is_frontend_request() ) {
 		if( $mactparms['module'] ) {
 			$tmp = $template->getTemplateVars('actionparams');
 			if( is_array($tmp) && isset($tmp['action']) ) $mactparms['action'] = $tmp['action'];
 
 			$tagparms['action'] = CMS_ROOT_URL.'/lib/moduleinterface.php';
-			if( !$mactparms['returnid'] ) $mactparms['returnid'] = SingleItem::App()->get_content_id();
+			if( !$mactparms['returnid'] ) $mactparms['returnid'] = $gCms->get_content_id();
 			$hm = $gCms->GetHierarchyManager();
 			$node = $hm->find_by_tag('id',$mactparms['returnid']);
 			if( $node ) {
@@ -144,7 +145,7 @@ function smarty_function_form_start($params, $template)
 			$out .= '<input type="hidden" name="'.$mactparms['mid'].'returnid" value="'.$mactparms['returnid'].'" />';
 		}
 	}
-	if( !$gCms->is_frontend_request() ) {
+	if( !is_frontend_request() ) {
 		if( !isset($mactparms['returnid']) || $mactparms['returnid'] == '' ) {
 			if( isset( $_SESSION[CMS_USER_KEY] ) ) {
 				$out .= '<input type="hidden" name="'.CMS_SECURE_PARAM_NAME.'" value="'.$_SESSION[CMS_USER_KEY].'" />';

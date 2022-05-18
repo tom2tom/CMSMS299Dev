@@ -5,7 +5,7 @@ use CMSMS\AdminUtils;
 use CMSMS\Events;
 use CMSMS\internal\std_layout_template_callbacks;
 use CMSMS\LockOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Stylesheet;
 use CMSMS\Template;
 use CMSMS\TemplatesGroup;
@@ -27,8 +27,8 @@ $gCms = cmsms();
 $dbdict = $db->NewDataDictionary();
 $taboptarray = ['mysql' => 'TYPE=MyISAM'];
 
-verbose_msg('updating structure of content tabless');
-$sqlarray = $dbdict->DropColumnSQL(CMS_DB_PREFIX.'content', ['collaapsed', 'markup']);
+verbose_msg('updating structure of content tables');
+$sqlarray = $dbdict->DropColumnSQL(CMS_DB_PREFIX.'content', ['collapsed', 'markup']);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->AlterColumnSQL(CMS_DB_PREFIX.'content_props', 'content X2');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -331,7 +331,7 @@ $sql2 = 'INSERT INTO '.CMS_DB_PREFIX.Template::TABLENAME.' (name,content,descrip
 $gcblist = null;
 $tmp = $db->getArray($query);
 if ($tmp) {
-    // for each gcb, come up wit a new name and if the new name does not exist in the database, create a new template by that name.
+    // for each gcb, come up with a new name and if the new name does not exist in the database, create a new template by that name.
     foreach ($tmp as $gcb) {
         $new_name = $fix_template_name($gcb['htmlblob_name']);
         try {
@@ -480,7 +480,7 @@ $query = 'SELECT content_id,template_id,content_alias FROM '.CMS_DB_PREFIX.'cont
 $uquery = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id = ? WHERE content_id = ?';
 $iquery = 'INSERT INTO '.CMS_DB_PREFIX.'content_props (content_id,type,prop_name,content,create_date) VALUES (?,?,?,?,NOW())';
 $content_rows = $db->getArray($query);
-$contentops = SingleItem::ContentOperations();
+$contentops = Lone::get('ContentOperations');
 if( $content_rows ) {
     foreach( $content_rows as $row ) {
         if( $row['template_id'] < 1 ) continue;
@@ -521,7 +521,7 @@ $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'css_seq');
 $dbdict->ExecuteSQLArray($sqlarray);
 
 verbose_msg('uninstalling theme manager');
-SingleItem::ModuleOperations()->UninstallModule('ThemeManager');
+Lone::get('ModuleOperations')->UninstallModule('ThemeManager');
 
 verbose_msg('upgrading cms_groups table');
 $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.'groups', 'group_desc C(255)');
@@ -539,7 +539,7 @@ EOT
 ,
 'description' => 'Stub function to replace the print plugin'
 ];
-SingleItem::UserTagOperations()->SetUserTag('print', $params);
+Lone::get('UserTagOperations')->SetUserTag('print', $params);
 
 $sql = 'SELECT username FROM '.CMS_DB_PREFIX.'users WHERE user_id = 1';
 $un = $db->getOne($sql);
@@ -568,7 +568,7 @@ $query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_value = ?, modified_dat
 $db->execute($query, [$theme, 'logintheme']);
 
 verbose_msg(ilang('queue_for_upgrade', 'CMSMailer'));
-SingleItem::ModuleOperations()->QueueForInstall('CMSMailer'); // TODO N/A in CMSMS 3.0+
+Lone::get('ModuleOperations')->QueueForInstall('CMSMailer'); // TODO N/A in CMSMS 3.0+
 
 verbose_msg(ilang('upgrading_schema', 200));
 $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 200';

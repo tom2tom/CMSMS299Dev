@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace ContentManager\contenttypes;
 
 use CMSMS\AdminUtils;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use ContentManager\ContentBase;
 use function check_permission;
 use function CMSMS\specialize;
@@ -109,7 +109,7 @@ class PageLink extends ContentBase
 			$result = false;
 		} else {
 			// get the content type of page. TODO load using module-methods only
-			$contentops = SingleItem::ContentOperations();
+			$contentops = Lone::get('ContentOperations');
 			$destcontent = $contentops->LoadEditableContentFromId($page);
 			if (!is_object($destcontent)) {
 				$errors[] = $this->mod->Lang('destinationnotfound');
@@ -176,7 +176,7 @@ class PageLink extends ContentBase
 	{
 		$pid = $this->GetPropertyValue('page');
 		//TODO load using module-methods only
-		$contentops = SingleItem::ContentOperations();
+		$contentops = Lone::get('ContentOperations');
 		$destcontent = $contentops->LoadEditableContentFromId($pid);
 		if (is_object($destcontent)) {
 			$url = $destcontent->GetURL();

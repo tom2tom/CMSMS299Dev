@@ -65,6 +65,7 @@ class Smarty_Internal_SmartyTemplateCompiler extends Smarty_Internal_TemplateCom
      * @param string $parser_class class name
      * @param Smarty $smarty       global instance
      */
+    #[\ReturnTypeWillChange]
     public function __construct($lexer_class, $parser_class, Smarty $smarty)
     {
         parent::__construct($smarty);

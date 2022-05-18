@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
 use CMSMS\HookOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\get_debug_messages;
 
 // $USE_THEME inherited from parent scope
@@ -65,7 +65,7 @@ if (!isset($USE_THEME) || $USE_THEME) {
 		echo '</body></html>';
 	}
 	if (isset($config['show_performance_info'])) {
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$endtime = microtime();
 		$memory = (function_exists('memory_get_usage')?memory_get_usage():0);
 		$memory_net = 'n/a';

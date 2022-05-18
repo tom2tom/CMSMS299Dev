@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\log_notice;
 
 if (!$this->CheckContext()) {
@@ -42,7 +42,7 @@ if (isset($params['orderlist']) && $params['orderlist'] != '') {
 		if( !is_numeric($str) && startswith($str,$prefix) ) $str = substr($str,strlen($prefix));
 		$pid = (int)$str;
 		$content = $contentops->LoadEditableContentFromId($pid);
-		if( $content ) {
+		if ($content) {
 			$rec = ['id' => $pid]; //WHAT FOR?
 		}
 	}
@@ -71,7 +71,7 @@ if (isset($params['orderlist']) && $params['orderlist'] != '') {
 
 	// step 2, merge in old orders, and old parents
 	$hm = $gCms->GetHierarchyManager();
-	$contentops = SingleItem::ContentOperations();
+	$contentops = Lone::get('ContentOperations');
 	$changelist = [];
 	foreach ($orderlist as &$rec) {
 		$content = $contentops->LoadEditableContentFromId($rec['id']);
@@ -98,7 +98,12 @@ if (isset($params['orderlist']) && $params['orderlist'] != '') {
 	}
 }
 
-//custom requirements TODO
+$hm = $gCms->GetHierarchyManager();
+$pagecount = $hm->count_nodes();
+
+//TODO support a find-page mechanism
+//TODO custom requirements
+
 $base_url = CMS_ASSETS_URL;
 $msg = json_encode($this->Lang('confirm_reorder'));
 
@@ -117,33 +122,13 @@ function parseTree(ul) {
   });
   return tags;
 }
-
 $(function() {
-  $('#btn_submit').on('click', function(ev) {
-    ev.preventDefault();
-    var form = $(this).closest('form');
-    cms_confirm($msg).done(function() {
-      var tree = JSON.stringify(parseTree($('#masterlist'))); //IE8+
-      $('#orderlist').val(tree);
-      form.submit();
+  if ($pagecount > 20) {
+    $('#masterlist > li > ul').find('.haschildren').each(function() {
+      $(this).removeClass('expanded').addClass('collapsed').parent().next('ul').hide();
     });
-  });
-
-  $('.haschildren').on('click', function(ev) {
-    ev.preventDefault();
-    var list = $(this).closest('div.label').next('ul');
-    if ($(this).hasClass('expanded')) {
-      // currently expanded, now collapse
-      list.hide();
-      $(this).removeClass('expanded').addClass('collapsed').text('+');
-    } else {
-      // currently collapsed, now expand
-      list.show();
-      $(this).removeClass('collapsed').addClass('expanded').text('-');
-    }
-  });
-
-  $('ul.sortable').nestedSortable({
+  }
+  $('#masterlist').nestedSortable({
     disableNesting: 'no-nest',
     forcePlaceholderSize: true,
     handle: 'div',
@@ -155,14 +140,90 @@ $(function() {
     listType: 'ul',
     toleranceElement: '> div'
   });
+  $('.haschildren').on('click', function(ev) {
+    ev.preventDefault();
+    var t = $(this),
+     list = t.parent().next('ul');
+    if (t.hasClass('expanded')) {
+      // currently expanded, now collapse
+      list.hide();
+      t.removeClass('expanded').addClass('collapsed');
+    } else {
+      // currently collapsed, now expand
+      list.show();
+      t.removeClass('collapsed').addClass('expanded');
+    }
+  });
+  $('.btn_submit').on('click', function(ev) {
+    ev.preventDefault();
+    var form = $(this).closest('form');
+    cms_confirm($msg).done(function() {
+      var tree = JSON.stringify(parseTree($('#masterlist'))); //IE8+
+      $('#orderlist').val(tree);
+      form.submit();
+    });
+  });
+  $('.btn_expall').on('click', function(ev) {
+    ev.preventDefault();
+    $('.haschildren').each(function() {
+      $(this).removeClass('collapsed').addClass('expanded').parent().next('ul').show();
+    });
+  });
+  $('.btn_expnone').on('click', function(ev) {
+    ev.preventDefault();
+    $('.haschildren').each(function() {
+      $(this).removeClass('expanded').addClass('collapsed').parent().next('ul').hide();
+    });
+  });
+  $('#ajax_find').on('keypress', function(e) {
+    if (e.which == 13) {
+      e.preventDefault();
+      var tgt = $(this).val().trim();
+      if (tgt.length < 3) {
+        $(this).val('');
+        //do anything else?
+      } else {
+        var rex = new RegExp(tgt, 'uig');
+        var fmatch = null;
+        var top = document.querySelector('#masterlist'),
+         pagenodes = top.querySelectorAll('.ui-sortable-handle'),
+         n = pagenodes.length;
+        for (var i = 0; i < n; ++i) {
+          var item = pagenodes[i];
+          if (rex.test(item.innerText)) {
+            if (!fmatch) { fmatch = item; }
+            $(item).parentsUntil(top).each(function() {
+              var t = $(this);
+              if (t.is('ul')) {
+                if (t.is(':visible')) {
+                  return false; //all further ancestors already displayed
+                } else {
+                  t.show();
+                }
+              } else if (t.is('li')) {
+                t.find('.haschildren').removeClass('collapsed').addClass('expanded');
+              }
+            });
+          }
+        }
+        if (fmatch) {
+          var offset = $(fmatch).offset();
+          $('html, body').animate({
+            scrollTop: offset.top - 20,
+            scrollLeft: offset.left - 20
+          }, 500);
+        }
+      }
+    }
+  });
 });
 //]]>
 </script>
 EOS;
 add_page_foottext($js);
 
-$hm = $gCms->GetHierarchyManager(); //TODO direct-use by Smarty OK?
+//$rootnode = $hm->fake root node which can be descended from
 $tpl = $smarty->createTemplate($this->GetTemplateResource('ordercontent.tpl')); //,null,null,$smarty);
-$tpl->assign('tree', $hm);
-
+$tpl->assign('hier', $hm)
+	->assign('pcount', $pagecount);
 $tpl->display();

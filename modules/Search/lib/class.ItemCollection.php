@@ -1,7 +1,7 @@
 <?php
 /*
 Search module class: ItemCollection
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -28,7 +28,7 @@ use Search\Utils;
 
 class ItemCollection
 {
-    public $_ary = [];
+    public $_ary = []; //SearchItemData (was stdClass) objects
     public $maxweight = 1;
 
     public function AddItem($title, $url, $txt, $weight = 1, $module = '', $modulerecord = 0)
@@ -44,7 +44,7 @@ class ItemCollection
         }
 
         if (!$exists ) {
-            $newitem = new StdClass();
+            $newitem = new SearchItemData();
             $newitem->url = $url;
             $newitem->urltxt = Utils::CleanupText($txt);
             $newitem->title = $title;
@@ -73,3 +73,14 @@ class ItemCollection
         });
     }
 } // class
+
+// defined data structure to support PHP optimisation
+class SearchItemData
+{
+    public $intweight;
+    public $module;
+    public $modulerecord;
+    public $title;
+    public $url;
+    public $urltxt;
+}

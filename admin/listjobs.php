@@ -25,7 +25,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\Async\RecurType;
 use CMSMS\Error403Exception;
 use CMSMS\internal\JobOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 $dsep = DIRECTORY_SEPARATOR;
 require ".{$dsep}admininit.php";
@@ -35,7 +35,7 @@ check_login();
 $urlext = get_secure_param();
 $userid = get_userid();
 
-//$themeObject = SingleItem::Theme();
+//$themeObject = Lone::get('Theme');
 
 $pmod = check_permission($userid, 'Manage Jobs'); //?? View Jobs?
 if (!$pmod) {
@@ -130,7 +130,7 @@ if ($jobs) {
     }
 }
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign('jobs', $job_objs);
 
 $content = $smarty->fetch('listjobs.tpl');

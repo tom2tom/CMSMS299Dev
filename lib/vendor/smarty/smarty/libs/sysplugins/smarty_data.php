@@ -47,6 +47,7 @@ class Smarty_Data extends Smarty_Internal_Data
      *
      * @throws SmartyException
      */
+    #[\ReturnTypeWillChange]
     public function __construct($_parent = null, $smarty = null, $name = null)
     {
         parent::__construct();

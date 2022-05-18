@@ -3,7 +3,8 @@ namespace cms_installer\tests;
 
 class version_range_test extends test_base
 {
-    public function __set(string $key, $value)
+    #[\ReturnTypeWillChange]
+    public function __set(string $key, $value)// : void
     {
         switch ($key) {
       case 'success_key':

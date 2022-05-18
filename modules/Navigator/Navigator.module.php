@@ -1,7 +1,7 @@
 <?php
 /*
 Navigator: a module for CMS Made Simple to allow building hierarchical navigations.
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -23,14 +23,6 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\CoreCapabilities;
 use CMSMS\TemplateType;
 use CMSMS\Utils;
-
-class NavigatorNode
-{
-    /**
-     * This little function will remove all silly notices in smarty.
-     */
-    public function __get(string $key) { return null; }
-}
 
 final class Navigator extends CMSModule
 {

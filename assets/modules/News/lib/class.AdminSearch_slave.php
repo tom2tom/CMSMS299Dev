@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace News;
 
 use AdminSearch\Base_slave;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Utils;
 use const CMS_DB_PREFIX;
 use function check_permission;
@@ -54,7 +54,7 @@ final class AdminSearch_slave extends Base_slave
         $mod = Utils::get_module('News');
         if( !is_object($mod) ) return;
 
-        $db = SingleItem::Db();
+        $db = Lone::get('Db');
         // build the query
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE ';
         if( $this->search_casesensitive() ) {

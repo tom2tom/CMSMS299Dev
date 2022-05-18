@@ -213,7 +213,7 @@ MODIFY menu_text C(255) CHARACTER SET utf8mb4,
 MODIFY metadata C(10000),
 MODIFY modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 MODIFY owner_id I UNSIGNED DEFAULT 1,
-Modify page_url C(255),
+MODIFY page_url C(255),
 DROP prop_names,
 MODIFY secure I1 UNSIGNED DEFAULT 0,
 MODIFY show_in_menu I1 UNSIGNED DEFAULT 1,
@@ -223,9 +223,14 @@ MODIFY template_id I UNSIGNED,
 MODIFY titleattribute C(255) CHARACTER SET utf8mb4,
 MODIFY type C(25) NOTNULL,
 ';
-// this key is used in FORCE INDEX hints
+// these renamed/new indices are named in FORCE INDEX hints
+// RENAME KEY is available MySQL 5.7+ or compatible
 $tabopts = '
+DROP KEY '.$tblprefix.'index_content_by_content_alias_active,
+DROP KEY '.$tblprefix.'index_content_by_hierarchy,
+ADD KEY i_contental_active (content_alias,active),
 ADD KEY i_contentid_hierarchy (content_id,hierarchy),
+ADD KEY i_hierarchy (hierarchy),
 CHARACTER SET ascii,
 ';
 $mod_defns[$tblprefix.'content'] = [$tabopts, $flds];

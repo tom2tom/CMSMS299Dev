@@ -25,7 +25,7 @@ use CMSMS\AppState;
 use CMSMS\ContentType;
 use CMSMS\CoreCapabilities;
 use CMSMS\DeprecationNotice;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use function _ld;
@@ -53,18 +53,20 @@ class ContentTypeOperations
 
 	/* *
 	 * @ignore
-	 * @private to prevent direct creation (even by SingleItem class)
+	 * @private to prevent direct creation (even by Lone class)
 	 */
-//	private function __construct() {} TODO public iff wanted by SingleItem ?
+//	private function __construct() {} TODO public iff wanted by Lone ?
 
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**
 	 * @ignore
 	 */
+	#[\ReturnTypeWillChange]
 	public function __get(string $key)
 	{
 		if( $key == 'content_types' ) {
@@ -76,13 +78,13 @@ class ContentTypeOperations
 	 * Get the singleton instance of this class.
 	 * This method is called over a hundred times during a typical request,
 	 * so definitely the class warrants being a singleton.
-	 * @deprecated since 3.0 instead use CMSMS\SingleItem::ContentTypeOperations()
+	 * @deprecated since 3.0 instead use CMSMS\Lone::get('ContentTypeOperations')
 	 * @return ContentTypeOperations
 	 */
 	public static function get_instance() : self
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\SingleItem::ContentTypeOperations()'));
-		return SingleItem::ContentTypeOperations();
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\Lone::get(\'ContentTypeOperations\')'));
+		return Lone::get('ContentTypeOperations');
 	}
 
 	/**
@@ -96,7 +98,7 @@ class ContentTypeOperations
 	private function _get_static_content_types() : array
 	{
 		$result = [];
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content_types';
 		$data = $db->getArray($query);
 		foreach( $data as $row ) {
@@ -137,9 +139,9 @@ class ContentTypeOperations
 			// get any additional types from relevant modules.
 			// such types are registered in the modules' respective constructors,
 			// which process eventually shoves them into $this->_content_types.
-			$modnames = SingleItem::LoadedMetadata()->get('capable_modules', $force, CoreCapabilities::CONTENT_TYPES);
+			$modnames = Lone::get('LoadedMetadata')->get('capable_modules', $force, CoreCapabilities::CONTENT_TYPES);
 			if( $modnames ) {
-				$modops = SingleItem::ModuleOperations();
+				$modops = Lone::get('ModuleOperations');
 				foreach( $modnames as $name ) {
 					$mod = $modops->get_module_instance($name);
 				}
@@ -278,7 +280,7 @@ class ContentTypeOperations
 	public function AddStaticContentType()
 	{
 		$Y = $TODO;
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		//TODO UPSERT
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'content_types (originator,name,publicname_key,displayclass,editclass) VALUES (?,?,?,?,?)';
 		$db->execute($query,[$Y->module,$Y->type,$Y->friendlyname,$Y->class,$Y->editorclass]);
@@ -291,7 +293,7 @@ class ContentTypeOperations
 	 */
 	public function DelStaticContentType()
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'content_types WHERE ';
 		$query .= 'TODO';
 		$db->execute($query);
@@ -305,7 +307,7 @@ class ContentTypeOperations
 	 */
 	public function RebuildStaticContentTypes(bool $force = false)
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'TRUNCATE '.CMS_DB_PREFIX.'content_types';
 		$db->execute($query);
 
@@ -340,9 +342,9 @@ class ContentTypeOperations
 			}
 		}
 
-		$modnames = SingleItem::LoadedMetadata()->get('methodic_modules', $force, 'CreateStaticContentTypes');
+		$modnames = Lone::get('LoadedMetadata')->get('methodic_modules', $force, 'CreateStaticContentTypes');
 		if( $modnames ) {
-			$modops = SingleItem::ModuleOperations();
+			$modops = Lone::get('ModuleOperations');
 			foreach( $modnames as $name ) {
 				$mod = $modops->get_module_instance($name);
 				if( $mod ) {

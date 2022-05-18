@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Bookmark;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Url;
 use function CMSMS\de_specialize;
 
@@ -40,7 +40,7 @@ if ($link) {
 	$newmark->title = de_specialize($_GET['title']); // AND CMSMS\sanitizeVal(, CMSSAN_NONPRINT) etc
 
 	if ($newmark->save()) {
-		$config = SingleItem::Config();
+		$config = Lone::get('Config');
 		header('HTTP_REFERER: '.$config['admin_url'].'/menu.php');
 		redirect($link);
 	}

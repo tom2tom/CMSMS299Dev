@@ -23,8 +23,8 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\Error403Exception;
+use CMSMS\Lone;
 use CMSMS\ScriptsMerger;
-use CMSMS\SingleItem;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplatesGroup;
 use function CMSMS\add_shutdown;
@@ -50,7 +50,7 @@ if (!$pmod) {
 }
 
 $urlext = get_secure_param();
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 if (isset($_REQUEST['cancel'])) {
 	$themeObject->ParkNotice('info', _ld('layout', 'msg_cancelled'));
@@ -239,7 +239,7 @@ if ($gid) {
 	$extras['grp'] = $gid;
 }
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
 	'selfurl' => $selfurl,
 	'extraparms' => $extras,

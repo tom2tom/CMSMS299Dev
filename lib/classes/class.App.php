@@ -1,6 +1,6 @@
 <?php
 /*
-Singleton class for accessing intra-request system properties
+Methods and aliases for accessing intra-request system properties and classes
 Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
@@ -26,14 +26,16 @@ use CMSMS\AppConfig;
 use CMSMS\AppState;
 use CMSMS\BookmarkOperations;
 use CMSMS\ContentOperations;
-use CMSMS\ContentTree;
+//use CMSMS\ContentTree;
 use CMSMS\contenttypes\ErrorPage;
 use CMSMS\Database\Connection;
 use CMSMS\DeprecationNotice;
 use CMSMS\GroupOperations;
+use CMSMS\HierarchyManager;
 use CMSMS\internal\Smarty;
+use CMSMS\internal\page_template_parser;
+use CMSMS\Lone;
 use CMSMS\ModuleOperations;
-use CMSMS\SingleItem;
 use CMSMS\UserOperations;
 use CMSMS\UserTagOperations;
 use RuntimeException;
@@ -42,9 +44,13 @@ use const CMS_DEPREC;
 use function CMSMS\add_debug_message;
 use function CMSMS\get_debug_messages;
 use function CMSMS\get_installed_schema_version;
+use function CMSMS\is_frontend_request;
+use function CMSMS\is_secure_request;
 
 /**
- * Singleton class for accessing intra-request system properties and classes.
+ * Class of simple methods and aliases for accessing intra-request
+ * system properties and classes.
+ * Many of the methods are deprecated from CMSMS 3.0
  *
  * @final
  * @package CMS
@@ -58,97 +64,94 @@ final class App
      * A bitflag constant indicating that the request is for a page in the CMSMS admin console
      * @deprecated since 3.0 use AppState::ADMIN_PAGE
      */
-    const STATE_ADMIN_PAGE = 2;
+    const STATE_ADMIN_PAGE = AppState::ADMIN_PAGE;
 
     /**
      * A bitflag constant indicating that the request is for an admin login
      * @deprecated since 3.0 use AppState::LOGIN_PAGE
      */
-    const STATE_LOGIN_PAGE = 4;
+    const STATE_LOGIN_PAGE = AppState::LOGIN_PAGE;
 
-//    const STATE_ASYNC_JOB = 0x40; from 3.0
+//  const STATE_ASYNC_JOB = AppState::ASYNC_JOB; from 3.0
 
     /**
      * A bitflag constant indicating that the request is taking place during the installation process
      * @deprecated since 3.0 use AppState::INSTALL
      */
-    const STATE_INSTALL = 0x80;
+    const STATE_INSTALL = AppState::INSTALL;
 
     /**
      * A bitflag constant indicating that the request is for a stylesheet
      * @deprecated since 3.0 use AppState::STYLESHEET
      */
-    const STATE_STYLESHEET = 0x100;
+    const STATE_STYLESHEET = AppState::STYLESHEET;
 
     /**
      * A bitflag constant indicating that we are currently parsing page templates
      * @deprecated since 3.0 use AppState::PARSE_TEMPLATE
      */
-    const STATE_PARSE_TEMPLATE = 0x200;
-
-    /**
-     * @var object Singleton instance of this class
-     * @ignore
-     */
-    private static $_instance = null;
+    const STATE_PARSE_TEMPLATE = AppState::PARSE_TEMPLATE;
 
     /**
      * @ignore
      */
-    private function __clone() {}
+    #[\ReturnTypeWillChange]
+    private function __clone() {}// : void
 
     /**
      * @ignore
      */
-    public function __get(string $key)
+    #[\ReturnTypeWillChange]
+    public function __get(string $key)// : mixed
     {
         switch($key) {
         case 'config':
-            return SingleItem::Config();
+            return Lone::get('Config');
         case 'get':
         case 'instance':
-            return self::get_instance();
+            return $this; //self::get_instance();
         default:
-            return SingleItem::get('app.'.$key);
+            return Lone::fastget('app.'.$key);
         }
     }
 
     /**
      * @ignore
      */
-    public function __set(string $key, $value)
+    #[\ReturnTypeWillChange]
+    public function __set(string $key, $value)// : void
     {
-        SingleItem::set('app.'.$key, $value);
+        Lone::set('app.'.$key, $value);
     }
 
     /**
      * Convenience method to get the singleton instance of another class.
-     * Normally, get it directly, via a SingleItem::whatever() call.
+     * Normally, get it directly, via a Lone::get('whatever') call.
      *
      * @ignore
      * @throws RuntimeException if $name is not recognized
      */
-    public function __call(string $name, array $args)
+    #[\ReturnTypeWillChange]
+    public function __call(string $name, array $args)// : mixed
     {
-        return SingleItem::$name(...$args);
+        return Lone::get($name, ...$args);
     }
 
     /**
-     * Get the singleton instance of this class.
+     * Get an instance of this class.
      * This method is used during request-setup, when caching via the
-     * SingleItem class might not yet be possible. Later, use
-     * CMSMS\SingleItem::App() instead of this method, to get the
+     * Lone class might not yet be possible. Later, use
+     * CMSMS\Lone::get('App') instead of this method, to get the
      * (same) singleton.
      * @since 1.10
+     * @deprecated since 3.0 instead use CMSMS\Lone::get('App')
      *
      * @return self
      */
     public static function get_instance() : self
     {
-        if( !self::$_instance ) {
-            self::$_instance = new self();
-        }
-        return self::$_instance;
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\Lone::get(\'App\')'));
+        return Lone::get('App');
     }
 
     /**
@@ -160,6 +163,7 @@ final class App
      */
     public function get_installed_schema_version() : int
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\get_installed_schema_version'));
         return get_installed_schema_version();
     }
 
@@ -172,6 +176,7 @@ final class App
      */
     public function get_errors() : array
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\get_debug_messages'));
         return get_debug_messages();
     }
 
@@ -184,6 +189,7 @@ final class App
      */
     public function add_error(string $str)
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\add_debug_message'));
         add_debug_message($str);
     }
 
@@ -197,7 +203,7 @@ final class App
      */
     public function get_content_type() : string
     {
-        $val = (string)SingleItem::get('app.content_type');
+        $val = (string)Lone::fastget('app.content_type');
         return ($val) ? $val : 'text/html';
     }
 
@@ -209,7 +215,7 @@ final class App
      */
     public function set_content_type(string $mime_type = '')
     {
-        SingleItem::set('app.content_type', $mime_type);
+        Lone::set('app.content_type', $mime_type);
     }
 
     /**
@@ -222,8 +228,8 @@ final class App
      */
     public function set_content_object($content)
     {
-        if( !SingleItem::get('app.current_content') || $content instanceof ErrorPage ) {
-            SingleItem::set('app.current_content', $content);
+        if( !Lone::fastget('app.current_content') || $content instanceof ErrorPage ) {
+            Lone::set('app.current_content', $content);
         }
     }
 
@@ -235,7 +241,7 @@ final class App
      */
     public function get_content_object()
     {
-        return SingleItem::get('app.current_content');
+        return Lone::fastget('app.current_content');
     }
 
     /**
@@ -246,20 +252,21 @@ final class App
      */
     public function get_content_id()
     {
-        $obj = SingleItem::get('app.current_content');
-        return ( is_object($obj) )  ? $obj->Id() : 0;
+        $obj = Lone::fastget('app.current_content');
+        return ( is_object($obj) ) ? $obj->Id() : 0;
     }
 
     /**
      * Get the module-operations instance.
      * @see ModuleOperations
-     * @since 3.0 CMSMS\SingleItem::ModuleOperations() may be used instead
+     * @since 3.0 CMSMS\Lone::get('ModuleOperations') may be used instead
      *
      * @return ModuleOperations handle to the ModuleOperations object
      */
     public function GetModuleOperations() : ModuleOperations
     {
-        return SingleItem::ModuleOperations();
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'ModuleOperations\')'));
+        return Lone::get('ModuleOperations');
     }
 
     /**
@@ -274,7 +281,7 @@ final class App
      */
     public function GetAvailableModules()
     {
-        return SingleItem::ModuleOperations()->get_available_modules();
+        return Lone::get('ModuleOperations')->get_available_modules();
     }
 
     /**
@@ -285,7 +292,8 @@ final class App
      * whether the version of the requested module matches the one specified.
      *
      * @since 1.9
-     * @deprecated since 3.0 instead use Utils::get_module() or ModuleOperations::get_module_instance()
+     * @deprecated since 3.0 instead use CMSMS\Utils::get_module() or
+     *  CMSMS\ModuleOperations::get_module_instance()
      *
      * @param string $modname The module name
      * @param mixed  $version (optional) string|float version number for a check. Default ''
@@ -293,7 +301,8 @@ final class App
      */
     public function GetModuleInstance(string $modname,$version = '')
     {
-        return SingleItem::ModuleOperations()->get_module_instance($modname,$version);
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Utils::get_module'));
+        return Lone::get('ModuleOperations')->get_module_instance($modname,$version);
     }
 
     /**
@@ -310,13 +319,14 @@ final class App
 
     /**
      * Get the database-connection instance.
-     * @deprecated since 3.0 Instead, use SingleItem::Db()
+     * @deprecated since 3.0 Instead, use CMSMS\Lone::get('Db')
      *
      * @return Connection object
      */
     public function GetDb() : Connection
     {
-        return SingleItem::Db();
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'Db\')'));
+        return Lone::get('Db');
     }
 
     /**
@@ -327,7 +337,7 @@ final class App
      */
     public function GetDbPrefix() : string
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('parameter', 'CMS_DB_PREFIX'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('constant', 'CMS_DB_PREFIX'));
         return CMS_DB_PREFIX;
     }
 
@@ -335,37 +345,41 @@ final class App
      * Get the CMS config instance.
      * That object contains global paths and settings that do not belong
      * in the database.
+     * @deprecated since 3.0 Instead, use CMSMS\Lone::get('Config')
      * @see AppConfig
      *
      * @return AppConfig The configuration object
      */
     public function GetConfig() : AppConfig
     {
-        return SingleItem::Config();
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'Config\')'));
+        return Lone::get('Config');
     }
 
     /**
      * Get the user-operations instance.
      * @see UserOperations
-     * @since 3.0 CMSMS\SingleItem::UserOperations() may be used instead
+     * @since 3.0 CMSMS\Lone::get('UserOperations') may be used instead
      *
      * @return UserOperations handle to the UserOperations object
      */
     public function GetUserOperations() : UserOperations
     {
-        return SingleItem::UserOperations();
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'UserOperations\')'));
+        return Lone::get('');
     }
 
     /**
      * Get the content-operations instance.
      * @see ContentOperations
-     * @since 3.0 CMSMS\SingleItem::ContentOperations() may be used instead
+     * @since 3.0 CMSMS\Lone::get('ContentOperations') may be used instead
      *
      * @return ContentOperations handle to the ContentOperations object
      */
     public function GetContentOperations() : ContentOperations
     {
-        return SingleItem::ContentOperations();
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'ContentOperations\')'));
+        return Lone::get('ContentOperations');
     }
 
     /**
@@ -377,37 +391,40 @@ final class App
      */
     public function GetBookmarkOperations() : BookmarkOperations
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('class', 'CMSMS\BookmarkOperations'));
         return new BookmarkOperations();
     }
 
     /**
      * Get the group-operations instance.
      * @see GroupOperations
-     * @since 3.0 CMSMS\SingleItem::GroupOperations() may be used instead
+     * @since 3.0 CMSMS\Lone::get('GroupOperations') may be used instead
      *
      * @return GroupOperations handle to the GroupOperations instance
      */
     public function GetGroupOperations() : GroupOperations
     {
-        return SingleItem::GroupOperations();
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'GroupOperations\')'));
+        return Lone::get('GroupOperations');
     }
 
     /**
      * Get the user-plugin-operations instance, for interacting with UDT's
      * @see UserTagOperations
-     * @since 3.0 CMSMS\SingleItem::UserTagOperations() may be used instead
+     * @since 3.0 CMSMS\Lone::get('UserTagOperations') may be used instead
      *
      * @return the UserTagOperations singleton
      */
     public function GetUserTagOperations() : UserTagOperations
     {
-        return SingleItem::UserTagOperations();
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'UserTagOperations\')'));
+        return Lone::get('UserTagOperations');
     }
 
     /**
      * Get the Smarty instance, except during install/upgrade/refresh.
      * @see Smarty
-     * @see SingleItem::Smarty()
+     * @see Lone::get('Smarty')
      * @link http://www.smarty.net/manual/en/
      *
      * @return mixed CMSMS\internal\Smarty object | null
@@ -416,34 +433,40 @@ final class App
     {
         if( !AppState::test(AppState::INSTALL) ) {
             // we don't load the main Smarty class during installation
-            return SingleItem::Smarty();
+            return Lone::get('Smarty');
         }
     }
 
     /**
-     * Get the cached pages-hierarchy-manager instance.
-     * @see ContentTree
+     * Get the cached pages-hierarchy.
+     * A confusingly-named method - it returns a tree-structured set of
+     * classes, not a manager-class in the same sense as the other
+     * managers accessed here.
+     * @see ContentTree, one of which is used for each tree-node
      *
-     * @return object ContentTree, with nested descendant-objects
+     * @return topmost ContentTree object, which has populated descendant-objects NOPE HierarchyManager
      */
-    public function GetHierarchyManager() : ContentTree
+    public function GetHierarchyManager() : HierarchyManager //ContentTree
     {
-        $hm = SingleItem::get('HierarchyManager');
+/*        $hm = Lone::fastget('PagesTreeTop');
         if( !$hm ) {
-            $hm = SingleItem::LoadedData()->get('content_tree');
-            SingleItem::set('HierarchyManager', $hm);
+            $hm = Lone::get('LoadedData')->get('content_tree');
+            Lone::set('PagesTreeTop', $hm);
         }
         return $hm;
+*/
+        return Lone::get('HierarchyManager');
     }
 
     /**
-     * Does nothing. Formerly, get the template-parser instance.
+     * Get a template-parser object.
      * @deprecated since 3.0 use new page_template_parser()
      * @see CMSMS\internal\page_template_parser class
      */
     public function get_template_parser()
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('class', 'CMSMS\internal\page_template_parser'));
+        return new page_template_parser();
     }
 
     /**
@@ -538,21 +561,28 @@ final class App
     /**
      * Report whether the current request is a frontend request.
      * @since 1.11.2
+     * @deprecated since 3.0 instead use CMSMS\is_frontend_request()
      *
      * @return bool
      */
     public function is_frontend_request() : bool
     {
-        return AppState::test(AppState::FRONT_PAGE);
+        assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\is_frontend_request'));
+        return is_frontend_request();
     }
 
-    /** Report whether the current request was over HTTPS.
+    /**
+     * Report whether the current request is over HTTPS.
      * @since 1.11.12
+     * @deprecated since 3.0 instead use CMSMS\is_secure_request()
      *
      * @return bool
      */
     public function is_https_request() : bool
     {
-        return !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off';
+        assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\is_secure_request'));
+        return is_secure_request();
     }
 } // class
+
+if (!\class_exists('CmsApp', false)) \class_alias(App::class, 'CmsApp', false);

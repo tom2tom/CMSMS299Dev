@@ -184,7 +184,7 @@
  <div id="error_cont" class="pageerror">{$error}</div>
  {/if}
  {if isset($content_list)}
-  <table id="contenttable" class="pagetable" style="width:auto;">
+  <table id="contenttable" class="pagetable">
     <thead>
       <tr>{strip}
         {foreach $columns as $column => $flag}
@@ -226,8 +226,8 @@
   {if $multiselect && isset($bulk_options)}
   <div class="boxchild">
     {cms_help 0=$_module key='help_bulk' title=_ld($_module,'prompt_bulk')}
-    <label for="bulk_action">{_ld($_module,'prompt_withselected')}:</label>&nbsp;
-    <select name="{$actionid}bulk_action" id="bulk_action">
+    <label for="bulkaction">{_ld($_module,'prompt_withselected')}:</label>&nbsp;
+    <select name="{$actionid}bulk_action" id="bulkaction">
       {html_options options=$bulk_options}    </select>
     <button type="submit" name="{$actionid}bulk_submit" id="bulk_submit" class="adminsubmit icon check">{_ld($_module,'submit')}</button>
   </div>

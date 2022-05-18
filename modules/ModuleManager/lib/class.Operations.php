@@ -25,7 +25,7 @@ use CMSModule;
 use CMSMS\Crypto;
 use CMSMS\FileSystemException;
 use CMSMS\FileTypeHelper;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\XMLException;
 use LogicException;
 use ModuleManager;
@@ -81,6 +81,7 @@ class Operations
      */
     private $xml_exclude_files = ['^\.svn' , '^CVS$' , '^\#.*\#$' , '~$', '\.bak$', '^\.git', '^\.tmp$'];
 
+    #[\ReturnTypeWillChange]
     public function __construct( ModuleManager $mod )
     {
         $this->_mod = $mod;
@@ -118,7 +119,7 @@ class Operations
         $dtdversion = $val;
         $current = (version_compare($val,self::MODULE_DTD_VERSION) == 0);
 //      $coremodule = (string)$xml->core; //'1', '0' or ''
-        $modops = SingleItem::ModuleOperations();
+        $modops = Lone::get('ModuleOperations');
         $moduledetails = [];
         $filedone = false;
         $modes = get_server_permissions(); // might fail!
@@ -254,12 +255,12 @@ class Operations
         // generate a moduleinfo.ini file, if N/A now
         $fn = $dir.'/moduleinfo.ini';
         if( !is_file($fn) ) {
-            SingleItem::ModuleOperations()->generate_moduleinfo($mod);
-//          $cache = SingleItem::LoadedData();
+            Lone::get('ModuleOperations')->generate_moduleinfo($mod);
+//          $cache = Lone::get('LoadedData');
 //          $cache->refresh('modules');
 //          $cache->refresh('module_deps');
 //          $cache->refresh('module_plugins');
-//          SingleItem::LoadedMetadata()->refresh('*');
+//          Lone::get('LoadedMetadata')->refresh('*');
         }
 */
         $xw = new XMLWriter();
@@ -318,7 +319,7 @@ class Operations
         $filecount = 0;
         $from = [DIRECTORY_SEPARATOR];
         $to = ['/'];
-        $aname = SingleItem::Config()['assets_path'];
+        $aname = Lone::get('Config')['assets_path'];
         if( $aname != 'assets' ) {
             $from[] = $aname;
             $to[] = 'assets';

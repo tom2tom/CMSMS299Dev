@@ -11,7 +11,7 @@ use ReflectionClass;
 
 abstract class BasicEnum
 {
-    // static properties here >> SingleItem property|ies ?
+    // static properties here >> Lone property|ies ?
     private static $constCacheArray = [];
 
     /**

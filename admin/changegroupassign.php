@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Error403Exception;
 use CMSMS\Events;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\UserParams;
 use function CMSMS\log_info;
 
@@ -38,14 +38,14 @@ if (isset($_POST['cancel'])) {
 
 $userid = get_userid();
 
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 if (!check_permission($userid, 'Manage Groups')) {
 //TODO some pushed popup c.f. javascript:cms_notify('error', _la('no_permission') OR _la('needpermissionto', _la('perm_Manage_Groups')), ...);
     throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
-$groupops = SingleItem::GroupOperations();
+$groupops = Lone::get('GroupOperations');
 $superusr = $userid == 1; //group 1 addition|removal allowed
 if ($superusr) {
     $supergrp = true; //group 1 removal allowed
@@ -54,7 +54,7 @@ if ($superusr) {
     $supergrp = in_array($userid, $admins);
 }
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->assign([
     'user_id' => $userid, // current user
     'usr1perm' => $superusr,
@@ -91,10 +91,10 @@ $smarty->assign([
     'disp_group'=>$disp_group,
 ]);
 
-$db = SingleItem::Db();
+$db = Lone::get('Db');
 
 if (isset($_POST['submit'])) {
-    $userops = SingleItem::UserOperations();
+    $userops = Lone::get('UserOperations');
 
     $stmt1 = $db->prepare('DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id=? AND user_id=?');
     $stmt2 = $db->prepare('SELECT 1 FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id=? AND user_id=?');
@@ -144,7 +144,7 @@ VALUES (?,?,NOW())');
 
     $message = _la('assignmentchanged');
 //    AdminUtils::clear_cached_files();
-//    SingleItem::LoadedData()->refresh('IF ANY');
+//    Lone::get('LoadedData')->refresh('IF ANY');
 }
 
 $query = 'SELECT u.user_id, u.username, ug.group_id FROM '.

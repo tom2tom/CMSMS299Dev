@@ -21,17 +21,17 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\LockOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use function CMSMS\log_notice;
 
 //if( some worthy test fails ) exit;
 
 $uid = get_userid();
-$is_admin = SingleItem::UserOperations()->UserInGroup($uid, 1);
+$is_admin = Lone::get('UserOperations')->UserInGroup($uid, 1);
 
 if ($is_admin) {
     // clear all locks of type content
-    $db = cmsms()->GetDb();
+    $db = Lone::get('Db');
     $sql = 'DELETE FROM '.CMS_DB_PREFIX. LockOperations::LOCK_TABLE.' WHERE type = ?';
     $db->execute($sql, ['content']);
     log_notice('ContentManager', 'Cleared all content locks');

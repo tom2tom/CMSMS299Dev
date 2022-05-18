@@ -46,6 +46,7 @@ class ResultSet
      * Constructor.
      * @param mixed $result mysqli_result object (for queries which return data), or boolean or int no. of affected rows
      */
+    #[\ReturnTypeWillChange]
     public function __construct($result)
     {
         if ($result instanceof mysqli_result) {
@@ -60,6 +61,7 @@ class ResultSet
         }
     }
 
+    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         if (is_object($this->_result)) {
@@ -70,6 +72,7 @@ class ResultSet
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __set(string $key, $val)
     {
         switch ($key) {
@@ -86,6 +89,7 @@ class ResultSet
     /**
      * @ignore
      */
+    #[\ReturnTypeWillChange]
     public function __get(string $key)
     {
         switch ($key) {

@@ -100,7 +100,7 @@ class DataDictionary
 
     /**
      * Array-rows indexer, to support 'adding' returned arrays
-     * static properties here >> SingleItem property|ies ?
+     * static properties here >> Lone property|ies ?
      * @ignore
      */
     private static $ctr = 1;
@@ -110,6 +110,7 @@ class DataDictionary
      *
      * @param Connection $conn
      */
+    #[\ReturnTypeWillChange]
     public function __construct(Connection $conn)
     {
         $this->connection = $conn;

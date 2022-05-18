@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
 use CMSMS\AppState;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 AppState::set(AppState::LOGIN_PAGE | AppState::ADMIN_PAGE);
@@ -44,7 +44,7 @@ if (!$name) {
 	}
 }
 
-$ops = SingleItem::ModuleOperations();
+$ops = Lone::get('ModuleOperations');
 if ($name == 'module') {
 	$mod = $ops->GetAdminLoginModule();
 } else {

@@ -5,8 +5,8 @@ use CMSMS\AppParams;
 use CMSMS\Crypto;
 use CMSMS\Events;
 use CMSMS\Group;
+use CMSMS\Lone;
 use CMSMS\Permission;
-use CMSMS\SingleItem;
 use CMSMS\TemplateType;
 use function cms_installer\endswith;
 use function cms_installer\get_server_permissions;
@@ -799,7 +799,7 @@ rrmdir($s);
 // 13.6. redundant modules
 // NOTE uninstallation fails if redundant-module classfile is deleted e.g. during files-manifest processing
 // TODO some yukky workaround for such deletions
-$ops = SingleItem::ModuleOperations();
+$ops = Lone::get('ModuleOperations');
 foreach ([
     'CMSContentManager', // new version of this has different name
     'CMSMailer', // ditto

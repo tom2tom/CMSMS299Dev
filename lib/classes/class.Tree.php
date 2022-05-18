@@ -1,6 +1,6 @@
 <?php
 /*
-Simple tree class
+Simple tree-manager interface class
 Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -13,7 +13,7 @@ the Free Software Foundation; either version 3 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -21,11 +21,13 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
+use CMSMS\HierarchyManager;
+
 /**
- * A tree / tree-node class that allows storing data with each node.
+ * A class for interacting with the singleton pages-tree
+ * hierarchy manager.
  *
  * @package CMS
- * @author  Robert Campbell
  *
  * @since 3.0
  * @since 1.9 as global-namespace cms_tree
@@ -33,262 +35,101 @@ namespace CMSMS;
 class Tree
 {
 	/**
+	 * @var object HierarchyManager singleton
 	 * @ignore
 	 */
-	private $_parent;
+	private $manager;
 
 	/**
+	 * @var int identifier of this node
 	 * @ignore
 	 */
-	private $_tags;
+	public $id;
 
 	/**
-	 * @ignore
+	 * @param int $id identifier of this node
+	 * @param HierarchyManager $mgr the HierarchyManager-class singleton
 	 */
-	private $_children;
-
-	/**
-	 * Construct a new tree, or node of a tree.
-	 *
-	 * @param string $key An optional key for a tag. Default null.
-	 * @param mixed  $value An optional value for the tag. Default ''.
-	 */
-	public function __construct($key = null,$value = '')
+	#[\ReturnTypeWillChange]
+	public function __construct(int $id, HierarchyManager $mgr)
 	{
-		if( $key ) {
-			if( is_string($key) ) {
-				$this->set_tag($key,$value);
-			}
-			elseif( is_array($key) ) {
-				foreach( $key as $k => $v ) {
-					$this->set_tag($k,$v);
-				}
-			}
-		}
+		$this->manager = $mgr;
+		$this->id = $id;
 	}
 
 	/**
-	 * Recursively find a tree node matching a name/type and value.
-	 *
-	 * @param string $tag_name The tag name to search for
-	 * @param mixed  $value The tag value to search for
-	 * @param bool $case_insensitive Whether the (string) value should matched regardless of case. Default false.
-	 * @return Tree object or null on failure.
+	 * Use the corresponding HierarchyManager-class method if not defined here
+	 * @param string $name
+	 * @param array $args
+	 * @return mixed
 	 */
-	public function find_by_tag($tag_name,$value,$case_insensitive = FALSE)
+	#[\ReturnTypeWillChange]
+	public function __call($name, $args)
 	{
-		$res = null;
-		if( !is_string($tag_name) ) return $res;
-		if( !is_string($value) ) $case_insensitive = FALSE;
-
-		if( $this->_tags ) {
-			if( isset($this->_tags[$tag_name]) ) {
-				if( $case_insensitive ) {
-					if( strcasecmp($this->_tags[$tag_name], $value) == 0 ) {
-						return $this;
-					}
-				}
-				elseif( $this->_tags[$tag_name] == $value ) {
-					return $this;
-				}
-			}
-		}
-
-		if( $this->has_children() ) {
-			for( $i = 0, $n = count($this->_children); $i < $n; $i++ ) {
-				$tmp = $this->_children[$i]->find_by_tag($tag_name,$value,$case_insensitive);
-				if( $tmp ) {
-					return $tmp;
-				}
-			}
-		}
-
-		return $res;
+		$args[] = $this->id;
+		return $this->manager->$name(...$args);
+//		return $this->manager->$name(...$args, $this->id); PHP 7.4+
 	}
 
 	/**
-	 * Test if this node has children.
+	 * Return the identifier of this node.
 	 *
-	 * @return bool
+	 * @return int
 	 */
-	public function has_children()
+	public function getId()
 	{
-		return !empty($this->_children);
+		return $this->id;
 	}
 
 	/**
-	 * Set a tag value into this node.
+	 * Return the parent node (if any) of this one.
+	 * @deprecated since 2.0 use Tree::get_parent()
 	 *
-	 * @param string $key Tag name
-	 * @param mixed  $value Tag value
-	 */
-	public function set_tag($key,$value)
-	{
-		if( !$this->_tags ) $this->_tags = [];
-		$this->_tags[$key] = $value;
-	}
-
-	/**
-	 * Retrieve a tag for this node.
-	 *
-	 * @param string $key The tag name
-	 * @return mixed The tag value | null
-	 */
-	public function get_tag($key)
-	{
-		if( !$this->_tags || !isset($this->_tags[$key]) ) return null;
-		return $this->_tags[$key];
-	}
-
-	/**
-	 * Remove the specified node from the tree.
-	 *
-	 * Search through the children of this node for the specified node.
-	 * If found, remove it. Optionally, all its its descendants too.
-	 *
-	 * Use this method with caution, as it is very easy to break your tree,
-	 * corrupt memory and have tree nodes hanging out there with no parents.
-	 *
-	 * @param Tree $node Reference to the node to be removed.
-	 * @param bool $search_children Whether to recursively remove decendants. Default false.
-	 * @return bool
-	 */
-	protected function remove_node(Tree &$node, $search_children = false)
-	{
-		if( !$this->has_children() ) return FALSE;
-
-		for( $i = 0, $n = count($this->_children); $i < $n; $i++ ) {
-			if( $this->_children[$i] == $node ) {
-				// item found.
-				unset($this->_children[$i]);
-				$this->_children = @array_values($this->_children);
-				return TRUE;
-			}
-			elseif ($search_children && $this->_children[$i]->has_children()) {
-				$res = $this->_children[$i]->remove_node($node,$search_children);
-				if( $res ) return TRUE;
-			}
-		}
-
-		return FALSE;
-	}
-
-	/**
-	 * Remove this node from the tree. Not its descendants, if any.
-	 *
-	 * Use this method with caution, as it will break the tree if there are descendant(s).
-	 *
-	 * @return bool
-	 */
-	public function remove()
-	{
-		if( is_null($this->_parent) ) return FALSE;
-		return $this->_parent->remove_node($this);
-	}
-
-	/**
-	 * Get a reference to the parent node of this one.
-	 * @since 2.0
-	 *
-	 * @return Tree Reference to the parent node, or null.
-	 */
-	public function get_parent()
-	{
-		return $this->_parent;
-	}
-
-	/**
-	 * Get a reference to the parent node.
-	 * @deprecated since 2.0 use get_parent()
-	 *
-	 * @return Tree Reference to the parent node, or null.
+	 * @return mixed parent-node Tree | null
 	 */
 	public function getParent()
 	{
-		return $this->_parent;
+		return $this->manager->get_parent($this->id);
+	}
+
+	//the following cannot be auto-re-routed as they might have any number of unprovided arguments
+
+	/**
+	 * Remove this node from the tree, optionally along with all its descendants
+	 * @see also HierarchyManager::remove_node()
+	 */
+	public function remove_node(bool $with_descends = false)
+	{
+		$this->manager->remove_node($with_descends, $this->id);
 	}
 
 	/**
-	 * Add the specified node as a child of this node.
-	 *
-	 * @param Tree $node The node to add
+	 * Return the content object for the page associated with this node
+	 * @see also HierarchyManager::getContent()
 	 */
-	public function add_node(Tree &$node)
+	public function getContent(bool $deep = false, bool $loadsiblings = true, bool $loadall = false)
 	{
-		if( !is_array($this->_children) ) $this->_children = [];
-
-		for( $i = 0, $n = count($this->_children); $i < $n; $i++ ) {
-			if( $this->_children[$i] == $node ) return FALSE;
-		}
-		$node->_parent = $this;
-		$this->_children[] = $node;
+		return $this->manager->getContent($deep, $loadsiblings, $loadall, $this->id);
 	}
 
 	/**
-	 * Count the number of direct children of this node.
-	 *
-	 * @return int
+	 * Get the children of this node, without loading content
+	 * @see also HierarchyManager::get_children()
 	 */
-	public function count_children()
+	public function &get_children(bool $as_node = true)
 	{
-		if( $this->has_children() ) return count($this->_children);
-		return 0;
+		return $this->manager->get_children($as_node, $this->id);
 	}
 
 	/**
-	 * Count the number of siblings of this node.
-	 *
-	 * @return int
+	 * Get the children of this node, loading their respective
+	 * content objects as part of the process
+	 * @see also HierarchyManager::()
 	 */
-	public function count_siblings()
+	public function &getChildren(bool $deep = false, bool $all = false, bool $loadcontent = true, bool $as_node = true) : array
 	{
-		if( $this->_parent ) return $this->_parent->count_children();
-		return 1;
+		return $this->manager->getChildren($deep, $all, $loadcontent, $as_node, $this->id);
 	}
-
-	/**
-	 * Count the total number of all nodes, including this one.
-	 *
-	 * @return int
-	 */
-	public function count_nodes()
-	{
-		$n = 1;
-		if( $this->has_children() ) {
-			foreach( $this->_children as &$one ) {
-				$n += $one->count_nodes();
-			}
-		}
-		return $n;
-	}
-
-	/**
-	 * Find the depth of the current node.
-	 *
-	 * This method counts all of the parents in the tree until there are no more parents.
-	 *
-	 * @return int
-	 */
-	public function get_level()
-	{
-		$n = 1;
-		$node = $this;
-		while( $node->_parent ) {
-			$n++;
-			$node = $node->_parent;
-		}
-		return $n;
-	}
-
-	/**
-	 * Return the children of this node.
-	 *
-	 * @return array Tree objects | empty if there are no children.
-	 */
-	public function &get_children()
-	{
-		if( $this->has_children() ) return $this->_children;
-		$res = [];
-		return $res;
-	}
-} // class
+}
+//if (!\class_exists('cms_tree', false)) \class_alias(Tree::class, 'cms_tree', false);
+//if (!\class_exists('cms_content_tree', false)) \class_alias(Tree::class, 'cms_content_tree', false);

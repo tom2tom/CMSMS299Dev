@@ -24,12 +24,15 @@ namespace CMSMS;
 use CMSMS\CoreCapabilities;
 use CMSMS\Crypto;
 use CMSMS\HookOperations;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
 use const CMSSAN_PUNCT;
 use function cms_to_bool;
+use function cmsms;
+use function CMSMS\is_frontend_request;
+use function CMSMS\is_secure_request;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 use function endswith;
@@ -54,7 +57,7 @@ class FormUtils
     private const ERRTPL = 'parameter "%s" is required for %s';
     private const ERRTPL2 = 'a valid "%s" parameter is required for %s';
 
-    // static properties here >> SingleItem property|ies ?
+    // static properties here >> Lone property|ies ?
     /**
      * Names of and related parameters for rich-text-editor modules specified
      * for use during the current request
@@ -357,7 +360,7 @@ class FormUtils
             if (isset($parms['htmlid']) && $parms['htmlid'] == 'm1_') {
                 $parms['getid'] = 'm1_'; // assume the 'other' id was intended
                 unset($parms['htmlid']);
-            } elseif (SingleItem::App()->is_frontend_request()) {
+            } elseif (is_frontend_request()) {
                 $parms['getid'] = 'cntnt01'; // frontend default
             } else {
                 $parms['getid'] = 'm1_'; // admin default
@@ -889,7 +892,7 @@ class FormUtils
             } else {
                 $parms['class'] .= ' cmsms_wysiwyg';
             }
-            $mod = SingleItem::ModuleOperations()->GetWYSIWYGModule($forcemodule);
+            $mod = Lone::get('ModuleOperations')->GetWYSIWYGModule($forcemodule);
             if ($mod && $mod->HasCapability(CoreCapabilities::WYSIWYG_MODULE)) {
                 // TODO use $config['content_language']
                 $parms['data-cms-lang'] = 'html'; //park badly-named variable
@@ -907,7 +910,7 @@ class FormUtils
         if (!isset($wantedsyntax)) { $wantedsyntax = ''; }
         if (!$mod && $wantedsyntax) {
             $parms['data-cms-lang'] = $wantedsyntax; //park
-            $mod = SingleItem::ModuleOperations()->GetSyntaxHighlighter($forcemodule);
+            $mod = Lone::get('ModuleOperations')->GetSyntaxHighlighter($forcemodule);
             if ($mod && $mod->HasCapability(CoreCapabilities::SYNTAX_MODULE)) {
                 $modname = $mod->GetName();
                 if (empty($parms['class'])) {
@@ -1024,9 +1027,9 @@ class FormUtils
 
         if (!empty($returnid) || (isset($returnid) && $returnid === 0)) {
             $returnid = (int)$returnid; //OR filter_var() ?
-            $content_obj = SingleItem::App()->get_content_object();
+            $content_obj = cmsms()->get_content_object();
             $goto = ($content_obj) ? $content_obj->GetURL() : 'index.php';
-            if (strpos($goto, ':') !== false && SingleItem::App()->is_https_request()) {
+            if (strpos($goto, ':') !== false && is_secure_request()) {
                 //TODO generally support the websocket protocol 'wss' : 'ws'
                 $goto = str_replace('http:', 'https:', $goto);
             }
@@ -1069,7 +1072,7 @@ class FormUtils
         if (isset($returnid) && $returnid != '') { //NB not strict - it may be null
             $out .= '<input type="hidden" name="'.$getid.'returnid" value="'.$returnid.'" />'."\n";
             if ($inline) {
-                $config = SingleItem::Config();
+                $config = Lone::get('Config');
                 $out .= '<input type="hidden" name="'.$config['query_var'].'" value="'.$returnid.'" />'."\n";
             }
         } elseif (isset($_SESSION[CMS_USER_KEY])) { //there is a logged-in user TODO or this is a login-related form
@@ -1344,10 +1347,10 @@ EOS;
         extract($parms);
 
         $out = '<a href="';
-        $config = SingleItem::Config();
+        $config = Lone::get('Config');
         if ($config['url_rewriting'] == 'mod_rewrite') {
             // mod_rewrite
-            $contentops = SingleItem::ContentOperations();
+            $contentops = Lone::get('ContentOperations');
             $alias = $contentops->GetPageAliasFromID($pageid);
             if ($alias) {
                 $out .= CMS_ROOT_URL.'/'.$alias.($config['page_extension'] ?? '.shtml');

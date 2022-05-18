@@ -1,7 +1,7 @@
 <?php
 /*
 Stylesheeet(s) operations performer
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\StylesheetOperations;
 
 $dsep = DIRECTORY_SEPARATOR;
@@ -28,7 +28,7 @@ require ".{$dsep}admininit.php";
 check_login();
 $userid = get_userid();
 $pmod = check_permission($userid,'Manage Stylesheets');
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 if (isset($_REQUEST['css'])) {
 	$css_id = (int)$_REQUEST['css']; //< 0 for a group
@@ -38,16 +38,14 @@ if (isset($_REQUEST['css'])) {
 	$css_id = null;
 }
 
-if (isset($_REQUEST['css_select'])) {  //id(s) array for a bulk operation
+if (isset($_POST['css_select'])) {  //id(s) array for a bulk operation
 	//sanitize
-	$css_multi = array_map($_REQUEST['css_select'], function ($v) {
-		return (int)$v;
-	});
+	$css_multi = array_map('intval', $_POST['css_select']);
 } else {
 	$css_multi = null;
 }
 
-$op = $_REQUEST['op'] ?? ''; // no sanitizeVal() etc, only exact matches accepted
+$op = $_GET['op'] ?? $_POST['bulk_action'] ?? ''; // no sanitizeVal() etc, only exact matches accepted
 switch (trim($op)) {
 	case 'copy':
 		if (!$pmod) exit;
@@ -174,6 +172,6 @@ switch (trim($op)) {
 		break;
 }
 
-$root = SingleItem::Config()['admin_url']; // relative URL's don't work here
+$root = Lone::get('Config')['admin_url']; // relative URL's don't work here
 $urlext = get_secure_param();
 redirect($root.'/liststyles.php'.$urlext);  // TODO .'&_activetab=' relevant tab name : 'sheets'|'groups'

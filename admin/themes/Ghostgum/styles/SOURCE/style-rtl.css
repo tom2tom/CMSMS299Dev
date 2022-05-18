@@ -121,57 +121,6 @@ ul ol {
 	margin-right: 2em;
 }
 
-ul.sortableList {
-	list-style-type: none;
-	padding: 0;
-}
-
-ul.sortableList .ui-draggable-dragging {
-	border: 2px dashed #cbd4cb;
-	background-color: #e8d0a1;
-}
-
-ul.sortableList li {
-	margin-top: 15px;
-	margin-right: 2em;
-	width: 30em;
-}
-
-ul.sortableList li div.label em {
-	display: block;
-	margin-right: 2.5em;
-	color: #244323;
-	font-size: 0.75em;
-	font-weight: bold;
-}
-
-ul.sortableList > li {
-	margin-right: 0;
-}
-
-ul.sortableList div.label {
-	border: solid 1px #cbd4cb;
-	padding: 2px;
-	background-color: #f2e5ca;
-	width: 30em;
-	font-size: 0.8em;
-	color: #244323;
-	word-wrap: break-word;
-	-webkit-border-radius: 0.25rem;
-	-moz-border-radius: 0.25rem;
-	border-radius: 0.25rem;
-	cursor: move;
-}
-
-ul.sortableList span.haschildren.expanded {
-	display: none;
-}
-
-ul.sortable .placeholder {
-	border: 2px dashed #cbd4cb;
-	background-color: #e8d0a1;
-}
-
 ol {
 	list-style: none;
 	margin: 0;
@@ -184,6 +133,85 @@ ol ol {
 
 ol ul {
 	margin-right: 2em;
+}
+
+ul.sortableList ul {
+	margin-right: 0;
+}
+
+.sortableList {
+	list-style-type: none;
+	padding: 0;
+}
+
+.sortableList li {
+	margin-top: 0.5em;
+	margin-right: 1em;
+	width: 30em;
+}
+
+.sortableList > li {
+	margin-right: 0;
+}
+
+.sortableList div.label {
+	border: solid 1px #cbd4cb;
+	padding: 0.25rem;
+	background-color: #f2e5ca;
+	width: 30em;
+	font-size: 0.8em;
+	color: #244323;
+	word-wrap: break-word;
+	-webkit-border-radius: 0.25rem;
+	-moz-border-radius: 0.25rem;
+	border-radius: 0.25rem;
+	cursor: move;
+}
+
+.sortableList div.label > .expanded::before {
+	content: '';
+	background: url(../images/icons/system/contract.svg);
+	background-size: 1.5em 1.5em;
+	display: inline-block;
+	width: 1.5em;
+	height: 1.5em;
+}
+
+.sortableList div.label > .collapsed::before {
+	content: '';
+	background: url(../images/icons/system/expand.svg);
+	background-size: 1.5em 1.5em;
+	display: inline-block;
+	width: 1.5em;
+	height: 1.5em;
+}
+
+.sortableList div.label > .haschildren {
+	height: 1.5em;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.sortableList div.label > .haschildren,
+.sortableList div.label > .nomarker {
+	display: inline-block;
+	width: 1.5em;
+}
+
+.sortableList div.label > em {
+	color: #244323;
+	font-size: 0.75em;
+	font-weight: bold;
+}
+
+.sortableList .ui-draggable-dragging {
+	border: 2px dashed #cbd4cb;
+	background-color: #e8d0a1;
+}
+
+ul.sortable .placeholder {
+	border: 2px dashed #cbd4cb;
+	background-color: #e8d0a1;
 }
 
 h1 {
@@ -357,7 +385,7 @@ span.helptext a {
 	display: inline-block;
 	padding-left: 24px;
 	vertical-align: middle;
-	background: url(../images/icons/system/sprite.svg#info) no-repeat left;
+	background: url(../images/icons/system/info.svg) no-repeat left;
 	background-size: 1.5rem 1.5rem;
 }
 
@@ -365,7 +393,7 @@ span.helptext a.external {
 	display: inline-block;
 	padding-left: 24px;
 	vertical-align: middle;
-	background: url(../images/icons/system/sprite.svg#help) no-repeat left;
+	background: url(../images/icons/system/help.svg) no-repeat left;
 	background-size: 1.5rem 1.5rem;
 }
 
@@ -399,7 +427,7 @@ div.dialog h3 {
 
 div.dialog a.bookmark {
 	padding-right: 20px;
-	background: url(../images/icons/system/sprite.svg#bookmark) no-repeat right;
+	background: url(../images/icons/system/bookmark.svg) no-repeat right;
 	background-size: 1.5rem 1.5rem;
 	line-height: 1.25;
 }
@@ -464,7 +492,6 @@ table.pagetable {
 	border-radius: 0.25rem;
 	border-collapse: inherit;
 	border: 1px solid #cbd4cb;
-	width: auto;
 	table-layout: auto;
 	margin: 3px 0;
 	font-size: 0.8em;
@@ -498,7 +525,7 @@ table.pagetable th.pagepos {
 }
 
 table.pagetable th.pageicon {
-	min-width: 16px;
+	min-width: 1rem;
 	border: none;
 }
 
@@ -2176,7 +2203,7 @@ button.ui-button.ui-dialog-titlebar-close .ui-button-icon:hover {
 }
 
 .file {
-	background: url(../images/icons/system/sprite.svg#document-list) no-repeat right;
+	background: url(../images/icons/system/document-list.svg) no-repeat right;
 	background-size: 1.5rem 1.5rem;
 	padding-right: 25px;
 }
@@ -3614,7 +3641,7 @@ ETC?
 	table.pagetable {
 		border-collapse: collapse;
 		width: 100%;
-		margin: 5px 0 1rem 0;
+		margin: 5px 1rem 1rem 0;
 		overflow-x: auto;
 		display: block;
 	}

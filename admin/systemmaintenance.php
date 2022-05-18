@@ -24,8 +24,8 @@ use cms_installer\installer_base;
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\Error403Exception;
+use CMSMS\Lone;
 use CMSMS\RouteOperations;
-use CMSMS\SingleItem;
 use function CMSMS\log_notice;
 use function CMSMS\specialize;
 
@@ -41,18 +41,18 @@ if (0) { //!check_permission($userid, 'TODO some Site Perm')) {
 }
 
 $urlext = get_secure_param();
-$themeObject = SingleItem::Theme();
+$themeObject = Lone::get('Theme');
 
 require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'test.functions.php');
 
-$smarty = SingleItem::Smarty();
+$smarty = Lone::get('Smarty');
 $smarty->force_compile = true;
 $smarty->assign('theme', $themeObject);
 
 /*
  * Database
  */
-$db = SingleItem::Db();
+$db = Lone::get('Db');
 $query = "SHOW TABLES LIKE '".CMS_DB_PREFIX."%'";
 $tablestmp = $db->getArray($query);
 $tables = [];
@@ -140,9 +140,9 @@ if ($n == 1) {
  * Cache and content
  */
 if (isset($_POST['clearcache'])) {
-    SingleItem::SystemCache()->clear();
-    SingleItem::LoadedData()->refresh('*');
-    SingleItem::LoadedMetadata()->refresh('*');
+    Lone::get('SystemCache')->clear();
+    Lone::get('LoadedData')->refresh('*');
+    Lone::get('LoadedMetadata')->refresh('*');
     AdminUtils::clear_cached_files();
     // put mention into the admin log
     log_notice('System maintenance', 'Caches cleared');
@@ -157,7 +157,7 @@ if (isset($_POST['updateroutes'])) {
     $smarty->assign('active_content', 1);
 }
 
-$contentops = SingleItem::ContentOperations();
+$contentops = Lone::get('ContentOperations');
 if (isset($_POST['updatehierarchy'])) {
     $contentops->SetAllHierarchyPositions();
     log_notice('System maintenance', 'Page hierarchy positions updated');
@@ -167,7 +167,7 @@ if (isset($_POST['updatehierarchy'])) {
 
 // Setup types
 $realm = 'ContentManager'; //TODO generalize
-$contenttypes = SingleItem::ContentTypeOperations()->ListContentTypes(false, true, false, $realm);
+$contenttypes = Lone::get('ContentTypeOperations')->ListContentTypes(false, true, false, $realm);
 
 //print_r($contenttypes);
 $simpletypes = [];
@@ -254,7 +254,7 @@ $smarty->assign([
     'invalidtypescount' => count($invalidtypes),
 ]);
 
-$cache = SingleItem::SystemCache();
+$cache = Lone::get('SystemCache');
 $type = get_class($cache->get_driver());
 if (!endswith($type, 'File')) {
     $c = stripos($type, 'Cache');

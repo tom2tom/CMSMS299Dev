@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin which aggregates stylesheet files for use in a page or template
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -19,13 +19,12 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use function CMSMS\get_styles_manager;
+use function CMSMS\Lone;
 // since 3.0
 function smarty_function_cms_render_css($params, $template)
 {
-	$combiner = get_styles_manager();
-	$force = cms_to_bool($params['force'] ?? false);
-
+	$force = isset($params['force']) ? cms_to_bool($params['force']) : false;
+	$combiner = Lone::get('StylesMerger');
 	$out = '';
 	$filename = $combiner->render_styles(TMP_CACHE_LOCATION, $force);
 	if( $filename ) {
@@ -35,7 +34,7 @@ function smarty_function_cms_render_css($params, $template)
 		$out = "<link rel=\"stylesheet\" type=\"text/css\" href=\"$url\" />\n";
 	}
 	else {
-		//TODO handle error
+		trigger_error('Failed to merge recorded stylesheets');
 	}
 	if( !empty($params['assign']) ) {
 		$template->assign(trim($params['assign']), $out);

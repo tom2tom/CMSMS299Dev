@@ -1,7 +1,7 @@
 <?php
 /*
 ModuleManager module function: populate new-versions tab
-Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -24,6 +24,28 @@ use CMSMS\Utils as AppUtils;
 use ModuleManager\ModuleRepClient;
 use ModuleManager\Utils;
 
+// defined data structure to support PHP optimisation
+class ModuleVersionData
+{
+    public $about_url;
+    public $aboutlink;
+    public $age;
+    public $date;
+    public $depends_url;
+    public $dependslink;
+    public $description;
+    public $downloads;
+    public $error;
+    public $haveversion;
+    public $help_url;
+    public $helplink;
+    public $name;
+    public $size;
+    public $status;
+    public $txt;
+    public $version;
+}
+
 $results = [];
 $newversions = [];
 
@@ -38,7 +60,7 @@ if( $connection_ok ) {
 
 if( $newversions ) {
     foreach( $newversions as $row ) {
-        $onerow = new stdClass();
+        $onerow = new ModuleVersionData(); //stdClass();
 
         foreach( $row as $key => $val ) {
             $onerow->$key = $val;

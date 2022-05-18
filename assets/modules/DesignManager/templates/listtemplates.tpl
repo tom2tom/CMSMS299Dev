@@ -78,11 +78,12 @@
   </div>
 
   {if isset($list_categories)}
-  <table id="categorylist" class="pagetable" style="width:auto;">
+  <table class="pagetable" id="categorylist">
     <thead>
     <tr>
       <th title="{_ld($_module,'title_group_id')}">{_ld($_module,'prompt_id')}</th>
       <th title="{_ld($_module,'title_group_name')}">{_ld($_module,'prompt_name')}</th>
+      <th class="pageicon"></th>
       <th class="pageicon"></th>
     </tr>
     </thead>
@@ -92,8 +93,10 @@
     <tr class="{cycle values='row1,row2'} sortable-table" id="cat_{$cid}">
       <td><a href="{$edit_url}" title="{_ld($_module,'prompt_edit')}">{$cid}</a></td>
       <td><a href="{$edit_url}" title="{_ld($_module,'prompt_edit')}">{$category->get_name()}</a></td>
-      <td>
+      <td class="pagepos icons_wide">
       <a href="{$edit_url}" title="{_ld($_module,'prompt_edit')}">{admin_icon icon='edit.gif'}</a>
+      </td>
+      <td class="pagepos icons_wide">
       <a href="{cms_action_url action='delete_category' cat=$cid}" class="del_cat" title="{_ld($_module,'prompt_delete')}">{admin_icon icon='delete.gif'}</a>
       </td>
     </tr>
@@ -104,7 +107,7 @@
 
   {tab_start name='types'}
   {if $list_all_types}
-  <table class="pagetable" style="width:auto;">
+  <table class="pagetable">
     <thead>
     <tr>
       <th>{_ld($_module,'prompt_id')}</th>

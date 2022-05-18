@@ -21,9 +21,10 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppState;
-use CMSMS\SingleItem;
+use CMSMS\Lone;
 use CMSMS\Url;
 use CMSMS\Utils;
+use function CMSMS\is_frontend_request;
 
 function smarty_function_cms_action_url($params, $template)
 {
@@ -32,7 +33,7 @@ function smarty_function_cms_action_url($params, $template)
 	$mid = $template->getTemplateVars('actionid');
 	$action = '';
 	$assign = '';
-	$forjs  = 0;
+//	$forjs  = 0;
 
 	$actionparms = [];
 	foreach( $params as $key => $value ) {
@@ -70,19 +71,18 @@ function smarty_function_cms_action_url($params, $template)
 	}
 
 	// validate params
-	$gCms = SingleItem::App();
 	if( $module == '' ) return;
 	if( AppState::test(AppState::ADMIN_PAGE) && $returnid == '' ) {
 		if( $mid == '' ) $mid = 'm1_';
 		if( $action == '' ) $action = 'defaultadmin';
 	}
-	elseif( $gCms->is_frontend_request() ) {
+	elseif( is_frontend_request() ) {
 		if( $mid == '' ) $mid = 'cntnt01';
 		if( $action == '' ) $action = 'default';
 		if( $returnid == '' ) {
 			$returnid = Utils::get_current_pageid();
 			if( $returnid < 1 ) {
-				$returnid = SingleItem::ContentOperations()->GetDefaultContent();
+				$returnid = Lone::get('ContentOperations')->GetDefaultContent();
 			}
 		}
 	}

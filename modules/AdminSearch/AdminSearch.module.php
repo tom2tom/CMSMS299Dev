@@ -54,7 +54,7 @@ final class AdminSearch extends CMSModule
 /* redundant, 'mod' always assigned elsewhere during action-processing
     public function DoAction($name, $id, $params, $returnid = '')
     {
-        $smarty = SingleItem::Smarty();
+        $smarty = Lone::get('Smarty');
         $smarty->assign('mod', $this); // probably redundant
         return parent::DoAction($name, $id, $params, $returnid);
     }

@@ -174,9 +174,9 @@ h2 {
 </ul>
 EOS;
 $lang['help_sourcesri'] = <<<'EOS'
-If using a non-local source, enter here a subresource integrity value, like 'hashtype-base64string', corresponding to the main script file i.e. &lt;selected source url&gt;/tinymce.min.js. The hash value would normally be availble from the script source or otherwise from various online calculators e.g. https://www.srihash.org.
+If using a non-local source, enter here a subresource integrity string like 'hashtype-base64string', corresponding to the main script file i.e. &lt;selected source url&gt;/tinymce.min.js. The hash type and value would normally be available from the script source or otherwise from various online calculators e.g. <a href="https://www.srihash.org">srihash.org</a>.
 <br /><br />
-Refer to https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
+Refer to <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity">MDI</a>.
 <br /><br />
 Leave the value empty for a locally-sourced script.
 EOS;

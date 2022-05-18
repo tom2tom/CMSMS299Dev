@@ -28,12 +28,13 @@ use CMSMS\CoreCapabilities;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use CMSMS\LoadedDataType;
+use CMSMS\Lone;
 use CMSMS\RequestParameters;
-use CMSMS\SingleItem;
 use Throwable;
 use const CLEAN_STRING;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
+use function cmsms;
 use function CMSMS\log_error;
 use function CMSMS\log_notice;
 use function startswith;
@@ -71,11 +72,12 @@ final class ModulePluginOperations
 	/**
 	 * Singleton instance of this class.
 	 * No class properties to 'protect', not worth caching as
-	 *  SingleItem::ModulePluginOperations()
+	 *  Lone::get('ModulePluginOperations')
 	 */
 	private static $_instance = null;
 
-//	private function __construct() {} TODO public iff wanted by SingleItem ?
+//	private function __construct() {} TODO public iff wanted by Lone ?
+	#[\ReturnTypeWillChange]
 	private function __clone() {}
 
 	/**
@@ -84,6 +86,7 @@ final class ModulePluginOperations
 	 * @param array $args Method argument(s)
 	 * @return mixed
 	 */
+    #[\ReturnTypeWillChange]
 	public static function __callStatic(string $name, array $args)
 	{
 		$obj = self::get_instance();
@@ -124,8 +127,8 @@ final class ModulePluginOperations
 				return;
 			}
 			$data = [];
-			$tmp = SingleItem::LoadedMetadata()->get('capable_modules', $force, CoreCapabilities::PLUGIN_MODULE); //TODO might need forced if this loader is forced
-			$tmp2 = SingleItem::LoadedMetadata()->get('methodic_modules', $force, 'IsPluginModule'); //deprecated since 3.0
+			$tmp = Lone::get('LoadedMetadata')->get('capable_modules', $force, CoreCapabilities::PLUGIN_MODULE); //TODO might need forced if this loader is forced
+			$tmp2 = Lone::get('LoadedMetadata')->get('methodic_modules', $force, 'IsPluginModule'); //deprecated since 3.0
 			if( $tmp || $tmp2 ) {
 				$val = AppParams::get('smarty_cachemodules', 0);
 				if( $val ) {
@@ -151,7 +154,7 @@ final class ModulePluginOperations
 				}
 			}
 			// add, or replace by, module-plugins recorded in the database
-			$db = SingleItem::Db();
+			$db = Lone::get('Db');
 			$query = 'SELECT DISTINCT * FROM '.CMS_DB_PREFIX.'module_smarty_plugins';
 			$list = $db->getArray($query);
 			foreach ($list as &$row) {
@@ -168,7 +171,7 @@ final class ModulePluginOperations
 			--$sema4; // back to 0 for next time
 			return $data;
 		});
-		SingleItem::LoadedData()->add_type($obj);
+		Lone::get('LoadedData')->add_type($obj);
 	}
 
 	/**
@@ -257,7 +260,7 @@ final class ModulePluginOperations
 			$params['idprefix'] = $id; // might be needed per se, probably not
 			$mod->SetParameterType('idprefix', CLEAN_STRING); // in case it's a frontend request
 		}
-		$returnid = SingleItem::App()->get_content_id();
+		$returnid = cmsms()->get_content_id();
 		$params['returnid'] = $returnid;
 
 		$out = $mod->DoActionBase($action, $id, $params, $returnid, $template);
@@ -295,7 +298,7 @@ final class ModulePluginOperations
 					return;
 				}
 			}
-			return SingleItem::ModuleOperations()->get_module_instance($row['module']);
+			return Lone::get('ModuleOperations')->get_module_instance($row['module']);
 		}
 	}
 
@@ -350,7 +353,7 @@ final class ModulePluginOperations
 	 */
 	public function _find(string $name, string $type)
 	{
-		$data = SingleItem::LoadedData()->get('module_plugins');
+		$data = Lone::get('LoadedData')->get('module_plugins');
 		if( $data ) {
 			foreach( $data as $row ) {
 				if( $row['type'] == $type && strcasecmp($row['name'], $name) == 0 ) {
@@ -431,7 +434,7 @@ final class ModulePluginOperations
 		if( !$callable ) return FALSE;
 
 		$dirty = FALSE;
-		$cache = SingleItem::LoadedData();
+		$cache = Lone::get('LoadedData');
 		$data = $cache->get('module_plugins');
 		$sig = Crypto::hash_string($name.$module_name.$callable);
 		if( !isset($data[$sig]) ) {
@@ -494,7 +497,7 @@ final class ModulePluginOperations
 		}
 		$cachable = ($cachable) ? 1 : 0;
 
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$pref = CMS_DB_PREFIX;
 		$query = <<<EOS
 UPDATE {$pref}module_smarty_plugins SET type=?,callable=?,available=?,cachable=? WHERE name=? AND module=?
@@ -518,7 +521,7 @@ EOS;
 		]);
 
 		if( $dbr ) {
-			SingleItem::LoadedData()->refresh('module_plugins');
+			Lone::get('LoadedData')->refresh('module_plugins');
 			return TRUE;
 		}
 		return FALSE;
@@ -532,11 +535,11 @@ EOS;
 	 */
 	public function _remove_by_module(string $module_name)
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?';
 		$dbr = $db->execute($query, [$module_name]);
 		if( $dbr ) {
-			SingleItem::LoadedData()->refresh('module_plugins');
+			Lone::get('LoadedData')->refresh('module_plugins');
 		}
 	}
 
@@ -548,11 +551,11 @@ EOS;
 	 */
 	public function _remove_by_name(string $name)
 	{
-		$db = SingleItem::Db();
+		$db = Lone::get('Db');
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE name=?';
 		$dbr = $db->execute($query, [$name]);
 		if( $dbr ) {
-			SingleItem::LoadedData()->refresh('module_plugins');
+			Lone::get('LoadedData')->refresh('module_plugins');
 		}
 	}
 } // class
