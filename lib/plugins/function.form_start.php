@@ -61,10 +61,10 @@ function smarty_function_form_start($params, $template)
 
 			$tagparms['action'] = CMS_ROOT_URL.'/lib/moduleinterface.php';
 			if( !$mactparms['returnid'] ) $mactparms['returnid'] = $gCms->get_content_id();
-			$hm = $gCms->GetHierarchyManager();
-			$node = $hm->find_by_tag('id',$mactparms['returnid']);
+			$ptops = $gCms->GetHierarchyManager();
+			$node = $ptops->get_node_by_id($mactparms['returnid']);
 			if( $node ) {
-				$content_obj = $node->getContent();
+				$content_obj = $node->get_content();
 				if( $content_obj ) $tagparms['action'] = $content_obj->GetURL();
 			}
 		}

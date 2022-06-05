@@ -121,6 +121,19 @@ class ErrorPage extends ContentBase
 		$this->mActive = true;
 	}
 
+	/**
+	 * Return html to display an input element for modifying a property
+	 * of this object.
+	 *
+	 * @param string $propname The property name
+	 * @param bool $adding Whether we are in add or edit mode.
+	 * @return array 3- or 4-members
+	 * [0] = heart-of-label 'for="someid">text' | text
+	 * [1] = popup-help | ''
+	 * [2] = input element | text
+	 * [3] = optional extra displayable content
+	 * or empty
+	 */
 	public function ShowElement($propname, $adding)
 	{
 		switch ($propname) {

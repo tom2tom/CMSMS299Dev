@@ -220,7 +220,7 @@ if ($CMS_JOB_TYPE < 2) {
     });
     $cache->add_type($obj);
 
-    // hence the tree of ContentTree node-objects
+    // hence the tree of PageTreeNode objects
     $obj = new LoadedDataType('content_tree', function(bool $force) {
         debug_buffer('Start loading content tree');
         $flatlist = Lone::get('LoadedData')->get('content_flatlist', $force);
@@ -235,7 +235,7 @@ if ($CMS_JOB_TYPE < 2) {
     });
     $cache->add_type($obj);
 
-    // hence a flat array, each member like conntent_id => ContentTree object
+    // hence a flat array, each member like content_id => PageTreeNode object
     $obj = new LoadedDataType('content_quicklist', function(bool $force) {
         debug_buffer('Start loading content quicklist');
         $tree = Lone::get('LoadedData')->get('content_tree', $force);

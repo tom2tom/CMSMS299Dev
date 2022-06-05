@@ -88,7 +88,7 @@ class PageLoader
      * some_module\noncore_content_class object.
      *
      * Effectively this is a cut-down alternative to
-     *  ContentOperations::LoadContentFromId and ...FromAlias
+     *  ContentOperations::LoadContentFromId(deep) and ...FromAlias
      * It is NOT for content-tree processing, or ContentManager page listing or editing.
      *
      * @param mixed $a page identifier: id (int|numeric string) or alias (other string)
@@ -100,8 +100,12 @@ class PageLoader
         $contentobj = self::$_loaded[$a] ?? null;
         if (!$contentobj) {
             $db = Lone::get('Db');
-            $sql = 'SELECT C.*,T.displayclass FROM '.CMS_DB_PREFIX.'content C LEFT JOIN '.
-            CMS_DB_PREFIX.'content_types T on C.type=T.name WHERE (content_id=? OR content_alias=?) AND active!=0';
+            $pref = CMS_DB_PREFIX;
+            $sql = <<<EOS
+SELECT C.*,T.displayclass FROM {$pref}content C
+LEFT JOIN {$pref}content_types T on C.type=T.name
+WHERE (content_id=? OR content_alias=?) AND active!=0
+EOS;
             $row = $db->getRow($sql, [$a, $a]);
             if ($row) {
                 if ($row['displayclass']) {
@@ -119,8 +123,7 @@ class PageLoader
                     }
                     unset($row['displayclass']);
                     $contentobj = new $classname($row);
-                    $id = (int)$row['content_id'];
-                    self::$_loaded[$id] = $contentobj;
+                    self::$_loaded[(int)$row['content_id']] = $contentobj;
                     self::$_loaded[$row['content_alias']] = &$contentobj;
                 } else {
                     throw new RuntimeException('Unrecognized content type \''.$row['type'].'\' in '.__METHOD__);

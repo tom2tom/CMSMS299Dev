@@ -20,6 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\Events;
 use CMSMS\Lone;
 use function CMSMS\log_notice;
 
@@ -35,7 +36,7 @@ if (isset($params['cancel'])) {
 	$this->SetInfo($this->Lang('msg_cancelled'));
 	$this->Redirect($id, 'defaultadmin');
 }
-if (isset($params['orderlist']) && $params['orderlist'] != '') {
+if (isset($params['orderlist']) && $params['orderlist']) { // != ''
 /* this seems unused
 	function ordercontent_get_node_rec($str,$prefix = 'page_')
 	{
@@ -58,19 +59,21 @@ if (isset($params['orderlist']) && $params['orderlist'] != '') {
 				$cur_parent = $pid;
 				$data[] = ['id' => $pid, 'parent_id' => $parent_id, 'order' => $order++];
 			} elseif (is_array($node)) {
-				$data = array_merge($data, ordercontent_create_flatlist($node, $cur_parent));
+				$data = array_merge($data, ordercontent_create_flatlist($node, $cur_parent)); // recurse
 			}
 		}
+        unset($node);
 		return $data;
 	}
 
-	$orderlist = json_decode($params['orderlist'], true);
+	Events::SendEvent('ContentManager', 'OrderPre'/*, [&$TODOdata]*/);
 
-	// step 1, create a flat list of the content items, and their new orders, and new parents.
-	$orderlist = ordercontent_create_flatlist($orderlist);
+//	$orderlist = json_decode($params['orderlist'], true);
+
+	// step 1, create a flat list of the content items and their new orders and new parents.
+	$orderlist = ordercontent_create_flatlist($params['orderlist']);
 
 	// step 2, merge in old orders, and old parents
-	$hm = $gCms->GetHierarchyManager();
 	$contentops = Lone::get('ContentOperations');
 	$changelist = [];
 	foreach ($orderlist as &$rec) {
@@ -83,6 +86,7 @@ if (isset($params['orderlist']) && $params['orderlist'] != '') {
 			}
 		}
 	}
+	unset($rec);
 
 	if (!$changelist) {
 		$this->ShowErrors($this->Lang('error_ordercontent_nothingtodo'));
@@ -93,19 +97,28 @@ if (isset($params['orderlist']) && $params['orderlist'] != '') {
 		}
 		$stmt->close();
 		$contentops->SetAllHierarchyPositions();
+		Events::SendEvent('ContentManager', 'OrderPost'/*, [&$TODOdata]*/);
 		log_notice('ContentManager', 'Content pages dynamically reordered');
 		$this->RedirectToAdminTab('pages');
 	}
 }
 
-$hm = $gCms->GetHierarchyManager();
-$pagecount = $hm->count_nodes();
+$ptops = $gCms->GetHierarchyManager();
+$pagecount = $ptops->count_nodes();
 
-//TODO support a find-page mechanism
 //TODO custom requirements
 
 $base_url = CMS_ASSETS_URL;
 $msg = json_encode($this->Lang('confirm_reorder'));
+if ($pagecount > 20) {
+	$xjs = <<<'EOS'
+  $('#masterlist > li > ul').find('.haschildren').each(function() {
+    $(this).removeClass('expanded').addClass('collapsed').parent().next('ul').hide();
+  });
+EOS;
+} else {
+	$xjs = '';
+}
 
 $js = <<<EOS
 <script type="text/javascript" src="{$base_url}/js/jquery.mjs.nestedSortable.min.js"></script>
@@ -122,12 +135,7 @@ function parseTree(ul) {
   });
   return tags;
 }
-$(function() {
-  if ($pagecount > 20) {
-    $('#masterlist > li > ul').find('.haschildren').each(function() {
-      $(this).removeClass('expanded').addClass('collapsed').parent().next('ul').hide();
-    });
-  }
+$(function() {{$xjs}
   $('#masterlist').nestedSortable({
     disableNesting: 'no-nest',
     forcePlaceholderSize: true,
@@ -183,15 +191,29 @@ $(function() {
         $(this).val('');
         //do anything else?
       } else {
-        var rex = new RegExp(tgt, 'uig');
-        var fmatch = null;
-        var top = document.querySelector('#masterlist'),
+        //fuzzy search c.f. content-list searcher
+        //adapted from https://codereview.stackexchange.com/questions/23899/faster-javascript-fuzzy-string-matching-function
+        var arr = tgt.split(''),
+         r = '[^ ]*? ',
+         t = arr.shift(),
+         patn = arr.reduce(function(m, c) {
+          if (c != '/') {
+            return m + r.replaceAll(' ', c);
+          } else {
+            return m + '[^\/]*?\/';
+          }
+        }, t);
+        var rex = new RegExp(patn, 'uig'),
+         fmatch = null,
+         top = document.querySelector('#masterlist'),
          pagenodes = top.querySelectorAll('.ui-sortable-handle'),
          n = pagenodes.length;
         for (var i = 0; i < n; ++i) {
           var item = pagenodes[i];
           if (rex.test(item.innerText)) {
-            if (!fmatch) { fmatch = item; }
+            if (!fmatch) {
+              fmatch = item;
+            }
             $(item).parentsUntil(top).each(function() {
               var t = $(this);
               if (t.is('ul')) {
@@ -222,8 +244,9 @@ $(function() {
 EOS;
 add_page_foottext($js);
 
-//$rootnode = $hm->fake root node which can be descended from
+$nodes = $ptops->load_children(false, true);
+
 $tpl = $smarty->createTemplate($this->GetTemplateResource('ordercontent.tpl')); //,null,null,$smarty);
-$tpl->assign('hier', $hm)
-	->assign('pcount', $pagecount);
-$tpl->display();
+$tpl->assign('topnodes', $nodes)
+	->assign('pcount', $pagecount)
+	->display();

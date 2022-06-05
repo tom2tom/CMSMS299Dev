@@ -94,7 +94,7 @@ interface IFormTags
 	* @param string $enctype	Optional enctype to use, Good for situations where files are being uploaded
 	* @param bool	$inline		A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
 	* @param string $idsuffix	Text to append to the end of the id and name of the form
-	* @param array  $params		Extra parameters to pass along when the form is submitted
+	* @param array  $extraparms Extra parameters to submit with the form
 	* @param array  $attrs since 3.0 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters, and/or anything else relevant to the created tag.
 	*
 	* @return string
@@ -107,7 +107,7 @@ interface IFormTags
 		$enctype = '',
 		$inline = true,
 		$idsuffix = '',
-		$params = [],
+		$extraparms = [],
 		$attrs = []
 	);
 
@@ -121,7 +121,7 @@ interface IFormTags
 	* @param string $enctype	Optional enctype to use, Good for situations where files are being uploaded
 	* @param bool	$inline		A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
 	* @param string $idsuffix	Text to append to the end of the id and name of the form
-	* @param array  $extraparms Extra parameters to pass along when the form is submitted
+	* @param array  $extraparms Extra parameters to submit with the form
 	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 3.0 - use $attrs[] instead
 	* @param array  $attrs since 3.0 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
@@ -518,7 +518,7 @@ interface IFormTags
 	* @param string $selecteditems An array of items in the list that should default to selected
 	* @param string $size		The number of rows to be visible in the list (before scrolling)
 	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 3.0 - use $attrs[] instead
-	* @param bool	 $multiple	Flag indicating whether multiple selections are allowed (defaults to true)
+	* @param bool	$multiple	Flag indicating whether multiple selections are allowed (defaults to true)
 	* @param array  $attrs since 3.0 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string

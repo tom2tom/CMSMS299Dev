@@ -360,7 +360,7 @@ EOS;
 		$db = Lone::get('Db');
 		// find the event, if any
 		$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=? AND event_name=?';
-		$id = (int) $db->getOne($sql, [$originator, $eventname]);
+		$id = (int)$db->getOne($sql, [$originator, $eventname]);
 		if ($id < 1) {
 			// query failed, event not found
 			return false;
@@ -389,7 +389,7 @@ EOS;
 
 		// get a new handler order
 		$sql = 'SELECT MAX(handler_order) AS newid FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id=?';
-		$order = (int) $db->getOne($sql, [$originator, $eventname]);
+		$order = (int)$db->getOne($sql, [$id]);
 		if ($order < 1) {
 			$order = 1;
 		} else {

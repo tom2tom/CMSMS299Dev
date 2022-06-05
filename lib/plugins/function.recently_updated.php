@@ -92,10 +92,10 @@ ORDER BY IF(modified_date, modified_date, create_date) DESC LIMIT ".((int)$numbe
 		}
 		return $output;
 	}
-	$hm = cmsms()->GetHierarchyManager();
+	$ptops = Lone::get('App')->GetHierarchyManager();
 	while( $rst && $updated_page = $rst->FetchRow() ) {
-		$curnode = $hm->find_by_tag('id', $updated_page['content_id']);
-		$curcontent = $curnode->getContent();
+		$curnode = $ptops->get_node_by_id($updated_page['content_id']);
+		$curcontent = $curnode->get_content();
 		$output .= '<li>';
 		$output .= '<a href="'.$curcontent->GetURL().'">'.$updated_page['content_name'].'</a>';
 		if( $showtitle && !empty($updated_page['titleattribute']) ) {

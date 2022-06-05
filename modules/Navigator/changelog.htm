@@ -1,8 +1,16 @@
 <ul>
-<li>2014 - Initial release</li>
-<li March 2019 Version 1.3>
-<ul>
-  <li>Lots of polishing for CMSMS 2.99</li>
-</ul>
-</li>
+ <li>2014 - Initial release</li>
+ <li> May 2022 Version 2.0
+  <ul>
+   <li>Performance tuning</li>
+   <li>Most navigation data are recorded in the system cache and refreshed asynchronously</li>
+   <li>Former 'extended' navigation parameters are always available</li>
+   <li>Processing arrays of node-objects in Smarty navigation-templates is deprecated in favour of processing arrays of node-ids.<br/>
+       Broadly, each occurrence of<br/>
+       <pre><code>{foreach $whatever as $node}</code></pre><br/>
+       in such templates becomes<br/>
+       <pre><code>{foreach $whatever as $id}{$node = $nodes.$id}</code></pre></li>
+   <li>Until node-object templates are abandoned, include parameter 'idnodes'=1 in any tag which initiates processing of a navigation-template that uses node-id's instead</li>
+  </ul>
+ </li>
 </ul>

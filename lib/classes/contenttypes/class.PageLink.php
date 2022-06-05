@@ -26,9 +26,8 @@ use CMSMS\PageLoader;
 
 /**
  * Implements the PageLink content type.
- *
- * This content type simply provides a way to manage additional links to internal content pages
- * that may be in another place in the page hierarchy.
+ * This content type provides a mechansim for managing links to pages
+ * in another place in the site-pages hierarchy.
  *
  * @package CMS
  * @subpackage content_types
@@ -48,19 +47,19 @@ class PageLink extends ContentBase
 		foreach ([
 			'cachable' => false,
 			'secure' => false, //deprecated property since 3.0
-		] as $key => $value) {
-			$this->$key = $value;
+		] as $key => $val) {
+			$this->$key = $val;
 		}
 		if (isset($this->_fields['content_id'])) {
-			// not constructing: load props for GetURL()
-			$this->_load_properties();
+			// an existing page, load all extended properties. For $this->GetURL() ?? TODO
+			$this->LoadProperties();
 		}
 	}
 
 	public function HasSearchableContent() : bool { return false; }
 
 	/**
-	 * Construct an URL for the destination page
+	 * Return an actionable URL for opening this page.
 	 * @param bool $rewrite Default true.
 	 * @return string
 	 */
@@ -68,14 +67,22 @@ class PageLink extends ContentBase
 	{
 		$page = $this->GetPropertyValue('page');
 		$content = PageLoader::LoadContent($page);
-		if( is_object( $content ) ) {
-			$url = $content->GetURL($rewrite);
+		if (is_object($content)) {
 			$params = $this->GetPropertyValue('params');
-			return $url . $params;
+			if ($params) {
+				if (strpos($params, '%') === false) {
+					$val = rawurlencode($params);
+					$params = strtr($val, ['%26'=>'&', '%3D'=>'=']);
+				}
+				$url = $content->GetURL(false);
+				return $url . $params;
+			} else {
+				$url = $content->GetURL($rewrite);
+			}
+			return $url;
 		}
-		return '';
+		return ''; // OR '&lt;page missing&gt;' ?
 	}
 }
-
 //backward-compatibility shiv
 \class_alias(PageLink::class, 'PageLink', false);

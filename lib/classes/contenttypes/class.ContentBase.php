@@ -185,28 +185,10 @@ class ContentBase implements Serializable
 		}
 	}
 
-	public function __serialize() : array
-	{
-		$this->_load_properties();
-		return get_object_vars($this);
-	}
-
-	public function __unserialize(array $data) : void
-	{
-		foreach ($data as $key => $value) {
-			$this->$key = $value;
-		}
-	}
-
-	#[\ReturnTypeWillChange]
-	public function __toString()
-	{
-		return json_encode($this->__serialize(), JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-	}
-
 	/**
 	 * Enable relevant property-accessors prescribed in the IContentEditor interface
-	 * NOTE URL() is distinct from GetURL()
+	 * NOTE (get)URL() is distinct from GetURL(). The latter gets the URL
+	 * to use for page display
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
@@ -234,6 +216,52 @@ class ContentBase implements Serializable
 		}
 	}
 
+	#[\ReturnTypeWillChange]
+	public function __toString()
+	{
+		return json_encode($this->__serialize(), JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE); // PHP7.2+
+	}
+
+	// ======= SERIALIZABLE INTERFACE METHODS =======
+
+	public function __serialize() : array
+	{
+		$this->LoadProperties();
+		return get_object_vars($this);
+	}
+
+	public function __unserialize(array $data) : void
+	{
+		foreach ($data as $key => $value) {
+			$this->$key = $value;
+		}
+	}
+
+	#[\ReturnTypeWillChange]
+	public function serialize()// : ?string
+	{
+		//TODO can all cachers cope with embedded null's in strings ? NB internal cryption is slow!
+		return Crypto::encrypt_string($this->__toString(),__CLASS__,'best');
+//		return $this->__toString();
+	}
+
+	#[\ReturnTypeWillChange]
+	public function unserialize($serialized)// : void
+	{
+		$str = Crypto::decrypt_string($serialized,__CLASS__,'best');
+		if (!$str) {
+			throw new Exception('Invalid object data in '.__METHOD__);
+		}
+		$props = json_decode($str, true, JSON_INVALID_UTF8_IGNORE);
+		if ($props) {
+			foreach ($props as $key => $value) {
+				$this->$key = $value;
+			}
+		} else {
+			throw new Exception('Invalid object data in '.__METHOD__);
+		}
+	}
+
 	/**
 	 * Legacy method to initialize this object
 	 * @deprecated since 3.0 instead supply object property-values as arguments
@@ -257,7 +285,7 @@ class ContentBase implements Serializable
 	public function ToData(bool $deep = false) : array
 	{
 		$res = $this->_fields;
-		if ($deep && $this->_load_properties()) {
+		if ($deep && $this->LoadProperties()) {
 			$res += $this->_props;
 		}
 		return $res;
@@ -266,10 +294,10 @@ class ContentBase implements Serializable
 
 	/**
 	 * Load all of this page's non-core properties (if any) into _props[]
-	 * @ignore
+	 * @since 3.0 Formerly protected _load_properties()
 	 * @return bool indicating success
 	 */
-	protected function _load_properties() : bool
+	public function LoadProperties() : bool
 	{
 		if (isset($this->_fields['content_id']) && $this->_fields['content_id'] > 0) {
 			$db = Lone::get('Db');
@@ -283,6 +311,15 @@ class ContentBase implements Serializable
 	}
 
 	/**
+	 * @deprecated since 3.0 instead use LoadProperties()
+	 * @return bool
+	 */
+	protected function _load_properties() : bool
+	{
+		return $this->LoadProperties();
+	}
+
+	/**
 	 * Return this page's non-core properties
 	 * @since 3.0 this method loads those properties if not already done
 	 * @return array, maybe empty
@@ -290,7 +327,7 @@ class ContentBase implements Serializable
 	public function Properties() : array
 	{
 		if (!$this->_propsloaded) {
-			$this->_load_properties();
+			$this->LoadProperties();
 		}
 		return $this->_props;
 	}
@@ -308,7 +345,7 @@ class ContentBase implements Serializable
 			return false;
 		}
 		if (!$this->_propsloaded) {
-			$this->_load_properties();
+			$this->LoadProperties();
 		}
 		if ($this->_propsloaded) {
 			return isset($this->_props[$propname]);
@@ -327,7 +364,7 @@ class ContentBase implements Serializable
 	public function SetPropertyValue(string $propname, $value)
 	{
 		if (!$this->_propsloaded) {
-			$this->_load_properties();
+			$this->LoadProperties();
 		}
 		$this->_props[$propname] = $value;
 	}
@@ -346,16 +383,29 @@ class ContentBase implements Serializable
 	}
 
 	/**
-	 * Get the value for the named 'non-core' property.
+	 * Get the value for the named 'non-core' property|ies.
 	 * Properties will be loaded from the database if necessary.
 	 *
-	 * @param string $propname property key
+	 * @param mixed $propname property key(s) string | string[]
 	 * @return mixed property value | null if the property does not exist
+	 *  or assoc. array of same
 	 */
-	public function GetPropertyValue(string $propname)
+	public function GetPropertyValue($propname)
 	{
-		if ($this->HasProperty($propname)) {
-			return $this->_props[$propname];
+		if (!is_array($propname)) {
+			if ($this->HasProperty($propname)) {
+				return $this->_props[$propname];
+			}
+			return null;
+		} else {
+			if (!is_array($this->_props)) {
+				$this->LoadProperties();
+			}
+			$ret = [];
+			foreach ($propname as $key) {
+				$ret[$key] = $this->_props[$key] ?? null;
+			}
+			return $ret;
 		}
 	}
 
@@ -715,7 +765,7 @@ class ContentBase implements Serializable
 	}
 
 	/**
-	 * Return the internally-generated URL for this page.
+	 * Return an actionable URL for opening/previewing this page.
 	 *
 	 * @param bool $rewrite optional flag, default true.
 	 * If true, and mod_rewrite is enabled, build an URL suitable for mod_rewrite.
@@ -723,34 +773,33 @@ class ContentBase implements Serializable
 	 */
 	public function GetURL(bool $rewrite = true) : string
 	{
-		$base_url = CMS_ROOT_URL;
-		// use root_url for default content
-		if (!empty($this->_fields['defaultcontent'])) {
-			return $base_url . '/';
-		}
-
-		$config = Lone::get('Config');
 		if ($rewrite) {
+            if (!empty($this->_fields['default_content'])) {
+                // use root url for default content
+                return CMS_ROOT_URL . '/';
+            }
+    		$config = Lone::get('Config');
 			$url_rewriting = $config['url_rewriting'];
-			$page_extension = $config['page_extension'];
 			if ($url_rewriting == 'mod_rewrite') {
 				if ($this->_fields['page_url']) {
 					$str = $this->_fields['page_url']; // we have an URL path
 				} else {
 					$str = $this->_fields['hierarchy_path'];
 				}
-				return $base_url . '/' . $str . $page_extension;
-			} elseif (isset($_SERVER['PHP_SELF']) && $url_rewriting == 'internal') {
-				$str = $this->hierarchypath;
+				return CMS_ROOT_URL . '/' . $str . $config['page_extension'];
+			} elseif ($url_rewriting == 'internal' && isset($_SERVER['PHP_SELF'])) {
 				if ($this->_fields['page_url']) {
-					$str = $this->_fields['page_url'];
-				} // we have a url path
-				return $base_url . '/index.php/' . $str . $page_extension;
+					$str = $this->_fields['page_url']; // we have an url path
+				} else {
+					$str = $this->_fields['hierarchy_path'];
+				}
+				return CMS_ROOT_URL . '/index.php/' . $str . $config['page_extension'];
 			}
 		}
 
+		$config = Lone::get('Config');
 		$alias = ($this->_fields['content_alias']) ? $this->_fields['content_alias'] : $this->_fields['content_id'];
-		return $base_url . '/index.php?' . $config['query_var'] . '=' . $alias;
+		return CMS_ROOT_URL . '/index.php?' . $config['query_var'] . '=' . $alias;
 	}
 
 	/* *
@@ -764,8 +813,8 @@ class ContentBase implements Serializable
 		if ($this->_fields['content_id'] <= 0) {
 			return false;
 		}
-		$hm = cmsms()->GetHierarchyManager();
-		$node = $hm->get_node_by_id($this->_fields['content_id']);
+		$ptops = Lone::get('PageTreeOperations');
+		$node = $ptops->get_node_by_id($this->_fields['content_id']);
 		if (!$node || !$node->has_children()) {
 			return false;
 		}
@@ -776,7 +825,7 @@ class ContentBase implements Serializable
 		$children = $node->get_children();
 		if ($children) {
 			for ($i = 0, $n = count($children); $i < $n; $i++) {
-				$content = $children[$i]->getContent();
+				$content = $children[$i]->get_content();
 				if ($content->Active()) {
 					return true;
 				}
@@ -793,42 +842,14 @@ class ContentBase implements Serializable
 	 */
 /*	public function ChildCount() : int
 	{
-		$hm = cmsms()->GetHierarchyManager();
-		$node = $hm->find_by_tag('id', $this->_fields['content_id']);
+		$ptops = Lone::get('PageTreeOperations');
+		$node = $ptops->get_node_by_id($this->_fields['content_id']);
 		if ($node) {
 			return $node->count_children();
 		}
 		return 0;
 	}
 */
-
-	// ======= SERIALIZABLE INTERFACE METHODS =======
-
-	#[\ReturnTypeWillChange]
-	public function serialize()// : ?string
-	{
-		//TODO can all cachers cope with embedded null's in strings ? NB internal cryption is slow!
-		return Crypto::encrypt_string($this->__toString(),__CLASS__,'best');
-//		return $this->__toString();
-	}
-
-	#[\ReturnTypeWillChange]
-	public function unserialize($serialized)// : void
-	{
-		$str = Crypto::decrypt_string($serialized,__CLASS__,'best');
-		if (!$str) {
-			throw new Exception('Invalid object data in '.__METHOD__);
-		}
-		$props = json_decode($str, true);
-		if ($props) {
-			foreach ($props as $key => $value) {
-				$this->$key = $value;
-			}
-		} else {
-			throw new Exception('Invalid object data in '.__METHOD__);
-		}
-	}
 } // class
-
 //backward-compatibility shiv
 \class_alias(ContentBase::class, 'ContentBase', false);

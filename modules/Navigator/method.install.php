@@ -1,7 +1,7 @@
 <?php
 /*
 Navigator module installation process
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -22,9 +22,13 @@ If not, see <https://www.gnu.org/licenses/>.
 
 //use CMSMS\TemplatesGroup;
 use CMSMS\AppState;
+use CMSMS\internal\JobOperations;
+use CMSMS\LoadedDataType;
+use CMSMS\Lone;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
+use Navigator\FillCacheJob;
 use function CMSMS\log_error;
 
 if (empty($this) || !($this instanceof Navigator)) exit;
@@ -197,3 +201,11 @@ $this->RegisterSmartyPlugin('nav_breadcrumbs','function','nav_breadcrumbs');
 // MenuManager module hangovers
 $this->RegisterSmartyPlugin('menu','function','function_plugin');
 $this->RegisterSmartyPlugin('cms_breadcrumbs','function','nav_breadcrumbs');
+
+// setup handling of clear-cache events
+$this->RegisterEvents();
+// init async cache-populate
+$cache = Lone::get('LoadedData');
+$obj = new LoadedDataType('navigator_data','Navigator\\Utils::fill_cache');
+$cache->add_type($obj);
+(new JobOperations())->load_job(new FillCacheJob());

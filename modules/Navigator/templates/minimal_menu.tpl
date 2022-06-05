@@ -1,48 +1,52 @@
-{* minimal navigation *}
-{*
-  variables:
-  node: contains the current node.
-  aclass: is used to build a string containing class names given to the a tag if one is used
-  liclass: is used to build a string containing class names given to the li tag.
+{* minimal navigation recurses via repeated file-inclusion
+variables:
+ aclass: is used to build a string containing class names given to the a tag if one is used
+ liclass: is used to build a string containing class names given to the li tag
+ nodes: flatlist of Navigator Node objects plus a stdClass for 'root'
+ node: the current Node in nodes array
+CSS:
+ .currentpage - the active/current page
+ .activeparent - the ancestors of the active/current page
+ .sectionheader - section headers
+ .separator - the ruler for separators
 *}
-{* CSS classes used in this template:
-.currentpage - The active/current page
-.bullet_sectionheader - To style section header
-hr.separator - To style the ruler for the separator *}
-
-{if !isset($depth)}{$depth=0}{/if}
-
-{if isset($nodes)}{strip}
+{function Min_Menu}
 <ul>
-  {foreach $nodes as $node}
-    {if $node->type == 'sectionheader'}
-      {* section header *}
+{strip}
+  {foreach $items as $id}{$node=$nodes.$id}{$type=$node->type}
+    {if $type == 'sectionheader'}
       <li class="sectionheader{if $node->parent} activeparent{/if}">
         {$node->menutext}
-        {if isset($node->children)}
-          {include file=$smarty.template nodes=$node->children depth=$depth+1}
+        {if !empty($node->children)}
+          {Min_Menu items=$node->children depth=$depth+1}
         {/if}
       </li>
-    {else if $node->type == 'separator'}
-      <li style="list-style-type: none;"><hr class="separator" /></li>
-    {else}
-      {* regular item *}
-      {$liclass=''}
-      {$aclass=''}
+    {elseif $type == 'separator'}
+      <li style="list-style-type:none;"><hr class="separator" /></li>
+    {else}{* regular item, link etc *}
       {if $node->current}
         {$liclass='currentpage'}
         {$aclass='currentpage'}
       {elseif $node->parent}
         {$liclass='activeparent'}
         {$aclass='activeparent'}
+      {else}
+        {$liclass=''}
+        {$aclass=''}
       {/if}
-      <li{if $liclass != ''} class="{$liclass}"{/if}>
-        <a{if $aclass !=''} class="{$aclass}"{/if} href="{$node->url}"{if $node->target ne ""} target="{$node->target}"{/if}>{$node->menutext}</a>
-        {if isset($node->children)}
-          {include file=$smarty.template nodes=$node->children depth=$depth+1}
+      <li{if $liclass} class="{$liclass}"{/if}>
+        {$t=$node->target}
+        <a{if $aclass} class="{$aclass}"{/if} href="{$node->url}"{if $t} target="{$t}"{/if}>{$node->menutext}</a>
+        {if !empty($node->children)}
+          {Min_Menu items=$node->children depth=$depth+1}
         {/if}
       </li>
     {/if}
-  {/foreach}
+  {/foreach}{/strip}
 </ul>
-{/strip}{/if}
+{/function}
+
+{if isset($nodes[-1])}
+{Min_Menu items=$nodes[-1]->children depth=0}
+{/if}
+

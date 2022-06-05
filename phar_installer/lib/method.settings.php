@@ -201,6 +201,8 @@ foreach ([
     'cms_schema_version' => $schema,
     'cms_version' => $sysver, // ultimate source of CMSMS version value
     'cms_version_name' => $sysname, // public identifier for CMSMS version
+    'content_imagefield_path' => '', // uploads-relative sub-path of nav-related images
+    'content_thumbnailfield_path' => '', // uploads-relative sub-path of nav-related thumbs
     'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
     'current_theme' => '', // frontend theme name
     'date_format' => 'j %B Y', // mixed format
@@ -425,12 +427,11 @@ foreach ([
     'ContentDeletePre',
     'ContentEditPost',
     'ContentEditPre',
-
+*/
     'ContentPostCompile',
     'ContentPostRender',
     'ContentPreCompile',
     'ContentPreRender', // 2.2
-*/
 /* >DM
     'DeleteDesignPost',
     'DeleteDesignPre',

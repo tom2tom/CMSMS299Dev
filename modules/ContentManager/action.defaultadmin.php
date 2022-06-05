@@ -600,11 +600,25 @@ if ($pmanage) {
 	'OWNER_UID' => $this->Lang('prompt_owner'),
 	'EDITOR_UID' => $this->Lang('prompt_editor')];
 	$tpl->assign('opts', $opts);
-	// list of templates for filtering
-	$list = TemplateOperations::template_query(['originator' => TemplateType::CORE, 'as_list' => 1]);
-	$tpl->assign('template_list', $list)
-	// list of admin users for filtering
-		->assign('user_list', Lone::get('UserOperations')->GetList());
+	$templates = TemplateOperations::template_query(['originator' => TemplateType::CORE, 'as_list' => 1]);
+	if ($templates) {
+		natcasesort($templates);
+	}
+	$eds = Lone::get('UserOperations')->GetList();
+	if ($eds) {
+/* TODO
+		$eds = utf8_sort($eds, true); after Collator setup fixed ...
+OR		$in = 'UTF-8'; $out = 'ASCII//TRANSLIT//IGNORE';
+		uasort($eds, function ($a, $b) use ($in, $out) {
+			$a = @iconv($in, $out, $a);
+			$b = @iconv($in, $out, $b);
+			return strnatcasecmp($a, $b);
+		});
+*/
+		natcasesort($eds);
+	}
+	$tpl->assign('template_list', $templates)
+		->assign('user_list', $eds);
 	// list of designs for filtering
 //		->assign('design_list',DesignManager\Design::get_list()) TODO replacement :: stylesheets and/or groups
 }

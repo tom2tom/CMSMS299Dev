@@ -234,10 +234,10 @@ function CreatePageUrl(
 	) : string
 {
 	$text = '';
-	$hm = cmsms()->GetHierarchyManager();
-	$node = $hm->find_by_tag('id',$returnid);
+	$ptops = cmsms()->GetHierarchyManager();
+	$node = $ptops->get_node_by_id($returnid);
 	if ($node) {
-		$contentobj = $node->getContent();
+		$contentobj = $node->get_content();
 		if ($contentobj) {
 			$pageurl = $contentobj->GetURL();
 			if ($pageurl) {

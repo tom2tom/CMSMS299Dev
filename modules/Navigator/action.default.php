@@ -25,51 +25,79 @@ use Navigator\Utils;
 use function CMSMS\log_error;
 
 //if( some worthy test fails ) exit;
-
+/*
+if( !empty($params['template']) ) {
+    $X = $params['template'];
+}
+$params['template'] = 'Breadcrumbs';
+include_once __DIR__.DIRECTORY_SEPARATOR.'action.breadcrumbs.php';
+if( isset($X) ) {
+    $params['template'] = $X;
+}
+else {
+    unset($params['template']);
+}
+*/
 debug_buffer('Start Navigator default action');
-$items = null;
-$nlevels = -1;
-$show_all = false;
-$show_root_siblings = false;
-$start_element = null;
-$start_page = null;
-$start_level = null;
-$childrenof = null;
-$deep = false; //true; properties not generally needed
-$collapse = false;
 
 if( !empty($params['template']) ) {
-    $template = trim($params['template']);
+    $tplname = trim($params['template']); //= sanitizeVal(trim($params['template']), CMSSAN_TODO);
+    $tpl = $smarty->createTemplate($this->GetTemplateResource($tplname)); //,null,null,$smarty);
+    if( !is_object($tpl) ) {
+        $msg = "Unrecognized navigator template '$tplname'";
+    }
 }
 else {
     $tpl = TemplateOperations::get_default_template_by_type('Navigator::navigation');
-    if( !is_object($tpl) ) {
-        log_error('No default template found',$this->GetName().'::default');
-        $this->ShowErrorPage('No default template found');
-        return;
+    if( is_object($tpl) ) {
+        $tplname = $tpl->name;
+        $tpl = $smarty->createTemplate($this->GetTemplateResource($tplname)); //,null,null,$smarty);
     }
-    $template = $tpl->get_name();
+    else {
+        $msg = 'No default navigator template found';
+    }
+}
+if( !is_object($tpl) ) {
+    log_error($msg,$this->GetName().'::default');
+    $this->ShowErrorPage($msg);
+    debug_buffer('Finished Navigator default action');
+    return;
 }
 
-$hm = $gCms->GetHierarchyManager();
+// Possible conflicts among these variables, by reason of the
+// order of $params[] processing here, must be prevented by
+// judicious choice of parameters in the initiating tag
+$childrenof = null; // id or alias
+$collapse = false;
+$items = null; // comma-separated series of ...
+$nlevels = -1;
+$show_all = false;
+$show_root_siblings = false;
+$start_element = null; // pages-hierarchy identifier like 00x.00y ...
+$start_level = null;
+$start_page = null; // id or alias
+$ptops = $gCms->GetHierarchyManager();
+
 foreach( $params as $key => $value ) {
+    //TODO $value = sanitizeVal($value,CMSSAN_TODO) when relevant
     switch( $key ) {
     case 'loadprops':
-        $deep = cms_to_bool($value); //true achieves nothing. Deprecated since 3.0
+        // unused, deprecated since 2.0
         break;
 
     case 'items':
-        // hardcoded list of items (and their children)
+        // comma-separated series of node aliases and/or ids
         Utils::clear_excludes();
+        $childrenof = null;
         $items = trim($value);
         $nlevels = 1;
         $start_element = null;
-        $start_page = null;
         $start_level = null;
-        $childrenof = null;
+        $start_page = null;
         break;
 
     case 'includeprefix':
+        // comma-separated series of node-alias prefixes
         Utils::clear_excludes();
         $list = explode(',',$value);
         if( $list ) {
@@ -78,42 +106,44 @@ foreach( $params as $key => $value ) {
             }
             $list = array_unique($list);
             if( $list ) {
-                $flatlist = $hm->getFlatList();
-                if( $flatlist ) {
+                //TODO efficient reconciliation list-members with all node-aliases
+                $itemprops = $ptops->props;
+                if( $itemprops ) {
                     $tmp = [];
-                    foreach( $flatlist as $node ) {
-                        $alias = $node->get_tag('alias');
+                    foreach( $itemprops as $row ) {
+                        $alias = $row('alias');
                         foreach( $list as $t1 ) {
-                            if( startswith( $alias, $t1 ) ) {
+                            if( startswith($alias,$t1) ) {
                                 $tmp[] = $alias;
                                 break;
                             }
                         }
                     }
-                    if( $tmp ) $items = implode(',',$tmp);
+                    if( $tmp ) { $items = implode(',',$tmp); }
                 }
             }
         }
+        $childrenof = null;
         $nlevels = 1;
         $start_element = null;
-        $start_page = null;
         $start_level = null;
-        $childrenof = null;
+        $start_page = null;
         break;
 
     case 'excludeprefix':
-        Utils::set_excludes($value);
+        // comma-separated series of node-alias prefixes
+        Utils::set_excludes(trim($value));
         $items = null;
         break;
 
     case 'nlevels':
     case 'number_of_levels':
-        // a maximum number of levels;
+        // maximum number of levels
         if( (int)$value > 0 ) $nlevels = (int)$value;
         break;
 
     case 'show_all':
-        // show all items, even if marked as 'not shown in menu'
+        // whether to also process nodes marked as 'not shown in menu'
         $show_all = cms_to_bool($value);
         break;
 
@@ -123,141 +153,181 @@ foreach( $params as $key => $value ) {
         break;
 
     case 'start_element':
-        $start_element = trim($value);
-        $start_page = null;
-        $start_level = null;
+        // pages-hierarchy identifier like 00x.00y ...
         $childrenof = null;
         $items = null;
+        $start_element = trim($value);
+        $start_level = null;
+        $start_page = null;
         break;
 
     case 'start_page':
-        $start_element = null;
-        $start_page = trim($value);
-        $start_level = null;
+        // page id or alias
         $childrenof = null;
         $items = null;
+        $start_element = null;
+        $start_level = null;
+        $start_page = trim($value);
         break;
 
     case 'start_level':
         $value = (int)$value;
         if( $value > 1 ) {
-            $start_element = null;
-            $start_page = null;
             $items = null;
+            $start_element = null;
             $start_level = $value;
+            $start_page = null;
         }
         break;
 
     case 'childrenof':
-        $start_page = null;
-        $start_element = null;
-        $start_level = null;
+        // page id or alias
         $childrenof = trim($value);
         $items = null;
+        $start_element = null;
+        $start_level = null;
+        $start_page = null;
         break;
 
     case 'collapse':
-        $collapse = (bool)$value;
+        $collapse = cms_to_bool($value);
         break;
     }
 } // params
 
-if( $items ) $collapse = false;
+if( $items ) {
+    $collapse = false;
+}
+if( $collapse) {
+    $nlevels = 1;
+}
 
 $rootnodes = [];
 if( $start_element ) {
     // get an alias... from a hierarchy level.
-    $tmp = $hm->getNodeByHierarchy($start_element);
-    if( is_object($tmp) ) {
+    $node = $ptops->get_node_by_hierarchy($start_element);
+    if( is_object($node) ) {
         if( !$show_root_siblings ) {
-            $rootnodes[] = $tmp;
+            $rootnodes[] = $node;
         }
         else {
-            $tmp = $tmp->get_parent();
-            if( is_object($tmp) && $tmp->has_children() ) {
-                $rootnodes = $tmp->get_children();
+            $parent = $node->get_parent();
+            if( is_object($parent) && $parent->has_children() ) {
+                $rootnodes = $parent->get_children();
+            }
+            else {
+                $rootnodes[] = $node;
             }
         }
     }
 }
 elseif( $start_page ) {
-    $id = $hm->find_by_identifier($start_page,false);
-    if( $id ) {
-        $tmp = $hm->find_by_tag('id',$id);
+    $nid = $ptops->find_by_identifier($start_page,false);
+    if( $nid ) {
+        $node = $ptops->get_node_by_id($nid);
         if( $show_root_siblings ) {
-            $tmp = $tmp->get_parent();
-            if( is_object($tmp) && $tmp->has_children() ) {
-                $rootnodes = $tmp->get_children();
+            $parent = $node->get_parent();
+            if( is_object($parent) && $parent->has_children() ) {
+                $rootnodes = $parent->get_children();
+            }
+            else {
+                $rootnodes[] = $node;
             }
         }
         else {
-            $rootnodes[] = $tmp;
+            $rootnodes[] = $node;
         }
     }
 }
 elseif( $start_level > 1 ) {
-    $tmp = $hm->find_by_tag('id',$gCms->get_content_id());
-    if( $tmp ) {
+    //TODO directly interrogate $ptops->props for this
+    $node = $ptops->get_node_by_id($gCms->get_content_id());
+    if( $node ) {
         $arr = $arr2 = [];
-        while( $tmp ) {
-            $id = $tmp->get_tag('id');
-            if( !$id ) break;
-            $arr[$id] = $tmp;
-            $arr2[] = $id;
-            $tmp = $tmp->get_parent();
+        while( $node ) {
+            $nid = $node->getId();
+            if( $nid < 1 ) break;
+            $arr[$nid] = $node;
+            $arr2[] = $nid;
+            $node = $node->get_parent();
         }
         if( ($start_level - 2) < count($arr2) ) {
             $arr2 = array_reverse($arr2);
-            $id = $arr2[$start_level-2];
-            $tmp = $arr[$id];
-            if( $tmp->has_children() ) {
+            $nid = $arr2[$start_level-2];
+            $node = $arr[$nid];
+            if( $node->has_children() ) {
                 // do children of this element
-                $rootnodes = $tmp->get_children();
+                $rootnodes = $node->get_children();
             }
         }
     }
 }
 elseif( $childrenof ) {
-    $obj = $hm->find_by_identifier(trim($childrenof));
+    $obj = $ptops->find_by_identifier(trim($childrenof));
     if( $obj && $obj->has_children() ) {
         $rootnodes = $obj->get_children();
     }
 }
 elseif( $items ) {
-    if( $nlevels < 1 ) $nlevels = 1;
+    if( $nlevels < 1 ) {
+        $nlevels = 1;
+    }
     $items = explode(',',$items);
     $items = array_unique($items);
     foreach( $items as $item ) {
-        $obj = $hm->find_by_identifier(trim($item));
-        if( $obj ) $rootnodes[] = $obj;
+        $obj = $ptops->find_by_identifier(trim($item));
+        if( $obj ) {
+            $rootnodes[] = $obj;
+        }
     }
 }
-else {
+elseif( $ptops->has_children() ) {
     // start at the top
-    if( $hm->has_children() ) {
-        $rootnodes = $hm->get_children();
-    }
+    $rootnodes = $ptops->get_children();
 }
 
-if( !$rootnodes ) return; // nothing to do.
+if( $rootnodes ) {
+    $asnodes = $this->TemplateNodes($params,$tplname);
+    $asnodes = FALSE; //DEBUG
+    $nodelist = [];
+    $idslist = [];
+    foreach( $rootnodes as $node ) {
+        $nid = $node->getId();
+        $alias = $ptops->props[$nid]['alias'];
+        if( Utils::is_excluded($alias) ) {
+            continue;
+        }
+        $tmp = Utils::fill_context($nid,$nlevels,$show_all,$collapse);
+        if( $tmp ) {
+            $nodelist += $tmp;
+            $idslist[] = $nid;
+        }
+    }
 
-// ready to fill the nodes
-$outtree = [];
-foreach( $rootnodes as $node ) {
-    if( Utils::is_excluded($node->get_tag('alias')) ) {
-        continue;
+    if( $asnodes ) {
+        foreach( $nodelist as &$node ) {
+            if( $node->children ) {
+                foreach( $node->children as &$pid ) {
+                    $pid = $nodelist[$pid];
+                }
+                unset($pid);
+            }
+        }
+        unset($node);
+        $tmp = [];
+        foreach( $idslist as $pid ) {
+            $tmp[] = $nodelist[$pid];
+        }
+        $nodelist = $tmp;
     }
-    $tmp = Utils::fill_node($node,$deep,$nlevels,$show_all,$collapse);
-    if( $tmp ) {
-        $outtree[] = $tmp;
+    else {
+        $nodelist[-1] = (object)['id'=>-1,'children'=>$idslist];
     }
+    $tpl->assign('nodes',$nodelist)
+      ->display();
+    unset($tpl); // garbage-collector assistance
 }
 
-Utils::clear_excludes();
+if( isset($params['excludeprefix']) ) { Utils::clear_excludes(); }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
-$tpl->assign('nodes',$outtree)
-  ->display();
-
-unset($tpl);
 debug_buffer('Finished Navigator default action');

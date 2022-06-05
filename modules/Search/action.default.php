@@ -1,7 +1,7 @@
 <?php
 /*
 Search module action: default
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -45,8 +45,8 @@ if( isset( $params['inline'] ) ) {
 }
 $origreturnid = $returnid;
 if( isset( $params['resultpage'] ) ) {
-    $hm = $gCms->GetHierarchyManager();
-    $cid = $hm->find_by_identifier($params['resultpage'],false);
+    $ptops = $gCms->GetHierarchyManager();
+    $cid = $ptops->find_by_identifier($params['resultpage'],false);
     if( $cid ) $returnid = $cid;
 }
 //Pretty URL compatibility

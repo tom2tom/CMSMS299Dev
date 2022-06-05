@@ -1,18 +1,18 @@
 {function display_tree}
   {foreach $list as $node}
-    {$obj=$node->getContent()}{$desc=$node->has_children()}
-    <li id="page_{$obj->Id()}"{if !$obj->WantsChildren()} class="no-nest"{/if}>
-      <div class="label{if !$obj->Active()} red{/if}">
+    {$cnt=$node->get_content()}{$desc=$node->has_children()}
+    <li id="page_{$cnt->Id()}"{if !$cnt->WantsChildren()} class="no-nest"{/if}>
+      <div class="label{if !$cnt->Active()} red{/if}">
         <span class="{if $desc}haschildren expanded{else}nomarker{/if}"></span>&nbsp;
-        {$obj->Hierarchy()}:&nbsp;
-        {$name=$obj->Name()}{$name|cms_escape}
+        {$cnt->Hierarchy()}:&nbsp;
+        {$name=$cnt->Name()}{$name|cms_escape}
         {if $pcount <= 30}
-        {$txt=$obj->MenuText()}{if $txt && $txt!=$name}&nbsp;<em>({$txt|cms_escape})</em>{/if}
+        {$txt=$cnt->MenuText()}{if $txt && $txt!=$name}&nbsp;<em>({$txt|cms_escape})</em>{/if}
         {/if}
-        {if !$obj->Active()}&nbsp;({_ld($_module,'prompt_inactive')}){/if}
+        {if !$cnt->Active()}&nbsp;({_ld($_module,'prompt_inactive')}){/if}
       </div>
       {if $desc}<ul>
-        {$list=$node->getChildren(false,true)}{display_tree list=$list depth=$depth+1}
+        {$list=$node->load_children(false,true)}{display_tree list=$list depth=$depth+1}
       </ul>{/if}
     </li>
   {/foreach}
@@ -38,7 +38,7 @@
 </div>
 <div class="pageoverflow">
   <ul id="masterlist" class="sortableList sortable">
-   {$list=$hier->getChildren(false,true)}{display_tree list=$list depth=0}
+   {display_tree list=$topnodes depth=0}
   </ul>
 </div>
 {if $pcount > 10}

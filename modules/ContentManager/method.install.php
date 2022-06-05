@@ -77,14 +77,14 @@ if ($flag) {
 
 // register events for which other parts of the system may listen
 foreach ([
- 'ContentDeletePost',
- 'ContentDeletePre',
- 'ContentEditPost',
- 'ContentEditPre',
- 'ContentPostCompile',
- 'ContentPostRender', // since 2.0?
- 'ContentPreCompile',
- 'ContentPreRender', // 2.0 ?
+ 'AddPost',
+ 'AddPre',
+ 'DeletePost',
+ 'DeletePre',
+ 'EditPost',
+ 'EditPre',
+ 'OrderPost',
+ 'OrderPre',
 ] as $name) {
 	Events::CreateEvent($me, $name); //since 2.0
 	if ($flag) {

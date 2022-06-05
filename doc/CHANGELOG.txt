@@ -205,8 +205,8 @@ DETAILS
   - New content-security methods: CMSMS\execSpecialchars(), CMSMS\sanitizeVal(),
          CMSMS\Database\Connection::escStr();
   - New method: AdminUtils::get_module_icon()
-  - New classes: HierarchyManager, TemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum, RequestParameters, Crypto, AppSingle
-  - Renamed classes: App, AppConfig, AppParams, UserParams (their old names are still usable)
+  - New classes: ArrayTree, AutoCookieOperations, BasicEnum, Crypto, Lone, PageTreeOperations, RequestParameters, ScriptOperations, SignedCookieOperations, StylesOperations, TemplateOperations
+  - Renamed classes: App, AppConfig, AppParams, PageTreeNode, UserParams (their old names are still usable)
   - New content-security methods: Crypto::encrypt_string(),decrypt_string(),hash_string(),random_string(),scramble_string()
   - New hook-replacement events: MetadataPostRender, MetadataPreRender, PageTopPostRender, PageTopPreRender,
       PageHeadPostRender, PageHeadPreRender, PageBodyPostRender, PageBodyPreRender, PostRequest
@@ -228,10 +228,12 @@ DETAILS
   - CHANGE: Smarty tolerates additional functions: _la(),_ld(),_lm(),cms_join_path(),CMSMS\entitize(),CMSMS\specialize(),CMSMS\sanitizeVal(),CMSMS\tailorpage(),date(),lang_by_realm(),str_contains(),str_ends_with(),str_starts_with(),strtotime(),stripos(),strripos(),strrpos()
   - CHANGE: global-scope Smarty-variables: $_site_root_path,$_site_root_url,$_site_themes_path,$_site_themes_url,$_site_uploads_path,$_site_uploads_url are automatically defined during each frontend request
   - CHANGE: Smarty resource-identifiers for templates and stylesheets support optional source/originator, like 'originator;name'
+  - DEPRECATED: navigation templates which process data provided in node-ojects. Instead process node-ids.
   - BREAKING: renamed permission 'Modify User-defined Tags' to 'Manage User Plugins'
   - FEATURE: pages-reordering UI supports collapse selected/all levels, expand selected/all levels, search
-  - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.99 at least, the module is still operational.)
+  - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 3.0 at least, the module is still operational.)
   - CHANGE: renamed CMSContentManager module to ContentManager (shorter module-names help deal with a Smarty 25-character limit on resource-names)
+  - CHANGE: added ContentManager events: AddPre,AddPost,DeletePre,DeletePost,EditPre,EditPost,OrderPre,OrderPost 
   - CHANGE: renamed CMSMailer module to OutMailer (with pending support for sending via external platforms like Mailchimp)
   - CHANGE: News module is non-core, and in future will be distributed independently of the core files (and possibly replaced)
   - BREAKING: long-deprecated frontend creation of news items has been removed

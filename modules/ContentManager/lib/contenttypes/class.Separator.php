@@ -42,7 +42,7 @@ class Separator extends ContentBase
 		return $this->mod->Lang('contenttype_separator');
 	}
 
-	public function GetURL() : string
+	public function URL() : string
 	{
 		return '#';
 	}

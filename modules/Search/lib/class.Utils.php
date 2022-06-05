@@ -1,7 +1,7 @@
 <?php
 /*
 Search module utilities class
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -243,8 +243,8 @@ $until,
         self::DeleteAllWords();
 
         // must load all content and properties (in chunks)
-        $hm = cmsms()->GetHierarchyManager();
-        $full_list = array_keys($hm->getFlatList());
+        $ptops = cmsms()->GetHierarchyManager();
+        $full_list = array_keys($ptops->get_flatlist());
         $n = count($full_list);
         $nperloop = min(200, $n);
         $contentops = Lone::get('ContentOperations');
@@ -252,7 +252,7 @@ $until,
         $offset = 0;
 
         while ($offset < $n) {
-            // figure out the content to load.
+            // figure out the content to load
             $idlist = [];
             for ($i = 0; $i < $nperloop && $offset + $i < $n; ++$i) {
                 $idlist[] = $full_list[$offset + $i];
@@ -263,12 +263,12 @@ $until,
             // load the content for this list
             $contentops->LoadChildren(-1, true, false, $idlist);
 
-            // index each content page.
+            // index each content page
             foreach ($idlist as $one) {
                 $content_obj = $contentops->LoadContentFromId($one); //TODO ensure relevant content-object?
                 $parms = ['content' => $content_obj];
-//                self::DoEvent($module, 'Core', 'ContentEditPost', $parms); //WHAAT ? not changed
-//                $cache->delete($one, 'tree_pages'); RUBBISH
+                $module->DoEvent('Core', 'ContentEditPost', $parms);
+//NOPE keep it  $cache->delete($one, 'site_pages');
             }
         }
 

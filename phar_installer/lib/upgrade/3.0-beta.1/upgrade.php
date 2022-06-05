@@ -82,9 +82,25 @@ if ($iname) {
     error_msg('Cannot identify content-table index (content_id,hierarchy), for removal');
 }
 
-// the extensive table-tuning here is mostly done via mysqli-object direct usage
+// the extensive table-tuning downstream is mostly done via mysqli-object direct usage
 $handle = $db->get_inner_mysql();
 $tblprefix = CMS_DB_PREFIX;
+
+// shorten content-hierarchy values (before changing column-width downstream)
+$sql = "SELECT content_id,hierarchy FROM {$tblprefix}content ORDER BY hierarchy";
+$rst = $handle->query($sql);
+if ($rst) {
+    $data = $rst->fetch_all();
+    $rst->close();
+    $stmt = $handle->prepare("UPDATE {$tblprefix}content SET hierarchy=? WHERE content_id=?");
+    foreach ($data as $row) {
+        $s = preg_replace('/(?<=^|\.)00/', '', $row[1]);
+        $stmt->bind_param('si', $s, $row[0]);
+        $stmt->execute();
+    }
+    $stmt->close();
+}
+
 require_once __DIR__.DIRECTORY_SEPARATOR.'re_schema.php';
 
 // deferred from downstream (i.e. after precursor routes-table updates)
@@ -96,7 +112,7 @@ if ($return != 2) {
     error_msg('Index '.$iname.' creation '.$failed);
 }
 
-// 2. Misc. cleanups
+// 2. Misc cleanups
 
 // 2.0 reformat layout template types' callbacks
 $tbl = CMS_DB_PREFIX.'layout_tpl_types';
@@ -269,7 +285,7 @@ if ($data) {
                     }
                 }
             }
-            $cooked = json_encode($stash, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            $cooked = json_encode($stash, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE); // PHP7.2+
             // cleanups
             $cooked = str_replace([$s, '__CONTENT_'], [$r, '__PAGE__'], $cooked);
             $term = str_replace($s, $r, $row['term']);

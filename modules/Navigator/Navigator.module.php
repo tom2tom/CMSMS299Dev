@@ -21,8 +21,12 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\CoreCapabilities;
+use CMSMS\internal\JobOperations;
+use CMSMS\LoadedDataType;
+use CMSMS\Lone;
 use CMSMS\TemplateType;
-use CMSMS\Utils;
+use CMSMS\Utils as AppUtils;
+use Navigator\FillCacheJob;
 
 final class Navigator extends CMSModule
 {
@@ -36,28 +40,32 @@ final class Navigator extends CMSModule
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetHelp($lang='en_US') { return $this->Lang('help'); }
     public function GetName() { return 'Navigator'; }
-    public function GetVersion() { return '1.3'; }
+    public function GetVersion() { return '2.0'; }
+    public function HandlesEvents() { return true; } //since 2.0, deprecated since CMSMS3 in favour of HasCapability(EVENTS)
     public function HasAdmin() { return false; }
-    public function IsPluginModule() { return true; } //deprecated
+    public function IsPluginModule() { return true; } //deprecated since CMSMS3 in favour of HasCapability(PLUGIN_MODULE)
 //  public function LazyLoadAdmin() { return true; }
 //  public function LazyLoadFrontend() { return true; }
     public function MinimumCMSVersion() { return '2.999'; }
 
     public function InitializeFrontend()
     {
-//CMSMS 3.0 does nothing        $this->RestrictUnknownParams();
+        $obj = new LoadedDataType('navigator_data','Navigator\\Utils::fill_cache');
+        Lone::get('LoadedData')->add_type($obj);
+//CMSMS3 does nothing        $this->RestrictUnknownParams();
         $this->SetParameterType([
         'childrenof' => CLEAN_STRING,
-        'collapse' => CLEAN_INT,
+        'collapse' => CLEAN_BOOL, // since CMSMS3 anything cms_to_bool() can process
         'excludeprefix' => CLEAN_STRING,
+        'idnodes' => CLEAN_BOOL, // since 2.0
         'includeprefix' => CLEAN_STRING,
         'items' => CLEAN_STRING,
-        'loadprops' => CLEAN_INT,
+        'loadprops' => CLEAN_BOOL, //deprecated since 2.0 effectively true always
         'nlevels' => CLEAN_INT,
         'number_of_levels' => CLEAN_INT,
         'root' => CLEAN_STRING,
-        'show_all' => CLEAN_INT,
-        'show_root_siblings' => CLEAN_INT,
+        'show_all' => CLEAN_BOOL,
+        'show_root_siblings' => CLEAN_BOOL,
         'start_element' => CLEAN_STRING, // yeah, it's a string
         'start_level' => CLEAN_INT,
         'start_page' => CLEAN_STRING,
@@ -73,28 +81,82 @@ final class Navigator extends CMSModule
         $this->CreateParameter('collapse','',$this->Lang('help_collapse'));
         $this->CreateParameter('excludeprefix','',$this->Lang('help_excludeprefix'));
         $this->CreateParameter('includeprefix','',$this->Lang('help_includeprefix'));
-        $this->CreateParameter('items','contact,home',$this->lang('help_items'));
+        $this->CreateParameter('idnodes','0',$this->Lang('help_idnodes'));
+        $this->CreateParameter('items','contact,home',$this->Lang('help_items'));
         $this->CreateParameter('loadprops','',$this->Lang('help_loadprops'));
-        $this->CreateParameter('nlevels','1',$this->lang('help_nlevels'));
-        $this->CreateParameter('number_of_levels','1',$this->lang('help_number_of_levels'));
+        $this->CreateParameter('nlevels','1',$this->Lang('help_nlevels'));
+        $this->CreateParameter('number_of_levels','1',$this->Lang('help_number_of_levels'));
         $this->CreateParameter('root','',$this->Lang('help_root2'));
-        $this->CreateParameter('show_all','0',$this->lang('help_show_all'));
-        $this->CreateParameter('show_root_siblings','1',$this->lang('help_show_root_siblings'));
-        $this->CreateParameter('start_element','1.2',$this->lang('help_start_element'));
-        $this->CreateParameter('start_level','',$this->lang('help_start_level'));
-        $this->CreateParameter('start_page','',$this->lang('help_start_page'));
-        $this->CreateParameter('start_text','',$this->lang('help_start_text'));
-        $this->CreateParameter('template','',$this->lang('help_template'));
+        $this->CreateParameter('show_all','0',$this->Lang('help_show_all'));
+        $this->CreateParameter('show_root_siblings','1',$this->Lang('help_show_root_siblings'));
+        $this->CreateParameter('start_element','1.2',$this->Lang('help_start_element'));
+        $this->CreateParameter('start_level','',$this->Lang('help_start_level'));
+        $this->CreateParameter('start_page','',$this->Lang('help_start_page'));
+        $this->CreateParameter('start_text','',$this->Lang('help_start_text'));
+        $this->CreateParameter('template','',$this->Lang('help_template'));
     }
 
     public function HasCapability($capability, $params=[])
     {
         switch ($capability) {
             case CoreCapabilities::CORE_MODULE:
+            case CoreCapabilities::EVENTS:
             case CoreCapabilities::PLUGIN_MODULE:
+//          case CoreCapabilities::TASKS: only when needed
                 return TRUE;
             default:
                 return FALSE;
+        }
+    }
+
+    public function RegisterEvents()
+    {
+        $this->AddEventHandler('ContentManager','AddPost',FALSE);
+        $this->AddEventHandler('ContentManager','DeletePost',FALSE);
+        $this->AddEventHandler('ContentManager','EditPost',FALSE);
+        $this->AddEventHandler('ContentManager','OrderPost',FALSE);
+        //TODO etc
+    }
+
+    /**
+     * Determine whether to generate node-data for a template as Navigator\Nodes
+     * @since 2.0
+     *
+     * @param array $params parameters supplied to the action which will
+     * populate the template
+     * @param string $name template name
+     * @return bool true to provide nodes, false to provide node-ids
+     */
+    public function TemplateNodes(array $params, string $name) : bool
+    {
+        if( isset($params['idnodes']) && ($params['idnodes'] === '' || cms_to_bool($params['idnodes'])) ) return FALSE;
+        if( endswith($name,'.tpl') ) return FALSE;
+        //assume the dB-stored default templates are id-compatible
+        //names from install.php
+        if( array_search($name, ['Breadcrumbs','Simple Navigation','cssmenu','cssmenu_ulshadow','minimal_menu']) !== FALSE ) return FALSE;
+        return TRUE;
+    }
+
+    /**
+     * Event handler to initiate refresh of cached navigation data
+     * after changes which might affect such data
+     * @since 2.0
+     *
+     * @param string $originator
+     * @param string $eventname
+     * @param array $params reference, modifiable
+     */
+    public function DoEvent($originator, $eventname, &$params)
+    {
+        switch( $eventname ) {
+            case 'EditPost':
+            case 'AddPost':
+            case 'DeletePost':
+            case 'OrderPost':
+                if( $originator == 'ContentManager' ) { //TODO all relevant test(s)
+                    Lone::get('LoadedData')->release('navigator_data'); // TODO consider this also >> in the Job
+                    (new JobOperations())->load_job(new FillCacheJob());
+                }
         }
     }
 
@@ -107,7 +169,7 @@ final class Navigator extends CMSModule
 
     final public static function page_type_lang_callback($str)
     {
-        $mod = Utils::get_module('Navigator');
+        $mod = AppUtils::get_module('Navigator');
         return $mod->Lang('type_'.$str);
     }
 
@@ -135,7 +197,7 @@ final class Navigator extends CMSModule
     public static function template_help_callback($str)
     {
         $str = trim($str);
-        $file = cms_join_path(__DIR__,'doc','tpltype_'.$str.'.inc');
+        $file = cms_join_path(__DIR__,'doc','tpltype_'.$str.'.htm');
         if( is_file($file) ) return file_get_contents($file);
         return '';
     }

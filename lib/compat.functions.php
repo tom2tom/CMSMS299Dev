@@ -41,7 +41,7 @@ if( !function_exists('gzopen') ) {
         }
     } else {
         function gzopen($filename, $mode, $use_include_path = 0) {
-            throw new RuntimeException('Function gzopen is not available'); 
+            throw new RuntimeException('Function gzopen is not available');
         }
     }
 }
@@ -69,16 +69,16 @@ error_reporting(0);
 foreach ([
   'CMSMS\AppConfig' => 'cms_config', // !!
   'CMSMS\CacheDriver' => 'cms_cache_driver', // !! ABSTRACT
-  'CMSMS\ContentTree' => 'cms_content_tree', // !!
   'CMSMS\ContentTypeOperations' => 'CmsContentTypePlaceHolder', // !!
   'CMSMS\FolderControls' => 'CMSMS\FilePickerProfile', // !!
   'CMSMS\internal\AdminNotification' => 'CmsAdminThemeNotification', // !!
   'CMSMS\LanguageDetector' => 'CmsLanguageDetector', // !!
+  'CMSMS\PageTreeNode' => 'cms_content_tree', // !!
+//'CMSMS\PageTreeNode' => 'cms_tree', // !! TODO double-up
   'CMSMS\Route' => 'CmsRoute', // !!
   'CMSMS\Stylesheet' => 'CmsLayoutStylesheet', // !!
   'CMSMS\Template' => 'CmsLayoutTemplate', // !!
   'CMSMS\TemplateType' => 'CmsLayoutTemplateType', // !!
-  'CMSMS\Tree' => 'cms_tree', // !!
   'CMSMS\Url' => 'cms_url', // !!
   'DesignManager\Design' => 'CmsLayoutCollection', // !! replacement maybe N/A too
 ] as $replace => $past) {

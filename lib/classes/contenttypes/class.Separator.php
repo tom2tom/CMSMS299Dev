@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\contenttypes;
@@ -49,7 +49,7 @@ class Separator extends ContentBase
 			'alias' => '',
 			'cachable' => true,
 			'menutext' => '',
-			'secure' => false, //deprecated property since 3.0
+			'secure' => false, //deprecated since 3.0 irrelevant for a separator?
 			'target' => '',
 			'templateid' => '-1',
 			'title' => '',
@@ -60,11 +60,11 @@ class Separator extends ContentBase
 		}
 	}
 
-	public function GetURL(bool $rewrite = true) : string { return '#';  }
+	// There is no actionable URL for displaying this content type
+	public function GetURL(bool $rewrite = true) : string { return '#'; }
 	public function HasSearchableContent() : bool { return false; }
 	public function HasUsableLink() : bool { return false; }
 	public function WantsChildren() : bool { return false; }
 } // class
-
 //backward-compatibility shiv
 \class_alias(Separator::class, 'Separator', false);

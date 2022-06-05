@@ -1,6 +1,6 @@
 <?php
 /*
-Content-tree manager class
+Content-tree operations class
 Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -21,15 +21,16 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\Lone;
-use CMSMS\Tree;
+use CMSMS\PageTreeNode;
+use RuntimeException;
 use const CMS_DB_PREFIX;
 use function debug_display;
 
 /**
- * Singleton pages/content-tree manager class
+ * Singleton pages/content-tree operations class
  * @since 3.0
  */
-class HierarchyManager
+class PageTreeOperations
 {
 //	const SHALLOW = ['parent','alias','hierarchy','deep']; default keys in each $this->props value
 //TODO merit of other tree-related props ? 'active' etc
@@ -38,21 +39,19 @@ class HierarchyManager
 	 * Each member like content_id => assoc array ['parent','alias','hierarchy','deep' ....]
 	 *  e.g. 16 => [-1, 'home', '001', 0] OR after loading all props
 	 *	   16 => [-1, 'home', '001', 1, extra1 if any ....]
-	 * @ignore
 	 */
-	protected $props;
+	public $props;
 
 	/**
 	 * @var array
 	 * Each member like parent_id => [child-content_ids]
 	 *  e.g. -1 => [16,17,20,28,134,37,38,39,43]
-	 * @ignore
 	 */
-	protected $children;
+	public $children;
 
 	/**
 	 * @var array
-	 * Each member like content_id => Tree object
+	 * Each member like content_id => PageTreeNode object
 	 * Populated incrementally, on demand
 	 * @ignore
 	 */
@@ -82,7 +81,7 @@ FROM {$pref}content ORDER BY hierarchy";
 		foreach ($this->props as &$row) {
 			$row['parent'] = (int)$row['parent'];
 		}
-		$sql = "SELECT parent_id,GROUP_CONCAT(content_id ORDER BY item_order SEPARATOR ',') AS children
+		$sql = "SELECT parent_id,GROUP_CONCAT(content_id ORDER BY item_order) AS children
 FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 		$this->children = $db->getAssoc($sql);
 		foreach ($this->children as &$row) {
@@ -101,21 +100,21 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 		$newid = max(array_keys($this->props)) + 1 ; //TODO get new item id from dB UPSERT
 		$this->props[$newid] = ['parent'=>$id, 'alias'=>'page'.$newid, 'deep'=>0]; //'active'=>1,
 		$this->children[$id][] = $newid;
-		$this->nodes[$newid] = new Tree($newid, $this);
+		$this->nodes[$newid] = new PageTreeNode($newid, $this);
 		//TODO OR 'deep'=>1, later update dB accordingly?? flag for action in __destruct() ??
 	}
 
 	/**
 	 * Remove a node from the tree, optionally along with all its descendants
-	 * @param bool $with_descends whether to also remove any descendant(s) Default false
+	 * @param bool $with_descends whether to also remove any descendant(s). Default false
 	 *  If false, any children are re-parented to their grandparent.
-	 * @param int $id Optional node enumerator. Default -99 (N/A)
+	 * @param int $id Optional node enumerator. Default -99 (i.e. N/A)
 	 */
 	public function remove_node(bool $with_descends = false, int $id = -99)
 	{
 		$parent = $this->props[$id]['parent'];
 		$tmp = $this->children[$id] ?? [];
-		unset ($this->props[$id]);
+		unset($this->props[$id]);
 		if ($tmp) {
 			if ($with_descends) {
 				foreach ($tmp as $cid) {
@@ -190,26 +189,27 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	/**
 	 * Report the tree-depth of the specified node.
 	 * @param int $id Optional node enumerator. Default -1 (root)
-	 * @return int
+	 * @return int > 1 (notional root-node depth = 1)
 	 * @throws RuntimeException if a broken tree is found
 	 */
 	public function get_level(int $id = -1) : int
 	{
-		$n = 1;
-		while ($id > -1) {
+		if ($id != -1) {
 			if (isset($this->props[$id])) {
-				$id = $this->props[$id]['parent'];
-				++$n;
-			} else {
-				throw new RuntimeException('Fatal error in '.__METHOD__.' - dangling subtree');
+				// TODO consider checking data integrity i.e. all hierarchy-ids are present
+				return substr_count($this->props[$id]['hierarchy'], '.') + 1;
 			}
+			throw new RuntimeException('Fatal error in '.__METHOD__.' - unrecognized node '.$id);
 		}
-		return $n;
+		return 1;
 	}
 
 	/**
-	 * Report the number of nodes representing the specified one and all its descendants.
-	 * (The root node would be counted though is conceptual only)
+	 * Report the number of nodes representing the specified one and all
+	 * its descendants.
+	 * If the conceptual root node is specified, it will be included in
+	 * the count.
+	 *
 	 * @param int $id Optional node enumerator. Default -1 (root)
 	 * @return int
 	 */
@@ -228,8 +228,11 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	}
 
 	/**
-	 * Report the number of nodes representing the specified one and all its siblings.
-	 * (The root node would be counted though is conceptual only)
+	 * Report the number of nodes representing the specified one and all
+	 * its siblings.
+	 * If the conceptual root node is specified, it will counted (and
+	 * the returned value will be 1).
+	 *
 	 * @param int $id Optional node enumerator. Default -1 (root)
 	 * @return int
 	 */
@@ -245,19 +248,51 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	}
 
 	/**
-	 * Return the parent node (if any) of the specified one.
+	 * Return the ancestor-node ids (if any) of the specified one.
+	 * Iteration stops before the root node if there's a gap in the
+	 * ascent (i.e. a dangling sub-tree)
+	 * @since 3.0
+	 *
+	 * @param int $id node enumerator
+	 * @param bool $descending flag whether to report top-to-bottom Default true
+	 * @return array, maybe empty
+	 */
+	public function get_ancestors(int $id, $descending = true) : array
+	{
+		$ret = [];
+		if (isset($this->props[$id])) {
+			$n = $id;
+			do {
+				$n = $this->props[$n]['parent'] ?? -2;
+				if ($n > 0) {
+					$ret[] = $n;
+				}
+			} while ($n > 0);
+			if ($descending && $ret) {
+				return array_reverse($ret);
+			}
+		}
+		return $ret;
+	}
+
+	/**
+	 * Return the parent node or id (if any) of the specified one.
 	 *
 	 * @param int $id Optional node enumerator. Default -99 (N/A)
-	 * @return mixed Tree | null
+	 * $param bool $as_node Since 3.0 Optional return-type indicator. Default true.
+	 * @return mixed PageTreeNode | int | null if id is not recognized
 	 */
-	public function get_parent(int $id = -99)
+	public function get_parent(int $id = -99, bool $as_node = true)
 	{
 		if (isset($this->props[$id])) {
 			$n = (int)$this->props[$id]['parent'];
-			if (!isset($this->nodes[$n])) {
-				$this->nodes[$n] = new Tree($n, $this);
+			if ($as_node) {
+				if (!isset($this->nodes[$n])) {
+					$this->nodes[$n] = new PageTreeNode($n, $this);
+				}
+				return $this->nodes[$n];
 			}
-			return $this->nodes[$n];
+			return $n;
 		}
 	}
 
@@ -272,7 +307,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	}
 
 	/**
-	 * Report the number of direct children of the identified node.
+	 * Report the number of children of the specified node.
 	 * @param int $id node enumerator
 	 * @return int
 	 */
@@ -283,19 +318,20 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 
 	/**
 	 * Return the child-nodes (if any) of the specified one.
-	 * @see also HierarchyManager::get_children(), which does no content-loading
+	 * @see also PageTreeOperations::load_children(), which also loads content
+	 *
 	 * $param bool $as_node Since 3.0 Optional return-type indicator. Default true.
 	 * @param int $id Optional node enumerator. Default -1 (root)
-	 * @return array reference each member like id => Tree object | empty if there are no children.
+	 * @return array each member like id => PageTreeNode object | empty if there are no children.
 	 * or each member like id if $as_node is false
 	 */
-	public function &get_children(bool $as_node = true, int $id = -1) : array
+	public function get_children(bool $as_node = true, int $id = -1) : array
 	{
 		$ret = [];
 		if (isset($this->children[$id])) {
 			foreach ($this->children[$id] as $n) {
 				if (!isset($this->nodes[$n])) {
-					$this->nodes[$n] = new Tree($n, $this);
+					$this->nodes[$n] = new PageTreeNode($n, $this);
 				}
 				if ($as_node) {
 					$ret[$n] = $this->nodes[$n];
@@ -310,15 +346,19 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	/**
 	 * Get the children of the specified node, loading their respective
 	 * content objects as part of the process
-	 * @see also HierarchyManager::getChildren(), which loads content
-	 * @param bool $deep Optionally load the extended properties of the children (only used when $loadcontent is true)
-	 * @param bool $all Load all children, including inactive/disabled ones (only used when $loadcontent is true)
-	 * @param bool $loadcontent Load content objects for children
-	 * $param bool $as_node Since 3.0 Optional return-type indicator. Default true.
+	 * @see also PageTreeOperations::get_children(), which does no content-loading
+	 *
+	 * @param bool $extended Load the extended properties of the children.
+	 *  Default false. Ignored unless $loadcontent is true.
+	 * @param bool $all Load all children, including inactive/disabled ones.
+	 *  Ignored unless $loadcontent is true.
+	 * @param bool $loadcontent Load content-objects for children
+	 * $param bool $as_node Since 3.0 Optional Return-type indicator. Default true.
 	 * @param int $id Optional node enumerator. Default -1 (root)
-	 * @return array reference each member like id => Tree object | empty if there are no children.
+	 * @return array reference each member like id => PageTreeNode object | empty if there are no children
+	 * or each member like id if $as_node is false
 	 */
-	public function &getChildren(bool $deep = false, bool $all = false, bool $loadcontent = true, bool $as_node = true, int $id = -1) : array
+	public function load_children(bool $extended = false, bool $all = false, bool $loadcontent = true, bool $as_node = true, int $id = -1) : array
 	{
 		$children = $this->get_children($as_node, $id);
 		if ($children && $loadcontent) {
@@ -326,9 +366,9 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 				$this->ops = Lone::get('ContentOperations');
 			}
 			if ($as_node) {
-				$this->ops->LoadChildren($id, $deep, $all, array_keys($children));
+				$this->ops->LoadChildren($id, $extended, $all, array_keys($children));
 			} else {
-				$this->ops->LoadChildren($id, $deep, $all, $children);
+				$this->ops->LoadChildren($id, $extended, $all, $children);
 			}
 		}
 		return $children;
@@ -336,14 +376,14 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 
 	/**
 	 * Return all nodes.
-	 * @return array reference each member like id => Tree object
+	 * @return array each member like id => PageTreeNode object
 	 */
-	public function &getFlatList() : array
+	public function get_flatList() : array
 	{
 		debug_display('Start populate page-nodes flatlist');
 		foreach ($this->props as $id => &$arr) {
 			if (!isset($this->nodes[$id])) {
-				$this->nodes[$id] = new Tree($id, $this);
+				$this->nodes[$id] = new PageTreeNode($id, $this);
 			}
 		}
 		unset($arr);
@@ -352,14 +392,24 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	}
 
 	/**
-	 * Try to find a tree node (the specified one or a descendant) which
-	 * has the specified property and value.
+	 * Return all nodes.
+     * @deprecated since 3.0 instead use PageTreeOperations::get_flatList()
+	 * @return array each member like id => PageTreeNode object
+	 */
+	public function getFlatList() : array
+    {
+        return $this->get_flatList();
+    }
+
+	/**
+	 * Try to find a tree node (the specified one or a descendant)
+	 * which has the specified property and value.
 	 * @param string $prop_name The property to search for
 	 * @param mixed  $value The property value to search for
-	 * @param bool   $case_insensitive Whether the value (if a string) may
-	 *  match regardless of case. Default false.
+	 * @param bool   $case_insensitive Whether the value (if a string)
+	 *  may match regardless of case. Default false.
 	 * @param int $id Optional node enumerator. Default -1 (root)
-	 * @return mixed Tree object or null if not found.
+	 * @return mixed PageTreeNode object | null if not found.
 	 */
 	public function find_by_tag(string $prop_name, $value, bool $case_insensitive = false, int $id = -1)
 	{
@@ -367,7 +417,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 			$id = (int)$value;
 			if (isset($this->props[$id])) {
 				if (!isset($this->nodes[$id])) {
-					$this->nodes[$id] = new Tree($id, $this);
+					$this->nodes[$id] = new PageTreeNode($id, $this);
 				}
 				return $this->nodes[$id];
 			}
@@ -379,7 +429,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 			if ($n !== false) {
 				$id = array_keys($this->props)[$n];
 				if (!isset($this->nodes[$id])) {
-					$this->nodes[$id] = new Tree($id, $this);
+					$this->nodes[$id] = new PageTreeNode($id, $this);
 				}
 				return $this->nodes[$id];
 			}
@@ -390,7 +440,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 				if (isset($row[$prop_name]) && $value == $row[$prop_name] || $value === null && $row[$prop_name] === null) {
 					unset($row);
 					if (!isset($this->nodes[$id])) {
-						$this->nodes[$id] = new Tree($id, $this);
+						$this->nodes[$id] = new PageTreeNode($id, $this);
 					}
 					return $this->nodes[$id];
 				}
@@ -400,7 +450,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 					if (isset($row[$prop_name]) && $value == $row[$prop_name] || $value === null && $row[$prop_name] === null) {
 						unset($row);
 						if (!isset($this->nodes[$id])) {
-							$this->nodes[$id] = new Tree($id, $this);
+							$this->nodes[$id] = new PageTreeNode($id, $this);
 						}
 						return $this->nodes[$id];
 					}
@@ -417,7 +467,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * @param mixed $a string | int enumerator or alias
 	 * $param bool  $as_node Optional return-type indicator. Default true.
 	 *  False to return the numeric identifier (after populating node data if necessary).
-	 * @return mixed Tree | null | int (maybe 0)
+	 * @return mixed PageTreeNode | null | int (maybe 0)
 	 */
 	public function find_by_identifier($a, bool $as_node = true)
 	{
@@ -440,13 +490,13 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * Retrieve a node by page-enumerator.
 	 * @since 3.0
 	 * @param int $id Optional node enumerator. Default -99 (N/A)
-	 * @return mixed Tree | null
+	 * @return mixed PageTreeNode | null
 	*/
 	public function get_node_by_id(int $id = -99)
 	{
 		if (isset($this->props[$id])) {
 			if (!isset($this->nodes[$id])) {
-				$this->nodes[$id] = new Tree($id, $this);
+				$this->nodes[$id] = new PageTreeNode($id, $this);
 			}
 			return $this->nodes[$id];
 		}
@@ -454,9 +504,9 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 
 	/**
 	 * Retrieve a node by page-enumerator (unfriendly old method-name)
-	 * @deprecated since 3.0 Instead use HierarchyManager::get_node_by_id()
+	 * @deprecated since 3.0 Instead use PageTreeOperations::get_node_by_id()
 	 * @param int $id Optional node enumerator. Default -99 (N/A)
-	 * @return mixed Tree | null
+	 * @return mixed PageTreeNode | null
 	*/
 	public function quickfind_node_by_id(int $id = -99)
 	{
@@ -467,7 +517,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * Retrieve a node by page-alias.
 	 * @since 3.0
 	 * @param string $alias
-	 * @return mixed Tree | null
+	 * @return mixed PageTreeNode | null
 	 */
 	public function get_node_by_alias(string $alias)
 	{
@@ -486,16 +536,16 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 			}
 		}
 		if (!isset($this->nodes[$id])) {
-			$this->nodes[$id] = new Tree($id, $this);
+			$this->nodes[$id] = new PageTreeNode($id, $this);
 		}
 		return $this->nodes[$id];
 	}
 
 	/**
 	 * Retrieve a node by page-alias (unfriendly old method-name)
-	 * @deprecated since 3.0 Instead use HierarchyManager::get_node_by_alias()
+	 * @deprecated since 3.0 Instead use PageTreeOperations::get_node_by_alias()
 	 * @param string $alias
-	 * @return mixed Tree | null
+	 * @return mixed PageTreeNode | null
 	 */
 	public function sureGetNodeByAlias(string $alias)
 	{
@@ -505,7 +555,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	/**
 	 * Retrieve a node by hierarchy position.
 	 * @param string $position pages-hierarchy identifier like 00x.00y. ...
-	 * @return mixed Tree | null
+	 * @return mixed PageTreeNode | null
 	 */
 	public function get_node_by_hierarchy(string $position)
 	{
@@ -524,16 +574,16 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 			}
 		}
 		if (!isset($this->nodes[$id])) {
-			$this->nodes[$id] = new Tree($id, $this);
+			$this->nodes[$id] = new PageTreeNode($id, $this);
 		}
 		return $this->nodes[$id];
 	}
 
 	/**
 	 * Retrieve a node by hierarchy position.
-	 * @deprecated since 3.0 Instead use HierarchyManager::get_node_by_hierarchy()
+	 * @deprecated since 3.0 Instead use PageTreeOperations::get_node_by_hierarchy()
 	 * @param string $position pages-hierarchy identifier like 00x.00y. ...
-	 * @return mixed Tree | null
+	 * @return mixed PageTreeNode | null
 	 */
 	public function getNodeByHierarchy(string $position)
 	{
@@ -554,8 +604,8 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	}
 
 	/**
-	 * Retrieve [some/?]all sofar-unrecorded properties(s) from the
-	 *  database content [& content_properties] table(s)
+	 * Retrieve all sofar-unrecorded properties(s) from the database
+	 * content & content_properties tables
 	 * @param int $id node enumerator
 	 */
 	protected function deepen(int $id)
@@ -568,14 +618,10 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 FROM {$pref}content WHERE content_id=?";
 		$props = $db->getRow($sql, [$id]);
 		unset($props['content_id'], $props['parent_id'], $props['content_alias']);
-/*
-		$sql = "SELECT prop_name,content FROM {$pref}content_props WHERE content_id=? ORDER BY prop_name";
-		$arr = $db->getArray($sql,[$id]);
-		foreach ($arr as &$row) {
-			$props[$row['prop_name']] = $row['content'];
-		}
-		unset($row);
-*/
+		$sql = "SELECT prop_name,content
+FROM {$pref}content_props WHERE content_id=? ORDER BY prop_name";
+		$dbr = $db->getAssoc($sql, [$id]);
+		if ($dbr) { $props += $dbr; }
 //		debug_display('End loading deep properties for '.$id);
 		$this->props[$id] = $props;
 	}
@@ -593,6 +639,7 @@ FROM {$pref}content WHERE content_id=?";
 	 */
 	public static function load_from_list(array $data)
 	{
+		//former backend for 'content_tree' LoadedDataType
 		//TODO deprecation notice if used
 	}
 
@@ -609,7 +656,7 @@ FROM {$pref}content WHERE content_id=?";
 			if (!$this->cache) {
 				$this->cache = Lone::get('SystemCache');
 			}
-			return $this->cache->has($id,'tree_pages');
+			return $this->cache->has($id,'site_pages');
 		}
 */
 		return false;
@@ -619,13 +666,15 @@ FROM {$pref}content WHERE content_id=?";
 	 * Return the content object for the page associated with the specified
 	 * node, after loading that object if necessary, and then recording it
 	 * in the page-objects-cache for use in subsequent requests.
-	 * @param bool $deep load all extended properties for the content object if loading is required. Default false
-	 * @param bool $loadsiblings load all the siblings for the selected content object at the same time (a performance optimization) Default true
-	 * @param bool $loadall If loading siblings, include inactive/disabled pages. Default false.
-	 * @param int $id node enumerator Default -99 (N/A)
+	 * @param bool $extended also load all extended properties of the
+	 *  content object if loading is required. Default false
+	 * @param bool $loadsiblings load all siblings of the content object
+	 *  at the same time (a performance optimization). Default true UNUSED since 3.0
+	 * @param bool $loadall If loading siblings, include inactive/disabled pages. Default false. UNUSED since 3.0
+	 * @param int $id content enumerator. Default -99 (N/A)
 	 * @return mixed CMSMS\ContentBase-derived object | null
 	 */
-	public function getContent(bool $deep = false, bool $loadsiblings = true, bool $loadall = false, int $id = -99)
+	public function get_content(bool $extended = false, bool $loadsiblings = true, bool $loadall = false, int $id = -99)
 	{
 		if (!$this->ops) {
 			$this->ops = Lone::get('ContentOperations');
@@ -634,18 +683,18 @@ FROM {$pref}content WHERE content_id=?";
 		if (!$this->cache) {
 			$this->cache = Lone::get('SystemCache');
 		}
-		if (!$this->cache->has($id,'tree_pages')) {
+		if (!$this->cache->has($id,'site_pages')) {
 			// not in cache
 			if (isset($this->props[$id])) {
 				$n = (int)$this->props[$id]['parent'];
 				if (!$loadsiblings || $n == -1) {
 					// only load this content object
 					// TODO cache something here?
-					return $this->ops->->LoadContentFromId($id, $deep);  //TODO ensure relevant content-object?
+					return $this->ops->LoadContentFromId($id, $extended);  //TODO ensure relevant type of content-object?
 				} else {
-					$this->getChildren($deep, $loadall, true, $n);
-					if ($this->cache->has($id,'tree_pages')) {
-						return $this->cache->get($id,'tree_pages');
+					$this->load_children($extended, $loadall, true, true, $n);
+					if ($this->cache->has($id,'site_pages')) {
+						return $this->cache->get($id,'site_pages');
 					}
 				}
 			} else {
@@ -655,6 +704,14 @@ FROM {$pref}content WHERE content_id=?";
 		}
 		// TODO cache something here?
 */
-		return $this->ops->LoadContentFromId($id, $deep);  //TODO ensure relevant content-object?
+		return $this->ops->LoadContentFromId($id, $extended);  //TODO ensure relevant type of content-object?
+	}
+
+	/**
+	 * This class might be treated like a PageTreeNode node
+	 */
+	public function getId()
+	{
+		return -1;
 	}
 }

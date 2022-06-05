@@ -219,8 +219,8 @@ class News extends CMSModule
                 //position 2 is the URL to the title
                 $detailpage = $returnid;
                 if( isset($params['detailpage']) ) {
-                    $hm = cmsms()->GetHierarchyManager();
-                    $id = $hm->find_by_identifier($params['detailpage'], false);
+                    $ptops = cmsms()->GetHierarchyManager();
+                    $id = $ptops->find_by_identifier($params['detailpage'], false);
                     if( $id ) {
                         $detailpage = $id;
                     }
@@ -228,8 +228,8 @@ class News extends CMSModule
 
                 $detailtemplate = '';
                 if( isset($params['detailtemplate']) ) {
-                    if( !isset($hm) ) { $hm = cmsms()->GetHierarchyManager(); }
-                    $node = $hm->find_by_tag('alias', $params['detailtemplate']);
+                    if( !isset($ptops) ) { $ptops = cmsms()->GetHierarchyManager(); }
+                    $node = $ptops->find_by_tag('alias', $params['detailtemplate']);
                     if( $node ) {
                         $detailtemplate = '/d,' . $params['detailtemplate'];
                     }

@@ -104,8 +104,8 @@ $tbl = CMS_DB_PREFIX.'content';
 // 50 chars =~ 10 levels on a 9999-page site
 //hierarchy is akin to a site-relative URL-path composed of display-orders
 // with each level 0-padded to 3 places 40 chars = 10 levels, each .NNN
-//hierarchy_path is akin to a site-relative URL-path composed
-// of page-aliases: 500 chars =~ 10 levels @ 50 each
+//hierarchy_path is akin to a site-relative URL-path composed of page-aliases
+// 500 chars =~ 10 levels @ 50 each
 // NOTE index 'i_contentid_hierarchy' on (content_id,hierarchy) is used in FORCE INDEX queries
 // ditto for i_contental_active, i_hierarchy
 //TODO some of the contet-table indices are largely irrelevant, given

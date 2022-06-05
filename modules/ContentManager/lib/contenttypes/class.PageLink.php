@@ -134,6 +134,19 @@ class PageLink extends ContentBase
 		return $res;
 	}
 
+	/**
+	 * Return html to display an input element for modifying a property
+	 * of this object.
+	 *
+	 * @param string $propname The property name
+	 * @param bool $adding Whether we are in add or edit mode.
+	 * @return array 3- or 4-members
+	 * [0] = heart-of-label 'for="someid">text' | text
+	 * [1] = popup-help | ''
+	 * [2] = input element | text
+	 * [3] = optional extra displayable content
+	 * or empty
+	 */
 	public function ShowElement($propname, $adding)
 	{
 		$id = 'm1_';
@@ -153,7 +166,7 @@ class PageLink extends ContentBase
 			$val = specialize($this->GetPropertyValue('params'));
 			return [
 			'for="addlparms">'.$this->mod->Lang('additional_params'),
-			'',
+			AdminUtils::get_help_tag($this->domain, 'help_link_params', $this->mod->Lang('help_title_link_params')),
 			'<input type="text" id="addlparms" name="'.$id.'params" value="'.$val.'" />'
 			];
 
@@ -172,17 +185,26 @@ class PageLink extends ContentBase
 		}
 	}
 
+	// Return an actionable URL which can be used to preview this content
 	public function GetURL() : string
 	{
 		$pid = $this->GetPropertyValue('page');
-		//TODO load using module-methods only
 		$contentops = Lone::get('ContentOperations');
-		$destcontent = $contentops->LoadEditableContentFromId($pid);
+		$destcontent = $contentops->LoadEditableContentFromId($pid); // extended ?
+//OR	$destcontent = PageLoader::LoadContent($pid) always extended
+//OR	$destcontent = TODO load content using module-methods only
 		if (is_object($destcontent)) {
-			$url = $destcontent->GetURL();
 			$params = $this->GetPropertyValue('params');
-			return $url . $params;
+			if ($params) {
+				if (strpos($params, '%') === false) {
+					$val = rawurlencode($params);
+					$params = strtr($val, ['%26'=>'&', '%3D'=>'=']);
+				}
+				$url = $destcontent->GetURL(false);
+				return $url . $params;
+			}
+			return $destcontent->GetURL();
 		}
-		return '';
+		return ''; // OR '&lt;page missing&gt;' ?
 	}
 }

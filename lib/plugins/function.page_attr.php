@@ -41,9 +41,9 @@ function smarty_function_page_attr($params, $template)
 		// gotta find it by id or alias
 		if( is_numeric($page) && $page > 0 ) {
 			// it's an id
-			$hm = cmsms()->GetHierarchyManager();
-			$node = $hm->find_by_tag('id', $page);
-			if( $node ) $contentobj = $node->getContent(true, true, $inactive);
+			$ptops = Lone::get('App')->GetHierarchyManager();
+			$node = $ptops->get_node_by_id($page);
+			if( $node ) $contentobj = $node->get_content(true, true, $inactive);
 		}
 		else { //if( !is_numeric($page) ) {
 			// this is quicker if using an alias

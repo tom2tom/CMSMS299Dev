@@ -327,7 +327,7 @@ function restricted_cms_permissions() : array
 }
 
 /**
- * Checks to see that the given userid has access to the given permission.
+ * Checks whether the given user has the given permission.
  * Members of the admin group have all permissions.
  * @since 0.1
  *
@@ -345,9 +345,9 @@ function check_permission(int $userid, ...$perms)
 }
 
 /**
- * Checks that the given userid has access to modify the given
- * pageid.  This would mean that they were set as additional
- * authors/editors by the owner.
+ * Checks whether given user has authority to modify the given
+ * page. This would mean that the page owner recorded the user
+ * as an 'additional' author/editor.
  * @internal
  * @since 0.2
  *
@@ -487,14 +487,14 @@ $to2.
  */
 function redirect_to_alias(string $alias)
 {
-	$hm = cmsms()->GetHierarchyManager();
-	$node = $hm->find_by_tag('alias', $alias);
+	$ptops = cmsms()->GetHierarchyManager();
+	$node = $ptops->find_by_tag('alias', $alias);
 	if (!$node) {
 		// put mention into the admin log
 		log_error('Attempt to redirect to invalid page',$alias);
 		return;
 	}
-	$contentobj = $node->getContent();
+	$contentobj = $node->get_content();
 	if (!is_object($contentobj)) {
 		log_error('Attempt to redirect to invalid page',$alias);
 		return;
@@ -1557,8 +1557,9 @@ function get_richeditor_setup(array $params) : array
  * @since 3.0
  *
  * @param array $params  Configuration details. Recognized members are:
- *  string 'editor' name of editor to use. Default '' hence recorded preference.
- *  bool   'edit'   whether the content is editable. Default false (i.e. just for display)
+ *  string 'editor' name of editor to use (if module supports multiple editors).
+ *    Default '' hence recorded preference or default.
+ *  bool   'edit' whether the content is editable. Default false (i.e. just for display)
  *  string 'handle' name of the js variable to be used for the created editor. Default 'editor'
  *  string 'htmlclass' class of the page-element(s) whose content is to be edited.
  *   An alternative to 'htmlid' Default ''.

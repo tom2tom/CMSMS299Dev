@@ -28,7 +28,7 @@ use function CMSMS\specialize;
 $handlers = ob_list_handlers();
 for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
-$hm = $gCms->GetHierarchyManager();
+$ptops = $gCms->GetHierarchyManager();
 
 if (!empty($params['page'])) {
 	$page = $params['page'];
@@ -42,12 +42,12 @@ if (isset($params['infoonly']) && cms_to_bool($params['infoonly'])) {
 	if ($page) {
 		$title = 'Page Not Available'; // TODO translated
 		if (is_numeric($page)) {
-			$node = $hm->find_by_tag('id', (int)$page);
+			$node = $ptops->get_node_by_id((int)$page);
 		} else {
-			$node = $hm->find_by_tag('alias', trim($page)); // TODO cleanValue($page, CMS_SAN...)
+			$node = $ptops->find_by_tag('alias', trim($page)); // TODO cleanValue($page, CMSSAN_TODO)
 		}
 		if ($node) {
-			$content = $node->getContent(false);
+			$content = $node->get_content(false);
 			if (is_object($content)) {
 				if ($content->Active()) {
 					$type = strtolower($content->Type());
@@ -67,7 +67,7 @@ if (isset($params['infoonly']) && cms_to_bool($params['infoonly'])) {
 	exit;
 }
 
-$rootnodes = $hm->get_children();
+$rootnodes = $ptops->get_children();
 
 if (!$rootnodes) { // nothing to do
 	echo json_encode([
@@ -91,7 +91,7 @@ $alias = 'selpagealias';
 $fill_node = function($node, int $depth = 0) use(&$fill_node, &$page, &$title, &$alias) : array
 {
 	if (!is_object($node)) { return []; }
-	$content = $node->getContent(false);
+	$content = $node->get_content(false);
 	if (is_object($content)) {
 		if (!$content->Active()) { return []; }
 		$type = strtolower($content->Type());
@@ -120,16 +120,16 @@ $fill_node = function($node, int $depth = 0) use(&$fill_node, &$page, &$title, &
 		];
 
 		if ($node->has_children()) {
-			$children = $node->getChildren(false, true); //TODO ok to include inactive/disabled?
-			if ($children && is_array($children)) {
+			$children = $node->load_children(false, true); //TODO ok to include inactive/disabled?
+			if ($children) {
 				$child_nodes = [];
-				foreach ($children as $cnode) {
-					$tmp = $fill_node($cnode, $depth+1); //recurse
+				foreach ($children as $child) {
+					$tmp = $fill_node($child, $depth+1); //recurse
 					if (is_array($tmp)) {
 						$child_nodes[] = $tmp;
 					}
 				}
-				unset($cnode); //garbage-cleaner signal
+				unset($child); //garbage cleaner assistance
 				if ($child_nodes) {
 					$data['children'] = $child_nodes;
 				}
@@ -160,9 +160,9 @@ try {
 	$here = 1;
 }
 */
-//TODO extra flags if defined: JSON_UNESCAPED_LINE_TERMINATORS | JSON_INVALID_UTF8_IGNORE
+//TODO extra flags if defined: JSON_INVALID_UTF8_IGNORE PHP 7.2+
 echo json_encode([
 	'body' => $body,
 	'title' => $title,
 	'alias' => $alias
-	], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
+	], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK | JSON_UNESCAPED_LINE_TERMINATORS);

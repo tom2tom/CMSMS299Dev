@@ -71,7 +71,13 @@ $tpl->assign('list_visiblecolumns', $tmp);
 
 $prefs = Utils::get_pagedefaults();
 $templates = TemplateOperations::template_query(['originator' => TemplateType::CORE, 'as_list' => 1]);
+if ($templates) {
+	natcasesort($templates); //TODO sort by name
+}
 $eds = Lone::get('ContentOperations')->ListAdditionalEditors();
+if ($eds) {
+	natcasesort($eds); //TODO sort by UTF-8 name etc
+}
 $realm = $this->GetName();
 $types = Lone::get('ContentTypeOperations')->ListContentTypes(false, false, false, $realm);
 
@@ -86,6 +92,7 @@ if ($types) {
 	] as $one) {
 		unset($types[$one]);
 	}
+	natcasesort($types);
 }
 
 list($stylerows, $grouped, $js) = Utils::get_sheets_data($prefs['styles'] ?? []);

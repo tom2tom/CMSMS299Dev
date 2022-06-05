@@ -45,7 +45,7 @@ class wizard_step3 extends wizard_step
         // required test ... php version
         $v = PHP_VERSION;
         $obj = new version_range_test('php_version', $v);
-        $obj->minimum = '7.1';  // PHP 7.1 EOL late 2019, 7.3 EOL late 2021
+        $obj->minimum = '7.2';  // PHP 7.2 EOL late 2020, 7.3 EOL late 2021
         $obj->recommended = '7.3';
         $obj->fail_msg = lang('fail_php_version', $v, $obj->minimum);
         if (version_compare($obj->minimum, $obj->recommended) < 0) {

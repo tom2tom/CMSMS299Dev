@@ -316,33 +316,35 @@ class Content extends ContentBase
 	 */
 	public function TemplateResource() : string
 	{
-		/*
-				$tmp = $this->GetPropertyValue('template_rsrc');
-				if( !$tmp ) $tmp = $this->mTemplateId;
-				if( $tmp ) {
-					$num = (int) $tmp;
-					if( $num > 0 && trim($num) == $tmp ) {
-						// numeric: assume normal (database) template
-						return "cms_template:$tmp";
-					} else {
-						return $tmp;
-					}
-				}
-				return '';
-		*/
+/*
+		$tmp = $this->GetPropertyValue('template_rsrc');
+		if( !$tmp ) $tmp = $this->mTemplateId;
+		if( $tmp ) {
+			$num = (int) $tmp;
+			if( $num > 0 && trim($num) == $tmp ) {
+				// numeric: assume normal (database) template
+				return "cms_template:$tmp";
+			} else {
+				return $tmp;
+			}
+		}
+		return '';
+*/
 		return 'cms_template:'.$this->mTemplateId;
 	}
 
 	/**
-	 * Return UI element(s) for [re]setting a named content property
-	 * @internal
+	 * Return html to display an input element for modifying a property
+	 * of this object.
 	 *
 	 * @param string $propname The property name
-	 * @param string $adding Flag indicating whether the editor is processing
-	 *  an addition, otherwise it's an edit
-	 * @return array 2 members or empty
-	 *  [0] = label
-	 *  [1] = input element HTML and javascript.
+	 * @param bool $adding Whether we are in add or edit mode.
+	 * @return array 3- or 4-members
+	 * [0] = heart-of-label 'for="someid">text' | text
+	 * [1] = popup-help | ''
+	 * [2] = input element | text
+	 * [3] = optional extra displayable content
+	 * or empty
 	 */
 	public function ShowElement($propname, $adding)
 	{
@@ -404,6 +406,7 @@ class Content extends ContentBase
 					// TODO see get_template_list()
 					$list = TemplateOperations::template_query(['as_list' => 1]);
 					if ($list) {
+						natcasesort($list);
 						foreach ($list as $tpl_id => $tpl_name) {
 							$_templates[] = ['value' => $tpl_id, 'label' => $tpl_name];
 						}
@@ -544,14 +547,15 @@ class Content extends ContentBase
 //		if (!$config['page_template_list']) { //WHAAAT ?
 		$_tpl = TemplateOperations::template_query(['as_list' => 1]);
 		if ($_tpl) {
+			natcasesort($_tpl);
 			foreach ($_tpl as $tpl_id => $tpl_name) {
 				$_list[] = ['label' => $tpl_name, 'value' => $tpl_id];
 			}
 		}
 /*		} else {
 			$raw = $config['page_template_list'];
-			if( is_string($raw) ) $raw = [ $this->mod->Lang('default')=>$raw ];
-
+			if( is_string($raw) ) { $raw = [ $this->mod->Lang('default')=>$raw ]; }
+			else { natcasesort($raw); }
 			foreach( $raw as $label => $rsrc ) {
 				$_list[] = [ 'label'=>$label, 'value'=>$rsrc ];
 			}

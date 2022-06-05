@@ -45,7 +45,7 @@ class Content extends ContentBase
 		parent::__construct($params);
 		if (isset($this->_fields['content_id'])) {
 			// not constructing: load content-block(s) and anything else relevant to the display
-			$this->_load_properties();
+			$this->LoadProperties();
 		}
 	}
 

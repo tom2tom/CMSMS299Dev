@@ -25,7 +25,6 @@ use CMSMS\AdminUtils;
 use CMSMS\ContentType;
 use CMSMS\contenttypes\ContentBase;
 use CMSMS\DeprecationNotice;
-//use CMSMS\internal\ContentTree;
 use CMSMS\Lone;
 use Exception;
 use const CMS_DB_PREFIX;
@@ -41,8 +40,8 @@ use function munge_string_to_url;
  * This class includes generic content-related methods, plus some tailored
  * for processing the content tree. Care is needed when preparing content
  * for runtime page-display or page-listing/modification by the ContentManager module.
- * The page/node data are as minimal as possible, consistent with tree operations
- * & related menu generation.
+ * The page/node data are as minimal as possible, consistent with tree
+ * operations and related menu generation.
  *
  * @final
  * @since 0.8
@@ -218,7 +217,7 @@ final class ContentOperations
 	 * object. Default false (hence a shortform object)
 	 * @return mixed An object derived from ContentBase | null
 	 */
-	public function CreateNewContent($type, array $params = [], bool $editable = false)
+	public function CreateNewContent($type, array $params = [], bool $editable = FALSE)
 	{
 		if( $type instanceof ContentType ) {
 			$type = $type->type;
@@ -226,7 +225,7 @@ final class ContentOperations
 		$ctype = Lone::get('ContentTypeOperations')->LoadContentType($type, $editable);
 		if( is_object($ctype) ) {
 			if( $editable && empty($ctype->editorclass) ) {
-				$editable = false; //revert to using displayable form, hopefully also editable
+				$editable = FALSE; //revert to using displayable form, hopefully also editable
 			}
 			if( $editable ) {
 				if( class_exists($ctype->editorclass) ) {
@@ -247,11 +246,11 @@ final class ContentOperations
 	 *
 	 * @param mixed $id int | null The id of the content object to load.
 	 *  If < 1, the default id will be used. TODO OR create empty object of some type
-	 * @param bool $loadprops Optional flag whether to also load the
+	 * @param bool $extended Optional flag whether to also load the
 	 * 'non-core' properties of the content object. Default false.
 	 * @return mixed The loaded content object | null if nothing is found.
 	 */
-	public function LoadEditableContentFromId($id, bool $loadprops = false)
+	public function LoadEditableContentFromId($id, bool $extended = FALSE)
 	{
 		$id = (int)$id;
 		if( $id < 1 ) {
@@ -273,9 +272,9 @@ EOS;
 				$params = $db->getRow('SELECT * FROM '.CMS_DB_PREFIX.'content WHERE content_id='.$id);
 				$classname = $row['editclass'];
 				$content = new $classname($params);
-				if( $content && $loadprops ) {
+				if( $content && $extended ) {
 					// force-load extended properties
-					$content->HasProperty('any~thing');
+					$content->LoadProperties();
 				}
 				return $content;
 			}
@@ -288,10 +287,11 @@ EOS;
 	 * if possible, or else added to that cache after loading.
 	 *
 	 * @param mixed $id int | null The id of the content object to load. If < 1, the default id will be used.
-	 * @param bool $loadprops Optional flag whether to load the properties of that content object. Default false.
-	 * @return mixed The loaded content object | null if nothing is found.
+	 * @param bool $extended Optional flag whether to load the 'non-core'
+	 *  properties of that content object. Default false. Unused since 3.0
+	 * @return mixed The content object | null if not found
 	 */
-	public function LoadContentFromId($id, bool $loadprops = false)
+	public function LoadContentFromId($id, bool $extended = FALSE)
 	{
 		$id = (int)$id;
 		if( $id < 1 ) {
@@ -299,7 +299,7 @@ EOS;
 		}
 
 		$cache = Lone::get('SystemCache');
-		$contentobj = $cache->get($id, 'tree_pages');
+		$contentobj = $cache->get($id, 'site_pages');
 		if( !$contentobj ) {
 			$db = Lone::get('Db');
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE content_id=?';
@@ -314,21 +314,22 @@ EOS;
 					if( method_exists( $contentobj, 'LoadFromData') ) {
 						$contentobj->LoadFromData($row);
 					}
-					$cache->set($id, $contentobj, 'tree_pages');
+					$cache->set($id, $contentobj, 'site_pages');
 				}
 				else {
 					throw new Exception('Unrecognized content-type \''.$row['type'].'\' used in '.__METHOD__);
 				}
 			}
-//		}
-//		else {
-			//TODO trigger module-loading etc, so that page tags get registered
 		}
-
-		if( $loadprops ) {
+//		else {
+//TODO trigger module-loading etc, so that page tags get registered
+//		}
+/*
+		if( $extended ) {
 			// the tag which intiated the menu specified 'deep' pre-loading
 			// doesn't help anything, ignored
 		}
+*/
 		return $contentobj;
 	}
 
@@ -340,9 +341,9 @@ EOS;
 	 *  is true. Default false.
 	 * @return mixed The matched ContentBase object | null
 	 */
-	public function LoadContentFromAlias($alias, bool $only_active = false)  //TODO ensure appropriate variant of content-object
+	public function LoadContentFromAlias($alias, bool $only_active = FALSE)  //TODO ensure appropriate variant of content-object
 	{
-		$contentobj = Lone::get('SystemCache')->get($alias, 'tree_pages');
+		$contentobj = Lone::get('SystemCache')->get($alias, 'site_pages');
 		if( $contentobj === null ) {
 			$db = Lone::get('Db');
 			$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE (content_id=? OR content_alias=?)';
@@ -367,42 +368,37 @@ EOS;
 	 * @internal
 	 * @ignore
 	 * @param integer $content_id The numeric id of the page to update
-	 * @param array $hash A hash of some properties of all content objects
+	 * @param array $hash Some properties of all content objects
 	 * @return array maybe empty
 	 */
 	private function _set_hierarchy_position(int $content_id, array $hash)
 	{
-		$row = $hash[$content_id];
-		$saved_row = $row;
 		$hier = $idhier = $pathhier = '';
 		$current_parent_id = $content_id;
 
 		while( $current_parent_id > 0 ) {
+			$row = $hash[$current_parent_id];
 			$item_order = max($row['item_order'], 1);
 			$hier = str_pad($item_order, 3, '0', STR_PAD_LEFT) . '.' . $hier; //max usable order 999 (tho in practice > 9 is a sucky design) since 3.0, was 99999
 			$idhier = $current_parent_id . '.' . $idhier;
 			$pathhier = $row['alias'] . '/' . $pathhier;
 			$current_parent_id = $row['parent_id'];
-			if( $current_parent_id < 1 ) break;
-			$row = $hash[$current_parent_id];
 		}
 
-		if( strlen($hier) > 0 ) $hier = substr($hier, 0, -1);
-		if( strlen($idhier) > 0 ) $idhier = substr($idhier, 0, -1);
-		if( strlen($pathhier) > 0 ) $pathhier = substr($pathhier, 0, -1);
+		//strip trailing separators
+		if( $hier ) $hier = substr($hier, 0, -1);
+		if( $idhier ) $idhier = substr($idhier, 0, -1);
+		if( $pathhier ) $pathhier = substr($pathhier, 0, -1);
 
-		// static properties here >> Lone property|ies ?
-		// if we actually did something, return the row.
-		static $_cnt;
-		$a = ($hier == $saved_row['hierarchy']);
-		$b = ($idhier == $saved_row['id_hierarchy']);
-		$c = ($pathhier == $saved_row['hierarchy_path']);
-		if( !$a || !$b || !$c ) {
-			$_cnt++;
-			$saved_row['hierarchy'] = $hier;
-			$saved_row['id_hierarchy'] = $idhier;
-			$saved_row['hierarchy_path'] = $pathhier;
-			return $saved_row;
+		// if we actually did something, return the changed row.
+		$row = $hash[$content_id];
+		if( $hier != $row['hierarchy'] ||
+		    $idhier != $row['id_hierarchy'] ||
+		    $pathhier != $row['hierarchy_path'] ) {
+			$row['hierarchy'] = $hier;
+			$row['id_hierarchy'] = $idhier;
+			$row['hierarchy_path'] = $pathhier;
+			return $row;
 		}
 		return [];
 	}
@@ -423,27 +419,14 @@ EOS;
 SELECT content_id,parent_id,item_order,content_alias AS alias,hierarchy,id_hierarchy,hierarchy_path FROM {$pref}content
 ORDER BY hierarchy,parent_id,item_order
 EOS;
-/*
-		$list = $db->getArray($sql);
-		if( !$list ) {
-			// nothing to do, get outa here.
+		$dbr = $db->getAssoc($sql);
+		if( !$dbr ) {
 			return;
 		}
-		$hash = [];
-		foreach( $list as $row ) {
-			$hash[$row['content_id']] = $row;
-		}
-		unset($list);
-*/
-		$hash = $db->getAssoc($sql);
-		if( !$hash ) {
-			return;
-		}
-		// would be nice to use a transaction here.
-//		static $_n;
+		// would be nice to use a transaction here
 		$stmt = $db->prepare('UPDATE '.CMS_DB_PREFIX.'content SET hierarchy = ?, id_hierarchy = ?, hierarchy_path = ? WHERE content_id = ?');
-		foreach( $hash as $content_id => $row ) {
-			$changed = $this->_set_hierarchy_position($content_id, $hash);
+		foreach( $dbr as $content_id => $row ) {
+			$changed = $this->_set_hierarchy_position($content_id, $dbr);
 			if( $changed ) {
 				$db->execute($stmt, [$changed['hierarchy'], $changed['id_hierarchy'], $changed['hierarchy_path'], $content_id]);
 			}
@@ -464,7 +447,8 @@ EOS;
 	}
 
 	/**
-	 * Set the last modified date of content so that on the next request the content cache will be loaded from the database
+	 * Set the last-modified date of content so that in the next request
+	 * the content cache will be loaded from the database
 	 *
 	 * @internal
 	 * @access private
@@ -478,31 +462,31 @@ EOS;
 //		$cache->delete('content_flatlist');
 //		$cache->delete('content_tree');
 //		$cache->delete('content_quicklist');
-		Lone::get('SystemCache')->clear('tree_pages');
+		Lone::get('SystemCache')->clear('site_pages');
 		//etc for CM list
 	}
 
 	/**
-	 * Loads a set of content objects into the cached tree.
+	 * Loads a set of content objects into the cached tree
+	 * @deprecated since 3.0 No loading is done
 	 *
 	 * @param bool $loadcontent UNUSED If false, only create the nodes in the tree, don't load the content objects
-	 * @return ContentTree The topmost/root node of the pages-tree NOPE HierarchyManager
-	 * @deprecated
+	 * @return PageTreeOperations singleton
 	 */
-	public function GetAllContentAsHierarchy(bool $loadcontent = false)
+	public function GetAllContentAsHierarchy(bool $loadcontent = FALSE)
 	{
-		return Lone::get('HierarchyManager');  //cmsms()->GetHierarchyManager();
+		return Lone::get('PageTreeOperations');
 	}
 
 	/**
-	 * Loads all content in the database into memory
-	 * Use with caution this can chew up a lot of memory on larger sites.
+	 * Loads all content from the database into memory
+	 * Use with caution - this can chew up a lot of memory on larger sites.
 	 *
-	 * @param bool $loadprops Load extended content properties or just the page structure and basic properties
+	 * @param bool $extended Load extended content properties or just the page structure and basic properties
 	 * @param bool $inactive  Load inactive pages as well
 	 * @param bool $showinmenu Load pages marked as show in menu
 	 */
-	public function LoadAllContent(bool $loadprops = FALSE, bool $inactive = FALSE, bool $showinmenu = FALSE)
+	public function LoadAllContent(bool $extended = FALSE, bool $inactive = FALSE, bool $showinmenu = FALSE)
 	{
 		static $_loaded = 0;
 		if( $_loaded == 1 ) {
@@ -512,7 +496,7 @@ EOS;
 		$cache = Lone::get('SystemCache');
 
 		$expr = [];
-		$loaded_ids = $cache->getindex('tree_pages');
+		$loaded_ids = $cache->getindex('site_pages');
 		if( $loaded_ids ) {
 			$expr[] = 'content_id NOT IN ('.implode(', ', $loaded_ids).')';
 		}
@@ -531,7 +515,7 @@ EOS;
 		$db = Lone::get('Db');
 		$rst = $db->execute($query);
 
-		if( $loadprops ) {
+		if( $extended ) {
 			$child_ids = [];
 			while( !$rst->EOF() ) {
 				$child_ids[] = $rst->fields['content_id'];
@@ -569,22 +553,22 @@ EOS;
 			if( !in_array($row['type'], $valids) ) continue;
 
 			$id = (int)$row['content_id'];
-			$contentobj = $cache->get($id, 'tree_pages');
+			$contentobj = $cache->get($id, 'site_pages');
 			if( !$contentobj ) {
 				$contentobj = $this->CreateNewContent($row['type'], $row);
 				if( $contentobj ) {
 					// legacy support
 					if( method_exists($contentobj, 'LoadFromData') ) {
-						$contentobj->LoadFromData($row, false);
+						$contentobj->LoadFromData($row, FALSE);
 					}
-					if( $loadprops && $contentprops && isset($contentprops[$id]) ) {
+					if( $extended && $contentprops && isset($contentprops[$id]) ) {
 						// load the properties from local cache.
 						$props = $contentprops[$id];
 						foreach( $props as $oneprop ) {
 							$contentobj->SetPropertyValueNoLoad($oneprop['prop_name'], $oneprop['content']);
 						}
 					}
-					$cache->set($id, $contentobj, 'tree_pages');
+					$cache->set($id, $contentobj, 'site_pages');
 				}
 			}
 			unset($contentobj);
@@ -599,17 +583,17 @@ EOS;
 	 *
 	 * @param mixed $pid Optional id of the parent of the content objects to load
 	 *  A falsy value is treated as -1 i.e. the root of all site-pages. Default 0.
-	 * @param bool $loadprops If true, load the properties of all loaded content objects
+	 * @param bool $extended If true, load the properties of all loaded content objects
 	 * @param bool $all If true, load all content objects, even inactive ones.
 	 * @param array   $explicit_ids (optional) array of explicit content ids to load
 	 */
-	public function LoadChildren($pid = 0, bool $loadprops = false, bool $all = false, array $explicit_ids = [])
+	public function LoadChildren($pid = 0, bool $extended = FALSE, bool $all = FALSE, array $explicit_ids = [])
 	{
 		$db = Lone::get('Db');
 		$cache = Lone::get('SystemCache');
 
 		if( $explicit_ids ) {
-			$loaded_ids = $cache->getindex('tree_pages');
+			$loaded_ids = $cache->getindex('site_pages');
 			if( $loaded_ids ) {
 				$explicit_ids = array_diff($explicit_ids, $loaded_ids);
 			}
@@ -640,7 +624,7 @@ EOS;
 
 		// get the content ids from the returned data
 		$contentprops = [];
-		if( $loadprops ) {
+		if( $extended ) {
 			$child_ids = [];
 			for( $i = 0, $n = count($contentrows); $i < $n; $i++ ) {
 				$child_ids[] = $contentrows[$i]['content_id'];
@@ -679,23 +663,23 @@ EOS;
 			}
 
 			$id = (int)$row['content_id'];
-			$contentobj = $cache->get($id, 'tree_pages');
+			$contentobj = $cache->get($id, 'site_pages');
 			if( !$contentobj ) {
 //				unset($row['metadata']);
 				$contentobj = $this->CreateNewContent($row['type'], $row);
 				if( $contentobj ) {
 					// legacy support
 					if( method_exists($contentobj, 'LoadFromData') ) {
-						$contentobj->LoadFromData($row, false);
+						$contentobj->LoadFromData($row, FALSE);
 					}
-					if( $loadprops && $contentprops && isset($contentprops[$id]) ) {
+					if( $extended && $contentprops && isset($contentprops[$id]) ) {
 						// load the properties from local cache
 						foreach( $contentprops[$id] as $oneprop ) {
 							$contentobj->SetPropertyValueNoLoad($oneprop['prop_name'], $oneprop['content']);
 						}
 						unset($contentprops[$id]);
 					}
-					$cache->set($id, $contentobj, 'tree_pages');
+					$cache->set($id, $contentobj, 'site_pages');
 				}
 			}
 			unset($contentobj);
@@ -719,7 +703,7 @@ EOS;
 		$db->execute($sql);
 
 		$contentobj = $this->LoadContentFromId($id); //TODO ensure relevant content-object
-		$contentobj->SetDefaultContent(true);
+		$contentobj->SetDefaultContent(TRUE);
 		$contentobj->Save();
 
 		Lone::get('LoadedData')->refresh('default_content');
@@ -752,19 +736,19 @@ EOS;
 	 * Caution:  it is entirely possible that this method (and other similar methods of loading content) will result in a memory outage
 	 * if there are a lot of content objects AND/OR large amounts of content properties.  Use with caution.
 	 *
-	 * @param bool $loadprops optional parameter for LoadAllContent(). Default true
+	 * @param bool $extended optional parameter for LoadAllContent(). Default true
 	 * @return array The array of content objects
 	 */
-	public function GetAllContent(bool $loadprops = true)
+	public function GetAllContent(bool $extended = TRUE)
 	{
 		debug_buffer('get all content...');
-		$hm = cmsms()->GetHierarchyManager();
-		$list = $hm->getFlatList();
+		$ptops = Lone::get('PageTreeOperations');
+		$list = $ptops->get_flatlist();
 
-		$this->LoadAllContent($loadprops);
+		$this->LoadAllContent($extended);
 		$output = [];
 		foreach( $list as &$node ) {
-			$tmp = $node->getContent(false, true, true);
+			$tmp = $node->get_content(FALSE, TRUE, TRUE);
 			if( is_object($tmp) ) $output[] = $tmp;
 			unset($node); //free space a bit
 		}
@@ -784,11 +768,11 @@ EOS;
 		$current = 0,
 		$value = 0,
 		$name = 'parent_id',
-		$allow_current = false,
-		$use_perms = false,
-		$ignore_current = false, // unused since 2.0
-		$allow_all = false,
-		$for_child = false)
+		$allow_current = FALSE,
+		$use_perms = FALSE,
+		$ignore_current = FALSE, // unused since 2.0
+		$allow_all = FALSE,
+		$for_child = FALSE)
 	{
 		return AdminUtils::CreateHierarchyDropdown(
 			$current, $value, $name, $allow_current, $use_perms, $allow_all, $for_child
@@ -799,13 +783,14 @@ EOS;
 	 * Return the content id corresponding to the specified content alias.
 	 *
 	 * @param string $alias The alias to query
-	 * @return int The resulting id.  null if not found.
+	 * @return int The resulting id | 0 if not found
 	 */
 	public function GetPageIDFromAlias(string $alias)
 	{
-		$hm = cmsms()->GetHierarchyManager();
-		$node = $hm->find_by_tag('alias', $alias);
-		if( $node ) return $node->get_tag('id');
+		$ptops = Lone::get('PageTreeOperations');
+		$node = $ptops->find_by_tag('alias', $alias);
+        if( $node ) { return $node->getId(); }
+        return 0;
 	}
 
 	/**
@@ -822,7 +807,7 @@ EOS;
 		$content_id = $db->getOne($query, [$this->CreateUnfriendlyHierarchyPosition($position)]);
 
 		if( $content_id ) return $content_id;
-		return false;
+		return FALSE;
 	}
 
 	/**
@@ -833,18 +818,18 @@ EOS;
 	 */
 	public function GetPageAliasFromID(int $content_id)
 	{
-		$hm = cmsms()->GetHierarchyManager();
-		$node = $hm->get_node_by_id($content_id);
+		$ptops = Lone::get('PageTreeOperations');
+		$node = $ptops->get_node_by_id($content_id);
 		if( $node ) return $node->get_tag('alias');
 	}
 
 	/**
 	 * Check if a content alias is used
+	 * @since 2.2.2
 	 *
 	 * @param string $alias The alias to check
 	 * @param int $content_id The id of the current page, if any
 	 * @return bool
-	 * @since 2.2.2
 	 */
 	public function CheckAliasUsed(string $alias, int $content_id = -1)
 	{
@@ -863,25 +848,30 @@ EOS;
 	}
 
 	/**
-	 * Check if a potential alias is valid.
+	 * Check whether a content alias candidate is suitably formed.
+	 * @since 2.2.2
 	 *
 	 * @param string $alias The alias to check
 	 * @return bool
-	 * @since 2.2.2
 	 */
 	public function CheckAliasValid(string $alias)
 	{
 		if( ((int)$alias > 0 || (float)$alias > 0.00001) && is_numeric($alias) ) return FALSE;
 		$tmp = munge_string_to_url($alias, TRUE);
-		return $tmp == mb_strtolower($alias); // TODO if mb_string N/A
+		if( function_exists('mb_strtolower') ) {
+			return $tmp == mb_strtolower($alias);
+		}
+		else {
+			return $tmp == strtolower($alias); // TODO test when mb-content but no mb_string()
+		}
 	}
 
 	/**
-	 * Checks to see if a content alias is valid and not in use.
+	 * Check whether a content alias is valid and not in use.
 	 *
 	 * @param string $alias The content alias to check
 	 * @param int $content_id The id of the current page, for used alias checks on existing pages
-	 * @return string The error, if any.  If there is no error, returns FALSE.
+	 * @return mixed Error string, if any | false if there is no error.
 	 */
 	public function CheckAliasError(string $alias, int $content_id = -1)
 	{
@@ -899,7 +889,7 @@ EOS;
 	 */
 	public function CreateFriendlyHierarchyPosition(string $position)
 	{
-		$tmp = '';
+/*		$tmp = '';
 		$levels = explode('.', $position);
 		$n = count($levels);
 		$m = $n - 1;
@@ -908,6 +898,8 @@ EOS;
 			if( $i < $m ) { $tmp .= '.'; }
 		}
 		return $tmp;
+*/
+		return preg_replace('/(?<=^|\.)0+/', '', $position);
 	}
 
 	/**
@@ -932,25 +924,26 @@ EOS;
 	}
 
 	/**
-	 * Check whether the supplied page id is a parent of the specified
-	 * base page (or the current page)
-	 *
+	 * Check whether the supplied page id represents the parent of
+	 * the specified base page (or the current page)
 	 * @since 2.0
+	 *
 	 * @param int $test_id Page ID to test
 	 * @param int $base_id (optional) Page ID to act as the base page.  The current page is used if not specified.
 	 * @return bool
 	 */
-	public function CheckParentage(int $test_id, int $base_id = null)
+	public function CheckParentage(int $test_id, int $base_id = 0)
 	{
-		$gCms = Lone::get('App');
-		if( !$base_id ) $base_id = $gCms->get_content_id();
+		if( !$base_id ) {
+			$base_id = Lone::get('App')->get_content_id();
+		}
 		$base_id = (int)$base_id;
 		if( $base_id < 1 ) return FALSE;
 
-		$hm = $gCms->GetHierarchyManager();
-		$node = $hm->get_node_by_id($base_id);
+		$ptops = Lone::get('PageTreeOperations');
+		$node = $ptops->get_node_by_id($base_id);
 		while( $node ) {
-			if( $node->get_tag('id') == $test_id ) return TRUE;
+			if( $node->getId() == $test_id ) return TRUE;
 			$node = $node->get_parent();
 		}
 		return FALSE;
@@ -958,8 +951,8 @@ EOS;
 
 	/**
 	 * Return a list of pages that the user owns.
-	 *
 	 * @since 2.0
+	 *
 	 * @param int $userid The userid
 	 * @return array Array of integer page id's
 	 */
@@ -996,8 +989,8 @@ EOS;
 
 	/**
 	 * Return a list of pages for which the user has edit-authority.
-	 *
 	 * @since 2.0
+	 *
 	 * @param int $userid The userid
 	 * @return int[] Array of page id's
 	 */
@@ -1059,8 +1052,8 @@ ORDER BY B.hierarchy';
 		$access = $this->GetPageAccessForUser($userid);
 		if( !$access ) return FALSE;
 
-		$hm = cmsms()->GetHierarchyManager(); //TODO below siblings?
-		$node = $hm->get_node_by_id($contentid);
+		$ptops = Lone::get('PageTreeOperations'); //TODO below siblings?
+		$node = $ptops->get_node_by_id($contentid);
 		if( !$node ) return FALSE;
 		$parent = $node->get_parent();
 		if( !$parent ) return FALSE;
@@ -1068,7 +1061,7 @@ ORDER BY B.hierarchy';
 		$peers = $parent->get_children();
 		if( $peers ) {
 			for( $i = 0, $n = count($peers); $i < $n; $i++ ) { //CHECKME valid index?
-				if( !in_array($peers[$i]->get_tag('id'), $access) ) return FALSE;
+				if( !in_array($peers[$i]->getId(), $access) ) return FALSE;
 			}
 		}
 		return TRUE;
@@ -1076,20 +1069,20 @@ ORDER BY B.hierarchy';
 
 	/**
 	 * Find in the cache a hierarchy node corresponding to a given page id
-	 * This method is a convenience replication of the corresponding HierarchyManager method
+	 * This method is a convenience replication of the corresponding PageTreeOperations method
 	 *
 	 * @param int $contentid The page id
-	 * @return mixed ContentTree | null
+	 * @return mixed PageTreeNode | null
 	 */
 	public function get_node_by_id(int $contentid)
 	{
 /*		$list = Lone::get('LoadedData')->get('content_quicklist');
 		if( isset($list[$contentid]) ) return $list[$contentid];
 */
-		$hm = cmsms()->GetHierarchyManager();
-		return $hm->get_node_by_id($contentid);
+		$ptops = Lone::get('PageTreeOperations');
+		return $ptops->get_node_by_id($contentid);
 	}
 } // class
 
 //backward-compatibility shiv
-\class_alias(ContentOperations::class, 'ContentOperations', false);
+\class_alias(ContentOperations::class, 'ContentOperations', FALSE);

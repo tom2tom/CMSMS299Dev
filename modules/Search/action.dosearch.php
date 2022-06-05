@@ -1,7 +1,7 @@
 <?php
 /*
 Search module action: dosearch. This can be initiated from a frontend search (default action)
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -116,15 +116,15 @@ EOS;
     $query .= ' ORDER BY nb DESC, total_weight DESC';
     $rst = $db->execute($query);
     if ($rst) {
-        $hm = $gCms->GetHierarchyManager();
+        $ptops = $gCms->GetHierarchyManager();
         while (!$rst->EOF) {
             //Handle internal (templates, content, etc) first...
             if ($rst->fields['module_name'] == $this->GetName()) {
                 if ($rst->fields['extra_attr'] == 'content') {
                     //Content is easy... just grab it out of hierarchy manager and toss the url in
-                    $node = $hm->find_by_tag('id',$rst->fields['content_id']);
+                    $node = $ptops->get_node_by_id($rst->fields['content_id']);
                     if (isset($node)) {
-                        $content = $node->getContent();
+                        $content = $node->get_content();
                         if ($content && $content->Active()) $col->AddItem($content->Name(), $content->GetURL(), $content->Name(), $rst->fields['total_weight']);
                     }
                 }
@@ -132,7 +132,7 @@ EOS;
                 $thepageid = $this->GetPreference('resultpage',-1);
                 if ($thepageid == -1) $thepageid = $returnid;
                 if (isset($params['detailpage'])) {
-                    $tmppageid = $hm->find_by_identifier($params['detailpage'],false);
+                    $tmppageid = $ptops->find_by_identifier($params['detailpage'],false);
                     if ($tmppageid) $thepageid = $tmppageid;
                 }
                 if ($thepageid == -1) $thepageid = $returnid;

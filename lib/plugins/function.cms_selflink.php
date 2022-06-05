@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to generate an url or link to a page of the current website.
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -28,7 +28,7 @@ use function CMSMS\specialize;
 function smarty_function_cms_selflink($params, $template)
 {
 	$gCms = Lone::get('App');
-	$hm = $gCms->GetHierarchyManager();
+	$ptops = $gCms->GetHierarchyManager();
 	$url = '';
 	$urlparam = '';
 	$label_side = 'left';
@@ -52,13 +52,16 @@ function smarty_function_cms_selflink($params, $template)
 		}
 
 		if( $page ) {
-			if( (int)$page > 0 && is_numeric($page) ) {
+			if( is_numeric($page) ) {
 				$pageid = (int)$page;
+				if( $pageid <= 0 ) {
+					$pageid = '';
+				}
 			}
 			else {
 				$page = de_specialize($page); // decode entities (alias may be encoded if entered in WYSIWYG)
-				$node = $hm->find_by_tag('alias',$page);
-				if( $node ) $pageid = $node->get_tag('id');
+				$node = $ptops->find_by_tag('alias',$page);
+				if( $node ) $pageid = $node->getId();
 			}
 		}
 	}
@@ -71,13 +74,13 @@ function smarty_function_cms_selflink($params, $template)
 		switch( $dir ) {
 		case 'next':
 			// next visible page
-			$flatcontent = $hm->getFlatList();
+			$flatcontent = $ptops->get_flatlist();
 			$indexes = array_keys($flatcontent);
 			$i = array_search($startpage,$indexes);
 			if( $i < ($n = count($flatcontent)) ) {
 				for( $j = $i + 1; $j < $n; $j++ ) {
 					$k = $indexes[$j];
-					$content = $flatcontent[$k]->getContent();
+					$content = $flatcontent[$k]->get_content();
 					if( !is_object($content) ) continue;
 					if( !$content->Active() || !$content->HasUsableLink() || !$content->ShowInMenu() ) continue;
 					$pageid = $content->Id();
@@ -90,18 +93,18 @@ function smarty_function_cms_selflink($params, $template)
 		case 'nextpeer':
 		case 'nextsibling':
 			// next valid peer page.
-			$node = $hm->find_by_tag('id',$startpage);
+			$node = $ptops->get_node_by_id($startpage);
 			if( !$node ) return;
 			$parent = $node->get_parent();
-			if( !$parent ) $parent = $hm; //root node, cloned
+			if( !$parent ) $parent = $ptops; // notional root node
 			$children = $parent->get_children();
 			for( $i = 0, $n = count($children); $i < $n; $i++ ) {
-				$id = $children[$i]->get_tag('id');
+				$id = $children[$i]->getId();
 				if( $id == $startpage ) break;
 			}
 			if( $i < $n ) {
 				for( $j = $i + 1; $j < $n; $j++ ) {
-					$content = $children[$j]->getContent();
+					$content = $children[$j]->get_content();
 					if( !is_object($content) ) continue;
 					if( !$content->Active() || !$content->HasUsableLink() || !$content->ShowInMenu() ) continue;
 					$pageid = $content->Id();
@@ -114,13 +117,13 @@ function smarty_function_cms_selflink($params, $template)
 		case 'prev':
 		case 'previous':
 			// previous visible page.
-			$flatcontent = $hm->getFlatList();
+			$flatcontent = $ptops->get_flatlist();
 			$indexes = array_keys($flatcontent);
 			$i = array_search($startpage,$indexes);
 			if( $i !== FALSE ) {
 				for( $j = $i - 1; $j >= 0; $j-- ) {
 					$k = $indexes[$j];
-					$content = $flatcontent[$k]->getContent();
+					$content = $flatcontent[$k]->get_content();
 					if( !is_object($content) || !$content->Active() || !$content->HasUsableLink() || !$content->ShowInMenu() ) continue;
 					$pageid = $content->Id();
 					$label = LangOperations::domain_string('cms_selflink','prev_label');
@@ -132,18 +135,18 @@ function smarty_function_cms_selflink($params, $template)
 		case 'prevpeer':
 		case 'prevsibling':
 			// previous valid peer page.
-			$node = $hm->find_by_tag('id',$startpage);
+			$node = $ptops->get_node_by_id($startpage);
 			if( !$node ) return;
 			$parent = $node->get_parent();
-			if( !$parent ) $parent = $hm;
+			if( !$parent ) $parent = $ptops;
 			$children = $parent->get_children();
 			for( $i = 0, $n = count($children); $i < $n; $i++ ) {
-				$id = $children[$i]->get_tag('id');
+				$id = $children[$i]->getId();
 				if( $id == $startpage ) break;
 			}
 			if( $i < $n ) {
 				for( $j = $i - 1; $j >= 0; $j-- ) {
-					$content = $children[$j]->getContent();
+					$content = $children[$j]->get_content();
 					if( !is_object($content) || !$content->Active() || !$content->HasUsableLink() || !$content->ShowInMenu() ) continue;
 					$pageid = $content->Id();
 					$label = LangOperations::domain_string('cms_selflink','prev_label');
@@ -159,11 +162,11 @@ function smarty_function_cms_selflink($params, $template)
 
 		case 'up':
 			// parent page.
-			$node = $hm->find_by_tag('id',$startpage);
+			$node = $ptops->get_node_by_id($startpage);
 			if( !$node ) return;
 			$node = $node->get_parent();
 			if( !$node ) return '';
-			$content = $node->getContent();
+			$content = $node->get_content();
 			if( !$content ) return '';
 			$pageid = $content->Id();
 			break;
@@ -179,13 +182,13 @@ function smarty_function_cms_selflink($params, $template)
 	}
 
 	// a final check to see if this page exists.
-	$node = $hm->find_by_tag('id',$pageid);
+	$node = $ptops->get_node_by_id($pageid);
 	if( !$node ) {
 		return '';
 	}
 
 	// get the content object.
-	$content = $node->getContent();
+	$content = $node->get_content();
 	if( !$content || !is_object($content) || !$content->Active() || !$content->HasUsableLink() ) {
 		return '';
 	}

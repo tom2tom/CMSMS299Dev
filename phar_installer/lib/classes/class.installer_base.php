@@ -1,7 +1,6 @@
 <?php
 namespace cms_installer;
 
-//use splitbrain\PHPArchive\Tar;
 //use PharData;
 use cms_installer\request;
 use ErrorException;
@@ -159,15 +158,6 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
                         return;
                     }
                 }
-/* now composer-autoloaded
-            }
-            elseif ($space == 'PHPArchive') { //files-archive classes
-                $path = str_replace('\\', DIRECTORY_SEPARATOR, substr($classname, $o));
-                $fp = __DIR__.DIRECTORY_SEPARATOR.$path.'.php';
-                if (is_file($fp)) {
-                    require_once $fp;
-                }
-*/
             }
         }
     }

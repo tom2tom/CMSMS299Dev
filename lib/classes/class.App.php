@@ -26,16 +26,15 @@ use CMSMS\AppConfig;
 use CMSMS\AppState;
 use CMSMS\BookmarkOperations;
 use CMSMS\ContentOperations;
-//use CMSMS\ContentTree;
 use CMSMS\contenttypes\ErrorPage;
 use CMSMS\Database\Connection;
 use CMSMS\DeprecationNotice;
 use CMSMS\GroupOperations;
-use CMSMS\HierarchyManager;
 use CMSMS\internal\Smarty;
 use CMSMS\internal\page_template_parser;
 use CMSMS\Lone;
 use CMSMS\ModuleOperations;
+use CMSMS\PageTreeOperations;
 use CMSMS\UserOperations;
 use CMSMS\UserTagOperations;
 use RuntimeException;
@@ -438,24 +437,14 @@ final class App
     }
 
     /**
-     * Get the cached pages-hierarchy.
-     * A confusingly-named method - it returns a tree-structured set of
-     * classes, not a manager-class in the same sense as the other
-     * managers accessed here.
-     * @see ContentTree, one of which is used for each tree-node
+     * Get the pages-hierarchy manager.
+     * @see also PageTreeNode, one of which is used for each tree-node
      *
-     * @return topmost ContentTree object, which has populated descendant-objects NOPE HierarchyManager
+     * @return PageTreeOperations singelton
      */
-    public function GetHierarchyManager() : HierarchyManager //ContentTree
+    public function GetHierarchyManager() : PageTreeOperations
     {
-/*        $hm = Lone::fastget('PagesTreeTop');
-        if( !$hm ) {
-            $hm = Lone::get('LoadedData')->get('content_tree');
-            Lone::set('PagesTreeTop', $hm);
-        }
-        return $hm;
-*/
-        return Lone::get('HierarchyManager');
+        return Lone::get('PageTreeOperations');
     }
 
     /**

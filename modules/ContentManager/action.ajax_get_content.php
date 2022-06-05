@@ -169,29 +169,29 @@ try {
 		$url1 = $this->create_action_url($id, 'editcontent', ['content_id' => 'XXX']);
 		$t = $this->Lang('prompt_page_edit');
 		$icon = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon page_edit');
-		$linkedit = '<a href="'.$url.'" class="page_edit" accesskey="e" data-cms-content="XXX">'.$icon.'</a>'.PHP_EOL;
+		$linkedit = '<a href="'.$url1.'" class="page_edit" accesskey="e" data-cms-content="XXX">'.$icon.'</a>'.PHP_EOL;
 
 		$url = str_replace('XXX', '%s', $url1).'&m1_steal=1'; //sprintf template
 		$tpl->assign('stealurl', $url);
 
-        if ($padd) {
-            $url = str_replace('content_id', 'clone_id', $url1);
-            $t = $this->Lang('prompt_page_copy');
-            $icon = $themeObject->DisplayImage('icons/system/copy', $t, '', '', 'systemicon page_copy');
-            $linkcopy = '<a href="'.$url.'" accesskey="o">'.$icon.'</a>'.PHP_EOL;
+		if ($padd) {
+			$url = str_replace('content_id', 'clone_id', $url1);
+			$t = $this->Lang('prompt_page_copy');
+			$icon = $themeObject->DisplayImage('icons/system/copy', $t, '', '', 'systemicon page_copy');
+			$linkcopy = '<a href="'.$url.'" accesskey="o">'.$icon.'</a>'.PHP_EOL;
 
-            $url = $this->create_action_url($id, 'editcontent', ['parent_id' => 'XXX']);
-            $t = $this->Lang('prompt_page_addchild');
-            $icon = $themeObject->DisplayImage('icons/system/newobject', $t, '', '', 'systemicon page_addchild');
-            $linkchild = '<a href="'.$url.'" class="page_edit" accesskey="a">'.$icon.'</a>'.PHP_EOL;
-        }
+			$url = $this->create_action_url($id, 'editcontent', ['parent_id' => 'XXX']);
+			$t = $this->Lang('prompt_page_addchild');
+			$icon = $themeObject->DisplayImage('icons/system/newobject', $t, '', '', 'systemicon page_addchild');
+			$linkchild = '<a href="'.$url.'" class="page_edit" accesskey="a">'.$icon.'</a>'.PHP_EOL;
+		}
 
-        if ($pdel) {
-            $url = $this->create_action_url($id, 'defaultadmin', ['delete' => 'XXX']);
-            $t = $this->Lang('prompt_page_delete');
-            $icon = $themeObject->DisplayImage('icons/system/delete', $t, '', '', 'systemicon page_delete');
-            $linkdel = '<a href="'.$url.'" class="page_delete" accesskey="r">'.$icon.'</a>'.PHP_EOL;
-        }
+		if ($pdel) {
+			$url = $this->create_action_url($id, 'defaultadmin', ['delete' => 'XXX']);
+			$t = $this->Lang('prompt_page_delete');
+			$icon = $themeObject->DisplayImage('icons/system/delete', $t, '', '', 'systemicon page_delete');
+			$linkdel = '<a href="'.$url.'" class="page_delete" accesskey="r">'.$icon.'</a>'.PHP_EOL;
+		}
 		$now = time();
 		$userid = get_userid();
 		$menus = [];
@@ -241,13 +241,13 @@ try {
 			if ($row['can_edit']) {
 				$acts[] = ['content' => str_replace('XXX', $rid, $linkedit)];
 			}
-            if ($padd) {
-                if ($row['copy']) {
-                    $acts[] = ['content' => str_replace('XXX', $rid, $linkcopy)];
-                }
-                //no downstream check for add-child
-                $acts[] = ['content' => str_replace('XXX', $rid, $linkchild)];
-            }
+			if ($padd) {
+				if ($row['copy']) {
+					$acts[] = ['content' => str_replace('XXX', $rid, $linkcopy)];
+				}
+				//no downstream check for add-child
+				$acts[] = ['content' => str_replace('XXX', $rid, $linkchild)];
+			}
 			if ($pdel && $row['can_delete'] && $row['delete']) {
 				$acts[] = ['content' => str_replace('XXX', $rid, $linkdel)];
 			}

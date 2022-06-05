@@ -24,7 +24,6 @@ use CMSMS\DataException;
 use CMSMS\Error403Exception;
 use CMSMS\Lone;
 use ContentManager\Utils;
-use function cmsms;
 //use function CMSMS\sanitizeVal;
 
 $dsep = DIRECTORY_SEPARATOR;
@@ -35,7 +34,7 @@ for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
 //$urlext = get_secure_param();
 $userid = get_userid(false);
-$hm = cmsms()->GetHierarchyManager();
+$ptops = Lone::get('PageTreeOperations');
 $contentops = Lone::get('ContentOperations');
 try {
     $display = Utils::get_pagenav_display();
@@ -62,12 +61,12 @@ try {
         $tmplist = $contentops->GetPageAccessForUser($userid);
         if( $tmplist ) {
             $displaylist = $pagelist = [];
-            foreach( $tmplist as $item ) {
-                // get all the parents
+            foreach( $tmplist as $nid ) {
+                // get all this one's ancestors
                 $parents = [];
-                $startnode = $node = $hm->get_node_by_id($item);
-                while( $node && $node->get_tag('id') > 0 ) {
-                    $content = $node->getContent();
+                $node = $ptops->get_node_by_id($nid);
+                while( $node && $node->getId() > 0 ) {
+                    $content = $node->get_content();
                     $rec = $content->ToData();
                     $rec['can_edit'] = $can_edit_any || $contentops->CheckPageAuthorship($userid,$content->Id());
                     if( $display == 'title' ) { $rec['display'] = strip_tags($rec['content_name']); }
@@ -86,7 +85,7 @@ try {
                         $displaylist[] = $parents[$i];
                     }
                 }
-                unset($parents);
+                unset($parents); //garbage-collector assistance
             }
             usort($displaylist,function($a,$b) {
                     return strcmp($a['hierarchy'],$b['hierarchy']);
@@ -106,12 +105,12 @@ try {
 //UNUSED $for_child = isset($_REQUEST['for_child']) && cms_to_bool($_REQUEST['for_child']);
         $allow_current = isset($_REQUEST['allowcurrent']) && cms_to_bool($_REQUEST['allowcurrent']);
         $children_to_data = function($node) use ($display,$userid,$contentops,$allow_all,$can_edit_any,$allow_current,$current) {
-            $children = $node->getChildren(false,$allow_all);
+            $children = $node->load_children(false,$allow_all);
             if( empty($children) ) return;
 
             $child_info = [];
             foreach( $children as $child ) {
-                $content = $child->getContent();
+                $content = $child->get_content();
                 if( !is_object($content) ) continue;
                 if( !$allow_all && !$content->Active() ) continue;
                 if( !$allow_all && !$content->HasUsableLink() ) continue;
@@ -131,9 +130,9 @@ try {
         if( $page < 1 ) $page = -1;
         $node = $thiscontent = null;
         if( $page == -1 ) {
-            $node = $hm; // HierarchyManager object, not a Tree node
+            $node = $ptops; // PageTreeOperations object, not a PageTreeNode node
         } else {
-            $node = $hm->get_node_by_id($page);
+            $node = $ptops->get_node_by_id($page);
         }
         do {
             $out[] = $children_to_data($node); // get children of current page.
@@ -151,17 +150,17 @@ try {
             if( $page < 1 ) $page = -1;
             $node = null;
             if( $page == -1 ) {
-                $node = $hm; // HierarchyManager, not a Tree node
+                $node = $ptops; // PageTreeOperations, not a PageTreeNode node
             }
             else {
-                $node = $hm->get_node_by_id($page);
+                $node = $ptops->get_node_by_id($page);
             }
             if( $node ) {
-                $children = $node->getChildren(false,$allow_all);
+                $children = $node->load_children(false,$allow_all);
                 if( $children ) {
                     $out = [];
                     foreach( $children as $child ) {
-                        $content = $child->getContent();
+                        $content = $child->get_content();
                         if( !is_object($content) ) continue;
                         if( !$allow_all && !$content->Active() ) continue;
                         $rec = $content->ToData();
@@ -191,7 +190,7 @@ try {
 
             $out = [];
             foreach( $peers as $one ) {
-                $node = $hm->find_by_tag('id',$one);
+                $node = $ptops->get_node_by_id($one);
                 if( !$node ) continue;
 
                 // get the parent
@@ -199,9 +198,9 @@ try {
 
                 // and its (viewable) children
                 $out[$one] = [];
-                $children = $parent_node->getChildren(false,$allow_all);
+                $children = $parent_node->load_children(false,$allow_all);
                 for( $i = 0, $n = count($children); $i < $n; $i++ ) {
-                    $content = $children[$i]->getContent();
+                    $content = $children[$i]->get_content();
                     if( ! $content->IsViewable() ) continue;
                     $rec = [];
                     $rec['content_id'] = $content->Id();

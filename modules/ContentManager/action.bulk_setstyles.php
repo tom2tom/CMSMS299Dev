@@ -43,7 +43,7 @@ if (empty($params['bulk_content'])) {
 
 $contentops = Lone::get('ContentOperations');
 $pagelist = $params['bulk_content'];
-//$hm = $gCms->GetHierarchyManager();
+//$ptops = $gCms->GetHierarchyManager();
 
 if (isset($params['submit'])) {
 /*    if( !isset($params['styles']) ) {

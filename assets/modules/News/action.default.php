@@ -54,8 +54,8 @@ if( $tmp > 0 ) {
     $detailpage = $tmp;
 }
 if( isset($params['detailpage']) ) {
-    $hm = $gCms->GetHierarchyManager();
-    $tmp = $hm->find_by_identifier($params['detailpage'], false);
+    $ptops = $gCms->GetHierarchyManager();
+    $tmp = $ptops->find_by_identifier($params['detailpage'], false);
     if( $tmp ) {
         $detailpage = $tmp;
         $params['detailpage'] = $tmp;

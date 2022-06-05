@@ -107,8 +107,8 @@ try {
 			}
 			// double check if this parent is valid... if it is not, we use -1
 			if ($dflt_parent > 0) {
-				$hm = $gCms->GetHierarchyManager();
-				$node = $hm->get_node_by_id($dflt_parent);
+				$ptops = $gCms->GetHierarchyManager();
+				$node = $ptops->get_node_by_id($dflt_parent);
 				if (!$node) {
 					$dflt_parent = -1;
 				}
@@ -178,7 +178,7 @@ try {
 		$this->SetError($this->Lang('error_editpage_contenttype'));
 		$this->Redirect($id, 'defaultadmin', $returnid);
 	}
-	//TODO for the default page, diable|omit errorpage, sectionheader, separator, maybe also link, pagelink
+	//TODO for the default page, disable|omit errorpage, sectionheader, separator, maybe also link, pagelink
 } catch (Throwable $t) {
 	// An error here means we can't display anything
 	$this->SetError($t->getMessage());
@@ -324,7 +324,8 @@ try {
 			if ($this->CheckPermission('Manage All Content')
 			 || $this->CheckPermission('Modify Any Page')
 			 || $content_obj->Owner() == $userid) {
-				// TODO a selector if $adding, or else just text ?
+				natcasesort($existingtypes);
+				//TODO a selector if $adding, or else just text ?
 				$input = FormUtils::create_select([
 					'type' => 'drop',
 					'name' => 'content_type',

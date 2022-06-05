@@ -47,7 +47,6 @@ class Link extends ContentBase
 		foreach ([
 			'cachable' => true,
 			'secure' => false, //deprecated property since 3.0
-//redundant	'type' => 'link',
 		] as $key => $value) {
 			$this->$key = $value;
 		}
@@ -55,12 +54,15 @@ class Link extends ContentBase
 
 	public function HasSearchableContent() : bool { return false; }
 
+    /**
+     * Return an actionable URL for opening this page.
+     * @param bool $rewrite
+     * @return string
+     */
 	public function GetURL(bool $rewrite = true) : string
 	{
 		return (string)$this->GetPropertyValue('url');
-		//return entitize($this->GetPropertyValue('url'));
 	}
 }
-
 //backward-compatibility shiv
 \class_alias(Link::class, 'Link', false);

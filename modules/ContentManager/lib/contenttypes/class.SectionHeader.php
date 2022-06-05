@@ -41,7 +41,7 @@ class SectionHeader extends ContentBase
 		return $this->mod->Lang('contenttype_sectionheader');
 	}
 
-	public function GetURL() : string
+	public function URL() : string
 	{
 		return '#';
 	}

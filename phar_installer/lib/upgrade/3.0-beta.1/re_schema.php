@@ -152,6 +152,7 @@ COLLATE ascii_bin,
 $add_defns[$tblprefix.'layout_tplgroup_members'] = [$tabopts, $flds]; // aka TemplatesGroup::MEMBERSTABLE
 
 // ~~~~~~~~~~~~~ TABLE MODIFICATIONS ~~~~~~~~~~~~~
+
 $flds = '
 MODIFY additional_users_id I UNSIGNED AUTO,
 MODIFY content_id I UNSIGNED,
@@ -896,7 +897,7 @@ if ($rst) {
         $arr = unserialize($row['data']); // no class in there
         $reltop = (!empty($arr['top'])) ? $arr['top'] : 'uploads'; //CHECKME should be site-root-relative TODO later: replace by actual config['uploads_path']
         unset($arr['top']);
-        $raw = json_encode($arr, JSON_NUMERIC_CHECK|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+        $raw = json_encode($arr, JSON_NUMERIC_CHECK|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_IGNORE); //PHP7.2+
         $cst = $row['create_date'];
         if ($cst < 1) {
             $cst = time() - 2592000; // default to 30-days prior

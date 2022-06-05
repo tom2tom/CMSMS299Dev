@@ -15,8 +15,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with CMS Made Simple.
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
@@ -36,14 +35,14 @@ if (version_compare($oldversion, '2.0') < 0) {
     $me = $this->GetName();
     // register events for which other parts of the system may listen
     foreach ([
-     'ContentDeletePost',
-     'ContentDeletePre',
-     'ContentEditPost',
-     'ContentEditPre',
-     'ContentPostCompile',
-     'ContentPostRender',
-     'ContentPreCompile',
-     'ContentPreRender', // 2.2
+     'AddPost',
+     'AddPre',
+     'DeletePost',
+     'DeletePre',
+     'EditPost',
+     'EditPre',
+     'OrderPost',
+     'OrderPre',
     ] as $name) {
         Events::CreateEvent($me, $name); //since 2.0
     }
@@ -51,6 +50,9 @@ if (version_compare($oldversion, '2.0') < 0) {
     // semi-permanent alias for back-compatibility
     $ops = Lone::get('ModuleOperations');
     $ops->set_module_classname('CMSContentManager', get_class($this));
+
+    // remove redundant pages-list parameter
+    $db->execute('DELETE FROM '.CMS_DB_PREFIX."userprefs WHERE preference='open_pages'");
 }
 
 Lone::get('ContentTypeOperations')->RebuildStaticContentTypes();

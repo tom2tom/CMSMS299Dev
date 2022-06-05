@@ -1,7 +1,7 @@
 <?php
 /*
 Navigator module uninstallation process
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -20,6 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\Lone;
 use CMSMS\TemplateType;
 use function CMSMS\log_error;
 
@@ -30,6 +31,14 @@ if( empty($this) || !($this instanceof Navigator)) exit;
 $this->RemovePreference();
 $this->DeleteTemplate();
 $this->RemoveSmartyPlugin();
+
+$this->RemoveEventHandler('ContentManager','AddPost');
+$this->RemoveEventHandler('ContentManager','EditPost');
+$this->RemoveEventHandler('ContentManager','DeletePost');
+$this->RemoveEventHandler('ContentManager','OrderPost');
+//TODO etc see $this->RegisterEvents() e.g. change users ...
+
+Lone::get('LoadedData')->delete('navigator_data');
 
 try {
     $types = TemplateType::load_all_by_originator('Navigator');

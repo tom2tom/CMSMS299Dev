@@ -36,7 +36,7 @@ if (isset($_POST['cancel'])) {
     redirect('listusertags.php'.$urlext);
 }
 
-// specialize any malicious <[/]template> tags in the supplied string
+// specialize any malicious <[/]textarea> tags in the supplied string
 // so that it may be safely parked in a textarea for the user to see/edit
 $munge = function($text) {
     $matches = [];

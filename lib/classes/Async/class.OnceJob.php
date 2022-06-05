@@ -34,14 +34,22 @@ abstract class OnceJob extends Job
 {
     /**
      * Constructor
+     * @param array $params Optional assoc array of valid class properties
+     *  each member like propname => propval
+     * A subclass constructor may specify the 'start' property (timestamp).
+     * Otherwise, a later JobOperations::set_jobstart() must do so.
      */
     #[\ReturnTypeWillChange]
-    public function __construct()
+    public function __construct($params = [])
     {
-        parent::__construct();
-        $this->_data = ['frequency' => RecurType::NONE,
-        'start' => 0 // disabled until something triggers a change
-        ] + $this->_data;
+        $t = $params['start'] ?? -1;
+        $t = (int)$t;
+        if ($t != 0) {
+            $t = max($t, time());
+        }
+        $params['start'] = $t;
+        $params['frequency'] = RecurType::RECUR_NONE;
+        parent::__construct($params);
     }
 
     /**
@@ -59,8 +67,8 @@ abstract class OnceJob extends Job
      *
      * <strong>Note:</strong> all jobs should be able to execute properly within one HTTP request.
      * Jobs cannot count on administrator or data stored in session variables.
-	 * Any data that are needed for the job to process should either be stored
-	 * with the job object, or stored in the database in a user-independent form.
+     * Any data that are needed for the job to process should either be stored
+     * with the job object, or stored in the database in a user-independent form.
      */
     abstract public function run();
 }

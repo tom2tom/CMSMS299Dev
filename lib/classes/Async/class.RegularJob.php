@@ -46,13 +46,13 @@ class RegularJob extends CronJob
     #[\ReturnTypeWillChange]
     public function __construct($task)
     {
-        parent::__construct();
-        $this->_data = [
+        $type = '\\'.get_class($task); //allow use in non-global namespaces
+        parent::__construct([
             'task' => $task,
-            'type' => get_class($task),
+            'type' => $type,
             'name' => $task->get_name(),
             'frequency' => RecurType::RECUR_SELF
-        ] + $this->_data;
+        ]);
     }
 
     /* *
@@ -98,6 +98,7 @@ class RegularJob extends CronJob
      */
     public function execute()
     {
+//      require_once CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'compat.functions.php'; if not provided in include.php
         $task = $this->_data['task'];
         if (!$task || !is_object($task)) {
             $class = $this->_data['type'];

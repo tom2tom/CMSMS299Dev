@@ -144,13 +144,13 @@ abstract class ContentBase implements IContentEditor, Serializable
 	protected $mOwner = -1;
 
 	/**
-	 * The ID of the parent, -1 if none, -2 if new content
+	 * The numeric id of this object's parent, -1 if none, -2 if new content
 	 * Integer
 	 */
 	protected $mParentId = -2;
 
 	/**
-	 * The numeric id of the template used to display this page. -1 if none.
+	 * The numeric id of this object's template, -1 if none.
 	 * Integer
 	 *
 	 * @internal
@@ -242,32 +242,29 @@ abstract class ContentBase implements IContentEditor, Serializable
 	protected $mOldAlias = '';
 
 	/**
-	 * Is this page cachable?
+	 * Is the page represented by this object cachable?
 	 * @since 2.0 Default true, formerly false
 	 * @internal
 	 */
 	protected $mCachable = true;
 
 	/**
-	 * Secure access to this page?
+	 * Enforce secure access to the page represented by this object?
 	 * @deprecated since 2.0
 	 * Integer : 0 / 1
-	 *
 	 * @internal
 	 */
 	protected $mSecure = 0;
 
 	/* *
-	 * The content-type of this page ('content','link' etc)
+	 * The content-type of this object ('content','link' etc)
 	 * String
-	 *
 	 * @internal
 	 */
 //	protected $mType = ''; not cached, derived from classname
 
 	/**
-	 * URL
-	 *
+	 * URL for accessing the page represented by this object
 	 * @internal
 	 */
 	protected $mURL = '';
@@ -275,15 +272,13 @@ abstract class ContentBase implements IContentEditor, Serializable
 	/**
 	 * Should it show up in the menu?
 	 * Integer : 0 / 1
-	 *
 	 * @internal
 	 */
 	protected $mShowInMenu = 0;
 
 	/**
-	 * Is this page the default?
+	 * Does this object represent the default page?
 	 * Integer : 0 / 1
-	 *
 	 * @internal
 	 */
 	protected $mDefaultContent = 0;
@@ -291,42 +286,36 @@ abstract class ContentBase implements IContentEditor, Serializable
 	/**
 	 * Id of user who most-recently modified this content
 	 * 0 indicates none
-	 *
 	 * @internal
 	 */
 	protected $mLastModifiedBy = 0;
 
 	/**
 	 * Creation date
-	 *
 	 * @internal
 	 */
 	protected $mCreationDate = '';
 
 	/**
 	 * Modification date
-	 *
 	 * @internal
 	 */
 	protected $mModifiedDate = '';
 
 	/**
 	 * Additional editors array
-	 *
 	 * @internal
 	 */
 	protected $mAdditionalEditors;
 
 	/**
 	 * Comma-separated sequence of stylesheet id's and/or stylesheet-group id's (groups < 0)
-	 *
 	 * @internal
 	 */
 	protected $mStyles = '';
 
 	/**
-	 * The 'non-core' properties
-	 *
+	 * Extended ('non-core') properties array
 	 * @internal
 	 */
 	protected $_props;
@@ -337,8 +326,9 @@ abstract class ContentBase implements IContentEditor, Serializable
 	private $_prop_defaults;
 
 	/**
-	 * state or meta information
-	 *
+	 * State or meta information array for each property
+	 * Members like N =>
+	 *  ['tab'=>val,'priority'=>val,'name'=>val,'required'=>val,'basic'=>val]
 	 * @internal
 	 */
 	private $_properties = [];
@@ -383,9 +373,18 @@ abstract class ContentBase implements IContentEditor, Serializable
 		$this->mModifiedDate = '';
 	}
 
+  	/**
+	 * @ignore
+	 */
+	#[\ReturnTypeWillChange]
+	public function __toString()// : string
+	{
+		return json_encode($this->__serialize(), JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE); // PHP 7.2+
+	}
+
 	public function __serialize() : array
 	{
-		$this->_load_properties();
+		$this->LoadProperties();
 		$tmp = $this->mod;
 		unset($this->mod);
 		$props = get_object_vars($this);
@@ -401,13 +400,29 @@ abstract class ContentBase implements IContentEditor, Serializable
 		$this->mod = AppUtils::get_module('ContentManager');
 	}
 
-	/**
-	 * @ignore
-	 */
+	// ======= SERIALIZABLE INTERFACE METHODS =======
+
 	#[\ReturnTypeWillChange]
-	public function __toString()// : string
+	public function serialize()// : ?string
 	{
-		return json_encode($this->__serialize(), JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+		$str = $this->__toString();
+		//TODO can cachers cope with embedded null's? NB 'internal' cryption is slow!
+		return Crypto::encrypt_string($str, __CLASS__, 'best');
+	}
+
+	#[\ReturnTypeWillChange]
+	public function unserialize($serialized)// : void
+	{
+		$str = Crypto::decrypt_string($serialized, __CLASS__, 'best');
+		if (!$str) {
+			throw new Exception('Invalid object data in '.__METHOD__);
+		}
+		$props = json_decode($str, true, JSON_INVALID_UTF8_IGNORE);
+		if ($props !== null) {
+			$this->__unserialize($props);
+		} else {
+			throw new Exception('Invalid object data in '.__METHOD__);
+		}
 	}
 
 	/**
@@ -431,7 +446,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 			'content_name' => $this->mName,
 			'create_date' => $this->mCreationDate,
 			'default_content' => (($this->mDefaultContent) ? 1 : 0),
-			'has_usable_link' => $l, // method, not property
+			'has_usable_link' => $l, // method result
 			'hierarchy' => $this->mHierarchy,
 			'hierarchy_path' => $this->mHierarchyPath,
 			'id_hierarchy' => $this->mIdHierarchy,
@@ -450,20 +465,21 @@ abstract class ContentBase implements IContentEditor, Serializable
 			'template_id' => $this->mTemplateId,
 			'titleattribute' => $this->mTitleAttribute,
 //			'type' => $this->mType,
-			'wants_children' => $w, // method, not property
+			'wants_children' => $w, // method result
 		];
-		//TODO sometimes: non-core properties 'tpltype_id','csstype_id' to support typed components for theme switching
+		//TODO sometimes: non-core properties e.g. 'target' for navigation,
+		// 'tpltype_id','csstype_id' to support typed components for theme switching
 	}
 
 	/**
-	 * Set the properties of this page from a database row or equivalent array.
+	 * Set the properties of this object from a database row or equivalent array
 	 *
 	 * @param array $data Row loaded from the database
-	 * @param bool  $loadProperties Optional flag whether to also load non-core
+	 * @param bool  $extended Optional flag whether to also load non-core
 	 *  properties (via a database SELECT). Default false.
 	 * @return	bool indicating success
 	 */
-	public function LoadFromData($data, $loadProperties = false)
+	public function LoadFromData($data, $extended = false)
 	{
 		$this->mAccessKey = $data['accesskey'] ?? null;
 		$this->mActive = !empty($data['active']);
@@ -494,8 +510,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 //		$this->mType = $data['type'] ?? '';
 
 		$result = true;
-		if ($loadProperties) {
-			$this->_load_properties();
+		if ($extended) {
+			$this->LoadProperties();
 			if (!is_array($this->_props)) {
 				$result = false;
 				$this->SetInitialValues();
@@ -507,7 +523,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return all 'non-core' properties of this object.
+	 * Report the loaded 'non-core' properties of this object
 	 * Note: this method does not load such properties.
 	 * Note: not the same data as provided by ContentBase::GetPropertiesArray()
 	 * @return array
@@ -518,9 +534,9 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Function for the subclass to parse out data for its parameters.
-	 * This method is typically called from an editor form to allow
-	 * modifying this content object from form input fields (usually $_POST)
+	 * Set object propertes from supplied parameters.
+	 * Typically called from an editor form to allow modifying this
+	 * object from form input fields (usually $_POST)
 	 *
 	 * @param array $params The input array (usually from $_POST)
 	 * @param bool  $editing Whether this is an edit operation. Default false i.e. adding
@@ -528,7 +544,9 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 */
 	public function FillParams($params, $editing = false)
 	{
-		// content property parameters
+		//TODO sanitizeVal($params[whatever], CMSSAN_TODO) where relevant
+
+		// object (extended) properties sometimes used in navigation data
 		$parameters = ['extra1', 'extra2', 'extra3', 'image', 'thumbnail'];
 		foreach ($parameters as $oneparam) {
 			if (isset($params[$oneparam])) {
@@ -576,7 +594,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 		// alias
 		// alias field can exist if the user has manage all content... OR alias is a basic property
-		// and this user has other edit rights to this content page.
+		// and the user has other edit rights to this page.
 		// empty value on the alias field means we need to generate a new alias
 		$new_alias = null;
 		$alias_field_exists = isset($params['alias']);
@@ -670,11 +688,11 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return html to display an input element for modifying a property of this page.
+	 * Return html to display an input element for modifying a property
+	 * of this object.
 	 *
-	 * @abstract
 	 * @param string $propname The property name
-	 * @param bool $adding Whether we are in add or edit mode.
+	 * @param bool $adding Whether we are in add or edit mode
 	 * @return array 3- or 4-members
 	 * [0] = heart-of-label 'for="someid">text' | text
 	 * [1] = popup-help | ''
@@ -775,7 +793,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 			'<input type="hidden" name="'.$id.'cachable" value="0" /><input type="checkbox" id="in_cachable" class="pagecheckbox" value="1" name="'.$id.'cachable"'.($this->mCachable ? ' checked="checked"' : '').' />'
 			];
 
-		case 'secure':
+		case 'secure': //deprecated since CMSMS3
 			return [
 			'for="secure">'.$this->mod->Lang('secure_page'),
 			AdminUtils::get_help_tag($this->domain, 'help_content_secure', $this->mod->Lang('help_title_content_secure')),
@@ -821,6 +839,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 /* this is handled upstream
 		case 'type':
+			natcasesort($existingtypes);
 			// TODO a selector if $adding, or else just text ?
 			$input = FormUtils::create_select([
 				'type' => 'drop',
@@ -1002,7 +1021,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the page tabindex value
+	 * Report this object's tabindex value
 	 *
 	 * @return int
 	 */
@@ -1012,7 +1031,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the page tabindex value
+	 * Set this object's tabindex value
 	 *
 	 * @param int $tabindex tab index
 	 */
@@ -1022,12 +1041,12 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return a list of distinct sections that divide the various logical sections
-	 * that this content type supports for editing.
+	 * Return the distinct sections that divide the various logical
+	 * sections that this object's content-type supports for editing.
 	 * Used from a page that allows content editing.
 	 *
 	 * @abstract
-	 * @return array Associative array of tab keys and labels.
+	 * @return array Associative array of tab keys and labels
 	 */
 	public function GetTabNames() : array
 	{
@@ -1050,7 +1069,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Get an optional message for each tab.
+	 * Get an optional message for each tab
 	 *
 	 * @abstract
 	 * @since 2.0
@@ -1067,7 +1086,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Get this contents for a specific tab.
+	 * Get the contents for a specific tab
 	 * @deprecated since 2.0 Instead process results from GetSortedEditableProperties()
 	 *
 	 * @param string $key tab key
@@ -1094,11 +1113,10 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the raw value for a content property.
-	 * If no property name is specified 'content_en' is assumed
+	 * Report the raw value of a property of this object
 	 *
 	 * @abstract
-	 * @param string $propname An optional property name to display. If none specified, the system should assume content_en.
+	 * @param string $propname An optional property name to display. Default 'content_en'.
 	 * @return string
 	 */
 	public function Show($propname = 'content_en')
@@ -1123,7 +1141,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 		$defaults = [
 			'title' => [1, self::TAB_MAIN, 1],
 			'alias' => [2, self::TAB_MAIN],
-//			'type' => [2,self::TAB_MAIN],
+//			'type' => [2,self::TAB_MAIN], handled elsewhere
 
 			'styles' => [2, self::TAB_DISPLAY],
 			'image' => [5, self::TAB_DISPLAY],
@@ -1208,8 +1226,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 */
 	/**
-	 * Return a list of all the properties that may be edited by the current user
-	 * when editing this content page in a content editor form.
+	 * Report all properties that may be modified by the current user
+	 * when editing this object in a content-editor form.
 	 *
 	 * Content-type classes may override this method, but should call this base method.
 	 *
@@ -1242,8 +1260,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return a sorted list of all the properties that may be edited by the
-	 * current user when editing this content page in a content editor form.
+	 * Return sorted properties that may be modified by the current
+	 * user when editing this object in a content-editor form.
 	 *
 	 * @return array
 	 */
@@ -1259,8 +1277,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Test whether this content page has the named property.
-	 * Properties will be loaded from the database if necessary.
+	 * Test whether this object has the specified 'extended' property.
+	 * All such properties will be loaded from the database, if not already done.
 	 *
 	 * @param string $name
 	 * @return bool
@@ -1271,7 +1289,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 			return false;
 		}
 		if (!is_array($this->_props)) {
-			$this->_load_properties();
+			$this->LoadProperties();
 		}
 		if (!is_array($this->_props)) {
 			return false;
@@ -1280,40 +1298,54 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Get the value for the named property.
-	 * Properties will be loaded from the database if necessary.
+	 * Get the value (if any) of the specified 'extended' property|ies
+	 * of this object. All the extended properties will be loaded from
+	 * the database, if not already done.
 	 *
-	 * @param string $name
-	 * @return mixed String value, or null if the property does not exist.
+	 * @param mixed $name string | string[] (since 3.0)
+	 * @return mixed value, or null if the property does not exist.
 	 */
-	public function GetPropertyValue(string $name)
+	public function GetPropertyValue($name)
 	{
-		if ($this->HasProperty($name)) {
-			return $this->_props[$name];
+		if (!is_array($name)) {
+			if ($this->HasProperty($name)) {
+				return $this->_props[$name];
+			}
+			return null;
+		} else {
+			if (!is_array($this->_props)) {
+				$this->LoadProperties();
+			}
+			$ret = [];
+			foreach ($name as $key) {
+				$ret[$key] = $this->_props[$key] ?? null;
+			}
+			return $ret;
 		}
 	}
 
 	/**
-	 * Set the value of a the named property.
-	 * This method will load properties for this content page if necessary.
+	 * Set the value of the specified 'extended' property of this object.
+	 * All such properties will be loaded from the database, if not already done.
 	 *
 	 * @param string $name The property name
-	 * @param string $value The property value.
+	 * @param mixed $value The property value.
 	 */
 	public function SetPropertyValue(string $name, $value)
 	{
 		if (!is_array($this->_props)) {
-			$this->_load_properties();
+			$this->LoadProperties();
 		}
 		$this->_props[$name] = $value;
 	}
 
 	/**
-	 * Set the value of a the named property.
-	 * This method will not load properties
+	 * Set the value of the specified 'extended' property of this object.
+	 * Unlike SetPropertyValue(), this method does not preload all
+	 * such properties.
 	 *
 	 * @param string $name The property name
-	 * @param string $value The property value.
+	 * @param mixed $value The property value.
 	 */
 	public function SetPropertyValueNoLoad(string $name, $value)
 	{
@@ -1403,9 +1435,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Callback function for content types to preload content or other things if necessary.
-	 * This is called right after this content is loaded from the database.
-	 *
+	 * Callback method for content types to preload content or other things if necessary.
+	 * This is called immediately after this object is populated from the database.
 	 * @abstract
 	 */
 	public function Load()
@@ -1413,42 +1444,51 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Save or update this content.
+	 * Add or update this object.
 	 *
-	 * @todo This function should return T/F indicator (or throw an exception)
+	 * @todo This method should return T/F indicator (or throw an exception)
 	 * @returns true always
 	 */
 	public function Save()
 	{
-		Events::SendEvent('Core', 'ContentEditPre', ['content' => &$this]); //TODO deprecate? module for originator?
+		$adding = $this->mId < 0;
+		$name1 = ($adding) ? 'ContentAddPre' : 'ContentEditPre';
+		$name2 = ($adding) ? 'AddPre' : 'EditPre';
+
+		Events::SendEvent('Core', $name, ['content' => &$this]); //TODO deprecate? module for originator?
+		Events::SendEvent($this->domain, $name2, ['content' => &$this]);
 
 		if (!is_array($this->_props)) {
-			debug_buffer('save is loading properties');
-			$this->_load_properties();
+			debug_buffer('ContentBase::Save() is loading properties');
+			$this->LoadProperties();
 		}
 
-		if (-1 < $this->mId) {
-			$this->Update();
-		} else {
+		if ($adding) {
 			$this->Insert();
+		} else {
+			$this->Update();
 		}
 
 		$contentops = Lone::get('ContentOperations');
 		$contentops->SetContentModified();
 		$contentops->SetAllHierarchyPositions();
-		Events::SendEvent('Core', 'ContentEditPost', ['content' => &$this]); //TODO deprecate? module for originator?
+		$name1 = ($adding) ? 'ContentAddPost' : 'ContentEditPost';
+		$name2 = ($adding) ? 'AddPost' : 'EditPost';
+		Events::SendEvent('Core', $name1, ['content' => &$this]); //TODO deprecate? module for originator?
+		Events::SendEvent($this->domain, $name2, ['content' => &$this]);
 		return true;
 	}
 
 	/**
-	 * Delete the current content object and all related data from the database.
+	 * Delete this object and all related data from the database.
 	 *
-	 * @todo This function should return T/F indicator (or throw an exception)
+	 * @todo This method should return T/F indicator (or throw an exception)
 	 * @returns true always
 	 */
 	public function Delete()
 	{
-		Events::SendEvent('Core', 'ContentDeletePre', ['content' => &$this]); //TODO deprecate? module for originator?
+		Events::SendEvent('Core', 'ContentDeletePre', ['content' => &$this]); //TODO deprecate?
+		Events::SendEvent($this->domain, 'DeletePre', ['content' => &$this]);
 		if ($this->mId > 0) {
 			$db = Lone::get('Db');
 
@@ -1476,7 +1516,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 			}
 		}
 
-		Events::SendEvent('Core', 'ContentDeletePost', ['content' => &$this]); //TODO deprecate? module for originator?
+		Events::SendEvent('Core', 'ContentDeletePost', ['content' => &$this]); //TODO deprecate?
+		Events::SendEvent($this->domain, 'DeletePost', ['content' => &$this]);
 		$this->mId = -1;
 		$this->mItemOrder = -1;
 
@@ -1484,14 +1525,12 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Test whether this content object is valid.
-	 * This function is used to check that no compulsory argument
-	 * has been forgotten by the user
-	 *
-	 * We do not check the Id because there can be no Id (new content)
-	 * That's up to Save to check this.
-	 *
+	 * Test whether this object is valid.
+	 * Specifically, check that no manadatory property has been omitted.
+	 * Not the numeric id because there may be none yet (new content).
+	 * Id is checked during Save().
 	 * @abstract
+	 *
 	 * @return array Error string(s) | empty if valid
 	 */
 	public function ValidateData()
@@ -1536,13 +1575,13 @@ abstract class ContentBase implements IContentEditor, Serializable
 					$this->mURL = $this->mAlias;
 				} else {
 					// if it doesn't explicitly say 'flat' we're creating a hierarchical url.
-					$hm = cmsms()->GetHierarchyManager();
-					$node = $hm->find_by_tag('id', $this->ParentId());
+					$ptops = cmsms()->GetHierarchyManager(); // OR Lone::get('PageTreeOperations');
+					$node = $ptops->get_node_by_id($this->ParentId());
 					$stack = [$this->mAlias];
 					$parent_url = '';
 					$count = 0;
 					while ($node) {
-						$tmp_content = $node->getContent();
+						$tmp_content = $node->get_content();
 						if ($tmp_content) {
 							$tmp = $tmp_content->URL();
 							if ($tmp && $count == 0) {
@@ -1552,7 +1591,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 							}
 							array_unshift($stack, $tmp_content->Alias());
 						}
-						$node = $node->GetParent();
+						$node = $node->get_parent();
 						++$count;
 					}
 
@@ -1584,7 +1623,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	//
 
 	/**
-	 * Return the page ID
+	 * Return this object's numetric ID
 	 */
 	public function Id() : int
 	{
@@ -1592,7 +1631,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the numeric id of this content page
+	 * Set the numeric id property of this object
 	 *
 	 * @param int Integer id
 	 * @access private
@@ -1604,7 +1643,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the page name
+	 * Report this object's name
 	 *
 	 * @return string
 	 */
@@ -1614,7 +1653,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the the page name
+	 * Set the name property of this object
 	 *
 	 * @param string $name The name.
 	 */
@@ -1624,9 +1663,10 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return a friendly name for this content type
+	 * Report the friendly/public name of this object's content type
 	 *
-	 * Normally this content type returns a string representing the name of this content type translated into the users current language
+	 * Normally this content type returns a string representing the name
+	 * of this content type translated into the users current language
 	 *
 	 * @abstract
 	 * @return string
@@ -1634,7 +1674,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	abstract public function FriendlyName() : string;
 
 	/**
-	 * Return the page alias
+	 * Report this object's alias property
 	 *
 	 * @return string
 	 */
@@ -1644,10 +1684,12 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the page alias for this content page.
-	 * If an empty alias is supplied, and depending upon the doAutoAliasIfEnabled flag,
-	 * and config entries a suitable alias may be calculated from other data in the page object.
-	 * This method relies on the menutext and the name of this content page already being set.
+	 * Set the alias property of this object.
+	 * If an empty alias is supplied, and depending upon the doAutoAliasIfEnabled
+	 * flag, and config entries a suitable alias may be calculated from
+	 * other properties of the object.
+	 * This method assumes that the menutext and name properties of this
+	 * object are already set.
 	 *
 	 * @param string $alias The alias
 	 * @param bool $doAutoAliasIfEnabled Whether an alias should be calculated or not.
@@ -1713,7 +1755,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return whether this content object handles the alias
+	 * Report whether this content object handles the alias
 	 *
 	 * @abstract
 	 * @return bool Default false
@@ -1724,8 +1766,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return whether this content type requires an alias.
-	 * Some content types that are not directly navigable do not require page aliases.
+	 * Report whether this content type requires an alias.
+	 * Some content types that are not directly navigable do not require an alias.
 	 *
 	 * @abstract
 	 * @return bool Default true
@@ -1736,7 +1778,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the content-type
+	 * Report the content-type of this object
 	 *
 	 * @return string
 	 */
@@ -1748,7 +1790,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the owner's user id
+	 * Report the object-owner's user id
 	 *
 	 * @return int
 	 */
@@ -1758,7 +1800,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the page owner.
+	 * Set the object's owner property.
 	 * No validation is performed.
 	 *
 	 * @param int $owner Owner's user id
@@ -1773,7 +1815,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the page metadata
+	 * Report the object's metadata property
 	 *
 	 * @return string
 	 */
@@ -1783,7 +1825,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the page metadata
+	 * Set the object metadata property
 	 *
 	 * @param string $metadata The metadata
 	 */
@@ -1793,7 +1835,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the page title attribute
+	 * Report the object's title-attribute property
 	 *
 	 * @return string
 	 */
@@ -1803,7 +1845,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the title attribute of the page
+	 * Set the title-attribute property of this object
 	 *
 	 * The title attribute can be used in navigations to set the "title=" attribute of a link
 	 * some menu templates may ignore this.
@@ -1816,7 +1858,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the creation date/time of the page
+	 * Set the creation date/time property of this object
 	 *
 	 * @param mixed $dateval string | null. Not a timestamp
 	 */
@@ -1831,7 +1873,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the creation date/time of this content object.
+	 * Report the creation date/time property of this object.
 	 *
 	 * @return int UNIX UTC timestamp. Default 1.
 	 */
@@ -1842,7 +1884,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the modification date/time of the page
+	 * Set the latest-modification date/time property of this object
 	 *
 	 * @param mixed $dateval string | null. Not a timestamp
 	 */
@@ -1853,7 +1895,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the date/time of the last modification of this content object.
+	 * Report the latest-modification date/time property of this object.
 	 *
 	 * @return int UNIX UTC timestamp. Default 1.
 	 */
@@ -1864,7 +1906,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Get the access key (for accessibility) for this page.
+	 * Get the access key property (for accessibility) of this object.
 	 *
 	 * @see http://www.w3schools.com/tags/att_global_accesskey.asp
 	 * @return string
@@ -1875,7 +1917,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the access key (for accessibility) for this page
+	 * Set the access key property (for accessibility) for this object
 	 *
 	 * @see http://www.w3schools.com/tags/att_global_accesskey.asp
 	 * @param string $accesskey
@@ -1886,10 +1928,10 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the id of this page's parent.
-	 * The parent id may be -2 to indicate a new page.
-	 * A parent id value of -1 indicates that the page has no parent.
-	 * oterwise a positive integer is returned.
+	 * Report the numeric id of this object's parent.
+	 * That id may be -2 to indicate a new object.
+	 * It may be -1 to indicate that the object has no parent.
+	 * Otherwise a positive integer is returned.
 	 *
 	 * @return int
 	 */
@@ -1899,13 +1941,13 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the parent of this page
+	 * Set the parent-id property of this object
 	 *
-	 * @param int $parentid The numeric page parent id. Use -1 for no parent.
+	 * @param int $parentid The numeric object parent id. Use -1 for no parent.
 	 */
 	public function SetParentId(int $parentid)
 	{
-		$parentid = (int) $parentid;
+		$parentid = (int)$parentid;
 		if ($parentid < 1) {
 			$parentid = -1;
 		}
@@ -1913,7 +1955,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the id of the template associated with this content page.
+	 * Report the id of the template associated with this object.
 	 *
 	 * @return int.
 	 */
@@ -1923,7 +1965,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the id of the template associated with this content page.
+	 * Set the id of the template associated with this object.
 	 *
 	 * @param int $templateid
 	 */
@@ -1948,7 +1990,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 */
 	/**
-	 * Return whether this page uses a template.
+	 * Report whether this object uses a template.
 	 * Some content types like sectionheader and separator do not.
 	 *
 	 * @return bool Default false
@@ -1959,7 +2001,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return a smarty resource string for the template assigned to this page.
+	 * Return the Smarty resource for the template assigned to this object.
 	 *
 	 * @since 2.0
 	 * @abstract
@@ -1967,12 +2009,11 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 */
 	public function TemplateResource() : string
 	{
-		throw new Exception('this method must be overridden for displayable content pages');
+		throw new Exception('this method must be overridden for displayable objects');
 	}
 
 	/**
-	 * Return the itemOrder
-	 * That is used to specify the order of this page among its peers
+	 * Report the order of this object among its peers
 	 *
 	 * @return int
 	 */
@@ -1982,8 +2023,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the page itemOrder
-	 * That is used to specify the order of this page within the parent.
+	 * Set the object itemOrder
+	 * That is used to specify the order of this object within the parent.
 	 * A value of -1 indicates that a new item order will be calculated on save.
 	 * Otherwise a positive integer is expected.
 	 *
@@ -2037,10 +2078,10 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the hierarchy of the current page.
-	 * A string like N.N.N indicating the path to this page and its order
+	 * Report the hierarchy property of this object.
+	 * A string like N.N.N indicating the path to this object and its order
 	 * This value uses the item order when calculating the output e.g. 3.3.3
-	 * to indicate the third grandchild of the third child of the third root page.
+	 * to indicate the third grandchild of the third child of the third root object.
 	 *
 	 * @return string
 	 */
@@ -2061,11 +2102,11 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the id (aka friendly, not-0-padded) hierarchy.
-	 * A string like N.N.N indicating the path to the page and its order
-	 * This property uses the id's of pages when calculating the output i.e: 21.5.17
-	 * to indicate that page id 17 is the child of page with id 5 which is in turn the
-	 * child of the page with id 21
+	 * Report the id (aka friendly, not-0-padded) hierarchy.
+	 * A string like N.N.N indicating the path to the object and its order
+	 * This property uses the id's of objects when calculating the output i.e: 21.5.17
+	 * to indicate that object id 17 is the child of object with id 5 which is in turn the
+	 * child of the object with id 21
 	 *
 	 * @return string
 	 */
@@ -2075,7 +2116,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the hierarchy path.
+	 * Report the hierarchy path.
 	 * Similar to the Hierarchy and IdHierarchy this string uses page aliases
 	 * and outputs a string like root_alias/parent_alias/page_alias
 	 *
@@ -2087,7 +2128,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the page-active state
+	 * Report the object-active state
 	 *
 	 * @return bool
 	 */
@@ -2097,7 +2138,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set this page as active
+	 * Set this object as active
 	 *
 	 * @param bool $active
 	 */
@@ -2107,7 +2148,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return whether this content page should (by default) be shown in navigation menus.
+	 * Report whether this object should (by default) be shown in navigation menus.
 	 *
 	 * @abstract
 	 * @return bool
@@ -2118,7 +2159,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set whether this page should be (by default) shown in menus
+	 * Set whether this object should be (by default) shown in menus
 	 *
 	 * @param bool $showinmenu
 	 */
@@ -2128,9 +2169,9 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return whether the page is the default.
-	 * The default page is the one that is displayed when no alias or pageid is specified in the route
-	 * Only one content page can be the default.
+	 * Report whether the object represents the default page.
+	 * The default page is the one displayed when no alias or pageid is specified in the route
+	 * Only one page may be the default.
 	 *
 	 * @return bool
 	 */
@@ -2143,8 +2184,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set whether this page should be considered the default.
-	 * Note: does not modify the flags for any other content page.
+	 * Set whether this object should be considered the default.
+	 * Note: does not modify the flags for any other object.
 	 *
 	 * @param bool $defaultcontent
 	 */
@@ -2156,10 +2197,10 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return whether this content type can be the default page for a CMSMS website.
+	 * Report whether this content type can be the default object for a CMSMS website.
 	 *
-	 * this content editor module may adjust its user interface to not allow
-	 * setting pages that return false for this method as the default page.
+	 * A content-editor module may adjust its user interface to not allow
+	 * setting objects that return false for this method as the default object.
 	 *
 	 * @abstract
 	 * @return bool Default is false
@@ -2170,8 +2211,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return whether this page is cachable.
-	 * Cachable pages (when enabled in global settings) are cached by the browser
+	 * Report whether this object is cachable.
+	 * Cachable objects (when enabled in global settings) are cached by the browser
 	 * (also server side caching of HTML output may be enabled)
 	 *
 	 * @return bool
@@ -2182,7 +2223,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set whether this page is cachable
+	 * Set whether this object is cachable
 	 *
 	 * @param bool $cachable
 	 */
@@ -2192,9 +2233,9 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return whether this page should be accessed via a secure protocol.
+	 * Report whether this object should be accessed via a secure protocol.
 	 * The secure flag affects whether the ssl protocol and appropriate
-	 * config entries are used when generating urls to this page.
+	 * config entries are used when generating urls to this object.
 	 * @deprecated since 2.0
 	 *
 	 * @return bool
@@ -2205,9 +2246,9 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set whether this page should be accessed via a secure protocol.
+	 * Set whether this object should be accessed via a secure protocol.
 	 * The secure flag affects whether the ssl protocol and appropriate
-	 * config entries are used when generating urls to this page.
+	 * config entries are used when generating urls to this object.
 	 * @deprecated since 2.0
 	 *
 	 * @param bool $secure
@@ -2218,11 +2259,12 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the URL-path (if any) associated with this content page.
-	 * The path is not the complete URL to this content page, but merely the
+	 * Report the custom URL-path (if any) property of this object.
+	 * The path is not the complete URL to this object, but merely the
 	 * 'stub' or 'slug' appended after the root url when accessing the site
-	 * If the page is specified as the default page then the "page url" will be ignored.
-	 * Some content types do not support page urls.
+	 * If the object is specified as the default object then the "object url"
+	 * will be ignored. Some content types do not support such an url.
+	 * Not to be confused with GetURL().
 	 *
 	 * @return string, maybe empty
 	 */
@@ -2232,10 +2274,10 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the URL-path associated with this content page.
+	 * Set the custom URL-path property of this object.
 	 * Verbatim, no immediate validation.
-	 * The URL should be relative to the root URL i.e: /some/path/to/the/page
-	 * Note: some content types do not support page URLs.
+	 * The URL should be relative to the root URL i.e: /some/path/to/the/object
+	 * Note: some content types do not support object URLs.
 	 *
 	 * @param string $url Optional path. Default ''.
 	 */
@@ -2245,16 +2287,17 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the internally-generated URL for this content.
+	 * Return an actionable URL which can be used to preview this content.
+	 * Not to be confused with URL(), which retrieves a custom URL-path.
+	 * @see also CMSMS\contenttypes\ContentBase::GetURL().
+	 * No rewriting or custom-URL support here.
 	 *
-	 * @param bool $rewrite optional flag, default true. If true, and
-	 *  mod_rewrite is enabled, build an URL suitable for mod_rewrite.
 	 * @return string
 	 */
 	public function GetURL() : string
 	{
 		if ($this->DefaultContent()) {
-			// use root_url for default content
+			// use root url for default content
 			return CMS_ROOT_URL . '/';
 		}
 		$config = Lone::get('Config');
@@ -2263,9 +2306,9 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the pages-tree-depth of this content.
+	 * Report the objects-tree-depth of this content.
 	 *
-	 * @return int (0-based), -1 for a page not-yet placed in the tree
+	 * @return int (0-based), -1 for an object not-yet placed in the tree
 	 */
 	public function GetLevel() : int
 	{
@@ -2276,7 +2319,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the integer id of the admin user that last modified this content page.
+	 * Report the integer id of the admin user that last modified this object.
 	 *
 	 * @return int
 	 */
@@ -2299,7 +2342,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return whether preview should be available for this page
+	 * Report whether preview should be available for this object
 	 *
 	 * @abstract
 	 * @return bool Default false
@@ -2310,7 +2353,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return whether this content type is viewable (i.e: can be rendered).
+	 * Report whether this content type is viewable (i.e: can be rendered).
 	 * Some content types (like redirection links) are not viewable.
 	 *
 	 * @abstract
@@ -2322,9 +2365,9 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return whether the current user is permitted to edit this content page
+	 * Report whether the current user is permitted to edit this object
 	 *
-	 * @param $main optional flag whether to check for global page-edit authority. Default true
+	 * @param $main optional flag whether to check for global object-edit authority. Default true
 	 * @param $extra optional flag whether to check for membership of additional-editors. Default true
 	 * @return bool
 	 */
@@ -2359,7 +2402,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return whether the current user is permitted to view this content page.
+	 * Report whether the current user is permitted to view this object.
 	 *
 	 * @abstract
 	 * @return bool Default true
@@ -2392,8 +2435,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * An abstract method to indicate whether this content type generates a system page.
-	 * System pages are used to handle things like 404 errors etc.
+	 * An abstract method to indicate whether this content type generates a system object.
+	 * System objects are used to handle things like 404 errors etc.
 	 *
 	 * @abstract
 	 * @return bool Default false
@@ -2404,12 +2447,12 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return whether this content type is searchable.
+	 * Report whether this content type is searchable.
 	 *
-	 * Searchable pages can be indexed by the search module.
+	 * Searchable objects can be indexed by a Search module.
 	 *
-	 * This function by default uses a combination of other methods to determine
-	 * whether the page is searchable.
+	 * This method by default uses a combination of other methods to
+	 * determine whether the object is searchable.
 	 *
 	 * @return bool
 	 */
@@ -2422,7 +2465,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return whether this content type may have content that can be used by a search module.
+	 * Report whether this content type may have content that can be processed by a Search module.
 	 *
 	 * Content types should override this method if they are special purpose
 	 * content types which cannot support searchable content in any way.
@@ -2438,7 +2481,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the menu text for this content page.
+	 * Report the menu text for this object.
 	 * The MenuText is by default used as the text portion of a navigation link.
 	 *
 	 * @return string
@@ -2449,7 +2492,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the menu text for this content page
+	 * Set the menu text for this object
 	 *
 	 * @param string $menutext
 	 */
@@ -2459,7 +2502,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the styles-sequence for this content page
+	 * Report the styles-sequence of this object
 	 * @since 2.0
 	 *
 	 * @return string having comma-separated stylesheet &/| stylesheetgroup id(s)
@@ -2470,7 +2513,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set the styles-sequence for this content page
+	 * Set the styles-sequence for this object
 	 * @since 2.0
 	 *
 	 * @param string $stylestext comma-separated stylesheet, stylesheetgroup id(s)
@@ -2481,21 +2524,21 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return the number of immediate child content pages of this content page.
+	 * Report the number of immediate child objects of this one.
 	 *
 	 * @return int
 	 */
 	public function ChildCount() : int
 	{
-		$hm = cmsms()->GetHierarchyManager();
-		$node = $hm->find_by_tag('id', $this->mId);
+		$ptops = cmsms()->GetHierarchyManager(); // OR Lone::get('PageTreeOperations');
+		$node = $ptops->get_node_by_id($this->mId);
 		if ($node) {
 			return $node->count_children();
 		}
 	}
 
 	/**
-	 * Return whether the current page has children.
+	 * Report whether this object has child-object(s).
 	 *
 	 * @param bool $activeonly Optional flag whether to test only for active children. Default false.
 	 * @return bool
@@ -2505,8 +2548,8 @@ abstract class ContentBase implements IContentEditor, Serializable
 		if ($this->mId <= 0) {
 			return false;
 		}
-		$hm = cmsms()->GetHierarchyManager();
-		$node = $hm->get_node_by_id($this->mId);
+		$ptops = cmsms()->GetHierarchyManager(); // OR Lone::get('PageTreeOperations');
+		$node = $ptops->get_node_by_id($this->mId);
 		if (!$node || !$node->has_children()) {
 			return false;
 		}
@@ -2517,7 +2560,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 		$children = $node->get_children();
 		if ($children) {
 			for ($i = 0, $n = count($children); $i < $n; ++$i) {
-				$content = $children[$i]->getContent();
+				$content = $children[$i]->get_content();
 				if ($content->Active()) {
 					return true;
 				}
@@ -2528,8 +2571,9 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * An abstract method that extended content types can use to indicate whether or not they want children.
-	 * Some content types, such as a separator do not want to have any children.
+	 * A method that extended content types can use to indicate whether
+	 * they support children. Some content types, such as a separator,
+	 * do not have any child.
 	 *
 	 * @since 0.11
 	 * @abstract
@@ -2541,7 +2585,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Return a list of additional editors.
+	 * Report this object's additional editors.
 	 * Note: in the returned array, group id's are specified as negative integers.
 	 *
 	 * @return array user id's and group id's entitled to edit this content, or empty
@@ -2573,31 +2617,6 @@ abstract class ContentBase implements IContentEditor, Serializable
 		$this->mAdditionalEditors = $editorarray;
 	}
 
-	// ======= SERIALIZABLE INTERFACE METHODS =======
-
-    #[\ReturnTypeWillChange]
-	public function serialize()// : ?string
-	{
-		$str = $this->__toString();
-		//TODO can cachers cope with embedded null's? NB 'internal' cryption is slow!
-		return Crypto::encrypt_string($str, __CLASS__, 'best');
-	}
-
-    #[\ReturnTypeWillChange]
-	public function unserialize($serialized)// : void
-	{
-		$str = Crypto::decrypt_string($serialized, __CLASS__, 'best');
-		if (!$str) {
-			throw new Exception('Invalid object data in '.__METHOD__);
-		}
-		$props = json_decode($str, true);
-		if ($props !== null) {
-			$this->__unserialize($props);
-		} else {
-			throw new Exception('Invalid object data in '.__METHOD__);
-		}
-	}
-
 	/**
 	 * Set initial property-values
 	 *
@@ -2616,11 +2635,11 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * Additionally, if a page URL is specified a static route will be created.
 	 *
 	 * Because multiple content objects may be modified in one batch, the
-	 * calling function is responsible for ensuring that page hierarchies
+	 * calling method is responsible for ensuring that page hierarchies
 	 * are updated.
 	 *
 	 * @see ContentOperations::SetAllHierarchyPositions()
-	 * @todo this function should return something, or throw an exception.
+	 * @todo this method should return something, or throw an exception.
 	 */
 	protected function Update()
 	{
@@ -2723,7 +2742,7 @@ WHERE content_id = ?';
 	 */
 	protected function Insert()
 	{
-		//TODO this function should return something
+		//TODO this method should return something
 		//TODO careful about hierarchy here, it has no value !
 		//TODO figure out proper item_order
 		$db = Lone::get('Db');
@@ -2853,12 +2872,12 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	}
 
 	/**
-	 * Force-load non-core object-properties
-	 * @ignore
+	 * Load all non-core object properties
+	 * @since 3.0 Formerly protected _load_properties()
 	 * @param bool $force since 2.0 Optional flag whether to overwrite existing properties. Default true
 	 * @return bool indicating successful read (tho' result might be empty anyway)
 	 */
-	protected function _load_properties(bool $force = true) : bool
+	public function LoadProperties(bool $force = true) : bool
 	{
 		if ($this->mId <= 0) {
 			return false;
@@ -2881,6 +2900,17 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * @deprecated since 3.0 instead use ContentBase::LoadProperties()
+	 * @param bool $force
+	 * @return bool
+	 */
+	protected function _load_properties(bool $force = true) : bool
+	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'LoadProperties'));
+		return $this->LoadProperties($force);
 	}
 
 	/**

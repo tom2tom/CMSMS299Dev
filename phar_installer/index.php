@@ -18,12 +18,12 @@ use cms_installer\gui_install;
 //
 try {
     // some basic system wide pre-requisites
-    if (version_compare(PHP_VERSION, '7.1') < 0) {
-        throw new Exception('This installer requires PHP 7.1 or higher');
+    if (version_compare(PHP_VERSION, '7.2') < 0) {
+        throw new Exception('This installer requires PHP 7.2 or higher');
     }
 //    _detect_bad_ioncube(); NOT SUPPORTED
 
-    // disable some stuff (OR pre-7.1 only?)
+    // disable some stuff (OR pre-7.2 only?)
     @ini_set('opcache.enable', 0); // disable zend opcode caching
     @ini_set('apc.enabled', 0); // disable apc opcode caching (for later versions of APC)
     @ini_set('xcache.cacher', 0); // disable xcache opcode caching

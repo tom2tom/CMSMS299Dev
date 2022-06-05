@@ -1,4 +1,4 @@
 <?php
-//FUTURE assert(empty(CMS_DEPREC), new CMSMS\DeprecationNotice('class', 'CMSMS\Tree'));
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'class.Tree.php';
-class_alias('CMSMS\Tree', 'cms_tree', false);
+//FUTURE assert(empty(CMS_DEPREC), new CMSMS\DeprecationNotice('class', 'CMSMS\PageTreeNode'));
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'class.PageTreeNode.php';
+class_alias('CMSMS\PageTreeNode', 'cms_tree', false);

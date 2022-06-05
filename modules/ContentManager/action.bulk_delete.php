@@ -53,7 +53,7 @@ $can_bulk_delete = function($node) use ($mod,$userid,$contentops) : bool {
 		return false;
 	}
 
-	$id = (int)$node->get_tag('id');
+	$id = (int)$node->getId();
 	if ($id < 1) {
 		return false;
 	}
@@ -66,10 +66,10 @@ $can_bulk_delete = function($node) use ($mod,$userid,$contentops) : bool {
 $get_deletable_pages = function($node) use ($can_bulk_delete, &$get_deletable_pages) : array {
 	$out = [];
 	if ($can_bulk_delete($node)) {
-		// we can delete the parent node.
-		$out[] = $node->get_tag('id');
+		// we can delete the parent node
+		$out[] = $node->getId();
 		if ($node->has_children()) {
-			// it has children.
+			// it has children
 			$children = $node->get_children();
 			foreach ($children as $child_node) {
 				$tmp = $get_deletable_pages($child_node); // recurse
@@ -117,10 +117,10 @@ if (isset($params['submit'])) {
 	}
 }
 
-$hm = $gCms->GetHierarchyManager();
+$ptops = $gCms->GetHierarchyManager();
 $xlist = [];
 foreach ($pagelist as $pid) {
-	$node = $hm->get_node_by_id($pid);
+	$node = $ptops->get_node_by_id($pid);
 	if (!$node) {
 		continue;
 	}

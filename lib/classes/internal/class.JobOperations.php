@@ -57,7 +57,6 @@ use function error_log;
  */
 final class JobOperations
 {
-//    private const TABLE_NAME = CMS_DB_PREFIX.'mod_cmsjobmgr'; // TODO 'asyncjobs'
     private const TABLE_NAME = CMS_DB_PREFIX.'asyncjobs';
     private const EVT_FAILEDJOB = 'JobFailed'; // TODO also process events e.g. module [un]install
     private const LOCKPREF = 'joblock';
@@ -214,7 +213,7 @@ final class JobOperations
 
     /**
      * Record (in a file) the id of a job where an error occurred, for later processing
-     * @param int $job_id
+     * @param int $job_id enumerator
      */
     public function put_error(int $job_id)
     {
@@ -295,7 +294,7 @@ final class JobOperations
         // Get job objects from modules
         $cache = Lone::get('LoadedData');
         if (!$cache->get('modules')) {
-			// see also ModuleOperations::load_setup()
+            // see also ModuleOperations::load_setup()
             $obj = new LoadedDataType('modules', function() {
                 $db = Lone::get('Db');
                 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules WHERE active != 0';
@@ -351,8 +350,8 @@ final class JobOperations
     }
 
     /**
-     * Update or initialize the recorded data for the supplied Job, and if
-     * relevant, update the Job's id-property
+     * Update or initialize the recorded data for the supplied Job,
+     * and if relevant, update the Job's id-property
      * @param Job $job
      * @return int id of updated|inserted Job | 0 upon error
      */
@@ -372,11 +371,12 @@ final class JobOperations
             }
             $now = time();
             if ($this->job_recurs($job)) {
-                $start = min($job->start, $now);
+                $start = $job->start ?? 100;
+                $start = min($start, $now);
                 $recurs = $job->frequency;
                 $until = $job->until;
             } else {
-                $start = 0; //$job->start;
+                $start = $job->start ?? 0;
                 $recurs = RecurType::RECUR_NONE;
                 $until = 0;
             }
@@ -402,8 +402,9 @@ final class JobOperations
     }
 
     /**
+     * @param int $job_id enumerator
      * @throws InvalidArgumentException if $job_id is invalid
-     * @throws ? if Job-unserialize() fails
+     * issues E_NOTICE if Job-unserialize() fails
      */
     public function load_job_by_id($job_id)
     {
@@ -417,6 +418,9 @@ final class JobOperations
             }
 
             $obj = unserialize($row['data']);
+            if (!$obj) {
+                return;
+            }
             $obj->set_id($row['id']);
             return $obj;
         }
@@ -672,6 +676,32 @@ final class JobOperations
     public function have_jobs() : bool
     {
         return $this->get_jobs(true);
+    }
+
+    /**
+     * Set the start timestamp for a Job
+     * @param mixed $a identifier Job object | string Job name | int Job id
+     * @param int $when optional timestamp Default -1 hence now i.e. time()
+     */
+    public function set_jobstart($a, $when = -1)
+    {
+        if ($a instanceof Job) {
+            $id = $a->id;
+            $field = 'id';
+        } elseif (is_numeric($a)) {
+            $id = $a;
+            $field = 'id';
+        } else {
+            $id = $a;
+            $field = 'name';
+        }
+        if ($when === -1) {
+            $when = time();
+        } elseif ($when != 0) {
+            $when = max((int)$when, time());
+        }
+        $sql = 'UPDATE '.self::TABLE_NAME." SET start = ? WHERE $field = ?"; //update next-start
+        $db->execute($sql, [$when, $id]);
     }
 
     /**

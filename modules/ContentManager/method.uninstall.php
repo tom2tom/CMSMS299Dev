@@ -52,14 +52,14 @@ $this->RemovePermission('Reorder Content');
 $me = $this->GetName();
 // unregister events
 foreach ([
- 'ContentDeletePost',
- 'ContentDeletePre',
- 'ContentEditPost',
- 'ContentEditPre',
- 'ContentPostCompile',
- 'ContentPostRender',
- 'ContentPreCompile',
- 'ContentPreRender', // 2.2
+ 'AddPost',
+ 'AddPre',
+ 'DeletePost',
+ 'DeletePre',
+ 'EditPost',
+ 'EditPre',
+ 'OrderPost',
+ 'OrderPre',
 ] as $name) {
     Events::RemoveEvent($me, $name);
 }
