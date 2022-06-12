@@ -1,7 +1,7 @@
 <?php
 /*
 Search module action: keywords
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -19,20 +19,21 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+//if (some worthy test fails) exit;
+
 $pageid = $params['pageid'] ?? $returnid;
 
-$query = 'SELECT idx.word
-  FROM '.CMS_DB_PREFIX.'module_search_index idx INNER JOIN '.CMS_DB_PREFIX.'module_search_items i ON idx.item_id = i.id
-  WHERE i.content_id = \''.$pageid.'\'
-    AND i.module_name = \'Search\'
-    AND i.extra_attr = \'content\'
-  ORDER BY idx.count DESC';
+$query = 'SELECT IDX.word
+FROM '.CMS_DB_PREFIX.'module_search_index IDX INNER JOIN '.CMS_DB_PREFIX.'module_search_items I ON IDX.item_id = I.id
+WHERE I.content_id = \''.$pageid.'\' AND I.module_name = \'Search\' AND I.extra_attr = \'content\'
+ORDER BY IDX.`count` DESC';
 
 $wordcount = $params['count'] ?? 500;
-$dbr = $db->SelectLimit( $query, (int)$wordcount, 0 );
-
-$wordlist = [];
-while( $dbr && ($row = $dbr->FetchRow() ) ) {
-    $wordlist[] = $row['word'];
+$rst = $db->selectLimit($query, (int)$wordcount, 0);
+if ($rst) {
+    $wordlist = $rst->getCol();
+    $rst->Close();
+    echo implode(',', $wordlist);
+    return;
 }
-echo implode(',',$wordlist);
+echo '';

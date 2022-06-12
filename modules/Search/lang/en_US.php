@@ -8,7 +8,7 @@ $lang = [
 // C
 'cancel' => 'Cancel',
 'clear' => 'Clear',
-'confirm_clearstats' => 'Are you sure you want to permanently clear all statistics?',
+'confirm_clearstats' => 'Are you sure you want to clear the latest search results?',
 'confirm_reindex' => 'This operation could take an extended amount of time, and/or require an extensive amount of PHP memory.  Are you sure you want to re-index all content?',
 'count' => 'Count',
 
@@ -25,7 +25,6 @@ $lang = [
 </ul>
 EOS
 ,
-
 'eventdesc-SearchCompleted' => 'Sent when a search is completed.',
 'eventhelp-SearchCompleted' => <<<'EOS'
 <h4>Parameters</h4>
@@ -35,7 +34,6 @@ EOS
 </ol>
 EOS
 ,
-
 'eventdesc-SearchInitiated' => 'Sent when a search is started.',
 'eventhelp-SearchInitiated' =>  <<<'EOS'
 <h4>Parameters</h4>
@@ -44,7 +42,6 @@ EOS
 </ol>
 EOS
 ,
-
 'eventdesc-SearchItemAdded' => 'Sent when a new item is indexed.',
 'eventhelp-SearchItemAdded' =>  <<<'EOS'
 <h4>Parameters</h4>
@@ -56,7 +53,6 @@ EOS
 </ol>
 EOS
 ,
-
 'eventdesc-SearchItemDeleted' => 'Sent when an item is deleted from the index.',
 'eventhelp-SearchItemDeleted' =>  <<<'EOS'
 <h4>Parameters</h4>
@@ -67,6 +63,7 @@ EOS
 </ol>
 EOS
 ,
+'examplestats' => 'Example Results',
 'export_to_csv' => 'Export to CSV',
 
 // H
@@ -91,11 +88,11 @@ EOS
 'input_resetstopwords' => 'Load',
 
 // N
-'noresultsfound' => 'No result found',
-'nostatistics' => 'No statistics found',
+'noresultsfound' => 'No result found', // for standalone page
+'nostatistics' => 'No results are recorded', // for admin tab
 
 // O
-'options' => 'Options',
+'options' => 'Settings',
 
 // P
 'param_action' => 'Specify the mode of operation for the module. Acceptable values are \'default\', and \'keywords\'.  The keywords action can be used to generate a comma seperated list of words suitable for use in a keywords meta tag.',
@@ -109,7 +106,7 @@ EOS
 'param_resultpage' => 'Page to display search results in.  This can either be a page alias or an id.  Used to allow search results to be displayed in a different template from the search form',
 'param_resulttemplate' => 'This parameter allows specifying the name of a non default template to use for displaying search results.',
 'param_searchtext' => 'Text to place into the search box',
-'param_submit' => 'Text to place into the submit button',
+'param_submit' => 'Label for the submit button',
 'param_useor' => 'Change the default relationship from an OR relationship to an AND relationship',
 'prompt_alpharesults' => 'Sort results alphabetically instead of by weight',
 'prompt_resetstopwords' => 'Load default Stop Words',
@@ -119,22 +116,22 @@ EOS
 
 // R
 'reindexallcontent' => 'Re-index All Content',
-'reindexcomplete' => 'Re-index Complete!',
+'reindexcomplete' => 'Re-index Completed',
 'restoretodefaultsmsg' => 'This operation will restore the template contents to their system defaults.  Are you sure you want to proceed?',
 'resulttemplate' => 'Result Template',
 'resulttemplateupdated' => 'Result Template Updated',
 
 // S
-
 'search' => 'Content Search',
 'searchplaceholder' => 'Enter search...',
 'searchresultsfor' => 'Search Results For',
-'searchsubmit' => 'Submit',
+'searchsubmit' => 'Submit', // default setting for constructed forms, see also 'submit'
 'searchtemplate' => 'Search Template',
 'searchtemplateupdated' => 'Search template updated',
 'search_method' => 'Pretty URLs compatibility via method POST, default value is always GET, to make this work just put {search search_method="post"} ',
 'settings_title' => '%s Settings',
-'statistics' => 'Statistics',
+'statistics' => 'Search Results',
+'statitem' => 'Word/Phrase',
 'stopwords' => 'Stop Words',
 'submit' => 'Submit',
 'sysdefaults' => 'Restore To Defaults',
@@ -146,7 +143,7 @@ EOS
 'type_searchresults' => 'Search Results',
 
 // U
-'usestemming' => 'Use word stemming (English only)',
+'usestemming' => 'Use external word-stemmer (English only)',
 'use_or' => 'Find results that match ANY word',
 
 // W

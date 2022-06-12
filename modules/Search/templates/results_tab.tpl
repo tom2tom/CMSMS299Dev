@@ -4,7 +4,7 @@
   <table class="pagetable">
     <thead>
       <tr>
-        <th style="width:75%;">{_ld($_module,'word')}</th>
+        <th style="width:75%;">{_ld($_module,'statitem')}</th>
         <th>{_ld($_module,'count')}</th>
       </tr>
     </thead>
@@ -18,12 +18,16 @@
     </tbody>
   </table>
 </div>
-<div class="pageinput pregap">
- {$formstart1}
-  <button type="submit" name="{$actionid}clearwordcount" class="adminsubmit icon undo">{_ld($_module,'clear')}</button>
-  <button type="submit" name="{$actionid}exportcsv" class="adminsubmit icon do">{_ld($_module,'export_to_csv')}</button>
- </form>
-</div>
 {else}
 <div class="pageinfo">{_ld($_module,'nostatistics')}</div>
 {/if}
+<div class="pageinput pregap">
+ {$formstart1}
+{if !empty($topwords)}
+  <button type="submit" name="{$actionid}clearsearch" class="adminsubmit icon undo">{_ld($_module,'clear')}</button>
+  <button type="submit" name="{$actionid}exportcsv" class="adminsubmit icon do">{_ld($_module,'export_to_csv')}</button>
+{else}
+  <button type="submit" name="{$actionid}examplesearch" class="adminsubmit icon do">{_ld($_module,'examplestats')}</button>
+{/if}
+ </form>
+</div>

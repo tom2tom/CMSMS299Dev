@@ -95,11 +95,20 @@ class Utils
     }
 
     /**
+     * @internal
+     */
+    public static function unlockdb()
+    {
+        $db = CMSMS\Lone::get('Db');
+        $db->execute('UNLOCK TABLES');
+    }
+
+    /**
      *
      * @param Search-module object $module
      * @param string $modname optional
      * @param int $id optional
-     * @param string $attr optional
+     * @param string $attr optional extra_attr field value
      * @param string $content optional
      * @param mixed $expires  optional timestamp | null
      */
@@ -118,12 +127,8 @@ class Utils
             $content = de_entitize($content);
             $stemmed_words = self::StemPhrase($module, $content);
             $tmp = array_count_values($stemmed_words);
-            if (!is_array($tmp) || !$tmp) {
+            if (!$tmp) {
                 return;
-            }
-            $words = [];
-            foreach ($tmp as $word => $times) {
-                $words[] = [$word, $times];
             }
 
             $q = 'SELECT id FROM '.CMS_DB_PREFIX.'module_search_items WHERE module_name=?';
@@ -133,13 +138,13 @@ class Utils
                 $q .= ' AND content_id=?';
                 $parms[] = $id;
             }
-            if ($attr != '') {
+            if ($attr) {
                 $q .= ' AND extra_attr=?';
                 $parms[] = $attr;
             }
             $db = Lone::get('Db');
             //pre-prepare this to reduce later delay n' raciness
-            $stmt = $db->prepare('INSERT INTO '.CMS_DB_PREFIX.'module_search_index (item_id,word,count) VALUES (?,?,?)');
+            $stmt = $db->prepare('INSERT INTO '.CMS_DB_PREFIX.'module_search_index (item_id,word,`count`) VALUES (?,?,?)');
 
             $rst = $db->execute($q, $parms);
             if ($rst && $rst->RecordCount() > 0 && $row = $rst->FetchRow()) {
@@ -164,25 +169,30 @@ $until,
             if ($rst) {
                 $rst->Close();
             }
-//TODO LOCK CMS_DB_PREFIX.'module_search_index' (no InnoDB >> no transactions
-            foreach ($words as $row) {
-                $stmt->Execute([$itemid, $row[0], $row[1]]);
+            register_shutdown_function('Search\\Utils::unlockdb');
+            $db->execute('LOCK TABLES '.CMS_DB_PREFIX.'module_search_index'); // no InnoDB >> no transactions TODO MyISAM workaround
+            foreach ($tmp as $word => $times) {
+                $db->execute($stmt, [$itemid, $word, $times]);
             }
-//TODO UNLOCK CMS_DB_PREFIX.'module_search_index'
+            $db->execute('UNLOCK TABLES');
             $stmt->close();
         }
     }
 
     /**
      *
-     * @param string $modname optional module-name to match
-     * @param int $id optional content-id value to match
-     * @param string $attr optional extra-attr value to match
+     * @param string $modname optional module-name to match Default 'Search'
+     * @param int $id optional content_id field value to match
+     * @param string $attr optional extra_attr field value to match
      */
     public static function DeleteWords(string $modname = 'Search', int $id = -1, string $attr = '')
     {
-        $parms = [$modname];
+        $db = Lone::get('Db');
+        register_shutdown_function('Search\\Utils::unlockdb');
+        $db->execute('LOCK TABLES '.CMS_DB_PREFIX.'module_search_items WRITE, '.CMS_DB_PREFIX.'module_search_index WRITE');
+        // TODO stored procedure instead of all this?
         $q = 'SELECT id FROM '.CMS_DB_PREFIX.'module_search_items WHERE module_name=?';
+        $parms = [$modname];
         if ($id != -1) {
             $q .= ' AND content_id=?';
             $parms[] = $id;
@@ -191,39 +201,45 @@ $until,
             $q .= ' AND extra_attr=?';
             $parms[] = $attr;
         }
-        $db = Lone::get('Db');
-        $db->BeginTrans(); // hence prefer InnoDB tables
+        $q .= ' ORDER BY id DESC'; //optimise for delete operation
+//      $db->BeginTrans(); // for InnoDB tables TODO MyISAM workaround
         $scrubs = $db->getCol($q, $parms);
         if ($scrubs) {
           /* dB-server max_allowed_packet value will be >= 1 MB, which
              is sufficient for commands with say 125,000 record-ids in
-             a 9999999-record table
-             but we will limit here to 1000-record batches */
+             a 9,999,999-record table
+             but we will limit here to 1000-record batches
+          */
             $batches = array_chunk($scrubs, 1000, true);
             foreach ($batches as &$one) {
-                $in = implode(',', $one).')';
-                $db->execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_items WHERE id IN ('.$in);
-                //Ruud suggestion: migrate this to async task
-                $db->execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_index WHERE item_id IN ('.$in);
+                $in = implode(',', $one);
+                $db->execute('DELETE FROM '.CMS_DB_PREFIX."module_search_items WHERE id IN ($in)");
+                //Ruud suggestion: migrate this to async task, but that might timeout other tasks
+                $db->execute('DELETE FROM '.CMS_DB_PREFIX."module_search_index WHERE item_id IN ($in)");
+                usleep(100000); // play nicely with the world
             }
             unset($one);
         }
-        $db->CommitTrans();
-
+//      $db->CommitTrans(); //TODO MyISAM workaround
+        $db->execute('UNLOCK TABLES');
+        //TODO remove shutdown handler 'unlockdb' if such is possible
         Events::SendEvent('Search', 'SearchItemDeleted', [$modname, $id, $attr]);
     }
 
     public static function DeleteAllWords()
     {
         $db = Lone::get('Db');
+        register_shutdown_function('Search\\Utils::unlockdb');
+        $db->execute('LOCK TABLES '.CMS_DB_PREFIX.'module_search_index WRITE, '.CMS_DB_PREFIX.'module_search_items WRITE , '.CMS_DB_PREFIX.'module_search_words WRITE');
         $db->execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_index');
         $db->execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_items');
         $db->execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_words');
+        $db->execute('UNLOCK TABLES');
 
         Events::SendEvent('Search', 'SearchAllItemsDeleted');
     }
 
-    public static function RemoveStopWordsFromArray(Search $module, $words)
+    public static function RemoveStopWordsFromArray(Search $module, array $words)
     {
         $curval = $module->GetPreference('stopwords');
         if (!$curval) {
@@ -231,6 +247,50 @@ $until,
         }
         $stop_words = preg_split("/\,+/", $curval);
         return array_diff($words, $stop_words);
+    }
+
+    /**
+     * Update the search words table
+     * @param Search-module object $module
+     * @param string $phrase single phrase whose presence|count is to be updated
+     * @param array $words words whose presence|count is to be updated
+     */
+    public static function UpdateWords(Search $module, string $phrase, array $words)
+    {
+        $mode = $module->GetPreference('savephrases', 1); // before LOCK_TABLES (dunno why that leaks)
+        $db = Lone::get('Db');
+        register_shutdown_function('Search\\Utils::unlockdb');
+        $db->execute('LOCK TABLES '.CMS_DB_PREFIX.'module_search_words WRITE');
+        if (!$mode) {
+            // word-upserts needed
+            $stmt1 = $db->prepare('SELECT `count` FROM '.CMS_DB_PREFIX.'module_search_words WHERE word = ?');
+            $stmt2 = $db->prepare('UPDATE '.CMS_DB_PREFIX.'module_search_words SET `count` = ? WHERE word = ?');
+            $stmt3 = $db->prepare('INSERT INTO '.CMS_DB_PREFIX.'module_search_words (word,`count`) VALUES (?,1)');
+            foreach ($words as $word) {
+                $tmp = $db->getOne($stmt1, [$word]);
+                if ($tmp) {
+                    $db->execute($stmt2, [++$tmp, $word]);
+                } else {
+                    $db->execute($stmt3, [$word]);
+                }
+            }
+            $stmt1->close();
+            $stmt2->close();
+            $stmt3->close();
+        } else {
+            // phrase-upsert needed
+            $q = 'SELECT `count` FROM '.CMS_DB_PREFIX.'module_search_words WHERE word = ?';
+            $tmp = $db->getOne($q, [$phrase]);
+            if ($tmp) {
+                $q = 'UPDATE '.CMS_DB_PREFIX.'module_search_words SET `count` = ? WHERE word = ?';
+                $db->execute($q, [++$tmp, $phrase]);
+            }
+            else {
+                $q = 'INSERT INTO '.CMS_DB_PREFIX.'module_search_words (word,`count`) VALUES (?,1)';
+                $db->execute($q, [$phrase]);
+            }
+        }
+        $db->execute('UNLOCK TABLES');
     }
 
     /**

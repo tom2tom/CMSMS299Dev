@@ -1,7 +1,7 @@
 <?php
 /*
 Search module upgrade procedure
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -98,19 +98,19 @@ if (version_compare($oldversion,'1.50') < 0) {
         return $t->GetMessage();
     }
 }
-
+/* see below - back to MyISAM
 if (version_compare($oldversion,'1.51') < 0) {
     $tables = [
         CMS_DB_PREFIX.'module_search_items', //stet??
         CMS_DB_PREFIX.'module_search_index', //stet??
-//        CMS_DB_PREFIX.'module_search_words', stet??
+//      CMS_DB_PREFIX.'module_search_words', stet??
     ];
     $sql = 'ALTER TABLE %s ENGINE=InnoDB'; //KEY_BLOCK_SIZE=8 ROW_FORMAT=COMPRESSED support transactions
     foreach ($tables as $table) {
         $db->execute(sprintf($sql, $table));
     }
 }
-
+*/
 if (version_compare($oldversion,'1.52') < 0) {
     $dict = new DataDictionary($db);
     $sqlarray = $dict->CreateIndexSQL('i_itemid', CMS_DB_PREFIX.'module_search_index', 'item_id');
@@ -126,6 +126,16 @@ if (version_compare($oldversion,'1.53') < 0) {
 }
 
 if (version_compare($oldversion,'2.0') < 0) {
+    $tables = [
+        CMS_DB_PREFIX.'module_search_items',
+        CMS_DB_PREFIX.'module_search_index',
+        CMS_DB_PREFIX.'module_search_words',
+    ];
+    //TODO recreate indices if needed
+    $sql = 'ALTER TABLE %s ENGINE=MyISAM';
+    foreach ($tables as $table) {
+        $db->execute(sprintf($sql, $table));
+    }
     $val = $this->GetPreference('stopwords');
     $val = Utils::CleanWords($val);
     $this->SetPreference('stopwords', $val);

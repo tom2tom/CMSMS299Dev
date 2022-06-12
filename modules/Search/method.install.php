@@ -1,7 +1,7 @@
 <?php
 /*
 Search module installation proceedure
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -31,7 +31,7 @@ $newsite = AppState::test(AppState::INSTALL);
 if ($newsite) {
     $userid = 1; // templates owned by initial admin
 } else {
-	if (!$this->CheckPermission('Modify Modules')) exit;
+    if (!$this->CheckPermission('Modify Modules')) exit;
     $userid = get_userid(false);
 }
 
@@ -44,21 +44,20 @@ content_id I UNSIGNED,
 extra_attr C(100),
 expires DT
 ';
-// transactions are used on this table, so InnoDB engine
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_items', $flds,
-['mysqli' => 'CHARACTER SET ascii']); // InnoDB engine to allow transactions TODO ascii ok for extra_attr ? only use is 'content'
+['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii']); // assumes ascii is ok for extra_attr field
 $dict->ExecuteSQLArray($sqlarray);
 // use of inserted-data identifier is a bit racy elsewhere, and a sequencer helps a bit
 $db->CreateSequence(CMS_DB_PREFIX.'module_search_items_seq');
 
 $sqlarray = $dict->CreateIndexSQL('i_modulename_contentid',
-            CMS_DB_PREFIX.'module_search_items', 'module_name,content_id');
+    CMS_DB_PREFIX.'module_search_items', 'module_name,content_id');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('i_contentid',
-            CMS_DB_PREFIX.'module_search_items', 'content_id');
+    CMS_DB_PREFIX.'module_search_items', 'content_id');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('i_extraattr',
-            CMS_DB_PREFIX.'module_search_items', 'extra_attr');
+    CMS_DB_PREFIX.'module_search_items', 'extra_attr');
 $dict->ExecuteSQLArray($sqlarray);
 
 $flds = '
@@ -69,15 +68,15 @@ count I UNSIGNED NOTNULL DEFAULT 0
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_index', $flds,
 ['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii COLLATE ascii_bin']);
 $dict->ExecuteSQLArray($sqlarray);
-// TODO index params if non-InnoDB engine used
+// TODO index params if InnoDB engine used
 $sqlarray = $dict->CreateIndexSQL('i_itemid',
-            CMS_DB_PREFIX.'module_search_index', 'item_id', ['KEY_BLOCK_SIZE'=>1]); //non-unique field used in sub-query/join
+    CMS_DB_PREFIX.'module_search_index', 'item_id'/*, ['KEY_BLOCK_SIZE'=>1]*/); //non-unique field used in sub-query/join
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('i_word',
-            CMS_DB_PREFIX.'module_search_index', 'word', ['KEY_BLOCK_SIZE'=>2]);
+    CMS_DB_PREFIX.'module_search_index', 'word'/*, ['KEY_BLOCK_SIZE'=>2]*/);
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('i_count',
-            CMS_DB_PREFIX.'module_search_index', 'count', ['KEY_BLOCK_SIZE'=>1]);
+    CMS_DB_PREFIX.'module_search_index', 'count'/*, ['KEY_BLOCK_SIZE'=>1]*/);
 $dict->ExecuteSQLArray($sqlarray);
 
 $flds = '
@@ -154,4 +153,5 @@ if ($newsite) {
     // ensure demo-pages are loadable for searching
     Lone::get('ContentTypeOperations')->RebuildStaticContentTypes();
 }
-$this->Reindex();
+//TODO initial index >> async or otherwise defer e.g. notice esp. if InnoDB engine used
+$this->Reindex(); // OR Search\Utils::Reindex($this);

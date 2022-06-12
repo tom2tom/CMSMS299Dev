@@ -1,7 +1,7 @@
 <?php
 /*
 Search: a module to find words/phrases in 'core' site pages and some modules' pages
-Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -78,17 +78,17 @@ class Search extends CMSModule
         'count' => CLEAN_INT,
         'detailpage' => CLEAN_STRING,
         'formtemplate' => CLEAN_STRING,
-        'inline' => CLEAN_STRING,
+        'inline' => CLEAN_BOOL,
         'modules' => CLEAN_STRING,
-        'origreturnid' => CLEAN_INT,
+        'origreturnid' => CLEAN_INT, // internal use only
         'pageid' => CLEAN_INT,
         'resultpage' => CLEAN_STRING,
         'resulttemplate' => CLEAN_STRING,
         'search_method' => CLEAN_STRING,
-        'searchinput' => CLEAN_STRING,
+        'searchinput' => CLEAN_STRING, // internal use only
         'searchtext' => CLEAN_STRING,
         'submit' => CLEAN_STRING,
-        'use_or' => CLEAN_INT, //CHECKME disabled?
+        'use_or' => CLEAN_BOOL, //CHECKME disabled?
         CLEAN_REGEXP.'/passthru_.*/' => CLEAN_STRING
         ]);
     }
@@ -209,7 +209,7 @@ class Search extends CMSModule
         return [
          'title'=>$this->Lang('settings_title', $this->GetName()),
          //'desc'=>'useful text goes here', // optional useful text
-         'url'=>$this->create_action_url('', 'defaultadmin', ['activetab'=>'options']), // if permitted
+         'url'=>$this->create_action_url('', 'defaultadmin', ['activetab'=>'settings']), // if permitted
          //optional 'text' => custom link-text | explanation e.g need permission
         ];
     }
@@ -233,6 +233,8 @@ class Search extends CMSModule
     }
 
     /**
+     *
+     * @param array $words
      * @return array
      */
     public function RemoveStopWordsFromArray($words)
@@ -241,6 +243,8 @@ class Search extends CMSModule
     }
 
     /**
+     *
+     * @param string $phrase
      * @return array
      */
     public function StemPhrase($phrase)
@@ -248,19 +252,34 @@ class Search extends CMSModule
         return Utils::StemPhrase($this, $phrase);
     }
 
+    /**
+     *
+     * @param string $modname Default 'Search'
+     * @param int $id Default -1
+     * @param string $attr optional extra_attr field value Default ''
+     * @param type $content Default ''
+     * @param mixed $expires Default null
+     * @return type
+     */
     public function AddWords($modname = 'Search', $id = -1, $attr = '', $content = '', $expires = NULL)
     {
         return Utils::AddWords($this, $modname, $id, $attr, $content, $expires);
     }
 
+    /**
+     *
+     * @param string $modname Default 'Search'
+     * @param int $id Default -1
+     * @param string $attr optional extra_attr field value Default ''
+     */
     public function DeleteWords($modname = 'Search', $id = -1, $attr = '')
     {
         Utils::DeleteWords($modname, $id, $attr);
     }
 
     /**
-     * @param $modname UNUSED
-     * @param $id UNUSED
+     * @param $modname string UNUSED
+     * @param $id int UNUSED
      * @param $attr UNUSED
      */
     public function DeleteAllWords($modname = 'Search', $id = -1, $attr = '')

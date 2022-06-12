@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\Events;
 use CMSMS\TemplateOperations;
 use Search\ItemCollection;
+use Search\Utils;
 use function CMSMS\specialize;
 use function CMSMS\log_error;
 
@@ -41,15 +42,21 @@ if (!empty($params['resulttemplate'])) {
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
 
+//TODO $params['origreturnid'] usage?
+
 if ($params['searchinput']) {
-    $term = $params['searchinput']; // used verbatim, but escaped
+    $phrase = $params['searchinput']; // used verbatim, but escaped
 
     $searchstarttime = microtime(true);
-    Events::SendEvent('Search','SearchInitiated',[$term]); // no modification
+    Events::SendEvent('Search','SearchInitiated',[$phrase]); // no modification
+    $words = array_values(Utils::StemPhrase($this, $phrase)); // can't properly escape whole $phrase here
 
-    $words = array_values($this->StemPhrase($term)); // can't properly escape whole term here
-    $nb_words = $words ? count($words) : 0;
-//    $max_weight = 1;
+    // Update the search words table
+    Utils::UpdateWords($this, $phrase, $words);
+
+    $col = new ItemCollection();
+    $nb_words = count($words);
+//  $max_weight = 1;
 
     $searchphrase = '';
     if ($nb_words > 0) {
@@ -63,55 +70,25 @@ if ($params['searchinput']) {
         }
         $searchphrase = implode(' OR ', $ary);
     }
-
-    // Update the search words table
-    if (!$this->GetPreference('savephrases',1)) {
-        foreach ($words as $word) {
-            $query = 'SELECT count FROM '.CMS_DB_PREFIX.'module_search_words WHERE word = ?';
-            $tmp = $db->getOne($query,[$word]);
-            if ($tmp) {
-                $query = 'UPDATE '.CMS_DB_PREFIX.'module_search_words SET count=count+1 WHERE word = ?';
-                $db->execute($query,[$word]);
-            }
-            else {
-                $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_search_words (word,count) VALUES (?,1)';
-                $db->execute($query,[$word]);
-            }
-        }
-    } else {
-        $query = 'SELECT count FROM '.CMS_DB_PREFIX.'module_search_words WHERE word = ?';
-        $tmp = $db->getOne($query,[$term]);
-        if ($tmp) {
-            $query = 'UPDATE '.CMS_DB_PREFIX.'module_search_words SET count=count+1 WHERE word = ?';
-            $db->execute($query,[$term]);
-        }
-        else {
-            $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_search_words (word,count) VALUES (?,1)';
-            $db->execute($query,[$term]);
-        }
-    }
-
-    $col = new ItemCollection();
-
 //    $val = 100000000 * 25;
     $pref = CMS_DB_PREFIX;
     $query = <<<EOS
-SELECT DISTINCT i.module_name, i.content_id, i.extra_attr, COUNT(*) AS nb, SUM(idx.count) AS total_weight
-FROM {$pref}module_search_items i
-INNER JOIN {$pref}module_search_index idx ON i.id = idx.item_id
-WHERE ($searchphrase) AND (i.expires IS NULL OR i.expires >= NOW())
+SELECT DISTINCT I.module_name, I.content_id, I.extra_attr, COUNT(*) AS nb, SUM(IDX.`count`) AS total_weight
+FROM {$pref}module_search_items I
+INNER JOIN {$pref}module_search_index IDX ON I.id = IDX.item_id
+WHERE ($searchphrase) AND (I.expires IS NULL OR I.expires >= NOW())
 EOS;
     if (isset( $params['modules'])) {
         $modules = explode(',', $params['modules']);
         for ($i = 0, $n = count($modules); $i < $n; $i++) {
             $modules[$i] = $db->qStr($modules[$i]);
         }
-        $query .= ' AND i.module_name IN ('.implode(',',$modules).')';
+        $query .= ' AND I.module_name IN ('.implode(',',$modules).')';
     }
-    $query .= ' GROUP BY i.module_name, i.content_id, i.extra_attr';
+    $query .= ' GROUP BY I.module_name, I.content_id, I.extra_attr';
     if (empty($params['use_or'])) {
         //this is an AND query
-        $query .= " HAVING count(*) >= $nb_words";
+        $query .= " HAVING COUNT(*) >= $nb_words";
     }
     $query .= ' ORDER BY nb DESC, total_weight DESC';
     $rst = $db->execute($query);
@@ -195,9 +172,9 @@ EOS;
     }
     $col->_ary = $newresults;
 
-    $tpl->assign('phrase',$term);
+    $tpl->assign('phrase',$phrase);
 
-    Events::SendEvent('Search','SearchCompleted',[&$term, &$col->_ary]); // any modification useless!
+    Events::SendEvent('Search','SearchCompleted',[&$phrase, &$col->_ary]); // any modification useless!
 
     $searchendtime = microtime(true);
     $tpl->assign('itemcount', count($col->_ary))

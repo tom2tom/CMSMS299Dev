@@ -61,7 +61,7 @@ $prompt = $this->Lang('search');
 
 //Some of these are only for back-compatibility
 $tpl->assign('startform', $this->CreateFormStart($id, 'dosearch', $returnid, $is_method, '', $inline))
- ->assign('endform', $this->CreateFormEnd())
+//->assign('endform', $this->CreateFormEnd())
  ->assign('search_actionid', $id)
  ->assign('destpage', $returnid)
  ->assign('form_method', $is_method)

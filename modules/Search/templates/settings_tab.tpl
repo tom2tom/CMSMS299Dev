@@ -1,4 +1,4 @@
-{$formstart}
+{$formstart2}
 <div class="pageoverflow postgap">
   {$t=$prompt_stopwords}<label class="pagetext" for="stops">{$t}:</label>
   {cms_help 0=$_module key='help_stopwords' title=$t}
