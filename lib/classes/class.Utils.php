@@ -26,7 +26,7 @@ namespace CMSMS;
 //use CMSMS\NlsOperations;
 use CMSMS\AdminTheme;
 use CMSMS\AppConfig;
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\Database\Connection;
 use CMSMS\internal\Smarty;
 use CMSMS\Lone;
@@ -242,7 +242,7 @@ final class Utils
 	 */
 	public static function get_email_module()
 	{
-		$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::EMAIL_MODULE);
+		$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CapabilityType::EMAIL_MODULE);
 		if ($modnames) {
 			return Lone::get('ModuleOperations')->get_module_instance($modnames[0]);
 		}

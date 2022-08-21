@@ -1,7 +1,7 @@
 <?php
 /*
 Edit/add template action for CMSMS News module.
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -26,6 +26,8 @@ if( is_file($fp) ) {
     $can_manage = check_permission($userid, 'Modify News Preferences');  // || Modify Templates etc ??
     if( !$can_manage ) exit;
     $content_only = false; //TODO per actual permmissions
+    $show_buttons = true;
+    $show_cancel = true;
 
     $module = $this;
     $returntab = 'templates';
@@ -36,8 +38,6 @@ if( is_file($fp) ) {
     else {
         $title = $this->Lang('prompt_addtemplate');
     }
-    $show_buttons = true;
-    $show_cancel = true;
 
     include_once $fp;
 }

@@ -382,25 +382,21 @@ try {
 	}
 */
 	if ($pmod || $tpl_obj->get_owner_id() == $userid) {
-		$userops = Lone::get('UserOperations');
-		$allusers = $userops->LoadUsers();
-		$tmp = [];
-		foreach ($allusers as $one) {
+		$usernames = Lone::get('UserOperations')->GetUsers(true, true);
+		if ($usernames) {
 // TODO why omit super-admin here? If template owner is that user, this would unset that user as owner
-//			if ($one->id === 1) continue;
-			$tmp[$one->id] = $one->username;
-		}
-		if ($tmp) { $smarty->assign('user_list', $tmp); }
+//          unset($usernames[1]);
+            $smarty->assign('user_list', $usernames); // no speciaize() etc ??
+        }
 
-		$groupops = Lone::get('GroupOperations');
-		$allgroups = $groupops->LoadGroups();
+        $usernames = [];
+		$allgroups = Lone::get('GroupOperations')->LoadGroups(true);
 		foreach ($allgroups as $one) {
 			if ($one->id == 1) continue;
-			if ($one->active == 0) continue;
-			$tmp[$one->id * -1] = _ld('layout','prompt_group') . ': ' . $one->name;
-			// appends to the tmp array.
+			// append to the usernames array
+			$usernames[$one->id * -1] = _ld('layout','prompt_group') . ': ' . $one->name;
 		}
-		if ($tmp) { $smarty->assign('addt_editor_list', $tmp); }
+		if ($usernames) { $smarty->assign('addt_editor_list', $usernames); }
 	}
 
 	if (Lone::get('Config')['develop_mode']) {

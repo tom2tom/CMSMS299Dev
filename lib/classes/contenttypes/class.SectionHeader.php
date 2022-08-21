@@ -26,7 +26,8 @@ use CMSMS\contenttypes\ContentBase;
 /**
  * Implements the Section Header content type
  *
- * Section headers are logical ways to organize content.  They usually appear in navigations, but are not navigable.
+ * Section headers are logical ways to organize content.
+ * They usually appear in navigations, but are not navigable.
  *
  * @package CMS
  * @subpackage content_types
@@ -39,7 +40,6 @@ class SectionHeader extends ContentBase
 	/**
 	 * @param mixed $params
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct($params)
 	{
 		parent::__construct($params);

@@ -101,14 +101,13 @@ final class RouteOperations
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
 	private function __construct() {}
 
 	/**
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/**
 	 * Initialize non-static routes global-cache
@@ -129,7 +128,7 @@ final class RouteOperations
 			self::$_dynamic_routes = [];
 
 			//eventually we should be able to just ...
-			//$polls = Lone::get('LoadedMetadata')->get('capable_modules',$force,CMSMS\CoreCapabilities::ROUTE_MODULE);
+			//$polls = Lone::get('LoadedMetadata')->get('capable_modules',$force,CMSMS\CapabilityType::ROUTE_MODULE);
 			$modops = Lone::get('ModuleOperations');
 			$extras = $modops->GetLoadableModuleNames(); // hence incremental changes
 			$skips = Lone::get('LoadedMetadata')->get('methodic_modules',$force,'RegisterRoute',FALSE ); //deprecated since 3.0
@@ -499,33 +498,33 @@ EOS;
 	 */
 	public static function del_static($pattern,$dest1 = NULL,$page = NULL,$delmatch = NULL) : bool
 	{
-		$where = [];
+		$wheres = [];
 		$parms = [];
 		if( $pattern ) {
-			$where[] = 'term = ?';
+			$wheres[] = 'term = ?';
 			$parms[] = $pattern;
 		}
 
 		if( $page || is_numeric($page) ) {
-			$where[] = "dest1 = '".Route::PAGE."'";
-			$where[] = 'page = ?';
+			$wheres[] = "dest1 = '".Route::PAGE."'";
+			$wheres[] = 'page = ?';
 			$parms[] = (string)$page;
 		}
 		elseif( $dest1 ) {
-			$where[] = 'dest1 = ?';
+			$wheres[] = 'dest1 = ?';
 			$parms[] = (string)$dest1;
 		}
 
 		if( $delmatch || is_numeric($delmatch) ) {
-			$where[] = 'delmatch = ?';
+			$wheres[] = 'delmatch = ?';
 			$parms[] = (string)$delmatch;
 		}
 
-		if( !$where ) return FALSE;
+		if( !$wheres ) return FALSE;
 
 		$db = Lone::get('Db');
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'routes WHERE ';
-		$query .= implode(' AND ',$where);
+		$query .= implode(' AND ',$wheres);
 		$dbr = $db->execute($query,$parms);
 		if( $dbr ) {
 			self::clear_static_routes();

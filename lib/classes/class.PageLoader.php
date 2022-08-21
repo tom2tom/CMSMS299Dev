@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\Lone;
 use Exception;
 use RuntimeException;
@@ -63,7 +63,7 @@ class PageLoader
      */
     protected static function poll_xclasses()
     {
-        $list = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::CONTENT_TYPES);
+        $list = Lone::get('LoadedMetadata')->get('capable_modules', false, CapabilityType::CONTENT_TYPES);
         if ($list) {
             $ops = Lone::get('ModuleOperations');
             foreach ($list as $modname) {

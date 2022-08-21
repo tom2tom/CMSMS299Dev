@@ -31,7 +31,6 @@ class Smarty_Internal_ParseTree_Tag extends Smarty_Internal_ParseTree
      * @param \Smarty_Internal_Templateparser $parser parser object
      * @param string                          $data   content
      */
-    #[\ReturnTypeWillChange]
     public function __construct(Smarty_Internal_Templateparser $parser, $data)
     {
         $this->data = $data;

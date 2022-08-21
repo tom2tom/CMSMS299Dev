@@ -46,7 +46,6 @@ class CacheApcu extends CacheDriver
 	 *  group => string (default 'default') TODO migrate to 'space'
 	 *  globlspace => string cache differentiator (default hashed const)
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct(array $params)
 	{
 		if ($this->use_driver()) {

@@ -147,14 +147,13 @@ final class AppConfig implements ArrayAccess
      * ignore
      * @private to prevent direct creation (even by Lone class)
      */
-    #[\ReturnTypeWillChange]
-    private function __construct() {} // : void
+    private function __construct() {}
 
     /**
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    private function __clone() {} // : void
+    private function __clone() {}// : void {}
 
     /**
      * Retrieve the singleton instance of this class.
@@ -489,6 +488,9 @@ final class AppConfig implements ArrayAccess
         case 'jqversion':
             return ''; // i.e. latest
 
+//        case 'host_whitelist':
+//            return callable | array | comma-separated string
+
         default:
             return null; // a key that we can't autofill
         }
@@ -517,55 +519,60 @@ final class AppConfig implements ArrayAccess
     }
 
     /**
-     * convert supplied string, if it's an URL, to corresponding filepath
+     * Convert the supplied string, if it's an URL, to corresponding filepath
+     * @see also cms_url_to_path()
      * @ignore
      */
     private function url2path(string $url) : string
     {
         $url = trim($url, " \t\r\n'\"");
-        if( 1 ) { // TODO is path, not URL
-            return $url;
+        if( strpos($url, '\\') !== false || realpath($url) ) {
+            return $url; // is path, not URL
         }
+//      return cms_url_to_path($url); OR as follows
         if( startswith($url, CMS_ROOT_URL) ) {
             $s = substr($url, strlen(CMS_ROOT_URL));
+            $s = rawurldecode($s);
             $fp = CMS_ROOT_PATH . strtr($s, '/', DIRECTORY_SEPARATOR);
         } else {
             $s = preg_replace('~^(\w+?:)?//~', '', $url);
+            $s = rawurldecode($s);
             $fp = strtr($s, '/', DIRECTORY_SEPARATOR);
         }
         return $fp;
     }
 
     /**
-     * convert supplied string, if it's a filepath, to corresponding URL
+     * Convert the supplied string, if it's a filepath, to corresponding URL
+     * @see also cms_path_to_url()
      * @ignore
      */
     private function path2url(string $path) : string
     {
         $path = trim($path, " \t\r\n'\"");
-        if( 1 ) { // TODO is URL, not path
+        if( !realpath($path) ) { // TODO is URL, not path
             return $path;
         }
+//      return cms_path_to_url($path); OR as follows
         $s = $path;
         //TODO convert
         return $s;
     }
 
     /**
+     * Return a hostname derived from $_SERVER[] (some of which might be spoofed)
+     * or from a previously-specified whitelist|callable (if any)
      * @ignore
      */
-    private function calculate_request_hostname()
+    private function calculate_request_hostname() : string
     {
         if( $_SERVER['HTTP_HOST'] === $_SERVER['SERVER_NAME'] ) return $_SERVER['SERVER_NAME'];
 
-        // $_SERVER['HTTP_HOST'] can be spoofed... so if a root_url is not specified
-        // we determine if the requested host is in a whitelist.
-        // if all else fails, we use $_SERVER['SERVER_NAME']
         $whitelist = $this['host_whitelist'] ?? null;
         if( !$whitelist ) return $_SERVER['SERVER_NAME'];
         $requested = $_SERVER['HTTP_HOST'];
 
-        $out = null;
+        $out = '';
         if( is_callable($whitelist) ) {
             $out = call_user_func($whitelist,$requested);
         }
@@ -573,8 +580,8 @@ final class AppConfig implements ArrayAccess
             // could use array_search here, but can't rely on the quality of the input (empty strings, whitespace etc).
             for( $i = 0, $n = count($whitelist); $i < $n; $i++ ) {
                 $item = $whitelist[$i];
-                if( !is_string($item) ) continue;
                 if( !$item ) continue;
+                if( !is_string($item) ) continue;
                 if( strcasecmp($requested,$item) == 0 ) {
                     $out = $item;
                     break;

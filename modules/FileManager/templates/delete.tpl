@@ -16,7 +16,7 @@
 <div class="pageoverflow">
   <p class="pageinput">
     {if !isset($errors)}
-    <button type="submit" name="{$actionid}delete" class="adminsubmit icon do">{_ld($_module,'delete')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icon do">{_ld($_module,'delete')}</button>
     {/if}
     <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$cancellabel}</button>
   </p>

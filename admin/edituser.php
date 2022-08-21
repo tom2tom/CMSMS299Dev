@@ -71,7 +71,7 @@ $access_group = in_array($userid, $admins) || !in_array($user_id, $admins); // ?
 $access = $selfedit && $access_group;
 $userops = Lone::get('UserOperations');
 $userobj = $userops->LoadUserByID($user_id);
-$group_list = $groupops->LoadGroups();
+$group_list = $groupops->LoadGroups(true);
 $manage_groups = check_permission($userid, 'Manage Groups');
 $manage_users = true; //checked above
 $errors = [];
@@ -296,7 +296,7 @@ $(function() {
   cms_confirm_btnclick(this, $confirm);
   return false;
  });
- $('#copyusersettings').change(function() {
+ $('#copyusersettings').on('change', function() {
   var v = $(this).val();
   if(v === -1) {
    $('#clearusersettings').prop('disabled', false);
@@ -322,12 +322,11 @@ if ($out) {
 }
 
 //data for user-selector
+$usernames = $userops->GetUsers(true, true);
+unset($usernames[$user_id]);
 $sel = [-1 => _la('none')];
-$userlist = $userops->LoadUsers();
-foreach ($userlist as $one) {
-    if ($one->id != $user_id) {
-        $sel[$one->id] = specialize($one->username);
-    }
+foreach ($usernames as $uid => $name) {
+   $sel[$uid] = specialize($name); // specialize() ? strip_tags()?
 }
 
 $smarty = Lone::get('Smarty');

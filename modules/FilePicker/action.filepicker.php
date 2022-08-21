@@ -133,9 +133,9 @@ try {
 
     $typename = $params['type'] ?? $profile->typename; // TODO per $params['type'] iff consistent with $profile
     // uploader parameters
-    $mime = $params['mime'] ?? $profile->file_mimes; // TODO default per $params['type'] iff consistent with $profile
+//    $mime = $params['mime'] ?? $profile->file_mimes; // TODO default per $params['type'] iff consistent with $profile
     //$mime = $this->_typehelper->get_file_type_mime(FileType::getValue($typename));
-    $extensions = $params['exts'] ?? $profile->file_extensions;
+//    $extensions = $params['exts'] ?? $profile->file_extensions;
     //if (!($extensions || $mime)) $extensions = $this->_typehelper->get_file_type_extensions(FileType::getValue($typename));
 
     $assistant = new PathAssistant($config, $topdir);
@@ -233,8 +233,8 @@ try {
                 'subdir' => $name,
                 'inst' => $inst,
                 'type' => $typename,
-                'mime' => $mime,
-                'exts' => $extensions,
+//                'mime' => $mime,
+//                'exts' => $extensions,
             ];
             $up = base64_encode(json_encode($parms,
                 JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
@@ -319,8 +319,8 @@ try {
             'seldir' => $parent,
             'inst' => $inst,
             'type' => $typename,
-            'mime' => $mime,
-            'exts' => $extensions,
+//            'mime' => $mime,
+//            'exts' => $extensions,
         ];
         $up = base64_encode(json_encode($parms,
             JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
@@ -345,9 +345,9 @@ try {
     $url2 = cms_get_css('basictable.css');
     $url3 = cms_get_css('browsefiles.css');
     $headinc = <<<EOS
-<link rel="stylesheet" type="text/css" href="$url" /> if ($frontend)
-<link rel="stylesheet" type="text/css" href="$url2" />
-<link rel="stylesheet" type="text/css" href="$url3" />
+<link rel="stylesheet" href="$url" /> if ($frontend)
+<link rel="stylesheet" href="$url2" />
+<link rel="stylesheet" href="$url3" />
 
 EOS;
 
@@ -473,10 +473,10 @@ EOS;
         list($headinc, $footinc) = Utils::get_browsedata($this, [
             'cwd' => $cwd,
             'upurl' => $upurl,
-            'exts' => $extensions,
+//            'exts' => $extensions,
             'inst' => $inst,
             'listurl' => $this->get_browser_url(),
-            'mime' => $mime,
+//            'mime' => $mime,
             'typename' => $typename
             ], true);
         $tpl->assign([

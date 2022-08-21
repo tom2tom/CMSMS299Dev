@@ -75,15 +75,13 @@ final class Statement
      * @param Connection      $conn The database connection
      * @param optional string $sql  The SQL query, default null
      */
-    #[\ReturnTypeWillChange]
-    public function __construct(Connection $conn, $sql = null)
+    public function __construct(Connection $conn, /*string*/$sql = null)
     {
         $this->_conn = $conn;
         $this->_sql = $sql;
     }
 
 /* BAD !! TODO check proper cleanup happens anyway, upon destruction
-    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         $this->close();
@@ -93,7 +91,7 @@ final class Statement
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)
+    public function __get(string $key)// : mixed
     {
         switch ($key) {
          case 'db':

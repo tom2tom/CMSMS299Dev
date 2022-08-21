@@ -42,7 +42,6 @@ abstract class Smarty_Internal_ParseTree
     /**
      * Template data object destructor
      */
-    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         $this->data = null;

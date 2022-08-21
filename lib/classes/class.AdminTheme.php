@@ -217,7 +217,6 @@ abstract class AdminTheme
      * Init for all specific-theme sub-classes
      * @ignore
      */
-    #[\ReturnTypeWillChange]
     protected function __construct()
     {
         if (is_object(self::$_instance)) {
@@ -258,13 +257,13 @@ abstract class AdminTheme
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    private function __clone() {}
+    private function __clone() {}// : void {}
 
     /**
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)
+    public function __get(string $key)// : mixed
     {
         switch ($key) {
         case 'themeName':
@@ -372,7 +371,7 @@ abstract class AdminTheme
                 if (is_object($mod) && $mod->HasAdmin()) {
                     $items = $mod->GetAdminMenuItems();
                     if ($items) {
-                        $sys = $modops->IsSystemModule($modname);
+                        $sys = $modops->IsBundledModule($modname);
                         foreach ($items as &$one) {
                             if (!$one->valid()) continue;
                             $nm = $one->name ?? '';
@@ -550,7 +549,7 @@ abstract class AdminTheme
     private function _fix_url_userkey($url)
     {
         if (strpos($url,CMS_SECURE_PARAM_NAME) !== false) {
-            // conform to LoginOperations::create_csrf_token() e.g. 8+ non-[raw]urlencode()'d
+            // conform to AuthOperations::create_csrf_token() e.g. 8+ non-[raw]urlencode()'d
             $from = '/'.CMS_SECURE_PARAM_NAME.'=([a-zA-Z_\d\-]{8,})(&|$)/';
             $to = CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY].'$2';
             return preg_replace($from,$to,$url);
@@ -1364,8 +1363,8 @@ EOS;
      *  relative-filepath, or an absolute filepath. It may omit extension (type)
      * @param string $alt Optional alternate identifier for the created
      *  image element (deprecated since 3.0 also used for its default title)
-     * @param int $width Optional image-width (ignored for svg)
-     * @param int $height Optional image-height (ignored for svg)
+     * @param mixed $width Optional int | string image-width. May include units e.g. [r]rem. Ignored for svg
+     * @param mixed $height Optional int | string image-height. May include units e.g. [r]rem. Ignored for svg
      * @param string $class Optional class. For .i (iconimages), class "fontimage" is always prepended
      * @param array $attrs Since 3.0 Optional array with any or all attributes for the image/span tag
      * @return string
@@ -1464,8 +1463,31 @@ EOS;
                 $extras['alt'] = substr($path, $p+1);
             }
         }
-        if ($extras['width'] == 0 && $extras['height'] == 0 ) {
-            unset($extras['width'],$extras['height']);
+        if (!($extras['width'] || empty($extras['height']))) {
+            $extras['width'] = $extras['height'];
+        }
+        if ($extras['width'] && !is_numeric($extras['width'])) {
+            if (!isset($attrs['style'])) {
+                $attrs['style'] = 'width:'.$extras['width'];
+            } else {
+                $attrs['style'] .= ';width:'.$extras['width'];
+            }
+            unset($extras['width']);
+        } elseif (!$extras['width']) {
+            unset($extras['width']);
+        }
+        if (!($extras['height'] || empty($extras['width']))) {
+            $extras['height'] = $extras['width'];
+        }
+        if ($extras['height'] && !is_numeric($extras['height'])) {
+            if (!isset($attrs['style'])) {
+                $attrs['style'] = 'height:'.$extras['height'];
+            } else {
+                $attrs['style'] .= ';height:'.$extras['height'];
+            }
+            unset($extras['height']);
+        } elseif (!$extras['height']) {
+            unset($extras['height']);
         }
 
         switch ($type) {
@@ -1490,6 +1512,10 @@ EOS;
           default:
             $res = '<img src="'.$path.'"';
             break;
+        }
+
+        if (!$extras['class']) {
+            unset($extras['class']);
         }
 
         foreach ($extras as $key => $value) {

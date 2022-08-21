@@ -32,7 +32,6 @@ class WatchJobsJob extends CronJob
     const ENABLED_SITEPREF = 'WatchJobsJob'.AppParams::NAMESPACER.'jobschanged';
     const STATUS_SITEPREF = 'WatchJobsJob'.AppParams::NAMESPACER.'signature';
 
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();

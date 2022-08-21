@@ -19,7 +19,6 @@ class wizard_step
 
     private static $_registered = 0;
 
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $app = get_app();

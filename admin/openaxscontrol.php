@@ -321,8 +321,15 @@ try {
 
     $tree = rdir_tree(CMS_ROOT_PATH, 3); // TODO tailor this place/depth per context
 
+/*
+TODO inline css might be bad for content security policy
+in which case
+$csm = new CMSMS\StylesMerger();
+$csm->queue_string($styles);
+$out = $csm->page_content();
+*/
     $styles = <<<EOS
-<style type="text/css">
+<style>
  #treecontainer {
   max-height:15em;
   overflow:auto;

@@ -75,7 +75,6 @@ class FolderControls
      * @param array $params Associative array of profile properties to
      *  be used instead of class-defaults
      */
-    #[\ReturnTypeWillChange]
     public function __construct($params = [])
     {
         $longnow = date('Y-m-d H:i:s', time()); // i.e. $db->DbTimeStamp(time())
@@ -92,7 +91,7 @@ class FolderControls
          'exclude_patterns'=>[], //array of regex's - barred item-names
          'exclude_prefix'=>'', // deprecated, unused since 3.0 see exclude_pattern
          'exclude_users'=>[],  //array of user-id's
-         'file_extensions'=>'', // deprecated, unused since 2.99s ee match_pattern allowed_types etc
+         'file_extensions'=>'', // deprecated, unused since 2.99s see match_pattern allowed_types etc
          'file_mimes'=>'', //since 2.0
          'file_types'=>[FileType::ANY], //array of acceptable type-enumerators
          'match_groups'=>[], //array of group-id's

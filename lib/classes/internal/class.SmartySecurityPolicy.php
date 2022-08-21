@@ -37,7 +37,6 @@ use function CMSMS\is_frontend_request;
  */
 final class SmartySecurityPolicy extends Smarty_Security
 {
-    #[\ReturnTypeWillChange]
     public function __construct($smarty)
     {
         parent::__construct($smarty);

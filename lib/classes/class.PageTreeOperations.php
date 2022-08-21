@@ -69,7 +69,6 @@ class PageTreeOperations
 	 */
 	protected $ops = null;
 
-	#[\ReturnTypeWillChange]
 	public function __construct()
 	{
 		$db = Lone::get('Db');

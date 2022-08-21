@@ -19,7 +19,6 @@ final class SpoolTransport implements Transport
      */
     private $spool;
 
-    #[\ReturnTypeWillChange]
     public function __construct(Transport $transport, Spool $spool)
     {
         $this->transport = $transport;

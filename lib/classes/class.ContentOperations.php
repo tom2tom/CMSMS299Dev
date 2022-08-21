@@ -80,7 +80,7 @@ final class ContentOperations
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/**
 	 * Get the singleton instance of this class.
@@ -153,19 +153,13 @@ final class ContentOperations
 	 */
 	public function ListAdditionalEditors() : array
 	{
-		$opts = [];
-		$allusers = Lone::get('UserOperations')->LoadUsers();
-		foreach( $allusers as &$one ) {
-			$opts[$one->id] = $one->username;
-		}
-		$allgroups = Lone::get('GroupOperations')->LoadGroups();
-		foreach( $allgroups as &$one ) {
-			if( $one->id == 1 ) continue; // exclude super-admin group (they have all privileges anyways)
+		$opts = Lone::get('UserOperations')->GetUsers(true, true);
+		$allgroups = Lone::get('GroupOperations')->LoadGroups(true);
+		foreach( $allgroups as $one ) {
+			if( $one->id == 1 ) continue; // exclude super-admin group (its members have all privileges anyways)
 			$val = - (int)$one->id;
 			$opts[$val] = lang('group').': '.$one->name;
 		}
-		unset($one);
-
 		return $opts;
 	}
 
@@ -904,8 +898,8 @@ EOS;
 
 	/**
 	 * Convert a display-order-based ('friendly') hierarchy (like 1.2.3) to
-	 * a 0-padded ('unfriendly') equivalent (like 0001.0002.0003).
-	 * Too bad if any page order is > 9999!
+	 * a 0-padded ('unfriendly') equivalent (like 001.002.003).
+	 * Too bad if any page order is > 999!
 	 *
 	 * @param string $position The hierarchy position to convert
 	 * @return string The friendly version of the hierarchy string
@@ -917,7 +911,7 @@ EOS;
 		$n = count($levels);
 		$m = $n - 1;
 		for( $i = 0; $i < $n; ++$i ) {
-			$tmp .= str_pad($levels[$i], 3, '0', STR_PAD_LEFT); //max usable order 999 (tho in practice > 9 is a sucky design) since 3.0, was 99999
+			$tmp .= str_pad($levels[$i], 3, '0', STR_PAD_LEFT); //max usable order 999 (since 3.0, formerly 99999) In practice > 9 is a sucky design ...
 			if( $i < $m ) { $tmp .= '.'; }
 		}
 		return $tmp;
@@ -953,7 +947,7 @@ EOS;
 	 * Return a list of pages that the user owns.
 	 * @since 2.0
 	 *
-	 * @param int $userid The userid
+	 * @param int $userid The user id
 	 * @return array Array of integer page id's
 	 */
 	public function GetOwnedPages(int $userid)
@@ -977,7 +971,7 @@ EOS;
 	/**
 	 * Test whether the specified user owns the specified page
 	 *
-	 * @param int $userid
+	 * @param int $userid The user id
 	 * @param int $pageid
 	 * @return bool
 	 */
@@ -991,7 +985,7 @@ EOS;
 	 * Return a list of pages for which the user has edit-authority.
 	 * @since 2.0
 	 *
-	 * @param int $userid The userid
+	 * @param int $userid The user id
 	 * @return int[] Array of page id's
 	 */
 	public function GetPageAccessForUser(int $userid)

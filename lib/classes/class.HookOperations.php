@@ -77,7 +77,6 @@ class HookOperations
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
     private function __construct() {}
 
     /**

@@ -36,17 +36,16 @@ if (is_file($fp)) {
 	$userid = get_userid(false);
 	$can_manage = true;
 	$content_only = true;
+	$show_buttons = true;
+	$show_cancel = true;
 
 	$module = $this;
-	$returntab = ''; // N/A for this module
 
 	if ($params['tpl'] > 0) {
 		$title = _ld('layout', 'prompt_edit_template');
 	} else {
 		$title = _ld('layout', 'create_template');
 	}
-	$show_buttons = true;
-	$show_cancel = true;
 
 	include_once $fp;
 	return;

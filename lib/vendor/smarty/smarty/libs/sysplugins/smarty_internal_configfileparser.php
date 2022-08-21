@@ -304,7 +304,6 @@ class Smarty_Internal_Configfileparser
      * @param Smarty_Internal_Configfilelexer      $lex
      * @param Smarty_Internal_Config_File_Compiler $compiler
      */
-    #[\ReturnTypeWillChange]
     public function __construct(Smarty_Internal_Configfilelexer $lex, Smarty_Internal_Config_File_Compiler $compiler)
     {
         $this->lex = $lex;
@@ -417,7 +416,6 @@ class Smarty_Internal_Configfileparser
         return $yymajor;
     }
 
-    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         while ($this->yystack !== array()) {

@@ -67,10 +67,9 @@ final class Lone //extends SplObjectStorage worth doing this subclass? (iteratio
 	 */
 	public $properties = [];
 
-	#[\ReturnTypeWillChange]
 	private function __construct() {}
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/* *
 	 * Retrieve a class singleton-object, after construction if necessary.

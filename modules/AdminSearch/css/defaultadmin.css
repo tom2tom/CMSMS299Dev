@@ -1,12 +1,12 @@
-input[type="checkbox"],label.check,#searchresults > ul > li {
+input[type="checkbox"], label.check, #searchresults > ul > li {
 	cursor:pointer
 }
-#status_area,#searchresults_cont,#workarea {
+#status_area, #searchresults_cont, #workarea {
 	display:none
 }
 #searchresults {
 	max-height:25em;
-	overflow:auto;
+	overflow:auto
 }
 .search_oneresult {
 	color:red

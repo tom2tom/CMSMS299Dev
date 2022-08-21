@@ -79,7 +79,6 @@ class CacheFile extends CacheDriver
 	 *  group => string (no default) TODO migrate to 'space'
 	 *  myspace => string cache differentiator (default cms_)
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct(array $params)
 	{
 		parent::__construct($params);

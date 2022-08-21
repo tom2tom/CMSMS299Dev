@@ -2,7 +2,7 @@
 variables:
  starttext: optional lead-in text
  rtl: optional right-to-left locale flag
- nodelist: flatlist of Node objects plus a stdClass for 'root'
+ nodelist: flatlist of Node objects plus a stdClass for notional 'root'
  node: the current Node in nodelist array
 CSS:
  #primary-nav - the containing ul

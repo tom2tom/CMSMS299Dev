@@ -1,8 +1,8 @@
 <?php
 /*
-Class PrepResultSet: methods for interacting with MySQL or compatible 
+Class PrepResultSet: methods for interacting with MySQL or compatible
  prepared selection-command result
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Database;
@@ -40,7 +40,6 @@ class PrepResultSet extends ResultSet
      * @param object $statmt mysqli_stmt
      * @param bool   $buffer optional flag whether to buffer results. Default true
      */
-    #[\ReturnTypeWillChange]
     public function __construct(mysqli_stmt &$statmt, $buffer = true)
     {
         $this->_stmt = $statmt;
@@ -82,7 +81,6 @@ class PrepResultSet extends ResultSet
         }
     }
 
-    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         $this->_stmt->free_result();

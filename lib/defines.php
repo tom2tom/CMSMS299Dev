@@ -129,12 +129,12 @@ define('CMS_UPLOADS_URL',$config['uploads_url']);
  * The database-table prefix.
  */
 define('CMS_DB_PREFIX',$config['db_prefix']);
-
+/*
 if( CMS_DEBUG ) {
     //for async DEBUG since 3.0
     define('ASYNCLOG', TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'debug.log');
 }
-
+*/
 const CMS_DEFAULT_VERSIONCHECK_URL = 'https://www.cmsmadesimple.org/latest_version.php';
 
 /*

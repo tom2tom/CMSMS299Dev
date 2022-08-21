@@ -60,7 +60,6 @@ abstract class CacheDriver
      */
     protected $_lifetime = 3600; //1 hour
 
-    #[\ReturnTypeWillChange]
     public function __construct(array $params)
     {
         $uuid = get_site_UUID();

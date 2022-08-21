@@ -28,7 +28,6 @@ class ContentAssistantFactory
 {
 	private $_content_obj;
 
-	#[\ReturnTypeWillChange]
 	public function __construct(ContentBase $content_obj)
 	{
 		$this->_content_obj = $content_obj;

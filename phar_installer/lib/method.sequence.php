@@ -17,3 +17,6 @@ foreach ($table_ids as $tablename => $tableinfo) {
     verbose_msg(lang('install_updateseq', $tableinfo['seq']));
     $db->CreateSequence(CMS_DB_PREFIX.$tableinfo['seq'], $max);
 }
+
+// unique-integer provider
+//$db->CreateSequence(CMS_DB_PREFIX.'counter', 0);

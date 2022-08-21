@@ -57,26 +57,26 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('listdesigns.tpl')); /
 $opts = ['' => $this->Lang('prompt_none')];
 
 $designs = Design::get_all();
-if( $designs && ($n = count($designs)) ) {
+if( $designs ) {
     $tpl->assign('list_designs',$designs);
     $tmp = [];
-    for( $i = 0; $i < $n; $i++ ) {
+    for( $i = 0, $n = count($designs); $i < $n; $i++ ) {
         $tmp['d:'.$designs[$i]->get_id()] = $designs[$i]->get_name();
         $tmp2[$designs[$i]->get_id()] = $designs[$i]->get_name();
     }
     asort($tmp);
+    $opts[$this->Lang('prompt_design')] = $tmp;
     asort($tmp2);
     $tpl->assign('design_names',$tmp2);
-    $opts[$this->Lang('prompt_design')] = $tmp;
 }
 
 if( $pmod ) {
-    $allusers = Lone::get('UserOperations')->LoadUsers();
-    $users = [-1=>$this->Lang('prompt_unknown')];
+    $usernames = Lone::get('UserOperations')->GetUsers(true);
     $tmp = [];
-    for( $i = 0, $n = count($allusers); $i < $n; $i++ ) {
-        $tmp['u:'.$allusers[$i]->id] = $allusers[$i]->username;
-        $users[$allusers[$i]->id] = $allusers[$i]->username;
+    $users = [-1=>$this->Lang('prompt_unknown')];
+    foreach( $usernames as $uid => $name ) {
+        $tmp['u:'.$uid] = $name;
+        $users[$uid] = $name; //TODO public name better for this?
     }
     asort($tmp);
     asort($users);

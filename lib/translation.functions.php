@@ -33,7 +33,7 @@ use CMSMS\NlsOperations;
  * e.g. lang_by_realm('tasks','my_string')
  * Any argument(s) after the domain and the key are merged into the string using vsprintf
  * @since 1.8
- * 
+ *
  * @param varargs $args, of which
  *  1st = domain name (required string)
  *  2nd = language key (required string)
@@ -49,7 +49,7 @@ function lang_by_realm(...$args)
  * Retrieve a translated string from the default (typically 'admin') domain.
  * e.g. lang('title');
  * @see lang_by_realm
- * 
+ *
  * @param varargs $args, of which
  *  1st = language key (required string)
  *  further argument(s) (optional string|number, generally, or array of same)
@@ -93,7 +93,7 @@ function _ld(...$args)
 
 /**
  * Marker for use in contexts where neither _la() or _ld() is
- * apppropriate to flag a translatable string. Does nothing.
+ * appropriate to flag a translatable string. Does nothing.
  * @since 3.0
  *
  * @param varargs $args see lang_by_realm()

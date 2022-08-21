@@ -56,14 +56,13 @@ final class Events
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
 	private function __construct() {}
 
 	/**
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/**
 	 * Cache initiator called on demand
@@ -112,33 +111,47 @@ EOS;
 	}
 
 	/**
-	 * Remove an event from the database.
+	 * Remove an event, or all the events of the specified originator, from the database.
 	 * This removes the event itself, and all handlers of the event
 	 *
 	 * @param string $originator The event sender/owner - a module name or 'Core'
-	 * @param string $eventname The name of the event
+	 * @param string $eventname The name of the event, or (since 3.0) empty or '*'
+	 *  to remove all of $originator's events (unless $originator is 'Core')
 	 * @return bool
 	 */
 	public static function RemoveEvent(string $originator, string $eventname) : bool
 	{
 		$db = Lone::get('Db');
 
-		// get the id
-		$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=? AND event_name=?';
-		$id = (int) $db->getOne($sql, [$originator, $eventname]);
-		if ($id < 1) {
-			// query failed, event not found
+		if ($eventname && $eventname != '*') {
+			// get the id
+			$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=? AND event_name=?';
+			$id = (int)$db->getOne($sql, [$originator, $eventname]);
+			if ($id < 1) {
+				// query failed, event not found
+				return false;
+			}
+			// delete all handlers
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id=?';
+			$db->execute($sql, [$id]); // ignore failed result
+			// then the event itself
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'events WHERE event_id=?';
+			$db->execute($sql, [$id]); // ignore failed result
+		} elseif ($originator != 'Core') {
+			$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=?';
+			$dbr = $db->getCol($sql, [$originator]);
+			if (!$dbr) {
+				// query failed, event not found
+				return false;
+			}
+			$all = implode(',', $dbr);
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id IN('.$all.')';
+			$db->execute($sql); // ignore failed result
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'events WHERE event_id  IN('.$all.')';
+			$db->execute($sql);
+		} else {
 			return false;
 		}
-
-		// delete all handlers
-		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id=?';
-		$db->execute($sql, [$id]); // ignore failed result
-
-		// then the event itself
-		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'events WHERE event_id=?';
-		$db->execute($sql, [$id]); // ignore failed result
-
 		Lone::get('LoadedData')->refresh('events');
 		return true;
 	}
@@ -148,7 +161,7 @@ EOS;
 	 *
 	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
-	 * @param mixed  $params Optional parameters associated with the event. Default []
+	 * @param mixed  $params Optional scalar | array parameter(s) associated with the event. Default []
 	 */
 	public static function SendEvent(string $originator, string $eventname, $params = [])
 	{
@@ -157,6 +170,9 @@ EOS;
 		}
 		$results = self::ListEventHandlers($originator, $eventname);
 		if ($results) {
+			if (!is_array($params)) {
+				$params = [$params]; // OR use a key other than 0 e.g. (string)$params ?
+			}
 			$params['_modulename'] = $originator; //might be 'Core'
 			$params['_eventname'] = $eventname;
 			$mgr = null;
@@ -222,8 +238,8 @@ EOS;
 
 	/**
 	 * Get a list of all sendable 'static' events
-	 * Unlike the cached events-data, here we also report the respective numbers
-	 * of event-handlers
+	 * Unlike the cached events-data, here we also report the respective
+	 * numbers of event-handlers
 	 *
 	 * @return array maybe empty
 	 */

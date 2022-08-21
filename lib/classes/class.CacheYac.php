@@ -49,7 +49,6 @@ class CacheYac extends CacheDriver
 	 *  group => string (default 'default') TODO migrate to 'space'
 	 *  myspace => string cache differentiator (default cms_)
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct(array $params)
 	{
 		if ($this->use_driver()) {

@@ -22,15 +22,14 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\CoreCapabilities;
+//use CMSMS\CapabilityType;
 use CMSMS\Lone;
 use ModuleManager\Operations;
 
-const MINIMUM_REPOSITORY_VERSION = '1.5';
-
 class ModuleManager extends CMSModule
 {
-    const _dflt_request_url = 'https://www.cmsmadesimple.org/ModuleRepository/request/v2';
+    const DFLT_FORGE_URL = 'https://www.cmsmadesimple.org/ModuleRepository/request/v2';
+    const MIN_FORGE_VERSION = '1.5';
 
     private $_operations;
 
@@ -64,29 +63,29 @@ class ModuleManager extends CMSModule
 
     public function Install()
     {
-        $this->SetPreference('module_repository',self::_dflt_request_url);
+        $this->SetPreference('module_repository',self::DFLT_FORGE_URL);
     }
 
-    public function Upgrade($oldversion, $newversion)
+    public function Upgrade($oldversion,$newversion)
     {
-        $this->SetPreference('module_repository',self::_dflt_request_url);
+        $this->SetPreference('module_repository',self::DFLT_FORGE_URL);
     }
 
-    public function DoAction($action, $id, $params, $returnid=-1)
+    public function DoAction($action,$id,$params,$returnid=-1)
     {
         @set_time_limit(9999);
 /*
         $smarty = Lone::get('Smarty');
-        $smarty->assign($this->GetName(), $this);
-        $smarty->assign('mod', $this);
+        $smarty->assign($this->GetName(),$this);
+        $smarty->assign('mod',$this);
 */
-        return parent::DoAction( $action, $id, $params, $returnid );
+        return parent::DoAction($action,$id,$params,$returnid);
     }
-
-    public function HasCapability($capability, $params = [])
+/*
+    public function HasCapability($capability,$params = [])
     {
         switch ($capability) {
-            case CoreCapabilities::CORE_MODULE:
+abandoned            case CapabilityType::CORE_MODULE:
                 return true;
 //            case 'clicommands':
 //                return class_exists('CMSMS\CLI\App'); // TODO better namespace
@@ -94,10 +93,10 @@ class ModuleManager extends CMSModule
                 return false;
         }
     }
-
-    public function DisplayErrorPage(string $message = '', array $params = [])
+*/
+    public function DisplayErrorPage(string $message = '',array $params = [])
     {
-        if( !$message ) { $message = 'WTF !!'; }// TODO
+        if( !$message ) { $message = 'WTF !!'; }// $this->Lang('TODO')
         $smarty = Lone::get('Smarty');
         $tpl = $smarty->createTemplate($this->GetTemplateResource('error.tpl')); //,null,null,$smarty);
 

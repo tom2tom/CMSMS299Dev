@@ -44,16 +44,17 @@ if (version_compare($oldversion,'1.2') < 0) {
     }
 
     $me = $this->GetName();
-    $userlist = Lone::get('UserOperations')->LoadUsers();
-    foreach ($userlist as $user) {
-        $userid = $user->id;
+    $usernames = Lone::get('UserOperations')->GetUsers(false);
+    foreach ($usernames as $userid => $name) {
         $tmp = UserParams::get_for_user($userid,$me.'saved_search');
         if ($tmp) {
             try {
                 $init = unserialize($tmp,[]);
-                $init += ['search_casesensitive' => false,];
+                $init += ['search_casesensitive' => false];
                 UserParams::set_for_user($userid,$me.'saved_search',serialize($init));
-            } catch (Throwable $t) {} //ignore error
+            } catch (Throwable $t) {
+                //ignore error OR TODO delete the pref value?
+            }
         }
     }
 }

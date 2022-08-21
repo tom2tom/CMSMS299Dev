@@ -61,11 +61,12 @@ abstract class Base_slave
         foreach ($params as $key => &$value) {
             switch ($key) {
             // valid keys
-            case 'search_text': //not (yet) processed in any way
+            case 'search_text': //not (yet?) processed in any way
               break;
             case 'search_descriptions':
             case 'search_casesensitive':
             case 'verbatim_search':
+            case 'search_fuzzy':
             case 'save_search':
               $value = cms_to_bool($value);
               break;
@@ -79,7 +80,7 @@ abstract class Base_slave
     }
 
     /**
-     * Report whether the current needle and/or haystack includes non-UTF8 char(s)
+     * Report whether the current needle and/or haystack includes non-UTF-8 char(s)
      * @since 1.2
      *
      * @return boolean
@@ -90,12 +91,29 @@ abstract class Base_slave
     }
 
     /**
+     * Report whether to use this slave in the currrent search
+     *  (i.e. the specified or current user is authorized)
+     * @since 1.2
+     * @abstract
+     *
+     * @param int $uid the enumerator of the user conducting the search
+     *  or 0 to retrieve such value on demand. Default 0.
+     * @return boolean
+     */
+    public function use_slave(int $userid = 0) : bool
+    {
+        return true;
+    }
+
+    /**
      * Report whether editing the item in which match(es) is/are found is allowed
      * @abstract
      *
-     * return bool
+     * @param int $userid Since 1.2 the enumerator of the user conducting
+     *  the search, or 0 to retrieve such value on demand. Default 0.
+     * @return boolean
      */
-    abstract public function check_permission();
+    abstract protected function check_permission(int $userid = 0);
 
     /**
      * Report an identifier for an item in which match(es) have been found
@@ -115,7 +133,7 @@ abstract class Base_slave
 
     /**
      * @abstract
-     * @return string
+     * @return array, containing arrays or empty
      */
     abstract public function get_matches();
 
@@ -186,6 +204,82 @@ abstract class Base_slave
     }
 
     /**
+     * Report whether the current search is fuzzy
+     * @since 1.2
+     *
+     * @return boolean
+     */
+    protected function search_fuzzy()
+    {
+        if (isset($this->_params['search_fuzzy'])) {
+            return cms_to_bool($this->_params['search_fuzzy']);
+        }
+        return false;
+    }
+
+    /**
+     * Report whether the current search is verbatim
+     * @since 1.2
+     *
+     * @return boolean
+     */
+    protected function search_verbatim()
+    {
+        if (isset($this->_params['verbatim_search'])) {
+            return cms_to_bool($this->_params['verbatim_search']);
+        }
+        return false;
+    }
+
+    /**
+     * Get a regex, derived from the supplied string, and which is
+     * suitable for fuzzy matching
+     * Adapted from https://codereview.stackexchange.com/questions/23899/faster-javascript-fuzzy-string-matching-function
+     * @since 1.2
+     *
+     * @param string $needle the raw search string
+     * @param bool $forphp optional flag whether to format for PHP (false for SQL) Default true
+     * @return string regular expression
+     */
+    protected function get_regex_pattern(string $needle, bool $forphp = true) : string
+    {
+        $reserved = '/\\^-]'; // intra-class reserves
+        $reserved2 = '/\\.,+-*?^$[](){}'; // extra-class reserves
+        //UTF-8 has single bytes (0-127), leading bytes (192-254) and continuation bytes (128-191)
+        if (preg_match('/[\xc0-\xfe][\x80-\xbf]+/', $needle)) {
+            $chars = preg_split('//u', $needle, null, PREG_SPLIT_NO_EMPTY);
+            $tail = ($forphp) ? '/u' : '';
+        } else {
+            $chars = str_split($needle);
+            $tail = ($forphp) ? '/' : '';
+        }
+        if ($forphp && !$this->search_casesensitive()) {
+            $tail .= 'i';
+        }
+        $c = $chars[0];
+        if (strpos($reserved2, $c) !== false) {
+            $c = "\\$c";
+        }
+        $t = $forphp ? "/$c" : $c;
+        unset($chars[0]);
+        $patn = array_reduce($chars, function($m, $c) use ($reserved, $reserved2) {
+            $a = strpos($reserved, $c) !== false;
+            $b = strpos($reserved2, $c) !== false;
+            if ($a && $b) {
+                return $m . "[^\\$c]*?\\$c";
+            } elseif ($a) {
+                return $m . "[^\\$c]*?$c";
+            } elseif ($b) {
+                return $m . "[^$c]*?\\$c";
+            } else {
+                return $m . "[^$c]*?$c";
+            }
+        }, $t);
+        $patn .= $tail;
+        return $patn;
+    }
+
+    /**
      * Get displayable details of matches (if any) in $haystack
      * @since 1.2
      *
@@ -199,39 +293,49 @@ abstract class Base_slave
             return ''; // ignore attempt to find nothing
         }
         if (self::$needle === null) {
-//          if (!preg_match('//u', $rawneedle)) {
-//              $rawneedle = $this->forceUTF($rawneedle); maybe worth repetition as we guess more ??
-//          }
+/*          if (!preg_match('/[\xc0-\xfe][\x80-\xbf]+/', $rawneedle)) {
+                $rawneedle = $this->forceUTF($rawneedle); maybe worth repetition as we guess more ??
+            }
+*/
             self::$needle = $rawneedle;
         }
-        if (!($this->_warnchars || preg_match('//u', self::$needle))) {
+        if (!($this->_warnchars || preg_match('/[\xc0-\xfe][\x80-\xbf]+/', self::$needle))) {
             $this->_warnchars = true;
         }
 
-        $vb = $this->_params['verbatim_search'] ?? false;
-        $cs = $this->_params['search_casesensitive'] ?? false;
-
-        if ($vb || !preg_match('/[\x80-\xFF]/', self::$needle)) {
-            // use str[i]pos for matching
-            $fname = ($cs) ? 'strpos' : 'stripos';
-        } elseif (!$vb && preg_match('/[\x80-\xFF]/', $haystack)) {
-            if (!$this->_warnchars) {
-                $this->_warnchars = (bool)preg_match('//u', $haystack);
-            }
-            return ''; // no possible match
-        } else {
-            if (!preg_match('//u', $haystack)) {
-//              $haystack = $this->forceUTF($haystack);
-                $this->_warnchars = true;
-            }
-            $fname = ($cs) ? 'strpos' : 'mb_stripos';
-        }
-
         $html = [];
-        $pos = $fname($haystack, self::$needle); // TODO bytes- or chars-offset
-        while ($pos !== false) {
-            $html[] = self::contextize(self::$needle, $haystack, $pos);
-            $pos = $fname($haystack, self::$needle, $pos + 1);
+        if ($this->search_fuzzy()) {
+            $patn = $this->get_regex_pattern(self::$needle); //e.g. "/κ[^έ]*?έ[^θ]*?θ[^ι]*?ι[^ ]*? [^δ]*?δ[^έ]*?έ[^ο]*?ο/ui"
+            $matches = [];
+            if (preg_match_all($patn, $haystack, $matches, PREG_OFFSET_CAPTURE)) {
+                foreach ($matches[0] as $found) {
+                   $html[] = self::contextize($found[0], $haystack, $found[1]);
+                }
+            }
+        } else {
+            $vb = $this->search_verbatim();
+            $cs = $this->search_casesensitive();
+            if ($vb || !preg_match('/[\x80-\xFF]/', self::$needle)) {
+                // use str[i]pos for matching
+                $fname = ($cs) ? 'strpos' : 'stripos';
+            } elseif (!$vb && preg_match('/[\x80-\xFF]/', $haystack)) {
+                if (!$this->_warnchars) {
+                    $this->_warnchars = (bool)preg_match('/[\xc0-\xfe][\x80-\xbf]+/', $haystack);
+                }
+                return ''; // no possible match
+            } else {
+                if (!preg_match('/[\xc0-\xfe][\x80-\xbf]+/', $haystack)) {
+//                  $haystack = $this->forceUTF($haystack);
+                    $this->_warnchars = true;
+                }
+                $fname = ($cs) ? 'strpos' : 'mb_stripos';
+            }
+
+            $pos = $fname($haystack, self::$needle); // TODO bytes- or chars-offset
+            while ($pos !== false) {
+                $html[] = self::contextize(self::$needle, $haystack, $pos);
+                $pos = $fname($haystack, self::$needle, $pos + 1);
+            }
         }
 
         if ($html) {

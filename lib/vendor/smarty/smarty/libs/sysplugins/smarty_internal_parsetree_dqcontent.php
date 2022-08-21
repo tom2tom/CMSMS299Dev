@@ -23,7 +23,6 @@ class Smarty_Internal_ParseTree_DqContent extends Smarty_Internal_ParseTree
      *
      * @param string $data string section
      */
-    #[\ReturnTypeWillChange]
     public function __construct($data)
     {
         $this->data = $data;

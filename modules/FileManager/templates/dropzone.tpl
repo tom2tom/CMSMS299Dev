@@ -9,7 +9,7 @@
           <legend>{_ld($_module,'change_working_folder')}</legend>
           <label for="fm_newdir">{_ld($_module,'folder')}:</label>
           <select class="cms_dropdown" id="fm_newdir" name="{$actionid}newdir">
-            {html_options options=$dirlist selected="/`$cwd`"}
+            {html_options options=$dirlist selected="/{$cwd}"}
           </select>
           <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{_ld($_module,'submit')}</button>
         </fieldset>

@@ -1,7 +1,7 @@
 <?php
 /*
 Methods for creating, modifying a database or its components
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -110,7 +110,6 @@ class DataDictionary
      *
      * @param Connection $conn
      */
-    #[\ReturnTypeWillChange]
     public function __construct(Connection $conn)
     {
         $this->connection = $conn;
@@ -1305,7 +1304,10 @@ class DataDictionary
                         }
                         break;
                     case 'FOREIGN':
-                        $fforeign = $v;
+                        $fforeign = $fld[$i+1] ?? false;
+                        if ($fforeign) {
+                            $fld[$i+1] = '';
+                        }
                         break;
                     case 'DROP':
                         $fdrop = true;
@@ -1433,12 +1435,9 @@ class DataDictionary
             }
 
             if ($fforeign) {
-                $at = array_search($fforeign, $fld);
-                if ($at !== false && isset($fld[++$at])) {
-                    list($table, $field) = explode(',', trim($fld[$at]), 2);
-                    if ($table && $field) {
-                        $s .= ", FOREIGN KEY($fname) REFERENCES $table($field)";
-                    }
+                list($table, $field) = explode(',', trim($fforeign), 2);
+                if ($table && $field) {
+                    $s .= ", FOREIGN KEY($fname) REFERENCES $table($field)";
                 }
             }
 

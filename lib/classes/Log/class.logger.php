@@ -36,7 +36,6 @@ class logger implements ILogManager
     /*
      * @param mixed $store
      */
-    #[\ReturnTypeWillChange]
     public function __construct($store)
     {
         $this->_storage = $store;

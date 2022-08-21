@@ -25,7 +25,7 @@
 <br />
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}move" class="adminsubmit icon do">{_ld($_module,'move')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icon do">{_ld($_module,'move')}</button>
     <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{_ld($_module,'cancel')}</button>
   </p>
 </div>

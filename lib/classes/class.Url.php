@@ -55,7 +55,6 @@ class Url
      *
      * @param string $url the URL to work with
      */
-    #[\ReturnTypeWillChange]
     public function __construct($url = '')
     {
         $url = trim((string) $url);

@@ -207,8 +207,6 @@ $lang['numbertodisplay'] = 'Number to Display (empty shows all records)';
 $lang['options'] = 'Options';
 $lang['optionsupdated'] = 'The settings were successfully updated.';
 
-$lang['pageof'] = 'Page %s of %s';
-$lang['pagerows'] = 'rows per page';
 $lang['parent'] = 'Parent';
 $lang['pending'] = 'Pending';
 $lang['postinstall_notice'] = 'The News module relies on site-page(s) for article display and suitable display templates. Deploy user-groups with news-related permissions e.g. to create | modify | approve articles.';

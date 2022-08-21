@@ -1220,6 +1220,7 @@ fieldset {
     clear: both;
 }
 
+.pagechange, // fake button, no icon
 .adminsubmit {
     margin: 0.1em;
     border-width: 0;
@@ -1244,6 +1245,8 @@ fieldset {
     &:disabled {
         background-color: $button-disabled;
     }
+}
+.adminsubmit {
     &.icon {
         padding-#{$start-side}: 0.8em;
         &.before {

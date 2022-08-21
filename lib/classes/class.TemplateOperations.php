@@ -310,7 +310,7 @@ class TemplateOperations
 		}
 		$db = Lone::get('Db');
 		$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME;
-		$parms = $where = [];
+		$parms = [];
 		if (!Lone::get('UserOperations')->CheckPermission($id, 'Modify Templates')) {
 			$sql .= ' WHERE owner_id = ?';
 			$parms[] = $id;

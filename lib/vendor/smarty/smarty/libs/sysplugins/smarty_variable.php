@@ -29,7 +29,6 @@ class Smarty_Variable
      * @param mixed   $value   the value to assign
      * @param boolean $nocache if true any output of this variable will be not cached
      */
-    #[\ReturnTypeWillChange]
     public function __construct($value = null, $nocache = false)
     {
         $this->value = $value;
@@ -41,7 +40,6 @@ class Smarty_Variable
      *
      * @return string
      */
-    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return (string)$this->value;

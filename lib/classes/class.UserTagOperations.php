@@ -102,7 +102,7 @@ final class UserTagOperations
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/**
 	 * Support for pre-3.0 method-names, and simplified explicit tag-running

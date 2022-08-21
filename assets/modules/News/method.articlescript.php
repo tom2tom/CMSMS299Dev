@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\ScriptsMerger;
 
+// OR $csm->queue_matchedfile( );
 $baseurl = $this->GetModuleURLPath();
 $css = <<<EOS
  <link rel="stylesheet" href="{$baseurl}/css/jquery.datepicker.css">
@@ -111,7 +112,8 @@ function news_dopreview() {
       cms_notify('error', details);
     }
   }).fail(function(jqXHR, textStatus, errorThrown) {
-    cms_notify('error', errorThrown);
+    console.debug(errorThrown);
+    cms_notify('error', 'AJAX error: ' + errorThrown);
   });
 }
 
@@ -169,7 +171,8 @@ if ($list) {
       data: params,
       dataType: 'xml'
     }).fail(function(jqXHR, textStatus, errorThrown) {
-      cms_notify('error', errorThrown);
+      console.debug(errorThrown);
+      cms_notify('error', 'AJAX error: ' + errorThrown);
     }).done(function(data) {
       var resp = $(resultdata).find('Response').text(),
        details = $(resultdata).find('Details').text();

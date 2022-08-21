@@ -79,7 +79,6 @@ abstract class DbQueryBase
 	 * @param mixed $args optional associative array (key=>value) of arguments
 	 *  for the query, or a comma-separated string of arguments.
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct($args = '')
 	{
 //		if( empty($args) ) return;

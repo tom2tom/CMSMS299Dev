@@ -50,11 +50,12 @@ final class DesignManager extends CMSModule
     {
         $out = '';
         $urlpath = $this->GetModuleURLPath();
-        $fmt = '<link rel="stylesheet" type="text/css" href="%s/%s" />';
+        $fmt = '<link rel="stylesheet" href="%s/%s" />';
         $cssfiles = [
         'css/module.css',
         ];
         foreach( $cssfiles as $one ) {
+            // OR $csm->queue_matchedfile( );
             $out .= sprintf($fmt,$urlpath,$one).PHP_EOL;
         }
         add_page_headtext($out, false);

@@ -78,7 +78,6 @@ abstract class Smarty_Internal_Data
      *
      * Install extension handler
      */
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $this->ext = new Smarty_Internal_Extension_Handler();
@@ -266,7 +265,6 @@ abstract class Smarty_Internal_Data
      *
      * @return mixed
      */
-    #[\ReturnTypeWillChange]
     public function __call($name, $args)
     {
         return $this->ext->_callExternalMethod($this, $name, $args);

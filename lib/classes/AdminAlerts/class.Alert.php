@@ -102,7 +102,6 @@ abstract class Alert
      *
      * Initialize the name to a unique name, the priority to normal, and the creation time.
      */
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $this->_name = Crypto::random_string(24, true);
@@ -121,7 +120,7 @@ abstract class Alert
      * @return string;
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)
+    public function __get(string $key)// : mixed
     {
         switch( $key ) {
         case 'name':
@@ -151,7 +150,7 @@ abstract class Alert
      * @throws InvalidArgumentException or LogicException
      */
     #[\ReturnTypeWillChange]
-    public function __set(string $key,$val)
+    public function __set(string $key,$val)// : void
     {
         if( $this->_loaded ) throw new LogicException('Alerts cannot be altered once saved');
         switch( $key ) {
@@ -223,10 +222,10 @@ abstract class Alert
     public function get_prefname($name = null)
     {
         if( !$name ) $name = $this->name;
-        return self::get_fixed_prefname( $name );
+        return self::get_fixed_prefname($name);
     }
 
-    protected static function get_fixed_prefname( $name )
+    protected static function get_fixed_prefname($name)
     {
         return 'adminalert_'.hash('fnv132', $name);
     }
@@ -273,7 +272,7 @@ abstract class Alert
      * @return mixed Alert | null
      * @throws DataException or RuntimeException
      */
-    public static function load_by_name($name, $throw = true )
+    public static function load_by_name($name, $throw = true)
     {
         $name = trim($name);
         if( !$name ) throw new DataException('No alert name provided to '.__METHOD__);

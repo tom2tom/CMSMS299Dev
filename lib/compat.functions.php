@@ -121,7 +121,7 @@ error_reporting($lvl);
 'CMSMS\contenttypes\PageLink' => 'PageLink',
 'CMSMS\contenttypes\SectionHeader' => 'SectionHeader',
 'CMSMS\contenttypes\Separator' => 'Separator',
-'CMSMS\CoreCapabilities' => 'CmsCoreCapabilities',
+'CMSMS\CapabilityType' => 'CmsCoreCapabilities',
 'CMSMS\DataException' => 'CmsDataException',
 'CMSMS\DataException' => 'CmsDataNotFoundException',
 'CMSMS\DataException' => 'CmsExtraDataException',

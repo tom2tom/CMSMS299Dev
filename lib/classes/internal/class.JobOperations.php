@@ -26,7 +26,7 @@ use CMSMS\Async\CronJob;
 use CMSMS\Async\Job;
 use CMSMS\Async\RecurType;
 use CMSMS\Async\RegularJob;
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\DataException;
 use CMSMS\Events;
 use CMSMS\IRegularTask;
@@ -77,7 +77,7 @@ final class JobOperations
     private const MINERRORS = 10;
 
     private const LOGFILE = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'joberrs.log';
-    private $ASYNCLOG = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'debug.log'; // TODO $log = defined('ASYNCLOG');
+    private $ASYNCLOG = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'debug.log'; // for (always) reporting errors, as distinct from progress reports
     private $_current_job;
 
     private $_lock = 0;
@@ -158,9 +158,11 @@ final class JobOperations
         if ($out) {
             $out = max($out, time()+1); // next start cannot be < time()
             if (!$job->until || $out <= $job->until) {
-                debug_to_log("adjusted to $out -- $now // {$job->until}");
-//                $d = $out - $now;
-//                error_log($job->name." next start @ last-start + $d)"."\n", 3, ASYNCLOG);
+                if (defined('ASYNCLOG')) {
+                    debug_to_log("adjusted to $out -- $now // {$job->until}");
+//                    $d = $out - $now;
+//                    error_log($job->name." next start @ last-start + $d)"."\n", 3, ASYNCLOG);
+                }
                 return $out;
             }
         }
@@ -303,7 +305,7 @@ final class JobOperations
             $cache->add_type($obj);
         }
 
-        $modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::TASKS);
+        $modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CapabilityType::TASKS);
         if (!$modnames) {
             if (defined('ASYNCLOG')) {
                 error_log('async action No task-capable modules present'."\n", 3, ASYNCLOG);
@@ -785,22 +787,31 @@ final class JobOperations
     {
         static $_returnid = -1;
 
-//        error_log('trigger_async_processing @start'."\n", 3, $this->ASYNCLOG);
+        $log = defined('ASYNCLOG') ? ASYNCLOG : false;
+//        if ($log) {
+//            error_log('trigger_async_processing @start'."\n", 3, $log);
+//        }
         // if we're processing a prior job-manager request - do nothing
         if (isset($_GET[CMS_SECURE_PARAM_NAME.'job'])) {
-            error_log('JobOperations abort: re-entry'."\n", 3, $this->ASYNCLOG);
+            if ($log) {
+                error_log('JobOperations abort: re-entry'."\n", 3, $log);
+            }
             return;
         }
 
         // ensure this method only operates once-per-request
         if ($_returnid !== -1) {
-            error_log('JobOperations abort: no repeat during request'."\n", 3, $this->ASYNCLOG);
+            if ($log) {
+                error_log('JobOperations abort: no repeat during request'."\n", 3, $log);
+            }
             return;
         }
 
         $t = AppParams::get('joblastrun', 0) + AppParams::get('jobinterval', 180);
         if ($t > time()) {
-            error_log('JobOperations: too soon to run jobs'."\n", 3, $this->ASYNCLOG);
+            if ($log) {
+                error_log('JobOperations: too soon to run jobs'."\n", 3, $log);
+            }
             return;
         }
 
@@ -815,14 +826,16 @@ final class JobOperations
 //        if (!$joburl) {
             $joburl = cms_path_to_url(CMS_ADMIN_PATH).'/processjobs.php?'.RequestParameters::create_job_params([CMS_SECURE_PARAM_NAME.'job'=>''], true);
 //        }
-//        error_log('JobOperations: processor URL '.$joburl."\n", 3, $this->ASYNCLOG);
+//        error_log('JobOperations: processor URL '.$joburl."\n", 3, $log);
 
 /* DEBUG sync operation
-        error_log('begin_async_processing redirect to '.$joburl."\n", 3, $this->ASYNCLOG);
+        error_log('begin_async_processing redirect to '.$joburl."\n", 3, $log);
         redirect($joburl);
 */
         [$host, $path, $transport, $port] = $this->get_url_params($joburl);
-        error_log('begin_async_processing path '.$path."\n", 3, $this->ASYNCLOG);
+        if ($log) {
+            error_log('begin_async_processing path '.$path."\n", 3, $log);
+        }
 
         $remote = $transport.'://'.$host.':'.$port;
         if ($transport == 'tcp') {
@@ -846,10 +859,14 @@ final class JobOperations
 
         $res = stream_socket_client($remote, $errno, $errstr, 2, STREAM_CLIENT_ASYNC_CONNECT, $context);
         if ($res) {
-//            error_log('JobOperations: open stream '.$remote."\n", 3, $this->ASYNCLOG);
+//            if ($log) {
+//                error_log('JobOperations: open stream '.$remote."\n", 3, $log);
+//            }
             $req = "GET $path HTTP/1.1\r\nHost: {$host}\r\nContent-type: text/plain\r\nContent-length: 0\r\nConnection: Close\r\n\r\n";
             fputs($res, $req);
-//            error_log('stream-socket sent: '.$req."\n", 3, $this->ASYNCLOG);
+//            if ($log) {
+//                error_log('stream-socket sent: '.$req."\n", 3, $log);
+//            }
             stream_socket_shutdown($res, STREAM_SHUT_RDWR);
             if ($errno == 0) {
                 return;

@@ -51,6 +51,18 @@ if (version_compare($oldversion, '2.0') < 0) {
     $ops = Lone::get('ModuleOperations');
     $ops->set_module_classname('CMSContentManager', get_class($this));
 
+    //replace & remove column-identifiers
+    $val = $this->GetPreference('list_visiblecolumns');
+    if ($val) {
+        $str2 = str_replace(
+        ['expand,','icon1,','friendlyname','actions,','multiselect'],
+        ['','','type','',''],
+        $val);
+        if ($str2 != $val) {
+            $this->SetPreference('list_visiblecolumns', $str2);
+        }
+    }
+
     // remove redundant pages-list parameter
     $db->execute('DELETE FROM '.CMS_DB_PREFIX."userprefs WHERE preference='open_pages'");
 }

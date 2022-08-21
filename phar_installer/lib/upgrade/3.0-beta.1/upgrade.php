@@ -158,9 +158,9 @@ $page_type = TemplateType::load($corename.'::page');
 if ($page_type) {
     $sql = 'UPDATE '.$tbl.' SET lang_cb=?,dflt_content_cb=?,help_content_cb=? WHERE originator=\''.$corename.'\' AND name=\'page\'';
     $dbr = $db->execute($sql, [
-        'CMSMS\internal\std_layout_template_callbacks::page_type_lang_callback',
-        'CMSMS\internal\std_layout_template_callbacks::reset_page_type_defaults',
-        'CMSMS\internal\std_layout_template_callbacks::template_help_callback'
+        'CMSMS\internal\std_layout_template_callbacks::tpltype_lang_callback',
+        'CMSMS\internal\std_layout_template_callbacks::reset_tpltype_default',
+        'CMSMS\internal\std_layout_template_callbacks::tpltype_help_callback'
     ]);
 }
 if (!$page_type || empty($dbr)) {
@@ -171,7 +171,7 @@ if ($generic_type) {
     $sql = 'UPDATE '.$tbl.' SET lang_cb=?,help_content_cb=? WHERE originator=\''.$corename.'\' AND name=\'generic\'';
     $dbr = $db->execute($sql, [
         'CMSMS\internal\std_layout_template_callbacks::generic_type_lang_callback',
-        'CMSMS\internal\std_layout_template_callbacks::template_help_callback',
+        'CMSMS\internal\std_layout_template_callbacks::tpltype_help_callback',
     ]);
 }
 if (!$generic_type || empty($dbr)) {
@@ -370,7 +370,7 @@ foreach ([
     ['groups', 'group_id', 'group_name', 'group_desc'],
     ['users', 'user_id', 'username', 'first_name', 'last_name'],
     ['siteprefs', 'sitepref_name', 'sitepref_value'],
-    ['userprefs', 'user_id', 'value'],
+    ['userprefs', 'user_id', '`value`'],
     ['userplugins', 'id', 'name', 'description'], // name should be cms_installer\sanitizeVal( ,ICMSSAN_FILE) description >> ,ICMSSAN_PURE
 /* these probably never cleanValue()'d
     ['layout_css_groups','id','name','description'],
@@ -533,7 +533,7 @@ $arr = [
     'cache_file_locking' => 1,
     'cache_lifetime' => 3600,
     'cdn_url' => 'https://cdnjs.cloudflare.com',
-    'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
+    'coremodules' => $cores, //abandoned aka ModuleOperations::CORENAMES_PREF
     'current_theme' => '', // frontend theme name
     'jobinterval' => 180,
     'joblastrun' => 0,

@@ -27,9 +27,8 @@ use CMSMS\Log\dbstorage;
 
 class PruneLogJob extends CronJob
 {
-    const LIFETIME_SITEPREF = 'adminlog_lifetime'; // value recorded via siteprefs UI, not this-job-specific
+    const LIFETIME_SITEPREF = 'adminlog_timeout'; // value recorded via siteprefs UI, not this-job-specific
 
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();
@@ -43,14 +42,11 @@ class PruneLogJob extends CronJob
      */
     public function execute()
     {
-        $oneday = 86400; //i.e. 24 * 3600 seconds
-        $onemonth = $oneday * 30;
-        $lifetime = (int)AppParams::get(self::LIFETIME_SITEPREF, $onemonth);
-        if ($lifetime < 1) {
-            $lifetime = 0;
+        $lifedays = (int)AppParams::get(self::LIFETIME_SITEPREF, 30);
+        if ($lifedays < 1) {
+            $lifedays = 1;
         }
-        $lifetime = max($lifetime, $oneday);
-        $limit = time() - $lifetime;
+        $limit = time() - $lifedays * 86400; //24 * 3600 seconds
 
         // TODO televant-logger->clear_older_than($limit);
         $storage = new dbstorage();

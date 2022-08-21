@@ -11,7 +11,7 @@
       {cms_help 0=$_module key='help_import_newname' title=$lbltxt}
       <div class="pageinput">
         <input id="import_newname" type="text" name="{$actionid}newname" value="{$new_name}" size="50" maxlength="50" />
-        <br/>
+        <br />
         {_ld($_module,'prompt_orig_name')}: {$design_info.name}
       </div>
     </div>

@@ -375,7 +375,7 @@ class wizard_step7 extends wizard_step
                             $this->verbose("File '$fn' does not exist, but we planned to delete it anyway");
                             ++$nmissing;
                         } elseif (!is_writable($fn)) {
-                            $this->error("$file $fn is not writable, could not delete it");
+                            $this->error("file $fn is not writable, could not delete it");
                             ++$nfailed;
                         } elseif (is_dir($fn)) {
                             if (rrmdir($fn)) {

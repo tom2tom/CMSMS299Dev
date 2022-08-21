@@ -56,7 +56,6 @@ class CachePredis extends CacheDriver
 	 *  password => string
 	 *  database => int
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct(array $params)
 	{
 		if ($this->use_driver()) {

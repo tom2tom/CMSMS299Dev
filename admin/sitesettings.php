@@ -24,7 +24,7 @@ If not, see <https://www.gnu.org/licenses/>.
 //use CMSMS\Mailer; OutMailer\Mailer; //TODO if no OutMailer present, revert to mail()
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\Events;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
@@ -207,7 +207,7 @@ if (isset($_POST['testumask'])) {
 UI for & processing of system-cache-related params e.g.
 'cache_driver' 'predis','memcached','apcu','yac','file' or 'auto'
 'cache_autocleaning' bool (and hence lifetime)
-'cache_lifetime' int seconds (0 for unlimited)
+'cache_timeout' int seconds (0 for never)
 'cache_file_blocking' bool for a file-cache
 'cache_file_locking' bool ditto
 */
@@ -460,7 +460,11 @@ if (isset($_POST['submit'])) {
                 AppParams::set('allow_browser_cache', !empty($_POST['allow_browser_cache']));
                 AppParams::set('browser_cache_expiry', filter_input(INPUT_POST, 'browser_cache_expiry', FILTER_SANITIZE_NUMBER_INT));
                 AppParams::set('auto_clear_cache_age', filter_input(INPUT_POST, 'auto_clear_cache_age', FILTER_SANITIZE_NUMBER_INT));
-                AppParams::set('adminlog_lifetime', filter_input(INPUT_POST, 'adminlog_lifetime', FILTER_SANITIZE_NUMBER_INT));
+                $val = filter_input(INPUT_POST, 'adminlog_timeout', FILTER_SANITIZE_NUMBER_INT);
+                AppParams::set('adminlog_timeout', $val);
+                $val = filter_input(INPUT_POST, 'login_duration', FILTER_SANITIZE_NUMBER_INT);
+                $val = max(0, min(14, $val));
+                AppParams::set('logintimeout', $val);
                 $val = max(1, min(10, (int)$_POST['jobinterval']));
                 AppParams::set('jobinterval', $val * 60); // recorded as seconds
                 $val = max(2, min(120, (int)$_POST['jobtimeout']));
@@ -500,9 +504,7 @@ if (isset($_POST['submit'])) {
  * Get old/new preferences
  */
 
-//TODO this in relevant module
-$adminlog_lifetime = AppParams::get('adminlog_lifetime', 2592000); //3600*24*30
-
+$adminlog_timeout = AppParams::get('adminlog_timeout', 30);
 $allow_browser_cache = AppParams::get('allow_browser_cache', 0);
 $auto_clear_cache_age = AppParams::get('auto_clear_cache_age', 0);
 $basic_attributes = AppParams::get('basic_attributes', null);
@@ -553,6 +555,7 @@ $lock_timeout = (int)AppParams::get('lock_timeout', 60);
 $login_processor = AppParams::get('loginprocessor');
 $login_module = AppParams::get('loginmodule'); //, CMSMS\ModuleOperations::STD_LOGIN_MODULE);
 $logintheme = AppParams::get('logintheme');
+$logintimeout = (int)AppParams::get('logintimeout', 0);
 //$mail_is_set = AppParams::get('mail_is_set', 0);
 $metadata = AppParams::get('metadata');
 $search_module = AppParams::get('searchmodule', 'Search');
@@ -612,7 +615,7 @@ foreach ([
 }
 $mailprefs['password'] = Crypto::decrypt_string(base64_decode($mailprefs['password']));
 */
-$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::SITE_SETTINGS);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CapabilityType::SITE_SETTINGS);
 if ($modnames) {
     // load them, if not already done
     for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
@@ -820,7 +823,7 @@ add_page_foottext($out);
 $smarty = Lone::get('Smarty');
 
 $tmp = [-1 => _la('none')];
-$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::SEARCH_MODULE);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CapabilityType::SEARCH_MODULE);
 if ($modnames) {
     for ($i = 0, $n = count($modnames); $i < $n; $i++) {
         $tmp[$modnames[$i]] = $modnames[$i];
@@ -835,7 +838,7 @@ if ($devmode) {
     $smarty->assign('help_url', $help_url);
 }
 
-$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::LOGIN_MODULE);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CapabilityType::LOGIN_MODULE);
 if ($modnames && count($modnames) > 1) {
     for ($i = 0, $n = count($modnames); $i < $n; $i++) {
         if ($modnames[$i] == $modops::STD_LOGIN_MODULE) {
@@ -886,7 +889,7 @@ if ($tmp) {
 $smarty->assign('modtheme', check_permission($userid, 'Modify Site Preferences'));
 
 // Rich-text (html) editors
-$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::WYSIWYG_MODULE);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CapabilityType::WYSIWYG_MODULE);
 if ($modnames) {
   $editors = []; //for backend
   $fronts = [];
@@ -946,7 +949,7 @@ $smarty->assign('wysiwyg', $fronts)
   ->assign('frontendwysiwyg', $frontendwysiwyg);
 
 // Syntax-highlight editors
-$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::SYNTAX_MODULE);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CapabilityType::SYNTAX_MODULE);
 if ($modnames) {
   $editors = [];
   for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
@@ -1005,7 +1008,7 @@ $smarty->assign('syntax_opts', $editors);
 
 //TODO check values special'd for display
 $smarty->assign([
-  'adminlog_lifetime' => $adminlog_lifetime,
+  'adminlog_timeout' => $adminlog_timeout,
   'allow_browser_cache' => $allow_browser_cache,
   'auto_clear_cache_age' => $auto_clear_cache_age,
   'backendwysiwyg' => $wysiwyg,
@@ -1031,8 +1034,9 @@ $smarty->assign([
   'lock_refresh' => $lock_refresh,
   'lock_timeout' => $lock_timeout,
   'login_module' => $login_module,
+  'logintimeout' => $logintimeout,
   'logoselect' => $logoselector,
-//  'metadata' => $metadata, // TODO considersyntax editor for html
+//  'metadata' => $metadata, // TODO consider syntax editor for html
   'passwordlevel' => $password_level,
   'search_module' => $search_module,
   'sitedown' => $sitedown,
@@ -1074,7 +1078,7 @@ if ($password_level !== null) {
         2 => _la('guess_hard'),
         3 => _la('guess_vhard'),
     ];
-    // TODO lang
+    // TODO langify all
     $uname_levels = [
         0 => _la('unrestricted'),
         1 => 'Type 1',
@@ -1099,12 +1103,12 @@ foreach ([1, 0, 2] as $i => $val) {
 $smarty->assign('smarty_cachemodules', $tmp);
 
 $tmp = [
-  86400 => _la('adminlog_1day'),
-  86400*7 => _la('adminlog_1week'),
-  86400*14 => _la('adminlog_2weeks'),
-  86400*31 => _la('adminlog_1month'),
-  86400*31*3 => _la('adminlog_3months'),
-  86400*30*6 => _la('adminlog_6months'),
+  1 => _la('adminlog_1day'),
+  7 => _la('adminlog_1week'),
+  14 => _la('adminlog_2weeks'),
+  30 => _la('adminlog_1month'),
+  90 => _la('adminlog_3months'),
+  180 => _la('adminlog_6months'),
   -1 => _la('adminlog_manual'),
 ];
 $smarty->assign('adminlog_options', $tmp);

@@ -2,7 +2,7 @@
   {foreach $nodes as $node}
     {if $node.show_in_menu && $node.url && $node.title}
 
-      {$module = "../modules/`$node.name`/images/icon"}
+      {$module = "../modules/{$node.name}/images/icon"}
 
       {if file_exists($module|cat:'.png')}
         {$image_src = "{$module}.png"}

@@ -120,13 +120,25 @@ try {
          ->assign('cssmenus',$menus);
 
         if( $n > 10 ) {
+            $csspaged = 'true';
             $navpages = (int)ceil($n / 10);
+            if( $navpages > 2 ) {
+                $elid1 = '"pspage"';
+                $elid2 = '"ntpage"';
+            }
+            else {
+                $elid1 = 'null';
+                $elid2 = 'null';
+            }
             $pagelengths = [10=>10];
             if( $n > 20 ) $pagelengths[20] = 20;
             if( $n > 40 ) $pagelengths[40] = 40;
             $pagelengths[0] = _la('all');
         }
         else {
+            $csspaged = 'false';
+            $elid1 = 'null';
+            $elid2 = 'null';
             $navpages = 1;
             $pagelengths = null;
         }
@@ -181,19 +193,16 @@ $jsm->queue_matchedfile('jquery.cmsms_poll.js', 2);
 $jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 
 $js = <<<EOS
-var pagetable;
-function pagefirst(tbl) {
-  $.fn.SSsort.movePage(tbl,false,true);
-}
-function pagelast(tbl) {
-  $.fn.SSsort.movePage(tbl,true,true);
-}
-function pageforw(tbl) {
-  $.fn.SSsort.movePage(tbl,true,false);
-}
-function pageback(tbl) {
-  $.fn.SSsort.movePage(tbl,false,false);
-}
+var csstable,grptable;
+var ssopts = {
+ sortClass: 'SortAble',
+ ascClass: 'SortUp',
+ descClass: 'SortDown',
+ oddClass: 'row1',
+ evenClass: 'row2',
+ oddsortClass: 'row1s',
+ evensortClass: 'row2s'
+};
 function adjust_locks(tblid,lockdata) {
   var n = 0;
   $('#'+tblid).find('> tbody > tr').each(function() {
@@ -223,35 +232,31 @@ function adjust_locks(tblid,lockdata) {
   return n;
 }
 $(function() {
-  pagetable = document.getElementById('csslist');
-  var opts = {
-   sortClass: 'SortAble',
-   ascClass: 'SortUp',
-   descClass: 'SortDown',
-   oddClass: 'row1',
-   evenClass: 'row2',
-   oddsortClass: 'row1s',
-   evensortClass: 'row2s'
-  };
-  if($navpages > 1) {
-    var xopts = $.extend({}, opts, {
+  csstable = document.getElementById('csslist');
+  if($csspaged) {
+    var xopts = $.extend({}, ssopts, {
      paginate: true,
      pagesize: $sellength,
+     firstid: 'ftpage',
+     previd: $elid1,
+     nextid: $elid2,
+     lastid: 'ltpage',
+     selid: 'pagerows',
      currentid: 'cpage',
-     countid: 'tpage'
+     countid: 'tpage'//,
+//   onPaged: function(table,pageid){}
     });
-    $(pagetable).SSsort(xopts);
+    $(csstable).SSsort(xopts);
     $('#pagerows').on('change',function() {
       l = parseInt(this.value);
       if(l === 0) {
-        $('.tplpagelink').hide();//TODO hide label-part 'per page'
+        $('#tblpagelink').hide();//TODO hide/toggle label-part 'per page'
       } else {
-        $('.tplpagelink').show();//TODO show label-part 'per page'
+        $('#tblpagelink').show();//TODO show/toggle label-part 'per page'
       }
-      $.fn.SSsort.setCurrent(tpltable,'pagesize',l);
     });
   } else {
-    $(pagetable).SSsort(opts);
+    $(csstable).SSsort(ssopts);
   }
   $('#bulkaction').prop('disabled',true);
   cms_button_able($('#bulk_submit'),false);
@@ -276,7 +281,7 @@ $(function() {
     }
     return false;
   });
-  $('#csslist [context-menu]').ContextMenu();
+  $(csstable).find('[context-menu]').ContextMenu();
   $('a.edit_css').on('click', function(e) {
     if(this.classList.contains('steal_lock')) return true;
     e.preventDefault();
@@ -316,8 +321,8 @@ $(function() {
       } else {
         cms_alert(data.error.msg);
       }
-    }).fail(function() {
-      cms_alert('AJAX ERROR');
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      cms_alert('AJAX ERROR: ' + errorThrown);
     });
     return false;
   });
@@ -463,9 +468,39 @@ if( $groups ) {
 
 //    $title = _ld('layout','prompt_replace_typed',_ld('layout','prompt_stylesgroup'));
 
+    $sellength = 10; //OR some $_REQUEST[]
+    $n = count($groups);
+    if( $n > 10 ) {
+        $grppaged = 'true';
+        $grppages = (int)ceil($n / 10);
+        if( $grppages > 2 ) {
+            $elid1 = '"pspage2"';
+            $elid2 = '"ntpage2"' ;
+            if( !isset($pagelengths) ) {
+                $pagelengths = [10=>10];
+                if( $n > 20 ) $pagelengths[20] = 20;
+                if( $n > 40 ) $pagelengths[40] = 40;
+                $pagelengths[0] = _la('all');
+                $smarty->assign('pagelengths', $pagelengths)
+                 ->assign('currentlength', $sellength);
+            }
+        }
+        else {
+            $elid1 = 'null';
+            $elid2 = 'null';
+        }
+    }
+    else {
+        $grppaged = 'false';
+        $grppages = 1;
+        $elid1 = 'null';
+        $elid2 = 'null';
+    }
+
     $smarty->assign('list_groups', $groups)
-     ->assign('grpmenus', $menus);
-//       ->assign('TODO', $title);
+     ->assign('grpmenus', $menus)
+     ->assign('grppages', $grppages);
+//   ->assign('TODO', $title);
 
     $s1 = json_encode(_ld('layout','confirm_delete_group'));
     $s2 = json_encode(_ld('layout','confirm_delete_groupplus'));
@@ -473,7 +508,34 @@ if( $groups ) {
     // groups supplementary-script
     $js = <<<EOS
 $(function() {
-  $('#grouplist [context-menu]').ContextMenu();
+  grptable = document.getElementById('grouplist');
+  if($grppaged) {
+    xopts = $.extend({}, ssopts, {
+     paginate: true,
+     pagesize: $sellength,
+     firstid: 'ftpage2',
+     previd: $elid1,
+     nextid: $elid2,
+     lastid: 'ltpage2',
+     selid: 'pagerows2',
+     currentid: 'cpage2',
+     countid: 'tpage2'//,
+//   onPaged: function(table,pageid){}
+    });
+    $(grptable).SSsort(xopts);
+    $('#pagerows2').on('change',function() {
+      l = parseInt(this.value);
+      if(l === 0) {
+        $('#tblpagelink2').hide();//TODO hide label-part 'per page'
+      } else {
+        $('#tblpagelink2').show();//TODO show label-part 'per page'
+      }
+//      $.fn.SSsort.setCurrent(grptable,'pagesize',l);
+    });
+  } else {
+    $(grptable).SSsort(ssopts);
+  }
+  $(grptable).find('[context-menu]').ContextMenu();
   $('a.del_grp').on('click', function(e) {
     e.preventDefault();
     cms_confirm_linkclick(this,$s1);

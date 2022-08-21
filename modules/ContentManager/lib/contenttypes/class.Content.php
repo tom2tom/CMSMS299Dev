@@ -24,7 +24,7 @@ namespace ContentManager\contenttypes;
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\ContentException;
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\internal\page_template_parser;
@@ -154,7 +154,7 @@ class Content extends ContentBase
 						if (!is_object($mod)) {
 							continue;
 						}
-						if (!$mod->HasCapability(CoreCapabilities::CONTENT_BLOCKS)) {
+						if (!$mod->HasCapability(CapabilityType::CONTENT_BLOCKS)) {
 							continue;
 						}
 						// TODO if falsy value	$current = $params[$name];
@@ -177,7 +177,7 @@ class Content extends ContentBase
 					// nothing
 					break;
 				default:
-					if (count($blocks) && isset($blocks[$oneparam])) {
+					if ($blocks && isset($blocks[$oneparam])) {
 						// it's a content block.
 						$val = $val;
 					} else {
@@ -292,7 +292,7 @@ class Content extends ContentBase
 					if (!is_object($mod)) {
 						continue;
 					}
-					if (!$mod->HasCapability(CoreCapabilities::CONTENT_BLOCKS)) {
+					if (!$mod->HasCapability(CapabilityType::CONTENT_BLOCKS)) {
 						continue;
 					}
 					$value = $this->GetPropertyValue($blockInfo['id']);
@@ -776,7 +776,7 @@ class Content extends ContentBase
 		if (!is_object($mod)) {
 			return false;
 		}
-		if (!$mod->HasCapability(CoreCapabilities::CONTENT_BLOCKS)) {
+		if (!$mod->HasCapability(CapabilityType::CONTENT_BLOCKS)) {
 			return false;
 		}
 		if (!empty($blockInfo['inputname'])) {

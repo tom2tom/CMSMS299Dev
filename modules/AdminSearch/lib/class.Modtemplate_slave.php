@@ -34,34 +34,67 @@ final class Modtemplate_slave extends Base_slave
         return $mod->Lang('sectiondesc_modtemplates');
     }
 
-    public function check_permission()
+//  public function use_slave(int $userid = 0) : bool {}
+
+    protected function check_permission(int $userid = 0)
     {
-        return check_permission(get_userid(), 'Modify Templates'); //tho' no redirect to edit templates from returned match-data
+        if ($userid == 0) { $userid = get_userid();  }
+        return check_permission($userid, 'Modify Templates'); //tho' no redirect to edit templates from returned match-data
     }
 
-    //returns array of arrays
+    //returns array, containing arrays or empty
     public function get_matches()
     {
+        $ds = $this->search_descriptions();
+        $fz = $this->search_fuzzy();
+        $output = [];
         $db = Lone::get('Db');
-        $query = 'SELECT originator,name,description,content FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE originator IS NOT NULL AND originator != \'\' AND originator != \'__CORE__\' '; //other originators are for module-templates
-        if ($this->search_casesensitive()) {
-            $where = [
-             'name LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_bin',
-             'description LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_bin',
-             'content LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_bin'
+        $query = 'SELECT originator,name,description,content FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE (originator IS NOT NULL AND originator != \'\' AND originator != \'__CORE__\' '; //other originators are for module-templates or themes
+        if ($fz) {
+            if ($this->search_casesensitive()) {
+                $wheres = [
+                 'name REGEXP BINARY ?',
+                 'description REGEXP BINARY ?',
+                 'content REGEXP BINARY ?'
+                ];
+            } else {
+//TODO handle case-insensitive whole-chars, not bytes
+                $wheres = [
+                 'name REGEXP CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci',
+                 'description REGEXP CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci',
+                 'content REGEXP CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci'
+                ];
+            }
+        } elseif ($this->search_casesensitive()) {
+            $wheres = [
+             'name LIKE BINARY ?',
+             'description LIKE BINARY ?',
+             'content LIKE BINARY ?'
             ];
         } else {
-            $where = ['name LIKE ?', 'description LIKE ?', 'content LIKE ?'];
+            $wheres = [
+             'name LIKE ?',
+             'description LIKE ?',
+             'content LIKE ?'
+            ];
         }
-        if (!$this->search_descriptions()) {
-            unset($where[1]);
-        }
-        $query .= 'AND '.implode(' OR ', $where);
 
-        $output = [];
         $needle = $this->get_text();
-        $wm = '%'.$db->escStr($needle).'%';
-        $dbr = $db->getArray($query, [$wm,$wm,$wm]);
+        if ($fz) {
+            $needle = $this->get_regex_pattern($needle, false);
+            $wm = $db->escStr($needle);
+        } else {
+            $wm = '%'.$db->escStr($needle).'%';
+        }
+
+        if ($ds) {
+            $parms = [$wm, $wm, $wm];
+        } else {
+            unset($wheres[1]);
+            $parms = [$wm, $wm];
+        }
+        $query .= 'AND ('.implode(' OR ', $wheres).'))';
+        $dbr = $db->getArray($query, $parms);
         if ($dbr) {
             foreach ($dbr as $row) {
                 $html = '';
@@ -69,8 +102,8 @@ final class Modtemplate_slave extends Base_slave
                 if ($html2) {
                     $html .= '<br />'.$html2;
                 }
-                $desc = row['description'];
-                if ($desc && $this->search_descriptions()) {
+                $desc = $row['description'];
+                if ($desc && $ds) {
                     $html2 = $this->get_matches_info($desc);
                     if ($html2) {
                         $html .= '<br />'.$html2;
@@ -85,11 +118,10 @@ final class Modtemplate_slave extends Base_slave
                 }
                 $html = substr($html, 6); // strip leading newline
 
-                //unlike other slaves, no 'edit_url' specified
                 $output[] = [
                  'title' => $row['originator'].' + '.$row['name'],
                  'description' => ($desc) ? $this->summarize($desc) : '',
-                 'url' => '',
+                 'url' => '', //unlike other slaves, no 'edit_url' specified
                  'text' => $html
                 ];
             }

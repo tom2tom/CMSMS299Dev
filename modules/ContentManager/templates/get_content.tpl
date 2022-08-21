@@ -118,8 +118,10 @@
          {admin_icon icon='false.gif' class='systemicon page_setdefault' title=_ld($_module,'prompt_page_setdefault')}
         </a>
       {/if}
+    {elseif $column == 'created'}
+       <span style="display:none">{$row.created}</span>{$row.created|date_format:'Y-m-d H:i'}
     {elseif $column == 'modified'}
-       {$row.lastmodified|cms_date_format:'timed'}
+       <span style="display:none">{$row.lastmodified}</span>{$row.lastmodified|date_format:'Y-m-d H:i'}
     {elseif $column == 'actions'}
     {$hide=empty($row.lock) || $row.lock == 1}{$t=_ld($_module,'locked_hard')}
       <span class="locked" data-id="{$row.id}" title="{$t}"{if $hide} style="display:none;"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
@@ -187,8 +189,24 @@
   <table id="contenttable" class="pagetable">
     <thead>
       <tr>{strip}
-        {foreach $columns as $column => $flag}
-          {if $flag}<th{if $flag=='icon'} class="pageicon" {elseif $column != 'multiselect'} {/if}
+        {foreach $columns as $column => $type}
+          {if $type}
+          {if empty($sortcols.$column)}
+           {$styp='false'}
+          {elseif $sortcols.$column == 'text'}
+           {$styp='text'}
+          {elseif $sortcols.$column == 'link'}
+           {$styp='linktext'}
+          {elseif $sortcols.$column == 'icon'}
+           {$styp='icon'}
+          {elseif $sortcols.$column == 'number'}
+           {$styp='numeric'}
+          {elseif $sortcols.$column == 'date'}
+           {$styp='intfor'}
+          {else}
+           {$styp='false'}
+          {/if}
+          <th class="{if $type=='icon'}pageicon {/if}{literal}{sss:{/literal}{$styp}{literal}}{/literal}"{if $column != 'multiselect'} {/if}
           {if $column == 'expand' || $column == 'hier' || $column == 'icon1'} {* || $column == 'view' || $column == 'copy' || $column == 'edit' || $column == 'delete'*}
             title="{_ld($_module,"coltitle_{$column}")}"> {* no column header *}
           {elseif $column == 'multiselect'}
@@ -200,13 +218,13 @@
           {else}
             title="{_ld($_module,"coltitle_{$column}")}">{_ld($_module,"colhdr_{$column}")}
           {/if}
-        {/strip}</th>{/if}
+        {/strip}</th>{/if}{* $type *}
         {/foreach}
       </tr>
     </thead>
     <tbody class="contentrows">
       {foreach $content_list as $row}{strip}{cycle values='row1,row2' assign='rowclass'}
-      <tr class="{$rowclass}{if isset($row.selected)} selected{/if}" data-id="{$row.id}" onmouseover="this.className='{$rowclass}hover';" onmouseout="this.className='{$rowclass}';">
+      <tr class="{$rowclass}{if isset($row.active) && $row.active=='inactive'} inactive{/if}{if isset($row.selected)} selected{/if}" data-id="{$row.id}" onmouseover="this.className='{$rowclass}hover';" onmouseout="this.className='{$rowclass}';">
         {do_content_row row=$row columns=$columns}
       </tr>
 {/strip}{/foreach}

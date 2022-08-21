@@ -78,15 +78,14 @@ class design_exporter
 
 EOT;
 
-    #[\ReturnTypeWillChange]
     public function __construct(Design $design)
     {
         $this->_design = $design;
         if( !is_array(self::$_mm_types ) ) {
             self::$_mm_types = TemplateType::load_all_by_originator('MenuManager');
             self::$_nav_types = TemplateType::load_all_by_originator('Navigator');
-            if( (!is_array(self::$_mm_types) || count(self::$_mm_types) == 0) && (!is_array(self::$_nav_types) || count(self::$_nav_types) == 0) ) {
-                throw new Exception('Cannot find any Navigation template types (is MenuManager or Navigator installed and enabled?');
+            if( (!self::$_mm_types || !is_array(self::$_mm_types)) && (!self::$_nav_types || !is_array(self::$_nav_types)) ) {
+                throw new Exception('Cannot find any navigation template types (is MenuManager or Navigator installed and enabled?');
             }
         }
     }
@@ -238,6 +237,7 @@ EOT;
             }
             return $out;
         }
+        return [];
     }
 
     public function _add_template($name,$type = 'TPL')
@@ -417,6 +417,7 @@ EOT;
             }
             return $out;
         }
+        return [];
     }
 
     public function list_files()

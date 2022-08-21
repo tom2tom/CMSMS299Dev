@@ -904,6 +904,7 @@ fieldset {
 	clear: both;
 }
 
+.pagechange, /* fake button */
 .adminsubmit {
 	margin: 0.1em;
 	border-width: 0;

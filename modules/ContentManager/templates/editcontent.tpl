@@ -21,7 +21,7 @@
 <div id="Edit_Content">
 <div class="pregap"></div>
 {form_start content_id=$content_id}
-  <input type="hidden" id="active_tab" name="{$actionid}active_tab"/>
+  <input type="hidden" id="active_tab" name="{$actionid}active_tab" />
   <div class="pageinput postgap">
   {submit_buttons}
   </div>

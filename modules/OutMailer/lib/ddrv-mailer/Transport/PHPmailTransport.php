@@ -24,7 +24,6 @@ final class PHPmailTransport implements Transport
      */
     private $responseLogger = null;
 
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $args = func_get_args();
@@ -43,14 +42,14 @@ final class PHPmailTransport implements Transport
         }
         $this->options = $options;
     }
-/*  #[\ReturnTypeWillChange]
-    public function __set($key, $value)
+/*
+    public function __set(string $key, $value) : void
     {
         $this->options[$key] = $value;
     }
 
     #[\ReturnTypeWillChange]
-    public function __get($key)
+    public function __get(string $key) : mixed
     {
         if (isset($this->options[$key])) return $this->options[$key];
         return null;

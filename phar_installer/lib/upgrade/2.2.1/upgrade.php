@@ -52,7 +52,7 @@ foreach ($files as $src_name) {
 
 // maybe remove the directory
 $files = glob($plugins_from.'/*'); // filesystem path
-$do_remove = (count($files) == 0);
+$do_remove = (!$files);
 if (count($files) == 1) {
     $bn = strtolower(basename($files[0]));
     if ($bn == 'index.html' || $bn == 'index.htm') {

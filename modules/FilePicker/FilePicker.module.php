@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 //use CMSMS\FolderControls;
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\FileType;
 use CMSMS\FileTypeHelper;
 use CMSMS\FolderControlOperations;
@@ -35,7 +35,6 @@ final class FilePicker extends CMSModule implements IFilePicker
 {
     public $_typehelper;
 
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();
@@ -65,7 +64,6 @@ final class FilePicker extends CMSModule implements IFilePicker
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
-    public function GetHelp() { return $this->Lang('help'); }
     public function GetVersion() { return '2.0'; }
     public function HasAdmin() { return false; }
     public function MinimumCMSVersion() { return '2.999'; }
@@ -74,14 +72,25 @@ final class FilePicker extends CMSModule implements IFilePicker
     public function HasCapability($capability, $params = [])
     {
         switch( $capability ) {
-        case CoreCapabilities::CORE_MODULE:
-        case CoreCapabilities::CONTENT_BLOCKS:
+//abandoned        case CapabilityType::CORE_MODULE:
+        case CapabilityType::CONTENT_BLOCKS:
         case 'filepicker':
         case 'upload':
             return true;
         default:
             return false;
         }
+    }
+
+    public function GetHelp() {
+        //setup tag help TODO reconcile with InitializeFrontend()
+        $this->CreateParameter('action', 'filepicker', $this->Lang('help_action'), false);
+        $this->CreateParameter('content', 'false', $this->Lang('help_content'));
+        $this->CreateParameter('name', '', $this->Lang('help_name'), false);
+        $this->CreateParameter('profile', '', $this->Lang('help_profile'));
+        $this->CreateParameter('type', 'IMAGE', $this->Lang('help_type'));
+        $this->CreateParameter('value', '', $this->Lang('help_value'));
+        return $this->Lang('help');
     }
 
     public function InitializeFrontend()
@@ -99,7 +108,7 @@ final class FilePicker extends CMSModule implements IFilePicker
         'nosub' => CLEAN_BOOL,
         'seldir' => CLEAN_STRING,
         'subdir' => CLEAN_STRING, //not needed (bundled into '_enc')
-        'type' => CLEAN_STRING,
+        'type' => CLEAN_STRING, //wanted FileType identifier e.g. ANY
         'val' => CLEAN_STRING, //URL parameter value
         'value' => CLEAN_STRING, //html-element initial value
         ]);
@@ -188,7 +197,7 @@ EOS;
     /**
      * Generate page content for a profile-conformant input-text element
      * with file-pick ancillaries.
-     * Used by content-editor modules
+     * Backend for processing {content_module} tags.
      *
      * @param string $blockName Content block name, used here for
      *  name-attribute of created element
@@ -208,10 +217,9 @@ EOS;
 
         $profile_name = $params['profile'] ?? '';
         $profile = $this->get_profile_or_default($profile_name);
-
         // TODO optionally allow further overriding the profile
-        $out = $this->get_html($blockName, $value, $profile);
-        return $out;
+
+        return $this->get_html($blockName, $value, $profile);
     }
 
     /**
@@ -263,8 +271,8 @@ EOS;
 //      case FileType::ANY:
         default:
             $key = 'select_a_file';
-            $mime = '';
-            $exts = '';
+//            $mime = '';
+//            $exts = '';
             break;
         }
         $title = $this->Lang($key);

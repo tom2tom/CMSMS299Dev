@@ -26,11 +26,10 @@ use CMSMS\Lone;
 
 class FillCacheJob extends OnceJob
 {
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct([
-         'name' => 'Navigator\\FillCache',
+         'name' => 'Navigator\FillCache',
          'module' => 'Navigator'
         ]);
     }

@@ -1,8 +1,8 @@
 <h3>{_ld($_module,'edit_profile')}: <em>{$data.label}</em></h3>
 
 {form_start}
-  <input type="hidden" name="{$actionid}profile" value="{$profile}"/>
-  <input type="hidden" name="{$actionid}origname" value="{$data.name}"/>
+  <input type="hidden" name="{$actionid}profile" value="{$profile}" />
+  <input type="hidden" name="{$actionid}origname" value="{$data.name}" />
 
   {if $data.system}<div class="pageinfo">{$tmp='profiledesc_'|cat:$data.name}{_ld($_module,$tmp)}</div>{/if}
   <br />

@@ -80,7 +80,6 @@ class Smarty_Internal_Config_File_Compiler
      * @param string $parser_class class name
      * @param Smarty $smarty       global instance
      */
-    #[\ReturnTypeWillChange]
     public function __construct($lexer_class, $parser_class, Smarty $smarty)
     {
         $this->smarty = $smarty;
@@ -158,10 +157,12 @@ class Smarty_Internal_Config_File_Compiler
             $this->smarty->_debug->end_compile($this->template);
         }
         // template header code
-        $template_header =
-            "<?php /* Smarty version " . Smarty::SMARTY_VERSION . ", created on " . date("Y-m-d H:i:s") .
-            "\n";
-        $template_header .= "         compiled from '{$this->template->source->filepath}' */ ?>\n";
+        $template_header = sprintf(
+            "<?php /* Smarty version %s, created on %s\n         compiled from '%s' */ ?>\n",
+            Smarty::SMARTY_VERSION,
+            date("Y-m-d H:i:s"),
+            str_replace('*/', '* /' , $this->template->source->filepath)
+        );
         $code = '<?php $_smarty_tpl->smarty->ext->configLoad->_loadConfigVars($_smarty_tpl, ' .
                 var_export($this->config_data, true) . '); ?>';
         return $template_header . $this->template->smarty->ext->_codeFrame->create($this->template, $code);

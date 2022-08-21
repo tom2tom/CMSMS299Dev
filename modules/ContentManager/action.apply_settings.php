@@ -52,7 +52,6 @@ switch ($params['tab']) {
 	case 'listsettings':
 		$str = $params['list_namecolumn'] ?? 'title';
 		$this->SetPreference('list_namecolumn', $str);
-
 		$this->SetPreference('list_visiblecolumns', implode(',', $params['list_visiblecolumns']));
 		break;
 	case 'pagedefaults':
@@ -63,6 +62,8 @@ switch ($params['tab']) {
 				case 'action':
 				case 'submit':
 				case 'tab':
+				case 'active_tab':
+				case CMS_SECURE_PARAM_NAME:
 					break;
 				case 'styles':
 					$val = implode(',', $val);

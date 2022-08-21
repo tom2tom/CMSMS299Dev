@@ -81,7 +81,6 @@ abstract class test_base
     /**
      * @param string $name (if provided) is assumed to be a lang key, and processed immediately
      */
-    #[\ReturnTypeWillChange]
     public function __construct(string $name, $value, string $key = '')
     {
         if (!($name || $key)) {
@@ -95,7 +94,7 @@ abstract class test_base
     }
 
     #[\ReturnTypeWillChange]
-    public function __get(string $key)
+    public function __get(string $key)// : mixed
     {
         if (!in_array($key, self::KEYS)) {
             throw new Exception(lang('error_invalidkey', $key, __CLASS__));
@@ -103,10 +102,10 @@ abstract class test_base
         if (isset($this->_data[$key])) {
             return $this->_data[$key];
         }
+        return null;
     }
 
-    #[\ReturnTypeWillChange]
-    public function __isset(string $key)
+    public function __isset(string $key) : bool
     {
         if (!in_array($key, self::KEYS)) {
             throw new Exception(lang('error_invalidkey', $key, __CLASS__));
@@ -114,8 +113,7 @@ abstract class test_base
         return isset($this->_data[$key]);
     }
 
-    #[\ReturnTypeWillChange]
-    public function __set(string $key, $value)
+    public function __set(string $key, $value) : void
     {
         if (!in_array($key, self::KEYS)) {
             throw new Exception(lang('error_invalidkey', $key, __CLASS__));
@@ -127,8 +125,7 @@ abstract class test_base
         }
     }
 
-    #[\ReturnTypeWillChange]
-    public function __unset(string $key)
+    public function __unset(string $key) : void
     {
         unset($this->_data[$key]);
     }
@@ -139,16 +136,15 @@ abstract class test_base
     {
         $res = $this->execute();
         switch ($res) {
-    case self::TEST_PASS:
-    case self::TEST_FAIL:
-    case self::TEST_WARN:
-      $this->status = $res;
-      break;
-
-//    case self::TEST_UNTESTED:
-    default:
-      throw new Exception(lang('error_test_invalidresult').' '.$res);
-    }
+         case self::TEST_PASS:
+         case self::TEST_FAIL:
+         case self::TEST_WARN:
+           $this->status = $res;
+           break;
+//       case self::TEST_UNTESTED:
+         default:
+           throw new Exception(lang('error_test_invalidresult').' '.$res);
+        }
 
         return $this->status;
     }
@@ -163,36 +159,36 @@ abstract class test_base
         }
 
         switch ($this->status) {
-    case self::TEST_PASS:
-      if ($this->pass_key) {
-          return lang($this->pass_key);
-      }
-      if ($this->pass_msg) {
-          return $this->pass_msg;
-      }
-      break;
+        case self::TEST_PASS:
+          if ($this->pass_key) {
+              return lang($this->pass_key);
+          }
+          if ($this->pass_msg) {
+              return $this->pass_msg;
+          }
+          break;
 
-    case self::TEST_FAIL:
-      if ($this->fail_key) {
-          return lang($this->fail_key);
-      }
-      if ($this->fail_msg) {
-          return $this->fail_msg;
-      }
-      break;
+        case self::TEST_FAIL:
+          if ($this->fail_key) {
+              return lang($this->fail_key);
+          }
+          if ($this->fail_msg) {
+              return $this->fail_msg;
+          }
+          break;
 
-    case self::TEST_WARN:
-      if ($this->warn_key) {
-          return lang($this->warn_key);
-      }
-      if ($this->warn_msg) {
-          return $this->warn_msg;
-      }
-      break;
+        case self::TEST_WARN:
+          if ($this->warn_key) {
+              return lang($this->warn_key);
+          }
+          if ($this->warn_msg) {
+              return $this->warn_msg;
+          }
+          break;
 
-    default:
-      throw new Exception(lang('error_test_invalidstatus'));
-    }
+        default:
+          throw new Exception(lang('error_test_invalidstatus'));
+        }
     }
 
     protected function returnBytes($val)
@@ -204,24 +200,24 @@ abstract class test_base
             }
             $last = strtolower(substr($val, -1));
             switch ($last) {
-        case 'g':
-        case 'm':
-        case 'k':
-          $val = (float) substr($val, 0, -1);
-          break;
-        default:
-          return (float) $val;
-      }
+                case 'g':
+                case 'm':
+                case 'k':
+                  $val = (float) substr($val, 0, -1);
+                  break;
+                default:
+                  return (float) $val;
+            }
             switch ($last) {
-        case 'g':
-          $val *= 1024.0;
-          //no break here
-        case 'm':
-          $val *= 1024.0;
-          //no break here
-        case 'k':
-          $val *= 1024.0;
-      }
+                case 'g':
+                  $val *= 1024.0;
+                  //no break here
+                case 'm':
+                  $val *= 1024.0;
+                  //no break here
+                case 'k':
+                  $val *= 1024.0;
+            }
         }
 
         return $val;

@@ -86,11 +86,10 @@ final class AdminTabs
      * @ignore
      * Treat as singleton
      */
-    #[\ReturnTypeWillChange]
     private function __construct() {}
 
     #[\ReturnTypeWillChange]
-    private function __clone() {}
+    private function __clone() {}// : void {}
 
     /**
      * Revert class properties ready for a fresh sequence

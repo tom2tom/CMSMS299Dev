@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\internal\JobOperations;
 use CMSMS\LoadedDataType;
 use CMSMS\Lone;
@@ -38,7 +38,6 @@ final class Navigator extends CMSModule
     public function GetAuthorEmail() { return ''; }
     public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
-    public function GetHelp($lang='en_US') { return $this->Lang('help'); }
     public function GetName() { return 'Navigator'; }
     public function GetVersion() { return '2.0'; }
     public function HandlesEvents() { return true; } //since 2.0, deprecated since CMSMS3 in favour of HasCapability(EVENTS)
@@ -47,6 +46,28 @@ final class Navigator extends CMSModule
 //  public function LazyLoadAdmin() { return true; }
 //  public function LazyLoadFrontend() { return true; }
     public function MinimumCMSVersion() { return '2.999'; }
+
+    public function GetHelp($lang='en_US') {
+        $this->CreateParameter('action','',$this->Lang('help_action'));
+        $this->CreateParameter('childrenof','',$this->Lang('help_childrenof'));
+        $this->CreateParameter('collapse','',$this->Lang('help_collapse'));
+        $this->CreateParameter('excludeprefix','',$this->Lang('help_excludeprefix'));
+        $this->CreateParameter('idnodes','0',$this->Lang('help_idnodes'));
+        $this->CreateParameter('includeprefix','',$this->Lang('help_includeprefix'));
+        $this->CreateParameter('items','contact,home',$this->Lang('help_items'));
+        $this->CreateParameter('loadprops','',$this->Lang('help_loadprops'));
+        $this->CreateParameter('nlevels','1',$this->Lang('help_nlevels'));
+        $this->CreateParameter('number_of_levels','1',$this->Lang('help_number_of_levels'));
+        $this->CreateParameter('root','',$this->Lang('help_root2'));
+        $this->CreateParameter('show_all','0',$this->Lang('help_show_all'));
+        $this->CreateParameter('show_root_siblings','1',$this->Lang('help_show_root_siblings'));
+        $this->CreateParameter('start_element','1.2',$this->Lang('help_start_element'));
+        $this->CreateParameter('start_level','',$this->Lang('help_start_level'));
+        $this->CreateParameter('start_page','',$this->Lang('help_start_page'));
+        $this->CreateParameter('start_text','',$this->Lang('help_start_text'));
+        $this->CreateParameter('template','',$this->Lang('help_template'));
+        return $this->Lang('help');
+    }
 
     public function InitializeFrontend()
     {
@@ -74,35 +95,13 @@ final class Navigator extends CMSModule
         ]);
     }
 
-    public function InitializeAdmin()
-    {
-        $this->CreateParameter('action','',$this->Lang('help_action'));
-        $this->CreateParameter('childrenof','',$this->Lang('help_childrenof'));
-        $this->CreateParameter('collapse','',$this->Lang('help_collapse'));
-        $this->CreateParameter('excludeprefix','',$this->Lang('help_excludeprefix'));
-        $this->CreateParameter('includeprefix','',$this->Lang('help_includeprefix'));
-        $this->CreateParameter('idnodes','0',$this->Lang('help_idnodes'));
-        $this->CreateParameter('items','contact,home',$this->Lang('help_items'));
-        $this->CreateParameter('loadprops','',$this->Lang('help_loadprops'));
-        $this->CreateParameter('nlevels','1',$this->Lang('help_nlevels'));
-        $this->CreateParameter('number_of_levels','1',$this->Lang('help_number_of_levels'));
-        $this->CreateParameter('root','',$this->Lang('help_root2'));
-        $this->CreateParameter('show_all','0',$this->Lang('help_show_all'));
-        $this->CreateParameter('show_root_siblings','1',$this->Lang('help_show_root_siblings'));
-        $this->CreateParameter('start_element','1.2',$this->Lang('help_start_element'));
-        $this->CreateParameter('start_level','',$this->Lang('help_start_level'));
-        $this->CreateParameter('start_page','',$this->Lang('help_start_page'));
-        $this->CreateParameter('start_text','',$this->Lang('help_start_text'));
-        $this->CreateParameter('template','',$this->Lang('help_template'));
-    }
-
     public function HasCapability($capability, $params=[])
     {
         switch ($capability) {
-            case CoreCapabilities::CORE_MODULE:
-            case CoreCapabilities::EVENTS:
-            case CoreCapabilities::PLUGIN_MODULE:
-//          case CoreCapabilities::TASKS: only when needed
+//abandoned            case CapabilityType::CORE_MODULE:
+            case CapabilityType::EVENTS:
+            case CapabilityType::PLUGIN_MODULE:
+//          case CapabilityType::TASKS: only when needed
                 return TRUE;
             default:
                 return FALSE;
@@ -167,13 +166,13 @@ final class Navigator extends CMSModule
         return cms_module_plugin($params,$smarty);
     }
 
-    final public static function page_type_lang_callback($str)
+    final public static function tpltype_lang_callback($str)
     {
         $mod = AppUtils::get_module('Navigator');
         return $mod->Lang('type_'.$str);
     }
 
-    public static function reset_page_type_defaults(TemplateType $type)
+    public static function reset_tpltype_default(TemplateType $type)
     {
         if( $type->get_originator() != 'Navigator' ) {
             throw new LogicException('Cannot reset content for template-type '.$type->get_name());
@@ -194,7 +193,7 @@ final class Navigator extends CMSModule
         if( is_file($file) ) return @file_get_contents($file);
     }
 
-    public static function template_help_callback($str)
+    public static function tpltype_help_callback($str)
     {
         $str = trim($str);
         $file = cms_join_path(__DIR__,'doc','tpltype_'.$str.'.htm');

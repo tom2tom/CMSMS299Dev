@@ -52,10 +52,11 @@
               dataType: 'json',
               data: {
                 term: request.term
-              },
-              success: function(data) {
-                response(data);
               }
+            }).done(function(data) {
+              response(data);
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+              console.debug('AJAX ERROR: ' + errorThrown);
             });
           },
           focus: function(event, ui) {
@@ -136,15 +137,16 @@
             dataType: 'json',
             data: {
               alias: data.alias
-            },
-            success: function(res) {
-              // update values for alias and page.
-              data.page = res.label;
-              data.href = "{cms_selflink href='" + data.alias + "'}";
-              $('.mce-cmsms-linker-page').val(data.page);
-              $('.mce-cmsms-linker-alias').val(data.alias);
-              $('.mce-cmsms-linker-href').val(data.href);
             }
+          }).done(function(res) {
+            // update values for alias and page.
+            data.page = res.label;
+            data.href = "{cms_selflink href='" + data.alias + "'}";
+            $('.mce-cmsms-linker-page').val(data.page);
+            $('.mce-cmsms-linker-alias').val(data.alias);
+            $('.mce-cmsms-linker-href').val(data.href);
+          }).fail(function(jqXHR, textStatus, errorThrown) {
+            console.debug('AJAX ERROR: ' + errorThrown);
           });
         }
       }

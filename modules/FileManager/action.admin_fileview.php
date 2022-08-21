@@ -30,7 +30,7 @@ if (!$this->CheckPermission('Modify Files')) {
 }
 
 $sortby = $this->GetPreference('sortby', 'nameasc'); //TODO per FilePickerProfile
-$permissionstyle = $this->GetPreference('permissionstyle','xxx');
+$permissionstyle = $this->GetPreference('permissionstyle', 'xxx');
 
 $value = Utils::get_cwd(); //relative path, but with leading separator
 $path = substr($value, 1);
@@ -41,7 +41,7 @@ $countfiles = 0;
 $countfilesize = 0;
 $files = [];
 
-for ($i = 0; $i < $times; $i++) {
+for ($i = 0; $i < $times; ++$i) {
     $onerow = new stdClass();
     if (isset($filelist[$i]['url'])) {
         $onerow->url = $filelist[$i]['url'];
@@ -87,25 +87,27 @@ for ($i = 0; $i < $times; $i++) {
 
     $link = $filelist[$i]['name'];
     if ($filelist[$i]['dir']) {
-        $parms = ['newdir'=>$filelist[$i]['name'], 'path'=>$path, 'sortby'=>$sortby];
+        $parms = ['newdir' => $filelist[$i]['name'], 'path' => $path, 'sortby' => $sortby];
         $url = $this->create_action_url($id, 'changedir', $parms);
         if ($filelist[$i]['name'] != '..') {
-            $countdirs++;
+            ++$countdirs;
             $onerow->type = ['dir'];
             $onerow->iconlink = $this->CreateLink($id, 'changedir', '', $this->GetFileIcon('', true), $parms);
             $onerow->txtlink = "<a class=\"dirlink\" href=\"{$url}\" title=\"{$this->Lang('title_changedir')}\">{$link}</a>";
         } else {
             // for the parent directory
             $value = basename($config['uploads_path']);
-            if ($value === $path) continue;
+            if ($value === $path) {
+                continue;
+            }
             $onerow->noCheckbox = 1;
             $onerow->iconlink = $this->CreateLink($id, 'changedir', '', $this->GetFileIcon('up', true), $parms);
             $onerow->txtlink = "<a class=\"dirlink\" href=\"{$url}\" title=\"{$this->Lang('title_changeupdir')}\">{$link}</a>";
         }
     } else {
         $onerow->iconlink = "<a href='" . $filelist[$i]['url'] . "' target='_blank'>" . $this->GetFileIcon($filelist[$i]['ext'], false) . '</a>';
-        $countfiles++;
-        $countfilesize+=$filelist[$i]['size'];
+        ++$countfiles;
+        $countfilesize += $filelist[$i]['size'];
         //$url = $this->create_action_url($id,'view',['file'=>$this->encodefilename($filelist[$i]['name'])]);
         $url = $onerow->url;
         //$onerow->txtlink = "<a href='" . $filelist[$i]["url"] . "' target='_blank' title=\"".$this->Lang('title_view_newwindow')."\">" . $link . "</a>";
@@ -121,7 +123,7 @@ for ($i = 0; $i < $times; $i++) {
         $onerow->filepermissions = '&nbsp;';
     } else {
         $onerow->fileowner = $filelist[$i]['fileowner'];
-        $onerow->filepermissions = Utils::format_permissions($filelist[$i]['mode'],$permissionstyle);
+        $onerow->filepermissions = Utils::format_permissions($filelist[$i]['mode'], $permissionstyle);
     }
     if ($filelist[$i]['dir']) {
         $onerow->filesize = '&nbsp;';
@@ -168,8 +170,8 @@ if (!empty($params['viewfile'])) {
 $tpl = $smarty->createTemplate($this->GetTemplateResource('filemanager.tpl')); //,null,null,$smarty);
 
 $tpl->assign('path', $path)
- ->assign('hiddenpath', $this->CreateInputHidden($id, 'path', $path))
- ->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid));
+    ->assign('hiddenpath', $this->CreateInputHidden($id, 'path', $path))
+    ->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid));
 
 $titlelink = $this->Lang('filename');
 if ($sortby == 'nameasc') {
@@ -178,7 +180,7 @@ if ($sortby == 'nameasc') {
 } else {
     $newsort = 'nameasc';
     if ($sortby == 'namedesc') {
-        $titlelink.='-';
+        $titlelink .= '-';
     }
 }
 $params['newsort'] = $newsort;
@@ -198,14 +200,13 @@ if ($sortby == 'sizeasc') {
 $params['newsort'] = $newsort;
 $titlelink = $this->CreateLink($id, 'defaultadmin', $returnid, $titlelink, $params);
 $tpl->assign('filesizetext', $titlelink)
- ->assign('fileownertext', $this->Lang('fileowner'))
- ->assign('filepermstext', $this->Lang('fileperms'))
- ->assign('fileinfotext', $this->Lang('fileinfo'))
- ->assign('filedatetext', $this->Lang('filemodified'))
- ->assign('actionstext', $this->Lang('actions'))
-
- ->assign('files', $files)
- ->assign('itemcount', count($files));
+    ->assign('fileownertext', $this->Lang('fileowner'))
+    ->assign('filepermstext', $this->Lang('fileperms'))
+    ->assign('fileinfotext', $this->Lang('fileinfo'))
+    ->assign('filedatetext', $this->Lang('filemodified'))
+    ->assign('actionstext', $this->Lang('actions'))
+    ->assign('files', $files)
+    ->assign('itemcount', count($files));
 $totalsize = Utils::format_filesize($countfilesize);
 $counts = $totalsize['size'] . ' ' . $totalsize['unit'] . ' ' . $this->Lang('in') . ' ' . $countfiles . ' ';
 if ($countfiles == 1) {
@@ -220,15 +221,21 @@ if ($countdirs == 1) {
     $counts .= $this->Lang('subdirs');
 }
 $tpl->assign('countstext', $counts)
- ->assign('formend', $this->CreateFormEnd())
 //see DoActionBase() ->assign('mod', $this)
- ->assign('confirm_unpack', $this->Lang('confirm_unpack'));
+    ->assign('confirm_unpack', $this->Lang('confirm_unpack'));
 
 if (isset($params['ajax'])) {
     $tpl->assign('ajax', 1);
 } else {
-    $out = <<<EOS
-<style type="text/css">
+    /*
+    TODO inline css might be bad for content security policy
+    in which case
+    $csm = new CMSMS\StylesMerger();
+    $csm->queue_string($styles);
+    $out = $csm->page_content();
+    */
+    $out = <<<'EOS'
+<style>
 a.filelink:visited {
  color:#000;
 }
@@ -236,8 +243,8 @@ a.filelink:visited {
 EOS;
     add_page_headtext($out, false);
 
-    $refresh_url = $this->create_action_url($id, 'admin_fileview', ['ajax'=>1, 'path'=>$path, 'forjs'=>1, CMS_JOB_KEY=>1]);
-    $viewfile_url = $this->create_action_url($id, 'admin_fileview', ['ajax'=>1, 'forjs'=>1]);
+    $refresh_url = $this->create_action_url($id, 'admin_fileview', ['ajax' => 1, 'path' => $path, 'forjs' => 1, CMS_JOB_KEY => 1]);
+    $viewfile_url = $this->create_action_url($id, 'admin_fileview', ['ajax' => 1, 'forjs' => 1]);
     $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
@@ -269,6 +276,7 @@ function enable_action_buttons() {
     if(text == 1) enable_button('#btn_view');
   } else if(files > 1 && dirs === 0) {
     // multiple files selected
+    if(imgs > 0) enable_button('#btn_thumb');
     enable_button('#btn_delete,#btn_copy,#btn_move');
   } else if(files > 1 && dirs > 0) {
     // multiple selected, at least one dir

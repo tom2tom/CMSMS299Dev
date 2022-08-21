@@ -62,6 +62,7 @@ if( $status != 200 || $result == '' ) {
 }
 $about = json_decode($result,true);
 if( !$about ) {
+  //TODO json_last_error_msg() if relevant
   $this->SetError($this->Lang('error_nodata'));
   $this->RedirectToAdminTab();
 }

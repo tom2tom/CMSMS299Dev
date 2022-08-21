@@ -1,7 +1,7 @@
 <?php
 /*
 Module Manager action: install module
-Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of ModuleManager, an addon module for
@@ -149,27 +149,27 @@ try {
             }
         };
 
-        $update_latest_deps = function($indeps,$latest) use (&$mod) {
-            $out = [];
-            foreach( $indeps as $name => $onedep ) {
-                if( isset($latest[$name]) ) {
-                    $out[$name] = $latest[$name];
-                } else {
-                    // module not found in forge?? could be a system module,
-                    // but it's still a dependency.
-                    if( !Lone::get('ModuleOperations')->IsSystemModule($name) ) throw new Exception($mod->Lang('error_dependencynotfound2',$name,$onedep['version']));
-                    $out[$name] = $onedep;
-                }
-            }
-            return $out;
-        };
-
         $deps = null;
         list($res,$deps) = ModuleRepClient::get_module_dependencies($module_name,$module_version);
         if( $deps ) {
-
             $deps = $array_to_hash($deps,'name');
             $dep_module_names = $extract_member($deps,'name');
+            $update_latest_deps = function($indeps,$latest) use (&$mod) {
+                $out = [];
+                foreach( $indeps as $name => $onedep ) {
+                    if( isset($latest[$name]) ) {
+                        $out[$name] = $latest[$name];
+                    } else {
+                        // module not in forge - might be an 'installer-bundled' module
+                        if( !Lone::get('ModuleOperations')->IsBundledModule($name) ) {
+                            // otherwise it's a problem
+                            throw new Exception($mod->Lang('error_dependencynotfound2',$name,$onedep['version']));
+                        }
+                        $out[$name] = $onedep;
+                    }
+                }
+                return $out;
+            };
 
             if( $uselatest ) {
                 // we want the latest of all of the dependencies.

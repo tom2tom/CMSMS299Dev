@@ -1,4 +1,4 @@
-<div class="pageinfo">
+<div class="pageinfo pregap">
   {_la('info_changegroupperms')}
   {cms_help 0='help' key='help_group_permissions' title=_la('info_changegroupperms')}
 </div>

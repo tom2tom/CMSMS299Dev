@@ -59,7 +59,6 @@ abstract class Job
      * @param array $params Optional assoc array of valid class properties
      *  each member like propname => propval
      */
-    #[\ReturnTypeWillChange]
     public function __construct($params = [])
     {
         $now = time();
@@ -77,7 +76,7 @@ abstract class Job
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)
+    public function __get(string $key)// : mixed
     {
         switch ($key) {
         case 'id':
@@ -102,7 +101,7 @@ abstract class Job
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __set(string $key, $val)
+    public function __set(string $key, $val)// : void
     {
         switch ($key) {
         case 'id':

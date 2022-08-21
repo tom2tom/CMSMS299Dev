@@ -47,6 +47,14 @@ $lang = [
 'filterby' => 'Filters',
 'friendlyname' => 'File Picker',
 
+//H
+'help_action' => 'The filepicker-module action to use, filepicker or select',
+'help_content' => 'Whether to return the constructed selector as a JSON string',
+'help_name' => 'Name-attribute of the displayed selector element',
+'help_profile' => 'Name of a recorded controls-set, hence settings which influence what may be uploaded and/or selected',
+'help_type' => 'Wanted file-type identifier e.g. any or ANY',
+'help_value' => 'Initial value of the selector element',
+
 //M
 'mkdir' => 'Create New Directory',
 'moddescription' => 'File selection and upload capabilities for the website',
@@ -93,16 +101,29 @@ $lang = [
 'youareintext' => 'The current working directory (relative to the top of the installation)',
 
 'help' => <<<'EOT'
-<h3>What does the FilePicker module do?</h3>
+<h3>What does the File Picker module do?</h3>
 <p>It provides infrastructure for use by other parts of CMSMS. Specifically, it supports selection and uploading of files.</p>
 <h3>How is it used?</h3>
-<p>This module can be used by other modules via various API's, or via the {cms_filepicker} plugin.</p>
-<p>Additionally, this module can be called directly via the <code>{cms_module module=FilePicker action=select name=string [profile=string] [type=string] [value=string]}</code> tag, but this is not recommended. Refer to the {cms_filepicker} plugin for information about the parameters.</p>
+<p>This module can be used by other modules via various API's, or via plugin(s) in any page or template:<br />
+<pre><code>{cms_module module=FilePicker action=select name='string' optional other params <em>see below</em>...}</code></pre><br />
+or<br />
+<pre><code>{content_module module=FilePicker block='string' [profile='string' <em>see below</em>]}</code></pre><br />
+or (when this module is the system-default for selecting files)<br />
+<pre><code>{cms_filepicker name='string' optional other params...}</code></pre><br />
+Refer also to the {content_module} plugin help, for more information about using that tag.<br />
+Refer to the {cms_filepicker} plugin help, for information about using that tag.</p>
 <h3>Support</h3>
-<p>As per the license, this software is provided as-is. Please read the text of the license for the full disclaimer.</p>
+<p>This software is provided as-is. Please read the text of the license for the full disclaimer.</p>
+<p>Support might be available through the CMSMS Forum:</p>
+<ul>
+ <li>first, <a href="https://forum.cmsmadesimple.org" target="_blank">search the forum</a> for issues with the module similar to those you are finding.</li>
+ <li>then, if necessary, <a href="https://forum.cmsmadesimple.org/posting.php?mode=post&f=7" target="_blank">open a new forum topic</a> to request help, with a thorough description of your issue, and steps to reproduce it.</li>
+</ul>
+If you find a bug you can <a href="http://dev.cmsmadesimple.org/bug/list/6" target="_blank">submit a bug report</a>.<br />
+You can <a href="http://dev.cmsmadesimple.org/feature_request/list/6" target="_blank">submit a feature request</a> to suggest improvement.
 <h3>Copyright and License</h3>
 <p>Copyright &copy; 2017-2018, Fernando Morgado and Robert Campbell, &copy; 2019-2022, CMS Made Simple Foundation. All rights reserved.</p>
-<p>This module has been released under version 3 of the <a href="http://www.gnu.org/licenses/licenses.html#GPL">General Public License</a>. The module must not be used otherwise than in accordance with that license, or a later version of that licence granted by the module distributor.</p>
+<p>This module has been released under version 3 of the <a href="https://www.gnu.org/licenses/licenses.html#GPL">General Public License</a>. The module may not be distributed or used otherwise than in accordance with that license, or a later version of that licence granted by the module's distributor.</p>
 EOT
 ,
 

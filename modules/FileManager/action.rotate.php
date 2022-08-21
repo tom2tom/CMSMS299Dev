@@ -13,7 +13,7 @@ the Free Software Foundation; either version 3 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -24,153 +24,156 @@ use CMSMS\Lone;
 use CMSMS\UserParams;
 use FileManager\Utils;
 
-//if( some worthy test fails ) exit;
-if( !$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed() ) exit;
-if( isset($params['cancel']) ) $this->Redirect($id,'defaultadmin',$returnid,$params);
+//if (some worthy test fails) exit;
+if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) {
+    exit;
+}
+if (isset($params['cancel'])) {
+    $this->Redirect($id, 'defaultadmin', $returnid, $params);
+}
 
 $sel = $params['sel'];
-if( !is_array($sel) ) {
-  $sel = json_decode(rawurldecode($sel),true);
+if (!is_array($sel)) {
+    $sel = json_decode(rawurldecode($sel), true);
 }
 unset($params['sel']);
 
-if( !$sel ) {
-  $params['fmerror'] = 'nofilesselected';
-  $this->Redirect($id,'defaultadmin',$returnid,$params);
+if (!$sel) {
+    $params['fmerror'] = 'nofilesselected';
+    $this->Redirect($id, 'defaultadmin', $returnid, $params);
 }
-if( count($sel)>1 ) {
-  $params['fmerror'] = 'morethanonefiledirselected';
-  $this->Redirect($id,'defaultadmin',$returnid,$params);
+if (count($sel) > 1) {
+    $params['fmerror'] = 'morethanonefiledirselected';
+    $this->Redirect($id, 'defaultadmin', $returnid, $params);
 }
 
 $config = Lone::get('Config');
 $basedir = CMS_ROOT_PATH;
 $filename = $this->decodefilename($sel[0]);
-$src = cms_join_path($basedir,Utils::get_cwd(),$filename);
-if( !file_exists($src) ) {
-  $params['fmerror'] = 'filenotfound';
-  $this->Redirect($id,'defaultadmin',$returnid,$params);
+$src = cms_join_path($basedir, Utils::get_cwd(), $filename);
+if (!file_exists($src)) {
+    $params['fmerror'] = 'filenotfound';
+    $this->Redirect($id, 'defaultadmin', $returnid, $params);
 }
 $imageinfo = getimagesize($src);
-if( !$imageinfo || !isset($imageinfo['mime']) || !startswith($imageinfo['mime'],'image') ) {
-  $params['fmerror'] = 'filenotimage';
-  $this->Redirect($id,'defaultadmin',$returnid,$params);
+if (!$imageinfo || !isset($imageinfo['mime']) || !startswith($imageinfo['mime'], 'image')) {
+    $params['fmerror'] = 'filenotimage';
+    $this->Redirect($id, 'defaultadmin', $returnid, $params);
 }
-if( !is_writable($src) ) {
-  $params['fmerror'] = 'notwritable';
-  $this->Redirect($id,'defaultadmin',$returnid,$params);
+if (!is_writable($src)) {
+    $params['fmerror'] = 'notwritable';
+    $this->Redirect($id, 'defaultadmin', $returnid, $params);
 }
-switch( $imageinfo['mime'] ) {
+switch ($imageinfo['mime']) {
  case 'image/gif':
  case 'image/jpeg':
  case 'image/png':
-   break;
+     break;
  default:
-   $params['fmerror'] = 'fileimagetype';
-   $this->Redirect($id,'defaultadmin',$returnid,$params);
-   break;
+     $params['fmerror'] = 'fileimagetype';
+     $this->Redirect($id, 'defaultadmin', $returnid, $params);
+     break;
 }
 $width = $imageinfo[0];
 $height = $imageinfo[1];
 $me = $this->GetName();
-$postrotate = UserParams::get($me.'rotate_postrotate',1);
-$createthumb = UserParams::get($me.'rotate_createthumb',0);
+$postrotate = UserParams::get($me.'rotate_postrotate', 1);
+$createthumb = UserParams::get($me.'rotate_createthumb', 0);
 
-if( isset($params['save']) ) {
-  // save prefs.
-  $createthumb = (int)$params['createthumb'];
-  $postrotate = trim($params['postrotate']);
-  UserParams::set($me.'rotate_postrotate',$postrotate);
-  UserParams::set($me.'rotate_createthumb',$createthumb);
+if (isset($params['save'])) {
+    // save prefs.
+    $createthumb = (int)$params['createthumb'];
+    $postrotate = trim($params['postrotate']);
+    UserParams::set($me.'rotate_postrotate', $postrotate);
+    UserParams::set($me.'rotate_createthumb', $createthumb);
 
-  // do the work
-  $angle = (int)$params['angle'];
-  $angle = max(-180,-(min(180,$angle)));
-  $source = imagecreatefromstring(file_get_contents($src));
-  imagealphablending($source,false);
-  imagesavealpha($source,true);
-  $bgcolor = imageColorAllocateAlpha($source,255,255,255,127);
-  $rotated = imagerotate($source,$angle,$bgcolor);
-  imagealphablending($rotated,false);
-  imagesavealpha($rotated,true);
+    // do the work
+    $angle = (int)$params['angle'];
+    $angle = max(-180, -(min(180, $angle)));
+    $source = imagecreatefromstring(file_get_contents($src));
+    imagealphablending($source, false);
+    imagesavealpha($source, true);
+    $bgcolor = imagecolorallocatealpha($source, 255, 255, 255, 127);
+    $rotated = imagerotate($source, $angle, $bgcolor);
+    imagealphablending($rotated, false);
+    imagesavealpha($rotated, true);
 
-  if( $postrotate == 'crop' ) {
-    // calculates crop dimensions based on center of image
-    $x2 = (int)($width / 2);
-    $y2 = (int)($height / 2);
-    $new_w = imagesx($rotated);
-    $new_h = imagesy($rotated);
-    $center_x = (int)($new_w / 2);
-    $center_y = (int)($new_h / 2);
-    $x0 = max(0,$center_x - $x2);
-    $y0 = max(0,$center_y - $y2);
-    //exit("width = $width, height = $height, new_w = $new_w, new_h = $new_h, x0 = $x0, y0 = $y0");
+    if ($postrotate == 'crop') {
+        // calculates crop dimensions based on center of image
+        $x2 = (int)($width / 2);
+        $y2 = (int)($height / 2);
+        $new_w = imagesx($rotated);
+        $new_h = imagesy($rotated);
+        $center_x = (int)($new_w / 2);
+        $center_y = (int)($new_h / 2);
+        $x0 = max(0, $center_x - $x2);
+        $y0 = max(0, $center_y - $y2);
+        //exit("width = $width, height = $height, new_w = $new_w, new_h = $new_h, x0 = $x0, y0 = $y0");
 
-    $newimg = imagecreatetruecolor($width,$height);
-    imagealphablending($newimg,FALSE);
-    imagecolortransparent($newimg,$bgcolor);
-    imagefill($newimg,0,0,$bgcolor);
-    imagesavealpha($newimg,TRUE);
-    imagecopy($newimg,$rotated,0,0,$x0,$y0,$width,$height);
+        $newimg = imagecreatetruecolor($width, $height);
+        imagealphablending($newimg, false);
+        imagecolortransparent($newimg, $bgcolor);
+        imagefill($newimg, 0, 0, $bgcolor);
+        imagesavealpha($newimg, true);
+        imagecopy($newimg, $rotated, 0, 0, $x0, $y0, $width, $height);
 
-    imagedestroy($rotated);
-    $rotated = $newimg;
-  }
-  elseif( $postrotate == 'resize' ) {
-    $src_w = imagesx($rotated);
-    $src_h = imagesy($rotated);
+        imagedestroy($rotated);
+        $rotated = $newimg;
+    } elseif ($postrotate == 'resize') {
+        $src_w = imagesx($rotated);
+        $src_h = imagesy($rotated);
 
-    if( $width < $height ) {
-      // height is greater...
-      $new_h = $height;
-      $new_w = round(($new_h / $src_h) * $src_w,0);
+        if ($width < $height) {
+            // height is greater...
+            $new_h = $height;
+            $new_w = round(($new_h / $src_h) * $src_w, 0);
+        } else {
+            // width is greater.
+            $new_w = $width;
+            $new_h = round(($new_w / $src_w) * $src_h, 0);
+        }
+
+        $x0 = (int)(($src_w - $new_w) / 2);
+        $y0 = (int)(($src_h - $new_h) / 2);
+
+        //exit("rotated={$src_w}x{$src_h} orig={$width}x{$height} new={$new_w},{$new_h} offset = $x0,$y0");
+        $newimg = imagecreatetruecolor($new_w, $new_h);
+        imagealphablending($newimg, false);
+        imagecolortransparent($newimg, $bgcolor);
+        imagefill($newimg, 0, 0, $bgcolor);
+        imagesavealpha($newimg, true);
+
+        imagecopyresampled($newimg, $rotated, $x0, $y0, 0, 0, $new_w, $new_h, $src_w, $src_h);
+
+        imagedestroy($rotated);
+        $rotated = $newimg;
     }
-    else {
-      // width is greater.
-      $new_w = $width;
-      $new_h = round(($new_w / $src_w) * $src_h,0);
+
+    // save the thing.
+    $res = null;
+    switch ($imageinfo['mime']) {
+    case 'image/gif':
+        $res = imagegif($rotated, $src);
+        break;
+    case 'image/png':
+        $res = imagepng($rotated, $src, 9);
+        break;
+    case 'image/jpeg':
+    default:
+        $res = imagejpeg($rotated, $src, 100);
+        break;
     }
 
-    $x0 = (int)(($src_w - $new_w) / 2);
-    $y0 = (int)(($src_h - $new_h) / 2);
+    if ($createthumb) {
+        $thumb = Utils::create_thumbnail($src);
+    }
 
-    //exit("rotated={$src_w}x{$src_h} orig={$width}x{$height} new={$new_w},{$new_h} offset = $x0,$y0");
-    $newimg = imagecreatetruecolor($new_w,$new_h);
-    imagealphablending($newimg,FALSE);
-    imagecolortransparent($newimg,$bgcolor);
-    imagefill($newimg,0,0,$bgcolor);
-    imagesavealpha($newimg,TRUE);
-
-
-    imagecopyresampled($newimg,$rotated,$x0,$y0,0,0,$new_w,$new_h,$src_w,$src_h);
-
-    imagedestroy($rotated);
-    $rotated = $newimg;
-  }
-
-  // save the thing.
-  $res = null;
-  switch( $imageinfo['mime'] ) {
-  case 'image/gif':
-    $res = imagegif($rotated,$src);
-    break;
-  case 'image/png':
-    $res = imagepng($rotated,$src,9);
-    break;
-  case 'image/jpeg':
-  default:
-    $res = imagejpeg($rotated,$src,100);
-    break;
-  }
-
-  if( $createthumb ) $thumb = Utils::create_thumbnail($src);
-
-  $this->Redirect($id,'defaultadmin',$returnid,$params);
+    $this->Redirect($id, 'defaultadmin', $returnid, $params);
 }
 
 /* see filemanager.css
 $css = <<<EOS
-<style type="text/css">
+<style>
 img#rotimg {
   z-index: 0;
 }
@@ -178,7 +181,7 @@ img#rotimg {
 EOS;
 add_page_headtext($css, false);
 */
-$js = <<<EOS
+$js = <<<'EOS'
 <script type="text/javascript">
 //<![CDATA[
 $(function() {
@@ -218,24 +221,27 @@ add_page_foottext($js);
 // build the form
 //
 $opts = [
-'none'=>$this->Lang('none'),
-'crop'=>$this->Lang('crop'),
-'resize'=>$this->Lang('resize')
+'none' => $this->Lang('none'),
+'crop' => $this->Lang('crop'),
+'resize' => $this->Lang('resize')
 ];
 $url = Utils::get_cwd_url()."/$filename";
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('filerotate.tpl')); //,null,null,$smarty);
 
-$tpl->assign('opts',$opts)
- ->assign('image',$url)
- ->assign('filename',$filename)
- ->assign('postrotate',$postrotate)
- ->assign('createthumb',$createthumb)
- ->assign('width',$width)
- ->assign('height',$height);
+$tpl->assign('opts', $opts)
+    ->assign('image', $url)
+    ->assign('filename', $filename)
+    ->assign('postrotate', $postrotate)
+    ->assign('createthumb', $createthumb)
+    ->assign('width', $width)
+    ->assign('height', $height);
 
-if( is_array($sel) ) $params['sel'] = rawurlencode(json_encode($sel));
-$tpl->assign('formstart',$this->CreateFormStart($id,'rotate',$returnid,'post','',false,'',$params))
- ->assign('formend',$this->CreateFormEnd());
+if (is_array($sel)) {
+    $params['sel'] = rawurlencode(json_encode($sel));
+}
+$params['rotate']  = 1;
+
+$tpl->assign('formstart', $this->CreateFormStart($id, 'rotate', $returnid, 'post', '', false, '', $params));
 
 $tpl->display();

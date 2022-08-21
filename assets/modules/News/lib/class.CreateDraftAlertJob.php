@@ -17,8 +17,7 @@ use CMS_DB_PREFIX;
 
 class CreateDraftAlertJob extends CronJob
 {
-    #[\ReturnTypeWillChange]
-    public function __construct($params = [])
+    public function __construct(/*array */$params = [])
     {
         parent:: __construct($params);
         $this->name = 'News\CreateDraftAlert';

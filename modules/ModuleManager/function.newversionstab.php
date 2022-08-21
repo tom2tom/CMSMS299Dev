@@ -51,7 +51,7 @@ $newversions = [];
 
 if( $connection_ok ) {
     try {
-        $newversions = ModuleRepClient::get_newmoduleversions();
+        $newversions = ModuleRepClient::get_installed_newversion();
     }
     catch( Throwable $t ) {
         $this->ShowErrors($t->GetMessage());
@@ -60,7 +60,7 @@ if( $connection_ok ) {
 
 if( $newversions ) {
     foreach( $newversions as $row ) {
-        $onerow = new ModuleVersionData(); //stdClass();
+        $onerow = new ModuleVersionData();
 
         foreach( $row as $key => $val ) {
             $onerow->$key = $val;

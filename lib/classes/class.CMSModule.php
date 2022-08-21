@@ -159,7 +159,6 @@ abstract class CMSModule
     /**
      * Constructor
      */
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $n = func_num_args();
@@ -381,12 +380,15 @@ abstract class CMSModule
         if( $handler && is_string($handler) ) {
             if( strpos($handler,'::') !== false ) {
                 $callable = $handler;
-            } else {
+            }
+            else {
                 $callable = $modname.'::'.$handler;
             }
-        } elseif( is_callable($handler) ) {
+        }
+        elseif( is_callable($handler) ) {
             $callable = $handler;
-        } else {
+        }
+        else {
             throw new Exception('Invalid callable provided to RegisterSmartyPlugin');
         }
         return ModulePluginOperations::add($modname, $name, $type, $callable, $cachable, $usage);
@@ -396,16 +398,17 @@ abstract class CMSModule
      * Unregister smarty plugin(s) by name or current module.
      * This method removes any matching rows from the database, and
      *  should only be used during module uninstallation or upgrade.
-     *
      * @since 1.11
-     * @param string $name Optional plugin name. Default '', which implies
-     *  all plugins registered for this module.
+     *
+     * @param string $name Optional plugin name.
+     *  Default '', which implies all plugins registered for this module.
      */
     public function RemoveSmartyPlugin($name = '')
     {
         if( $name == '' ) {
             ModulePluginOperations::remove_by_module($this->GetName());
-        } else {
+        }
+        else {
             ModulePluginOperations::remove_by_name($name);
         }
     }
@@ -602,8 +605,7 @@ abstract class CMSModule
             $text = trim($text);
             $themeObject = Lone::get('Theme');
             if( $text && $themeObject ) $themeObject->set_content($text);
-        }
-        elseif( cmsms()->JOBTYPE > 0 ) {
+        } elseif( cmsms()->JOBTYPE > 0 ) {
             echo $text;
         }
     }
@@ -667,7 +669,7 @@ abstract class CMSModule
      * construction/intialization.  Defaults to true.
      * @see CMSModule::RegisterRoute() and CreateStaticRoutes()
      * @since 3.0
-     * @deprecated since 3.0 Instead CMSModule::HasCapability() should report CMSMS\CoreCapabilities::ROUTE_MODULE
+     * @deprecated since 3.0 Instead CMSModule::HasCapability() should report CMSMS\CapabilityType::ROUTE_MODULE
      *
      * @abstract
      * @return bool
@@ -719,7 +721,7 @@ abstract class CMSModule
                     $paramtype = $map[$key];
                 }
                 else {
-                    // Key not found in the map
+                    // key not found in the map
                     // see if one matches via regular expressions
                     foreach( $map as $mk => $mv ) {
                         if(strstr($mk,CLEAN_REGEXP) === false) continue;
@@ -733,7 +735,7 @@ abstract class CMSModule
                             }
                         }
                     }
-                } // else
+                }
 
                 if( $paramtype != '' ) {
                     ++$mappedcount;
@@ -1140,7 +1142,7 @@ abstract class CMSModule
      * Register a custom content-type.
      * This should be called from the module's constructor or from relevant
      * Initialize method(s).
-     * The module must report CMSMS\CoreCapabilities::CONTENT_TYPES or else
+     * The module must report CMSMS\CapabilityType::CONTENT_TYPES or else
      * this will probably never be called.
      *
      * @since 0.9 (but missing from 2.0-2.2)
@@ -1435,7 +1437,7 @@ abstract class CMSModule
      * Returns true/false indicating whether the module should be treated as a
      * plugin module (like {cms_module module='name'}.  Defaults to false.
      * @see CMSModule::RegisterModulePlugin()
-     * @deprecated since 3.0 Instead CMSModule::HasCapability() should report CMSMS\CoreCapabilities::PLUGIN_MODULE
+     * @deprecated since 3.0 Instead CMSModule::HasCapability() should report CMSMS\CapabilityType::PLUGIN_MODULE
      *
      * @abstract
      * @return bool
@@ -1610,7 +1612,8 @@ abstract class CMSModule
     {
         if( isset( $params['controller']) ) {
             $ctrl = $params['controller'];
-        } else {
+        }
+        else {
             $c = get_class($this);
             $p = strrpos($c, '\\');
             $namespace = ($p !== false) ? substr($c, $p+1) : $c;
@@ -1670,11 +1673,13 @@ abstract class CMSModule
                 $this->SetCurrentTab($_SESSION[$key]);
                 unset($_SESSION[$key]);
             }
-            if( ($errs = $this->GetErrors()) ) {
-                $this->ShowErrors($errs);
+            // admin-action messages are directly accumulated via Set*() or Show*(),
+            // but frontend-action messages?
+            if( ($msg = $this->GetErrors()) ) {
+                $this->ShowErrors($msg); // admin only
             }
             if( ($msg = $this->GetMessage()) ) {
-                $this->ShowMessage($msg);
+                $this->ShowMessage($msg); // admin only
             }
         }
 
@@ -1774,14 +1779,16 @@ abstract class CMSModule
             $tmp = $params;
             $tmp['module'] = $this->GetName();
             HookOperations::do_hook('module_action', $tmp); //TODO BAD no namespace, some miscreant handler can change the parameters ... deprecate ?
-        } else {
+        }
+        else {
             $returnid = null;
         }
 
         if( ($cando = template_processing_allowed()) ) {
             if( $smartob instanceof Smarty ) {
                 $smarty = $smartob;
-            } else {
+            }
+            else {
                 $smarty = Lone::get('Smarty');
             }
             // create a template object to hold some default variables
@@ -2467,6 +2474,7 @@ abstract class CMSModule
      *
      * @since 2.0
      * @param string $tpl_name Template name
+     *  since 3.0 the name may include an originator e.g. modname::tplname
      * @return string like 'resource:modname;template-identifier' or 'cms_template:template-identifier';
      * @throws LogicException if a 'string:', 'eval:' or 'extends:' resource is supplied.
      * @throws UnexpectedValueException if format is wrong.
@@ -2477,8 +2485,18 @@ abstract class CMSModule
             if( startswith($tpl_name,'string:') || startswith($tpl_name,'eval:') || startswith($tpl_name,'extends:') ) {
                 throw new LogicException("Invalid smarty resource '$tpl_name' specified for a module template");
             }
-            if($p > 1 && isset($tpl_name[$p+1]) && $tpl_name[$p+1] == ':' ) {
-                return 'cms_template:'.$tpl_name; // originator provided
+            if( $p > 1 && isset($tpl_name[$p+1]) && $tpl_name[$p+1] == ':' ) { // originator provided
+                return 'cms_template:'.$tpl_name;
+            }
+            if( $p == 0 ) { // no originator provided
+                if (isset($tpl_name[$p+1])) {
+                    if ($tpl_name[$p+1] != ':' ) {
+                        return 'cms_template:'.$this->GetName().':'.$tpl_name;
+                    }
+                    else {
+                        return 'cms_template:'.$this->GetName().$tpl_name;
+                    }
+                }
             }
             if( strpos($tpl_name,';') !== false ) {
                 return $tpl_name;
@@ -2848,6 +2866,26 @@ abstract class CMSModule
     }
 
     /**
+     * Retrieve a parked (admin) information message
+     * Does nothing here, but might be overridden in a sub-class
+     * @deprecated since 3.0 Instead use the relevant Set*() or Show*() method
+     */
+    public function GetMessage()
+    {
+        return '';
+    }
+
+    /**
+     * Retrieve a parked (admin) error message
+     * Does nothing here, but might be overridden in a sub-class
+     * @deprecated since 3.0 Instead use the relevant Set*() or Show*() method
+     */
+    public function GetErrors()
+    {
+        return '';
+    }
+
+    /**
      * Append $str to the accumulated 'information' strings to be displayed
      * in a theme-specific dialog during the next request e.g. after redirection
      * For admin-side use only
@@ -2926,8 +2964,8 @@ abstract class CMSModule
     }
 
     /**
-     * Append $message to the accumulated 'success' strings to be displayed in a
-     * theme-specific popup dialog during the current request
+     * Append $message to the accumulated 'success' strings to be displayed
+     * in a theme-specific popup dialog during the current request
      * For admin-side use only
      *
      * @param mixed $message string|string[] Message(s)
@@ -2944,8 +2982,8 @@ abstract class CMSModule
     }
 
     /**
-     * Append $message to the accumulated 'warning' strings to be displayed in a
-     * theme-specific popup dialog during the current request
+     * Append $message to the accumulated 'warning' strings to be displayed
+     * in a theme-specific popup dialog during the current request
      * For admin-side use only
      *
      * @since 3.0
@@ -2963,8 +3001,8 @@ abstract class CMSModule
     }
 
     /**
-     * Append $message to the accumulated error-strings to be displayed in a
-     * theme-specific error dialog during the current request
+     * Append $message to the accumulated error-strings to be displayed
+     * in a theme-specific error dialog during the current request
      * For admin-side use only
      *
      * @since 3.0 not final
@@ -2995,7 +3033,8 @@ abstract class CMSModule
     {
         if( AppState::test(AppState::FRONT_PAGE) ) {
             // TODO get page-object, set its content, display it
-        } else {
+        }
+        else {
             if( !$message ) { $message = lang('error'); }
             if( $params ) { extract($params); }
             require CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'method.displayerror.php';
@@ -3032,8 +3071,8 @@ abstract class CMSModule
 
     /**
      * Checks a permission against the currently logged in user.
-     *
      * @final
+     *
      * @param varargs $perms Since 3.0 The name(s) of the permission(s) to check
      *  against the current user
      *  A permission-name string or array of such string(s), and if the latter,
@@ -3055,18 +3094,29 @@ abstract class CMSModule
     /**
      * Removes a permission from the system.  If recreated, the
      * permission would have to be set to all groups again.
-     *
      * @final
-     * @param string $permission_name The name of the permission to remove
+     *
+     * @param string $name Optional (since 3.0) name of the permission to remove (or '*').
+     *  Default '', which implies all permissions registered for this module.
      */
-    final public function RemovePermission(string $permission_name)
+    final public function RemovePermission(string $name = '')
     {
         try {
-            $perm = Permission::load($permission_name);
-            $perm->delete();
+            if( $name == '' ) {
+                $me = $this->GetName();
+                $db = Lone::get('Db');
+           		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms G JOIN '.CMS_DB_PREFIX.'permissions P ON G.permission_id=P.id WHERE P.originator=?';
+          		$db->execute($query, [$me]);
+                $query = 'DELETE FROM '.CMS_DB_PREFIX.'permissions WHERE originator=?';
+                $db->execute($query, [$me]);
+            }
+            else {
+                $perm = Permission::load($name);
+                $perm->delete();
+            }
         }
-        catch( Exception $e ) {
-            // ignored.
+        catch( Throwable $t ) {
+            // nothing here
         }
     }
 
@@ -3134,16 +3184,17 @@ abstract class CMSModule
     /**
      * Removes a module preference, or if no preference name is specified,
      * removes all module preferences.
-     *
      * @final
-     * @param string $preference_name Optional name of the preference to remove.  If empty, all preferences associated with the module are removed.
+     *
+     * @param string $name Optional name of the preference to remove.
+     *  Default '', which implies all preferences associated with this module.
      * @param bool $like since 3.0 Optional flag indicating wildcard removal. Default false.
      */
-    final public function RemovePreference(string $preference_name = '', bool $like = false)
+    final public function RemovePreference(string $name = '', bool $like = false)
     {
         $prefix = $this->GetName().AppParams::NAMESPACER;
-        $args = ( $preference_name ) ?
-          [$prefix.$preference_name, $like] : [$prefix, true];
+        $args = ( $name ) ?
+          [$prefix.$name, $like] : [$prefix, true];
         AppParams::remove(...$args);
     }
 
@@ -3250,7 +3301,8 @@ abstract class CMSModule
     }
 
     /**
-     * Get a (translated) description of an event this module created.
+     * Get a (translated) description the circumstances when an event
+     * this module originated is sent.
      * This method must be over-ridden if this module created any events.
      *
      * @abstract
@@ -3264,8 +3316,8 @@ abstract class CMSModule
 
 
     /**
-     * Get a (langified) description of the details about when an event is
-     * created, and the parameters that are delivered with it.
+     * Get a (translated) description of the parameters that are
+     * delivered with an event originated by this module.
      * This method must be over-ridden if this module created any events.
      *
      * @abstract
@@ -3291,25 +3343,24 @@ abstract class CMSModule
 
     /**
      * Remove an event and all its handlers from the CMS system
-     *
      * Note, only events created by this module can be removed.
-     *
      * @final
-     * @param string $eventname The name of the event
+     *
+     * @param string $name Optional (since 3.0) name of the event or '*'.
+     *  Default '', which implies all events registered for this module.
      */
-    final public function RemoveEvent(string $eventname)
+    final public function RemoveEvent(string $name = '')
     {
-        Events::RemoveEvent($this->GetName(), $eventname);
+        Events::RemoveEvent($this->GetName(), $name);
     }
 
     /**
      * Remove an event handler from the CMS system
-     * This function removes all handlers to the event, and completely removes
-     * all references to this event from the database
-     *
+     * This function removes all handlers to the event, and completely
+     * removes all references to this event from the database
      * Note, only events created by this module can be removed.
-     *
      * @final
+     *
      * @param string $modulename The module name (or Core)
      * @param string $eventname  The name of the event
      */

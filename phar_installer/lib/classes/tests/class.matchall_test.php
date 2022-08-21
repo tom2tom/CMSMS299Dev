@@ -7,15 +7,13 @@ class matchall_test extends test_base
 {
     private $_children;
 
-    #[\ReturnTypeWillChange]
     public function __construct(...$args)
     {
         $args[1] = '';
         parent::__construct(...$args);
     }
 
-    #[\ReturnTypeWillChange]
-    public function __set(string $key, $value)
+    public function __set(string $key, $value) : void
     {
         switch ($key) {
           case 'recommended': // useless in this context ?
@@ -29,8 +27,8 @@ class matchall_test extends test_base
     public function execute() : string
     {
         $out = parent::TEST_PASS;
-        if (($n = count($this->_children))) {
-            for ($i = 0; $i < $n; ++$i) {
+        if ($this->_children) {
+            for ($i = 0, $n = count($this->_children); $i < $n; ++$i) {
                 $res = $this->_children[$i]->run();
                 if ($res == parent::TEST_FAIL) {
                     // test failed.... if this test is not required, we can continue

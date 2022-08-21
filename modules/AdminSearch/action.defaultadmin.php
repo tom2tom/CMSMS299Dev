@@ -24,12 +24,20 @@ use AdminSearch\Tools;
 use CMSMS\UserParams;
 
 //if( some worthy test fails ) exit;
-if( !$this->VisibleToAdminUser() ) exit;
+if( !$this->CheckPermission('Use Admin Search') ) exit;
+//TODO consider slave-specific permissions e.g. 'Manage All Content' or 'Modify Any Page' for the content slave
+//via Tools::get_slave_classes() and slaveclass::check_authority(int $userid)
 
-//TODO inline css might be bad for content security policy: use external ref instead?
+/*
+TODO inline css might be bad for content security policy
+in which case
+$csm = new CMSMS\StylesMerger();
+$csm->queue_string($styles);
+$out = $csm->page_content();
+*/
 $styles = file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.'defaultadmin.css');
 $out = <<<EOS
-<style type="text/css">
+<style>
 $styles
 </style>
 
@@ -76,7 +84,6 @@ function process_results(c) {
   }
  });
 }
-
 $(function() {
  $('#filter_all').on('change',function() {
   $('#filter_box .filter_toggle').prop('checked',this.checked);
@@ -143,12 +150,13 @@ if( empty($init) ) {
      'search_descriptions' => false,
      'search_casesensitive' => false,
      'verbatim_search' => false,
+     'search_fuzzy'=>false,
      'save_search' => false,
     ];
 }
 $tpl->assign('saved_search',$init);
 
-$slaves = Tools::get_slave_classes();
+$slaves = Tools::get_slave_classes(); //TODO might want $userid
 $tpl->assign('slaves',$slaves);
 
 $tpl->display();

@@ -23,12 +23,13 @@ use CMSMS\TemplateOperations;
 use News\Utils;
 use function CMSMS\de_specialize;
 use function CMSMS\log_error;
+use function CMSMS\sanitizeVal;
 //use function CMSMS\specialize;
 
 //if( some worthy test fails ) exit;
 
-if( !empty ($params['browsecat']) ) {
-    return $this->DoAction('browsecat', $id, $params, $returnid);
+if( !empty ($params['browsecat']) ) { //TODO this never set in this module ? support cms_to_bool() for CLEAN_STRING parameter ?
+    return $this->DoAction('browsecat', $id, $params, $returnid); // OR just return included action-file
 }
 
 // TODO icon/image display
@@ -36,7 +37,8 @@ if( !empty ($params['browsecat']) ) {
 $me = $this->GetName();
 
 if( !empty($params['summarytemplate']) ) {
-    $template = trim($params['summarytemplate']);
+    $tmp = de_specialize(trim($params['summarytemplate']));
+    $tplname = sanitizeVal($tmp, CMSSAN_FILE); // TODO extra limit(s) on template names?
 }
 else {
     $tpl = TemplateOperations::get_default_template_by_type($me.'::summary');
@@ -45,7 +47,7 @@ else {
         $this->ShowErrorPage('No default summary template found');
         return;
     }
-    $template = $tpl->get_name();
+    $tplname = $tpl->get_name();
 }
 
 $detailpage = 0; // falsy
@@ -79,43 +81,66 @@ $args = []; // for parameterizing non-int components of the query
 
 if( !empty($params['idlist']) ) { //id = 0 N/A
     if( is_numeric($params['idlist'])) {
-        $query1 .= ' (N.news_id = '.(int)$params['idlist'].') AND ';
+        $tmp = (int)$params['idlist']; //int() is sufficient san. here
+        if( $tmp > 0 ) {
+            $query1 .= ' (N.news_id = '.$tmp.') AND ';
+        }
+        else {
+            unset($params['idlist']);
+        }
     }
     elseif( is_string($params['idlist']) ) {
-        $tmp = explode(',', $params['idlist']);
         $idlist = [];
+        $tmp = explode(',', trim($params['idlist'], " \t,"));
         for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
-            $val = (int)$tmp[$i];
+            $val = (int)$tmp[$i]; //int() is sufficient san. here
             if( $val > 0 && !in_array($val, $idlist) ) $idlist[] = $val;
         }
         if ($idlist) {
             $query1 .= ' (N.news_id IN ('.implode(',', $idlist).')) AND ';
         }
+        else {
+            unset($params['idlist']);
+        }
     }
 }
 
 if( isset($params['category_id']) ) {
-    $query1 .= ' (G.news_category_id = '.(int)$params['category_id'].') AND ';
+    $tmp = (int)$params['category_id']; //int() is sufficient san. here
+    if( $tmp > 0) {
+        $query1 .= ' (G.news_category_id = '.$tmp.') AND ';
+    }
+    else {
+        unset($params['category_id']);
+    }
 }
 elseif( !empty($params['category']) ) {
-    $category = de_specialize(trim($params['category']));
-    $categories = explode(',', $category);
+    $tmp = de_specialize(trim($params['category'], " \t,"));
+    $tmp = sanitizeVal(trim($tmp), CMSSAN_PUNCTX, '?<>'); //NOTE conform allowed content with name-value in action.editcategory.php, plus possible wildcards
+    $categories = explode(',', $tmp);
     $query1 .= ' (';
     $count = 0;
     foreach( $categories as $onecat ) {
+        $tmp = trim($onecat);
         if( $count > 0 ) { $query1 .= ' OR '; }
-        if( strpos($onecat, '|') !== false || strpos($onecat, '*') !== false ) {
+        if( strpos($onecat, '?') !== false || strpos($onecat, '*') !== false ) {
             $query1 .= 'G.long_name LIKE ?'; // table field is _ci so this is caseless
-            $tmp = $db->qStr(trim(str_replace(['*', '?', "'"], ['%', '_', '_'], $onecat))); // '_' is wildcard here
+            $tmp = $db->qStr(str_replace(['*', '?'], ['%', '_'], $tmp)); // '_' is wildcard here
             $args[] = '%'.$tmp.'%';
         }
         else {
             $query1 .= 'G.news_category_name = ?'; // also a case-insensitive match
-            $args[] = $db->qStr(trim(str_replace("'", '_', $onecat))); // '_' is NOT wildcard here ?
+            $args[] = $db->qStr($tmp);
         }
         $count++;
     }
-    $query1 .= ') AND ';
+    if( $count > 0 ) {
+        $query1 .= ') AND ';
+    }
+    else {
+        $query1 = substr($query1, 0, -2); //strip unwanted  ' ('
+        unset($params['category']);
+    }
 }
 
 $longnow = $db->DbTimeStamp(time());
@@ -123,7 +148,7 @@ if( isset($params['showall']) ) {
     // show everything regardless of end time
     $query1 .= 'start_time IS NOT NULL ';
 }
-else // we're concerned about start_time, end_time and create_date
+else // we're using start_time, end_time and create_date
   if( isset($params['showarchive']) ) {
     // show only expired entries
     $query1 .= 'end_time IS NOT NULL AND end_time <= '.$longnow;
@@ -134,7 +159,7 @@ else {
 
 $sortrandom = false;
 $val = $params['sortby'] ?? '';
-$sortby = ($val) ? trim($val) : 'start_time';
+$sortby = ($val) ? sanitizeVal(trim($val), CMSSAN_PURE) : 'start_time';
 
 switch( $sortby ) {
     case 'news_category':
@@ -172,29 +197,55 @@ if( !$sortrandom ) {
 
 //TODO maybe an optional parameter to disable pagination?
 if( isset($params['pagelimit']) ) {
-    $pagelimit = (int)$params['pagelimit'];
+    $tmp = (int)$params['pagelimit'];
+    if( $tmp > 0 ) {
+        $pagelimit = $tmp;
+    }
+    else {
+        unset($params['pagelimit']);
+        $pagelimit = 100;
+    }
 }
 elseif( isset($params['number']) ) {
-    $pagelimit = (int)$params['number'];
+    $tmp = (int)$params['number'];
+    if( $tmp > 0 ) {
+        $pagelimit = $tmp;
+    }
+    else {
+        unset($params['number']);
+        $pagelimit = 100;
+    }
 }
 else {
-    $pagelimit = 1000;
+    $pagelimit = 100;
 }
-$pagelimit = max(1, min(1000, $pagelimit)); // maximum of 1000 items
+$pagelimit = max(1, min(100, $pagelimit)); // maximum of 100 items
 
-// Get the number of rows (so we can determine the numer of pages)
+// Get the number of rows (so we can determine the number of pages)
 $pagecount = -1;
 $startelement = 0;
 $pagenumber = 1;
 
 if( !empty($params['pagenumber']) ) {
     // if given a page number, determine a start element
-    $pagenumber = (int)$params['pagenumber'];
-    $startelement = ($pagenumber-1) * $pagelimit;
+    $tmp = (int)$params['pagenumber'];
+    if( $tmp > 0 ) {
+        $pagenumber = $tmp;
+        $startelement = ($pagenumber-1) * $pagelimit;
+    }
+    else {
+        unset($params['pagenumber']);
+    }
 }
 if( isset($params['start']) ) {
     // given a start element, determine a page number
-    $startelement = $startelement + (int)$params['start'];
+    $tmp = (int)$params['start'];
+    if( $tmp > 0 ) {
+        $startelement += $tmp;
+    }
+    else {
+        unset($params['start']);
+    }
 }
 
 //pre-define recordable properties, for PHP optimisation
@@ -271,14 +322,19 @@ if( $rst ) {
             $onerow->imagealt = null;
         }
         $urlparms = ['articleid'=>$row['news_id']];
-        if( isset($params['category_id']) ) { $urlparms['category_id'] = $params['category_id']; }
+        if( isset($params['category_id']) ) {
+            $urlparms['category_id'] = (int)$params['category_id'];
+        }
         if( isset($params['detailpage']) ) { $urlparms['origid'] = $returnid; }
         if( !empty($params['detailtemplate']) ) {
-            $urlparms['detailtemplate'] = trim($params['detailtemplate']);
+            $tmp = de_specialize(trim($params['detailtemplate']));
+            $urlparms['detailtemplate'] = sanitizeVal($tmp, CMSSAN_FILE);
         }
-        if( isset($params['lang']) ) { $urlparms['lang'] = $params['lang']; }
-        if( isset($params['pagelimit']) ) { $urlparms['pagelimit'] = $params['pagelimit']; }
-        if( isset($params['showall']) ) { $urlparms['showall'] = $params['showall']; }
+        if( isset($params['lang']) ) {
+            $urlparms['lang'] = sanitizeVal(trim($params['lang']), CMSSAN_PURE);
+        }
+        if( isset($params['pagelimit']) ) { $urlparms['pagelimit'] = $pagelimit; }
+        if( isset($params['showall']) ) { $urlparms['showall'] = ($params['showall']) ? 1 : 0; }
 
         $moretext = $params['moretext'] ?? $this->Lang('moreprompt');
         $backto = ($detailpage) ? $detailpage : $returnid;
@@ -338,7 +394,7 @@ else {
     $pagecount = 0;
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //, null, null, $smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($tplname)); //, null, null, $smarty);
 
 // TODO specialize() relevant ->assign()'d values
 // pagination variables for the template
@@ -387,8 +443,8 @@ unset($params['pagenumber']);
 $items = Utils::get_categories($id, $params, $returnid);
 $c = ($items) ? count($items) : 0;
 $catName = '';
-if( isset($params['category']) ) {
-    $catName = $params['category'];
+if( isset($params['category']) && count($categories) == 1 ) {
+    $catName = $categories[0];
 }
 elseif( isset($params['category_id']) && $items ) {
     foreach( $items as $item ) {

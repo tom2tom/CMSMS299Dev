@@ -89,9 +89,8 @@ use CMSMS\Lone;
 	public $adminaccess;
 
 	/**
-	 * Generic constructor.  Runs the SetInitialValues method.
+	 * Generic constructor. Runs the SetInitialValues method.
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct()
 	{
 		$this->SetInitialValues();
@@ -155,9 +154,9 @@ use CMSMS\Lone;
 	 */
 	public function Authenticate($password)
 	{
-		if (strlen($this->password) == 32 && strpos ($this->password, '.') === FALSE) {
+		if (strlen($this->password) == 32 && strpos($this->password, '.') === false) {
 			// old md5 methodology
-			$hash = md5(AppParams::get('sitemask','').$password);
+			$hash = md5(AppParams::get('sitemask', '').$password);
 			return hash_equals($hash, $this->password);
 		} else {
 			return password_verify($password, $this->password);
@@ -208,6 +207,5 @@ use CMSMS\Lone;
 		return $result;
 	}
 } //class
-
 //backward-compatiblity shiv
 \class_alias(User::class, 'User', false);

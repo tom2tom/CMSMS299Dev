@@ -2,7 +2,7 @@
 variables:
  aclass: is used to build a string containing class names given to the a tag if one is used
  liclass: is used to build a string containing class names given to the li tag
- nodes: flatlist of Navigator Node objects plus a stdClass for 'root'
+ nodes: flatlist of Navigator Node objects plus a stdClass for notional 'root'
  node: the current Node in nodes array
 CSS:
  .currentpage - the active/current page

@@ -1,14 +1,37 @@
 <?php
-//if (some worthy test fails) exit;
-if (!$this->CheckPermission('Modify Site Preferences') && !$this->AdvancedAccessAllowed()) exit;
+/*
+FileManager module action: savesettings
+Copyright (C) 2006-2008 Morten Poulsen <morten@poulsen.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
-$this->SetPreference('advancedmode',(int)$params['advancedmode']);
-$this->SetPreference('showhiddenfiles',(int)$params['showhiddenfiles']);
-$this->SetPreference('showthumbnails',(int)$params['showthumbnails']);
-$this->SetPreference('create_thumbnails',(int)$params['create_thumbnails']);
-$this->SetPreference('iconsize',$params['iconsize']);
-$this->SetPreference('permissionstyle',$params['permissionstyle']);
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+//if (some worthy test fails) exit;
+if (!$this->CheckPermission('Modify Site Preferences') && !$this->AdvancedAccessAllowed()) {
+    exit;
+}
+
+$this->SetPreference('advancedmode', (int)$params['advancedmode']);
+$this->SetPreference('showhiddenfiles', (int)$params['showhiddenfiles']);
+$this->SetPreference('showthumbnails', (int)$params['showthumbnails']);
+$this->SetPreference('create_thumbnails', (int)$params['create_thumbnails']);
+$this->SetPreference('iconsize', $params['iconsize']);
+$this->SetPreference('permissionstyle', $params['permissionstyle']);
 
 $this->SetMessage($this->Lang('settingssaved'));
 $this->SetCurrentTab('settings');
-$this->Redirect($id,'admin_settings',$returnid);
+$this->Redirect($id, 'admin_settings', $returnid);

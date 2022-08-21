@@ -30,13 +30,11 @@ use function cms_path_to_url;
 use function file_put_contents;
 use function startswith;
 
-//TODO an async Job to clear old consolidations ? how old ? c.f. TMP_CACHE_LOCATION cleaner
+//TODO async Job to clear old consolidations ? how old ? c.f. TMP_CACHE_LOCATION cleaner
 
 /**
  * A class for consolidating specified stylesheet files and/or strings
  * into a single file. Might be useful for modularizing admin css resources.
- * REMEMBER: relative urls/paths in css are almost never relocatable, so
- * this cannot be used for such.
  *
  * @since 3.0
  * @package CMS
@@ -76,7 +74,9 @@ class StylesMerger
     }
 
     /**
-     * Record a string to be merged
+     * Record a string to be merged.
+     * NOTE any relative URL in the string will be adjusted only if a valid
+     * $relative_to is provided
      *
      * @param string $output   css string
      * @param int    $priority Optional priority 1..3 for the style. Default 0
@@ -84,15 +84,36 @@ class StylesMerger
      * @param bool   $min Optional flag whether to force minimize this
      *  string in the merged file. Default false
      * @param bool   $force    Optional flag whether to force recreation of the merged file. Default false
+     * @param string $relative_to Optional intra-site directory path, or dummy or actual
+     * filepath including the appropriate directory, for use when interpeting any
+     * relative url in $output. Default ''
+     * @return bool indicating success
      */
-    public function queue_string(string $output, int $priority = 0, bool $min = false, bool $force = false)
+    public function queue_string(string $output, int $priority = 0, bool $min = false, bool $force = false, string $relative_to = '')
     {
         $sig = Crypto::hash_string(__FILE__.$output);
-        $output_file = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR."cms_$sig.css";
-        if ($force || !is_file($output_file)) {
-            file_put_contents($output_file, $output, LOCK_EX);
+        $temp_file = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR."cms_$sig.css";
+        if ($force || !is_file($temp_file)) {
+            if (!@file_put_contents($temp_file, $output, LOCK_EX)) {
+                return false;
+            }
         }
-        $this->queue_file($output_file, $priority, $min);
+        if ($this->queue_file($temp_file, $priority, $min)) {
+            if ($relative_to) {
+                if (startswith($relative_to, CMS_ROOT_PATH)) {
+                    $tmp = rtrim($relative_to, ' \\/');
+                    if (is_dir($tmp)) {
+                        $tmp .= DIRECTORY_SEPARATOR.'x'; // dummy filepath
+                    } elseif (!is_dir(dirname($tmp))) {
+                        return false;
+                    }
+                    $sig = Crypto::hash_string($temp_file); // find it again
+                    $this->_items[$sig]['relto'] = $tmp;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -107,11 +128,10 @@ class StylesMerger
      */
     public function queue_file(string $filename, int $priority = 0, bool $min = false)
     {
-//TODO  $filename = $this->url_to_path($filename); // migrate URL-formatted filename to filepath
-        if (!is_file($filename)) return false;
+        if (!is_file($filename)) { return false; }
 
         $sig = Crypto::hash_string($filename);
-        if (isset($this->_items[$sig])) return false;
+        if (isset($this->_items[$sig])) { return false; }
 
         if ($priority < 1) {
             $priority = $this->_item_priority;
@@ -145,7 +165,6 @@ class StylesMerger
      */
     public function queue_matchedfile(string $filename, int $priority = 0, bool $min = false, $custompaths = '') : bool
     {
-//TODO  $filename = $this->url_to_path($filename); // migrate URL-formatted filename to filepath
         $cache_filename = cms_get_css($filename, false, $custompaths);
         if ($cache_filename) {
             return $this->queue_file($cache_filename, $priority, $min);
@@ -174,13 +193,15 @@ class StylesMerger
     }
 
     /**
-     * Construct a merged file from previously-queued files, if such file
-     * doesn't exist or is out-of-date.
+     * Construct a merged file from previously-queued files/strings,
+     * if such file doesn't exist or is out-of-date.
      * Hooks 'Core::PreProcessStyles' and 'Core::PostProcessStyles' are
      * run respectively before and after the content merge.
      *
-     * @param string $output_path Optional Filesystem absolute path of folder to hold the merged file. Default '' (use TMP_CACHE_LOCATION)
-     * @param bool   $force       Optional flag whether to force recreation of the merged file. Default false
+     * @param string $output_path Optional Filesystem absolute path of
+     *  folder to hold the merged file. Default '' (hence use TMP_CACHE_LOCATION)
+     * @param bool   $force       Optional flag whether to force
+     *  recreation of the merged file. Default false
      * @return mixed string basename of the merged-items file | null upon error
      */
     public function render_styles(string $output_path = '', bool $force = false)
@@ -216,6 +237,14 @@ class StylesMerger
                 foreach ($items as $rec) {
                     $content = @file_get_contents($rec['file']);
                     if ($content) {
+                        if (stripos($content, 'url') !== false) {
+                            //migrate file-sourced relative url(s) to absolute
+                            if (strpos($rec['file'], TMP_CACHE_LOCATION) !== 0) {
+                                $content = $this->clean_urls($content, $rec['file']);
+                            } elseif (!$empty($rec['relto'])) {
+                                $content = $this->clean_urls($content, $rec['relto']);
+                            }
+                        }
                         if ($rec['min']) {
                             $fn = basename($rec['file']);
                             if (($p = stripos($fn, 'min')) === false ||
@@ -255,31 +284,91 @@ class StylesMerger
         if ($cache_filename) {
             $output_file = $base_path.DIRECTORY_SEPARATOR.$cache_filename;
             $url = cms_path_to_url($output_file);
-            $sri = 'integrity="sha256-'.base64_encode(hash_file('sha256', $output_file, true)).'"';
-            return "<link rel=\"stylesheet\" type=\"text/css\" href=\"$url\" media=\"all\" $sri />\n";
+            $sri = base64_encode(hash_file('sha256', $output_file, true));
+            return "<link rel=\"stylesheet\" href=\"$url\" media=\"all\" integrity=\"sha256-$sri\" crossorigin=\"anonymous\" referrerpolicy=\"same-origin\" />\n";
         }
         return '';
     }
 
     /**
-     * Convert the supplied path, if it's an URL, to the corresponding filepath
+     * Migrate each relative URL in $content to absolute
      *
-     * @param string
+     * @param string $content stylesheet content
+     * @param string $sourcepath absolute filepath, from where $content was retrieved
      * @return string
      */
-    protected function url_to_path(string $path) : string
+    protected function clean_urls(string $content, string $sourcepath) : string
     {
-        $path = trim($path, " \t\r\n'\"");
-        if (1) { // TODO is path, not URL
-            return $path;
+        $base = $sourcepath;
+        $converted = false;
+        return preg_replace_callback(
+            '~[Uu][Rr][Ll]\s*\(\s*([\'" ]*)([.\/]+)([\w\/.?&=#\-]+?)([\'" ]*)\)~',
+            function($matches) use (&$base, &$converted) {
+                //$matches[1] and $matches[4] (if any) are the enclosing quote-char
+                //$matches[2] is relative part of url, maybe //
+                //$matches[3] is the post-relative part of url (no leading /)
+                if ($matches[2] == '//') {
+                    $url = CSM_ROOT_URL . '/' . $matches[3];
+                } else {
+                    if (!$converted) {
+                        $base = $this->path_to_url(dirname($base));
+                        $converted = true;
+                    }
+                    $p = $l = strlen($base);
+                    $parts = explode('/', strtr($matches[2], [' ' => '']));
+                    foreach ($parts as $s) {
+                        if ($s == '..') {
+                            $p = strrpos($base, '/', $p - $l);
+                        }
+                    }
+                    $url = substr($base, 0, $p) . '/' . $matches[3];
+                }
+                $q = trim($matches[1]);
+                return "url({$q}{$url}{$q})";
+            }, $content);
+    }
+
+    /**
+     * Convert the supplied string, if it's an URL, to the corresponding filepath
+     * @see also cms_url_to_path();
+     *
+     * @param string $in filepath or URL
+     * @return string
+     */
+    protected function url_to_path(string $in) : string
+    {
+        $in = trim($in, " \t\r\n'\"");
+        if (strpos($in, '\\') !== false || realpath($in)) {
+            return $in; // already a path
         }
-        if (startswith($path, CMS_ROOT_URL)) {
-            $s = substr($path, strlen(CMS_ROOT_URL));
+        if (startswith($in, CMS_ROOT_URL)) {
+            $s = substr($in, strlen(CMS_ROOT_URL));
             $fp = CMS_ROOT_PATH . strtr($s, '/', DIRECTORY_SEPARATOR);
         } else {
-            $s = preg_replace('~^(\w+?:)?//~', '', $path);
+            $s = preg_replace('~^(\w+?:)?//~', '', $in);
             $fp = strtr($s, '/', DIRECTORY_SEPARATOR);
         }
         return $fp;
+    }
+
+    /**
+     * Convert the supplied filepath to the corresponding URL
+     * @see also cms_path_to_url()
+     *
+     * @param string $in
+     * @return string
+     */
+    protected function path_to_url(string $in) : string
+    {
+        if (($p = strpos($in, CMS_ROOT_PATH)) === 0) {
+            $s = substr($in, strlen(CMS_ROOT_PATH));
+        } elseif ($p > 0) {
+            $s = substr($in, strlen(CMS_ROOT_PATH) + $p);
+        } else {
+            // TODO process relative path or non-site path
+            $s = $in;
+        }
+        $q = str_replace(['%2F', '%5C'], ['/', '/'], rawurlencode($s));
+        return CMS_ROOT_URL . $q;
     }
 } // class

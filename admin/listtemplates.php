@@ -63,7 +63,7 @@ $tmp = $_REQUEST['filter'] ?? null;
 if( $tmp ) {
     if( is_array($tmp) ) {
         $filter = array_map(function ($v) {
-            return sanitizeVal($v, CMSSAN_PUNCT); // must allow ':'
+            return sanitizeVal($v, CMSSAN_PUNCT); // allow single ':'
         }, $tmp);
     }
     else {
@@ -81,6 +81,10 @@ if( !check_permission($userid,'Modify Templates') ) {
 require_once __DIR__.DIRECTORY_SEPARATOR.'method.templatequery.php';
 
 try {
+	$tplpaged = 'false';
+	$elid1 = 'null';
+	$elid2 = 'null';
+
     if( $templates ) {
 
         $u = 'edittemplate.php'.$urlext.'&tpl=XXX';
@@ -160,7 +164,12 @@ try {
         ]);
 
         if( $n > 10 ) {
+            $tplpaged = 'true';
             $navpages = (int)ceil($n / 10);
+            if( $navpages > 2 ) {
+                $elid1 = '"pspage"';
+                $elid2 = '"ntpage"';
+            }
             $pagelengths = [10=>10];
             if( $n > 20 ) $pagelengths[20] = 20;
             if( $n > 40 ) $pagelengths[40] = 40;
@@ -190,6 +199,10 @@ try {
         'currentlength' => $sellength,
     ]);
 
+    $typepaged ='false';
+    $elid3 = 'null';
+    $elid4 = 'null';
+
     // populate types (objects and their names)
     $types = TemplateType::get_all();
     if( $types ) {
@@ -200,21 +213,31 @@ try {
             $tmp2[$types[$i]->get_id()] = $types[$i]->get_langified_display_value();
         }
 
-        $typepages = (int)ceil($n / 10);
-        //TODO $pagelengths if N/A already
+        if( $n > 10 ) {
+            $typepaged = 'true';
+            if( $n > 20 ) {
+                $elid3 = '"pspage2"';
+                $elid4 = '"ntpage2"';
+            }
+            if( !isset($pagelengths) ) {
+                $pagelengths = [10=>10];
+                if( $n > 20 ) $pagelengths[20] = 20;
+                if( $n > 40 ) $pagelengths[40] = 40;
+                $pagelengths[0] = _la('all');
+                $smarty->assign('pagelengths', $pagelengths);
+            }
+        }
         $smarty->assign([
             'list_all_types' => $tmp, //objects
             'list_types' => $tmp2, //public-names
-            'typepages' => $typepages,
+            'typepages' => (int)ceil($n / 10)
         ]);
     }
     else {
-        $typepages = 0;
-
         $smarty->assign([
             'list_all_types' => null,
             'list_types' => null,
-            'typepages' => null,
+            'typepages' => 1,
         ]);
     }
 
@@ -308,18 +331,6 @@ $jsm->queue_matchedfile('jquery.cmsms_lock.js',2);
 
 $js = <<<EOS
 var tpltable,typetable;
-function pagefirst(tbl) {
-  $.fn.SSsort.movePage(tbl,false,true);
-}
-function pagelast(tbl) {
-  $.fn.SSsort.movePage(tbl,true,true);
-}
-function pageforw(tbl) {
-  $.fn.SSsort.movePage(tbl,true,false);
-}
-function pageback(tbl) {
-  $.fn.SSsort.movePage(tbl,false,false);
-}
 function adjust_locks(tblid,lockdata) {
   var n = 0;
   $('#'+tblid+' > tbody > tr').each(function() {
@@ -349,19 +360,6 @@ function adjust_locks(tblid,lockdata) {
   return n;
 }
 $(function() {
-  $.fn.SSsort.addParser({
-   id: 'intfor',
-   is: function(s,node) {
-    var \$el = $(node).find('span');
-    return \$el.length > 0;
-   },
-   format: function(s,node) {
-    var \$el = $(node).find('span');
-    return (\$el.length > 0) ? parseInt(\$el[0].innerText) : 0;
-   },
-   watch: false,
-   type: 'numeric'
-  });
   tpltable = document.getElementById('tpllist');
   var opts = {
    sortClass: 'SortAble',
@@ -373,22 +371,27 @@ $(function() {
    evensortClass: 'row2s'
   };
   var xopts;
-  if($navpages > 1) {
+  if($tplpaged) {
     xopts = $.extend({}, opts, {
      paginate: true,
      pagesize: $sellength,
+     firstid: 'ftpage',
+     previd: $elid1,
+     nextid: $elid2,
+     lastid: 'ltpage',
+     selid: 'pagerows',
      currentid: 'cpage',
-     countid: 'tpage'
+     countid: 'tpage'//,
+//   onPaged: function(table,pageid){}
     });
     $(tpltable).SSsort(xopts);
     $('#pagerows').on('change',function() {
      var l = parseInt(this.value);
      if(l === 0) {
-      $('#tblpagelink').hide();//TODO hide label-part 'per page'
+      $('#tblpagelink').hide();//TODO hide/toggle label-part 'per page'
      } else {
-      $('#tblpagelink').show();//TODO show label-part 'per page'
+      $('#tblpagelink').show();//TODO show/toggle label-part 'per page'
      }
-     $.fn.SSsort.setCurrent(tpltable,'pagesize',l);
     });
     var found = false;
     $('#finder').on('keyup',function(e) {
@@ -399,6 +402,7 @@ $(function() {
           found = true;
         }
         //from https://codereview.stackexchange.com/questions/23899/faster-javascript-fuzzy-string-matching-function
+        //TODO handle '/' and regex-reserved chars and caseless unichars in s
         var patn = s.split('').reduce(function(a,b) { return a + '[^' + b + ']*?' + b; });
         var re = new RegExp(patn, 'i');
         $('#tpllist > tbody > tr > td:nth-child(2) > a').each(function() {
@@ -442,15 +446,21 @@ $(function() {
     }
     return false;
   });
-  $('#tpllist [context-menu]').ContextMenu();
+  $(tpltable).find('[context-menu]').ContextMenu();
 
   typetable = document.getElementById('typelist');
-  if($typepages > 1) {
+  if($typepaged) {
    xopts = $.extend({}, opts, {
     paginate: true,
     pagesize: $sellength,
+    firstid: 'ftpage2',
+    previd: $elid3,
+    nextid: $elid4,
+    lastid: 'ltpage2',
+    selid: 'typepagerows',
     currentid: 'cpage2',
-    countid: 'tpage2'
+    countid: 'tpage2'//,
+//  onPaged: function(table,pageid){}
    });
    $(typetable).SSsort(xopts);
    $('#typepagerows').on('change',function() {
@@ -460,7 +470,6 @@ $(function() {
     } else {
      $('#tbl2pagelink').show();//TODO show label-part 'per page'
     }
-    $.fn.SSsort.setCurrent(typetable,'pagesize',l);
    });
   } else {
     $(typetable).SSsort(opts);
@@ -528,8 +537,8 @@ $(function() {
       } else {
         cms_alert(data.error.msg);
       }
-    }).fail(function() {
-      cms_alert('AJAX ERROR');
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      cms_alert('AJAX ERROR: ' + errorThrown);
     });
     return false;
   });

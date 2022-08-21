@@ -76,13 +76,13 @@ final class AdminUtils
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
 	private function __construct() {}
+
 	/**
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/**
 	 * Test if a string is suitable for use as a name of an item in CMSMS.

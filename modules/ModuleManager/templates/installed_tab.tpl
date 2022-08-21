@@ -17,14 +17,14 @@
     {if $item.missing_deps}
       {capture append=stats}<span class="important red" title="{_ld($_module,'title_missingdeps')}">{_ld($_module,'missingdeps')}</span>{/capture}
     {/if}
-    {if !($item.system_module || $item.can_uninstall)}
+    {if !($item.bundled || $item.can_uninstall)}
       {capture append=stats}<span title="{_ld($_module,'title_cantuninstall')}">{_ld($_module,'cantuninstall')}</span>{/capture}
     {/if}
   {/if}
   {if !$item.ver_compatible}
     {capture append=stats}<span class="important" title="{_ld($_module,'title_notcompatible')}">{_ld($_module,'notcompatible')}</span>{/capture}
   {/if}
-  {if !($item.system_module || $item.installed || $item.writable)}
+  {if !($item.bundled || $item.installed || $item.writable)}
     {capture append=stats}<span title="{_ld($_module,'title_cantremove')}">{_ld($_module,'cantremove')}</span>{/capture}
   {/if}
   {if !empty($item.dependents)}{$deps = []}
@@ -51,7 +51,7 @@
     {elseif $item.missing_deps}
       {capture append=acts}<a href="{cms_action_url action='local_missingdeps' mod=$item.name}" class="modop mod_missingdeps" title="{_ld($_module,'title_missingdeps')}">{_ld($_module,'missingdeps')}</a>{/capture}
     {/if}
-    {if !$item.system_module}{if $item.writable}
+    {if !$item.bundled}{if $item.writable}
       {capture append=acts}<a href="{cms_action_url action='local_remove' mod=$item.name}" class="modop mod_remove" title="{_ld($_module,'title_remove')}">{_ld($_module,'remove')}</a>{/capture}
     {else}
       {capture append=acts}<a href="{cms_action_url action='local_chmod' mod=$item.name}" class="modop mod_chmod" title="{_ld($_module,'title_chmod')}">{_ld($_module,'changeperms')}</a>{/capture}
@@ -71,9 +71,9 @@
 <table class="pagetable">
   <thead>
     <tr>
-      <th></th>
       <th>{_ld($_module,'nametext')}</th>
       <th title="{_ld($_module,'title_moduleversion')}">{_ld($_module,'version')}</th>
+      <th></th>
       <th title="{_ld($_module,'title_modulestatus')}">{_ld($_module,'status')}</th>
       <th title="{_ld($_module,'title_moduleaction')}">{_ld($_module,'action')}</th>
       <th class="pageicon" title="{_ld($_module,'title_moduleactive')}" style="text-align:center;">{_ld($_module,'active')}</th>
@@ -86,12 +86,6 @@
     {foreach $module_info as $item}
       <tr class="{cycle values='row1,row2'}" id="_{$item.name}">
         <td>{strip}
-          {if $item.system_module}{$system_img}{/if}
-          {if $item.e_status == 'newer_available'} {$star_img}{/if}
-          {if $item.missing_deps} {$missingdeps_img}{/if}
-          {if $item.deprecated} {$deprecated_img}{/if}
-{/strip}</td>
-        <td>{strip}
           {if !$item.installed || $item.e_status == 'need_upgrade'}
             <span class="important"{if $item.description} title="{$item.description}"{/if}>{$item.name}</span>
           {elseif $item.notavailable}
@@ -99,7 +93,7 @@
           {elseif $item.deprecated}
             <span class="orange"{if $item.description} title="{$item.description}"{/if}>{$item.name}</span>
           {else}
-            <span{if $item.system_module} class="green"{/if}{if $item.description} title="{$item.description}"{/if}>{$item.name}</span>
+            <span{if $item.description} title="{$item.description}"{/if}>{$item.name}</span>
           {/if}
 {/strip}</td>
           {if $item.e_status == 'newer_available'}
@@ -108,6 +102,16 @@
             <td>{strip}
           {/if}
           {$item.installed_version}
+{/strip}</td>
+        <td>{strip}
+          {if $item.bundled}{$bundled_img}{/if}
+          {if $item.missing_deps}{$missingdeps_img}{/if}
+          {if $item.e_status == 'newer_available'}{$upgradeable_img}{/if}
+          {if $item.stale_upgrade}{$staleupgrade_img}
+          {elseif $item.fresh_upgrade}{$freshupgrade_img}{/if}
+{*        {elseif $item.notinforge}{$noforge_img}{/if *}
+          {if $item.stagnant}{$stagnant_img}{/if}
+          {if $item.deprecated}{$deprecated_img}{/if}
 {/strip}</td>
         <td>
 {strip}{status}{/strip}
@@ -148,7 +152,7 @@
     <label class="pagetext" for="xml_upload">{_ld($_module,'uploadfile')}:</label>
     {cms_help 0=$_module key='help_mm_importxml' title=_ld($_module,'title_mm_importxml')}
     <div class="pageinput">
-      <input id="xml_upload" type="file" name="{$actionid}upload" accept="text/xml"/>
+      <input id="xml_upload" type="file" name="{$actionid}upload" accept="text/xml" />
     </div>
   </div>
  </form>

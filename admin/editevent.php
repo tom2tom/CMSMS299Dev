@@ -65,7 +65,7 @@ if (1) { //$access) {
 		// we're adding some funky event-handler
 		$sender = sanitizeVal($_POST['originator'], CMSSAN_FILE); // 'Core' | module-name
 		$event = sanitizeVal($_POST['event'], CMSSAN_PURE); // letters only
-		$handler = sanitizeVal($_POST['handler'], CMSSAN_PUNCT); // allow ':\'
+		$handler = sanitizeVal($_POST['handler'], CMSSAN_PUNCT); // allow ':\' no need for '::' ?
 		if ($sender && $event && $handler) {
 			if (strncmp($handler, 'm:', 2) == 0) {
 				$handler = substr($handler, 2);
@@ -85,7 +85,7 @@ if (1) { //$access) {
 			$event = sanitizeVal($_GET['event'], CMSSAN_PURE); // letters only
 		}
 		if (!empty($_GET['handler'])) {
-			$handler = sanitizeVal($_GET['handler'], CMSSAN_PUNCT); // allow ':\'
+			$handler = sanitizeVal($_GET['handler'], CMSSAN_PUNCT); // allow ':\' no need for '::'
 		}
 		if (!empty($_GET['order'])) {
 			$cur_order = (int)$_GET['order'];

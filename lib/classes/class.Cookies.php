@@ -46,7 +46,6 @@ final class Cookies implements ICookieManager
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
     private function __construct() {}
 
     /**

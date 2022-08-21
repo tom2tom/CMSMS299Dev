@@ -13,6 +13,7 @@
 {'finished_all_msg1'|tr}:<br />
 <p id="social">
 <a href="https://www.cmsmadesimple.org/support/options" target="_blank"><i class="icon-cmsms"></i> {'support_channels'|tr}</a><br />
+<a href="https://www.cmsmadesimple.org/community/newsletter" target="_blank"><i class="icon-news"></i> {'newsletter'|tr}</a><br />
 <a href="https://www.facebook.com/cmsmadesimple" target="_blank"><i class="icon-facebook"></i> Facebook</a><br />
 <a href="https://www.linkedin.com/groups/1139537" target="_blank"><i class="icon-linkedin"></i> LinkedIn</a><br />
 <a href="https://twitter.com/#!/cmsms" target="_blank"><i class="icon-twitter"></i> Twitter</a>

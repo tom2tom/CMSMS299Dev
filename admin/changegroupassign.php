@@ -62,7 +62,7 @@ $smarty->assign([
     'pmod' => !$supergrp, // current user may 'Manage Groups' but not in Group 1
 ]);
 
-$group_list = $groupops->LoadGroups();
+$group_list = $groupops->LoadGroups(true);
 $groups = []; // displayable Group-object(s)
 
 if (isset($_POST['filter'])) {

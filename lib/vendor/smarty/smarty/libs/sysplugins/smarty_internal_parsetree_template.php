@@ -28,7 +28,6 @@ class Smarty_Internal_ParseTree_Template extends Smarty_Internal_ParseTree
     /**
      * Create root of parse tree for template elements
      */
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
     }

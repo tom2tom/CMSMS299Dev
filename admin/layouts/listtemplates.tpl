@@ -32,32 +32,49 @@
     {/if}
   </div>
 </div>
-
 {if !empty($templates)}
 {if $navpages > 1}
 <div class="browsenav postgap">
  <span id="tblpagelink">
- <a href="javascript:pagefirst(tpltable)">{_ld('layout','pager_first')}</a>&nbsp;|&nbsp;
+ <span id="ftpage" class="pagechange">{_ld('layout','pager_first')}</span>&nbsp;|&nbsp;
 {if $navpages > 2}
- <a href="javascript:pageback(tpltable)">{_ld('layout','pager_previous')}</a>&nbsp;&lt;&gt;&nbsp;
- <a href="javascript:pageforw(tpltable)">{_ld('layout','pager_next')}</a>&nbsp;|&nbsp;
+ <span id="pspage" class="pagechange">{_ld('layout','pager_previous')}</span>&nbsp;&lt;&gt;&nbsp;
+ <span id="ntpage" class="pagechange">{_ld('layout','pager_next')}</span>&nbsp;|&nbsp;
 {/if}
- <a href="javascript:pagelast(tpltable)">{_ld('layout','pager_last')}</a>&nbsp;
- ({_ld('layout','pageof','<span id="cpage">1</span>',"<span id='tpage'>`$navpages`</span>")})&nbsp;&nbsp;
+ <span id="ltpage" class="pagechange">{_ld('layout','pager_last')}</span>&nbsp;
+ ({_ld('layout','pageof','<span id="cpage">1</span>',"<span id='tpage'>{$navpages}</span>")})&nbsp;&nbsp;
  </span>
  <select id="pagerows" name="pagerows">
   {html_options options=$pagelengths selected=$currentlength}
- </select>&nbsp;&nbsp;{_ld('layout','pager_rows')}
+ </select>&nbsp;&nbsp;{_ld('layout','pager_rowspp')}{*TODO sometimes show 'pager_rows'*}
 </div>
-{/if} {* navpages *}
+{/if}{* navpages *}
 {/if}
 {include file='templates.tpl'}
 
 {if $manage_templates}
  {tab_start name='types'}
- {include file='template-types.tpl'}
+ {if $list_all_types}
+ {if $typepages > 1}
+<div class="browsenav postgap">
+ <span id="tbl2pagelink">
+ <a href="javascript:pagefirst(typetable)">{_ld('layout','pager_first')}</a>&nbsp;|&nbsp;
+ {if $typepages > 2}
+ <a href="javascript:pageback(typetable)">{_ld('layout','pager_previous')}</a>&nbsp;&lt;&gt;&nbsp;
+ <a href="javascript:pageforw(typetable)">{_ld('layout','pager_next')}</a>&nbsp;|&nbsp;
+ {/if}
+ <a href="javascript:pagelast(typetable)">{_ld('layout','pager_last')}</a>&nbsp;
+ ({_ld('layout','pageof','<span id="cpage2">1</span>',"<span id='tpage2'>{$typepages}</span>")})&nbsp;&nbsp;
+ </span>
+ <select id="typepagerows" name="typepagerows">
+  {html_options options=$pagelengths selected=$currentlength}
+ </select>&nbsp;&nbsp;{_ld('layout','pager_rowspp')}{*TODO sometimes show 'pager_rows'*}
+</div>
+ {/if}{* typepages *}
+ {/if}
+ {include file='templatetypes.tpl'}
  {tab_start name='groups'}
- {include file='template-groups.tpl'}
+ {include file='templategroups.tpl'}
  {tab_end}
 {/if}
 

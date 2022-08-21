@@ -2,7 +2,7 @@
 {if $desctext}
 <p><strong>{_la('description')}</strong>: {$desctext}</p>
 {/if}
-{if !empty($text)}{$text}{else}No helptext available...{/if}
+{if !empty($text)}{$text}{else}_la('nohelp'){/if}
 
 <h4>{_la('eventhandlers')}</h4>
 {if $hlist}

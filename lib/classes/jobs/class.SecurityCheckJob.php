@@ -31,7 +31,6 @@ use function cms_join_path;
 
 class SecurityCheckJob extends CronJob
 {
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();
@@ -80,7 +79,7 @@ class SecurityCheckJob extends CronJob
             $alert->save();
         }
 */
-        //TODO presence of a module having CoreCapabilities::EMAIL_MODULE
+        //TODO presence of a module having CapabilityType::EMAIL_MODULE
         return 2; // TODO
     }
 }

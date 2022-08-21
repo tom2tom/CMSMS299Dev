@@ -81,7 +81,7 @@ _owd=`pwd`
 _workdir=/tmp/$_this.$$
 _destdir=/tmp
 _langs=''
-_coremodules='AdminLogin AdminSearch ContentManager FileManager FilePicker MicroTiny ModuleManager Navigator OutMailer Search'
+_coremodules='AdminSearch Authenticator ContentManager FileManager FilePicker MicroTiny ModuleManager Navigator OutMailer Search'
 
 # Process command line arguments
 while [ $# -gt 1 ]; do

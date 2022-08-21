@@ -47,7 +47,6 @@ final class LogOperations implements ILogManager
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $this->init();
@@ -57,7 +56,7 @@ final class LogOperations implements ILogManager
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    private function __clone() {}
+    private function __clone() {}// : void {}
 
     /**
      * Get the singleton instance of this class.

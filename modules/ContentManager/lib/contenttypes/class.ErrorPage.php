@@ -38,7 +38,6 @@ class ErrorPage extends ContentBase
 	public $doAliasCheck = false;
 	public $error_types = [];
 
-	#[\ReturnTypeWillChange]
 	public function __construct()
 	{
 		parent::__construct();

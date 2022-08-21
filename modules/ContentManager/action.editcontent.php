@@ -610,7 +610,7 @@ EOS;
 if ($designchanged_ajax_url) {
 	$msg = json_encode($this->Lang('warn_notemplates_for_design'));
 	$js .= <<<EOS
-  $('#design_id').change(function(e, edata) {
+  $('#design_id').on('change', function(e, edata) {
     var v = $(this).val();
     var lastValue = $(this).data('lastValue');
     var data = {'{$id}design_id': v};

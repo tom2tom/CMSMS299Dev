@@ -28,15 +28,10 @@ require ".{$dsep}admininit.php";
 
 check_login();
 
-// if this page was accessed directly, and the secure param value is not
-// in the URL but it is in the session, assume the latter is correct.
-if( !isset($_GET[CMS_SECURE_PARAM_NAME]) && isset($_SESSION[CMS_USER_KEY]) ) {
-    $_REQUEST[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
-}
-
 $section = (isset($_GET['section'])) ? sanitizeVal($_GET['section'], CMSSAN_PURE) : ''; // valid non-words are '.' '-' TODO AND de_specialize()?
 
 $content = Lone::get('Theme')->fetch_menu_page($section);
+
 require ".{$dsep}header.php";
 echo $content;
 require ".{$dsep}footer.php";

@@ -65,7 +65,6 @@ class page_template_parser extends Smarty_Internal_Template
      * @param boolean $_caching  optional, default false
      * @param int $_cache_lifetime  optional, default 0
      */
-    #[\ReturnTypeWillChange]
     public function __construct(
         string $template_resource,
         $smarty,

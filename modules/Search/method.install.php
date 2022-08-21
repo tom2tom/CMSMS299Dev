@@ -94,8 +94,8 @@ try {
     $type->set_originator($me);
     $type->set_name('searchform');
     $type->set_dflt_flag(TRUE);
-    $type->set_lang_callback('Search::page_type_lang_callback');
-    $type->set_content_callback('Search::reset_page_type_defaults');
+    $type->set_lang_callback('Search::tpltype_lang_callback');
+    $type->set_content_callback('Search::reset_tpltype_default');
     $type->reset_content_to_factory();
     $type->save();
 
@@ -112,8 +112,8 @@ try {
     $type->set_originator($me);
     $type->set_name('searchresults');
     $type->set_dflt_flag(TRUE);
-    $type->set_lang_callback('Search::page_type_lang_callback');
-    $type->set_content_callback('Search::reset_page_type_defaults');
+    $type->set_lang_callback('Search::tpltype_lang_callback');
+    $type->set_content_callback('Search::reset_tpltype_default');
     $type->reset_content_to_factory();
     $type->save();
 

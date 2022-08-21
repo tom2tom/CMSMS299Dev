@@ -2,15 +2,15 @@
 <table id="grouplist" class="pagetable">
   <thead>
     <tr>
-      {if $manage_stylesheets}<th title="{_ld('layout','title_group_id')}">{_ld('layout','prompt_id')}</th>{/if}
-      <th title="{_ld('layout','title_css_name')}">{_ld('layout','prompt_name')}</th>
-      <th title="{_ld('layout','title_group_members')}">{_ld('layout','member_ids')}</th>
-      {if $manage_stylesheets}<th class="pageicon"></th>{/if} {* menu *}
+      {if $manage_stylesheets}<th class="{literal}{sss:numeric}{/literal}" title="{_ld('layout','title_group_id')}">{_ld('layout','prompt_id')}</th>{/if}
+      <th class="{literal}{sss:text}{/literal}" title="{_ld('layout','title_css_name')}">{_ld('layout','prompt_name')}</th>
+      <th class="{literal}{sss:text}{/literal}" title="{_ld('layout','title_group_members')}">{_ld('layout','member_ids')}</th>
+      {if $manage_stylesheets}<th class="pageicon nosort"></th>{/if}{* menu *}
     </tr>
   </thead>
-  <tbody>
+  <tbody>{$micon={admin_icon icon='menu.gif' alt='menu' title=_ld('layout','title_menu') class='systemicon'}}
     {foreach $list_groups as $group}{$gid=$group->get_id()}
-    {$url="editcssgroup.php`$urlext`&grp=`$gid`"}
+    {$url="editcssgroup.php{$urlext}&grp=$gid"}
     {cycle values='row1,row2' assign='rowclass'}
     <tr class="{$rowclass}" onmouseover="this.className='{$rowclass}hover';" onmouseout="this.className='{$rowclass}';">
       {strip}{if $manage_stylesheets}<td><a href="{$url}" title="{_ld('layout','prompt_edit')}">{$gid}</a></td>{/if}
@@ -20,10 +20,10 @@
       <td>
        {$ul=!$group->locked()}
        {$t=_ld('layout','prompt_locked')}
-       <span class="locked" data-grp-id="{$gid}" title="{$t}"{if $ul} style="display:none;"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
+       <span class="locked" data-grp-id="{$gid}" title="{$t}"{if $ul} style="display:none"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
        {$t=_ld('layout','prompt_steal_lock')}
        <a class="steal_lock" href="{$url}&steal=1" data-grp-id="{$gid}" title="{$t}" accesskey="e"{if $ul} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
-       <span class="action" context-menu="Sheetsgroup{$gid}"{if !$ul} style="display:none;"{/if}>{admin_icon icon='menu.gif' alt='menu' title=_ld('layout','title_menu') class='systemicon'}</span>
+       <span class="action" context-menu="Sheetsgroup{$gid}"{if !$ul} style="display:none"{/if}>{$micon}</span>
       </td>
       {/if}{/strip}
     </tr>
@@ -32,9 +32,10 @@
 </table>
 {if $manage_stylesheets && !empty($list_groups)}
 <div id="grpmenus">
- {foreach $grpmenus as $menu}{$menu}{/foreach}
+ {foreach $grpmenus as $menu}{$menu}
+{/foreach}
 </div>
-{/if} {* manage etc *}
+{/if}{* manage etc *}
 {else}
 <p class="information">{_ld('layout','info_no_groups')}</p>
 {/if}

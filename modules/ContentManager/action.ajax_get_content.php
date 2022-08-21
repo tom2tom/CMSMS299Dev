@@ -51,20 +51,38 @@ if (!empty($firstlist)) {
 		// supplied match-char(s)
 		$tpl->assign('pattern', $params['search']); //TODO sanitizeVal() etc
 		//from https://codereview.stackexchange.com/questions/23899/faster-javascript-fuzzy-string-matching-function
-		$arr = str_split($params['search']);
-		$t = '/'.$arr[0];
-		unset($arr[0]);
-		$rx = '[^ ]*? ';
-		$patn = array_reduce($arr, function($m, $c) use ($rx) {
-			if ($c != '/') {
-				$rx[2] = $c;
-				$rx[6] = $c;
-				return $m . $rx;
+		//see also AdmminSearch::Base_slave::get_regex_pattern()
+		$reserved = '/\\^-]'; // intra-class reserves
+		$reserved2 = '/\\.,+-*?^$[](){}'; // extra-class reserves
+		$needle = $params['search'];
+		//UTF-8 has single bytes (0-127), leading bytes (192-254) and continuation bytes (128-191)
+		if (preg_match('/[\xc0-\xfe][\x80-\xbf]+/', $needle)) {
+			$chars = preg_split('//u', $needle, null, PREG_SPLIT_NO_EMPTY);
+			$tail = '/ui';
+		} else {
+			$chars = str_split($needle);
+			$tail = '/i';
+		}
+		$c = $chars[0];
+		if (strpos($reserved2, $c) !== false) {
+			$c = "\\$c";
+		}
+		$t = "/$c";
+		unset($chars[0]);
+		$patn = array_reduce($chars, function($m, $c) use ($reserved, $reserved2) {
+			$a = strpos($reserved, $c) !== false;
+			$b = strpos($reserved2, $c) !== false;
+			if ($a && $b) {
+				return $m . "[^\\$c]*?\\$c";
+			} elseif ($a) {
+				return $m . "[^\\$c]*?$c";
+			} elseif ($b) {
+				return $m . "[^$c]*?\\$c";
 			} else {
-				return $m .'[^\/]*?\/';
+				return $m . "[^$c]*?$c";
 			}
 		}, $t);
-		$patn .= '/i';
+		$patn .= $tail;
 	}
 }
 
@@ -128,6 +146,8 @@ try {
 	$tpl->assign('indent', !$filter && UserParams::get('indent', 1));
 	$locks = $builder->get_locks();
 	$have_locks = ($locks) ? 1 : 0;
+	$cols = $builder->get_display_columns();
+	$sorters = $builder->get_sort_columns($cols);
 
 	$tpl->assign('locking', ManagerUtils::locking_enabled())
 		->assign('have_locks', $have_locks)
@@ -137,7 +157,8 @@ try {
 		->assign('curpage', $builder->get_page())
 		->assign('npages', $npages)
 		->assign('multiselect', $builder->supports_multiselect())
-		->assign('columns', $builder->get_display_columns());
+		->assign('columns', $cols)
+		->assign('sortcols', $sorters);
 /*
 	$url = $this->create_action_url($id,'ajax_get_content',['forjs'=>1,CMS_JOB_KEY=>1]);
 	$tpl->assign('ajax_get_content_url',$url)

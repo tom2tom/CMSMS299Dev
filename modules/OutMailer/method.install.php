@@ -31,7 +31,7 @@ $installer_working = AppState::test(AppState::INSTALL);
 if (!($installer_working || $this->CheckPermission('Modify Modules'))) exit;
 
 $dict = $db->NewDataDictionary(); //old NewDataDictionary($db);
-$taboptarray = ['mysqli' => 'ENGINE MyISAM CHARACTER SET utf8mb4'];
+$taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
 
 $flds = '
 id I UNSIGNED AUTO KEY,
@@ -72,7 +72,7 @@ $init = new class extends PrefCrypter
     {
         $s = parent::get_muid().parent::SKEY;
         $sk = hash('fnv1a64', $s);
-        $t = base_convert(random_bytes(256), 16, 36); // 16-or-so random alphanums
+        $t = base_convert(bin2hex(random_bytes(11)), 16, 36); // 16-or-so random alphanums
         $raw = Crypto::encrypt_string($t, hash(parent::HASHALGO, $s));
         $value = rtrim(base64_encode($raw), '=');
         set_module_param(parent::MODNAME, $sk, $value);

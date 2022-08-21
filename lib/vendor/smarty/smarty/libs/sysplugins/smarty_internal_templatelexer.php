@@ -229,7 +229,6 @@ class Smarty_Internal_Templatelexer
      * @param   string                             $source template source
      * @param Smarty_Internal_TemplateCompilerBase $compiler
      */
-    #[\ReturnTypeWillChange]
     public function __construct($source, Smarty_Internal_TemplateCompilerBase $compiler)
     {
         $this->data = $source;
@@ -1072,25 +1071,23 @@ class Smarty_Internal_Templatelexer
     {
 
         $this->token = Smarty_Internal_Templateparser::TP_DOLLARID;
-         }
+    }
     public function yy_r5_16()
     {
 
         $this->token = Smarty_Internal_Templateparser::TP_TEXT;
-         }
+    }
     public function yy_r5_17()
     {
 
         $this->token = Smarty_Internal_Templateparser::TP_TEXT;
-         }
+    }
     public function yy_r5_22()
     {
 
         $to = $this->dataLength;
         $this->value = substr($this->data,$this->counter,$to-$this->counter);
         $this->token = Smarty_Internal_Templateparser::TP_TEXT;
-         }
+    }
 
-  }
-
-     
+}

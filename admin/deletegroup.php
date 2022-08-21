@@ -65,10 +65,10 @@ if ($groupobj) {
     $group_name = $groupobj->name;
 
     // now do the work
-    Events::SendEvent('Core', 'DeleteGroupPre', [ 'group'=>&$groupobj ] );
+    Events::SendEvent('Core', 'DeleteGroupPre', ['group'=>&$groupobj]);
 
     if ($groupobj->Delete()) {
-        Events::SendEvent('Core', 'DeleteGroupPost', [ 'group'=>&$groupobj ] );
+        Events::SendEvent('Core', 'DeleteGroupPost', ['group'=>&$groupobj]);
         // put mention into the admin log
         log_info($group_id, 'Admin Users Group '.$group_name, 'Deleted');
     } else {

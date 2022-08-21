@@ -33,7 +33,6 @@ class PathAssistant
     private $_topdir;
     private $_topurl;
 
-    #[\ReturnTypeWillChange]
     public function __construct(AppConfig $config, $topdir)
     {
         if (!$topdir || !is_dir($topdir)) throw new LogicException("Invalid topdir-value '$topdir' provided to ".__METHOD__);

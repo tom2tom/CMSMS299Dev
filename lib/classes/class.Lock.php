@@ -1,7 +1,7 @@
 <?php
 /*
 Class for lock functionality plus related exceptions
-Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -75,7 +75,6 @@ final class Lock implements ArrayAccess
      *  be stolen. If not specified, the system default value will be used.
      * @throws LogicException or DataException
      */
-    #[\ReturnTypeWillChange]
     public function __construct(...$params)
     {
         switch (count($params)) {
@@ -126,6 +125,7 @@ final class Lock implements ArrayAccess
             }
             throw new LogicException(lang('missingparams'));
         }
+        return null;
     }
 
     /**

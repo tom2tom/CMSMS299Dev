@@ -31,16 +31,26 @@ $_SESSION[$this->GetName()]['active_tab'] = 'modules';
 if( !isset($params['name']) ) $this->Redirect($id,'defaultadmin');
 
 $prefix = trim($params['name']);
-$repmodules = ModuleRepClient::get_repository_modules($prefix,FALSE,TRUE);
-if( !is_array($repmodules) || $repmodules[0] === FALSE ) $this->Redirect($id,'defaultadmin'); // for some reason, nothing matched.
+$result = ModuleRepClient::get_repository_modules($prefix,FALSE,TRUE);
+if( !is_array($result) || !$result[0] ) {
+    $msg = $result[1] ?? $this->Lang('error_internal'); // TODO better default advice
+    log_error($msg,$this->GetName().'::modulelist');
+//    $this->DisplayErrorPage($msg);
+//    return;
+    $this->SetError($msg);
+    $this->Redirect($id,'defaultadmin'); // for some reason, nothing matched
+}
 
-$repmodules = $repmodules[1];
+$repmodules = $result[1];
 
 $result = Utils::get_installed_modules();
-if( ! $result[0] ) {
-    log_error($result[1],$this->GetName().'::modulelist');
-    $this->DisplayErrorPage($result[1]);
+if( !is_array($result) || !$result[0] ) {
+    $msg = $result[1] ?? $this->Lang('error_internal'); // TODO better default advice
+    log_error($msg,$this->GetName().'::modulelist');
+    $this->DisplayErrorPage($msg);
     return;
+//    $this->SetError($msg);
+//    $this->Redirect($id,'defaultadmin');
 }
 
 $instmodules = $result[1];
@@ -82,7 +92,7 @@ class ModuleListData
         $onerow->age = Utils::get_status($row['date']);
         $onerow->date = $row['date'];
         $onerow->description = ( !empty($row['description']) ) ? $row['description'] : null;
-        $onerow->downloads = $row['downloads'];
+        $onerow->downloads = $row['downloads']; // 0 i.e. not recorded ATM
         $onerow->name = $row['name'];
         $onerow->size = (int)((float) $row['size'] / 1024.0 + 0.5);
         $onerow->version = $row['version'];

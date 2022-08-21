@@ -353,6 +353,7 @@ function recursive_chmod(string $path, int $dirmode = 0, int $filemode = 0) : bo
  */
 function startswith(string $str, string $sub, $exact = true) : bool
 {
+    //PHP8+ if ($exact) return str_starts_with($str, $sub);
     $o = strlen($sub);
     if ($o > 0) {
         return ($exact) ? strncmp($str, $sub, $o) == 0 : strncasecmp($str, $sub, $o) == 0;
@@ -371,6 +372,7 @@ function startswith(string $str, string $sub, $exact = true) : bool
  */
 function endswith(string $str, string $sub, $exact = true) : bool
 {
+    //PHP8+ if ($exact) return str_ends_with($str, $sub);
     $o = strlen($sub);
     if ($o > 0) {
         return substr_compare($str, $sub, -$o, $o, !$exact) == 0;
@@ -383,8 +385,7 @@ function endswith(string $str, string $sub, $exact = true) : bool
  * (hence pretty-URLs, partial page-URLs, routes), whole- or partial-
  * filenames, etc
  * PHP regex word-chars (incl. unichars), '-', '.', and if requested '/',
- * are retained.
- * Spaces become '-'.
+ * are retained. Spaces become '-'. Other unwanted chars are removed.
  * This is more limited than an actual URL c.f. CMSMS\urlencode()  and
  * more limited than a filename c.f. CMSMS\sanitizeVal( ,CMSSAN_FILE)
  *
@@ -665,19 +666,22 @@ const CMSSAN_ACCOUNT  = 2048;
 
 namespace CMSMS {
 
-use const CMSSAN_NONPRINT;
+use Collator;
+use const CMSSAN_ACCOUNT;
+use const CMSSAN_FILE;
 use const CMSSAN_HIGH;
-use const CMSSAN_PUNCT;
 use const CMSSAN_NAME;
+use const CMSSAN_NONPRINT;
+use const CMSSAN_PATH;
+use const CMSSAN_PHPSTRING;
+use const CMSSAN_PUNCT;
 use const CMSSAN_PUNCTX;
 use const CMSSAN_PURE;
 use const CMSSAN_PURESPC;
-use const CMSSAN_PHPSTRING;
-use const CMSSAN_FILE;
-use const CMSSAN_PATH;
-use const CMSSAN_ACCOUNT;
 use function CMSMS\de_entitize;
 use function CMSMS\entitize;
+use function CMSMS\get_entparms;
+use function is_email;
 
 // TODO migrate these vars and their handlers to page.functions script, use Lone methods
 /**
@@ -822,15 +826,16 @@ function get_page_foottext() : string
  *    include meta-characters !"#$%&'()*+,./:;<=>?@[\]^`{|}~ but any
  *    such must sometimes be escaped e.g. in a jQuery selector
  * CMSSAN_PUNCT
- *  remove non-printable chars < 0x80 plus these: " ' ; = ? ^ ` < >
+ *  remove non-printable chars < 0x80 plus these: " ' ; = ? ^ ` < > space
  *    plus repeats of non-alphanum chars
  *    (e.g. for a 'normal' html-element attribute value)
- *    Hence allowed are non-repeats of non-word-chars other than the above e.g. ~ & @ % : [ ] ( ) { } \ / space
+ *    Hence allowed are non-repeats of non-word-chars other than the above e.g. ~ ! @ # $ % & * : + - , . [ ] ( ) { } \ / |
  *    but removals include the 2nd from valid pairs e.g. \\ :: __
  * CMSSAN_NAME
- *  as for CMSSAN_PUNCT, but allow non-repeats of these: _ / + - , . space
- *    which are allowed by AdminUtils::is_valid_itemname()
- *    NOTE '/' and space i.e. not for possibly-file-stored items
+ *  remove non-printable chars < 0x80 plus non-word-chars other than the ones
+ *    allowed by AdminUtils::is_valid_itemname() i.e. / + - , . space
+ *    plus repeats of those allowed non-word-chars
+ *    NOTE '/' and space i.e. not for possibly-file-stored items e.g. template names
  * CMSSAN_PUNCTX
  *  as for CMSSAN_PUNCT, but allow multiples of non-alphanum char(s) specified in $ex
  * CMSSAN_PURE (default)
@@ -843,6 +848,7 @@ function get_page_foottext() : string
  * CMSSAN_FILE
  *  remove non-printable chars plus these: * ? \ /
  *    (e.g. for file names, modules, plugins, UDTs, templates, stylesheets, admin themes, frontend themes)
+ *    TODO consider extra removal(s) for e.g. templates, stylesheets
  * CMSSAN_PATH
  *  as for CMSSAN_FILE, but allow \ / (e.g. for file paths)
  * CMSSAN_ACCOUNT
@@ -926,12 +932,12 @@ function sanitizeVal(string $str, int $scope = CMSSAN_PURE, string $ex = '') : s
             break;
         case CMSSAN_PUNCT:
             $str = preg_replace('/([^a-zA-Z\d\x80-\xff])\1+/', '$1', $str);
-            $patn = '/[\x00-\x1f"\';=?^`<>\x7f]/';
+            $patn = '/[\x00-\x1f "\';=?^`<>\x7f]/';
             break;
         case CMSSAN_PUNCTX:
             $patn = '~([^a-zA-Z\d\x80-\xff'.addcslashes($ex, '~').'])\1+~';
             $str = preg_replace($patn, '$1', $str);
-            $patn = '/[\x00-\x1f"\';=?^`<>\x7f]/';
+            $patn = '/[\x00-\x1f "\';=?^`<>\x7f]/';
             break;
         case CMSSAN_FILE:
             $patn = '~[\x00-\x1f*?\\/\x7f]~';
@@ -1011,14 +1017,15 @@ function execSpecialize(string $val) : string
             return '&#60;'.$matches[1].'&#116;'.($matches[2] ? ' '.trim($matches[2]) : '').($matches[3] ? '&#62;' : '');
         },
         // explicit script
-        '/jav(.+)(scrip)t\s*:\s*(.+)?/i' => function($matches) {
+        '/jav(.+?)(scrip)t\s*:\s*(.+)?/i' => function($matches) {
             if ($matches[3]) {
                 return 'ja&#118;'.trim($matches[1]).$matches[2].'&#116;&#58;'.strtr($matches[3], ['(' => '&#40;', ')' => '&#41;']);
             }
             return $matches[0];
         },
         // inline scripts like on*="dostuff" or on*=dostuff (TODO others e.g. FSCommand(), seekSegmentTime() @ http://help.dottoro.com)
-        '/(on\w+)\s*=\s*(["\']?.+["\']?)/i' => function($matches) {
+        // TODO invalidly processes non-event-related patterns like ontopofold='smoky'
+        '/\b(on[\w.:\-]{4,})\s*=\s*(["\']?.+?["\']?)/i' => function($matches) {
             return $matches[1].'&#61;'.strtr($matches[2], ['"' => '&#34;', "'" => '&#39;', '(' => '&#40;', ')' => '&#41;']);
         },
         // embeds
@@ -1027,7 +1034,11 @@ function execSpecialize(string $val) : string
         },
         ], $val);
 
-    return ($revert) ? entitize($val) : $val;
+    if ($revert) {
+        list($flags, $charset) = get_entparms(0, '', false); // get flag(s) to prevent circling back to this func
+        return entitize($val, $flags, $charset);
+    }
+    return $val;
 }
 
 /**
@@ -1050,6 +1061,9 @@ function create_guid() : string
  */
 function is_secure_request() : bool
 {
+    if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+        return (strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https');
+    }
     return !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off';
 }
 

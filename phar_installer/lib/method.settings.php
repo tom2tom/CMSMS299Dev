@@ -188,6 +188,7 @@ $uuid = strtr($s, '+/', $r);
 $ultras = json_encode(['Modify Database', 'Modify Database Content', 'Modify Restricted Files', 'Remote Administration']);
 
 foreach ([
+    'adminlog_timeout' => 30, // admin-log content lifetime (days)
     'allow_browser_cache' => 1, // allow browser to cache cachable pages
     'auto_clear_cache_age' => 60, // tasks-parameter: cache files for 60 days by default (see also cache_lifetime)
     'browser_cache_expiry' => 60, // browser can cache pages for 60 minutes
@@ -201,13 +202,13 @@ foreach ([
     'cms_schema_version' => $schema,
     'cms_version' => $sysver, // ultimate source of CMSMS version value
     'cms_version_name' => $sysname, // public identifier for CMSMS version
-    'content_imagefield_path' => '', // uploads-relative sub-path of nav-related images
-    'content_thumbnailfield_path' => '', // uploads-relative sub-path of nav-related thumbs
-    'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
+    'content_imagefield_path' => DIRECTORY_SEPARATOR.'navimages', // image-uploads-relative sub-path of nav-related images
+    'content_thumbnailfield_path' => DIRECTORY_SEPARATOR.'navthumbs', // image-uploads-relative sub-path of nav-related thumbs
+    'coremodules' => $cores,
     'current_theme' => '', // frontend theme name
     'date_format' => 'j %B Y', // mixed format
     'datetime_format' => 'j %B Y g:i %P', // ditto
-    'defaultdateformat' => '%e %B %Y %l:%M %P', // localizable strftime()-compatible format OR %#e ... on Windows ?
+    'defaultdateformat' => '%e %B %Y %l:%M %P', // deprecated since PHP8 localizable strftime()-compatible format OR %#e ... on Windows ?
     'enablesitedownmessage' => 0, // deprecated since 3.0 use site_downnow
     'frontendlang' => 'en_US',
     'frontendwysiwyg' => 'HTMLEditor',
@@ -222,9 +223,10 @@ foreach ([
     'loginprocessor' => '', // login UI defined by current theme
     'loginsalt' => $salt,
     'logintheme' => $theme,
+    'logintimeout' => 0, // login-cookie lifetime (days, 0 == session)
     'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved." />'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
     'password_level' => 0, // p/w policy-type enumerator
-//    'password_life' => 0, // p/w lifetime (days) NO TIMEOUT SUPPORT
+//    'password_timeout' => 0, // p/w lifetime (days) NO TIMEOUT SUPPORT
     'site_help_url' => $helpurl,
     'site_uuid' => $uuid, // almost-certainly-unique signature of this site (see also siteuuid-file)
     'sitedownexcludeadmins' => 0,
@@ -286,7 +288,7 @@ foreach ([
     'Manage User Plugins', // TODO description
 //    'Modify Any Page', >CM
     ['Modify Database', 'Change database tables existence, structure'],
-    ['Modify Database Content', 'Modify recorded data via SSH'], // add/remove/update stored data - for remote management, sans admin console
+    ['Modify Database Content', 'Modify recorded data via REST|SSH'], // add/remove/update stored data - for remote management, sans admin console
     'Modify Events',
     'Modify Files',
     'Modify Modules',
@@ -296,7 +298,7 @@ foreach ([
     'Modify Site Preferences',
     'Modify Templates',
     'Modify Themes', //>TM ?
-    ['Remote Administration', 'Site administration via SSH'],  //for remote management, sans admin console kinda Modify Database Content + Modify Restricted Files
+    ['Remote Administration', 'Site administration via REST|SSH'],  //for remote management, sans admin console kinda Modify Database Content + Modify Restricted Files
 //    'Remove Pages', >CM
 //    'Reorder Content', >CM
     'View Admin Log',

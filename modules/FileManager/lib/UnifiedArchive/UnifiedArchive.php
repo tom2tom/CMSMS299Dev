@@ -92,7 +92,6 @@ class UnifiedArchive implements ArrayAccess, Iterator, Countable
      * @param string $format Archive type
      * @param string|null $password
      */
-    #[\ReturnTypeWillChange]
     public function __construct($fileName, $format, $password = null)
     {
         $driver = Formats::getFormatDriver($format);
@@ -124,7 +123,6 @@ class UnifiedArchive implements ArrayAccess, Iterator, Countable
     /**
      * Closes archive
      */
-    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         unset($this->archive);

@@ -99,7 +99,7 @@ class Utils
      */
     public static function unlockdb()
     {
-        $db = CMSMS\Lone::get('Db');
+        $db = Lone::get('Db');
         $db->execute('UNLOCK TABLES');
     }
 
@@ -170,7 +170,7 @@ $until,
                 $rst->Close();
             }
             register_shutdown_function('Search\\Utils::unlockdb');
-            $db->execute('LOCK TABLES '.CMS_DB_PREFIX.'module_search_index'); // no InnoDB >> no transactions TODO MyISAM workaround
+            $db->execute('LOCK TABLES '.CMS_DB_PREFIX.'module_search_index WRITE'); // no InnoDB >> no transactions TODO MyISAM workaround
             foreach ($tmp as $word => $times) {
                 $db->execute($stmt, [$itemid, $word, $times]);
             }

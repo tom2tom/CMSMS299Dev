@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminMenuItem;
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\HookOperations;
 
 final class ContentManager extends CMSModule
@@ -47,8 +47,8 @@ final class ContentManager extends CMSModule
 	public function HasCapability($capability, $params = [])
 	{
 		switch ($capability) {
-			case CoreCapabilities::CORE_MODULE:
-			case CoreCapabilities::SITE_SETTINGS:
+//abandoned			case CapabilityType::CORE_MODULE:
+			case CapabilityType::SITE_SETTINGS:
 				return true;
 			default:
 				return false;
@@ -103,7 +103,7 @@ final class ContentManager extends CMSModule
 	public function GetHeaderHTML()
 	{
 		$out = '';
-		$fmt = '<link rel="stylesheet" type="text/css" href="%s/%s" />';
+		$fmt = '<link rel="stylesheet" href="%s/%s" />';
 		$urlpath = $this->GetModuleURLPath();
 		$cssfiles = [
 			'css/module.min.css'

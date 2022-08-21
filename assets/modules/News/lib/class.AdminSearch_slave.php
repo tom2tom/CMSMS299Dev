@@ -1,7 +1,7 @@
 <?php
 /*
 Class: content searcher for News module
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -42,43 +42,78 @@ final class AdminSearch_slave extends Base_slave
         return $mod->Lang('desc_adminsearch');
     }
 
-    public function check_permission()
+//  public function use_slave(int $userid = 0) : bool {}
+
+    protected function check_permission(int $userid = 0)
     {
-        $userid = get_userid();
+        if ($userid == 0) { $userid = get_userid(); }
         return check_permission($userid,'Modify News');
     }
 
-    //returns array of arrays
+    //returns array, containing arrays or empty
     public function get_matches()
     {
         $mod = Utils::get_module('News');
-        if( !is_object($mod) ) return;
+        if( !is_object($mod) ) return [];
 
+        $fz = $this->search_fuzzy();
+        $output = [];
         $db = Lone::get('Db');
         // build the query
-        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE ';
-        if( $this->search_casesensitive() ) {
-            $where = [
-             'news_title LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_bin',
-             'news_data LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_bin',
-             'summary LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_bin'
+        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE (';
+        if( $fz ) {
+            if( $this->search_casesensitive() ) {
+                $wheres = [
+                 'news_title REGEXP BINARY ?',
+                 'news_data REGEXP BINARY ?',
+                 'summary REGEXP BINARY ?'
+                ];
+            }
+            else {
+//TODO handle case-insensitive whole-chars, not bytes
+                $wheres = [
+                 'news_title REGEXP CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci',
+                 'news_data REGEXP CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci',
+                 'summary REGEXP CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci'
+                ];
+            }
+        } elseif( $this->search_casesensitive() ) {
+            $wheres = [
+             'news_title LIKE BINARY ?',
+             'news_data LIKE BINARY ?',
+             'summary LIKE BINARY ?'
             ];
         }
         else {
-            $where = ['news_title LIKE ?','news_data LIKE ?','summary LIKE ?'];
+            $wheres = [
+             'news_title LIKE ?',
+             'news_data LIKE ?',
+             'summary LIKE ?'
+            ];
         }
 
-        $query .= ' '.implode(' OR ',$where);
-        $query .= ' ORDER BY IF(modified_date,modified_date,create_date) DESC';
-
         $needle = $this->get_text();
-        $wm = '%' . $db->escStr($needle) . '%';
-        $parms = [$wm,$wm,$wm];
+        if( $fz ) {
+            $needle = $this->get_regex_pattern($needle, false);
+            $wm = $db->escStr($needle);
+        }
+        else {
+            $wm = '%' . $db->escStr($needle) . '%';
+        }
 
-        $dbr = $db->getArray($query,[$parms]);
+        if( $this->search_descriptions() ) {
+            $parms = [$wm, $wm, $wm];
+        }
+        else {
+            unset($wheres[2]);
+            $parms = [$wm, $wm];
+        }
+        $query .= implode(' OR ', $wheres).
+        ') ORDER BY IF(modified_date,modified_date,create_date) DESC';
+
+        $dbr = $db->getArray($query, $parms);
         if( $dbr ) {
             // got some results
-            $output = [];
             foreach( $dbr as $row ) {
                 $html = '';
                 foreach( $row as $key => $value ) {
@@ -95,21 +130,21 @@ final class AdminSearch_slave extends Base_slave
                     continue;
                 }
 
+                $desc = $row['summary'];
                 if( $this->check_permission() ) {
                     $url = $mod->create_action_url('','editarticle',['articleid'=>$row['news_id']]);
                 }
                 else {
                     $url = ''; // OR view-only URL?
                 }
-                $tmp = [
-                 'title'=>$row['news_title'],
-                 'description'=>$this->summarize($row['summary']),
-                 'edit_url'=>$url,
-                 'text'=>$html
+                $output[] = [
+                 'title' => $row['news_title'],
+                 'description' => ($desc) ? $this->summarize($desc) : '',
+                 'edit_url' => $url,
+                 'text' => $html
                 ];
-                $output[] = $tmp;
             }
-            return $output;
         }
+        return $output;
     }
 } // class

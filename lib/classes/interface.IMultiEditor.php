@@ -32,8 +32,8 @@ interface IMultiEditor
 	/**
 	 * A CMSModule method, included here to ensure this mechanism for
 	 * identifying capable modules.
-	 * Return true when $capability is CMSMS\CoreCapabilities::WYSIWYG_MODULE
-	 * or CMSMS\CoreCapabilities::SYNTAX_MODULE, as appropriate.
+	 * Return true when $capability is CMSMS\CapabilityType::WYSIWYG_MODULE
+	 * or CMSMS\CapabilityType::SYNTAX_MODULE, as appropriate.
 	 * @see CMSModule::HasCapability();
 	 */
 	public function HasCapability($capability, $params = []);

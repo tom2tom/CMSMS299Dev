@@ -137,7 +137,7 @@ EOS
 and/or any of Smarty\'s generic parameters (nocache, assign etc)',
 
 'help_function_cms_action_url' => '<h3>What does this do?</h3>
-<p>This is a smart plugin useful for generating a URL to a module action. This plugin is useful for module developers who are generating links (either for Ajax or or in the admin interface) to perform different functionality or display different data.</p>
+<p>This is a smart plugin useful for generating a URL to a module action. This plugin is useful for module developers who are generating links (either for ajax or or in the admin interface) to perform different functionality or display different data.</p>
 <h3>Example</h3>
 <pre><code>{cms_action_url module=News action=defaultadmin}</code><pre>,
 <h4>What parameters does it take?</h4>
@@ -145,7 +145,7 @@ and/or any of Smarty\'s generic parameters (nocache, assign etc)',
  <li>module - <em>(optional)</em> - The module name to generate a URL for. This parameter is not necessary if generating a URL from within a module action to an action within the same module.</li>
  <li>action - <strong>(required)</strong> - The action name to generate a URL to</li>
  <li>returnid - <em>(optional)</em> - The integer pageid to display the results of the action in. This parameter is not necessary if the action is to be displayed on the current page, or if the URL is to an admin action from within an admin action.</li>
- <li>mid - <em>(optional)</em> - The module action id. This defaults to &quot;m1_&quot; for admin actions, and &quot;cntnt01&quot; for frontend actions.</li>
+ <li>mid - <em>(optional)</em> - The submitted-parameters-prefix. This defaults to &quot;m1_&quot; for admin actions, and &quot;cntnt01&quot; for frontend actions.</li>
  <li>forjs - <em>(optional)</em> - An optional integer indicating that the generated URL should be suitable for use in JavaScript</li>
 </ul>
 and/or any of Smarty\'s generic parameters (nocache, assign etc)
@@ -397,19 +397,20 @@ and/or any of Smarty\'s generic parameters (nocache, assign etc)
 <p>In addition to the arguments listed above, this plugin will accept any number of additional arguments and forward them directly to the generated img tag if any e.g: <code>{content_image block=\'img1\' id="id_img1" class="page-image" title=\'an image block\' data-foo=bar}</code>',
 
 'help_function_content_module' => '<h3>What does this do?</h3>
-<p>This content block type allows interfacing with different modules to create different content block types.</p>
-<p>Some modules can define content block types for use in module templates, e.g. the FrontEndUsers module might define a group list content block type. It will then indicate how to use the {content_module} tag to utilize that block type within template(s).</p>
+<p>This tag in effect allows interfacing with suitably-capable modules to generate bespoke content.</p>
 <p><strong>Note:</strong> This block type must be used only with compatible modules, and must be used only in accordance with guidance provided by the respective modules.</p>
+<h3>Example</h3>
+<pre><code>{content_module module=\'FilePicker\' block=\'selectedimage\'}</code></pre>
 <h4>What parameters does it take?</h4>
-<p>This tag accepts a few parameters, and passes all other parameters to the module for processing.</p>
 <ul>
- <li><strong>(required)</strong>module - The name of the module that will provide this content block. This module must be installed and available.</li>
+ <li><strong>(required)</strong>module - The name of the module that provides the content block. That module must be installed and available.</li>
  <li><strong>(required)</strong>block - The name of the content block</li>
- <li><em>(optional)</em>label - A label for the content block for use when editing the page</li>
+ <li><em>(optional)</em>label - A label for the content block, to be used when editing the page/template where the tag is placed</li>
  <li><em>(optional)</em> required - Allows specifying that the content block must contain some text</li>
- <li><em>(optional)</em> tab - The desired tab to display this field on in the edit form</li>
- <li><em>(optional)</em> priority (integer) - Allows specifying an integer priority for the block within the tab</li>
+ <li><em>(optional)</em> tab - The tab to display this field on in a page-edit form</li>
+ <li><em>(optional)</em> priority (integer) - Allows specifying the priority for the block within the tab</li>
 </ul>
+and other tag-specific parameters to be passed to the module for setting up or otherwise controlling the editing of the block\'s content.<br/>
 and/or any of Smarty\'s generic parameters (nocache, assign etc)',
 
 'help_function_process_pagedata' => '<h3>What does this do?</h3>
@@ -976,13 +977,13 @@ and/or any of Smarty\'s generic parameters (nocache, assign etc)',
  <li>profile - <em>(optional)</em> string - The name of the profile to use. The profile must exist within the selected file picker module, or a default profile might be used.</li>
  <li>top - <em>(optional)</em> string - A top directory, relative to the uploads directory. This should override any top value already specified in the profile.</li>
  <li>type - <em>(optional)</em> string - An indication of the file type that can be selected.
-   <p>Possible values are: image,audio,video,media,xml,document,archive,any</p>
+   <p>Recognised values are: image,audio,video,media,xml,document,archive,any (lower- or upper-case)</p>
  </li>
- <li>required - <em>(optional)</em> boolean - Indicates whether or not the input field is required</li>
+ <li>required - <em>(optional)</em> boolean - Indicates whether or not a selection is required</li>
 </ul>
 <h3>Example</h3>
 <p>Create a filepicker field to allow selecting images in the images/apples directory.</p>
-<pre><code>{cms_filepicker prefix=$actionid name=article_image top=\'images/apples\' type=\'image\'}</code></pre>',
+<pre><code>{cms_filepicker prefix=$actionid name=article_image top=\'images/apples\' type=\'IMAGE\'}</code></pre>',
 
 'help_function_thumbnail_url' => '<h3>What does this do?</h3>
 <p>This tag generates an URL representing a thumbnail image when an actual image file relative to the uploads directory is specified.</p>

@@ -8,7 +8,7 @@
   {_la('sysmain_pagesfound', {$pagecount})}
 
   {if $invalidtypescount == 0 && $withoutaliascount == 0}
-  <p class='green'><strong>{_la('sysmain_nocontenterrors')}</strong></p>
+  <p class="green"><strong>{_la('sysmain_nocontenterrors')}</strong></p>
   {/if}
   {if $invalidtypescount > 0}
   <form action="{$selfurl}" enctype="multipart/form-data" method="post" onsubmit="confirmsubmit(this,'{_la("sysmain_confirmfixtypes")|escape:"javascript"}');return false;">
@@ -111,7 +111,7 @@
 
 {if isset($changelog)}
 {tab_start name='changelog'}
-  <p class='file'>{$changelogfilename}</p>
+  <p class="file">{$changelogfilename}</p>
   <div class="changelog">{$changelog}</div>
 {/if}
 {tab_end}

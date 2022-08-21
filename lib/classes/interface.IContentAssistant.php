@@ -1,8 +1,8 @@
 <?php
 /*
 Interface for content-assistant classes
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-Thanks to Robert Campbell and all other contributors from the CMSMS Development Team. 
+Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -42,6 +42,6 @@ interface IContentAssistant
 	 * @abstract
 	 * @param ContentBase the object for which the assistant will be used.
 	 */
-	#[\ReturnTypeWillChange]
+//	#[\ReturnTypeWillChange]
 	public function __construct(ContentBase $content);
 }

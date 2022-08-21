@@ -42,9 +42,9 @@ try {
     $menu_type->set_originator($me);
     $menu_type->set_name('navigation');
     $menu_type->set_dflt_flag(TRUE);
-    $menu_type->set_lang_callback('Navigator::page_type_lang_callback');
-    $menu_type->set_content_callback('Navigator::reset_page_type_defaults');
-    $menu_type->set_help_callback('Navigator::template_help_callback');
+    $menu_type->set_lang_callback('Navigator::tpltype_lang_callback');
+    $menu_type->set_content_callback('Navigator::reset_tpltype_default');
+    $menu_type->set_help_callback('Navigator::tpltype_help_callback');
     $menu_type->reset_content_to_factory();
     $menu_type->save();
 }
@@ -60,9 +60,9 @@ try {
     $crumb_type->set_originator($me);
     $crumb_type->set_name('breadcrumbs');
     $crumb_type->set_dflt_flag(TRUE);
-    $crumb_type->set_lang_callback('Navigator::page_type_lang_callback');
-    $crumb_type->set_content_callback('Navigator::reset_page_type_defaults');
-    $crumb_type->set_help_callback('Navigator::template_help_callback');
+    $crumb_type->set_lang_callback('Navigator::tpltype_lang_callback');
+    $crumb_type->set_content_callback('Navigator::reset_tpltype_default');
+    $crumb_type->set_help_callback('Navigator::tpltype_help_callback');
     $crumb_type->reset_content_to_factory();
     $crumb_type->save();
 }

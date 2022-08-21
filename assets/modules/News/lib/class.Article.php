@@ -151,7 +151,7 @@ class Article
     }
 */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)
+    public function __get(string $key)// : mixed
     {
         switch( $key ) {
         case 'id':
@@ -232,8 +232,7 @@ class Article
         }
     }
 
-    #[\ReturnTypeWillChange]
-    public function __isset(string $key)
+    public function __isset(string $key) : bool
     {
         switch( $key )
         {
@@ -280,8 +279,7 @@ class Article
         return FALSE;
     }
 
-    #[\ReturnTypeWillChange]
-    public function __set(string $key,$value)
+    public function __set(string $key,$value) : void
     {
         switch( $key ) {
         case 'id':

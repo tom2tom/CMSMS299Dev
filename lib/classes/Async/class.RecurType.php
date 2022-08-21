@@ -83,8 +83,7 @@ final class RecurType extends BasicEnum
      */
     const RECUR_NONE = 1000;
 
-    #[\ReturnTypeWillChange]
     private function __construct() {}
     #[\ReturnTypeWillChange]
-    private function __clone() {}
+    private function __clone() {}// : void {}
 } // class

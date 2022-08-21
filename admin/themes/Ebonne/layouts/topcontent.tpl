@@ -6,7 +6,7 @@
     <nav class="dashboard-inner">
       <a href="{$node.url}"{if isset($node.target)} target="{$node.target}"{/if}{if !empty($node.selected)} class="selected"{/if} tabindex="-1"></a>
       <h3 class="dashboard-icon {$node.name}">
-        <a href="{$node.url}"{if isset($node.target)} target="{$node.target}"{/if}{if !empty($node.selected)} class="selected"{/if}><svg><use xlink:href="themes/Ebonne/images/navsprite.svg#{$node.name|lower}"/></svg> {$node.title}</a>
+        <a href="{$node.url}"{if isset($node.target)} target="{$node.target}"{/if}{if !empty($node.selected)} class="selected"{/if}><svg><use xlink:href="themes/Ebonne/images/navsprite.svg#{$node.name|lower}" /></svg> {$node.title}</a>
       </h3>
       {if $node.description}
       <span class="description">{$node.description}</span>

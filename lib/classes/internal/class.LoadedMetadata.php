@@ -77,7 +77,7 @@ final class LoadedMetadata extends LoadedData
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/**
 	 * Get the singleton instance of this class

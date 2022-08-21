@@ -75,7 +75,6 @@ class Route implements ArrayAccess
 	 *  May be specified to tailor static-route deletion in a case where
 	 *  dest1 and page are both non-falsy i.e. the destination is a content page.
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct($pattern,$dest1 = NULL,$defaults = [],$is_exact = FALSE,$page = NULL,$delmatch = NULL)
 	{
 		$this->_data['term'] = $pattern;
@@ -132,6 +131,7 @@ class Route implements ArrayAccess
 	public function offsetGet($key)// : mixed
 	{
 		if( in_array($key,self::KEYS) && isset($this->_data[$key]) ) return $this->_data[$key];
+		return null;
 	}
 
 	/**

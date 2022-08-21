@@ -103,7 +103,7 @@ if (isset($params['collapse'])) {
 }
 
 if (isset($params['setinactive'])) {
-	$builder->set_active($params['setinactive'], false);
+	$res = $builder->set_active($params['setinactive'], false);
 	if (!$res) {
 		$this->ShowErrors($this->Lang('error_setinactive'));
 	}
@@ -212,6 +212,7 @@ $secs = AppParams::get('lock_refresh', 120);
 $secs = max(30, min(600, $secs));
 
 $jsm = new ScriptsMerger();
+$jsm->queue_matchedfile('jquery.SSsort.js',1);
 $jsm->queue_matchedfile('jquery.cmsms_poll.js', 2);
 $jsm->queue_matchedfile('jquery.ContextMenu.js', 2);
 
@@ -357,6 +358,15 @@ function adjust_locks(json) {
   return n;
 }
 function setuplist(pause) {
+ $('#contenttable').SSsort({
+  sortClass: 'SortAble',
+  ascClass: 'SortUp',
+  descClass: 'SortDown',
+  oddClass: 'row1',
+  evenClass: 'row2',
+  oddsortClass: 'row1s',
+  evensortClass: 'row2s'
+ });
  var el = $('#bulkaction');
  el.prop('disabled',true);
  var btn = $('#bulk_submit');
@@ -495,6 +505,39 @@ function setuplist(pause) {
 }
 
 $(function() {
+/*$.fn.metadata.defaults = {
+  type: 'attr',
+  name: 'ssmeta',
+  ldelim: '#',
+  rdelim: '#'
+ };
+*/
+ $.fn.SSsort.addParser({
+  id: 'icon',
+  is: function(s,node) {
+   return true;
+  },
+  format: function(s,node) {
+   var el = node.getElementsByTagName('a');
+   if (el.length > 0) {
+    return el[0].innerHTML;
+   }
+   return node.innerHTML;
+  },
+  watch: false,
+  type: 'text'
+ });
+ $.fn.SSsort.addParser({
+  id: 'linktext',
+  is: function(s,node) {
+   return node.getElementsByTagName('a').length > 0
+  },
+  format: function(s,node) {
+   return node.getElementsByTagName('a')[0].textContent;
+  },
+  watch: false,
+  type: 'text'
+ });
  refresher = Poller.add({
   url: pageurl,
   data: pagedata,

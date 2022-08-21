@@ -38,6 +38,10 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
      'e_status', // reflects a repository-check and/or db-check
      'missing_deps',
      'needs_upgrade', // aka 'need_upgrade' ?
+//   'notinforge', // not (standalone at least) in the repository
+     'stagnant', // released > 2 yrs ago, no upgrade
+     'stale_upgrade', // latest upgrade released > 2 yrs ago
+     'fresh_upgrade', // latest upgrade released <= 2 yrs ago
     ];
 
     private const DEPRECATED = ['MenuManager'];
@@ -57,8 +61,7 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
      * @param bool $can_load
      * @param bool $can_check_forge
      */
-    #[\ReturnTypeWillChange]
-    public function __construct($modname,$can_load = true,$can_check_forge = true)
+    public function __construct(string $modname, bool $can_load = true, bool $can_check_forge = true)
     {
         parent::__construct($modname,$can_load);
 
@@ -73,7 +76,7 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
             elseif( $can_check_forge ) {
                 try {
                     $rep_info = ModuleRepClient::get_upgrade_module_info($modname);
-                    if( is_array($rep_info) ) {
+                    if( $rep_info ) {
                         if( ($res = version_compare($this['version'],$rep_info['version'])) < 0 ) {
                             $this['e_status'] = 'newer_available';
                         }
@@ -266,18 +269,61 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
                 }
             }
 //            return parent::OffsetGet($key);
-            return !in_array($modname,['AdminLogin','ModuleManager']);
+            return !in_array($modname,['Authenticator','ModuleManager']);
           case 'missing_deps':
-            // is any dependency missing
-            return $this->_get_missing_dependencies();
+              // is any dependency missing
+              return $this->_get_missing_dependencies();
           case 'deprecated':
-            // is this module deprecated
-            return in_array($this['name'],self::DEPRECATED);
+              // is this module deprecated
+              return in_array($this['name'],self::DEPRECATED);
+/*        case 'notinforge':
+              if( !$this['version'] || !$this['installed_version'] || $this['bundled'] ) {
+                  return false; // ignore
+              }
+              $data = ModuleRepClient::get_repository_modules($this['name'],false,true); dunt work properly for v.old releases !
+              return !$data[0] || !$data[1];
+*/
+          case 'stagnant':
+/*
+if ($this['name'] == 'MBVFaq') { // example: in-forge, very old
+    $here = 1;
+}
+if ($this['name'] == 'News') { // example: in-forge, unbundled, recent
+    $here = 1;
+}
+*/
+              if( !$this['version'] || !$this['installed_version'] || $this['bundled'] ) {
+                  return false; // ignore
+              }
+              //OR $rep_info = ModuleRepClient::get_repository_modules($this['name'],false,true);
+              // then check [0][1] contents which is supposed to be the latest release BUT dunt work properly!
+              if( !isset($rep_info) ) { $rep_info = ModuleRepClient::get_upgrade_module_info($this['name']); }
+              if( !$rep_info ) {
+                  return false; //TODO check ANY in-forge version? release-date of installed version in forge? support & check installation-date ?
+              }
+              $its = strtotime('now'); // TODO release-date of installed version | support & check installation-date
+              if( !isset($stale_ts) ) { $stale_ts = strtotime('-2 years'); }
+              return ($its < $stale_ts) && version_compare($rep_info['version'],$this['version'] <= 0);
+          case 'stale_upgrade':
+          case 'fresh_upgrade':
+              if( !$this['version'] || !$this['installed_version'] || $this['bundled'] ) {
+                  return false; // ignore
+              }
+              if( !isset($rep_info) ) { $rep_info = ModuleRepClient::get_upgrade_module_info($this['name']); }
+              if( !$rep_info ) {
+                  return false; // TODO N/A == no upgrade available ??
+              }
+              if (version_compare($rep_info['version'],$this['version'] <= 0)) {
+                  return false; // no upgrade available
+              }
+              if( !isset($ts) ) { $ts = strtotime($rep_info['date']); }
+              if( !isset($stale_ts) ) { $stale_ts = strtotime('-2 years'); }
+              return ($key == 'stale_upgrade') ? ($ts < $stale_ts) : ($ts >= $stale_ts);
         } // switch
+        return null;
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetSet($key,$value)// : void
+    public function offsetSet($key,$value) : void
     {
         if( !in_array($key,self::MMPROPS) ) parent::OffsetSet($key,$value);
         // only this may be set directly
@@ -286,8 +332,7 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
         }
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetExists($key)// : bool
+    public function offsetExists($key) : bool
     {
         if( !in_array($key,self::MMPROPS) ) {
             return parent::OffsetExists($key);
@@ -299,11 +344,14 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
              'deprecated',
              'missing_deps',
              'needs_upgrade',
-             'need_upgrade',]);
+             'need_upgrade',
+//           'notinforge',
+             'fresh_upgrade',
+             'stale_upgrade',
+             'stagnant']);
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($key)// : void
+    public function offsetUnset($key) : void
     {
     }
 }

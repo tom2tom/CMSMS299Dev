@@ -191,16 +191,23 @@ $(function() {{$xjs}
         $(this).val('');
         //do anything else?
       } else {
-        //fuzzy search c.f. content-list searcher
+        //fuzzy search c.f. content-list searcher c.f. AdmminSearch::Base_slave::get_regex_pattern()
         //adapted from https://codereview.stackexchange.com/questions/23899/faster-javascript-fuzzy-string-matching-function
-        var arr = tgt.split(''),
-         r = '[^ ]*? ',
+        var ir = '/\\\\^-]', //intra-class reserved chars
+         er = '/\\\\.,+-*?^$[](){}', //extra-class reserves
+         arr = tgt.split(''),
          t = arr.shift(),
          patn = arr.reduce(function(m, c) {
-          if (c != '/') {
-            return m + r.replaceAll(' ', c);
+          var a = ir.indexOf(c) > -1;
+          var b = er.indexOf(c) > -1;
+          if (a && b) {
+            return m + '[^\\\\' + c + ']*?\\\\' + c;
+          } else if (a) {
+            return m + '[^\\\\' + c + ']*?' + c;
+          } else if (b) {
+            return m + '[^' + c + ']*?\\\\' + c;
           } else {
-            return m + '[^\/]*?\/';
+            return m + '[^' + c + ']*?' + c;
           }
         }, t);
         var rex = new RegExp(patn, 'uig'),

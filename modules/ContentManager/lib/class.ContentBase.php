@@ -345,8 +345,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	/**
 	 * @param mixed $params Optional array of property names and values, or null
 	 */
-	#[\ReturnTypeWillChange]
-	public function __construct($params = null)// : void
+	public function __construct(/*array */$params = null)
 	{
 		$this->mod = AppUtils::get_module('ContentManager');
 		$this->domain = $this->mod->GetName();
@@ -376,8 +375,7 @@ abstract class ContentBase implements IContentEditor, Serializable
   	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	public function __toString()// : string
+	public function __toString() : string
 	{
 		return json_encode($this->__serialize(), JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE); // PHP 7.2+
 	}
@@ -411,7 +409,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	#[\ReturnTypeWillChange]
-	public function unserialize($serialized)// : void
+	public function unserialize(/*string*/$serialized)// : void
 	{
 		$str = Crypto::decrypt_string($serialized, __CLASS__, 'best');
 		if (!$str) {
@@ -995,7 +993,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 	/**
 	 * An alias for ShowElement()
-	 * @deprecated since 2.0
+	 * @deprecated since 3.0
 	 * @param string $propname
 	 * @param bool $adding
 	 * @return mixed 2-member array: [0] = label, [1] = input element | null | false
@@ -1455,7 +1453,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 		$name1 = ($adding) ? 'ContentAddPre' : 'ContentEditPre';
 		$name2 = ($adding) ? 'AddPre' : 'EditPre';
 
-		Events::SendEvent('Core', $name, ['content' => &$this]); //TODO deprecate? module for originator?
+		Events::SendEvent('Core', $name1, ['content' => &$this]); //TODO deprecate? module for originator?
 		Events::SendEvent($this->domain, $name2, ['content' => &$this]);
 
 		if (!is_array($this->_props)) {

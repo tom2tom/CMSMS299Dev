@@ -20,10 +20,12 @@
   <input type="checkbox" class="filter_toggle" id="search_descriptions" value="1"{if !empty($saved_search.search_descriptions)} checked="checked"{/if} />&nbsp;
   <label class="check" for="search_descriptions">{_ld($_module,'lbl_search_desc')}</label><br />
   <br />
-  <input type="checkbox" id="case_sensitive" value="1"{if !empty($saved_search.search_casesensitive)} checked="checked"{/if} />&nbsp;
-  <label class="check" for="case_sensitive">{_ld($_module,'lbl_cased_search')}</label><br />
+  <input type="checkbox" id="search_casesensitive" value="1"{if !empty($saved_search.search_casesensitive)} checked="checked"{/if} />&nbsp;
+  <label class="check" for="search_casesensitive">{_ld($_module,'lbl_cased_search')}</label><br />
   {$t=_ld($_module,'desc_verbatim_search')}<input type="checkbox" id="verbatim_search" title="{$t}" value="1"{if !empty($saved_search.verbatim_search)} checked="checked"{/if} />&nbsp;
   <label class="check" for="verbatim_search" title="{$t}">{_ld($_module,'lbl_verbatim_search')}</label><br />
+  {$t=_ld($_module,'desc_fuzzy_search')}<input type="checkbox" id="search_fuzzy" title="{$t}" value="1"{if !empty($saved_search.search_fuzzy)} checked="checked"{/if} />&nbsp;
+  <label class="check" for="search_fuzzy" title="{$t}">{_ld($_module,'lbl_fuzzy_search')}</label><br />
   {$t=_ld($_module,'desc_save_search')}<input type="checkbox" id="save_search" title="{$t}" value="1"{if !empty($saved_search.save_search)} checked="checked"{/if} />&nbsp;
   <label class="check" for="save_search" title="{$t}">{_ld($_module,'lbl_save_search')}</label>
   </div>

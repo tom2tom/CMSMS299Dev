@@ -62,7 +62,9 @@ class theme_reader extends reader_base
     $cur_key = null;
 
     $get_in = function() use ($in) {
-      if( ($n = count($in)) ) return $in[$n-1];
+      if( $in ) {
+        return end($in);
+      }
     };
 
     if( $this->_scanned ) return;
@@ -276,13 +278,13 @@ class theme_reader extends reader_base
     $this->_scan();
 
     $out = [];
-    foreach( $this->_css_info as $key => $one ) {
+    foreach( $this->_css_info as $one ) {
       $rec = [];
       $rec['name'] = $one['name'];
       $rec['desc'] = '';
       $rec['data'] = base64_decode($one['data']);
       $rec['mediatype'] = base64_decode($one['mediatype']);
-      $rec['medisaquery'] = '';
+      $rec['mediaquery'] = '';
       $out[] = $rec;
     }
     return $out;
@@ -309,7 +311,7 @@ class theme_reader extends reader_base
     $templates = TemplateOperations::template_query(['as_list'=>1]);
     $tpl_names = array_values($templates);
 
-    foreach( $this->_tpl_info as $key => &$rec ) {
+    foreach( $this->_tpl_info as &$rec ) {
       // make sure that this  template doesn't already exist.
       $name = $rec['name'];
       if( in_array($name,$tpl_names) ) {
@@ -326,6 +328,7 @@ class theme_reader extends reader_base
         }
       }
     }
+    unset($rec);
   }
 
   protected function validate_stylesheet_names()
@@ -335,7 +338,7 @@ class theme_reader extends reader_base
     $stylesheets = StylesheetOperations::get_all_stylesheets(TRUE);
     $css_names = array_values($stylesheets);
 
-    foreach( $this->_css_info as $key => &$rec ) {
+    foreach( $this->_css_info as &$rec ) {
       if( in_array($rec['name'],$css_names) ) {
         // gotta come up with a new name
         $orig_name = $rec['name'];
@@ -351,6 +354,7 @@ class theme_reader extends reader_base
         }
       }
     }
+    unset($rec);
   }
 
   public function import()
@@ -381,7 +385,7 @@ class theme_reader extends reader_base
     $config = Lone::get('Config');
 
     // part2 .. expand files.
-    foreach( $this->_ref_map as $key => &$rec ) {
+    foreach( $this->_ref_map as &$rec ) {
       if( !isset($rec['data']) || $rec['data'] == '' ) continue;
 
       $destfile = cms_join_path($config['uploads_path'],'themes',$destdir,$rec['name']);
@@ -389,39 +393,40 @@ class theme_reader extends reader_base
       $rec['tpl_url'] = "{uploads_url}/themes/$destdir/{$rec['name']}";
       $rec['css_url'] = "[[uploads_url]]/themes/$destdir/{$rec['name']}";
     }
+    unset($rec);
 
     // part3 .. process stylesheets
     $css_info = $this->get_stylesheet_list();
-    foreach( $css_info as $name => &$css_rec ) {
+    foreach( $css_info as &$css_rec ) {
       $stylesheet = new Stylesheet();
       $stylesheet->set_name($css_rec['name']);
 
-      $ob = &$this;
       $regex='/url\s*\(\"*(.*)\"*\)/i';
-      $css_rec['data'] = preg_replace_callback($regex, function($matches) use ($ob,$ref_map,$destdir)
-          {
-            $url = $matches[1];
-	        //TODO generally support the websocket protocol 'wss' : 'ws'
-            if( !startswith($url,'http') || startswith($url,CMS_ROOT_URL) ||
-                startswith($url,'[[root_url]]') ) {
-              $bn = basename($url);
-              if( isset($ref_map[$bn]) ) {
-                $out = $ref_map[$bn]['css_url'];
-                return 'url('.$out.')';
-              }
-            }
-            return $matches[0];
-          },$css_rec['data']);
+      $css_rec['data'] = preg_replace_callback($regex, function($matches) use ($ref_map)
+      {
+         $url = $matches[1];
+	     //TODO generally support the websocket protocol 'wss' : 'ws'
+         if( !startswith($url,'http') || startswith($url,CMS_ROOT_URL) ||
+             startswith($url,'[[root_url]]') ) {
+           $bn = basename($url);
+           if( isset($ref_map[$bn]) ) {
+             $out = $ref_map[$bn]['css_url'];
+             return 'url('.$out.')';
+           }
+         }
+         return $matches[0];
+      },$css_rec['data']);
       if( isset($css_rec['media_type']) ) $stylesheet->add_media_type($css_rec['mediatype']);
       $stylesheet->set_content($css_rec['data']);
       $stylesheet->save();
       $design->add_stylesheet($stylesheet);
     }
+    unset($css_rec);
 
     // part4 .. process templates
-    $fn1 = function($matches) use ($ob,&$tpl_info) {
+    $fn1 = function($matches) use (&$tpl_info) {
       $out = preg_replace_callback("/template\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
-        function($matches) use ($ob,&$tpl_info)
+        function($matches) use (&$tpl_info)
 	    {
            if( isset($tpl_info[$matches[1]]) ) {
             $rec = $tpl_info[$matches[1]];
@@ -434,7 +439,7 @@ class theme_reader extends reader_base
       return $out;
     };
 
-    $fn2 = function($matches) use ($ob,&$type,$ref_map,$destdir)
+    $fn2 = function($matches) use (&$type,$ref_map)
     {
       $url = $matches[2];
       //TODO generally support the websocket protocol 'wss' : 'ws'
@@ -451,19 +456,18 @@ class theme_reader extends reader_base
 
     $tpl_info = $this->get_template_list();
     $have_mm_template = FALSE;
-	$me = null; //TODO
-    foreach( $tpl_info as $name => &$tpl_rec ) {
+	$me = 'DesignManager'; //TODO generalise
+    foreach( $tpl_info as &$tpl_rec ) {
       if( $tpl_rec['type_originator'] == 'MenuManager' ) $have_mm_template = TRUE;
 
       $template = new Template();
-      $template->set_originator($me);
+      $template->set_originator($me); // TODO OR $tpl_rec['type_originator'] ?
       $template->set_owner(get_userid(FALSE));
       $template->set_name($tpl_rec['name']);
 
       $types = ['href', 'src', 'url'];
       $content = $tpl_rec['data'];
       foreach( $types as $type ) {
-        $tmp_type = $type;
         $innerT = '[a-z0-9:?=&@/._-]+?';
         $content = preg_replace_callback("|$type\=([\"'`])(".$innerT.')\\1|i', $fn2,$content);
       }
@@ -482,6 +486,7 @@ class theme_reader extends reader_base
       $template->save();
       $design->add_template($template);
     }
+    unset($tpl_rec);
 
     // part5 ... save design
     $design->save();

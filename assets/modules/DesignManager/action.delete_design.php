@@ -62,6 +62,7 @@ try {
                             $css->delete();
                         }
                     }
+                    unset($css);
                 }
             }
         }
@@ -78,6 +79,7 @@ try {
 							$tpl->delete();
 						}
 					}
+                    unset($tpl);
 				}
             }
         }

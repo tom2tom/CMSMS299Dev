@@ -26,23 +26,26 @@ function smarty_function_cms_filepicker($params, $template)
 {
 	$out = '';
 	$name = trim($params['name'] ?? '');
-	$profile_name = trim($params['profile'] ?? '');
-	if( $name && $profile_name ) {
+	if( $name ) {
 		$filepicker = Utils::get_filepicker_module();
 		if( $filepicker ) {
-
-			$profile = $filepicker->get_profile_or_default($profile_name);
 
 			$prefix = trim($params['prefix'] ?? '');
 			$name = $prefix.$name;
 			$value = trim($params['value'] ?? '');
-			$top = trim($params['top'] ?? '');
-			$type = trim($params['type'] ?? '.'); // per FileType enum (e.g. 0 == FileType::NONE)
 			$required = cms_to_bool($params['required'] ?? false);
 
+			$profile_name = trim($params['profile'] ?? '');
+			$profile = $filepicker->get_profile_or_default($profile_name);
 			$parms = [];
+			$top = trim($params['top'] ?? '');
 			if( $top ) $parms['top'] = $top;
-			if( $type !== '.' ) $parms['type'] = $type;
+			$type = trim($params['type'] ?? ''); // per FileType enum (e.g. 0 OR NONE)
+			if( is_numeric($type) ) {
+				$parms['type'] = (int)$type;
+			} elseif( $type ) {
+				$parms['typename'] = strtoupper($type);
+			}
 			if( $parms ) $profile = $profile->overrideWith($parms);
 
 			$out = $filepicker->get_html($name, $value, $profile, $required);
@@ -67,12 +70,12 @@ function smarty_cms_help_function_cms_filepicker()
 	echo _ld('tags', 'help_generic',
 	'This plugin generates a file-selector element for uploading a file',
 	'cms_filepicker ...',
-	'<li>name: the name-attribute of the element</li>
+	'<li>name: the name-attribute of the selector element</li>
 <li>prefix: optional string to prepend to the element-name</li>
-<li>profile: name of a file-system profile specifying permissions etc</li>
-<li>required: optional flag, whether a file must be selected</li>
-<li>top: topmost/base website folder from which the file may be selected</li>
-<li>type: optional FileType identifier (e.g. 0 == FileType::NONE)</li>
-<li>value: optional initial value of the element</li>'
+<li>profile: optional name of a file-system controls-set specifying permissions etc</li>
+<li>required: optional flag, whether some file must be selected</li>
+<li>top: optional topmost/base website folder from which, or from a descendant of which, the file may be selected</li>
+<li>type: optional FileType identifier e.g. ANY or 99</li>
+<li>value: optional initial value of the selector element</li>'
 	);
 }

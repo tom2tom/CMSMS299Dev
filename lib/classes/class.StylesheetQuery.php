@@ -82,7 +82,7 @@ class StylesheetQuery extends DbQueryBase
 		$this->_limit = 1000;
 		$this->_offset = 0;
 		$db = Lone::get('Db');
-		$where = [];
+		$wheres = [];
 		foreach( $this->_args as $key => $val ) {
 			if( empty($val) ) continue;
 			if( is_numeric($key) && $val[1] == ':' ) {
@@ -94,14 +94,14 @@ class StylesheetQuery extends DbQueryBase
 			case 'i':
 			case 'id':
 				$val = (int)$val;
-				$where[] = 'S.id = '.$val;
+				$wheres[] = 'S.id = '.$val;
 				break;
 
 			case 'n': // name (prefix)
 			case 'name':
 				$val = trim($val);
 				if( strpos($val,'%') === FALSE ) $val .= '%';
-				$where[] = 'S.name LIKE '.$db->qStr($val);
+				$wheres[] = 'S.name LIKE '.$db->qStr($val);
 				break;
 
 			case 'o':
@@ -116,7 +116,7 @@ class StylesheetQuery extends DbQueryBase
 				if (strcasecmp($val, 'core') == 0) {
 					$val = '__CORE__';
 				}
-				$where[] = "S.originator $op ".$db->qStr($val);
+				$wheres[] = "S.originator $op ".$db->qStr($val);
 				break;
 
 			case 's': // stylesheet id's and/or stylesheet-group id's
@@ -141,7 +141,7 @@ class StylesheetQuery extends DbQueryBase
 					}
 				}
 				if( $all ) {
-					$where[] = 'S.id IN('.implode(',',$all).')';
+					$wheres[] = 'S.id IN('.implode(',',$all).')';
 				}
 				break;
 /*
@@ -151,7 +151,7 @@ class StylesheetQuery extends DbQueryBase
 				// we do join, and sort by item order in the design
 				$query .= ' LEFT JOIN '.CMS_DB_PREFIX.DesignManager\Design::CSSTABLE.' D ON S.id = D.css_id'; DISABLED
 				$val = (int)$val;
-				$where[] = "D.design_id = $val";
+				$wheres[] = "D.design_id = $val";
 				break;
 */
 			case 'limit':
@@ -200,7 +200,7 @@ class StylesheetQuery extends DbQueryBase
 			}
 		}
 
-		if( $where ) $query .= ' WHERE '.implode(' AND ',$where);
+		if( $wheres ) $query .= ' WHERE '.implode(' AND ',$wheres);
 		if( $sortby && empty($extras) ) {
 			$query .= ' ORDER BY '.$sortby.' '.$sortorder;
 		}

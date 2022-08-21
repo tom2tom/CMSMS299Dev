@@ -5,7 +5,6 @@ use cms_installer\nls;
 
 final class ru_RU_nls extends nls
 {
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $this->_fullname = 'Russian';

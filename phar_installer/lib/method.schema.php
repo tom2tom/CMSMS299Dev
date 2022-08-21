@@ -26,7 +26,7 @@ status_msg(lang('install_createtablesindexes'));
 
 $dbdict = $db->NewDataDictionary();
 $taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii'];
-//$innotaboptarray = ['mysqli' => 'CHARACTER SET utf8mb4'];
+//$innotaboptarray = ['mysqli' => 'ENGINE=InnoDB CHARACTER SET utf8mb4'];
 $casedtaboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii COLLATE ascii_bin'];
 //TODO how to also support MariaDB 'Aria' MyISAM-replacement engine if so wanted ?
 

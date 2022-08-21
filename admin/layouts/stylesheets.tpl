@@ -22,22 +22,6 @@
 {/if}{/strip}
 {/function}
 
-{if $navpages > 1}
-<div class="browsenav postgap">
- <span id="tblpagelink">
- <a href="javascript:pagefirst(pagetable)">{_ld('layout','pager_first')}</a>&nbsp;|&nbsp;
-{if $navpages > 2}
- <a href="javascript:pageback(pagetable)">{_ld('layout','pager_previous')}</a>&nbsp;&lt;&gt;&nbsp;
- <a href="javascript:pageforw(pagetable)">{_ld('layout','pager_next')}</a>&nbsp;|&nbsp;
-{/if}
- <a href="javascript:pagelast(pagetable)">{_ld('layout','pager_last')}</a>&nbsp;
- ({_ld('layout','pageof','<span id="cpage">1</span>',"<span id='tpage'>`$navpages`</span>")})&nbsp;&nbsp;
- </span>>
- <select id="pagerows" name="pagerows">
-  {html_options options=$pagelengths selected=$currentlength}
- </select>&nbsp;&nbsp;{_ld('layout','pager_rows')}
-</div>
-{/if} {* navpages *}
 <form action="{$bulkurl}" enctype="multipart/form-data" method="post">
   {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
 {/foreach}
@@ -45,9 +29,9 @@
     <thead>
      {strip}<tr>
       {if $manage_stylesheets}
-      <th title="{_ld('layout','title_css_id')}">{_ld('layout','prompt_id')}</th>
+      <th class="{literal}{sss:numeric}{/literal}" title="{_ld('layout','title_css_id')}">{_ld('layout','prompt_id')}</th>
       {/if}
-      <th title="{_ld('layout','title_css_name')}">{_ld('layout','prompt_name')}</th>
+      <th class="{literal}{sss:text}{/literal}" title="{_ld('layout','title_css_name')}">{_ld('layout','prompt_name')}</th>
       {if $manage_stylesheets}
       <th class="pageicon nosort"></th>{* menu *}
       <th class="pageicon nosort">
@@ -56,13 +40,13 @@
       {/if}
       </tr>{/strip}
     </thead>
-    <tbody>
+    <tbody>{$micon={admin_icon icon='menu.gif' alt='menu' title=_ld('layout','title_menu') class='systemicon'}}
       {foreach $stylesheets as $css}
       {cycle values="row1,row2" assign='rowclass'}
       <tr class="{$rowclass}" onmouseover="this.className='{$rowclass}hover';" onmouseout="this.className='{$rowclass}';">
       {if $manage_stylesheets}{$sid=$css->get_id()}
       <td>{$sid}</td>{strip}
-      {$url="editstylesheet.php`$urlext`&css=`$sid`"}
+      {$url="editstylesheet.php{$urlext}&css=$sid"}
       <td><a class="action edit_css tooltip" href="{$url}" data-css-id="{$sid}" data-cms-description="{css_info}" title="{_ld('layout','title_edit_stylesheet')}">{$css->get_name()}</a></td>
       <td>
        {$ul=!$css->locked()}
@@ -70,7 +54,7 @@
        <span class="locked" data-css-id="{$sid}" title="{$t}"{if $ul} style="display:none;"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
        {$t=_ld('layout','prompt_steal_lock')}
        <a class="steal_lock" href="{$url}&steal=1" data-css-id="{$sid}" title="{$t}" accesskey="e"{if $ul} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
-       <span class="action" context-menu="Stylesheet{$sid}"{if !$ul} style="display:none;"{/if}>{admin_icon icon='menu.gif' alt='menu' title=_ld('layout','title_menu') class='systemicon'}</span></td>
+       <span class="action" context-menu="Stylesheet{$sid}"{if !$ul} style="display:none;"{/if}>{$micon}</span></td>
       <td>
        <input type="checkbox" id="{$css@index}" class="css_select action" name="css_select[]" title="{_ld('layout','prompt_select')}" value="{$sid}" />
       </td>

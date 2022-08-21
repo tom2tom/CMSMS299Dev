@@ -35,7 +35,7 @@ function smarty_function_get_jquery($params, $template)
 	if ($uicss) {
 		$url = cms_path_to_url($incs['jquicss']);
 		$out = <<<EOS
-<link rel="stylesheet" type="text/css" href="{$url}" />
+<link rel="stylesheet" href="{$url}" />
 
 EOS;
 	} else {

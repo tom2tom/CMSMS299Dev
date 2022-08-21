@@ -77,12 +77,12 @@ class EbonneTheme extends AdminTheme
 		$csm->queue_matchedfile('normalize.css', 1);
 		$csm->queue_matchedfile('flex-grid-lite.css', 2);
 		$csm->queue_matchedfile('grid-960.css', 2); //for modules, deprecated since 3.0
-		$out = $csm->page_content('', false, true);
+		$out = $csm->page_content();
 
 		// jQUI css does, and theme-specific css files might, include relative URLs, so cannot be merged
 		$url = cms_path_to_url($incs['jquicss']);
 		$out .= <<<EOS
-<link rel="stylesheet" type="text/css" href="$url" />
+<link rel="stylesheet" href="$url" />
 
 EOS;
 		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
@@ -91,16 +91,17 @@ EOS;
 		$files = $this->get_styles();
 		$after = '';
 		foreach ($files as $fp) {
+			// OR $csm->queue_matchedfile( );
 			$extra = substr($fp, $n);
 			$sufx = strtr($extra, '\\', '/');
 			$after .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$rel_url}/{$sufx}" />
+<link rel="stylesheet" href="{$rel_url}/{$sufx}" />
 
 EOS;
 		}
 /*		//DEBUG
 		$after .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$rel_url}/styles/superfishnav.css" />
+<link rel="stylesheet" href="{$rel_url}/styles/superfishnav.css" />
 
 EOS;
 */
@@ -172,7 +173,7 @@ EOS;
 			}
 		}
 		$out = <<<EOS
- <link rel="stylesheet" type="text/css" href="themes/Ebonne/styles/{$fn}.min.css" />
+ <link rel="stylesheet" href="themes/Ebonne/styles/{$fn}.min.css" />
 
 EOS;
 //		get_csp_token(); //setup CSP header (result not used)
@@ -360,7 +361,7 @@ EOS;
 		return $smarty->fetch('pagetemplate.tpl');
 	}
 
-	public function DisplayImage($image, $alt = '', $width = '', $height = '', $class = null, $attrs = [])
+	public function DisplayImage($image, $alt = '', $width = 0, $height = 0, $class = '', $attrs = [])
 	{
 		//[.../]icons/system/* are processed here, custom handling is needed for in-sprite svg's
 		if (strpos($image, 'system') === false) {

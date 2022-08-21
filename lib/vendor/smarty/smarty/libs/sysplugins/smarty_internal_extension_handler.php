@@ -156,7 +156,6 @@ class Smarty_Internal_Extension_Handler
      *
      * @return mixed|Smarty_Template_Cached
      */
-    #[\ReturnTypeWillChange]
     public function __get($property_name)
     {
         // object properties of runtime template extensions will start with '_'
@@ -178,7 +177,6 @@ class Smarty_Internal_Extension_Handler
      * @param mixed  $value         value
      *
      */
-    #[\ReturnTypeWillChange]
     public function __set($property_name, $value)
     {
         $this->$property_name = $value;
@@ -192,7 +190,6 @@ class Smarty_Internal_Extension_Handler
      *
      * @return mixed
      */
-    #[\ReturnTypeWillChange]
     public function __call($name, $args)
     {
         return call_user_func_array(array(new Smarty_Internal_Undefined(), $name), array($this));

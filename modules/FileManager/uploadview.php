@@ -13,7 +13,7 @@ the Free Software Foundation; either version 3 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -32,7 +32,6 @@ $tpl->assign('formstart', $this->CreateFormStart($id, 'upload', $returnid, 'post
   'disable_buffer'=>'1',
   'path'=>$path,
   ]));
-// ->assign('formend', $this->CreateFormEnd())
 // ->assign('actionid', $id)
 // ->assign('maxfilesize', $config['max_upload_size']);
 
@@ -50,7 +49,7 @@ $tpl->assign('ie_upload_message', $this->Lang('ie_upload_message'));
 
 /* see filemanager.css
 $css = <<<EOS
-<style type="text/css">
+<style>
 / *.upload-wrapper {
  margin: 10px 0
 } * /

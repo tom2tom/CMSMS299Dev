@@ -27,20 +27,19 @@ class logquery
 {
     private $_realquery;
 
-    #[\ReturnTypeWillChange]
     public function __construct(logfilter $filter)
     {
         $this->_realquery = new dbquery($filter); // TODO relevant store c.f. logger->_store
     }
 
     #[\ReturnTypeWillChange]
-    public function __set(string $key, $value)
+    public function __set(string $key, $value)// : void
     {
         $this->_realquery->$key = $value;
     }
 
     #[\ReturnTypeWillChange]
-    public function __get(string $key)
+    public function __get(string $key)// : mixed
     {
         return $this->_realquery->$key;
     }

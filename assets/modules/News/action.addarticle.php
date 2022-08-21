@@ -29,6 +29,7 @@ use CMSMS\TemplateType;
 use CMSMS\Url;
 use CMSMS\Utils as AppUtils;
 use News\AdminOperations;
+use News\Utils;
 use function CMSMS\de_specialize_array;
 use function CMSMS\log_error;
 use function CMSMS\log_info;
@@ -45,6 +46,7 @@ if (isset($params['cancel'])) {
 }
 
 $me = $this->GetName();
+//$cz = $config['timezone'];
 $dt = new DateTime(null, new DateTimeZone('UTC'));
 
 $query = 'SELECT news_category_id,long_name FROM ' . CMS_DB_PREFIX . 'module_news_categories ORDER BY hierarchy';
@@ -285,7 +287,8 @@ WHERE news_id=?';
                 $error = true;
             }
         }
-    } // outer !$error
+    // outer !$error
+    }
 
     $fromdate = $params['fromdate'];
     $fromtime = $params['fromtime'] ?? '';
@@ -320,37 +323,36 @@ WHERE news_id=?';
         $params['cancel'],
         $params['ajax']);
 
-    $tmpfname = tempnam(TMP_CACHE_LOCATION, $me . '_preview');
-    file_put_contents($tmpfname, serialize($params));
-
-    $detail_returnid = $this->GetPreference('detail_returnid', -1);
-    if ($detail_returnid <= 0) {
-        // get the default content id
-        $detail_returnid = Lone::get('ContentOperations')->GetDefaultContent();
-    }
-    if (isset($params['previewpage']) && (int)$params['previewpage'] > 0) {
-        $detail_returnid = (int)$params['previewpage'];
-    }
-    $_SESSION['news_preview'] = [
-        'fname' => basename($tmpfname),
-        'checksum' => md5_file($tmpfname)
-    ];
-    $tparms = ['preview' => md5(serialize($_SESSION['news_preview']))];
-    if (!empty($params['detailtemplate'])) {
-        $tparms['detailtemplate'] = trim($params['detailtemplate']);
-    }
-    $url = $this->create_url('_preview_', 'detail', $detail_returnid, $tparms, true, false, '', false, 2);
-
-    $response = '<?xml version="1.0"?>';
-    $response .= '<EditArticle>';
+    $response = '<?xml version="1.0"?><AddArticle>';
     if (!empty($error)) {
         $response .= '<Response>Error</Response>';
         $response .= '<Details><![CDATA[' . $error . ']]></Details>';
     } else {
+        $detail_returnid = $this->GetPreference('detail_returnid', -1);
+        if ($detail_returnid <= 0) {
+            // get the default content id
+            $detail_returnid = Lone::get('ContentOperations')->GetDefaultContent();
+        }
+        if (isset($params['previewpage']) && (int)$params['previewpage'] > 0) {
+            $detail_returnid = (int)$params['previewpage'];
+        }
+
+        $tmpfname = tempnam(TMP_CACHE_LOCATION, $me . '_preview');
+        file_put_contents($tmpfname, serialize($params));
+        $_SESSION['news_preview'] = [
+            'fname' => basename($tmpfname),
+            'checksum' => md5_file($tmpfname)
+        ];
+        $tparms = ['preview' => md5(serialize($_SESSION['news_preview']))];
+        if (!empty($params['detailtemplate'])) {
+            $tparms['detailtemplate'] = trim($params['detailtemplate']);
+        }
+        $url = $this->create_url('_preview_', 'detail', $detail_returnid, $tparms, true, false, '', false, 2);
+
         $response .= '<Response>Success</Response>';
         $response .= '<Details><![CDATA[' . $url . ']]></Details>';
     }
-    $response .= '</EditArticle>';
+    $response .= '</AddArticle>';
 
     $handlers = ob_list_handlers();
     for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) {
@@ -443,7 +445,7 @@ if ($this->CheckPermission('Approve News')) {
         $this->Lang('draft') => 'draft',
         $this->Lang('final') => 'final',
     ];
-//  $statusradio = $this->CreateInputRadioGroup($id,'status',$choices,$status,'','  ');
+//  $statusradio = $this->CreateInputRadioGroup($id, 'status', $choices, $status, '', '  ');
     $statusradio = FormUtils::create_select([ // DEBUG
         'type' => 'radio',
         'name' => 'status',
@@ -453,7 +455,7 @@ if ($this->CheckPermission('Approve News')) {
         'selectedvalue' => $status,
         'delimiter' => '  ',
     ]);
-    $tpl->assign('statuses',$statusradio);
+    $tpl->assign('statuses', $statusradio);
 //   ->assign('statustext', lang('status'));
 }
 
@@ -465,7 +467,7 @@ $profile = $tmp->overrideWith(['top'=>$dir, 'type'=>FileType::IMAGE]);
 $text = $picker->get_html($id.'image_url', $image_url, $profile);
 $tpl->assign('filepicker', $text);
 
-// get the detail templates, if any
+// get the detail templates, if any, for use in a preview
 try {
     $type = TemplateType::load($me . '::detail');
     $templates = $type->get_template_list();
@@ -476,7 +478,7 @@ try {
         }
     }
     if ($list) {
-        $str = AdminUtils::CreateHierarchyDropdown(0, (int)$this->GetPreference('detail_returnid',-1), 'preview_returnid');
+        $str = AdminUtils::CreateHierarchyDropdown(0, (int)$this->GetPreference('detail_returnid', -1), 'preview_returnid');
         $tpl->assign('detail_templates', $list)
          ->assign('cur_detail_template', $this->GetPreference('current_detail_template'))
          ->assign('preview', true)

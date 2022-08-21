@@ -23,7 +23,9 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\AppParams;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
+use CMSMS\FormUtils;
 use CMSMS\Lone;
+use CMSMS\ScriptsMerger;
 use CMSMS\UserParams;
 use function CMSMS\de_specialize;
 use function CMSMS\log_error;
@@ -42,12 +44,11 @@ if (!check_permission($userid, 'Manage Users')) {
     throw new Error403Exception(_la('permissiondenied')); // OR display error.tpl ?
 }
 
-//--------- Variables ---------
+//--------- variables ---------
+
 $themeObject = Lone::get('Theme');
 $db = Lone::get('Db');
 $templateuser = AppParams::get('template_userid');
-$page = 1;
-$limit = 100;
 $message = '';
 $error = '';
 $userops = Lone::get('UserOperations');
@@ -55,7 +56,7 @@ $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 $urlext = get_secure_param();
 
-//---------- Logic ----------
+//---------- logic ----------
 
 if (isset($_GET['switchuser'])) {
     // switch user functionality is only allowed for members of the admin group
@@ -67,7 +68,7 @@ if (isset($_GET['switchuser'])) {
         } elseif (!$to_user->active) {
             $themeObject->RecordNotice('error', _la('userdisabled'));
         } else {
-            Lone::get('LoginOperations')->set_effective_user($to_user);
+            Lone::get('AuthOperations')->set_effective_user($to_user);
             redirect('menu.php'.$urlext.'&section=usersgroups'); // TODO bad section hardcode
         }
     } else {
@@ -288,17 +289,121 @@ if (isset($_GET['switchuser'])) {
     }
 }
 
-//------- Script for page footer -------
+$is_admin = $userops->UserInGroup($userid, 1);
+$t = _la('edituser');
+$iconedit = $themeObject->DisplayImage('icons/system/edit.gif', $t, '', '', 'systemicon');
+$linkedit = "<a href=\"edituser.php{$urlext}&user_id=XXX\" title=\"$t\">$iconedit</a>";
+$t = _la('deleteuser');
+$icondel = $themeObject->DisplayImage('icons/system/delete.gif', $t, '', '', 'systemicon');
+$linkdel = "<a href=\"deleteuser.php{$urlext}&user_id=XXX\" class=\"js-delete\" title=\"$t\">$icondel</a>";
 
-//$nonce = get_csp_token();
+$iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', _la('adduser'), '', '', 'systemicon');
+$t = $themeObject->DisplayImage('icons/system/true.gif', 'XXX', '', '', 'systemicon');
+$icontrue = str_replace('XXX', _la('yes'), $t);
+$icontrue2 = str_replace('XXX', _la('activetip2'), $t); // for links
+$t = $themeObject->DisplayImage('icons/system/false.gif', 'XXX', '', '', 'systemicon');
+$iconfalse = str_replace('XXX', _la('no'), $t);
+$iconfalse2 = str_replace('XXX', _la('activetip1'), $t); // for links
+$iconrun = $themeObject->DisplayImage('icons/system/run.gif', _la('switchuser'), '', '', 'systemicon');
+$iconmenu = $themeObject->DisplayImage('icons/system/menu.gif', _ld('layout','title_menu'), '', '', 'systemicon');
+$menus = [];
+$userlist = [];
+
+foreach ($userops->LoadUsers() as $one) { // want id,username,active
+    $uid = $one->id;
+    $item = [
+        'id' => $uid,
+        'name' => $one->username,
+        'active' => $one->active,
+        'editable' => $userid == 1 || $is_admin,
+//      'pagecount' => $userops->CountPageOwnershipById($uid) // TODO if needed e.g. warn/allow deletion?
+    ];
+    $userlist[$uid] = $item;
+
+    if ($item['editable']) {
+        $acts = [['content'=>str_replace('XXX', $uid, $linkedit)]];
+        if ($uid != $userid) {
+            $acts[] = ['content'=>str_replace('XXX', $uid, $linkdel)];
+        }
+        $menus[] = FormUtils::create_menu($acts, ['id'=>'User'.$uid]);
+    }
+}
+
+$tblpaged = 'false';
+$elid1 = 'null';
+$elid2 = 'null';
+$n = count($userlist);
+$sellength = 10; //OR some $_REQUEST[]
+if ($n > 10) {
+    $tblpaged = 'true';
+    $tblpages = (int)ceil($n / 10);
+    if ($tblpages > 2) {
+        $elid1 = '"pspage"';
+        $elid2 = '"ntpage"';
+    }
+    $pagelengths = [10 => 10];
+    if ($n > 20) { $pagelengths[20] = 20; }
+    if ($n > 40) { $pagelengths[40] = 40; }
+    $pagelengths[0] = _la('all');
+} else {
+    $tblpages = 1;
+    $pagelengths = null;
+}
+
+//------- page footer script -------
+
+$jsm = new ScriptsMerger();
+$jsm->queue_matchedfile('jquery.SSsort.js', 1);
+$jsm->queue_matchedfile('jquery.ContextMenu.js', 1);
+$out = $jsm->page_content();
+
 $confirm1 = json_encode(_la('confirm_switchuser'));
 $confirm2 = json_encode(_la('confirm_toggleuseractive'));
 $confirm3 = json_encode(_la('confirm_delete_user'));
 $confirm4 = json_encode(_la('confirm_bulkuserop'));
-$out = <<<EOS
+
+$out .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[
+var listtable;
 $(function() {
+ listtable = document.getElementById('userslist');
+ var opts = {
+  sortClass: 'SortAble',
+  ascClass: 'SortUp',
+  descClass: 'SortDown',
+  oddClass: 'row1',
+  evenClass: 'row2',
+  oddsortClass: 'row1s',
+  evensortClass: 'row2s'
+ };
+ if($tblpaged) {
+  var xopts = $.extend({}, opts, {
+   paginate: true,
+   pagesize: $sellength,
+   firstid: 'ftpage',
+   previd: $elid1,
+   nextid: $elid2,
+   lastid: 'ltpage',
+   selid: 'tblpagerows',
+   currentid: 'cpage',
+   countid: 'tpage'//,
+// onPaged: function(table,pageid){}
+  });
+  $(listtable).SSsort(xopts);
+  $('#tblpagerows').on('change',function() {
+   var l = parseInt(this.value);
+   if(l === 0) {
+    $('#tblpagelink').hide();//TODO hide/toggle label-part 'per page'
+   } else {
+    $('#tblpagelink').show();//TODO show/toggle label-part 'per page'
+   }
+  });
+ } else {
+  $(listtable).SSsort(opts);
+ }
+ $(listtable).find('[context-menu]').ContextMenu();
+//$('#userslist [context-menu]').ContextMenu();
  $('#sel_all').cmsms_checkall();
  $('.switchuser').on('click', function(ev) {
   ev.preventDefault();
@@ -340,7 +445,7 @@ $(function() {
   }
   return false;
  });
- $('#withselected').change(function() {
+ $('#withselected').on('change', function() {
   var v = $(this).val();
   if(v === 'copyoptions') {
    $('#userlist').show();
@@ -355,7 +460,7 @@ EOS;
 
 add_page_foottext($out);
 
-//--------- Display view ---------
+//--------- final setup ---------
 
 if (!empty($error)) {
     $themeObject->RecordNotice('error', $error );
@@ -373,50 +478,30 @@ $bulkactions['clearoptions'] = _la('clearusersettings');
 $bulkactions['copyoptions'] = _la('copyusersettings2');
 $bulkactions['disable'] = _la('disable');
 $bulkactions['enable'] = _la('enable');
-$bulkactions['delete'] = _la('usersdelete');
+$bulkactions['delete'] = _la('delete');
 $bulkactions['retire'] = _la('retirepass');
-
-$userlist = [];
-$offset = ((int)$page - 1) * $limit;
-$users = $userops->LoadUsers($limit, $offset);
-$is_admin = $userops->UserInGroup($userid, 1);
-
-foreach ($users as &$one) {
-    if (!$is_admin && $userops->UserInGroup($one->id, 1)) {
-        $one->access_to_user = 0;
-    } else {
-        $one->access_to_user = 1;
-    }
-    $one->pagecount = $userops->CountPageOwnershipById($one->id);
-    $userlist[$one->id] = $one;
-}
-unset($one);
-
-$iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', _la('adduser'), '', '', 'systemicon');
-$iconedit = $themeObject->DisplayImage('icons/system/edit.gif', _la('edit'), '', '', 'systemicon');
-$icondel = $themeObject->DisplayImage('icons/system/delete.gif', _la('delete'), '', '', 'systemicon');
-$icontrue = $themeObject->DisplayImage('icons/system/true.gif', _la('yes'), '', '', 'systemicon');
-$iconfalse = $themeObject->DisplayImage('icons/system/false.gif', _la('no'), '', '', 'systemicon');
-$iconrun = $themeObject->DisplayImage('icons/system/run.gif', _la('switchuser'), '', '', 'systemicon');
 
 $smarty = Lone::get('Smarty');
 $smarty->assign([
     'addurl' => 'adduser.php',
-    'editurl' => 'edituser.php',
-    'deleteurl' => 'deleteuser.php',
-    'is_admin' => $is_admin,
     'iconadd' => $iconadd,
-    'icondel' => $icondel,
-    'iconedit' => $iconedit,
     'iconfalse' => $iconfalse,
+    'iconfalse2' => $iconfalse2,
+    'iconmenu' => $iconmenu,
     'iconrun' => $iconrun,
     'icontrue' => $icontrue,
-    'my_userid' => $userid,
+    'icontrue2' => $icontrue2,
     'selfurl' => $selfurl,
     'extraparms' => $extras,
     'urlext' => $urlext,
     'bulkactions' => $bulkactions,
     'userlist' => $userlist,
+    'usermenus' => $menus,
+    'my_userid' => $userid,
+    'become' => $userid == 1 || $is_admin,
+    'tblpages' => $tblpages,
+    'pagelengths' => $pagelengths,
+    'currentlength' => $sellength
 ]);
 
 $content = $smarty->fetch('listusers.tpl');

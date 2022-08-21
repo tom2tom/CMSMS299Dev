@@ -423,6 +423,7 @@ button,
 input[type="button"],
 input[type="submit"],
 .adminsubmit,
+.pagechange, /* fake button */
 .loginsubmit,
 .ui-button {
     border: 1px solid #d3d3d3;
@@ -1937,6 +1938,9 @@ table.pagetable td {
     color: #585858;
     padding-right: 5px;
     padding-left: 5px
+}
+table.pagetable td .fontimage {
+    padding: 0.25em;
 }
 table.pagetable a {
     color: #232323

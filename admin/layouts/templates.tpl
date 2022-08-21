@@ -24,7 +24,7 @@
 
 {function type_info}
 {strip}{$tpltype=$list_all_types.$type_id}
-<strong>{_ld('layout','prompt_type')}:</strong> {$type_id}<br/>
+<strong>{_ld('layout','prompt_type')}:</strong> {$type_id}<br />
 {$tmp=$tpltype->get_description()}{if $tmp}
  <strong>{_ld('layout','prompt_description')}:</strong> {$tmp|summarize}
 {/if}{/strip}
@@ -36,12 +36,12 @@
   <table class="pagetable" id="tpllist">
    <thead>
     <tr>
-     <th title="{_ld('layout','title_tpl_id')}">{_ld('layout','prompt_id')}</th>{strip}
-     <th title="{_ld('layout','title_tpl_name')}">{_ld('layout','prompt_name')}</th>
-     <th title="{_ld('layout','title_tpl_type')}">{_ld('layout','prompt_type')}</th>
-{*   <th title="{_ld('layout','title_tpl_filename')}">{_ld('layout','prompt_filename')}</th> *}
-{*   <th title="{_ld('layout','title_tpl_design')}">{_ld('layout','prompt_design')}</th> *}
-     <th class="pageicon {literal}{sss:'intfor'}{/literal}" title="{_ld('layout','title_tpl_dflt')}">{_ld('layout','prompt_dflt')}</th>{* dflt *}
+     <th class="{literal}{sss:numeric}{/literal}" title="{_ld('layout','title_tpl_id')}">{_ld('layout','prompt_id')}</th>{strip}
+     <th class="{literal}{sss:text}{/literal}" title="{_ld('layout','title_tpl_name')}">{_ld('layout','prompt_name')}</th>
+     <th class="{literal}{sss:text}{/literal}" title="{_ld('layout','title_tpl_type')}">{_ld('layout','prompt_type')}</th>
+{*   <th class="{literal}{sss:text}{/literal}" title="{_ld('layout','title_tpl_filename')}">{_ld('layout','prompt_filename')}</th> *}
+{*   <th class="{literal}{sss:text}{/literal}" title="{_ld('layout','title_tpl_design')}">{_ld('layout','prompt_design')}</th> *}
+     <th class="pageicon {literal}{sss:intfor}{/literal}" title="{_ld('layout','title_tpl_dflt')}">{_ld('layout','prompt_dflt')}</th>{* dflt *}
 {*
      <th class="pageicon nosort"></th>{ * edit * }
      {if $has_add_right}<th class="pageicon"></th>{/if}{ * copy * }
@@ -52,13 +52,14 @@
     </tr>
    </thead>
    <tbody>
-  {$icontrue = {admin_icon icon='true.gif' title=_ld('layout','title_dflt_tpl')}}
-  {$iconfalse = {admin_icon icon='false.gif' title=_ld('layout','prompt_notdflt_tpl')}}
+  {$icontrue = {admin_icon icon='true.gif' title=_ld('layout','title_dflt_tpl') class='systemicon'}}
+  {$iconfalse = {admin_icon icon='false.gif' title=_ld('layout','prompt_notdflt_tpl') class='systemicon'}}
+  {$iconmenu = {admin_icon icon='menu.gif' alt='menu' title=_ld('layout','title_menu') class='systemicon'}}
   {foreach $templates as $template}{$tid=$template->get_id()}
   {cycle values="row1,row2" assign='rowclass'}
    <tr class="{$rowclass}" onmouseover="this.className='{$rowclass}hover';" onmouseout="this.className='{$rowclass}';">
     <td>{$tid}</td>{strip}
-    {$url="edittemplate.php`$urlext`&tpl=`$tid`"}
+    {$url="edittemplate.php{$urlext}&tpl=$tid"}
     {* template name column *}
      <td><a href="{$url}" class="action edit_tpl tooltip" data-tpl-id="{$tid}" data-cms-description="{tpl_info}" title="{_ld('layout','title_edit_template')}">{$template->get_name()}</a></td>
     {* template type column *}
@@ -75,16 +76,12 @@
     </td>
     {* default column *}
     {if $list_all_types && isset($list_all_types.$type_id)}{$the_type=$list_all_types.$type_id}
-    {if $the_type->get_dflt_flag()}
-      <td class="pagepos">
-      {if $template->get_type_dflt()}<span style="display:none">1</span>
-       {$icontrue}
-      {else}<span style="display:none">2</span>
-       {$iconfalse}
-      {/if}
+    {if $the_type->get_dflt_flag()}{$t=$template->get_type_dflt()}
+      <td class="pagepos" data-sss="{if $t}1{else}2{/if}">
+      {if $t}{$icontrue}{else}{$iconfalse}{/if}
       </td>
     {else}
-      <td class="pagepos" title="{_ld('layout','prompt_title_na')}"><span style="display:none">3</span>{_ld('layout','prompt_na')}</td>
+      <td class="pagepos" title="{_ld('layout','prompt_title_na')}" data-sss="3">{_ld('layout','prompt_na')}</td>
     {/if}
     {else}
      <td></td>
@@ -96,7 +93,7 @@
      <span class="locked" data-tpl-id="{$tid}" title="{$t}"{if $ul} style="display:none;"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
     {$t=_ld('layout','prompt_steal_lock')}
      <a href="{$url}&steal=1" class="steal_lock" data-tpl-id="{$tid}" title="{$t}" accesskey="e"{if $ul} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
-    <span class="action" context-menu="Template{$tid}"{if !$ul} style="display:none;"{/if}>{admin_icon icon='menu.gif' alt='menu' title=_ld('layout','title_menu') class='systemicon'}</span>
+    <span class="action" context-menu="Template{$tid}"{if !$ul} style="display:none;"{/if}>{$iconmenu}</span>
     </td>
     {* checkbox column *}
     <td>

@@ -67,10 +67,13 @@ if (!isset($USE_THEME) || $USE_THEME) {
 	if (isset($config['show_performance_info'])) {
 		$db = Lone::get('Db');
 		$endtime = microtime();
-		$memory = (function_exists('memory_get_usage')?memory_get_usage():0);
+		$memory = (function_exists('memory_get_usage') ? memory_get_usage() : 0);
 		$memory_net = 'n/a';
-		if (isset($orig_memory)) $memory_net = $memory - $orig_memory;
-		$memory_peak = (function_exists('memory_get_peak_usage')?memory_get_peak_usage():0);
+		if (isset($orig_memory)) {
+			$memory_net = $memory - $orig_memory;
+		}
+		$memory_peak = (function_exists('memory_get_peak_usage') ? memory_get_peak_usage() : 0);
+		//TODO some template for the following ? and langified strings
 		echo '<div style="clear: both;">'.microtime_diff($starttime,$endtime).' / '.($db->query_count??'')." queries / Net Memory: {$memory_net} / End: {$memory} / Peak: {$memory_peak}</div>\n";
 	}
 } else {

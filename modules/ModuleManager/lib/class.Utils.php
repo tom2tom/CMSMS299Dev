@@ -28,7 +28,6 @@ use ModuleManager\CachedRequest;
 use ModuleManager\ModuleRepClient;
 use RuntimeException;
 use const CMS_VERSION;
-use const MINIMUM_REPOSITORY_VERSION;
 use function cms_join_path;
 
 final class Utils
@@ -36,10 +35,9 @@ final class Utils
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
     private function __construct() {}
     #[\ReturnTypeWillChange]
-    private function __clone() {}
+    private function __clone() {}// : void {}
 
     /**
      * Return information about installed modules
@@ -50,7 +48,7 @@ final class Utils
      * [0] = true always
      * [1] = array of arrays
      */
-    public static function get_installed_modules($include_inactive = false, $as_hash = false)
+    public static function get_installed_modules($include_inactive = FALSE,$as_hash = FALSE)
     {
         $modops = Lone::get('ModuleOperations');
         $module_list = $modops->GetInstalledModules($include_inactive); // available | all
@@ -79,12 +77,12 @@ final class Utils
     /**
      * Custom sort method
      * @internal
-     * 
+     *
      * @param mixed $e1 object | array
      * @param mixed $e2 object | array
      * @return int
      */
-    private static function uasort_cmp_details($e1, $e2)
+    private static function uasort_cmp_details($e1,$e2)
     {
         if( is_object($e1) ) {
             $n1 = $e1->name;
@@ -107,22 +105,37 @@ final class Utils
         if( $r !== 0 ) {
             return $r <=> 0;
         }
-        return version_compare($v2, $v1);
+        return version_compare($v2,$v1);
     }
 
     /**
-     *
-     * @param array $xmldetails Reference to ...
-     * @param array $installdetails Reference to ...
+     * Reconcile installed and in-forge modules (the latter from
+     *  ModuleRepClient::get_repository_modules())
+     * @param array $xmldetails Reference to array of forge data for a
+     * series of modules e.g. all named like A*, each member an array like
+     *  'name' => 'AceSyntax'
+     *  'filename' => 'AceSyntax-1.0.1.xml'
+     *  'md5sum' => '53358ac108bf203ccc10bc5dd1147cd5'
+     *  'version' => '1.0.1'
+     *  'mincmsversion' => '2.1'
+     *  'description' => 'AceSyntax is a syntax highlighter module using <strong>Ace</strong> a standalone code editor written in JavaScript.'	string
+     *  'date' => '2019-11-09 10:39:59'
+     *  'size' => '20132483'
+     *  'downloads' => 0
+     * @param array $installdetails Reference to array of installed-modules
+     * data each member an array like
+     *  'name' => 'AdminSearch'
+     *  'description' => ''
+     *  'version' => '1.2'
+     *  'active' => true
      * @param bool $newest Optional flag whether to retrieve the latest available version
      * @return array maybe empty
      */
-    public static function build_module_data(&$xmldetails, &$installdetails, $newest = true)
+    public static function build_module_data(&$xmldetails,&$installdetails,$newest = TRUE)
     {
         if( !is_array($xmldetails) ) return [];
-
         // sort
-        uasort($xmldetails, 'ModuleManager\Utils::uasort_cmp_details');
+        uasort($xmldetails,'ModuleManager\Utils::uasort_cmp_details');
 
         $mod = AppUtils::get_module('ModuleManager');
 
@@ -151,7 +164,7 @@ final class Utils
                     $found = 1;
                     // if the version of the xml file is greater than that of the
                     // installed module, we have an upgrade
-                    $res = version_compare($det1['version'], $det2['version']);
+                    $res = version_compare($det1['version'],$det2['version']);
                     if( $res == 1 ) {
                         $det1['status'] = 'upgrade';
                     }
@@ -189,7 +202,7 @@ final class Utils
 
         // now we have everything
         // let's try sorting it
-        uasort($results, 'ModuleManager\Utils::uasort_cmp_details');
+        uasort($results,'ModuleManager\Utils::uasort_cmp_details');
         return $results;
     }
 
@@ -201,7 +214,7 @@ final class Utils
      * @return string
      * @throws CommunicationException or RuntimeException
      */
-    public static function get_module_xml($filename,$size,$md5sum = null)
+    public static function get_module_xml($filename,$size,$md5sum = NULL)
     {
         $mod = AppUtils::get_module('ModuleManager');
         $xml_filename = ModuleRepClient::get_repository_xml($filename,$size);
@@ -214,7 +227,6 @@ final class Utils
             @unlink($xml_filename);
             throw new RuntimeException($mod->Lang('error_checksum',[$md5sum,$dl_md5]));
         }
-
         return $xml_filename;
     }
 
@@ -239,8 +251,8 @@ final class Utils
             if( $req->getStatus() == 200 ) {
                 $result = $req->getResult();
                 if( $result ) {
-                    $data = json_decode($result,true);
-                    if( $data && version_compare($data,MINIMUM_REPOSITORY_VERSION) >= 0 ) {
+                    $data = json_decode($result,TRUE);
+                    if( $data && version_compare($data,$mod::MIN_FORGE_VERSION) >= 0 ) {
                         $ok = TRUE;
                         return TRUE;
                     }
@@ -254,18 +266,19 @@ final class Utils
 
     /**
      *
-     * @param string $date
-     * @return mixed string|null
+     * @param string $date supplied by Forge, formatted like Y-m-d G:i:s
+     * @return string maybe empty
      */
     public static function get_status($date)
     {
         $ts = strtotime($date);
-        $stale_ts = strtotime('-2 years');
-        $warn_ts = strtotime('-18 months');
-        $new_ts = strtotime('-1 month');
-        if( $ts <= $stale_ts ) return 'stale';
-        if( $ts <= $warn_ts ) return 'warn';
-        if( $ts >= $new_ts ) return 'new';
+        $limit = strtotime('-2 years');
+        if( $ts <= $limit ) return 'stale';
+        $limit = strtotime('-18 months');
+        if( $ts <= $limit ) return 'warn';
+        $limit = strtotime('-1 month');
+        if( $ts >= $limit ) return 'new';
+        return '';
     }
 
     /**
@@ -277,20 +290,25 @@ final class Utils
         $base = cms_join_path($mod->GetModulePath(),'images').DIRECTORY_SEPARATOR;
         $themeObject = AppUtils::get_theme_object();
 
-        foreach ([
-            ['error','stale'],
-            ['puzzle','missingdeps'],
-            ['warn','warning'],
-            ['new','new'],
-            ['star','star'],
-            ['system','system'],
+        //[0] = file basename [1] = alt, tip suffix, variable-name suffix
+        foreach( [
+            ['bundled','bundled'],
             ['deprecated','deprecated'],
-        ] as &$one) {
+            ['new','new'],
+//            ['noforge','noforge'],
+            ['puzzle','missingdeps'],
+            ['stagnant','stagnant'],
+            ['stale','stale'],
+            ['stale','staleupgrade'],
+            ['star','upgradeable'],
+            ['star2','freshupgrade'],
+            ['warn','warning'],
+        ] as &$one ) {
             $path = $base.$one[0];
             $title = $mod->Lang('title_'.$one[1]);
-            $img = $themeObject->DisplayImage($path, $one[1], '20', '20', null, ['title'=>$title]);
+            $img = $themeObject->DisplayImage($path,$one[1],0,0,'statusicon',['title'=>$title]);
             $template->assign($one[1].'_img',$img);
         }
-        unset ($one);
+        unset($one);
     }
 } // class

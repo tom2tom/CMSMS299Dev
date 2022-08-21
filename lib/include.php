@@ -37,7 +37,6 @@ use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
 use CMSMS\RequestParameters;
 use CMSMS\RouteOperations;
-use CMSMS\TreeOperations;
 use function CMSMS\add_shutdown;
 use function CMSMS\do_template_processing;
 use function CMSMS\get_installed_schema_version;
@@ -288,7 +287,7 @@ if (!$installing) {
     }
 
 /*  // After autoloader & modules
-    $modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::JOBS_MODULE);
+    $modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CapabilityType::JOBS_MODULE);
     if ($modnames) {
         $mod = Lone::get('ModuleOperations')->get_module_instance($modnames[0]);
         $_app->jobmgrinstance = $mod; //cache it

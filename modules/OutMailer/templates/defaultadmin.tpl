@@ -32,14 +32,14 @@
     {$t=$title_from}<label class="pagetext" for="from">{$t}:</label>
     {cms_help 0=$_module key='info_from' title=$t}
     <div class="pageinput">
-      <input type="text" id="from" name="{$actionid}from" value="{$value_from}" size="30" maxlength="80" />
+      <input type="text" id="from" name="{$actionid}from" value="{$value_from}" size="40" maxlength="80" />
     </div>
   </div>
   <div class="pageoverflow">
     {$t=$title_fromuser}<label class="pagetext" for="fromuser">{$t}:</label>
     {cms_help 0=$_module key='info_fromuser' title=$t}
     <div class="pageinput">
-      <input type="text" id="fromuser" name="{$actionid}fromuser" value="{$value_fromuser}" size="30" maxlength="80" />
+      <input type="text" id="fromuser" name="{$actionid}fromuser" value="{$value_fromuser}" size="40" maxlength="80" />
     </div>
   </div>
   <div class="pageoverflow">
@@ -91,14 +91,14 @@
     {$t=$title_username}<label class="pagetext" for="username">{$t}:</label>
     {cms_help 0=$_module key='info_username' title=$t}
     <div class="pageinput">
-      <input type="text" id="username" name="{$actionid}username" value="{$value_username}" size="30" maxlength="64" />
+      <input type="text" id="username" name="{$actionid}username" value="{$value_username}" size="40" maxlength="64" />
     </div>
   </div>
   <div class="pageoverflow">
     {$t=$title_password}<label class="pagetext" for="password">{$t}:</label>
     {cms_help 0=$_module key='info_password' title=$t}
     <div class="pageinput">
-      <input type="text" id="password" class="cloaked" name="{$actionid}password" value="{$value_password}" size="30" maxlength="64" />
+      <input type="text" id="password" class="cloaked" name="{$actionid}password" value="{$value_password}" size="40" maxlength="80" />
     </div>
   </div>
   </fieldset>

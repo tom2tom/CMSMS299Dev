@@ -217,12 +217,12 @@ for ($tries = 0; $tries < 2; ++$tries) {
         // add different columns... and the save() method won't work.
         verbose_msg('create initial template types');
 
-        $contents = std_layout_template_callbacks::reset_page_type_defaults();
+        $contents = std_layout_template_callbacks::reset_tpltype_default();
         $sql = 'INSERT INTO '.CMS_DB_PREFIX.TemplateType::TABLENAME.' (originator,name,has_dflt,dflt_contents,description,
                     lang_cb, dflt_content_cb, requires_contentblocks, owner, created, modified)
                 VALUES (?,?,?,?,?,?,?,?,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())';
         $dbr = $db->execute($sql, [TemplateType::CORE, 'page', true, $contents, null,
-               serialize('CMSMS\internal\std_layout_template_callbacks::page_type_lang_callback'),
+               serialize('CMSMS\internal\std_layout_template_callbacks::tpltype_lang_callback'),
                serialize('CMSMS\internal\std_layout_template_callbacks::reset_page_type_default'), true, null]);
         $contents = null;
         $dbr = $db->execute($sql, [TemplateType::CORE, 'generic', false, null, null,
@@ -236,8 +236,8 @@ for ($tries = 0; $tries < 2; ++$tries) {
     $page_template_type->set_originator(TemplateType::CORE);
     $page_template_type->set_name('page');
     $page_template_type->set_dflt_flag(TRUE);
-    $page_template_type->set_lang_callback('CMSMS\internal\std_layout_template_callbacks::page_type_lang_callback');
-    $page_template_type->set_content_callback('CMSMS\internal\std_layout_template_callbacks::reset_page_type_defaults');
+    $page_template_type->set_lang_callback('CMSMS\internal\std_layout_template_callbacks::tpltype_lang_callback');
+    $page_template_type->set_content_callback('CMSMS\internal\std_layout_template_callbacks::reset_tpltype_default');
     $page_template_type->reset_content_to_factory();
     $page_template_type->set_content_block_flag(TRUE);
     $page_template_type->save();
@@ -344,7 +344,7 @@ if ($tmp) {
         }
     }
 
-    if (count($gcblist)) {
+    if ($gcblist) {
         // process all of the additional owners, and sort them into an array of uids, one array for each gcb.
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'additional_htmlblob_users';
         $tmp = $db->getArray($query);
@@ -556,9 +556,9 @@ if ($un) {
 
 verbose_msg(ilang('reset_user_settings'));
 $theme = 'OneEleven';
-$query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value = ? WHERE preference = ?';
+$query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET `value` = ? WHERE preference = ?';
 $db->execute($query, [$theme, 'admintheme']);
-$query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value = ? WHERE preference = ? AND value = ?';
+$query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET `value` = ? WHERE preference = ? AND `value` = ?';
 $db->execute($query, ['MicroTiny', 'wysiwyg', 'TinyMCE']);
 $query = 'DELETE FROM '.CMS_DB_PREFIX.'userprefs WHERE preference = ?';
 $db->execute($query, ['collapse']);

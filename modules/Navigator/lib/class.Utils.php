@@ -43,10 +43,9 @@ final class Utils
     // static properties here >> Lone property|ies ?
     private static $excludes;
 
-    #[\ReturnTypeWillChange]
     private function __construct() {}
     #[\ReturnTypeWillChange]
-    private function __clone() {}
+    private function __clone() {}// : void {}
 
     public static function set_excludes($data)
     {

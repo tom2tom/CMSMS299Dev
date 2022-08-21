@@ -1,7 +1,7 @@
 <?php
 /*
 CMSModuleManager module function: populate installed-modules tab
-Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -36,6 +36,7 @@ $in = [
 'admin_only',
 //'author',
 //'authoremail',
+'bundled', // bundled with installer
 'can_deactivate',
 'can_install',
 'can_uninstall',
@@ -47,6 +48,7 @@ $in = [
 'description',
 //'dir', // module-folder
 'e_status',
+'fresh_upgrade',
 //'has_custom',
 //'help',
 'installed_version',
@@ -56,9 +58,11 @@ $in = [
 'name',
 'needs_upgrade',
 'notavailable',
+'notinforge',
 'root_writable', // just the module-folder
+'stagnant',
+'stale_upgrade',
 'status', // 'installed' or empty
-'system_module',
 'ver_compatible',
 'version',
 'writable', // module-folder & everything in it

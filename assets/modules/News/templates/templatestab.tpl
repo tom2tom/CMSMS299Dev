@@ -7,15 +7,15 @@
 {if $tplcount2 > 0 && isset($rowchanger2)}
   <div class="boxchild">
    <span id="tpglink">
-   <a href="javascript:pagefirst(tpltable)">{_ld('layout','pager_first')}</a>
+   <span id="ftpage2" class="pagelink">{_ld('layout','pager_first')}</span>
 {if $tplpages2 > 2}
-   <a href="javascript:pageprev(tpltable)">{_ld('layout','pager_previous')}</a>
-   <a href="javascript:pagenext(tpltable)">{_ld('layout','pager_next')}</a>
+   <span id="pspage2" class="pagelink">{_ld('layout','pager_previous')}</span>
+   <span id="ntpage2" class="pagelink">{_ld('layout','pager_next')}</span>
 {/if}
-   <a href="javascript:pagelast(tpltable)">{_ld('layout','pager_last')}</a>
-   {_ld($_module,'pageof','<span id="cpage2">1</span>',"<span id='tpage2' style='margin-right:0.5em;'>`$totpg2`</span>")}
+   <span id="ltpage2" class="pagelink">{_ld('layout','pager_last')}</span>
+   {_ld('layout','pageof','<span id="cpage2">1</span>',"<span id='tpage2' style='margin-right:0.5em;'>{$totpg2}</span>")}
    </span>
-   {$rowchanger2}{_ld($_module,'pagerows')}
+   {$rowchanger2}{_ld('layout','pager_rowspp')}{*TODO sometimes show 'pager_rows'*}
   </div>{*boxchild*}
 {/if}
 </div>{*rowbox*}
@@ -24,9 +24,9 @@
 <table id="tpltable" class="pagetable{if $tplcount2 > 1} table_sort{/if}">
  <thead>
   <tr>
-    <th{if $tplcount2 > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{_la('name')}</th>
-    <th{if $tplcount2 > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{_la('type')}</th>
-    <th{if $tplcount2 > 1} class="{literal}{sss:'forint'}{/literal}"{/if} title="{_ld($_module,'tip_tpl_type')}">{_la('default')}</th>
+    <th{if $tplcount2 > 1} class="{literal}{sss:text}{/literal}"{/if}>{_la('name')}</th>
+    <th{if $tplcount2 > 1} class="{literal}{sss:text}{/literal}"{/if}>{_la('type')}</th>
+    <th{if $tplcount2 > 1} class="{literal}{sss:intfor}{/literal}"{/if} title="{_ld($_module,'tip_tpl_type')}">{_la('default')}</th>
     <th class="pageicon{if $tplcount2 > 1} nosort{/if}"></th>{* TODO actions menu-column instead of these *}
     <th class="pageicon{if $tplcount2 > 1} nosort{/if}"></th>
     <th class="pageicon{if $tplcount2 > 1} nosort{/if}"></th>{/strip}
@@ -43,10 +43,10 @@
        {/if}
     </td>
     <td>{$elem->type}</td>
-    <td class=pagepos icons_wide"><span style="display:none">$elem->dflt_mode</span>{$elem->dflt}</td>
-    <td class=pagepos icons_wide">{if $elem->edit}{$elem->edit}{/if}</td>{* TODO actions menu instead of these *}
-    <td class=pagepos icons_wide">{if $elem->copy}{$elem->copy}{/if}</td>
-    <td class=pagepos icons_wide">{if $elem->del}{$elem->del}{/if}</td>{/strip}
+    <td class="pagepos icons_wide"{if $tplcount2 > 1} data-sss="{$elem->dflt_mode}"{/if}>{$elem->dflt}</td>
+    <td class="pagepos icons_wide">{if $elem->edit}{$elem->edit}{/if}</td>{* TODO actions menu instead of these *}
+    <td class="pagepos icons_wide">{if $elem->copy}{$elem->copy}{/if}</td>
+    <td class="pagepos icons_wide">{if $elem->del}{$elem->del}{/if}</td>{/strip}
   </tr>
   {/foreach}
  </tbody>

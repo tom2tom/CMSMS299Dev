@@ -13,7 +13,7 @@ the Free Software Foundation; either version 3 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminMenuItem;
-use CMSMS\CoreCapabilities;
+//use CMSMS\CapabilityType;
 use CMSMS\Lone;
 use FileManager\Utils;
 use FilePicker\Utils as PickerUtils;
@@ -43,7 +43,7 @@ final class FileManager extends CMSModule
     public function GetName() { return 'FileManager'; }
     public function GetVersion() { return '1.7.0'; }
     public function HasAdmin() { return TRUE; }
-    public function HasCapability($capability, $params = []) { return $capability == CoreCapabilities::CORE_MODULE; }
+//abandoned    public function HasCapability($capability, $params = []) { return $capability == CapabilityType::CORE_MODULE; }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function IsAdminOnly() { return TRUE; }
 //    public function LazyLoadFrontend() { return TRUE; }
@@ -56,7 +56,7 @@ final class FileManager extends CMSModule
     public function AdvancedAccessAllowed() { return $this->CheckPermission('Use FileManager Advanced',0); }
 
     /**
-     * @deprecated since 1.7 use FilePicker\Utils::get_file_icon()
+     * @deprecated since 1.7 instead use FilePicker\Utils::get_file_icon()
      */
     public function GetFileIcon($extension, $isdir=false)
     {
@@ -202,7 +202,7 @@ final class FileManager extends CMSModule
     }
 
     /**
-     * @deprecated since 1.7 use cms_join_path()
+     * @deprecated since 1.7 instead use cms_join_path()
      */
     protected function Slash($str, $str2='', $str3='')
     {
@@ -224,15 +224,15 @@ final class FileManager extends CMSModule
 
     public function GetHeaderHTML()
     {
-        $out='';
-        $urlpath=$this->GetModuleURLPath();
-        $fmt='<link rel="stylesheet" type="text/css" href="%s/lib/%s" />';
+        $base_url = $this->GetModuleURLPath();
+        $out = '';
+        $fmt='<link rel="stylesheet" href="%s/%s" />';
         $cssfiles = [
         'css/filemanager.css',
-        'js/jrac/style.jrac.min.css'
+        'lib/js/jrac/style.jrac.min.css'
         ];
         foreach ($cssfiles as $one) {
-            $out .= sprintf($fmt, $urlpath, $one).PHP_EOL;
+            $out .= sprintf($fmt, $base_url, $one).PHP_EOL;
         }
         add_page_headtext($out, false);
 
@@ -246,7 +246,7 @@ final class FileManager extends CMSModule
         'jrac/jquery.jrac.min.js',
         ];
         foreach ($jsfiles as $one) {
-            $out .= sprintf($fmt, $urlpath, $one).PHP_EOL;
+            $out .= sprintf($fmt, $base_url, $one).PHP_EOL;
         }
         add_page_foottext($out);
     }
@@ -263,7 +263,7 @@ final class FileManager extends CMSModule
 
     public function GetAdminMenuItems()
     {
-        $out=[];
+        $out = [];
 
         if ($this->CheckPermission('Modify Files')) {
             $out[] = AdminMenuItem::from_module($this);

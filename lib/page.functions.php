@@ -24,8 +24,7 @@ namespace {
 use CMSMS\App;
 use CMSMS\AppParams;
 use CMSMS\AppState;
-use CMSMS\LogOperations;
-use CMSMS\Crypto;
+//use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use CMSMS\FileTypeHelper;
 use CMSMS\FormUtils;
@@ -96,6 +95,8 @@ function setup_session(bool $cachable = false)
 		return;
 	}
 
+	//see http://en.wikipedia.org/wiki/Session_hijacking#Prevention
+
 	$_f = $_l = null;
 	if (headers_sent($_f, $_l)) {
 		throw new LogicException("Attempt to set headers, but headers were already sent at: $_f::$_l");
@@ -111,28 +112,54 @@ function setup_session(bool $cachable = false)
 	}
 	if ($cachable) {
 		// frontend request
-		$expiry = (int)max(0, AppParams::get('browser_cache_expiry', 60));
+		$expiry = (int)max(0, AppParams::get('browser_cache_expiry', 60)); // minutes
 		session_cache_expire($expiry);
 		session_cache_limiter('public');
 	} else {
 		// probably an admin request
 		@session_cache_limiter('nocache');
 	}
+	// setup session with cached or newly generated name, and start it
+	$cache = Lone::get('SystemCache');
+	$key = hash('crc32b', CMS_ROOT_PATH);
+	$session_name = $cache->get($key, 'site_session');
+	if (!$session_name) {
+		$p = mt_rand(16, 21);
+		$val = hash('tiger128,3', $p.time().CMS_ROOT_PATH);
+		$session_name = substr($val, 0, $p);
+		$session_name[$p - 1] = chr($p + 81); // substitute 'a'..'f' to ensure at least 1 non-number
+		$cache->set_timed($key, $session_name, 86400, 'site_session'); // 24-hr timeout TODO c.f. $expiry*60
+	}
 
-	// setup session with different (constant) id and start it
-	$session_name = 'CMSSESSID'.Crypto::hash_string(CMS_ROOT_PATH.CMS_VERSION);
 	if (!AppState::test(AppState::INSTALL)) {
 		@session_name($session_name);
 		@ini_set('url_rewriter.tags', '');
 		@ini_set('session.use_trans_sid', 0);
 	}
-
+	// see also SignedCookieOperations::set_cookie()
+	$domain = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+	$p = strrpos(CMS_ROOT_URL, '/');
+	$path = substr(CMS_ROOT_URL, $p); //OR the bit after $domain ?
+	$secure = is_secure_request();
+	if (version_compare(phpversion(), '7.3.0') >= 0) {
+		$samesite = ($secure) ? 'Strict' : 'Lax';
+		session_set_cookie_params([
+			'lifetime' => 0,
+			'domain' => $domain,
+			'path' => $path,
+			'secure' => $secure,
+			'httponly' => false,
+			'samesite' => $samesite
+		]);
+	} else {
+		session_set_cookie_params(0, $path, $domain, $secure, false);
+	}
 	if (isset($_COOKIE[$session_name])) {
-		// validate the content of the cookie
-		if (!preg_match('/^[a-zA-Z0-9,\-]{22,40}$/', $_COOKIE[$session_name])) {
+		// validate the content of the cookie TODO check what it can actually be
+		if (!preg_match('/^[a-zA-Z0-9,\-]{22,60}$/', $_COOKIE[$session_name])) {
 			session_id(uniqid());
 			session_start();
-			session_regenerate_id(); //TODO rename cache-group accordingly
+			session_regenerate_id();
 		}
 	}
 	if (!@session_id()) {
@@ -233,7 +260,7 @@ function get_userid(bool $redirect = true)
 	}
 */
 	// TODO alias etc during 'remote admin'
-	$userid = Lone::get('LoginOperations')->get_effective_uid();
+	$userid = Lone::get('AuthOperations')->get_effective_uid();
 	if (!$userid && $redirect) {
 		redirect(Lone::get('Config')['admin_url'].'/login.php');
 	}
@@ -259,7 +286,7 @@ function get_username(bool $redirect = true)
 		}
 */
 	//TODO alias etc during 'remote admin'
-	$uname = Lone::get('LoginOperations')->get_effective_username();
+	$uname = Lone::get('AuthOperations')->get_effective_username();
 	if (!$uname && $redirect) {
 		redirect(Lone::get('Config')['admin_url'].'/login.php');
 	}
@@ -281,7 +308,7 @@ function check_login(bool $no_redirect = false)
 {
 	$redirect = !$no_redirect;
 	$userid = get_userid($redirect);
-	$ops = Lone::get('LoginOperations');
+	$ops = Lone::get('AuthOperations');
 	if ($userid > 0) {
 		if ($ops->validate_requestkey()) {
 			return true;
@@ -398,7 +425,7 @@ function redirect(string $to)
 
 	$host = $_SERVER['HTTP_HOST'];
 	$components = parse_url($to);
-	if (count($components) > 0) {
+	if ($components) {
 		$to = (isset($components['scheme']) && startswith($components['scheme'], 'http') ? $components['scheme'] : $schema) . '://';
 		$to .= $components['host'] ?? $host;
 		$to .= isset($components['port']) ? ':' . $components['port'] : '';
@@ -406,6 +433,9 @@ function redirect(string $to)
 			//support admin sub-domains
 			$l = strpos($components['path'], '.php', 1);
 			if ($l > 0 && substr_count($components['path'], '.', 1, $l - 1) > 0) {
+//TODO consider some interrogation of expected secure parameter
+//				if (!isset($components['query']) || empty($components['query'][CMS_SECURE_PARAM_NAME])) {
+//				}
 				$components['path'] = strtr(substr($components['path'], 0, $l), '.', '/') . substr($components['path'], $l);
 			}
 			if (in_array($components['path'][0], ['\\', '/'])) {
@@ -746,7 +776,7 @@ function get_secure_param_array() : array
  * @internal
  * @ignore
  *
- * @param mixed $value
+ * @param mixed $value The value to be checked
  * @param mixed $default Optional default value to return. Default ''.
  * @param string $session_key Optional key for retrieving the default value from $_SESSION[]. Default ''
  * @return mixed
@@ -762,25 +792,21 @@ function _get_value_with_default($value, $default = '', $session_key = '')
 	// set our return value to the default initially and overwrite with $value if we like it.
 	$return_value = $default;
 
-	if (isset($value)) {
-		if (is_array($value)) {
-			// $value is an array - validate each element.
-			$return_value = [];
-			foreach ($value as $element) {
-				$return_value[] = _get_value_with_default($element, $default); // recurse
-			}
-		} else {
-			if (is_numeric($default)) {
-				if (is_numeric($value)) {
-					$return_value = $value;
-				}
-			} else {
-				$return_value = trim($value);
-			}
+	if (is_array($value)) {
+		// validate each array-member.
+		$return_value = [];
+		foreach ($value as $element) {
+			$return_value[] = _get_value_with_default($element, $default); // recurse
 		}
+	} elseif (is_numeric($default)) {
+		if (is_numeric($value)) {
+			$return_value = $value;
+		}
+	} else {
+		$return_value = trim($value);
 	}
 
-	if ($session_key != '') {
+	if ($session_key) {
 		$_SESSION['default_values'][$session_key] = $return_value;
 	}
 	return $return_value;
@@ -882,25 +908,61 @@ function cms_module_plugin(array $params, $template) : string
 }
 
 /**
- * Gets the url corresponding to a provided site-path
+ * Gets the URL corresponding to a provided site-path
  * @since 3.0
  *
  * @param string $in The input path, absolute or relative
  * @param string $relative_to Optional absolute path which (relative) $in is relative to
  * @return string
  */
+function cms_url_to_path(string $in, string $relative_to = '') : string
+{
+	if (startswith($in, CMS_ROOT_URL)) {
+		$s = substr($in, strlen(CMS_ROOT_URL));
+		$fp = CMS_ROOT_PATH . strtr(rawurldecode($s), '/', DIRECTORY_SEPARATOR);
+	} else {
+		$s = preg_replace('~^(\w+?:)?//~', '', $path);
+		$fp = strtr(rawurldecode($s), '/', DIRECTORY_SEPARATOR);
+		if ($relative_to) {
+		   $fp = cms_join_path($relative_to, $fp);
+		}
+	}
+	return $fp;
+}
+
+/**
+ * Gets the URL corresponding to a provided site-path
+ * @since 3.0
+ *
+ * @param string $in The input path, absolute or relative
+ * @param string $relative_to Optional absolute path which (relative) $in is relative to
+ * @return string, empty if $in and $relative_to do not amount to a valid site filepath
+ */
 function cms_path_to_url(string $in, string $relative_to = '') : string
 {
 	$in = trim($in);
 	if ($relative_to) {
-		$in = realpath(cms_join_path($relative_to, $in));
-		return str_replace([CMS_ROOT_PATH, DIRECTORY_SEPARATOR], [CMS_ROOT_URL, '/'], $in);
+		$in = cms_join_path(trim($relative_to), $in);
+		$tmp = realpath($in);
+		if (startswith($in, CMS_ROOT_PATH)) {
+			if ($tmp) {
+				return CMS_ROOT_URL . str_replace(['%2F', '%5C'], ['/', '/'],
+					rawurlencode(substr($in, strlen(CMS_ROOT_PATH))));
+			}
+		}
+		return '';
 	} elseif (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $in)) {
 		// $in is absolute
-		$in = realpath($in);
-		return str_replace([CMS_ROOT_PATH, DIRECTORY_SEPARATOR], [CMS_ROOT_URL, '/'], $in);
+		if (startswith($in, CMS_ROOT_PATH)) {
+			$tmp = realpath($in);
+			if ($tmp) {
+				return CMS_ROOT_URL . str_replace(['%2F', '%5C'], ['/', '/'],
+					rawurlencode(substr($in, strlen(CMS_ROOT_PATH))));
+			}
+		}
+		return '';
 	} else {
-		return strtr($in, DIRECTORY_SEPARATOR, '/');
+		return str_replace(['%2F', '%5C'], ['/', '/'], rawurlencode($in));
 	}
 }
 
@@ -984,8 +1046,8 @@ function cms_html_entity_decode($val, int $flags = 0, string $charset = 'UTF-8')
 function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
 {
 	$helper = new FileTypeHelper();
-	// check e.g. image files for malicious content
 	$cleaned = $helper->clean_filepath($destination, true);
+	// check image files for malicious content
 	if ($helper->is_image($cleaned)) {
 		$p = file_get_contents($tmpfile); // TODO if compressed image?
 		$s = execSpecialize($p);
@@ -996,11 +1058,13 @@ function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
 	}
 	// do not accept browser-executable files
 	if ($helper->is_executable($cleaned)) {
-		//TODO report error or throw new Exception(lang(''))
+		//TODO report|log error or throw new Exception(lang(''))
 		return false;
 	}
 
 	if (@move_uploaded_file($tmpfile, $destination)) {
+		// TODO consider also migrating non-UTF8 chars in $cleaned
+		// or at least, convert in any displayed filelist
 		if ($cleaned != $destination) {
 			rename($destination, $cleaned);
 			$destination = $cleaned;
@@ -1180,7 +1244,7 @@ function cms_get_jquery(string $exclude = '', bool $ssl = false, bool $cdn = fal
 	if ($include_css) {
 		$url1 = cms_path_to_url($incs['jquicss']);
 		$s1 = <<<EOS
-<link rel="stylesheet" type="text/css" href="{$url1}" />
+<link rel="stylesheet" href="{$url1}" />
 
 EOS;
 	} else {
@@ -1507,7 +1571,7 @@ function create_file_dropdown(
  *  string 'htmlid' id of the page-element whose content is to be edited. Default 'edit_area'.
  *  string 'theme'  override for the normal editor theme/style.  Default ''
  *  string 'workid' id of a div to be created (by some editors) to process
- *    the content of the htmlid-element. (As always, avoid conflict with tab-name divs). Default 'edit_work'
+ *	the content of the htmlid-element. (As always, avoid conflict with tab-name divs). Default 'edit_work'
  * @return array up to 2 members, those being 'head' and/or 'foot', or perhaps [1] or []
  */
 function get_richeditor_setup(array $params) : array
@@ -1558,17 +1622,17 @@ function get_richeditor_setup(array $params) : array
  *
  * @param array $params  Configuration details. Recognized members are:
  *  string 'editor' name of editor to use (if module supports multiple editors).
- *    Default '' hence recorded preference or default.
+ *  Default '' hence recorded preference or default.
  *  bool   'edit' whether the content is editable. Default false (i.e. just for display)
  *  string 'handle' name of the js variable to be used for the created editor. Default 'editor'
  *  string 'htmlclass' class of the page-element(s) whose content is to be edited.
  *   An alternative to 'htmlid' Default ''.
  *  string 'htmlid' id of the page-element whose content is to be edited.
- *    (As always, avoid conflict with tab-name divs). Default 'edit_area'.
+ *  (As always, avoid conflict with tab-name divs). Default 'edit_area'.
  *  string 'workid' id of a div to be created (by some editors) to process the
- *    content of the htmlid-element if the latter is a textarea. Default 'edit_work'
+ *  content of the htmlid-element if the latter is a textarea. Default 'edit_work'
  *  string 'typer'  content-type identifier, an absolute filepath or filename or
- *    at least an extension or pseudo (like 'smarty'). Default ''
+ *  at least an extension or pseudo (like 'smarty'). Default ''
  *  string 'theme' name to override the recorded theme/style for the editor. Default ''
  * @return array up to 2 members, those being 'head' and/or 'foot', or perhaps [1] or []
  */
@@ -1902,9 +1966,9 @@ use CMSMS\AppState;
 use CMSMS\AutoCookieOperations;
 use CMSMS\Events;
 use CMSMS\PageLoader;
-use CMSMS\ScriptsMerger;
+//use CMSMS\ScriptsMerger;
 use CMSMS\Lone;
-use CMSMS\StylesMerger;
+//use CMSMS\StylesMerger;
 use CMSMS\Url;
 use Throwable;
 use const CMS_SCHEMA_VERSION;
@@ -2209,7 +2273,8 @@ function entitize($val, int $flags = 0, string $charset = 'UTF-8', bool $convert
 }
 
 /**
- * Performs HTML entity reversion on the supplied value
+ * Performs HTML entity reversion, and printable ASCII '&#...;' reversion,
+ * on the supplied value.
  * Normally this is for reversing changes applied by CMSMS\entitize() or htmlentities(),
  * prior to displaying the value. Reversion to its 'real' content is then
  * needed before processing (for validation, interpretation, storage etc)
@@ -2229,7 +2294,22 @@ function de_entitize($val, int $flags = 0, string $charset = 'UTF-8') : string
 	if ($val === '' || $val === null) {
 		return '';
 	}
-
+	$val = preg_replace_callback_array([
+		'/&#(\d{2,3});/' => function($matches) {
+			$n = (int)$matches[1];
+			if ($n > 31 && $n < 127) {// convert 32..126
+				return chr($n);
+			}
+			return $matches[0];
+		},
+		'/&#[xX]([0-9a-fA-F]{2});/' => function($matches) {
+			$n = base_convert($matches[1], 16, 10);
+			if ($n > 31 && $n < 127) {// convert 20 .. 7e
+				return chr($n);
+			}
+			return $matches[0];
+		}
+	], $val);
 	list($flags, $charset) = get_entparms($flags, $charset, true);
 	return \html_entity_decode($val, $flags, $charset);
 }
@@ -2279,8 +2359,8 @@ function specialize($val, int $flags = 0, string $charset = 'UTF-8', bool $conve
  * @since 3.0
  * @see specialize
  *
- * @param array $arr   The inputs array, often $_POST etc
- * @param int    $flags   Optional bit-flag(s) indicating how htmlspecialchars()
+ * @param array  $arr   The inputs array, often $_POST etc
+ * @param int    $flags Optional bit-flag(s) indicating how htmlspecialchars()
  *  should handle quotes etc. Default 0, hence
  *  ENT_QUOTES | ENT_ENT_SUBSTITUTE | ENT_EXEC (custom) | preferred_lang().
  * @param string $charset Optional character set of $val. Default 'UTF-8'.
@@ -2450,7 +2530,7 @@ function template_processing_allowed() : bool
 }
 
 /**
- * Get a cookie-manager instance.
+ * Get a secure-cookies-manager object.
  * @since 3.0
  *
  * @return AutoCookieOperations

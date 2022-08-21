@@ -35,7 +35,8 @@ final class Utils
     private static $_cached_categories = [];
 
 //  private function __construct() {}
-//  private function __clone() {}
+//  #[\ReturnTypeWillChange]
+//  private function __clone() {}// : void {}
 
     /**
      * Munge supplied string to an URL-slug

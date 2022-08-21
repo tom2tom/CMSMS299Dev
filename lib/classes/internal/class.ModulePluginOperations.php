@@ -24,7 +24,7 @@ namespace CMSMS\internal;
 use CMSModule;
 use CMSMS\AppParams;
 use CMSMS\AppState;
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use CMSMS\LoadedDataType;
@@ -78,7 +78,7 @@ final class ModulePluginOperations
 
 //	private function __construct() {} TODO public iff wanted by Lone ?
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/**
 	 * Call a class-method from a static context
@@ -127,7 +127,7 @@ final class ModulePluginOperations
 				return;
 			}
 			$data = [];
-			$tmp = Lone::get('LoadedMetadata')->get('capable_modules', $force, CoreCapabilities::PLUGIN_MODULE); //TODO might need forced if this loader is forced
+			$tmp = Lone::get('LoadedMetadata')->get('capable_modules', $force, CapabilityType::PLUGIN_MODULE); //TODO might need forced if this loader is forced
 			$tmp2 = Lone::get('LoadedMetadata')->get('methodic_modules', $force, 'IsPluginModule'); //deprecated since 3.0
 			if( $tmp || $tmp2 ) {
 				$val = AppParams::get('smarty_cachemodules', 0);

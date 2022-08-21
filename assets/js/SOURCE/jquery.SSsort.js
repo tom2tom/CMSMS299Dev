@@ -1,5 +1,5 @@
 /*!
-jQuery plug-in SSsort table-sorter/pager V.0.6.2
+jQuery plug-in SSsort table-sorter/pager V.0.7
 (C) 2014-2022 Tom Phane
 License: GNU Affero GPL V.3 or later
   bundled with
@@ -30,6 +30,20 @@ Dual licensed: MIT and GPL
  *
  *   elem:  Inside a child element (e.g. a script tag). The
  *          name parameter indicates *which* element.
+ *
+ * TODO document other recognized settings:
+ *  name   default "metadata"
+ *  single default "metadata"
+ *  ldelim default "{"
+ *  rdelim default "}"
+ * and optional setting(s) pre-emption like
+ *  $.fn.metadata.defaults = {
+ *    type: "class",
+ *    name: "metadata",
+ *    single: "metadata",
+ *    ldelim: "{",
+ *    rdelim: "}"
+ *  };
  *
  * The metadata for an element is loaded the first time the element is accessed via jQuery.
  *
@@ -74,12 +88,40 @@ Dual licensed: MIT and GPL
 (function($) {
   $.fn.metadata = function(opts) {
 
-    function setType(type, name) {
-      if (typeof $.fn.metadata.defaults === 'undefined') {
-        $.fn.metadata.defaults = {};
+    function parseData(settings, src) {
+      //TODO any of . \ + * ? [ ^ ] ( $ ) ETC? - / , { }  in either delimiter or in src must be escaped
+      var out = {},
+       pt = settings.ldelim + '(.+?):(.+?)' + settings.rdelim,
+       re = new RegExp(pt),
+       m = re.exec(src.trim());
+      if (m && m[2]) {
+        var k = m[1].trim(),
+         v = m[2].trim();
+        if (toString.call(v) === '[object Boolean]') {
+          v = !!v;
+        } else if (!isNaN(parseFloat(v)) && isFinite(v)) {
+          v = parseFloat(v);
+          if (v == Math.floor(v)) {
+            v = v | 0;
+          }
+        } else if (v) {
+          var p = v.length - 1;
+          if (v[0] == "'" && v[p] == "'") {
+            v = v.substring(1, p);
+          } else if (v[0] == '"' && v[p] == '"') {
+            v = v.substring(1, p);
+          }
+          if (v.match(/true/i)) {
+            v = true;
+          } else if (v.match(/false/i)) {
+            v = false;
+          }
+        } else {
+          v = false;
+        }
+        out[k] = v;
       }
-      $.fn.metadata.defaults.type = type;
-      $.fn.metadata.defaults.name = name;
+      return out;
     }
 
     var settings = $.extend({}, $.fn.metadata.defaults, opts);
@@ -91,41 +133,47 @@ Dual licensed: MIT and GPL
     if (data) {
       return data;
     }
-    data = "{}";
+    data = {};
     if (settings.type == "class") {
-      var m = settings.cre.exec(elem.className);
-      if (m) {
-        data = m[1];
-      }
+      data = parseData(settings, elem.className);
     } else if (settings.type == "elem") {
       if (!elem.getElementsByTagName) {
         return undefined;
       }
       var e = elem.getElementsByTagName(settings.name);
       if (e.length) {
-        data = e[0].innerHTML.trim();
+        data = parseData(settings, e[0].innerHTML);
       }
     } else if (elem.getAttribute !== undefined) {
       var attr = elem.getAttribute(settings.name);
       if (attr) {
-        data = attr;
+        data = parseData(settings, attr);
+      } else {
+        attr = elem.getAttribute("data-" + settings.name);
+        if (attr) {
+          data = parseData(settings, attr);
+        }
       }
     }
-
-    if (data.indexOf("{") < 0) {
-      data = "{" + data + "}";
-    }
-
-    data = eval("(" + data + ")");
     $.data(elem, settings.single, data);
     return data;
+  };
+
+  $.fn.metadata.setType = function(type, name) {
+    if (typeof $.fn.metadata.defaults === 'undefined') {
+      $.fn.metadata.defaults = {};
+    }
+    $.fn.metadata.defaults.type = type;
+    $.fn.metadata.defaults.name = name;
   };
 
   $.fn.metadata.defaults = $.extend({
     type: "class",
     name: "metadata",
-    cre: /({.*})/,
-    single: "metadata"
+    single: "metadata",
+//  cre: /({.+})/,
+    ldelim: "{",
+    rdelim: "}"
   }, $.fn.metadata.defaults || {});
 })(jQuery);
 
@@ -144,6 +192,7 @@ Dual licensed: MIT and GPL
  Built-in cell-content parsers
     'text'
     'number'
+    'intfor'
     'isoDate'
 
  Configuration options:
@@ -159,9 +208,15 @@ Dual licensed: MIT and GPL
     sortdesc: boolean whether to sort descending (on firstsort), default false
     paginate: boolean whether to paginate the table, default false
     pagesize: no. of displayed rows per page, default 20
-    currentid: id of DOM element displaying current page no., default null
-    countid: id of DOM element displaying total pages count, default null
-    onSorted: function called after a sort is completed, default null
+    firstid: id of DOM element whose activation shows the first page, default null (ignored unless paginate is true)
+    previd: id of DOM element whose activation shows the previous page, default null (ignored unless paginate is true)
+    nextid: id of DOM element whose activation shows the next page, default null (ignored unless paginate is true)
+    lastid: id of DOM element whose activation shows the last page, default null (ignored unless paginate is true)
+    selid: id of page-selector DOM element, default null (ignored unless paginate is true)
+    currentid: id of DOM element displaying current page no., default null (ignored unless paginate is true)
+    countid: id of DOM element displaying total pages count, default null (ignored unless paginate is true)
+    onPaged: function(table,pageid) called after displayed page is changed, default null
+    onSorted: function(table) called after a sort is completed, default null
 
  Other ways to control behaviour:
 
@@ -346,12 +401,16 @@ Dual licensed: MIT and GPL
         type: 'text' //or 'numeric' if relevant
      }
 
+ Events:
+ A 'SSsort.beforesort' event is triggered on the table before sorting begins
+ A 'SSsort.aftersort' event is [also] triggered on the table after sorting is complete
+
  Other things to do:
 
  If pagination is happening, deploy DOM objects with ID currentid and countid
  Deploy DOM objects whose activation hooks into $.fn.SSsort.movePage()
 
- Listen for and respond to signals 'beforetablesort' and/or 'aftertablesort'
+ Listen for and handle events 'SSsort.beforesort' and/or 'SSsort.aftersort'
  on the table. Each provides a data object like
     {column: int, direction: boolean }
  where column is a 0-based index, direction is true for descending sort
@@ -360,7 +419,7 @@ Dual licensed: MIT and GPL
 
  $.fn.SSsort.movePage (table,down,end)
   Show a different page of table rows
-     table = a DOM table element
+   table = a DOM table element
    down = boolean, down or up direction
    end = boolean, true to go to first last page, false to go to next page
  $.fn.SSsort.setCurrent (table,propname,propvalue)
@@ -399,6 +458,7 @@ Dual licensed: MIT and GPL
   0.5.1 bugfix April 2019
   0.6 bundled metadata plugin April 2019
   0.6.1 cleanup March 2020
+  0.7 add 'intfor' parser, extra settings firstid,previd,nextid,lastid,selid,onPaged June 2022
 */
 /* global jQuery */
 (function ($) {
@@ -425,7 +485,7 @@ Dual licensed: MIT and GPL
       cfg.rows = cfg.body[0].rows; //ignore bodies after 1st!
       cfg.works = [];
       var $cells = cfg.header.find('tr').eq(0).children('th');
-      var vers = $.fn.jquery;
+//    var vers = $.fn.jquery;
       var meta = $.fn.metadata;
       var col = 0;
       $cells.each(function () {
@@ -448,11 +508,11 @@ Dual licensed: MIT and GPL
               $cell.addClass(cfg.sortClass);
             }
             //process header-clicks even if 0-1 rows, in case more added later
-            if (vers >= '1.7') {
-              $cell.on('click', doSort);
-            } else {
-              $cell.bind('click', doSort);
-            }
+//            if (vers >= '1.7') {
+              $cell.on('click activate', doSort);
+//            } else {
+//              $cell.bind('click activate', doSort);
+//            }
           }
         }
         col++;
@@ -481,10 +541,47 @@ Dual licensed: MIT and GPL
           $('#' + cfg.countid).html(cfg.pagecount);
         }
       }
+      if (cfg.paginate) {
+        // TODO .bind(...) if vers < '1.7' 
+        if (cfg.firstid) {
+          $('#' + cfg.firstid).on('click activate', function(ev) {
+            ev.stopPropagation();
+            movePage(false, true, cfg);
+            return false;
+          });
+        }
+        if (cfg.previd) {
+          $('#' + cfg.previd).on('click activate', function(ev) {
+            ev.stopPropagation();
+            movePage(false, false, cfg);
+            return false;
+          });
+        }
+        if (cfg.nextid) {
+          $('#' + cfg.nextid).on('click activate', function(ev) {
+            ev.stopPropagation();
+            movePage(true, false, cfg);
+            return false;
+          });
+        }
+        if (cfg.lastid) {
+          $('#' + cfg.lastid).on('click activate', function(ev) {
+            ev.stopPropagation();
+            movePage(true, true, cfg);
+            return false;
+          });
+        }
+        if (cfg.selid) {
+          $('#' + cfg.selid).on('change', function(ev) {
+            ev.stopPropagation();
+            var l = parseInt(this.value);
+            setCurrent('pagesize', l, cfg);
+          });
+        }
+      }
     });
 
     return this;
-
   };
 
   $.fn.SSsort.defaults = {
@@ -499,8 +596,14 @@ Dual licensed: MIT and GPL
     sortdesc: false, //false for ascending sort (on firstsort)
     paginate: false, //toggle for pagination logic
     pagesize: 20, //no. of displayed rows per page
+    firstid: null, //id of DOM element whose activation shows the first page 
+    previd: null, //id of DOM element whose activation shows the previous page
+    nextid: null, //id of DOM element whose activation shows the next page
+    lastid: null, //id of DOM element whose activation shows the last page
+    selid: null, //id of page-selector DOM element
     currentid: null, //id of DOM element displaying current page no.
     countid: null, //id of DOM element displaying total pages count
+    onPaged: null, //function to be called after page-length is changed
     onSorted: null //function to be called after a sort is completed
   };
 
@@ -533,6 +636,17 @@ Dual licensed: MIT and GPL
         type: 'numeric'
       },
       {
+        id: 'intfor',
+        is: function (s,node) {
+          return node.hasAttribute('data-sss');
+        },
+        format: function (s,node) {
+          return parseInt(node.getAttribute('data-sss'));
+        },
+        watch: false,
+        type: 'numeric'
+      },
+      {
         id: 'isoDate',
         is: function (s) {
           return /^[12]\d{3}[\/-][01]\d[\/-]\[0-3]\d$/.test(s);
@@ -543,35 +657,19 @@ Dual licensed: MIT and GPL
         type: 'numeric'
       }
     ],
-
-    ipcount = parsers.length; //count of internal parsers
+   ipcount = parsers.length; //no. of internal parsers i.e. before any addtion(s)
 
   $.fn.SSsort.movePage = function (table, down, end) {
     var cfg = $.data(table, 'SSsortcfg');
     if (cfg) {
-      var newpage = (down) ? ((end) ? cfg.pagecount : cfg.currentpage + 1) : ((end) ? 1 : cfg.currentpage - 1);
-      if (newpage > 0 && newpage <= cfg.pagecount) {
-        cfg.currentpage = newpage;
-        showPage((newpage - 1) * cfg.pagesize, cfg);
-      }
+      movePage(down, end, cfg);
     }
   };
 
   $.fn.SSsort.setCurrent = function (table, propname, propvalue) {
     var cfg = $.data(table, 'SSsortcfg');
     if (cfg) {
-      cfg[propname] = propvalue;
-      if (cfg.countid) {
-        pageCount(cfg);
-      }
-      var newpage = 0;
-      if (propname === 'currentpage' && propvalue > 0) {
-        newpage = propvalue - 1;
-      }
-      showPage(newpage, cfg);
-      if (cfg.countid) {
-        $('#' + cfg.countid).html(cfg.pagecount);
-      }
+      setCurrent(propname, propvalue, cfg);
     }
   };
 
@@ -642,11 +740,19 @@ Dual licensed: MIT and GPL
 
   // private methods
 
-  function pageCount(cfg) {
+  function pageCount (cfg) {
     cfg.pagecount = (cfg.pagesize > 0) ? Math.ceil(cfg.rows.length / cfg.pagesize) : 1;
   }
 
-  function showPage(firstrow, cfg) {
+  function movePage (down, end, cfg) {
+    var newpage = (down) ? ((end) ? cfg.pagecount : cfg.currentpage + 1) : ((end) ? 1 : cfg.currentpage - 1);
+    if (newpage > 0 && newpage <= cfg.pagecount) {
+      cfg.currentpage = newpage;
+      showPage((newpage - 1) * cfg.pagesize, cfg);
+    }
+  }
+
+  function showPage (firstrow, cfg) {
     var ps = parseInt(cfg.pagesize, 10);
     if (cfg.currentid) {
       if (ps < 1) {
@@ -665,6 +771,26 @@ Dual licensed: MIT and GPL
     for (i = 0, l = rows.length; i < l; i++) {
       rows[i].style.display = (i >= firstrow && i < last) ? '' : 'none';
     }
+    if (typeof cfg.onPaged === 'function') {
+      cfg.onPaged.call(cfg.table, cfg.table, cfg.currentpage);
+    }
+  }
+
+  function setCurrent (propname, propvalue, cfg) {
+    cfg[propname] = propvalue;
+    if (cfg.countid) {
+      pageCount(cfg);
+    }
+    var newpage;
+    if (propname === 'currentpage' && propvalue > 0) {
+      newpage = propvalue - 1;
+    } else {
+      newpage = 0;
+    }
+    showPage(newpage, cfg);
+    if (cfg.countid) {
+      $('#' + cfg.countid).html(cfg.pagecount);
+    }
   }
 
 /*function getChangeWatcher (node, cfg) {
@@ -673,7 +799,7 @@ Dual licensed: MIT and GPL
     // construct event handler
   }
 */
-  function sortMap(cfg) {
+  function sortMap (cfg) {
     var worker = cfg.works[cfg.sortcol];
     var mapper = worker.parser.format;
     var rows = cfg.rows;
@@ -707,7 +833,8 @@ Dual licensed: MIT and GPL
     worker._map = _map.sort(compare);
   }
 
-  function doSort(ev) {
+  function doSort (ev) {
+    ev.stopPropagation();
     var $tbl = $(this).closest('table');
     var cfg = $.data($tbl[0], 'SSsortcfg');
     if (cfg.rows.length < 2) {
@@ -740,7 +867,7 @@ Dual licensed: MIT and GPL
       if (newclass)
         $cells.eq(col).addClass(newclass);
       //tell the world we're about to start sorting
-      $(cfg.table).trigger('beforetablesort', {
+      $(cfg.table).trigger('SSort.beforesort', {
         column: col,
         direction: cfg.sortdesc
       });
@@ -773,7 +900,7 @@ Dual licensed: MIT and GPL
 
       cfg.sortcol = col;
 
-      $(cfg.table).trigger('beforetablesort', {
+      $(cfg.table).trigger('SSsort.beforesort', {
         column: col,
         direction: cfg.sortdesc
       });
@@ -873,17 +1000,17 @@ Dual licensed: MIT and GPL
         }
       }
       //tell the world we're done
-      $(cfg.table).trigger('aftertablesort', {
+      $(cfg.table).trigger('SSsort.aftersort', {
         column: col,
         direction: cfg.sortdesc
       });
-      if ($.isFunction(cfg.onSorted)) {
-        cfg.onSorted.call(cfg.table);
+      if (typeof cfg.onSorted === 'function') {
+        cfg.onSorted.call(cfg.table, cfg.table);
       }
     }, 20);
   }
 
-  function getNodeText(node) {
+  function getNodeText (node) {
     while (node.hasChildNodes()) {
       node = node.firstChild;
     }
@@ -898,7 +1025,7 @@ Dual licensed: MIT and GPL
     return (v) ? v : false;
   }
 
-  function getParserByContent(colIndex, cfg) {
+  function getParserByContent (colIndex, cfg) {
     var value = false,
       rows = cfg.rows,
       rowIndex = 0,
@@ -922,16 +1049,15 @@ Dual licensed: MIT and GPL
     }
 
     if (value !== false) {
-      var c = ipcount,
-        l = parsers.length,
+      var l = parsers.length,
         i;
       // first check external parsers (if any)
-      for (i = c; i < l; i++) {
+      for (i = ipcount; i < l; i++) {
         if (parsers[i].is(value, node, cfg)) {
           return parsers[i];
         }
       }
-      for (i = 1; i < c; i++) { //skip default (0), for now
+      for (i = 1; i < ipcount; i++) { //skip default (0), for now
         if (parsers[i].is(value, node, cfg)) {
           return parsers[i];
         }
@@ -940,18 +1066,17 @@ Dual licensed: MIT and GPL
     return parsers[0]; //default text-parser
   }
 
-  function getParserById(name) {
-    var c = ipcount,
-      l = parsers.length,
+  function getParserById (name) {
+    var l = parsers.length,
       lname = name.toLowerCase(),
       i;
     // first check external parsers (if any)
-    for (i = c; i < l; i++) {
+    for (i = ipcount; i < l; i++) {
       if (parsers[i].id.toLowerCase() === lname) {
         return parsers[i];
       }
     }
-    for (i = 0; i < c; i++) {
+    for (i = 0; i < ipcount; i++) {
       if (parsers[i].id.toLowerCase() === lname) {
         return parsers[i];
       }
@@ -959,7 +1084,7 @@ Dual licensed: MIT and GPL
     return false;
   }
 
-  function getParser(headernode, cfg) {
+  function getParser (headernode, cfg) {
     var p = false;
     if ($.fn.metadata) {
       var ms = $(headernode).metadata().sss; //sss is our metadata key

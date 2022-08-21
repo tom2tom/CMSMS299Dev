@@ -211,8 +211,7 @@ class FileTypeHelper
      *
      * @param array $custom Optional since 3.0 custom definitions of some|all filetype extensions
      */
-    #[\ReturnTypeWillChange]
-    public function __construct($custom = NULL)
+    public function __construct(/*array*/$custom = NULL)
     {
         if( $custom ) {
             $this->update_helper_extensions('_image_extensions', $custom['FileTypeHelper_image_extensions'] ?? '');
@@ -227,7 +226,6 @@ class FileTypeHelper
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         if( !empty($this->_finfo) ) {

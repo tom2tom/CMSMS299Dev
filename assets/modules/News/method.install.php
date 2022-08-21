@@ -49,7 +49,7 @@ if( !class_exists('News\AdminOperations') ) {
 $me = $this->GetName();
 $dict = $db->NewDataDictionary();  // OR new DataDictionary($db);
 
-$taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8mb4'];
+$taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
 $tbl = CMS_DB_PREFIX.'module_news';
 // news_date I no longer used
 // image_url replaces 'icon' used in ancient versions
@@ -188,9 +188,9 @@ try {
     $type->set_originator($me);
     $type->set_name('summary');
     $type->set_dflt_flag(TRUE);
-    $type->set_lang_callback('News::page_type_lang_callback');
-    $type->set_content_callback('News::reset_page_type_defaults');
-    $type->set_help_callback('News::template_help_callback');
+    $type->set_lang_callback('News::tpltype_lang_callback');
+    $type->set_content_callback('News::reset_tpltype_default');
+    $type->set_help_callback('News::tpltype_help_callback');
     $type->reset_content_to_factory();
     $type->save();
 }
@@ -236,10 +236,10 @@ try {
     $type->set_originator($me);
     $type->set_name('detail');
     $type->set_dflt_flag(TRUE);
-    $type->set_lang_callback('News::page_type_lang_callback');
-    $type->set_content_callback('News::reset_page_type_defaults');
+    $type->set_lang_callback('News::tpltype_lang_callback');
+    $type->set_content_callback('News::reset_tpltype_default');
     $type->reset_content_to_factory();
-    $type->set_help_callback('News::template_help_callback');
+    $type->set_help_callback('News::tpltype_help_callback');
     $type->save();
 }
 catch (Throwable $t) {
@@ -284,10 +284,10 @@ try {
     $type->set_originator($me);
     $type->set_name('browsecat');
     $type->set_dflt_flag(TRUE);
-    $type->set_lang_callback('News::page_type_lang_callback');
-    $type->set_content_callback('News::reset_page_type_defaults');
+    $type->set_lang_callback('News::tpltype_lang_callback');
+    $type->set_content_callback('News::reset_tpltype_default');
     $type->reset_content_to_factory();
-    $type->set_help_callback('News::template_help_callback');
+    $type->set_help_callback('News::tpltype_help_callback');
     $type->save();
 }
 catch (Throwable $t) {
@@ -331,10 +331,10 @@ try {
     $type->set_originator($me);
     $type->set_name('approvalmessage');
     $type->set_dflt_flag(TRUE);
-    $type->set_lang_callback('News::page_type_lang_callback');
-    $type->set_content_callback('News::reset_page_type_defaults');
+    $type->set_lang_callback('News::tpltype_lang_callback');
+    $type->set_content_callback('News::reset_tpltype_default');
     $type->reset_content_to_factory();
-    $type->set_help_callback('News::template_help_callback');
+    $type->set_help_callback('News::tpltype_help_callback');
     $type->save();
 }
 catch (Throwable $t) {

@@ -114,14 +114,13 @@ final class AppState
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
     private function __construct() {}
 
     /**
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    private function __clone() {}
+    private function __clone() {}// : void {}
 
     /**
      * Accumulate all known states from global variables.

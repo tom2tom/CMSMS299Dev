@@ -81,7 +81,6 @@ class Operations
      */
     private $xml_exclude_files = ['^\.svn' , '^CVS$' , '^\#.*\#$' , '~$', '\.bak$', '^\.git', '^\.tmp$'];
 
-    #[\ReturnTypeWillChange]
     public function __construct( ModuleManager $mod )
     {
         $this->_mod = $mod;

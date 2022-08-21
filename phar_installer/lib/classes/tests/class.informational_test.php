@@ -6,7 +6,6 @@ namespace cms_installer\tests;
 
 class informational_test extends test_base
 {
-    #[\ReturnTypeWillChange]
     public function __construct(string $name, $value, string $message = '', string $key = '')
     {
         parent::__construct($name, $value, $key);

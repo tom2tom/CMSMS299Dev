@@ -133,7 +133,6 @@ class Smarty_Template_Source
      * @throws   \SmartyException
      * @internal param \Smarty_Resource $handler Resource Handler this source object communicates with
      */
-    #[\ReturnTypeWillChange]
     public function __construct(Smarty $smarty, $resource, $type, $name)
     {
         $this->handler =

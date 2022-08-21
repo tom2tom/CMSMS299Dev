@@ -32,7 +32,7 @@ class ContentEditContentAssistant extends EditContentAssistant
 <script type="text/javascript">
 //<![CDATA[
 $(function() {
-  $('#design_id').change(function() {
+  $('#design_id').on('change',function() {
     var v = $(this).val();
     //WHAT IS MISSING FROM HERE ??
   });

@@ -160,7 +160,7 @@ class Utils
 				$mainfile = 'tinymce.min.js';
 				$s = $mod->GetPreference('source_sri');
 				if( $s ) {
-					$cspext = ' integrity="'.$s.'" crossorigin="anonymous" referrerpolicy="no-referrer"';
+					$cspext = ' integrity="'.$s.'" crossorigin="anonymous" referrerpolicy="same-origin"';
 				}
 			}
 			// TODO need FilePicker::HeaderJsContent() stuff?

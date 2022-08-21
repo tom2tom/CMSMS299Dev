@@ -60,12 +60,12 @@ class LTETheme extends AdminTheme
         $csm = new StylesMerger();
         $csm->queue_matchedfile('normalize.css', 1);
         $csm->queue_matchedfile('grid-960.css', 2); //for modules, deprecated since 3.0
-        $out = $csm->page_content('', false, true);
+        $out = $csm->page_content();
 
         // jQUI css does, and theme-specific css files might, include relative URLs, so cannot be merged
         $url = cms_path_to_url($incs['jquicss']);
         $out .= <<<EOS
-<link rel="stylesheet" type="text/css" href="$url" />
+<link rel="stylesheet" href="$url" />
 
 EOS;
         $rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
@@ -74,10 +74,11 @@ EOS;
         $files = $this->get_styles();
         $after = '';
         foreach ($files as $fp) {
+            // OR $csm->queue_matchedfile( );
             $extra = substr($fp, $n);
             $sufx = strtr($extra, '\\', '/');
             $after .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$rel_url}/{$sufx}" />
+<link rel="stylesheet" href="{$rel_url}/{$sufx}" />
 
 EOS;
         }
@@ -140,9 +141,10 @@ EOS;
         $incs = cms_installed_jquery();
         $url = cms_path_to_url($incs['jquicss']);
         $dir = ''; //TODO or '-rtl'
+        // OR $csm->queue_matchedfile( );
         $out = <<<EOS
-<link rel="stylesheet" type="text/css" href="$url" />
-<link rel="stylesheet" type="text/css" href="themes/LTE/styles/{$fn}.css" />
+<link rel="stylesheet" href="$url" />
+<link rel="stylesheet" href="themes/LTE/styles/{$fn}.css" />
 
 EOS;
 //        get_csp_token(); //setup CSP header (result not used)
@@ -153,14 +155,14 @@ EOS;
         $out .= sprintf($tpl, $url)."\n";
         $smarty->assign('header_includes', $out);
 
-		// site logo?
-		$sitelogo = AppParams::get('site_logo');
-		if ($sitelogo) {
-			if (!preg_match('~^\w*:?//~', $sitelogo)) {
-				$sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
-			}
-			$smarty->assign('sitelogo', $sitelogo);
-		}
+        // site logo?
+        $sitelogo = AppParams::get('site_logo');
+        if ($sitelogo) {
+            if (!preg_match('~^\w*:?//~', $sitelogo)) {
+                $sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
+            }
+            $smarty->assign('sitelogo', $sitelogo);
+        }
 
         $smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'layouts', -1)
           ->display('login.tpl');

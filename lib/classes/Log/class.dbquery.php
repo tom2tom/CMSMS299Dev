@@ -28,7 +28,6 @@ use LogicException;
 
 class dbquery extends DbQueryBase
 {
-    #[\ReturnTypeWillChange]
     public function __construct(logfilter $filter)
     {
         $this->_args = $filter;
@@ -42,27 +41,27 @@ class dbquery extends DbQueryBase
         $filter = $this->_args;
         $db = Lone::get('Db');
         $sql = 'SELECT * FROM '.dbstorage::TABLENAME;
-        $where = $parms = [];
+        $wheres = []; $parms = [];
         $severity = $filter->severity;
 
         if (!is_null($severity) && $severity > -1) {
-            $where[] = 'severity >= ?';
+            $wheres[] = 'severity >= ?';
             $parms[] = $severity;
         }
         if (($val = $filter->username)) {
-            $where[] = 'username = ?';
+            $wheres[] = 'username = ?';
             $parms[] = $val;
         }
         if (($val = $filter->message)) {
-            $where[] = 'message LIKE ?';
+            $wheres[] = 'message LIKE ?';
             $parms[] = '%' . $db->escStr($val) . '%';
         }
         if (($val = $filter->subject)) {
-            $where[] = 'subject LIKE ?';
+            $wheres[] = 'subject LIKE ?';
             $parms[] = '%' . $db->escStr($val) . '%';
         }
-        if ($where) {
-            $sql .= ' WHERE '.implode(' AND ', $where);
+        if ($wheres) {
+            $sql .= ' WHERE '.implode(' AND ', $wheres);
         }
         $sql .= ' ORDER BY timestamp DESC';
         $this->_rs = $db->SelectLimit($sql, $this->_limit, $this->_offset, $parms);

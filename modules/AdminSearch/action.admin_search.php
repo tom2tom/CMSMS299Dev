@@ -1,7 +1,7 @@
 <?php
 /*
 AdminSearch module action: ajax-processor to search database tables and display matches
-Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -26,7 +26,9 @@ use CMSMS\Utils;
 use function CMSMS\de_entitize;
 
 //if( some worthy test fails ) exit;
-if( !$this->VisibleToAdminUser() ) exit;
+if( !$this->CheckPermission('Use Admin Search') ) exit;
+//TODO consider slave-specific permissions e.g. 'Manage All Content' or 'Modify Any Page' for the content slave
+//via Tools::get_slave_classes() and slaveclass::check_authority(int $userid)
 
 $handlers = ob_list_handlers();
 for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
@@ -56,7 +58,7 @@ if( $slaves ) {
      'search_text' => $text,
      'slaves' => explode(',',$params['slaves'])
     ];
-    foreach( ['search_descriptions','search_casesensitive','verbatim_search','save_search'] as $txt ) {
+    foreach( ['search_descriptions','search_casesensitive','verbatim_search','search_fuzzy','save_search'] as $txt ) {
         $searchparams[$txt] = isset($params[$txt]) && cms_to_bool($params[$txt]);
     }
     $userid = get_userid(false);

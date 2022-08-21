@@ -104,12 +104,11 @@ class LoadedData
      */
 //  public function __construct() {} //TODO public iff wanted by Lone ?
     #[\ReturnTypeWillChange]
-    private function __clone() {}
+    private function __clone() {}// : void {}
 
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         $this->save();

@@ -50,7 +50,6 @@ class PageTreeNode
 	 * @param int $id identifier of this node
 	 * @param PageTreeOperations $mgr the PageTreeOperations-class singleton
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct(int $id, PageTreeOperations $ops)
 	{
 		$this->operations = $ops;

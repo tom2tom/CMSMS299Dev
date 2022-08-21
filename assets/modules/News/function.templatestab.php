@@ -52,7 +52,7 @@ if( $dbr ) {
 	$iconfalse = $themeObj->DisplayImage('icons/system/false.gif',lang('no'),'','','systemicon');
 
 	$templates = [];
-	foreach ($dbr as $row) {
+	foreach( $dbr as $row ) {
 		$tid = $row['id'];
 		$obj = new stdClass();
 		$obj->id = $tid;
@@ -60,7 +60,7 @@ if( $dbr ) {
 		$obj->desc = strip_tags($row['description']);
 		$obj->type = $row['type'];
 		if( strcasecmp($obj->name,'moduleactions') != 0 ) {
-			if ($row['type_dflt']) {
+			if( $row['type_dflt'] ) {
 				$obj->dflt = $icontrue;
 				$obj->dflt_mode = 1;
 			}
@@ -83,17 +83,26 @@ if( $dbr ) {
 	$numrows = count($templates);
 	$pagerows = (int)$this->GetPreference('article_pagelimit', 10); //OR user-specific?
 
-	if ($numrows > $pagerows) {
+	if( $numrows > $pagerows ) {
 		//setup for SSsort paging
+		$tplpaged = 'true';
 		$tplpages = (int)ceil($numrows/$pagerows);
+		if( $tplpages > 2 ) {
+			$elid1 = '"pspage2"';
+			$elid2 = '"ntpage2"';
+		}
+		else {
+			$elid1 = 'null';
+			$elid2 = 'null';
+		}
 		$choices = [strval($pagerows) => $pagerows];
 		$f = ($pagerows < 4) ? 5 : 2;
 		$n = $pagerows * $f;
-		if ($n < $numrows) {
+		if( $n < $numrows ) {
 			$choices[strval($n)] = $n;
 		}
 		$n += $n;
-		if ($n < $numrows) {
+		if( $n < $numrows ) {
 			$choices[strval($n)] = $n;
 		}
 		$choices[$this->Lang('all')] = 0;
@@ -101,7 +110,10 @@ if( $dbr ) {
 			$this->CreateInputDropdown($id, 'pagerows2', $choices, -1, $pagerows));
 	}
 	else {
+		$tplpaged = 'false';
 		$tplpages = 1;
+		$elid1 = 'null';
+		$elid2 = 'null';
 	}
 
 	$tpl->assign('tpllist2', $templates)
@@ -117,22 +129,27 @@ if( $dbr ) {
 var tpltable;
 $(function() {
   tpltable = document.getElementById('tpltable');
-  if($tplpages > 1) {
+  if($tplpaged) {
    var xopts = $.extend({}, SSsopts, {
     paginate: true,
     pagesize: $pagerows,
+    firstid: 'ftpage2',
+    previd: $elid1,
+    nextid: $elid2,
+    lastid: 'ltpage2',
+    selid: 'pagerows2',
     currentid: 'cpage2',
-    countid: 'tpage2'
+    countid: 'tpage2'//,
+//  onPaged: function(table,pageid){}
    });
    $(tpltable).SSsort(xopts);
    $('#pagerows2').on('change',function() {
     l = parseInt(this.value);
     if(l === 0) {
-     $('#tpglink').hide();//TODO hide label-part 'per page'
+     $('#tpglink').hide();//TODO hide/toggle label-part 'per page'
     } else {
-     $('#tpglink').show();//TODO show label-part 'per page'
+     $('#tpglink').show();//TODO show/toggle label-part 'per page'
     }
-    $.fn.SSsort.setCurrent(tpltable,'pagesize',l);
    });
   } else {
     $(tpltable).SSsort(SSsopts);

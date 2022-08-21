@@ -27,7 +27,6 @@ use const CMS_DB_PREFIX;
 
 class ClearJobRecordJob extends CronJob
 {
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();

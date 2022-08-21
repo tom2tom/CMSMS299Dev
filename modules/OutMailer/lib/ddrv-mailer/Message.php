@@ -180,7 +180,6 @@ final class Message implements MessageContract
      * @param string|null $html
      * @param string|null $text
      */
-    #[\ReturnTypeWillChange]
     public function __construct($subject = null, $html = null, $text = null)
     {
         $this->id = $this->randomString(32, false);
@@ -202,7 +201,7 @@ final class Message implements MessageContract
     }
 
     #[\ReturnTypeWillChange]
-    public function __clone()
+    public function __clone()// : void
     {
         $this->boundary = '-+' . $this->randomString(12, false);
         $this->id = $this->randomString(32, false);
@@ -751,7 +750,7 @@ final class Message implements MessageContract
      * @inheritDoc
      */
     #[\ReturnTypeWillChange]
-    public function unserialize($serialized)// : void
+    public function unserialize(/*string*/$serialized)// : void
     {
         $this->__unserialize(\unserialize($serialized));
     }

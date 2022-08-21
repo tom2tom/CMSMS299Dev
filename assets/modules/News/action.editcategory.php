@@ -24,6 +24,7 @@ use CMSMS\FileType;
 use CMSMS\Lone;
 use News\AdminOperations;
 use News\Utils;
+use function CMSMS\de_specialize;
 use function CMSMS\log_info;
 
 //if( some worthy test fails ) exit;
@@ -34,9 +35,14 @@ if( isset($params['cancel']) ) {
 }
 
 if( isset($params['catid']) ) {
-    $catid = (int)$params['catid'];
-    $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id = ?';
-    $row = $db->getRow($query,[$catid]);
+    $catid = (int)$params['catid']; //int() is sufficient san. here
+    if( $catid > 0 ) {
+        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id = ?';
+        $row = $db->getRow($query,[$catid]);
+    }
+    else {
+        $row = false;
+    }
     if( !$row ) {
         $this->SetError($this->Lang('error_categorynotfound'));
         $this->RedirectToAdminTab('groups');
@@ -64,8 +70,10 @@ if( isset($params['submit']) ) {
     }
     else {
         // it's an update
-        $query = 'SELECT news_category_id FROM '.CMS_DB_PREFIX.'module_news_categories
-WHERE parent_id = ? AND news_category_name = ? AND news_category_id != ?';
+        $name = de_specialize($name);
+        $name = sanitzeVal($name, CMSSAN_PUNCTX, '<>'); // TODO what content allowed in cat names?
+        $query = 'SELECT news_category_id FROM '.CMS_DB_PREFIX.
+          'module_news_categories WHERE parent_id = ? AND news_category_name = ? AND news_category_id != ?';
         $tmp = $db->getOne($query,[$parentid,$name,$catid]);
         if( $tmp ) {
             $this->ShowErrors($this->Lang('error_duplicatename'));
@@ -77,18 +85,18 @@ WHERE parent_id = ? AND news_category_name = ? AND news_category_id != ?';
             elseif( $parentid != $row['parent_id'] ) {
                 // parent changed
                 // gotta figure out a new item order
-                $query = 'SELECT max(item_order) FROM '.CMS_DB_PREFIX.'module_news_categories
-WHERE parent_id = ?';
+                $query = 'SELECT max(item_order) FROM '.CMS_DB_PREFIX.
+                  'module_news_categories WHERE parent_id = ?';
                 $maxn = (int)$db->getOne($query,[$parentid]);
                 $maxn++;
 
-                $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET item_order = item_order - 1
-WHERE parent_id = ? AND item_order > ?';
+                $query = 'UPDATE '.CMS_DB_PREFIX.
+                  'module_news_categories SET item_order = item_order - 1 WHERE parent_id = ? AND item_order > ?';
                 $db->execute($query,[$row['parent_id'],$row['item_order']]);
                 $row['item_order'] = $maxn;
             }
 
-$origname = 'TODO';
+            $origname = $db->getOne('SELECT news_category_name FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id = ?', [$catid]);
 
             if( isset($params['generate_url']) && cms_to_bool($params['generate_url']) ) {
                 $str = ( $name ) ? $name : 'newscategory'.$catid.mt_rand(1000, 9999);

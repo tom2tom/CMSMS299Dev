@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminTheme;
 use CMSMS\AdminUtils;
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\Error403Exception;
 use CMSMS\HookOperations;
 use CMSMS\Lone;
@@ -189,7 +189,7 @@ if ($wysiwygtype) { $wysiwyg .= '::'.$wysiwygtype; }
 //TODO in/UI by relevant module
 $wysiwygtheme = UserParams::get_for_user($userid, 'wysiwyg_theme');
 
-$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::USER_SETTINGS);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CapabilityType::USER_SETTINGS);
 if ($modnames) {
     // load those modules if not already done
     for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
@@ -223,7 +223,7 @@ $smarty = Lone::get('Smarty');
 
 // Rich-text (html) editors
 $editors = [];
-$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::WYSIWYG_MODULE);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CapabilityType::WYSIWYG_MODULE);
 if ($modnames) {
     for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
         $mod = Utils::get_module($modnames[$i]);
@@ -279,7 +279,7 @@ $smarty -> assign('wysiwyg_opts', $editors);
 
 // Syntax-highlight editors
 $editors = [];
-$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CoreCapabilities::SYNTAX_MODULE);
+$modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CapabilityType::SYNTAX_MODULE);
 if ($modnames) {
     for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
         $mod = Utils::get_module($modnames[$i]);

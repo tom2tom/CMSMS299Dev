@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 
 final class AdminSearch extends CMSModule
 {
@@ -62,8 +62,8 @@ final class AdminSearch extends CMSModule
     public function HasCapability($capability, $params = [])
     {
         switch ($capability) {
-            case CoreCapabilities::CORE_MODULE:
-            case CoreCapabilities::ADMINSEARCH:
+//abandoned            case CapabilityType::CORE_MODULE:
+            case CapabilityType::ADMINSEARCH:
                 return true;
             default:
                 return false;

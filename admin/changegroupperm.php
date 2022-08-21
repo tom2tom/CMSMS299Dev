@@ -128,18 +128,34 @@ HookOperations::add_hook('getperminfo', function ($perm_source, $perm_name) {
     }
 }, HookOperations::PRIORITY_LOW);
 
-//populate displayed-group(s) selector
 $groupops = Lone::get('GroupOperations');
-$group_list = $groupops->LoadGroups();
-$allgroups = []; //ditto
-$sel_groups = [];
-foreach ($group_list as $onegroup) {
-    if ($onegroup->id === 1 && !$supergrp) {
-        continue; //skip (i.e. prevent display/change of) grp 1 permissions
+if (isset($_GET['group_id'])) {
+    $gid = (int)$_GET['group_id']; //simple sanitization
+    if ($gid == 1 && !$supergrp) {
+        //TODO err message
+        return;
     }
-    $allgroups[] = $onegroup;
-    if ($disp_group === -1 || $disp_group == $onegroup->id) {
-        $sel_groups[] = $onegroup;
+    try {
+        $onegroup = $groupops->LoadGroupByID($gid);
+    } catch (Throwable $t) {
+        //TODO err message
+        return;
+    }
+    $allgroups = [$onegroup];
+    $sel_groups = [$onegroup];
+} else {
+    //populate displayed-group(s) selector
+    $group_list = $groupops->LoadGroups();
+    $allgroups = []; //ditto
+    $sel_groups = [];
+    foreach ($group_list as $onegroup) {
+        if ($onegroup->id === 1 && !$supergrp) {
+            continue; //skip (i.e. prevent display/change of) grp 1 permissions
+        }
+        $allgroups[] = $onegroup;
+        if ($disp_group === -1 || $disp_group == $onegroup->id) {
+            $sel_groups[] = $onegroup;
+        }
     }
 }
 

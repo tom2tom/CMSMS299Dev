@@ -36,10 +36,9 @@ final class BulkOperations
 	// static properties here >> Lone property|ies ?
 	private static $_list = [];
 
-	#[\ReturnTypeWillChange]
 	private function __construct() {}
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/**
 	 * Register a function to show in the bulk content operations list used in

@@ -31,7 +31,6 @@ class ClearCacheJob extends CronJob
 
     private $_age_days;
 
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();

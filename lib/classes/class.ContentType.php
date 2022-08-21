@@ -1,7 +1,7 @@
 <?php
 /*
 Class to interact with a page-content type.
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -70,8 +70,7 @@ class ContentType implements ArrayAccess
 	 * The latter 2 are filepaths of display- and edit-classes, if needed
 	 * because auto-loading cannot retrieve them
 	 */
-	#[\ReturnTypeWillChange]
-	public function __construct($parms = null)
+	public function __construct(array $parms = null)
 	{
 		if ($parms) {
 			extract($parms);
@@ -138,6 +137,7 @@ class ContentType implements ArrayAccess
 	public function offsetGet($key)// : mixed
 	{
 		if( isset($this->$key) ) return $this->$key;
+        return null;
 	}
 
 	#[\ReturnTypeWillChange]

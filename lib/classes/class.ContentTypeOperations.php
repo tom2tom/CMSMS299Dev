@@ -23,7 +23,7 @@ namespace CMSMS;
 use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\ContentType;
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\DeprecationNotice;
 use CMSMS\Lone;
 use const CMS_DB_PREFIX;
@@ -61,7 +61,7 @@ class ContentTypeOperations
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/**
 	 * @ignore
@@ -139,7 +139,7 @@ class ContentTypeOperations
 			// get any additional types from relevant modules.
 			// such types are registered in the modules' respective constructors,
 			// which process eventually shoves them into $this->_content_types.
-			$modnames = Lone::get('LoadedMetadata')->get('capable_modules', $force, CoreCapabilities::CONTENT_TYPES);
+			$modnames = Lone::get('LoadedMetadata')->get('capable_modules', $force, CapabilityType::CONTENT_TYPES);
 			if( $modnames ) {
 				$modops = Lone::get('ModuleOperations');
 				foreach( $modnames as $name ) {

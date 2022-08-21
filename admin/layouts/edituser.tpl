@@ -60,7 +60,7 @@
     {$t=_la('email')}<label class="pagetext" for="email">{$t}:</label>
     {cms_help 0='help' key='user_email' title=$t}
     <div class="pageinput">
-      <input type="text" id="email" name="email" size="50" maxlength="255" value="{$email}" />
+      <input type="text" id="email" name="email" size="40" maxlength="255" value="{$email}" />
     </div>
   </div>
 
@@ -96,15 +96,14 @@
   <!-- group options -->
   <input type="hidden" name="groups" value="1" />
   {foreach $groups as $onegroup}<input type="hidden" name="g{$onegroup->id}" value="0" />{/foreach}
-  <div class="pageverflow">
-    <div class="pageinfo">{_la('info_membergroups')}</div>
-    <br />
-    {_la('groups')}:
+  <div class="pageoverflow">
+    <div class="pageinfo postgap">{_la('info_membergroups')}</div>
   </div>
+  <label class="pagetext" for="grpsselect">{_la('select')}:</label>
   <br />
   <div class="pageinput">
     <div class="group_memberships clear">
-    <table class="pagetable">
+    <table id="grpsselect" class="pagetable">
       <thead>
       <tr>
         <th class="pageicon"></th>

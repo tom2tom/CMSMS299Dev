@@ -42,7 +42,6 @@ use function get_userid;
  */
 final class Utils
 {
-	#[\ReturnTypeWillChange]
 	private function __construct() {}
 
 	public static function get_pagedefaults() : array

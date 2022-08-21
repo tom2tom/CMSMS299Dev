@@ -61,13 +61,10 @@ class SimpleAlert extends Alert
     private $_msg;
 
     /**
-     * Constructor
-     *
      * @param string[] $perms An array of permission names.  Or null.
      * @throws InvalidArgumentException
      */
-    #[\ReturnTypeWillChange]
-    public function __construct($perms = null)
+    public function __construct(/*array*/$perms = null)
     {
         if( $perms && !is_array($perms) ) throw new InvalidArgumentException('perms must be an array of permission name strings');
         $this->_perms = $perms;
@@ -75,16 +72,14 @@ class SimpleAlert extends Alert
     }
 
     /**
-     * The magic __get method.
-     *
-     * Get a property from this object, or from the base class.
+     * Get a property of this object or the base class.
      *
      * @param string $key
      * @return mixed
      * @throws InvalidArgumentException
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)
+    public function __get(string $key)// : mixed
     {
         switch( $key ) {
         case 'perms':
@@ -101,15 +96,12 @@ class SimpleAlert extends Alert
     }
 
     /**
-     * The magic __set method.
-     *
-     * Set a property for this object, or for the base Alert class.
+     * Set a property of this object or the base Alert class.
      *
      * @param string $key
      * @param mixed $val
      */
-    #[\ReturnTypeWillChange]
-    public function __set(string $key,$val)
+    public function __set(string $key,$val) : void
     {
         switch( $key ) {
         case 'icon':
@@ -134,12 +126,12 @@ class SimpleAlert extends Alert
             break;
 
         default:
-            return parent::__set($key,$val);
+            parent::__set($key,$val);
         }
     }
 
     /**
-     * Givent he admin_uid, check if the specified uid has at least one of the permissions specified in the perms array.
+     * Report whether the specified user has at least one of the permissions specified in the constructor $perms array.
      *
      * @param int $admin_uid
      * @return bool;
@@ -187,4 +179,4 @@ class SimpleAlert extends Alert
         return $this->_icon;
     }
 
-} // end of class
+} // class

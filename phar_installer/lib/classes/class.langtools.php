@@ -22,7 +22,6 @@ final class langtools
     private $_langdata;
     private $_realm = '__:DFLT:__';
 
-    #[\ReturnTypeWillChange]
     private function __construct()
     {
     }
@@ -145,9 +144,9 @@ final class langtools
     public function match_browser_lang()
     {
         $langs = $this->get_browser_langs();
-        if (is_array($langs) && ($n = count($langs))) {
+        if ($langs && is_array($langs)) {
             $ops = new nlstools();
-            for ($i = 0; $i < $n; ++$i) {
+            for ($i = 0, $n = count($langs); $i < $n; ++$i) {
                 $obj = $ops->find($langs[$i]['lang']); // does alias lookup.
                 if ($obj) {
                     // it's available, check if also allowed

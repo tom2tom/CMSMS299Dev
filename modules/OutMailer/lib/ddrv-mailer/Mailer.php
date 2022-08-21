@@ -31,7 +31,6 @@ final class Mailer
      * @param string|null $senderEmail
      * @param string|null $senderName
      */
-    #[\ReturnTypeWillChange]
     public function __construct(Transport $transport, $senderEmail = null, $senderName = null)
     {
         $this->transport = $transport;

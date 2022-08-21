@@ -346,6 +346,7 @@ input[type="button"],
 input[type="submit"],
 .adminsubmit,
 .loginsubmit,
+.pagechange, /* fake button */
 button,
 .ui-button {
     border: 1px solid #d3d3d3;
@@ -1589,7 +1590,7 @@ nav h3.usertags a::before, #ab_pagemenu li a.usertags::before { content: '\f507'
 
 i.fontimage {
     vertical-align: middle;
-    font-size: 1.3em;
+    font-size: 1em;
 }
 
 .headericon {
@@ -1673,7 +1674,7 @@ svg.systemicon {
     border: 1px solid #adadeb;
     padding: 2px 4px;
     margin: 2px 1px;
-    color: #4d4d4d;
+    color: #4d4d4d
 }
 
 .pagerows strong {
@@ -1779,6 +1780,10 @@ table.pagetable td {
     color: #4d4d4d;
     padding-right: 5px;
     padding-left: 5px
+}
+
+table.pagetable td .fontimage {
+    padding: 0.25em;
 }
 
 table.pagetable a {

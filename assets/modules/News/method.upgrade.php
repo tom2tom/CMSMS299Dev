@@ -116,8 +116,8 @@ if( version_compare($oldversion,'2.50') < 0 ) {
             $summary_template_type->set_originator($me);
             $summary_template_type->set_name('summary');
             $summary_template_type->set_dflt_flag(TRUE);
-            $summary_template_type->set_lang_callback('News::page_type_lang_callback');
-            $summary_template_type->set_content_callback('News::reset_page_type_defaults');
+            $summary_template_type->set_lang_callback('News::tpltype_lang_callback');
+            $summary_template_type->set_content_callback('News::reset_tpltype_default');
             $summary_template_type->reset_content_to_factory();
             $summary_template_type->save();
             foreach( $alltemplates as $tplname ) {
@@ -133,8 +133,8 @@ if( version_compare($oldversion,'2.50') < 0 ) {
             $detail_template_type->set_originator($me);
             $detail_template_type->set_name('detail');
             $detail_template_type->set_dflt_flag(TRUE);
-            $detail_template_type->set_lang_callback('News::page_type_lang_callback');
-            $detail_template_type->set_content_callback('News::reset_page_type_defaults');
+            $detail_template_type->set_lang_callback('News::tpltype_lang_callback');
+            $detail_template_type->set_content_callback('News::reset_tpltype_default');
             $detail_template_type->reset_content_to_factory();
             $detail_template_type->save();
             foreach( $alltemplates as $tplname ) {
@@ -150,8 +150,8 @@ if( version_compare($oldversion,'2.50') < 0 ) {
             $form_template_type->set_originator($me);
             $form_template_type->set_name('form');
             $form_template_type->set_dflt_flag(TRUE);
-            $form_template_type->set_lang_callback('News::page_type_lang_callback');
-            $form_template_type->set_content_callback('News::reset_page_type_defaults');
+            $form_template_type->set_lang_callback('News::tpltype_lang_callback');
+            $form_template_type->set_content_callback('News::reset_tpltype_default');
             $form_template_type->reset_content_to_factory();
             $form_template_type->save();
             foreach( $alltemplates as $tplname ) {
@@ -167,8 +167,8 @@ if( version_compare($oldversion,'2.50') < 0 ) {
             $browsecat_template_type->set_originator($me);
             $browsecat_template_type->set_name('browsecat');
             $browsecat_template_type->set_dflt_flag(TRUE);
-            $browsecat_template_type->set_lang_callback('News::page_type_lang_callback');
-            $browsecat_template_type->set_content_callback('News::reset_page_type_defaults');
+            $browsecat_template_type->set_lang_callback('News::tpltype_lang_callback');
+            $browsecat_template_type->set_content_callback('News::reset_tpltype_default');
             $browsecat_template_type->reset_content_to_factory();
             $browsecat_template_type->save();
             foreach( $alltemplates as $tplname ) {
@@ -194,7 +194,7 @@ if( version_compare($oldversion,'2.50.8') < 0 ) {
         $types = TemplateType::load_all_by_originator($me);
         if( $types ) {
             foreach( $types as $type_obj ) {
-                $type_obj->set_help_callback('News::template_help_callback');
+                $type_obj->set_help_callback('News::tpltype_help_callback');
                 $type_obj->save();
             }
         }
@@ -217,10 +217,10 @@ if( version_compare($oldversion,'3.1') < 0 ) {
         $type->set_originator($me);
         $type->set_name('approvalmessage');
         $type->set_dflt_flag(TRUE);
-        $type->set_lang_callback('News::page_type_lang_callback');
-        $type->set_content_callback('News::reset_page_type_defaults');
+        $type->set_lang_callback('News::tpltype_lang_callback');
+        $type->set_content_callback('News::reset_tpltype_default');
         $type->reset_content_to_factory();
-        $type->set_help_callback('News::template_help_callback');
+        $type->set_help_callback('News::tpltype_help_callback');
         $type->save();
     }
     catch (Throwable $t) {

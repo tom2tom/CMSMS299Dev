@@ -360,7 +360,6 @@ abstract class Smarty_Internal_TemplateCompilerBase
      *
      * @param Smarty $smarty global instance
      */
-    #[\ReturnTypeWillChange]
     public function __construct(Smarty $smarty)
     {
         $this->smarty = $smarty;
@@ -423,9 +422,6 @@ abstract class Smarty_Internal_TemplateCompilerBase
         try {
             // save template object in compiler class
             $this->template = $template;
-            if (property_exists($this->template->smarty, 'plugin_search_order')) {
-                $this->plugin_search_order = $this->template->smarty->plugin_search_order;
-            }
             if ($this->smarty->debugging) {
                 if (!isset($this->smarty->_debug)) {
                     $this->smarty->_debug = new Smarty_Internal_Debug();
@@ -1439,6 +1435,10 @@ abstract class Smarty_Internal_TemplateCompilerBase
      * @return bool true if compiling succeeded, false if it failed
      */
     abstract protected function doCompile($_content, $isTemplateSource = false);
+
+    public function cStyleComment($string) {
+        return '/*' . str_replace('*/', '* /' , $string) . '*/';
+    }
 
     /**
      * Compile Tag

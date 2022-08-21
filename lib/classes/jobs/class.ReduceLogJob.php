@@ -32,7 +32,6 @@ class ReduceLogJob extends CronJob
 
     private $_queue;
 
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();

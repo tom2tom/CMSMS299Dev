@@ -221,13 +221,13 @@ class Utils
                 $mainfile = 'summernote-lite.min.js';
                 $s = $mod->GetPreference('source_sri');
                 if ($s) {
-                    $cspext = ' integrity="'.$s.'" crossorigin="anonymous" referrerpolicy="no-referrer"';
+                    $cspext = ' integrity="'.$s.'" crossorigin="anonymous" referrerpolicy="same-origin"';
                 }
             }
             $shareurl = CMS_ASSETS_URL.'/js';
 //<script type="text/javascript" src="$srcurl/$mainfile"$cspext></script>
 //<script type="text/javascript" src="$base_url/lib/UNUSED-summernote-0.8.20/dist/summernote-lite.js"></script>
-// TODO module.css might be .min and/or need rtl
+// TODO module.css might be .min and/or need rtl >> $csm = new CMSMS\StylesMerger();$csm->queue_matchedfile(); ...
 //<link rel="stylesheet" href="$pickurl4" />
 //<script type="text/javascript" src="$pickurl"></script>
 //<script type="text/javascript" src="$pickurl1"></script>
@@ -250,7 +250,7 @@ if (typeof Symbol === 'undefined') {
             $output = <<<EOS
 $cssinc
 <link rel="stylesheet" href="$themeurl" />$xcss
-<link rel="stylesheet" href="$base_url/css/module.css" />
+<link rel="stylesheet" href="$base_url/styles/module.css" />
 $jsinc
 <script type="text/javascript" src="$pickurl2"></script>
 <script type="text/javascript" src="$srcurl/$mainfile"$cspext></script>

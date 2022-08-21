@@ -48,7 +48,6 @@ class design_reader extends reader_base
     private $_file_map = [];
     private $_new_design_description;
 
-    #[\ReturnTypeWillChange]
     public function __construct($fn)
     {
         $this->_xml = new xml_reader();
@@ -60,7 +59,7 @@ class design_reader extends reader_base
     {
         while( $this->_xml->read() ) {
             if( !$this->_xml->isValid() ) {
-        throw new Exception('Invalid XML FILE ');
+                throw new Exception('Invalid XML FILE ');
             }
         }
         // it validates.
@@ -72,8 +71,8 @@ class design_reader extends reader_base
         $cur_key = null;
 
         $get_in = function() use ($in) {
-            if( ($n = count($in)) ) {
-                return $in[$n-1];
+            if( $in ) {
+                return end($in);
             }
         };
 
@@ -267,7 +266,7 @@ class design_reader extends reader_base
         $this->_scan();
         $out = [];
         foreach( $this->_tpl_info as $key => $one ) {
-            $name = $this->_get_name($key);
+//          $name = $this->_get_name($key);
             $rec = [];
             $rec['name'] = base64_decode($one['name']);
             $rec['newname'] = TemplateOperations::get_unique_template_name($rec['name']);
@@ -286,7 +285,7 @@ class design_reader extends reader_base
         $this->_scan();
         $out = [];
         foreach( $this->_css_info as $key => $one ) {
-            $name = $this->_get_name($key);
+//          $name = $this->_get_name($key);
             $rec = [];
             $rec['name'] = base64_decode($one['name']);
             $rec['newname'] = StylesheetOperations::get_unique_name($rec['name']);
@@ -294,7 +293,7 @@ class design_reader extends reader_base
             $rec['desc'] = base64_decode($one['desc']);
             $rec['data'] = base64_decode($one['data']);
             $rec['mediatype'] = base64_decode($one['mediatype']);
-            $rec['medisaquery'] = base64_decode($one['mediaquery']);
+            $rec['mediaquery'] = base64_decode($one['mediaquery']);
             $out[] = $rec;
         }
         return $out;
@@ -325,6 +324,7 @@ class design_reader extends reader_base
                 }
             }
         }
+        unset($rec);
     }
 
     protected function validate_stylesheet_names()
@@ -352,6 +352,7 @@ class design_reader extends reader_base
                 }
             }
         }
+        unset($rec);
     }
 
     public function get_destination_dir()
@@ -408,6 +409,7 @@ class design_reader extends reader_base
             $rec['tpl_url'] = "{uploads_url}/designs/$destdir/{$rec['value']}";
             $rec['css_url'] = "[[uploads_url]]/designs/$destdir/{$rec['value']}";
         }
+        unset($rec);
 
         // expand stylesheets
         foreach( $this->get_stylesheet_list() as $css ) {
@@ -421,6 +423,7 @@ class design_reader extends reader_base
                 if( !isset($rec['css_url']) ) continue;
                 $content = str_replace($key,$rec['css_url'],$content);
             }
+            unset($rec);
 
             if( $css['mediatype'] ) {
                $tmp = explode(',',$css['mediatype']);
@@ -441,7 +444,7 @@ class design_reader extends reader_base
         // expand templates
         $me = null; //TODO
         $tpl_recs = $this->get_template_list();
-        foreach( $tpl_recs as $tpl ) {
+        foreach( $tpl_recs as &$tpl ) {
             $template = new Template();
             $template->set_originator($me);
             $template->set_name($tpl['newname']);
@@ -467,19 +470,19 @@ class design_reader extends reader_base
                     $content = str_replace($key,$rec['value'],$content);
                 }
             }
+            unset($rec);
 
-            // substitute other tpl keys in this content
+            // substitute other template-keys in this content
             foreach( $tpl_recs as $tpl2 ) {
-               if( $tpl['key'] == $tpl2['key'] ) continue;
+               if( $tpl2['key'] == $tpl['key'] ) continue;
                $content = str_replace($tpl2['key'],$tpl2['newname'],$content);
             }
 
-            // substitute CSS keys for their values.    This should handle
             $template->set_content($content);
 
             // template type:
             // - try to find the template type
-                        // - if not, set the type to 'generic'.
+            // - if not, set the type to 'generic'.
             try {
                 $typename = $tpl['type_originator'].'::'.$tpl['type_name'];
                 $type_obj = TemplateType::load($typename);
@@ -492,9 +495,10 @@ class design_reader extends reader_base
             }
 
             $template->save();
-            $tpl_recs['newname'] = $template->get_name();
+            $tpl['newname'] = $template->get_name(); // useless ?
             $design->add_template($template);
         }
+        unset($tpl);
 
         $design->save();
     } // import

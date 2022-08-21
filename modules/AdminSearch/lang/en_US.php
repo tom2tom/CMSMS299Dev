@@ -7,6 +7,7 @@ $lang = [
 'desc_css_search' => 'Search for matching text in stylesheets',
 'desc_content_search' => 'Search for matching text in content pages',
 'desc_filter_all' => 'Toggle all filters',
+'desc_fuzzy_search' => 'Match all characters in the search text, regardless of anything between them',
 'desc_modtemplate_search' => 'Search for matching text in module templates',
 'desc_save_search' => 'Record current selections for use in the next session',
 'desc_template_search' => 'Search for matching text in templates',
@@ -45,6 +46,7 @@ EOS
 'lbl_cased_search' => 'Search is Case-Sensitive',
 'lbl_content_search' => 'Content Pages',
 'lbl_css_search' => 'Stylesheets',
+'lbl_fuzzy_search' => 'Fuzzy Matching',
 //'lbl_gcb_search' => 'Global Content Blocks', //deprecated - among other-templates?
 'lbl_modtemplate_search' => 'Module Templates',
 'lbl_save_search' => 'Save Parameters',
@@ -75,7 +77,7 @@ EOS
 'starting' => 'Starting',
 
 // W
-'warn_casedchars' => 'Case insensitive searching is unreliable when the Search Text and/or the Search Scope include character(s) whose encoding is unknown. Aim to stay with UFT-8.',
+'warn_casedchars' => 'Case insensitive searching is unreliable when the Search Text and/or the Search Scope include character(s) whose encoding is unknown. Aim to stay with UTF-8.',
 'warn_clickthru' => 'This will open another window. Canceling from that window might not return you to this page. Your search results might be lost.',
 
 ] + $lang;

@@ -3,12 +3,12 @@
 // Fix backend users' homepage url
 // replace all previous secure params with [SECURITYTAG]
 // remove the admin dir name from the url (url should be relative to admin dir)
-$sql = 'SELECT user_id,value FROM '.CMS_DB_PREFIX.'userprefs WHERE preference = ?';
+$sql = 'SELECT user_id,`value` FROM '.CMS_DB_PREFIX.'userprefs WHERE preference = ?';
 $homepages = $db->getAll($sql, ['homepage']);
 if ($homepages) {
     status_msg('Converting backend users\' homepage preference');
 
-    $update_statement = 'UPDATE ' . CMS_DB_PREFIX . 'userprefs SET value = ? WHERE user_id = ? AND preference = ?';
+    $update_statement = 'UPDATE ' . CMS_DB_PREFIX . 'userprefs SET `value` = ? WHERE user_id = ? AND preference = ?';
 
     foreach ($homepages as $homepage) {
         $url = $homepage['value'];

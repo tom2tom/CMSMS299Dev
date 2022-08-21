@@ -27,7 +27,6 @@ use Throwable;
 
 class ClearLocksJob extends CronJob
 {
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();

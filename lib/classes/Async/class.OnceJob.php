@@ -39,7 +39,6 @@ abstract class OnceJob extends Job
      * A subclass constructor may specify the 'start' property (timestamp).
      * Otherwise, a later JobOperations::set_jobstart() must do so.
      */
-    #[\ReturnTypeWillChange]
     public function __construct($params = [])
     {
         $t = $params['start'] ?? -1;

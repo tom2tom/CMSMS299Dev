@@ -251,8 +251,7 @@ WHERE news_id=?';
         } // !error
 
         if (isset($params['apply']) && isset($params['ajax'])) {
-            // TODO sensible ajax status-reporting - error and success
-            $response = '<EditArticle>';
+            $response = '<?xml version="1.0"?><EditArticle>';
             if ($error) {
                 $response .= '<Response>Error</Response>';
                 $response .= '<Details><![CDATA[' . $error . ']]></Details>';
@@ -307,33 +306,32 @@ WHERE news_id=?';
         $params['cancel'],
         $params['ajax']);
 
-    $tmpfname = tempnam(TMP_CACHE_LOCATION, $me . '_preview');
-    file_put_contents($tmpfname, serialize($params));
-
-    $detail_returnid = $this->GetPreference('detail_returnid', -1);
-    if ($detail_returnid <= 0) {
-        // get the default content id
-        $detail_returnid = Lone::get('ContentOperations')->GetDefaultContent();
-    }
-    if (isset($params['previewpage']) && (int)$params['previewpage'] > 0) {
-        $detail_returnid = (int)$params['previewpage'];
-    }
-    $_SESSION['news_preview'] = [
-        'fname' => basename($tmpfname),
-        'checksum' => md5_file($tmpfname)
-    ];
-    $tparms = ['preview' => md5(serialize($_SESSION['news_preview']))];
-    if (!empty($params['detailtemplate'])) {
-        $tparms['detailtemplate'] = trim($params['detailtemplate']);
-    }
-    $url = $this->create_url('_preview_', 'detail', $detail_returnid, $tparms, true, false, '', false, 2);
-
-    $response = '<?xml version="1.0"?>';
-    $response .= '<EditArticle>';
+    $response = '<?xml version="1.0"?><EditArticle>';
     if (!empty($error)) {
         $response .= '<Response>Error</Response>';
         $response .= '<Details><![CDATA[' . $error . ']]></Details>';
     } else {
+        $detail_returnid = $this->GetPreference('detail_returnid', -1);
+        if ($detail_returnid <= 0) {
+            // get the default content id
+            $detail_returnid = Lone::get('ContentOperations')->GetDefaultContent();
+        }
+        if (isset($params['previewpage']) && (int)$params['previewpage'] > 0) {
+            $detail_returnid = (int)$params['previewpage'];
+        }
+
+        $tmpfname = tempnam(TMP_CACHE_LOCATION, $me . '_preview');
+        file_put_contents($tmpfname, serialize($params));
+        $_SESSION['news_preview'] = [
+            'fname' => basename($tmpfname),
+            'checksum' => md5_file($tmpfname)
+        ];
+        $tparms = ['preview' => md5(serialize($_SESSION['news_preview']))];
+        if (!empty($params['detailtemplate'])) {
+            $tparms['detailtemplate'] = trim($params['detailtemplate']);
+        }
+        $url = $this->create_url('_preview_', 'detail', $detail_returnid, $tparms, true, false, '', false, 2);
+
         $response .= '<Response>Success</Response>';
         $response .= '<Details><![CDATA[' . $url . ']]></Details>';
     }
@@ -427,7 +425,7 @@ specialize_array($parms);
 
 /*-----------------------
  Pass everything to smarty
-------------------------*/
+ ------------------------*/
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('editarticle.tpl')); //, null, null, $smarty);
 
@@ -501,17 +499,17 @@ else {
 
 if ($this->CheckPermission('Approve News')) {
     $choices = [
-        $this->Lang('draft')=>'draft',
-        $this->Lang('final')=>'final',
-        $this->Lang('archived')=>'archived',
+        $this->Lang('draft') => 'draft',
+        $this->Lang('final') => 'final',
+        $this->Lang('archived') => 'archived',
     ];
-//    $statusradio = $this->CreateInputRadioGroup($id, 'status', $choices, $status, '', '  ');
+//  $statusradio = $this->CreateInputRadioGroup($id, 'status', $choices, $status, '', '  ');
     $statusradio = FormUtils::create_select([ // DEBUG
         'type' => 'radio',
-        'name'  => 'status',
+        'name' => 'status',
         'htmlid' => 'status',
         'getid' => $id,
-        'options'=> $choices,
+        'options' => $choices,
         'selectedvalue' => $status,
         'delimiter' => '  ',
     ]);

@@ -64,7 +64,7 @@ final class GroupOperations
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/**
 	 * Get the singleton instance of this class
@@ -74,7 +74,7 @@ final class GroupOperations
 	 */
 	public static function get_instance() : self
 	{
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\Lone::get(\'GroupOperations\')'));
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\Lone::get(\'GroupOperations\')'));
 		return Lone::get('GroupOperations');
 	}
 
@@ -111,23 +111,28 @@ final class GroupOperations
 	}
 
 	/**
-	 * Get all groups
+	 * Get all, or all active, groups
 	 *
+	 * $param bool $active since 3.0 optional flag whether to only get active groups. Default false.
 	 * @return array Group-object(s) | empty
 	 */
-	public function LoadGroups()
+	public function LoadGroups(bool $active = false)
 	{
 		$db = Lone::get('Db');
-		$query = 'SELECT group_id,group_name,group_desc,active FROM `'.CMS_DB_PREFIX.'groups` ORDER BY group_id';
+		$query = 'SELECT group_id,group_name,group_desc,active FROM `'.CMS_DB_PREFIX.'groups`';
+		if( $active ) {
+			$query .= ' WHERE active!=0'; // TODO NULL value?
+		}
+		$query .= ' ORDER BY group_id';
 		$list = $db->getArray($query);
 		$out = [];
 		for( $i = 0, $n = count($list); $i < $n; ++$i ) {
 			$row = $list[$i];
 			$obj = new Group();
-			$obj->id = (int) $row['group_id'];
+			$obj->id = (int)$row['group_id'];
 			$obj->name = $row['group_name'];
 			$obj->description = $row['group_desc'];
-			$obj->active = (int) $row['active'];
+			$obj->active = (bool)$row['active'];
 			$out[] = $obj;
 		}
 		return $out;

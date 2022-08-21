@@ -81,15 +81,18 @@ class ScriptsMerger
      * @param string $output   js string
      * @param int    $priority Optional priority 1..3 for the script. Default 0 (use current default)
      * @param bool   $force    Optional flag whether to force recreation of the merged file. Default false
+     * @return bool indicating success
      */
     public function queue_string(string $output, int $priority = 0, bool $force = false)
     {
         $sig = Crypto::hash_string(__FILE__.$output);
-        $output_file = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR."cms_$sig.js";
-        if ($force || !is_file($output_file)) {
-            file_put_contents($output_file, $output, LOCK_EX);
+        $temp_file = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR."cms_$sig.js";
+        if ($force || !is_file($temp_file)) {
+            if (!@file_put_contents($temp_file, $output, LOCK_EX)) {
+                return false;
+            }
         }
-        $this->queue_file($output_file, $priority);
+        return $this->queue_file($temp_file, $priority);
     }
 
     /**
@@ -102,10 +105,10 @@ class ScriptsMerger
     public function queue_file(string $filename, int $priority = 0)
     {
 //TODO  $filename = $this->url_to_path($filename); // migrate URL-formatted filename to filepath
-        if (!is_file($filename)) return false;
+        if (!is_file($filename)) { return false; }
 
         $sig = Crypto::hash_string($filename);
-        if (isset($this->_items[$sig])) return false;
+        if (isset($this->_items[$sig])) { return false; }
 
         if ($priority < 1) {
             $priority = $this->_item_priority;
@@ -155,10 +158,10 @@ class ScriptsMerger
      * @param bool   $force       Optional flag whether to force re-creation
      *  of the merged file. Default false
      * @param bool   $defer       Optional flag whether to automatically
-     *  include jquery.cmsms_defer.js. Default true
+     *  include jquery.cmsms_defer.js. Default false
      * @return mixed string basename of the merged-items file | null upon error
      */
-    public function render_scripts(string $output_path = '', bool $force = false, bool $defer = true)
+    public function render_scripts(string $output_path = '', bool $force = false, bool $defer = false)
     {
         if (!$this->_items) return; // nothing to do
         $base_path = ($output_path) ? rtrim($output_path, ' \/') : TMP_CACHE_LOCATION;
@@ -230,8 +233,8 @@ class ScriptsMerger
         if ($cache_filename) {
             $output_file = $base_path.DIRECTORY_SEPARATOR.$cache_filename;
             $url = cms_path_to_url($output_file);
-            $sri = 'integrity="sha256-'.base64_encode(hash_file('sha256', $output_file, true)).'"';
-            return "<script type=\"text/javascript\" src=\"$url\" $sri></script>\n";
+            $sri = base64_encode(hash_file('sha256', $output_file, true));
+            return "<script type=\"text/javascript\" src=\"$url\" integrity=\"sha256-$sri\" crossorigin=\"anonymous\" referrerpolicy=\"same-origin\"></script>\n";
         }
         return '';
     }

@@ -80,10 +80,9 @@ final class NlsOperations
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
 	private function __construct() {}
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/**
 	 * @ignore

@@ -23,7 +23,6 @@ class Smarty_Internal_ParseTree_Code extends Smarty_Internal_ParseTree
      *
      * @param string $data content
      */
-    #[\ReturnTypeWillChange]
     public function __construct($data)
     {
         $this->data = $data;

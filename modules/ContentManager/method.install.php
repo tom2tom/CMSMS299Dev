@@ -34,6 +34,7 @@ Lone::get('ContentTypeOperations')->RebuildStaticContentTypes();
 
 $this->SetPreference('locktimeout', 60);
 $this->SetPreference('lockrefresh', 120);
+$this->SetPreference('list_visiblecolumns', 'hier,page,alias,template,type,active,default'); //user-adjustable column identifiers (some others are always shown)
 
 $me = $this->GetName();
 

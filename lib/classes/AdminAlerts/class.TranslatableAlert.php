@@ -75,7 +75,6 @@ class TranslatableAlert extends Alert
      * @param mixed $perms A single permission name, or array of permission name(s), or null.
      * @throws InvalidArgumentException
      */
-    #[\ReturnTypeWillChange]
     public function __construct($perms = null)
     {
         if( $perms ) {
@@ -96,7 +95,7 @@ class TranslatableAlert extends Alert
      * @throws InvalidArgumentException
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)
+    public function __get(string $key)// : mixed
     {
         switch( $key ) {
         case 'perms':
@@ -124,7 +123,7 @@ class TranslatableAlert extends Alert
      * @throws InvalidArgumentException
      */
     #[\ReturnTypeWillChange]
-    public function __set(string $key,$val)
+    public function __set(string $key,$val)// : void
     {
         switch( $key ) {
         case 'icon':
@@ -153,25 +152,25 @@ class TranslatableAlert extends Alert
             break;
 
         default:
-            return parent::__set($key,$val);
+            parent::__set($key,$val);
         }
     }
 
     /**
      * Check whether the specified admin user id has at least one of the permissions specified in the perms array.
      *
-     * @param int $admin_uid
+     * @param int $user_id
      * @return bool;
      */
-    protected function is_for($admin_uid)
+    protected function is_for($user_id)
     {
         if( !$this->_perms ) return FALSE;
-        $admin_uid = (int) $admin_uid;
+        $user_id = (int)$user_id;
         $userops = Lone::get('UserOperations');
         $perms = $this->_perms;
         if( !is_array($this->_perms) ) $perms = [$this->_perms];
         foreach( $perms as $permname ) {
-            if( $userops->CheckPermission($admin_uid,$permname) ) return TRUE;
+            if( $userops->CheckPermission($user_id,$permname) ) return TRUE;
         }
         return FALSE;
     }
@@ -215,5 +214,4 @@ class TranslatableAlert extends Alert
     {
         return $this->_icon;
     }
-
-} // end of class
+} // class

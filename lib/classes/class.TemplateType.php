@@ -133,7 +133,6 @@ class TemplateType
 	 * Constructor
 	 * @param mixed $props array | null Optional type-properties Since 3.0
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct($props = NULL)
 	{
 		$this->props = [

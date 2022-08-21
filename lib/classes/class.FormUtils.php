@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/licenses.html>.
 */
 namespace CMSMS;
 
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\Crypto;
 use CMSMS\HookOperations;
 use CMSMS\Lone;
@@ -893,7 +893,7 @@ class FormUtils
                 $parms['class'] .= ' cmsms_wysiwyg';
             }
             $mod = Lone::get('ModuleOperations')->GetWYSIWYGModule($forcemodule);
-            if ($mod && $mod->HasCapability(CoreCapabilities::WYSIWYG_MODULE)) {
+            if ($mod && $mod->HasCapability(CapabilityType::WYSIWYG_MODULE)) {
                 // TODO use $config['content_language']
                 $parms['data-cms-lang'] = 'html'; //park badly-named variable
                 $modname = $mod->GetName();
@@ -911,7 +911,7 @@ class FormUtils
         if (!$mod && $wantedsyntax) {
             $parms['data-cms-lang'] = $wantedsyntax; //park
             $mod = Lone::get('ModuleOperations')->GetSyntaxHighlighter($forcemodule);
-            if ($mod && $mod->HasCapability(CoreCapabilities::SYNTAX_MODULE)) {
+            if ($mod && $mod->HasCapability(CapabilityType::SYNTAX_MODULE)) {
                 $modname = $mod->GetName();
                 if (empty($parms['class'])) {
                     $parms['class'] = $modname; //not for CSS ?!

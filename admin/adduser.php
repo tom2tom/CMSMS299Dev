@@ -230,14 +230,10 @@ if ($errors) {
 }
 
 //data for user-selector
-$sel = [-1 => _la('none')];
-$userlist = $userops->LoadUsers();
-foreach ($userlist as $one) {
-    $sel[$one->id] = $one->username; // no specialize() needed?
-}
+$sel = [-1 => _la('none')] + $userops->GetUsers(true, true);// TODO names specialize()? strip_tags() ?
 
 if ($manage_groups) {
-    $groups = $groupops->LoadGroups();
+    $groups = $groupops->LoadGroups(true);
     if ($groups) {
         foreach ($groups as $obj) {
             $obj->name = specialize($obj->name);

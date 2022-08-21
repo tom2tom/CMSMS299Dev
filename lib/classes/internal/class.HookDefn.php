@@ -48,7 +48,6 @@ class HookDefn
      * Constructor
      * @param string $name
      */
-    #[\ReturnTypeWillChange]
     public function __construct($name)
     {
         $this->name = $name;

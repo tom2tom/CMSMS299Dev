@@ -56,11 +56,11 @@ $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 202';
 $db->execute($query);
 
 $type = TemplateType::load('__CORE__::page');
-$type->set_help_callback('CMSMS\internal\std_layout_template_callbacks::template_help_callback');
+$type->set_help_callback('CMSMS\internal\std_layout_template_callbacks::tpltype_help_callback');
 $type->save();
 
 $type = TemplateType::load('__CORE__::generic');
-$type->set_help_callback('CMSMS\internal\std_layout_template_callbacks::template_help_callback');
+$type->set_help_callback('CMSMS\internal\std_layout_template_callbacks::tpltype_help_callback');
 $type->save();
 
 // create the assets (however named) directory structure

@@ -1,7 +1,7 @@
 <?php
 /*
 FilePicker module action: select
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -34,13 +34,17 @@ try {
     $name = $params['name'] ?? ''; //html element name
     $value = $params['value'] ?? ''; //html element initial value
     $type = $params['type'] ?? ''; //type of file to select
-    if( !$type ) $type = FileType::IMAGE; //default mode: image selection
-
-    $profile = $this->get_default_profile();
-    if( $type ) {
-        $parms = ['type' => $type];
-        $profile = $profile->overrideWith($parms);
+    if( !$type ) {
+        $parms = ['type' => FileType::IMAGE]; //default mode: image selection
     }
+    elseif( is_numeric($type) )
+        $parms = ['type' => (int)$type];
+    }
+    else {
+        $parms = ['typename' => strtoupper(trim($type))];
+    }
+    $profile = $this->get_default_profile();
+    $profile = $profile->overrideWith($parms);
     echo $this->get_html($name, $value, $profile );
 }
 catch( Throwable $t ) {

@@ -7,7 +7,7 @@
   <meta name="generator" content="CMS Made Simple" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
-  <meta name="HandheldFriendly" content="true"/>
+  <meta name="HandheldFriendly" content="true" />
   <meta name="msapplication-TileColor" content="#f89938" />
   <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
   <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />

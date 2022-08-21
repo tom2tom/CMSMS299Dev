@@ -101,6 +101,7 @@ WHERE news_id IN ('.implode(',',$sel).')';
     }
 }
 
+// OR $csm = new ... $csm->queue_matchedfile( );
 $baseurl = $this->GetModuleURLPath();
 $out = <<<EOS
  <link rel="stylesheet" href="{$baseurl}/css/module.css">
@@ -110,7 +111,7 @@ add_page_headtext($out);
 
 $out = cms_get_script('jquery.SSsort.js');
 $js = <<<EOS
-<script src="$out"></script>
+<script type="text/javascript" src="$out"></script>
 <script type="text/javascript">
 //<![CDATA[
 function pagefirst(tbl) {

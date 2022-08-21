@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminMenuItem;
 //use CMSMS\AppParams;
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\HookOperations;
 use CMSMS\Route;
 use CMSMS\RouteOperations;
@@ -41,7 +41,6 @@ class News extends CMSModule
     const DAYBLOCK = 3;
 
 /* for CMSMS < 3.0
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();
@@ -60,7 +59,6 @@ class News extends CMSModule
     public function GetEventDescription($eventname) { return $this->lang('eventdesc-' . $eventname); }
     public function GetEventHelp($eventname) { return $this->lang('eventhelp-' . $eventname); }
     public function GetFriendlyName() { return $this->Lang('news'); }
-    public function GetHelp() { return $this->Lang('help'); }
     public function GetName() { return 'News'; }
     public function GetVersion() { return '3.1'; }
     public function HandlesEvents() { return true; }
@@ -70,6 +68,31 @@ class News extends CMSModule
 //  public function LazyLoadAdmin() { return true; }
 //  public function LazyLoadFrontend() { return true; }
     public function MinimumCMSVersion() { return '2.999'; }
+
+    public function GetHelp() {
+        $this->CreateParameter('action', 'default', $this->Lang('helpaction'));
+        $this->CreateParameter('articleid', '', $this->Lang('help_articleid'));
+        $this->CreateParameter('browsecat', 0, $this->Lang('helpbrowsecat'));
+        $this->CreateParameter('browsecattemplate', '', $this->Lang('helpbrowsecattemplate'));
+//      $this->CreateParameter('category_id', ... CLEAN_INT);
+        $this->CreateParameter('category', 'category', $this->Lang('helpcategory'));
+        $this->CreateParameter('detailpage', 'pagealias', $this->Lang('helpdetailpage'));
+        $this->CreateParameter('detailtemplate', '', $this->Lang('helpdetailtemplate'));
+        $this->CreateParameter('idlist', '', $this->Lang('help_idlist'));
+//      $this->CreateParameter('lang', ... CLEAN_STRING); //TODO explain
+        $this->CreateParameter('moretext', $this->Lang('moreprompt'), $this->Lang('helpmoretext'));
+        $this->CreateParameter('number', 100000, $this->Lang('helpnumber'));
+        $this->CreateParameter('pagelimit', 1000, $this->Lang('help_pagelimit'));
+//      $this->CreateParameter('pagenumber', ...CLEAN_INT);
+//      $this->CreateParameter('preview', ....CLEAN_STRING); //hashed preview data
+        $this->CreateParameter('showall', 0, $this->Lang('helpshowall'));
+        $this->CreateParameter('showarchive', 0, $this->Lang('helpshowarchive'));
+        $this->CreateParameter('sortasc', 'true', $this->Lang('helpsortasc'));
+        $this->CreateParameter('sortby', 'start_time', $this->Lang('helpsortby'));
+        $this->CreateParameter('start', 0, $this->lang('helpstart'));
+        $this->CreateParameter('summarytemplate', '', $this->Lang('helpsummarytemplate'));
+        return $this->Lang('help');
+    }
 
     public function InitializeFrontend()
     {
@@ -158,28 +181,6 @@ class News extends CMSModule
     public function InitializeAdmin()
     {
         HookOperations::add_hook('ExtraSiteSettings', [$this, 'ExtraSiteSettings']);
-
-        $this->CreateParameter('action', 'default', $this->Lang('helpaction'));
-        $this->CreateParameter('articleid', '', $this->Lang('help_articleid'));
-        $this->CreateParameter('browsecat', 0, $this->Lang('helpbrowsecat'));
-        $this->CreateParameter('browsecattemplate', '', $this->Lang('helpbrowsecattemplate'));
-//      $this->CreateParameter('category_id', ... CLEAN_INT);
-        $this->CreateParameter('category', 'category', $this->Lang('helpcategory'));
-        $this->CreateParameter('detailpage', 'pagealias', $this->Lang('helpdetailpage'));
-        $this->CreateParameter('detailtemplate', '', $this->Lang('helpdetailtemplate'));
-        $this->CreateParameter('idlist', '', $this->Lang('help_idlist'));
-//      $this->CreateParameter('lang', ... CLEAN_STRING); //TODO explain
-        $this->CreateParameter('moretext', $this->Lang('moreprompt'), $this->Lang('helpmoretext'));
-        $this->CreateParameter('number', 100000, $this->Lang('helpnumber'));
-        $this->CreateParameter('pagelimit', 1000, $this->Lang('help_pagelimit'));
-//      $this->CreateParameter('pagenumber', ...CLEAN_INT);
-//      $this->CreateParameter('preview', ....CLEAN_STRING); //hashed preview data
-        $this->CreateParameter('showall', 0, $this->Lang('helpshowall'));
-        $this->CreateParameter('showarchive', 0, $this->Lang('helpshowarchive'));
-        $this->CreateParameter('sortasc', 'true', $this->Lang('helpsortasc'));
-        $this->CreateParameter('sortby', 'start_time', $this->Lang('helpsortby'));
-        $this->CreateParameter('start', 0, $this->lang('helpstart'));
-        $this->CreateParameter('summarytemplate', '', $this->Lang('helpsummarytemplate'));
     }
 
     public function VisibleToAdminUser()
@@ -298,7 +299,7 @@ class News extends CMSModule
 
     public function GetDateFormat() : string
     {
-        return $this->GetPreference('date_format', '%e %B %Y %l:%M %p');
+        return $this->GetPreference('date_format', '%e %B %Y %l:%M %p'); //TODO replace deprecated strftime() formats
     }
 
     /**
@@ -356,7 +357,7 @@ EOS;
         }
     }
 
-    public static function page_type_lang_callback($str)
+    public static function tpltype_lang_callback($str)
     {
         $mod = Utils::get_module('News');
         if( is_object($mod) ) {
@@ -365,21 +366,22 @@ EOS;
         return '';
     }
 
-    public static function template_help_callback($str)
+    public static function tpltype_help_callback($str)
     {
         $mod = Utils::get_module('News');
         if( is_object($mod) ) {
             $file = cms_join_path($mod->GetModulePath(), 'doc', 'tpltype_'.trim($str).'.htm');
             if( is_file($file) ) {
                 $base = $mod->GetModuleURLPath();
-                add_page_headtext('<link rel="stylesheet" type="text/css" href="'.$base.'/css/modhelp.css" />');
+                // OR $csm = new ... $csm->queue_matchedfile( );
+                add_page_headtext('<link rel="stylesheet" href="'.$base.'/css/modhelp.css" />');
                 return file_get_contents($file);
             }
         }
         return '';
     }
 
-    public static function reset_page_type_defaults(TemplateType $type)
+    public static function reset_tpltype_default(TemplateType $type)
     {
         if( $type->get_originator() != 'News' ) {
             throw new LogicException('Cannot reset contents for this template type');
@@ -410,12 +412,12 @@ EOS;
     public function HasCapability($capability, $params = [])
     {
         switch( $capability ) {
-           case CoreCapabilities::PLUGIN_MODULE:
-           case CoreCapabilities::ADMINSEARCH:
-           case CoreCapabilities::TASKS:
-           case CoreCapabilities::EVENTS:
-           // ? ROUTE_MODULE ?
-           case CoreCapabilities::SITE_SETTINGS:
+           case CapabilityType::PLUGIN_MODULE:
+           case CapabilityType::ADMINSEARCH:
+           case CapabilityType::TASKS:
+           case CapabilityType::EVENTS:
+//         case CapabilityType::ROUTE_MODULE: when defined
+           case CapabilityType::SITE_SETTINGS:
               return true;
         }
         return false;

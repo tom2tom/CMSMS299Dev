@@ -1,7 +1,7 @@
 <?php
 /*
 Module: DesignManager - A CMSMS addon module to provide template management.
-Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -40,7 +40,7 @@ final class utils
 		// static properties here >> Lone property|ies ?
         static $_locks = null;
         static $_locks_loaded = FALSE;
-        if( !$locks_loaded ) {
+        if( !$_locks_loaded ) {
             $_locks_loaded = TRUE;
             $tmp = LockOperations::get_locks('template');
             if( $tmp ) {
@@ -58,7 +58,7 @@ final class utils
 		//NOTE static properties here
         static $_locks = null;
         static $_locks_loaded = FALSE;
-        if( !$locks_loaded ) {
+        if( !$_locks_loaded ) {
             $_locks_loaded = TRUE;
             $tmp = LockOperations::get_locks('stylesheet');
             if( $tmp ) {
@@ -70,5 +70,4 @@ final class utils
         }
         return $_locks;
     }
-
 } // class

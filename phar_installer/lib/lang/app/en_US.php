@@ -298,6 +298,7 @@ $lang['multibyte_support'] = 'PHP Multibyte extension is available ?';
 
 // N
 $lang['next'] = 'Next';
+$lang['newsletter'] = 'CMSMS Newsletter'; //finished-message link-text
 $lang['no'] = 'No';
 $lang['none'] = 'None';
 

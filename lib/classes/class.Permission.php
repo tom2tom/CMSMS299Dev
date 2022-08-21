@@ -74,7 +74,6 @@ final class Permission
 	 * Constructor
 	 * @param mixed $props array | null Optional permission-properties Since 3.0
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct($props = null)
 	{
 		$this->_data = [

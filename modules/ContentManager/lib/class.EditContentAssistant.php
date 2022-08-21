@@ -36,7 +36,6 @@ abstract class EditContentAssistant implements IContentAssistant
 	 *
 	 * @param ContentBase $content the content-object that we are building an assistant for.
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct(ContentBase $content)
 	{
 		$this->_content_obj = $content;

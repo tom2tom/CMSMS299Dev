@@ -101,7 +101,6 @@ class ContentBase implements Serializable
 	 *
 	 * @param mixed $params Properties to be set (optional, to support legacy sub-classes)
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct($params)
 	{
 		if (!empty($params)) {
@@ -123,7 +122,7 @@ class ContentBase implements Serializable
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	public function __clone()
+	public function __clone()// : void
 	{
 		$this->_fields['content_alias'] = '';
 		$this->_fields['content_id'] = -1;
@@ -135,8 +134,7 @@ class ContentBase implements Serializable
 	 * This should only be used during construction
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	public function __set(string $key, $value)
+	public function __set(string $key, $value) : void
 	{
 		$use = strtolower($key);
 		$use = self::PROPALIAS[$use] ?? $use;
@@ -216,8 +214,7 @@ class ContentBase implements Serializable
 		}
 	}
 
-	#[\ReturnTypeWillChange]
-	public function __toString()
+	public function __toString() : string
 	{
 		return json_encode($this->__serialize(), JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE); // PHP7.2+
 	}
@@ -246,7 +243,7 @@ class ContentBase implements Serializable
 	}
 
 	#[\ReturnTypeWillChange]
-	public function unserialize($serialized)// : void
+	public function unserialize(/*string*/$serialized)// : void
 	{
 		$str = Crypto::decrypt_string($serialized,__CLASS__,'best');
 		if (!$str) {

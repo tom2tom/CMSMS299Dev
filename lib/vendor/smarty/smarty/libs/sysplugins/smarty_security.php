@@ -242,7 +242,6 @@ class Smarty_Security
     /**
      * @param Smarty $smarty
      */
-    #[\ReturnTypeWillChange]
     public function __construct($smarty)
     {
         $this->smarty = $smarty;

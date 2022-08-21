@@ -24,15 +24,15 @@
 {if $itemcount > 0 && isset($rowchanger)}
   <div class="boxchild">
    <span id="ipglink">
-   <a href="javascript:pagefirst(itemstbl)">{_ld('layout','pager_first')}</a>
+   <span id="ftpage" class="pagechange">{_ld('layout','pager_first')}</span>
    {if $tplpages > 2}
-   <a href="javascript:pageprev(itemstbl)">{_ld('layout','pager_previous')}</a>
-   <a href="javascript:pagenext(itemstbl)">{_ld('layout','pager_next')}</a>
+   <span id="pspage" class="pagechange">{_ld('layout','pager_previous')}</span>
+   <span id="ntpage" class="pagechange">{_ld('layout','pager_next')}</span>
    {/if}
-   <a href="javascript:pagelast(itemstbl)">{_ld('layout','pager_last')}</a>
-   {_ld($_module,'pageof','<span id="cpage">1</span>',"<span id='tpage' style='margin-right:0.5em;'>`$totpg`</span>")}
+   <span id="ltpage" class="pagechange">{_ld('layout','pager_last')}</span>
+   {_ld('layout','pageof','<span id="cpage">1</span>',"<span id='tpage' style='margin-right:0.5em;'>{$totpg}</span>")}
    </span>
-   {$rowchanger}{_ld($_module,'pagerows')}
+   {$rowchanger}{_ld('layout','pager_rowspp')}{*TODO sometimes show 'pager_rows'*}
   </div>{*boxchild*}
 {/if}
 </div>{*rowbox*}
@@ -42,11 +42,11 @@
   <thead>
     <tr>
       <th{if $itemcount > 1} class="nosort"{/if}>#</th>
-      <th{if $itemcount > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{$titletext}</th>
-      <th{if $itemcount > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{$categorytext}</th>
-      <th{if $itemcount > 1} class="{literal}{sss:'intfor'}{/literal}"{/if}>{$startdatetext}</th>
-      <th{if $itemcount > 1} class="{literal}{sss:'intfor'}{/literal}"{/if}>{$enddatetext}</th>
-      <th class="pageicon{if $itemcount > 1} {literal}{sss:'intfor'}{/literal}{/if}">{$statustext}</th>{*if papp*}
+      <th{if $itemcount > 1} class="{literal}{sss:text}{/literal}"{/if}>{$titletext}</th>
+      <th{if $itemcount > 1} class="{literal}{sss:text}{/literal}"{/if}>{$categorytext}</th>
+      <th{if $itemcount > 1} class="{literal}{sss:intfor}{/literal}"{/if}>{$startdatetext}</th>
+      <th{if $itemcount > 1} class="{literal}{sss:intfor}{/literal}"{/if}>{$enddatetext}</th>
+      <th class="pageicon{if $itemcount > 1} {literal}{sss:intfor}{/literal}{/if}">{$statustext}</th>{*if papp*}
       <th class="pageicon{if $itemcount > 1} nosort{/if}"></th>{*if pmod &/| $pdel 0..4 icons in this column TODO replace by context menu *}
       <th class="pageicon{if $itemcount > 1} nosort{/if}"><input type="checkbox" id="selectall" value="1" title="{_ld($_module,'selectall')}" /></th>{*if pANY*}
     </tr>
@@ -57,14 +57,14 @@
       <td>{$entry->id}</td>
       <td>{$entry->title}</td>
       <td>{$entry->category}</td>
-      <td>{if $itemcount > 1}<span style="display:none">{$entry->start}</span>{/if}{$entry->startdate}</td>
-      <td>{if $itemcount > 1}<span style="display:none">{$entry->end}</span>{/if}{if $entry->expired}
+      <td{if $itemcount > 1} data-sss="{$entry->start}"{/if}>{$entry->startdate}</td>
+      <td{if $itemcount > 1} data-sss="{$entry->end}"{/if}>{if $entry->expired}
         <div class="important">{$entry->enddate}</div>
         {else}
           {$entry->enddate}
         {/if}
       </td>
-      <td><span style="display:none">$entry->approve_mode</span>>{if isset($entry->approve_link)}>{$entry->approve_link}{/if}</td>
+      <td{if $itemcount > 1} data-sss="{$entry->approve_mode}"{/if}>{if isset($entry->approve_link)}>{$entry->approve_link}{/if}</td>
       <td>
         {if isset($entry->editlink)}{$entry->editlink} {$entry->copylink}{if $xcats} {$entry->movelink}{/if}{/if}
         {if isset($entry->deletelink)} {$entry->deletelink}{/if}

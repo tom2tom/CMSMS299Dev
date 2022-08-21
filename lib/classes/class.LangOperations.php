@@ -78,10 +78,9 @@ final class LangOperations
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
 	private function __construct() {}
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/**
 	 * NOTE this is a non-trivial contributor to request-duration, hence optimized for speed

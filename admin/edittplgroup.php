@@ -130,7 +130,7 @@ $jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
 if ($do_locking) {
 	$jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 }
-$js = $jsm->page_content('', false, false);
+$js = $jsm->page_content();
 if ($js) {
 	add_page_foottext($js);
 }

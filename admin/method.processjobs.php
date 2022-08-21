@@ -147,7 +147,7 @@ try {
     AppParams::set('joblastbadrun', $started_at);
     if ($log) {
         error_log('Throwable '.$t->GetMessage()."\n", 3, $log);
-        error_log($t->GetTraceAsString());
+        error_log($t->GetTraceAsString()."\n", 3, $log);
     }
     debug_to_log('--Major async processing Throwable--');
     debug_to_log('Throwable '.$t->GetMessage());

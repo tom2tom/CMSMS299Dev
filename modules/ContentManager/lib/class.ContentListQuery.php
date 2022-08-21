@@ -42,7 +42,6 @@ final class ContentListQuery extends DbQueryBase
 	 *
 	 * @param ContentListFilter $filter
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct(ContentListFilter $filter)
 	{
 		$this->_filter = $filter;
@@ -78,26 +77,26 @@ final class ContentListQuery extends DbQueryBase
 		}
 
 		$sql = 'SELECT C.content_id FROM '.CMS_DB_PREFIX.'content C';
-		$where = $parms = [];
+		$wheres = []; $parms = [];
 		switch ($this->_filter->type) {
 		case ContentListFilter::EXPR_OWNER:
-			$where[] = 'C.owner_id = ?';
+			$wheres[] = 'C.owner_id = ?';
 			$parms[] = (int) $this->_filter->expr;
 			break;
 		case ContentListFilter::EXPR_EDITOR:
 			$sql .= ' INNER JOIN '.CMS_DB_PREFIX.'additional_users A ON C.content_id = A.content_id';
-			$where[] = 'A.user_id = ?';
+			$wheres[] = 'A.user_id = ?';
 			$parms[] = (int) $this->_filter->expr;
 			break;
 		case ContentListFilter::EXPR_TEMPLATE:
-			$where[] = 'C.template_id = ?';
+			$wheres[] = 'C.template_id = ?';
 			$parms[] = (int) $this->_filter->expr;
 			break;
 /*
 		case ContentListFilter::EXPR_DESIGN:
 			$sql .= ' INNER JOIN '.CMS_DB_PREFIX.'content_props P ON C.content_id = P.content_id';
-			$where[] = 'P.prop_name = ?';
-			$where[] = 'P.content = ?';
+			$wheres[] = 'P.prop_name = ?';
+			$wheres[] = 'P.content = ?';
 			$parms[] = 'design_id';
 			$parms[] = (int) $this->_filter->expr;
 			break;
@@ -106,8 +105,8 @@ final class ContentListQuery extends DbQueryBase
 //		case ContentListFilter::EXPR_STYLE:
 		}
 
-		if ($where) {
-			$sql .= ' WHERE '.implode(' AND ', $where);
+		if ($wheres) {
+			$sql .= ' WHERE '.implode(' AND ', $wheres);
 		}
 		$sql .= ' ORDER BY C.id_hierarchy';
 

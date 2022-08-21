@@ -34,7 +34,6 @@ class VersionCheckJob extends CronJob
 {
     const ENABLED_SITEPREF = 'VersionCheckJob'.AppParams::NAMESPACER.'checkversion';
 
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();

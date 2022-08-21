@@ -49,7 +49,6 @@ class Profile implements ArrayAccess
 	private static $_module = null;
 	private $_data = [];
 
-	#[\ReturnTypeWillChange]
 	public function __construct($data = [])
 	{
 		if( $data ) {
@@ -88,8 +87,7 @@ class Profile implements ArrayAccess
 		}
 	}
 
-	#[\ReturnTypeWillChange]
-	public function offsetSet($key,$value)// : void
+	public function offsetSet($key,$value) : void
 	{
 		switch( $key ) {
 		case 'menubar':
@@ -118,16 +116,14 @@ class Profile implements ArrayAccess
 		}
 	}
 
-	#[\ReturnTypeWillChange]
-	public function offsetExists($key)// : bool
+	public function offsetExists($key) : bool
 	{
 		if( in_array($key, self::KEYS) ) return isset($this->_data[$key]);
 
 		throw new LogicException("'$key' is not a property of ".__CLASS__.' objects');
 	}
 
-	#[\ReturnTypeWillChange]
-	public function offsetUnset($key)// : void
+	public function offsetUnset($key) : void
 	{
 		switch( $key ) {
 		case 'menubar':

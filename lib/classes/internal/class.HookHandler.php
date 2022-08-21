@@ -49,7 +49,6 @@ class HookHandler
      * @param int $priority Optional since 3.0, Default HookOperations::PRIORITY_NORMAL
      * @throws InvalidArgumentException if $handler is not callable
      */
-    #[\ReturnTypeWillChange]
     public function __construct($handler, int $priority = HookOperations::PRIORITY_NORMAL)
     {
         if (is_callable($handler, true)) {

@@ -21,15 +21,17 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-//use FilePicker; //module class
 //use const CMS_SCHEMA_VERSION;
+//use CMSMS\Crypto;
+//use CMSMS\SystemCache;
+//use ReflectionMethod;
+//use function cmsms;
 use CMSModule;
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\ArrayTree;
-use CMSMS\CoreCapabilities;
-//use CMSMS\Crypto;
+use CMSMS\CapabilityType;
 use CMSMS\DeprecationNotice;
 use CMSMS\Events;
 use CMSMS\IAuthModule;
@@ -39,12 +41,11 @@ use CMSMS\LoadedDataType;
 use CMSMS\Lone;
 use CMSMS\ModuleOperations;
 use CMSMS\RequestParameters;
-//use CMSMS\SystemCache;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 use CMSMS\UserParams;
 use LogicException;
-//use ReflectionMethod;
+use RuntimeException;
 use UnexpectedValueException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -52,7 +53,6 @@ use const CMS_VERSION;
 use const CMSSAN_FILE;
 use function cms_module_path;
 use function cms_module_places;
-//use function cmsms;
 use function CMSMS\de_entitize;
 use function CMSMS\is_frontend_request;
 use function CMSMS\log_error;
@@ -87,13 +87,13 @@ final class ModuleOperations
 	private const CORENAMES_PREF = 'coremodules';
 
 //	const CORENAMES_DEFAULT = TODO
-//'AdminLogin,AdminSearch,ContentManager,FileManager,FilePicker,MicroTiny,ModuleManager,Navigator,OutMailer,Search';
+//'Authenticator,AdminSearch,ContentManager,FileManager,FilePicker,MicroTiny,ModuleManager,Navigator,OutMailer,Search';
 
 	/**
 	 * Name of default login-processor module
 	 * @ignore
 	 */
-	const STD_LOGIN_MODULE = 'AdminLogin';
+	const STD_LOGIN_MODULE = 'Authenticator';
 
 	/**
 	 * @ignore
@@ -135,7 +135,12 @@ final class ModuleOperations
 	 * The population of such modules can change, so names are not hardcoded
 	 * @ignore
 	 */
-	private $coremodules = [];
+//abandoned	private $coremodules = [];
+	/**
+	 * @var string comma-separated names of modules supplied by/with
+	 * the installer, and recorded at self::CORENAMES_PREF
+	 */
+	private $corenames;
 
 	/**
 	 * @var array Loaded modules cache, each member like modname => modobject
@@ -180,7 +185,6 @@ final class ModuleOperations
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct()
 	{
 		$this->installing = AppState::test(AppState::INSTALL);
@@ -190,7 +194,7 @@ final class ModuleOperations
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/**
 	 * Get the singleton instance of this class.
@@ -376,7 +380,7 @@ final class ModuleOperations
 */
 	/**
 	 * @ignore
-	 * @param CMSModule | IResource $mod a module object
+	 * @param CMSModule | IResource $mod module object
 	 * @return 2-member array
 	 *  [0] = bool indicating success
 	 *  [1] = mixed int != 0 or 1 (failure indicator) or message (failed or success)
@@ -479,9 +483,9 @@ VALUES (?,?,?,?)');
 			// TODO set $this->moduleinfo[$modname]
 		}
 		if( $mod ) {
-			$core = $this->IsSystemModule($modname);
+/*abandoned			$core = $this->IsSystemModule($modname);
 			if( $core ) {
-				if( !$mod->HasCapability(CoreCapabilities::CORE_MODULE) ) {
+abandoned				if( !$mod->HasCapability(CapabilityType::CORE_MODULE) ) {
 					$result = 'Module '.$modname.' installation failed: re-use core-module name';
 					if( !$this->installing ) {
 						if( !isset($this->moduleinfo[$modname]) ) {
@@ -496,15 +500,15 @@ VALUES (?,?,?,?)');
 					return [false,$msg];
 				}
 			}
-
+*/
 			// process any prerequisite modules
 			$requisites = $mod->GetDependencies();
 			if( $requisites ) {
-//TODO use known ordering to re-order $requisites, if possible BUT should be managed upstream in installer
+//TODO use known ordering to re-order $requisites, if possible BUT that should be managed upstream in installer
 //				$tree = Lone::get('LoadedData')->get('module_depstree');
 				foreach( $requisites as $mname => $mversion ) {
 					if( $mname == '' || $mversion == '' ) continue; // invalid entry
-					if( $core ) {
+//abandoned					if( $core ) {
 						$newmod = $this->get_module_instance($mname);
 						if( !is_object($newmod) || version_compare($newmod->GetVersion(),$mversion) < 0 ) {
 							log_error('Module installation failed', $modname.' depends on '.$mname.'-'.$mversion);
@@ -513,8 +517,8 @@ VALUES (?,?,?,?)');
 								'Missing dependency: '.$mname;
 							return [false,$msg];
 						}
-					}
-					else {
+//					}
+//					else {
 						$minfo = $this->moduleinfo[$mname] ?? NULL;
 						if( $minfo ) {
 							if( version_compare($minfo['version'],$mversion) < 0 ) {
@@ -533,12 +537,17 @@ VALUES (?,?,?,?)');
 								'Missing dependency: '.$mname;
 							return [false,$msg];
 						}
-					}
+//					}
 				}
 			}
 
 			// do the actual installation stuff
-			if( !$core ) { // if not already attempted|completed during the recent get_module_instance()
+//abandoned			if( !$core ) {
+				// if newly installed during the last get_module_instance(), we're done
+				if( !empty($this->moduleinfo[$modname]) ) {
+					return [true,''];
+				}
+				//otherwise, try now
 				$result = $this->_install_module($mod);
 				if( $result[0] == false ) {
 					if( !is_string($result[1]) || $result[1] == '' ) {
@@ -549,8 +558,8 @@ VALUES (?,?,?,?)');
 					log_error('Module installation failed', $modname.','.$result[1]);
 				}
 				return $result;
-			}
-			return [true,''];
+//			}
+//			return [true,''];
 		}
 		else {
 			$result = "Module '$modname' installation failed";
@@ -629,37 +638,51 @@ VALUES (?,?,?,?)');
 		}
 
 		$db = Lone::get('Db');
+		$pref = CMS_DB_PREFIX;
 		//TODO handle module re-location, if any
 //		$lazyload_fe    = (method_exists($mod,'LazyLoadFrontend') && $mod->LazyLoadFrontend())?1:0;
 //		$lazyload_admin = (method_exists($mod,'LazyLoadAdmin') && $mod->LazyLoadAdmin())?1:0;
 		$admin_only = ($mod->IsAdminOnly()) ? 1 : 0;
 
-//		$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET version = ?,allow_fe_lazyload = ?,allow_admin_lazyload = ?,admin_only = ?,active = 1 WHERE module_name = ?';
-		$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET version = ?,admin_only = ?,active = 1 WHERE module_name = ?';
+//		$query = "UPDATE {$pref}modules SET version = ?,allow_fe_lazyload = ?,allow_admin_lazyload = ?,admin_only = ? WHERE module_name = ?";
+		$query = "UPDATE {$pref}modules SET version = ?,admin_only = ? WHERE module_name = ?";
 //		$dbr =
 //		$db->execute($query,[$to_version,$lazyload_fe,$lazyload_admin,$admin_only,$modname]);
 		$db->execute($query,[$to_version,$admin_only,$modname]);
 
 		// upgrade dependencies
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_deps WHERE child_module=?';
+		$query = "DELETE FROM {$pref}module_deps WHERE child_module=?";
 //		$dbr =
 		$db->execute($query,[$modname]);
 
 		$requisites = $mod->GetDependencies();
 		if( $requisites ) {
+			$result = [];
 			$longnow = $db->dbTimeStamp(time());
-			$stmt = $db->prepare('INSERT INTO '.CMS_DB_PREFIX."module_deps
+			$query = <<<EOS
+INSERT INTO {$pref}module_deps
 (parent_module,child_module,minimum_version,create_date)
-VALUES (?,?,?,$longnow)");
-			$stmt2 = $db->prepare('UPDATE '.CMS_DB_PREFIX.'modules SET active=1 WHERE module_name=?');
+VALUES (?,?,?,$longnow)
+EOS;
+			$stmt = $db->prepare($query);
 			foreach( $requisites as $mname => $mversion ) {
 				if( !$mname || !$mversion ) continue;
 //				$dbr =
 				$db->execute($stmt,[$mname,$modname,$mversion]);
-				$db->execute($stmt2,[$mname]);
+//				if( $dbr )
+				$result[] = $mname;
 			}
 			$stmt->close();
-			$stmt2->close();
+			if( $result ) {
+				$val = implode(',',$result);
+				$query = <<<EOS
+UPDATE {$pref}modules M
+JOIN {$pref}modules P ON M.module_name = P.module_name
+SET M.active=1
+WHERE P.module_name=? AND P.active=1 AND M.module_name IN ($val)
+EOS;
+				$db->execute($query,[$modname]);
+			}
 		}
 
 		if( !$this->installing ) {
@@ -688,16 +711,11 @@ VALUES (?,?,?,$longnow)");
 	/**
 	 * Upgrade a module
 	 *
-	 * This is an internal method, subject to change in later releases.
-	 * It should never be called for upgrading arbitrary modules.
-	 * Use of this function by any third party is not supported.
-	 * Use at your own risk and do not report bugs or issues related to your use of this module.
-	 *
 	 * @internal
 	 * @param string $modname The name of the module to upgrade
 	 * @param string $to_version The destination version
 	 * @return array, 1 or 2 members
-	 *  [0] : bool whether or not the upgrade was successful
+	 *  [0] : bool indicating whether the upgrade was successful
 	 *  [1] : string error message if [0] == false
 	 */
 	public function UpgradeModule(string $modname,string $to_version = '') : array
@@ -801,6 +819,7 @@ VALUES (?,?,?,$longnow)");
 
 		if( !$this->installing ) {
 			// installer will do this stuff after processing all modules
+			$this->ReHomeUsers($db,$modname);
 			// TODO effects on class properties: minfo, modules etc
 			unset($this->modules[$modname]);
 			// Remove module from info
@@ -867,6 +886,10 @@ VALUES (?,?,?,$longnow)");
 			$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET active = ? WHERE module_name = ?';
 //			$dbr =
 			$db->execute($query,[$info[$modname]['active'],$modname]);
+//TODO if $activate i.e. newly active, ditto for all dependent modules
+			if( !$activate ) {
+				$this->ReHomeUsers($db,$modname);
+			}
 			$cache = Lone::get('LoadedData');
 			$cache->refresh('modules'); //force refresh of the cached active property
 			$cache->refresh('module_deps');
@@ -884,6 +907,26 @@ VALUES (?,?,?,$longnow)");
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * @since 3.0
+	 * @internal
+	 * @param Connection $db
+	 * @param string $modname
+	 */
+	private function ReHomeUsers($db,string $modname)
+	{
+		$query = 'SELECT user_id,`value` FROM '.CMS_DB_PREFIX.'userprefs WHERE preference=\'homepage\' AND `value` LIKE ?';
+		$data = $db->getArray($query, ['%mact='.$modname.'%']);
+		if( $data ) {
+			$query = 'UPDATE '.CMS_DB_PREFIX."userprefs set `value`='' WHERE preference='homepage' AND user_id=";
+			foreach( $data as $row) {
+				if( strpos($row['value'], 'moduleinterface.php?mact') !== false ) {
+					$db->execute($query.$row['user_id']);
+				}
+			}
+		}
 	}
 
 	/**
@@ -1180,8 +1223,8 @@ VALUES (?,?,?,$longnow)");
 		}
 
 		$this->modules[$modname] = $mod;
-		// if the installer is not running and the module is 'core', try to install/upgrade it if need be
-		if( !$this->installing && $this->IsSystemModule($modname) ) {
+		// if the installer is not running but the module is 'installer-bundled', try to install/upgrade it if need be
+		if( !$this->installing ) { //&& $this->IsBundledModule($modname) ) {
 			if( schema_is_current() ) {
 				// current schema, ok to install module if necessary
 				if( !isset($info[$modname]) ) {
@@ -1280,13 +1323,14 @@ VALUES (?,?,?,$longnow)");
 		return $mod;
 	}
 
-	/**
+	/* *
 	 * Record the names of core/system modules known to the system
 	 * (wherever they are stored)  NAH >> , and whatever status they currently have)
 	 * We don't need to assume those modules are in any specific folder(s),
 	 * and need to be polled in there
 	 * @param mixed $val Optional comma-separated string | strings[] | falsy
 	 */
+/* abandoned
 	public function RegisterSystemModules($val = '')
 	{
 		if( !$val ) {
@@ -1312,7 +1356,7 @@ VALUES (?,?,?,$longnow)");
 					require_once cms_module_path($modname);
 				}
 				$mod = new $classname();
-				if( $mod->HasCapability(CoreCapabilities::CORE_MODULE) ) {
+				if( $mod->HasCapability(CapabilityType::CORE_MODULE) ) {
 					$val[] = $modname;
 				}
 				unset($mod);
@@ -1322,16 +1366,19 @@ VALUES (?,?,?,$longnow)");
 		sort($val,SORT_STRING);
 		$this->coremodules = $val;
 	}
-
+*/
 	/**
 	 * Determine whether the specified name corresponds to a system/core module.
+     * @deprecated since 3.0 instead use ModuleOprations::IsBundledModule()
 	 *
 	 * @param string $modname The module name
 	 * @return bool
 	 */
 	public function IsSystemModule(string $modname) : bool
 	{
-		if( !$this->coremodules ) {
+		assert(empty(CMS_DEPREC),new DeprecationNotice('method','IsBundledModule'));
+		return $this->IsBundledModule($modname);
+/*		if( !$this->coremodules ) {
 			$this->RegisterSystemModules();
 		}
 		if( $this->coremodules ) {
@@ -1343,17 +1390,34 @@ VALUES (?,?,?,$longnow)");
 			return $result;
 		}
 		return false;
+*/
+	}
+
+	/**
+	 * Determine whether the specified name represents a module that's 'supplied-with-installer'.
+     * @since 3.0
+	 *
+	 * @param string $modname The module name
+	 * @return bool
+	 */
+	public function IsBundledModule(string $modname) : bool
+	{
+		if( empty($this->corenames) ) {
+			$this->corenames = AppParams::get(self::CORENAMES_PREF);
+			if( !$this->corenames ) { throw new RuntimeException('Failed to find the site-preference which defines core modules'); }
+		}
+		return stripos($this->corenames, $modname) !== false; // OR strict >> strpos() ?
 	}
 
 	/**
 	 * Record the (non-default) login module to be used from now
 	 * @since 3.0
 	 * @param CMSModule | IResource $mod
-	 * @throws LogicException
+	 * @throws LogicException or UnexpectedValueException
 	 */
 	public function RegisterAdminLoginModule($mod)
 	{
-		if( $this->auth_module ) throw new LogicException('An authentication module has already been recorded for current use');
+		if( $this->auth_module ) { throw new LogicException('An authentication module has already been recorded for current use'); }
 		if( ! $mod instanceof IAuthModule ) {
 			throw new UnexpectedValueException($mod->GetName().' is not a valid authentication module');
 		}
@@ -1396,7 +1460,7 @@ VALUES (?,?,?,$longnow)");
 		if( $modname && $modname != -1 ) {
 			$modname = sanitizeVal($modname,CMSSAN_FILE);
 			$mod = $this->get_module_instance($modname);
-			if( $mod && $mod->HasCapability(CoreCapabilities::SYNTAX_MODULE) ) {
+			if( $mod && $mod->HasCapability(CapabilityType::SYNTAX_MODULE) ) {
 				return $mod;
 			}
 		}
@@ -1443,7 +1507,7 @@ VALUES (?,?,?,$longnow)");
 
 		if( !$modname || $modname == -1 ) return;
 		$mod = $this->get_module_instance($modname);
-		if( $mod && $mod->HasCapability(CoreCapabilities::WYSIWYG_MODULE) ) {
+		if( $mod && $mod->HasCapability(CapabilityType::WYSIWYG_MODULE) ) {
 			return $mod;
 		}
 	}
@@ -1460,7 +1524,7 @@ VALUES (?,?,?,$longnow)");
 		$modname = AppParams::get('searchmodule','Search');
 		if( $modname && $modname != 'none' && $modname != '-1' ) {
 			$mod = $this->get_module_instance($modname);
-			if( $mod && $mod->HasCapability(CoreCapabilities::SEARCH_MODULE) ) {
+			if( $mod && $mod->HasCapability(CapabilityType::SEARCH_MODULE) ) {
 				return $mod;
 			}
 		}

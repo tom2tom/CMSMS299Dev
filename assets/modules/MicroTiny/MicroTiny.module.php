@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\HookOperations;
 use MicroTiny\Utils;
 
@@ -47,11 +47,11 @@ class MicroTiny extends CMSModule
   public function HasCapability($capability, $params=[])
   {
     switch ($capability) {
-//      case CoreCapabilities::CORE_MODULE: abandoned
-      case CoreCapabilities::PLUGIN_MODULE:
-      case CoreCapabilities::WYSIWYG_MODULE:
-      case CoreCapabilities::SITE_SETTINGS:
-      case CoreCapabilities::USER_SETTINGS:
+//      case CapabilityType::CORE_MODULE: abandoned
+      case CapabilityType::PLUGIN_MODULE:
+      case CapabilityType::WYSIWYG_MODULE:
+      case CapabilityType::SITE_SETTINGS:
+      case CapabilityType::USER_SETTINGS:
         return true;
     }
     return false;

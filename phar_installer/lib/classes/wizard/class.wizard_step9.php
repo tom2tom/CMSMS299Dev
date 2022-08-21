@@ -5,7 +5,7 @@ use cms_installer\installer_base;
 use cms_installer\wizard\wizard_step;
 use CMSMS\AppParams;
 use CMSMS\AppState;
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\Lone;
 use Exception;
 use Throwable;
@@ -255,7 +255,7 @@ class wizard_step9 extends wizard_step
                 if ($cache2->has('methodic_modules')) {
                     $cache2->delete('methodic_modules', '*');
                 }
-                $cache2->get('capable_modules', true, CoreCapabilities::PLUGIN_MODULE);
+                $cache2->get('capable_modules', true, CapabilityType::PLUGIN_MODULE);
                 $cache2->get('methodic_modules', true, 'IsPluginModule');
 
                 $cache->get('module_plugins', true); // uses capable_modules and methodic_modules
@@ -319,8 +319,8 @@ class wizard_step9 extends wizard_step
 (parent_module,child_module,minimum_version,create_date) VALUES (?,?,?,NOW())');
 
         $modops = Lone::get('ModuleOperations');
-        $coremodules = $app->get_config()['coremodules'];
-        $modops->RegisterSystemModules($coremodules);
+//abandoned        $coremodules = $app->get_config()['coremodules'];
+//abandoned        $modops->RegisterSystemModules($coremodules);
 
         $choices = $this->get_wizard()->get_data('sessionchoices');
         $installmodules = $choices['havemodules'] ?? []; //cores maybe plus non-cores
@@ -335,7 +335,7 @@ class wizard_step9 extends wizard_step
                     $msg = lang('error_modulebad', $modname).': '.$res[1];
                     $this->error($msg);
                 }
-            } else {
+/*            } else { //module not installed, don't automatically upgrade
                 $fp = joinpath($destdir, 'modules', $modname, $modname.'.module.php');
                 try {
                     require_once $fp;
@@ -355,10 +355,65 @@ class wizard_step9 extends wizard_step
                     }
                     $this->error($msg);
                 }
+*/
             }
         }
         $stmt1->close();
         $stmt2->close();
+
+        // adjust users' startpage if necessary
+        $query = 'SELECT user_id,`value` FROM '.CMS_DB_PREFIX."userprefs WHERE preference='homepage' AND `value` IS NOT NULL AND `value`!=''";
+        $data = $db->getArray($query);
+
+        if ($data) {
+            $stmt1 = $db->prepare('UPDATE '.CMS_DB_PREFIX."userprefs SET `value`='' WHERE preference='homepage' AND user_id=?");
+            foreach ($data as $row) {
+                $tmp = $row['value'];
+                if (($p = strpos($tmp, 'menu.php?section')) !== false) {
+                    //get admin menu data file, if not done before
+                    if (!isset($cnt)) {
+                        if (!isset($aname)) {
+                            require_once CONFIG_FILE_LOCATION;
+                            $aname = (!empty($config['admin_path'])) ? $config['admin_path'] : 'admin';
+                        }
+                        $cnt = file_get_contents(joinpath(CMS_ROOT_PATH, $aname, 'configs', 'method.adminmenu.php'));
+                    }
+                    $tmp = substr($tmp, $p + 17); // extract section name
+                    if (!preg_match("/'name'[ =>]+?'$tmp'/", $cnt)) {
+                        $db->execute($stmt1, [$row['user_id']]);
+                    }
+                } elseif (($p = strpos($tmp, 'moduleinterface.php?mact')) !== false) {
+                    $matches = [];
+                    if (preg_match('/=(.+?),/', $tmp, $matches, 0, $p + 24)) {
+                        if ($matches[1]) {
+                            //get all installed active modules, if not done before
+                            if (!isset($modinfo)) {
+                                $modinfo = $modops->GetInstalledModuleInfo();
+                            }
+                            $tmp = $matches[1];
+                            if (!isset($modinfo[$tmp]) || empty($modinfo[$tmp]['active'])) {
+                                $db->execute($stmt1, [$row['user_id']]);
+                            }
+                        }
+                    } else {
+                        $db->execute($stmt1, [$row['user_id']]); // just to be sure
+                    }
+                } elseif (endswith($tmp, '.php')) {
+                    //check script CMS_ROOT_PATH/[admin]/WHATEVER.php is present
+                    if (!isset($aname)) {
+                        require_once CONFIG_FILE_LOCATION;
+                        $aname = (!empty($config['admin_path'])) ? $config['admin_path'] : 'admin';
+                    }
+                    $fp = joinpath(CMS_ROOT_PATH, $aname, $tmp);
+                    if (!is_file($fp)) {
+                        $db->execute($stmt1, [$row['user_id']]);
+                    }
+                } else {
+                    $db->execute($stmt1, [$row['user_id']]); // just to be sure
+                }
+            }
+            $stmt1->close();
+        }
 
         $this->system_setup(2, $destdir);
 
@@ -404,7 +459,7 @@ class wizard_step9 extends wizard_step
             $workersfolder = joinpath($dir, ...$arr);
 
             try {
-//                if( ($fp = $app->get_phar()) ) {
+//                if (($fp = $app->get_phar())) {
 //                    $fp = joinpath($fp, 'lib', 'iosite.functions.php'); // avoid stream-wrapper
 //                }
 //                else {
@@ -439,9 +494,9 @@ class wizard_step9 extends wizard_step
 
         // modules
         $this->message(lang('install_modules'));
-        $coremodules = $app->get_config()['coremodules'];
         $modops = Lone::get('ModuleOperations');
-        $modops->RegisterSystemModules($coremodules);
+//abandoned        $coremodules = $app->get_config()['coremodules'];
+//abandoned        $modops->RegisterSystemModules($coremodules);
 
         $db = Lone::get('Db');
         //(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)

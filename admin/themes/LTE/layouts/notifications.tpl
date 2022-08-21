@@ -16,7 +16,7 @@
 				<div class="alert-head ui-corner-all {if $one->priority == '_high'}ui-state-error red{elseif $one->priority == '_normal'}ui-state-highlight orange{else}ui-state-highlight blue{/if}">
 					{$icon = $one->get_icon()}
 					{if $icon}
-						<img class="alert-icon ui-icon" aria-hidden="true" src="{$icon}"/>
+						<img class="alert-icon ui-icon" aria-hidden="true" src="{$icon}" />
 					{else}
 						<span class="alert-icon ui-icon {if $one->priority != '_low'}ui-icon-alert{else}ui-icon-info{/if}"></span>
 					{/if}

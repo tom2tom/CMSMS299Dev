@@ -174,7 +174,7 @@ use function lang;
 	}
 
 	/**
-	 * Get all groups.
+	 * Get all groups (whether active or not).
 	 * @see GroupOperations::LoadGroups()
 	 *
 	 * @return array Group-object(s) | empty

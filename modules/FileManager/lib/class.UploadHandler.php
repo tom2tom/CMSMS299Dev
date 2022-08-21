@@ -12,7 +12,7 @@ the Free Software Foundation; either version 3 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -21,19 +21,17 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace FileManager;
 
 use CMSMS\Events;
+use CMSMS\FileTypeHelper;
 use CMSMS\Lone;
 use CMSMS\Utils as AppUtils;
 use FileManager\Utils;
 use FilePicker\jquery_upload_handler;
 use function cms_join_path;
 use function CMSMS\log_info;
-use function endswith;
-use function startswith;
 
 class UploadHandler extends jquery_upload_handler
 {
-    #[\ReturnTypeWillChange]
-    public function __construct($options = null)
+    public function __construct(/*array */$options = null)
     {
         if (!is_array($options)) {
             $options = [];
@@ -49,27 +47,29 @@ class UploadHandler extends jquery_upload_handler
         parent::__construct($options);
     }
 
-	/**
-	 * Minimal check whether the named file is ok
-	 * @param string $file
-	 * @return boolean
-	 */
-    protected function is_file_acceptable($file)
+    /**
+     * Minimal check whether the specified file is ok
+     * @param stdClass object $fileobject with properties ->name, size, type (at least)
+     * @return boolean
+     */
+    protected function is_file_type_acceptable($fileobject)
     {
+        //TODO $tmp = \CMSMS\sanitizeVal($file->name, CMSSAN_FILE) cleanup return false if invalid
         if (!Lone::get('Config')['developer_mode']) {
-            $ext = strtolower(substr(strrchr($file, '.'), 1));
-            if (startswith($ext, 'php') || endswith($ext, 'php')) {
+            // do not accept browser-executable files
+            $helper = new FileTypeHelper();
+          	if ($helper->is_executable($fileobject->name)) {
                 return false;
             }
         }
         return true;
     }
 
-	/**
+    /**
      * This may do image handling and other cruft
-	 *
-	 * @param type $fileobject
-	 */
+     *
+     * @param type $fileobject
+     */
     protected function after_uploaded_file($fileobject)
     {
         if (is_object($fileobject) && $fileobject->name) {
@@ -83,11 +83,14 @@ class UploadHandler extends jquery_upload_handler
             }
 
             $thumb = null;
-            $mod = AppUtils::get_module('FileManager');
-            if ($mod->GetPreference('create_thumbnails')) {
-                $thumb = Utils::create_thumbnail($file, null, true);
+            $helper = new FileTypeHelper();
+            if ($helper->is_image($fileobject->name)) {
+               //TODO sanitize content of image files c.f. cms_move_uploaded_file()
+                $mod = AppUtils::get_module('FileManager');
+                if ($mod->GetPreference('create_thumbnails')) {
+                    $thumb = Utils::create_thumbnail($file, null, true);
+                }
             }
-
             $str = basename($file).' uploaded to '.$dir;
             if ($thumb) {
                 $str .= ' and a thumbnail was generated';

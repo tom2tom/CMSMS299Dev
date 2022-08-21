@@ -54,7 +54,6 @@ class SmartyBC extends Smarty
     /**
      * Initialize new SmartyBC object
      */
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();

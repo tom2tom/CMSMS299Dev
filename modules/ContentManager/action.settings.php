@@ -55,15 +55,14 @@ $opts = [
 ];
 $tpl->assign('namecolumnopts', $opts)
 	->assign('list_namecolumn', $this->GetPreference('list_namecolumn', 'title'));
-
-$allcols = 'expand,icon1,hier,page,alias,url,template,friendlyname,owner,active,default,modified,move,view,copy,addchild,edit,delete,multiselect';
-$dflts = 'expand,icon1,hier,page,alias,template,friendlyname,active,default,view,copy,addchild,edit,delete,multiselect';
-$tmp = explode(',', $allcols);
+$choosecols = 'hier,page,alias,url,template,type,owner,active,default,created,modified,move,view,copy,addchild,edit,delete';
+$tmp = explode(',', $choosecols);
 $opts = [];
 foreach ($tmp as $one) {
 	$opts[$one] = $this->Lang('colhdr_'.$one);
 }
 $tpl->assign('visible_column_opts', $opts);
+$dflts = 'hier,page,alias,template,type,active,default';
 $tmp = explode(',', $this->GetPreference('list_visiblecolumns', $dflts));
 $tpl->assign('list_visiblecolumns', $tmp);
 

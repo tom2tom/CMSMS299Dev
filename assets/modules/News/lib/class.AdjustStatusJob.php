@@ -16,8 +16,7 @@ use const CMS_DB_PREFIX;
 
 class AdjustStatusJob extends CronJob
 {
-    #[\ReturnTypeWillChange]
-    public function __construct($params = [])
+    public function __construct(/*array */$params = [])
     {
         parent:: __construct($params);
         $this->name = 'News\AdjustStatus';
@@ -36,6 +35,6 @@ class AdjustStatusJob extends CronJob
         $db->execute($query,[$time]);
         $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status=\'published\' WHERE status=\'final\' AND start_time IS NOT NULL AND start_time BETWEEN 1 AND ?';
         $db->execute($query,[$time]);
-        return 2; // TODO
+        return 2; // TODO 1 if no affected row
     }
 }

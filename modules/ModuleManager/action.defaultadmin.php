@@ -54,6 +54,15 @@ $tpl->assign('tab',$seetab)
  ->assign('connected',$connection_ok);
 
 if( $pmod ) {
+    // OR $csm = new ... $csm->queue_matchedfile( );
+    // TODO rtl variant if relevant
+    $baseurl = $this->GetModuleURLPath();
+    $out = <<<EOS
+<link rel="stylesheet" href="{$baseurl}/styles/module.css">
+
+EOS;
+    add_page_headtext($out);
+
     Utils::get_images($tpl);
     require __DIR__.DIRECTORY_SEPARATOR.'function.installedtab.php';
     if( $connection_ok ) {

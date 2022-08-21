@@ -452,35 +452,18 @@
       {$t=_la('adminlog_lifetime')}<label class="pagetext" for="adminlog">{$t}:</label>
       {cms_help 0='help' key='settings_adminlog_lifetime' title=$t}
       <div class="pageinput">
-      <select id="adminlog" name="adminlog_lifetime">
-          {html_options options=$adminlog_options selected=$adminlog_lifetime}    </select>
+      <select id="adminlog" name="adminlog_timeout">
+        {html_options options=$adminlog_options selected=$adminlog_timeout}    </select>
       </div>
     </div>
-  </fieldset>
-
- {if !empty($syntax_opts)}
-  <fieldset>
-    <legend>{_la('syntax_editor_settings')}</legend>
     <div class="pageoverflow">
-      {$t=_la('default_editor')}<label class="pagetext">{$t}:</label>
-      {cms_help 0='help' key='settings_syntax' title=$t}
-      <div class="pageinput">{$t=_la('about')}
-      {foreach $syntax_opts as $i=>$one}
-       <input type="radio" name="syntaxtype" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked="checked"{/if}>
-       <label for="edt{$i}">{$one->label}</label>
-       {if !empty($one->mainkey)}
-       <span class="cms_help" data-cmshelp-key="{$one->mainkey}" data-cmshelp-title="{$t} {$one->label}">{$helpicon}</span>
-       {/if}{if !$one@last}<br />{/if}
-      {/foreach}
-      </div>
-      {$t=_la('syntax_editor_deftheme')}<label class="pagetext" for="syntaxtheme">{$t}:</label>
-      {cms_help 0='help' key='settings_syntaxtheme' title=$t}
+      {$t=_la('login_timeout')}<label class="pagetext" for="loginlife">{$t}:</label>
+      {cms_help 0='help' key='settings_login_timeout' title=$t}
       <div class="pageinput">
-        <input id="syntaxtheme" type="text" name="syntaxtheme" size="30" maxlength="40" value="{$syntaxtheme}" />
+        <input type="text" id="loginlife" name="login_duration" size="3" value="{$logintimeout}" />
       </div>
     </div>
   </fieldset>
- {/if}
   <fieldset>
   <legend>{_la('jobs_settings')}</legend>
    <div class="pageoverflow">
@@ -507,6 +490,30 @@
    </div>
 *}
   </fieldset>
+
+ {if !empty($syntax_opts)}
+  <fieldset>
+    <legend>{_la('syntax_editor_settings')}</legend>
+    <div class="pageoverflow">
+      {$t=_la('default_editor')}<label class="pagetext">{$t}:</label>
+      {cms_help 0='help' key='settings_syntax' title=$t}
+      <div class="pageinput">{$t=_la('about')}
+      {foreach $syntax_opts as $i=>$one}
+       <input type="radio" name="syntaxtype" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked="checked"{/if}>
+       <label for="edt{$i}">{$one->label}</label>
+       {if !empty($one->mainkey)}
+       <span class="cms_help" data-cmshelp-key="{$one->mainkey}" data-cmshelp-title="{$t} {$one->label}">{$helpicon}</span>
+       {/if}{if !$one@last}<br />{/if}
+      {/foreach}
+      </div>
+      {$t=_la('syntax_editor_deftheme')}<label class="pagetext" for="syntaxtheme">{$t}:</label>
+      {cms_help 0='help' key='settings_syntaxtheme' title=$t}
+      <div class="pageinput">
+        <input id="syntaxtheme" type="text" name="syntaxtheme" size="30" maxlength="40" value="{$syntaxtheme}" />
+      </div>
+    </div>
+  </fieldset>
+ {/if}
   <fieldset>
     <legend>{_la('general_operation_settings')}</legend>
     <div class="pageoverflow">

@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS\internal;
 
 use ArrayAccess;
+//use CMSMS\AppParams;
 use CMSMS\LogicException;
 use CMSMS\Lone;
 use const CMS_ASSETS_PATH;
@@ -32,10 +33,13 @@ use function is_directory_writable;
 
 class ModuleInfo implements ArrayAccess
 {
+    protected const CORENAMES_PREF = 'coremodules';
+
     protected const MIPROPS = [
      'about',
      'author',
      'authoremail',
+     'bundled', // bundled with installer (was 'system_module')
      'changelog',
      'depends', // prerequisite module(s)
      'description',
@@ -49,7 +53,6 @@ class ModuleInfo implements ArrayAccess
      'name',
      'notavailable',
      'root_writable', // topmost-folder is writable
-     'system_module',
      'ver_compatible',
      'version',
      'writable', // topmost-folder and all its contents are writable
@@ -60,7 +63,6 @@ class ModuleInfo implements ArrayAccess
      */
     protected $midata = [];
 
-    #[\ReturnTypeWillChange]
     public function __construct($modname,$can_load = true)
     {
         $arr = $this->_read_from_module_cache($modname);
@@ -91,8 +93,8 @@ class ModuleInfo implements ArrayAccess
         case 'root_writable':
             $dir = $this['dir'];
             return ($dir && is_writable($dir));
-        case 'system_module':
-            return Lone::get('ModuleOperations')->IsSystemModule((string)$this->midata['name']);
+        case 'bundled':
+            return Lone::get('ModuleOperations')->IsBundledModule((string)$this->midata['name']);
         case 'ver_compatible':
             return version_compare((string)$this['mincmsversion'],CMS_VERSION,'<=');
         default:
@@ -129,9 +131,9 @@ class ModuleInfo implements ArrayAccess
             throw new LogicException('CMSEX_INVALIDMEMBER',null,$key);
         }
         return isset($this->midata[$key]) || in_array($key, // some props are generated, not stored
-        ['dir',
+        ['bundled',
+         'dir',
          'root_writable',
-         'system_module',
          'ver_compatible',
          'writable',
         ]);

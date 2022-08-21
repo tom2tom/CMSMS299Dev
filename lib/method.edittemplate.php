@@ -31,12 +31,12 @@ use function CMSMS\sanitizeVal;
 /*
 Variables which must or may be defined by including code:
 
-$user_id      int
+$userid       int
 $module       optional object
 OR
 $modname      optional string module name
-$returnaction optional string if $returntab is specified (hence 'defaultadmin')
-$returntab    optional string if $returnaction is specified
+$returnaction optional string (default 'defaultadmin')
+$returntab    optional string (default '')
 
 $title        optional string
 $infomessage  optional string If not provided, the template-type help message (if any) will be used
@@ -68,15 +68,13 @@ if( isset($params['cancel']) ) {
    $module->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
 }
 
-global $user_id;
 $originator = $module->GetName();
 
 if( isset($params['submit']) || isset($params['apply']) ) {
     //save stuff
-    function update_template(Template $tpl, array $params, bool $adding)
+    $update_template = function(Template $tpl, array $params, bool $adding) use ($userid, $originator)
     {
         if( $adding ) {
-            global $originator;
             $tpl->set_originator($originator);
         }
         if( !empty($params['name']) ) {
@@ -92,7 +90,8 @@ if( isset($params['submit']) || isset($params['apply']) ) {
             $tpl->set_description($params['description']); // no sanitizeVal() ??
         }
         if( isset($params['content']) ) {
-            $tpl->set_content($params['content']);
+            $val = str_replace('textare&#97;&gt;', 'textarea>', $params['content']);
+            $tpl->set_content($val);
         }
         if( isset($params['listable']) ) {
             $tpl->set_listable((bool)$params['listable']);
@@ -107,17 +106,17 @@ if( isset($params['submit']) || isset($params['apply']) ) {
             $tpl->set_owner($params['owner_id']);
         }
         elseif( $adding ) {
-            $tpl->set_owner($user_id);
+            $tpl->set_owner($userid);
         }
         if( isset($params['type']) ) {
             $tpl->set_type($params['type']);
         }
-    }
+    };
 
     if( $params['tpl'] > 0 ) {
         try {
             $template = TemplateOperations::get_template($params['tpl']);
-            update_template($template, $params, false);
+            $update_template($template, $params, false);
             TemplateOperations::save_template($template);
         }
         catch (Throwable $t) {
@@ -128,7 +127,7 @@ if( isset($params['submit']) || isset($params['apply']) ) {
     else {
         $template = new Template();
         try {
-            update_template($template, $params, true);
+            $update_template($template, $params, true);
             TemplateOperations::save_template($template);
         }
         catch (Throwable $t) {
@@ -159,6 +158,11 @@ if( $params['tpl'] > 0 ) {
         if( empty($title) ) {
             $title = _ld('layout', 'prompt_edit_template');
         }
+        $content = $template->get_content();
+        if( $content ) {
+            //prevent invalid layout inside textarea
+            $content = str_replace('textarea>', 'textare&#97;&gt;', $content);
+        }
     }
     catch (Throwable $t) {
         $module->SetError($t->getMessage());
@@ -168,10 +172,11 @@ if( $params['tpl'] > 0 ) {
 else {
     $template = new Template();
     $template->set_originator($originator);
-    $template->set_owner($user_id);
+    $template->set_owner($userid);
     if( empty($title) ) {
         $title = _ld('layout', 'create_template');
     }
+    $content = '';
 }
 
 $can_default = false;
@@ -205,18 +210,14 @@ if( $can_manage ) {
         }
     }
 
-    $allusers = Lone::get('UserOperations')->LoadUsers();
-    foreach( $allusers as &$one ) {
-        $user_list[$one->id] = $one->username;
-    }
+    $user_list = Lone::get('UserOperations')->GetUsers(true, true);
 
     $allgroups = Lone::get('GroupOperations')->LoadGroups();
-    foreach( $allgroups as &$one ) {
+    foreach( $allgroups as $one ) {
         if( $one->id == 1) continue;
         if( !$one->active) continue;
         $eds_list[-(int)$one->id] = _ld('layout', 'prompt_group') . ': ' . $one->name;
     }
-    unset($one);
 }
 
 $jsm = new ScriptsMerger();
@@ -234,7 +235,7 @@ if( !empty($pageincs['head']) ) {
 /*
 $do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
 if( $do_locking) {
-    add_shutdown(10, 'LockOperations::delete_for_nameduser', $user_id);
+    add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 }
 $s1 = json_encode(_ld('layout', 'error_lock'));
 $s2 = json_encode(_ld('layout', 'msg_lostlock'));
@@ -247,7 +248,7 @@ $cancel = lang('cancel');
     $('#form_edittemplate').lockManager({
       type: 'template',
       oid: $tpl_id,
-      uid: $user_id,
+      uid: $userid,
       lock_timeout: $lock_timeout,
       lock_refresh: $lock_refresh,
       error_handler: function(err) {
@@ -320,20 +321,21 @@ $(function() {
 EOS;
 add_page_foottext($js); //not $jsm->queue_script() (embedded variables)
 
-$parms = ['tpl'=>$params['tpl']]; //TODO more
+//$parms = ['tpl'=>$params['tpl']]; //TODO more, maybe all $params[] ?
 
 $tpl = $smarty->createTemplate('editmoduletemplate.tpl', null, null, $smarty); //.tpl file in admin/templates folder
 
-$tpl->assign('formaction', 'edittemplate')
- ->assign('formparms', $parms)
+$tpl->assign('formaction', $returnaction ?? 'defaultadmin')
+ ->assign('formparms', $params) //$parms)
  ->assign('title', $title ?? null)
  ->assign('infomessage', $infomessage ?? null)
  ->assign('warnmessage', $warnmessage ?? null)
  ->assign('tpl_obj', $template)
- ->assign('tpl_candefault', $can_default)
+ ->assign('content', $content)
+ ->assign('can_default', $can_default)
  ->assign('can_manage', $can_manage)
  ->assign('edit_meta', empty($content_only))
- ->assign('userid', $user_id)
+ ->assign('userid', $userid)
  ->assign('user_list', $user_list)
  ->assign('addt_editor_list', $eds_list)
  ->assign('type_list', $type_list)

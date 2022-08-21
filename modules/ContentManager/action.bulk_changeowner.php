@@ -105,17 +105,13 @@ foreach ($pagelist as $pid) {
 	$displaydata[] = $rec;
 }
 
-$userlist = Lone::get('UserOperations')->LoadUsers();
-$tmp = [];
-foreach ($userlist as $user) {
-	$tmp[$user->id] = $user->username;
-}
+$usernames = Lone::get('UserOperations')->GetUsers(true, true);
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('bulk_changeowner.tpl')); //,null,null,$smarty);
 
 $tpl->assign('pagelist', $params['bulk_content'])
 	->assign('displaydata', $displaydata)
-	->assign('userlist', $tmp)
+	->assign('userlist', $usernames)
 	->assign('userid', get_userid());
 
 $tpl->display();

@@ -172,9 +172,9 @@ $font_2: Arial;
 $font_3: sans-serif;
 
 //urls
-$url_0: url(../font/installer.woff2?3976476);
-$url_1: url(../font/installer.woff?3976476);
-$url_2: url(../font/installer.ttf?3976476);
+$url_0: url(../font/installer.woff2?29272928);
+$url_1: url(../font/installer.woff?29272928);
+$url_2: url(../font/installer.ttf?29272928);
 
 @if $leftwards {
 	$start-side: left !global;
@@ -652,19 +652,14 @@ td {
 .icon-refresh::before { content: '\e606'; }
 .icon-next-right::before { content: '\e607'; }
 .icon-next-left::before { content: '\e608'; }
-.icon-cmsms::before { content: '\e60a'; }
-.icon-facebook::before { content: '\e60b'; }
-.icon-linkedin::before { content: '\e60c'; }
-.icon-twitter::before { content: '\e60d'; }
-.icon-circle::before { content: '\e60e'; }
-.icon-blank::before { content: '\e60f'; }
+.icon-cmsms::before { content: '\e60a'; color: $cmsms_orange; }
+.icon-facebook::before { content: '\e60b'; color: $facebook_blue; }
+.icon-linkedin::before { content: '\e60c'; color: $linkedin_blue; }
+.icon-twitter::before { content: '\e60d'; color: $twitter_blue; }
+.icon-circle::before { content: '\e60e'; color: #fff; }
+.icon-blank::before { content: '\e60f'; color: #fff; }
 .icon-pay::before { content: '\e610'; }
-.icon-cmsms::before { color: $cmsms_orange; }
-.icon-facebook::before { color: $facebook_blue; }
-.icon-linkedin::before { color: $linkedin_blue; }
-.icon-twitter::before { color: $twitter_blue; }
-.icon-circle::before { color: #fff; }
-.icon-blank::before { color: #fff; }
+.icon-news::before { content: '\e611'; }
 
 #social {
 	display: inline-block;

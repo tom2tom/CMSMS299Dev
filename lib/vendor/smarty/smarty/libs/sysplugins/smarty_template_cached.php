@@ -86,7 +86,6 @@ class Smarty_Template_Cached extends Smarty_Template_Resource_Base
      *
      * @throws \SmartyException
      */
-    #[\ReturnTypeWillChange]
     public function __construct(Smarty_Internal_Template $_template)
     {
         $this->compile_id = $_template->compile_id;

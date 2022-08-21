@@ -34,7 +34,8 @@ use function get_userid;
 final class AdminOperations
 {
 //    private function __construct() {}
-//    private function __clone() {}
+//    #[\ReturnTypeWillChange]
+//    private function __clone() {}// : void {}
 
     /**
      *

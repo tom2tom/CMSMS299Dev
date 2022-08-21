@@ -41,7 +41,6 @@ class logrecord
        'username' => null,
     ];
 
-    #[\ReturnTypeWillChange]
     public function __construct(array $params)
     {
         $this->_data['timestamp'] = time();
@@ -77,7 +76,7 @@ class logrecord
     }
 
     #[\ReturnTypeWillChange]
-    public function __get( $key)
+    public function __get( $key)// : mixed
     {
         switch( $key) {
         case 'timestamp':

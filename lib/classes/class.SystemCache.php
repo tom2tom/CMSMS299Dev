@@ -68,7 +68,6 @@ final class SystemCache
 	 * any parameter-tailoring will need to happen via
 	 * get,tweak,set_driver() calls.
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct(array $params = [])
 	{
 		$this->connect($params);
@@ -78,7 +77,7 @@ final class SystemCache
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/**
 	 * Get the singleton general-purpose cache object.

@@ -74,7 +74,7 @@
     {$t=_la('content')}<label class="pagetext" for="edit_area">{$t}:</label>
     {cms_help 0='layout' key='help_template_contents' title=$t}
     <div class="pageinput">
-      <textarea id="edit_area" name="{$actionid}content" data-cms-lang="smarty" rows="10" cols="40" style="width:40em;min-height:2em;"{if !$can_manage} readonly="readonly"{/if}>{$tpl_obj->get_content()}</textarea>
+      <textarea id="edit_area" name="{$actionid}content" data-cms-lang="smarty" rows="10" cols="40" style="width:40em;min-height:2em;"{if !$can_manage} readonly="readonly"{/if}>{$content}</textarea>
     </div>
   </div>
   {if $withbuttons}
@@ -113,7 +113,7 @@
           {html_options options=$type_list selected=$tpl_obj->get_type_id()}     </select>
         </div>
       </div>
-      {if $tpl_candefault}
+      {if $can_default}
         <div class="pageoverflow pregap">
           {$t=_ld('layout','prompt_default')}<label class="pagetext" for="deflt">{$t}:</label>
           {cms_help 0='layout' key='help_template_dflt' title=$t}

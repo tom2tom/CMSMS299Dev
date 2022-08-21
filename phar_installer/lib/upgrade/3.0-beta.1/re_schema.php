@@ -77,7 +77,18 @@ CHARACTER SET ascii,
 COLLATE ascii_bin,
 ';
 $add_defns[$tblprefix.'controlsets'] = [$tabopts, $flds];
-
+/*
+// unique-integer provider
+$flds = '
+id I UNSIGNED NOTNULL,
+';
+$tabopts = '
+ENGINE MyISAM,
+CHARACTER SET ascii,
+COLLATE ascii_bin,
+';
+$add_defns[$tblprefix.'counter'] = [$tabopts, $flds];
+*/
 $flds = '
 token C(16) NOTNULL PKEY(`token`),
 hash C(32) NOTNULL,

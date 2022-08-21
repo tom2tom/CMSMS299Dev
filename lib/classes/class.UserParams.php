@@ -56,10 +56,9 @@ final class UserParams
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
 	private function __construct() {}
 	#[\ReturnTypeWillChange]
-	private function __clone() {}
+	private function __clone() {}// : void {}
 
 	/**
 	 * @ignore
@@ -192,13 +191,13 @@ final class UserParams
 		}
 		self::_read($userid);
 		$db = Lone::get('Db');
-		if(  !isset(self::$_prefs[$userid][$key]) ) {
-			$query = 'INSERT INTO '.CMS_DB_PREFIX.'userprefs (user_id,preference,value) VALUES (?,?,?)';
+		if( !isset(self::$_prefs[$userid][$key]) ) {
+			$query = 'INSERT INTO '.CMS_DB_PREFIX.'userprefs (user_id,preference,`value`) VALUES (?,?,?)';
 //			$dbr =
 			$db->execute($query,[$userid,$key,$value]);
 		}
 		else {
-			$query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value = ? WHERE user_id = ? AND preference = ?';
+			$query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET `value` = ? WHERE user_id = ? AND preference = ?';
 //			$dbr = useless for update
 			$db->execute($query,[$value,$userid,$key]);
 		}

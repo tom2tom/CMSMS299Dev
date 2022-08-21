@@ -11,12 +11,15 @@
  */
 namespace FilePicker;
 
+use stdClass;
+use function file_put_contents;
+
 abstract class jquery_upload_handler
 {
     private $options;
 
-    #[\ReturnTypeWillChange]
-    public function __construct($options=null) {
+    public function __construct(/*array */$options = null)
+    {
         $this->options = [
             'script_url' => $this->getFullUrl().'/'.basename(__FILE__),
             'upload_dir' => __DIR__.'/files/',
@@ -48,7 +51,8 @@ abstract class jquery_upload_handler
         }
     }
 
-    public function getFullUrl() {
+    public function getFullUrl()
+    {
         return
             (isset($_SERVER['HTTPS']) ? 'https://' : 'http://').
             (isset($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').
@@ -58,10 +62,11 @@ abstract class jquery_upload_handler
             substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
     }
 
-    private function get_file_object($file_name) {
+    private function get_file_object(/*string */$file_name)
+    {
         $file_path = $this->options['upload_dir'].$file_name;
         if (is_file($file_path) && $file_name[0] !== '.') {
-            $file = new \stdClass();
+            $file = new stdClass();
             $file->name = $file_name;
             $file->size = filesize($file_path);
             $file->url = $this->options['upload_url'].rawurlencode($file->name);
@@ -79,14 +84,16 @@ abstract class jquery_upload_handler
         return null;
     }
 
-    private function get_file_objects() {
+    private function get_file_objects()
+    {
         return array_values(array_filter(array_map(
             [$this, 'get_file_object'],
             scandir($this->options['upload_dir'])
         )));
     }
 
-    private function create_scaled_image($file_name, $options) {
+    private function create_scaled_image(/*string */$file_name, /*array */$options)
+    {
         $file_path = $this->options['upload_dir'].$file_name;
         $new_file_path = $options['upload_dir'].$file_name;
         list($img_width, $img_height) = @getimagesize($file_path);
@@ -139,17 +146,19 @@ abstract class jquery_upload_handler
         return $success;
     }
 
-    protected function is_file_type_acceptable( $file ) {
-        if (!preg_match($this->options['accept_file_types'], $file->name)) return false;
-        return true;
+    protected function is_file_type_acceptable($file)
+    {
+        return preg_match($this->options['accept_file_types'], $file->name);
     }
 
-    protected function process_error( $file, $error ) {
+    protected function process_error($file, $error)
+    {
         $file->error = $error;
         return $file;
     }
 
-    private function has_error($uploaded_file, $file, $error) {
+    private function has_error($uploaded_file, $file, $error)
+    {
         if ($error) {
             return $error;
         }
@@ -179,7 +188,8 @@ abstract class jquery_upload_handler
         return $error;
     }
 
-    private function trim_file_name($name, $type) {
+    private function trim_file_name(/*string */$name, $type)
+    {
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:
@@ -192,7 +202,8 @@ abstract class jquery_upload_handler
         return $file_name;
     }
 
-    protected function orient_image($file_path) {
+    protected function orient_image($file_path)
+    {
         $exif = exif_read_data($file_path);
         $orientation = (int)@$exif['Orientation'];
         if (!in_array($orientation, [3, 6, 8])) {
@@ -221,8 +232,9 @@ abstract class jquery_upload_handler
     // cmsms extension
     protected function after_uploaded_file($fileobject) {}
 
-    private function handle_file_upload($uploaded_file, $name, $size, $type, $error) {
-        $file = new \stdClass();
+    private function handle_file_upload($uploaded_file, $name, $size, $type, $error)
+    {
+        $file = new stdClass();
         $file->name = $this->trim_file_name($name, $type);
         $file->size = (int)$size;
         $file->type = $type;
@@ -282,7 +294,8 @@ abstract class jquery_upload_handler
         return $file;
     }
 
-    public function get() {
+    public function get()
+    {
         $file_name = isset($_REQUEST['file']) ?
             basename(stripslashes($_REQUEST['file'])) : null;
         if ($file_name) {
@@ -294,7 +307,8 @@ abstract class jquery_upload_handler
         echo json_encode($info);
     }
 
-    public function post() {
+    public function post()
+    {
         if (isset($_REQUEST['_method']) && $_REQUEST['_method'] === 'DELETE') {
             return $this->delete();
         }
@@ -341,7 +355,8 @@ abstract class jquery_upload_handler
         echo $json;
     }
 
-    public function delete() {
+    public function delete()
+    {
         $file_name = isset($_REQUEST['file']) ?
             basename(stripslashes($_REQUEST['file'])) : null;
         $file_path = $this->options['upload_dir'].$file_name;
@@ -357,5 +372,4 @@ abstract class jquery_upload_handler
         header('Content-type: application/json');
         echo json_encode($success);
     }
-
 }

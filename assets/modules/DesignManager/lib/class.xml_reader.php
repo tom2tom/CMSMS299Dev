@@ -1,7 +1,7 @@
 <?php
 /*
 Module: DesignManager - A CMSMS addon module to provide template management.
-Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -50,14 +50,13 @@ class xml_reader extends XMLReader
     }
   }
 
-  #[\ReturnTypeWillChange]
   public function __destruct()
   {
     if( $this->_old_err_handler )
       set_error_handler($this->_old_err_handler);
   }
 
-  public function read()
+  public function read() : bool
   {
     $this->setup();
     return parent::read();

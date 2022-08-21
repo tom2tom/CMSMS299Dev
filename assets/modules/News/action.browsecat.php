@@ -1,6 +1,6 @@
 <?php
 /*
-CMSMS News module action: display a browsable category list.
+CMSMS News module action: display a browsable categories-list.
 Copyright (C) 2005-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -22,31 +22,34 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\TemplateOperations;
 use News\Utils;
 use function CMSMS\log_error;
+use function CMSMS\sanitizeVal;
 use function CMSMS\specialize_array;
 
 //if( some worthy test fails ) exit;
 
-// TODO category icon/image display
-
 if( !empty($params['browsecattemplate']) ) {
-    $template = trim($params['browsecattemplate']);
+    $tmp = trim($params['browsecattemplate']);
+    $tplname = sanitizeVal($tmp, CMSSAN_FILE); // TODO more restriction(s) on template names?
 }
 else {
     $me = $this->GetName();
     $tpl = TemplateOperations::get_default_template_by_type($me.'::browsecat');
-    if( !is_object($tpl) ) {
+    if( is_object($tpl) ) {
+        $tplname = $tpl->get_name();
+    }
+    else {
         log_error('No usable news-categories-template found', $me.'::browsecat');
         $this->ShowErrorPage('No usable news-categories-template found');
         return;
     }
-    $template = $tpl->get_name();
 }
 
+// TODO icon/image display for each category, if any
 $items = Utils::get_categories($id, $params, $returnid);
 specialize_array($items);
 
 // display template
-$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
-$tpl->assign('count', count($items))
- ->assign('cats', $items)
+$tpl = $smarty->createTemplate($this->GetTemplateResource($tplname)); //,null,null,$smarty);
+$tpl->assign('cats', $items)
+ ->assign('count', count($items))
  ->display();

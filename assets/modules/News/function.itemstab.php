@@ -151,7 +151,7 @@ class NewsItemData
         $onerow->category = $row['long_name'];
         $onerow->expired = $row['end_time'] && strtotime($row['end_time']) < $now; // don't care about timezones
         if( $papp ) {
-            if ($onerow->expired) {
+            if( $onerow->expired ) {
                 $onerow->approve_link = $labelarchived;
                 $onerow->approve_mode = 3;
             }
@@ -193,19 +193,27 @@ class NewsItemData
 
     $pagerows = (int)$this->GetPreference('article_pagelimit', 10); //OR user-specific?
 
-    if ($numrows > $pagerows) {
+    if( $numrows > $pagerows ) {
         //setup for SSsort paging
+        $itemspaged = 'true';
         $navpages = ceil($numrows/$pagerows);
         $tpl->assign('totpg', $navpages);
-
+        if( $navpages > 2 ) {
+            $elid1 = '"pspage"';
+            $elid2 = '"ntpage"';
+        }
+        else {
+            $elid1 = 'null';
+            $elid2 = 'null';
+        }
         $choices = [strval($pagerows) => $pagerows];
         $f = ($pagerows < 4) ? 5 : 2;
         $n = $pagerows * $f;
-        if ($n < $numrows) {
+        if( $n < $numrows ) {
             $choices[strval($n)] = $n;
         }
         $n += $n;
-        if ($n < $numrows) {
+        if( $n < $numrows ) {
             $choices[strval($n)] = $n;
         }
         $choices[$this->Lang('all')] = 0;
@@ -213,7 +221,9 @@ class NewsItemData
             $this->CreateInputDropdown($id, 'pagerows', $choices, -1, $pagerows, '', ['htmlid'=>'pagerows']));
     }
     else {
-        $navpages = 0;
+        $itemspaged = 'false';
+        $elid1 = 'null';
+        $elid2 = 'null';
     }
 
     if( $pdel ) {
@@ -282,41 +292,32 @@ $(function() {
   watch: false,
   type: 'text'
  });
- $.fn.SSsort.addParser({
-  id: 'intfor',
-  is: function(s,node) {
-   var \$el = $(node).find('span');
-   return \$el.length > 0;
-  },
-  format: function(s,node) {
-   var \$el = $(node).find('span');
-   return (\$el.length > 0) ? parseInt(\$el[0].innerText) : 0;
-  },
-  watch: false,
-  type: 'numeric'
- });
  itemstbl = document.getElementById('articlelist');
- if($navpages > 1) {
+ if($itemspaged) {
   var xopts = $.extend({}, SSsopts, {
    paginate: true,
    pagesize: $pagerows,
+   firstid: 'ftpage',
+   previd: $elid1,
+   nextid: $elid2,
+   lastid: 'ltpage',
+   selid: 'pagerows',
    currentid: 'cpage',
-   countid: 'tpage'
+   countid: 'tpage'//,
+// onPaged: function(table,pageid){}
   });
   $(itemstbl).SSsort(xopts);
   $('#pagerows').on('change',function() {
    l = parseInt(this.value);
    if(l === 0) {
-     $('#ipglink').hide();//TODO hide label-part 'per page'
+     $('#ipglink').hide();//TODO hide/toggle label-part 'per page'
    } else {
-     $('#ipglink').show();//TODO show label-part 'per page'
+     $('#ipglink').show();//TODO show/toggle label-part 'per page'
    }
-   $.fn.SSsort.setCurrent(itemstbl,'pagesize',l);
   });
  } else {
   $(itemstbl).SSsort(SSsopts);
  }
-
  $('#category_box').hide();
  var el = $('#bulk_action, #bulk_category');
  el.prop('disabled', true);

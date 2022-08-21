@@ -1,7 +1,7 @@
 <?php
 /*
 Class Connection: interaction with a MySQL or compatible database
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -217,8 +217,7 @@ final class Connection
      *  'set_db_timezone' (opt)
      *  'timezone' used only if 'set_db_timezone' is true (normally the case)
      */
-    #[\ReturnTypeWillChange]
-    public function __construct($config) // = null)
+    public function __construct($config)
     {
         if (class_exists('mysqli')) {
 //          if (!$config) $config = Lone::get('Config'); //normal API
@@ -315,7 +314,6 @@ final class Connection
      * Abandon any hanging transaction(s)
      * @ignore
      */
-    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         if (is_object($this->_mysql)) {
@@ -330,7 +328,7 @@ final class Connection
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)
+    public function __get(string $key)// : mixed
     {
         switch ($key) {
          case 'database':
@@ -353,7 +351,7 @@ final class Connection
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __isset(string $key)
+    public function __isset(string $key)// : bool
     {
         switch ($key) {
          case 'database':
@@ -372,7 +370,7 @@ final class Connection
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __set(string $key, $value)
+    public function __set(string $key, $value)// : void
     {
         switch ($key) {
          case '_in_smart_transaction':
@@ -848,12 +846,12 @@ final class Connection
     }
 
     /**
-     * Execute an SQL command, to retrieve all, or a specified maximum
+     * Execute SQL to retrieve all, or a specified maximum
      * number of, matching records.
      *
-     * @param string $sql    The SQL to execute
-     * @param int   $nrows   Optional number of rows to return, default all (0)
-     * @param int   $offset  Optional 0-based starting-offset of rows to return, default 0
+     * @param mixed $sql    string | Statement object to execute
+     * @param int   $nrows  optional number of rows to return, default all (0)
+     * @param int   $offset optional 0-based starting-offset of rows to return, default 0
      * @param varargs $bindvars array | series of parameter-value(s) to
      *  fill placeholders in $sql | nothing
      * @return mixed <namespace>ResultSet or a subclass
@@ -861,25 +859,28 @@ final class Connection
      */
     public function selectLimit($sql, $nrows = 0, $offset = 0, ...$bindvars)
     {
-        if ($nrows > 0) {
-            $xql = ' LIMIT '.$nrows;
-        } else {
-            $xql = '';
+        if (is_string($sql)) {
+            if ($nrows > 0) {
+                $xql = ' LIMIT '.$nrows;
+            } else {
+                $xql = '';
+            }
+            if ($offset > 0) {
+                $xql .= ' OFFSET '.$offset;
+            } elseif ($offset < 0) {
+                //TODO N = SELECT COUNT results, then use OFFSET = N + $offset ...
+            }
+            if ($xql) {
+                $sql .= $xql;
+            }
+        } else { //if (is_object($sql) && ($sql instanceof Statement))
+            //TODO handle statment object
         }
-        if ($offset > 0) {
-            $xql .= ' OFFSET '.$offset;
-        } elseif ($offset < 0) {
-            //TODO N = SELECT COUNT results, then use OFFSET = N + $offset ...
-        }
-        if ($xql) {
-            $sql .= $xql;
-        }
-
         return $this->execute($sql, ...$bindvars);
     }
 
     /**
-     * Execute an SQL statement and return all the results as an array.
+     * Execute SQL and return all the results as an array.
      *
      * @param mixed $sql string | Statement object
      * @param mixed $bindvars array | falsy Optional value-parameters
@@ -919,10 +920,10 @@ final class Connection
     }
 
     /**
-     * Execute an SQL statement and return all the results as an array,
-     * with the value of the first-requested-column as the key for each row.
+     * Execute SQL and return all the results as an array, with the
+     * value of the first-requested-column as the key for each row.
      *
-     * @param string $sql     The SQL statement to execute
+     * @param mixed $sql string | Statement object
      * @param mixed  $bindvars array | falsy Optional Value-parameters to fill placeholders (if any) in $sql
      * @param bool   $force_array Optionally force each element of the Return to be an associative array
      * @param bool   $first2cols  Optionally Return only the first 2 columns in an associative array.  Does not work with force_array
@@ -946,10 +947,10 @@ final class Connection
     }
 
     /**
-     * Execute an SQL statement that returns one column, and return all
-     * of the matches as an array.
+     * Execute SQL that returns one column of results, and return all
+     * matches as an array.
      *
-     * @param string $sql     The SQL statement to execute
+     * @param mixed $sql string | Statement object
      * @param mixed  $bindvars array | falsy Optional Value-parameters
      * to fill placeholders (if any) in $sql
      * @param bool   $trim    Optionally trim the returned values
@@ -973,7 +974,7 @@ final class Connection
     }
 
     /**
-     * Execute an SQL statement that returns one row of results, and return that row
+     * Execute SQL that returns one row of results, and return that row
      * as an associative array.
      *
      * @param mixed $sql string | Statement object
@@ -986,12 +987,16 @@ final class Connection
     {
         if (!$bindvars) { $bindvars = []; } // don't mistake a single falsy parameter
         if ($offset == 0) {
-            if (stripos($sql, 'LIMIT') === false) {
-                $sql .= ' LIMIT 1';
+            if (is_string($sql)) {
+                if (stripos($sql, 'LIMIT') === false) {
+                    $sql .= ' LIMIT 1';
+                }
+            } else {//if (is_object($sql) && ($sql instanceof Statement))
+                //TODO handle a statement
             }
             $rs = $this->execute($sql, $bindvars);
         } else {
-            $rs = $this->selectLimit($sql, 1, $offset, $bindvars);
+            $rs = $this->selectLimit($sql, 1, $offset, $bindvars); //TODO handle a statement
         }
         if ($rs) {
             return $rs->fields();
@@ -1001,7 +1006,7 @@ final class Connection
     }
 
     /**
-     * Execute an SQL statement and return a single value.
+     * Execute SQL that returns one value and return it.
      *
      * @param mixed $sql string | Statement object
      * @param mixed $bindvars array | falsy Optional values to fill
@@ -1013,12 +1018,16 @@ final class Connection
     {
         if (!$bindvars) { $bindvars = []; } // don't mistake a single falsy parameter
         if ($offset == 0) {
-            if (stripos($sql, 'LIMIT') === false) {
-                $sql .= ' LIMIT 1';
+            if (is_string($sql)) {
+                if (stripos($sql, 'LIMIT') === false) {
+                    $sql .= ' LIMIT 1';
+                }
+            } else { //if (is_object($sql) && ($sql instanceof Statement))
+                //TODO handle a statement
             }
             $rs = $this->execute($sql, $bindvars);
         } else {
-            $rs = $this->selectLimit($sql, 1, $offset, $bindvars);
+            $rs = $this->selectLimit($sql, 1, $offset, $bindvars); //TODO handle a statement
         }
         if ($rs) {
             return $rs->getOne();
@@ -1071,8 +1080,8 @@ final class Connection
 
     /**
      * Begin a transaction.
-     * Only for tables having a transactional storage-engine (traditionally,
-     * only InnoDB).
+     * Only for tables having a transactional storage-engine
+     *  (traditionally, only InnoDB).
      * This function may be used independently of 'smart' transactions.
      * Does nothing if a smart-transaction is in progress.
      *

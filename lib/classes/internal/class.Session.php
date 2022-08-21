@@ -26,6 +26,7 @@ use Session as PHPSession;
  * Class which extends PHP's session handling, specifically to support
  * processing of registered end-of-session callables
  * @since 3.0
+ * @see also setup_session()
  */
 class Session extends PHPSession
 {
@@ -37,7 +38,6 @@ class Session extends PHPSession
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $this->key = 'SESSION_'.md5(__FILE__).'_ENDERS';

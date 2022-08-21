@@ -7,7 +7,7 @@
 <div class="row">
   <div class="pageoptions options-menu half">
   {if $has_add_right}
-  {$url="editstylesheet.php`$urlext`"}{$t=_ld('layout','create_stylesheet')}
+  {$url="editstylesheet.php{$urlext}"}{$t=_ld('layout','create_stylesheet')}
   <a href="{$url}" title="{$t}">{admin_icon icon='newobject.gif'}</a>
   <a href="{$url}">{$t}</a>
   {/if}
@@ -16,16 +16,52 @@
   {/if}
   </div>
 </div>
+{if isset($stylesheets) && count($stylesheets) > 1}
+{if $navpages > 1}
+<div class="browsenav postgap">
+ <span id="tblpagelink">
+ <span id="ftpage" class="pagechange">{_ld('layout','pager_first')}</span>&nbsp;|&nbsp;
+{if $navpages > 2}
+ <span id="pspage" class="pagechange">{_ld('layout','pager_previous')}</span>&nbsp;&lt;&gt;&nbsp;
+ <span id="ntpage" class="pagechange">{_ld('layout','pager_next')}</span>&nbsp;|&nbsp;
+{/if}
+ <span id="ltpage" class="pagechange">{_ld('layout','pager_last')}</span>&nbsp;
+ ({_ld('layout','pageof','<span id="cpage">1</span>',"<span id='tpage'>{$navpages}</span>")})&nbsp;&nbsp;
+ </span>
+ <select id="pagerows" name="pagerows">
+  {html_options options=$pagelengths selected=$currentlength}
+ </select>&nbsp;&nbsp;{_ld('layout','pager_rowspp')}{*TODO sometimes show 'pager_rows'*}
+</div>
+{/if}{* navpages *}
+{/if}
 {include file='stylesheets.tpl'}
 
 {tab_start name='groups'}
 <div class="pageinfo">{_ld('layout','info_css_groups')}</div>
 {if $has_add_right}
 <div class="pageoptions pregap">
-  {$url="editcssgroup.php`$urlext`"}{$t=_ld('layout','create_group')}
+  {$url="editcssgroup.php{$urlext}"}{$t=_ld('layout','create_group')}
   <a href="{$url}" title="{$t}">{admin_icon icon='newobject.gif'}</a>
   <a href="{$url}">{$t}</a>
 </div>
+{/if}
+{if isset($list_groups) && count($list_groups) > 1}
+{if $grppages > 1}
+<div class="browsenav postgap">
+ <span id="tblpagelink2">
+ <a href="javascript:pagefirst(grptable)">{_ld('layout','pager_first')}</a>&nbsp;|&nbsp;
+{if $grppages > 2}
+ <a href="javascript:pageback(grptable)">{_ld('layout','pager_previous')}</a>&nbsp;&lt;&gt;&nbsp;
+ <a href="javascript:pageforw(grptable)">{_ld('layout','pager_next')}</a>&nbsp;|&nbsp;
+{/if}
+ <a href="javascript:pagelast(grptable)">{_ld('layout','pager_last')}</a>&nbsp;
+ ({_ld('layout','pageof','<span id="cpage2">1</span>',"<span id='tpage2'>{$grppages}</span>")})&nbsp;&nbsp;
+ </span>
+ <select id="pagerows2" name="pagerows2">
+  {html_options options=$pagelengths2 selected=$currentlength2}
+ </select>&nbsp;&nbsp;{_ld('layout','pager_rowspp')}{*TODO sometimes show 'pager_rows'*}
+</div>
+{/if}{* grppages *}
 {/if}
 {include file='stylesheetgroups.tpl'}
 {tab_end}

@@ -72,7 +72,6 @@ class Smarty extends SmartyParent
      * Constructor
      * Although this is a singleton, the constructor must be public to conform with class ancestors
      */
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         parent::__construct();

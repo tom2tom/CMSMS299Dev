@@ -30,13 +30,15 @@ final class Usertag_slave extends Base_slave
         return $mod->Lang('desc_udt_search');
     }
 
-    public function check_permission()
+//  public function use_slave(int $userid = 0) : bool {}
+
+    protected function check_permission(int $userid = 0)
     {
-        $userid = get_userid();
+        if ($userid == 0) { $userid = get_userid(); }
         return check_permission($userid, 'Modify User Plugins');
     }
 
-    // @return array of arrays
+    // @return array, containing arrays or empty
     public function get_matches()
     {
         $this->ops = new UserTagOperations();

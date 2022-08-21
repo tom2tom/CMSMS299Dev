@@ -407,6 +407,7 @@ input[type="button"],
 input[type="submit"],
 input[type="reset"],
 button,
+.pagechange, /* fake button */
 .ui-button {
 	border: 1px solid #aaa;
 /*	background: #ccc url(../admin/themes/AdminLTE/css/default-cmsms/images/button-bg-tall.png) 50% 50% repeat-x;*/
@@ -1684,7 +1685,7 @@ footer#oe_footer a:active {
 /* font icons used for images */
 i.fontimage {
 	vertical-align: middle;
-	font-size: 1.3em;
+	font-size: 1em;
 }
 
 .helptext a.external,
@@ -1881,6 +1882,10 @@ table.pagetable td {
 	color: #6c757d;
 	padding: 0 5px;
 	vertical-align: middle;
+}
+
+table.pagetable td .fontimage {
+	padding: 0.25em;
 }
 
 table.pagetable a {

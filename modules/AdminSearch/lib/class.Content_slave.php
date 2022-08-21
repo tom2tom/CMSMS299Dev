@@ -27,37 +27,70 @@ final class Content_slave extends Base_slave
         return $mod->Lang('desc_content_search');
     }
 
-    public function check_permission()
+//  public function use_slave(int $userid = 0) : bool {}
+
+    protected function check_permission(int $userid = 0)
     {
-        return true; // we will use page-specific check, later
+        return true; // we will use page-specific checks, later
     }
 
-    // returns array of arrays
+    // returns array, containing arrays or empty
     public function get_matches()
     {
+        $fz = $this->search_fuzzy();
+        $output = [];
         $db = Lone::get('Db');
-        $query = 'SELECT
+        $pref = CMS_DB_PREFIX;
+        $query = <<<EOS
+SELECT
 C.content_id,
 C.content_name,
 C.menu_text,
 C.content_alias,
 C.metadata,
 C.titleattribute,
-C.page_url, P.content FROM '.CMS_DB_PREFIX.'content C LEFT JOIN '.
-            CMS_DB_PREFIX.'content_props P ON C.content_id = P.content_id WHERE ';
-        if ($this->search_casesensitive()) {
-            $where = [
-             'P.content LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_bin',
-             'CONCAT_WS(\'\',
+C.page_url, P.content FROM {$pref}content C
+LEFT JOIN {$pref}content_props P
+ON C.content_id = P.content_id
+
+EOS;
+        if ($fz) {
+            if ($this->search_casesensitive()) {
+                $wheres = [
+'P.prop_name=\'content_en\' AND P.content REGEXP BINARY ?',
+'CONCAT_WS(\'\',
 C.content_name,
 C.menu_text,
 C.content_alias,
 C.metadata,
 C.titleattribute,
-C.page_url) LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_bin'
-            ];
+C.page_url) REGEXP BINARY ?'];
+            } else {
+//TODO handle case-insensitive whole-chars, not bytes
+                $wheres = [
+'P.prop_name=\'content_en\' AND P.content REGEXP CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci',
+'CONCAT_WS(\'\',
+C.content_name,
+C.menu_text,
+C.content_alias,
+C.metadata,
+C.titleattribute,
+C.page_url) REGEXP CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci'];
+            }
+        } elseif ($this->search_casesensitive()) {
+            $wheres = [
+'P.prop_name=\'content_en\' AND P.content LIKE BINARY ?',
+'CONCAT_WS(\'\',
+C.content_name,
+C.menu_text,
+C.content_alias,
+C.metadata,
+C.titleattribute,
+C.page_url) LIKE BINARY ?'];
         } else {
-            $where = ['P.content LIKE ?', 'CONCAT_WS(\'\',
+            $wheres = [
+'P.prop_name=\'content_en\' AND P.content LIKE ?',
+'CONCAT_WS(\'\',
 C.content_name,
 C.menu_text,
 C.content_alias,
@@ -65,16 +98,20 @@ C.metadata,
 C.titleattribute,
 C.page_url) LIKE ?'];
         }
-        $query .= implode(' OR ', $where) . ' GROUP BY C.content_id ORDER BY C.content_name'; // TODO if needed, work around ONLY_FULL_GROUP_BY effect on reported fields other than content_id
+        $query .= 'WHERE ('. implode(' OR ', $wheres) . ') GROUP BY C.content_id ORDER BY C.content_name'; // TODO if needed, work around ONLY_FULL_GROUP_BY effect on reported fields other than content_id
         $needle = $this->get_text();
-        $wm = '%'.$db->secStr($needle).'%';
+        if ($fz) {
+            $needle = $this->get_regex_pattern($needle, false);
+            $wm = $db->escStr($needle);
+        } else {
+            $wm = '%'.$db->escStr($needle).'%';
+        }
         $dbr = $db->getArray($query, [$wm, $wm]);
         if ($dbr) {
             $content_manager = Utils::get_module('ContentManager');
             $content_ops = Lone::get('ContentOperations'); // OR CMSMS\ContentOperations->get_instance()
             $userid = get_userid();
             $pmod1 = check_permission($userid, 'Manage All Content') || check_permission($userid, 'Modify Any Page');
-            $output = [];
             $mains = ['content_name'=>1,'menu_text'=>1,'content_alias'=>1,'metadata'=>1,'titleattribute'=>1,'page_url'=>1];
 
             foreach ($dbr as $row) {
@@ -109,16 +146,14 @@ C.page_url) LIKE ?'];
                     $url = ''; // no edit-access to this page
                 }
 
-                $tmp = [
+                $output[] = [
                  'title' => $row['content_name'],
                  'description' => $desc,
                  'edit_url' => $url,
                  'text' => $html,
                 ];
-                $output[] = $tmp;
             }
-
-            return $output;
         }
+        return $output;
     }
 } // class

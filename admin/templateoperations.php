@@ -124,7 +124,7 @@ switch (trim($op)) {
 			if (is_numeric($_REQUEST['type'])) {
 				$id = (int)$_REQUEST['type'];
 			} else {
-				$id = sanitizeVal($_REQUEST['type'],CMSSAN_PUNCT); // OR CMSSAN_PURESPC? OR CMSSAN_PURE?
+				$id = sanitizeVal($_REQUEST['type'],CMSSAN_PUNCTX, ':'); // TODO what other chars allowed in the name ?
 			}
 			try {
 				$type = TemplateType::load($id);

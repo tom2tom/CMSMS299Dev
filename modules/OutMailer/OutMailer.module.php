@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminMenuItem;
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\HookOperations;
 
 if (!extension_loaded('mbstring'))
@@ -38,7 +38,7 @@ class OutMailer extends CMSModule
 {
     public function GetAdminDescription() { return $this->Lang('publictip'); }
     public function GetAdminSection() { return 'extensions'; }
-    public function GetAuthor() { return 'Robert Campbell'; }
+    public function GetAuthor() { return ''; }
     public function GetAuthorEmail() { return ''; }
     public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetFriendlyName() { return $this->Lang('publicname'); }
@@ -80,9 +80,10 @@ class OutMailer extends CMSModule
     public function HasCapability($capability, $params = [])
     {
         switch ($capability) {
-            case CoreCapabilities::CORE_MODULE:
-            case CoreCapabilities::EMAIL_MODULE:
-            case CoreCapabilities::SITE_SETTINGS:
+//abandoned            case CapabilityType::CORE_MODULE:
+            case CapabilityType::EMAIL_MODULE:
+            case CapabilityType::NOTICES:
+            case CapabilityType::SITE_SETTINGS:
                 return true;
             default:
                 return false;
@@ -95,6 +96,8 @@ class OutMailer extends CMSModule
             HookOperations::add_hook('ExtraSiteSettings', [$this, 'ExtraSiteSettings']);
         }
     }
+
+//TODO API for NOTICES modules e.g. method send_message() ....
 
     /**
      * Hook function to populate 'centralised' site settings UI

@@ -606,9 +606,9 @@ class Utils
             $url2 = cms_get_css('basictable.css');
             $url3 = cms_get_css('browsefiles.css');
             $headinc = <<<EOS
-<link rel="stylesheet" type="text/css" href="$url1" />
-<link rel="stylesheet" type="text/css" href="$url2" />
-<link rel="stylesheet" type="text/css" href="$url3" />
+<link rel="stylesheet" href="$url1" />
+<link rel="stylesheet" href="$url2" />
+<link rel="stylesheet" href="$url3" />
 
 EOS;
             $jsm = new ScriptsMerger();

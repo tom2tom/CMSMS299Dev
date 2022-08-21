@@ -1,7 +1,7 @@
 <?php
 /*
 CMSMS admin-login processing
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -24,9 +24,18 @@ use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\Lone;
 
+$in = empty($_SESSION['logout_user_now']); //forced logout initiated
+
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 AppState::set(AppState::LOGIN_PAGE | AppState::ADMIN_PAGE);
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php'; // something clears $_SESSION['logout_user_now'], if any
+
+if ($in) {
+	// if login is 'remembered', bypass UI login process
+	$ops = Lone::get('AuthOperations');
+	$ops->authenticate();
+	// back here means no bypass
+}
 
 $name = AppParams::get('loginprocessor');
 if (!$name) {

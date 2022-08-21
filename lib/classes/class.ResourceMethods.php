@@ -47,7 +47,6 @@ class ResourceMethods
 	protected $mod;
 	protected $modpath;
 
-	#[\ReturnTypeWillChange]
 	public function __construct($mod, $modpath)
 	{
 		$this->mod = $mod;

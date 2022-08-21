@@ -136,8 +136,8 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 			throw new Error403Exception('Permission denied');
 		}
 
-		$userid = get_userid(false); // WHAT ? F/E N/A here ?
-		if ($page == CMS_PREVIEW_PAGEID || $userid || $_SERVER['REQUEST_METHOD'] != 'GET') {
+//      $userid = get_userid(false); admin N/A here (except preview etc) & don't want auto-login
+		if ($page == CMS_PREVIEW_PAGEID ||/* $userid ||*/ $_SERVER['REQUEST_METHOD'] != 'GET') {
 			$cachable = false;
 		} else {
 			$cachable = $contentobj->Cachable();

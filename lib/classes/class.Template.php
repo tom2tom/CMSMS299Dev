@@ -1307,7 +1307,7 @@ class Template
 	 * @return string
 	 * @throws DataException
 	 */
-	public static function generate_unique_name($prototype,$prefix = null)
+	public static function generate_unique_name($prototype,$prefix = '')
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TemplateOperations::get_unique_template_name()'));
 		return self::get_operations()::get_unique_template_name($prototype,$prefix);

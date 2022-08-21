@@ -267,7 +267,6 @@ class HttpRequest
     /**
      * Constructor for initializing the class with default values.
      */
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $this->clear();

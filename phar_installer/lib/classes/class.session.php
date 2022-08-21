@@ -14,7 +14,6 @@ final class session implements ArrayAccess
     private $_key = false;
     private $_data = null;
 
-    #[\ReturnTypeWillChange]
     private function __construct()
     {
         if (PHP_VERSION_ID >= 70200 && function_exists('sodium_crypto_secretbox')) {
@@ -25,9 +24,7 @@ final class session implements ArrayAccess
     }
 
     #[\ReturnTypeWillChange]
-    private function __clone()
-    {
-    }
+    private function __clone() {}// : void {}
 
     public static function get_instance() : self
     {
@@ -57,8 +54,7 @@ final class session implements ArrayAccess
 
     //ArrayAccess methods
 
-    #[\ReturnTypeWillChange]
-    public function offsetExists($key)// : bool
+    public function offsetExists($key) : bool
     {
         $this->_expand();
         return isset($this->_data[$key]);
@@ -71,16 +67,14 @@ final class session implements ArrayAccess
         return $this->_data[$key] ?? null;
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetSet($key, $value)// : void
+    public function offsetSet($key, $value) : void
     {
         $this->_expand();
         $this->_data[$key] = $value;
         $this->_save();
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($key)// : void
+    public function offsetUnset($key) : void
     {
         $this->_expand();
         if (isset($this->_data[$key])) {

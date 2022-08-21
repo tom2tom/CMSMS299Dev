@@ -51,7 +51,6 @@ class CacheMemcached extends CacheDriver
 	 *  host => string
 	 *  port => int
 	 */
-	#[\ReturnTypeWillChange]
 	public function __construct(array $params)
 	{
 		if ($this->use_driver()) {

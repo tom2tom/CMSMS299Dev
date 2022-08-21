@@ -61,7 +61,7 @@ class MarigoldTheme extends AdminTheme
 	 */
 	const AWESOME_CDN =
 	'<link rel="preconnect" href="https://cdnjs.cloudflare.com" />'."\n".
-	'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" referrerpolicy="no-referrer" />';
+	'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" referrerpolicy="same-origin" />';
 
 	/**
 	 * @ignore
@@ -85,12 +85,12 @@ class MarigoldTheme extends AdminTheme
 		$csm = new StylesMerger();
 		$csm->queue_matchedfile('normalize.css', 1);
 		$csm->queue_matchedfile('grid-960.css', 2); //for modules, deprecated since 3.0
-		$out = $csm->page_content('', false, true);
+		$out = $csm->page_content();
 
 		// jQUI css does, and theme-specific css files might, include relative URLs, so cannot be merged
 		$url = cms_path_to_url($incs['jquicss']);
 		$out .= <<<EOS
-<link rel="stylesheet" type="text/css" href="$url" />
+<link rel="stylesheet" href="$url" />
 
 EOS;
 		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
@@ -99,10 +99,11 @@ EOS;
 		$files = $this->get_styles();
 		$after = '';
 		foreach ($files as $fp) {
+			// OR $csm->queue_matchedfile( );
 			$extra = substr($fp, $n);
 			$sufx = strtr($extra, '\\', '/');
 			$after .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$rel_url}/{$sufx}" />
+<link rel="stylesheet" href="{$rel_url}/{$sufx}" />
 
 EOS;
 		}
@@ -174,7 +175,7 @@ EOS;
 		$url = cms_path_to_url($incs['jquicss']);
 		$out = <<<EOS
  <link rel="stylesheet" href="$url" />
- <link rel="stylesheet" type="text/css" href="themes/Marigold/styles/{$fn}.css" />
+ <link rel="stylesheet" href="themes/Marigold/styles/{$fn}.css" />
 
 EOS;
 //		get_csp_token(); //setup CSP header (result not used)

@@ -21,14 +21,16 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\ICookieManager;
-use function CMSMS\get_site_UUID;
-use function CMSMS\is_secure_request;
 use const CMS_ROOT_URL;
 use const CMS_VERSION;
+use function CMSMS\add_page_header;
+use function CMSMS\get_site_UUID;
+use function CMSMS\is_secure_request;
 
 /**
- * A class of convenience utilities for using cookies having an obfuscated name
- * and signed value, to reduce the risk of MITM or corruption attacks.
+ * A class of convenience utilities for using (http-only) cookies having
+ * an obfuscated name and signed value, to reduce the risk of MITM or
+ * corruption attacks.
  *
  * @package CMS
  * @license GPL
@@ -36,24 +38,26 @@ use const CMS_VERSION;
 final class SignedCookieOperations implements ICookieManager
 {
     /**
-     * @ignore
+     * @access private
+     * @var array
      */
     private $_parts;
 
     /**
-     * @ignore
+     * @access private
+     * @var bool
      */
     private $_secure;
 
     /**
-     * @ignore
+     * @access private
+     * @var string
      */
     private $_uuid;
 
     /**
      * Constructor.
      */
-    #[\ReturnTypeWillChange]
     public function __construct()
     {
         $this->_parts = parse_url(CMS_ROOT_URL);
@@ -97,18 +101,21 @@ final class SignedCookieOperations implements ICookieManager
      *  If not scalar, the value  will be json_encode()'d before storage.
      * @param int $expires Optional expiry timestamp of the cookie. Default 0,
      *  hence a session cookie.
+     * @param string $samesite Optional context specifier. Default '',
+     *  hence None | Lax.
      * @return bool indicating success
      */
-    public function set(string $okey, $value, int $expires = 0) : bool
+    public function set(string $okey, $value, int $expires = 0, string $samesite = '') : bool
     {
         $val = is_scalar($value) ? ''.$value : json_encode($value,
             JSON_NUMERIC_CHECK |
             JSON_UNESCAPED_UNICODE |
             JSON_UNESCAPED_SLASHES |
+            JSON_INVALID_UTF8_IGNORE | //PHP7.2+
             JSON_PARTIAL_OUTPUT_ON_ERROR);
         $key = $this->get_key($okey);
         $sig = hash('sha3-224', $val.$this->_uuid.$okey);
-        return $this->set_cookie($key, $sig.':::'.$val, $expires);
+        return $this->set_cookie($key, $sig.':::'.$val, $expires, $samesite);
     }
 
     /**
@@ -153,9 +160,9 @@ final class SignedCookieOperations implements ICookieManager
     }
 
     /**
-     * Generate the cookie path.
+     * Get the cookie path.
+     * By default, this is the path portion of the site-root URL.
      *
-     * By default, this is the path portion of the root URL.
      * @return string
      */
     private function cookie_path() : string
@@ -164,9 +171,9 @@ final class SignedCookieOperations implements ICookieManager
     }
 
     /**
-     * Generate the cookie domain.
+     * Get the cookie domain.
+     * By default, this is the host portion of the site-root URL.
      *
-     * By default, this is the host portion of the root URL.
      * @return string
      */
     private function cookie_domain() : string
@@ -175,9 +182,9 @@ final class SignedCookieOperations implements ICookieManager
     }
 
     /**
-     * Generate the cookie secure flag.
-     *
+     * Get the cookie secure flag.
      * This reflects whether or not the current request uses HTTPS.
+     *
      * @return bool
      */
     private function cookie_secure() : bool
@@ -187,17 +194,50 @@ final class SignedCookieOperations implements ICookieManager
 
     /**
      * Set the actual cookie.
+     * Its properties will include HttpOnly, so the cookie is not for js etc
      *
      * @param string $key The cookie name (obfuscated)
      * @param string $value The cookie value (encoded)
-     * @param int $expire The expiry timestamp
+     * @param int $expires The expiry timestamp
      *   0 indicates a session cookie
      *   < now (e.g. 1) indicates that the cookie is to be removed
+     * @param string $samesite Optional context specifier
+     *  Strict | Lax | None Default '', hence Lax | None (if secure).
      * @return bool indicating success
      */
-    private function set_cookie(string $key, string $value, int $expire) : bool
+    private function set_cookie(string $key, string $value, int $expires, string $samesite = '') : bool
     {
-        return setcookie($key, $value, $expire, $this->cookie_path(),
-          $this->cookie_domain(), $this->cookie_secure(), true);
+        if (!$samesite) {
+            $samesite = ($this->_secure) ? 'None' : 'Lax';
+        } elseif ($this->_secure && $samesite == 'Lax') {
+            $samesite = 'None';
+        } elseif (!$this->_secure && $samesite == 'None') {
+            $samesite = 'Lax';
+        }
+        if (version_compare(phpversion(), '7.3.0') >= 0) {
+            return setcookie($key, $value, [
+                'expires' => $expires,
+                'domain' => $this->_parts['host'],
+                'path' => $this->_parts['path'],
+                'secure' => $this->_secure,
+                'httponly' => true,
+                'samesite' => $samesite
+            ]);
+        }
+        if ($samesite && $samesite != 'Lax') { // non-default
+            $s = sprintf('%s="%s"; Max-Age=%s; Domain=%s; Path=%s; SameSite=%s;%s HttpOnly',
+                $key,
+                urlencode($value),
+                $expires,
+                $this->_parts['host'],
+                $this->_parts['path'],
+                $samesite,
+                ($this->_secure) ? ' Secure;' : ''
+            );
+            add_page_header('Set-Cookie', $s);
+            return true;
+        }
+        return setcookie($key, $value, $expires, $this->_parts['path'],
+          $this->_parts['host'], $this->_secure, true);
     }
 } // class

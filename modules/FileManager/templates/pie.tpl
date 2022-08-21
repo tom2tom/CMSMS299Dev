@@ -3,7 +3,7 @@
 {$formstart}
 <div>
   <div id="test1" style="width: 74%; float: left;">
-    <img id="img" src="{$image}" alt=""/>
+    <img id="img" src="{$image}" alt="" />
   </div>
   <div style="width: 24%; float: left;">
     <div style="pageoverflow">

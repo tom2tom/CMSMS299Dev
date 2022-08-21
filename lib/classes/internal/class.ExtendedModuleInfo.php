@@ -42,7 +42,6 @@ class ExtendedModuleInfo extends ModuleInfo
 
     protected $emdata = [];
 
-    #[\ReturnTypeWillChange]
     public function __construct($module_name,$can_load = false)
     {
         parent::__construct($module_name,$can_load);
@@ -54,7 +53,7 @@ class ExtendedModuleInfo extends ModuleInfo
             $this->emdata['admin_only'] = (int)($minfo[$module_name]['admin_only'] ?? 0);
 //          $this->emdata['allow_fe_lazyload'] = (int)$minfo[$module_name]['allow_fe_lazyload'];
 //          $this->emdata['allow_admin_lazyload'] = (int)$minfo[$module_name]['allow_admin_lazyload'];
-            $this->emdata['can_deactivate'] = !in_array($module_name,['AdminLogin','ModuleManager']); // etc?
+            $this->emdata['can_deactivate'] = !in_array($module_name,['Authenticator','ModuleManager']); // etc?
             $this->emdata['dependents'] = $minfo[$module_name]['dependents'] ?? [];
             $this->emdata['installed'] = 1;
             $this->emdata['installed_version'] = $minfo[$module_name]['version'];
@@ -85,6 +84,7 @@ class ExtendedModuleInfo extends ModuleInfo
             }
             return $out;
         }
+        return null;
     }
 
     #[\ReturnTypeWillChange]

@@ -2,7 +2,7 @@
 variables:
  aclass: is used to build a string containing class names given to the a tag if one is used
  liclass: is used to build a string containing class names given to the li tag
- nodes: flatlist of Navigator Node objects plus a stdClass for 'root'
+ nodes: flatlist of Navigator Node objects plus a stdClass for notional 'root'
  node: the current Node in nodes array
 CSS:
  .menudepthN - N = 0,1,2,...
@@ -12,7 +12,7 @@ CSS:
  .menuparent - an ancestor of the the current/active item
  .parent - an item which has child(ren)
  .sectionheader - a sectionheader item
- .separator - a separator item (li and hr) 
+ .separator - a separator item (li and hr)
 *}
 {* NOTE this function may only be defined once *}
 {function Nav_menu}

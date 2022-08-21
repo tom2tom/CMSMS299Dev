@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 //use CMSMS\Events;
 //use Search\Command\ReindexCommand;
 //use Search\PruneJob;
-use CMSMS\CoreCapabilities;
+use CMSMS\CapabilityType;
 use CMSMS\HookOperations;
 use CMSMS\TemplateType;
 use CMSMS\Utils as AppUtils;
@@ -40,7 +40,6 @@ class Search extends CMSModule
     public function GetEventDescription( $eventname ) { return $this->lang('eventdesc-' . $eventname); }
     public function GetEventHelp( $eventname ) { return $this->lang('eventhelp-' . $eventname); }
     public function GetFriendlyName() { return $this->Lang('search'); }
-    public function GetHelp($lang='en_US') { return $this->Lang('help'); }
     public function GetName() { return 'Search'; }
     public function GetVersion() { return '2.0'; }
     public function HandlesEvents () { return true; }
@@ -51,10 +50,7 @@ class Search extends CMSModule
     public function MinimumCMSVersion() { return '2.999'; }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
-    public function InitializeAdmin()
-    {
-        HookOperations::add_hook('ExtraSiteSettings',[$this,'ExtraSiteSettings']);
-
+    public function GetHelp($lang='en_US') {
         $this->CreateParameter('action','default',$this->Lang('param_action'));
         $this->CreateParameter('count','null',$this->Lang('param_count'));
         $this->CreateParameter('detailpage','null',$this->Lang('param_detailpage'));
@@ -69,6 +65,12 @@ class Search extends CMSModule
         $this->CreateParameter('searchtext','null',$this->Lang('param_searchtext'));
         $this->CreateParameter('submit',$this->Lang('searchsubmit'),$this->Lang('param_submit'));
         $this->CreateParameter('use_or','true',$this->Lang('param_useor')); //CHECKME disabled?
+        return $this->Lang('help');
+    }
+
+    public function InitializeAdmin()
+    {
+        HookOperations::add_hook('ExtraSiteSettings',[$this,'ExtraSiteSettings']);
     }
 
     public function InitializeFrontend()
@@ -164,12 +166,12 @@ class Search extends CMSModule
     public function HasCapability($capability,$params = [])
     {
         switch( $capability ) {
-        case CoreCapabilities::CORE_MODULE:
-//        case CoreCapabilities::TASKS:
-        case CoreCapabilities::EVENTS:
-        case CoreCapabilities::SEARCH_MODULE:
-        case CoreCapabilities::PLUGIN_MODULE:
-        case CoreCapabilities::SITE_SETTINGS:
+//abandoned        case CapabilityType::CORE_MODULE:
+//        case CapabilityType::TASKS:
+        case CapabilityType::EVENTS:
+        case CapabilityType::SEARCH_MODULE:
+        case CapabilityType::PLUGIN_MODULE:
+        case CapabilityType::SITE_SETTINGS:
             return true;
 //        case 'clicommands':
 //            return class_exists('CMSMS\CLI\App'); //TODO better namespace
@@ -292,15 +294,15 @@ class Search extends CMSModule
         Utils::Reindex($this);
     }
 
-    public static function page_type_lang_callback($str)
+//    public static function tpltype_help_callback($str) {}
+
+    public static function tpltype_lang_callback($str)
     {
         $mod = AppUtils::get_module('Search');
-        if( is_object($mod) ) {
-            return $mod->Lang('type_'.$str);
-        }
+        return $mod->Lang('type_'.$str);
     }
 
-    public static function reset_page_type_defaults(TemplateType $type)
+    public static function reset_tpltype_default(TemplateType $type)
     {
         if( $type->get_originator() != 'Search' ) {
             throw new LogicException('Cannot reset content for template-type '.$type->get_name());
