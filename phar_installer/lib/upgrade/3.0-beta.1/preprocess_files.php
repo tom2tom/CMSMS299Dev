@@ -1,5 +1,4 @@
 <?php
-
 use Exception;
 use function cms_installer\get_app;
 use function cms_installer\get_server_permissions;

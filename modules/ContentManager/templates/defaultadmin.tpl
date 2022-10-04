@@ -5,7 +5,7 @@
 
 <div id="filterdialog" style="display:none;" title="{_ld($_module,'title_filterpages')}">
   {form_start action='defaultadmin' id='filter_form'}
-    <input type="hidden" name="{$actionid}setoptions" value="1" />
+    <input type="hidden" name="{$actionid}setoptions" value="1">
     <div class="colbox">
     <div class="rowbox flow">
       <label class="boxchild pagetext" for="pcount">{_ld($_module,'prompt_pagelimit')}:</label>

@@ -1,6 +1,6 @@
 <?php
 /*
-Authenticator module action - login : generate a login page.
+ConsoleAuth module action - login : generate a login page.
 Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -71,7 +71,7 @@ $out = $csm->page_content();
 
 $baseurl = $this->GetModuleURLPath();
 $out .= <<<EOS
-  <link rel="stylesheet" href="{$baseurl}/css/{$fn}" />
+  <link rel="stylesheet" href="{$baseurl}/css/{$fn}">
 
 EOS;
 

@@ -273,8 +273,8 @@ class Mailer implements IMailer
 	}
 
 	/**
-	 * Utility-method, scrubs HTML tags from the supplied string, after
-	 * replacing relevant newlines
+	 * Utility-method, scrubs some HTML tags from the supplied string,
+     * after replacing relevant newlines
 	 * @param string $content
 	 * @return string
 	 */
@@ -282,8 +282,8 @@ class Mailer implements IMailer
 	{
 		if ($content) {
 			$value = preg_replace(
-			['~\<br\s*/?\>~i','~\</p\>~i','~\</h\d\>~i'],
-			["\r\n","\r\n\r\n","\r\n\r\n"],
+			['~<br[ /]*>~i','~<p>~i','~</p>~i','~<h\d>~i','~</h\d>~i'],
+			["\r\n",'',"\r\n\r\n",'',"\r\n\r\n"],
 			$content);
 			$content = de_entitize(strip_tags($value), ENT_QUOTES);
 		}
@@ -308,7 +308,7 @@ class Mailer implements IMailer
 	 *
 	 * @return string
 	 */
-	public function GetSubject() //: string
+	public function GetSubject() : string
 	{
 		return $this->message->getSubject();
 	}
@@ -331,7 +331,7 @@ class Mailer implements IMailer
 	 * @param string $email
 	 * @return string
 	 */
-	public function GetFrom($email = '') //: string
+	public function GetFrom($email = '') : string
 	{
 		if ($email) {
 			return $this->from[$email] ?? '';
@@ -345,7 +345,7 @@ class Mailer implements IMailer
 	 * @param string $name Optional distinct recipient's name Default empty
 	 * @return bool true on success, false if address already used
 	 */
-	public function AddAddress($email, $name = '') //: bool
+	public function AddAddress($email, $name = '') : bool
 	{
 		if (!$name) {
 			list($email, $name) = $this->ParseAddress($email);
@@ -378,7 +378,7 @@ class Mailer implements IMailer
 	 * @param string $name Optional distinct recipient's name Default empty
 	 * @return bool true on success, false if address already used
 	 */
-	public function AddCC($email, $name = '') //: bool
+	public function AddCC($email, $name = '') : bool
 	{
 		if (!$name) {
 			list($email, $name) = $this->ParseAddress($email);
@@ -411,7 +411,7 @@ class Mailer implements IMailer
 	 * @param string $name Optional distinct recipient's name Default empty
 	 * @return bool true on success, false if address already used
 	 */
-	public function AddBCC($email, $name = '') //: bool
+	public function AddBCC($email, $name = '') : bool
 	{
 		if (!$name) {
 			list($email, $name) = $this->ParseAddress($email);
@@ -605,7 +605,7 @@ class Mailer implements IMailer
 	 * Check whether there was an error on the last message send
 	 * @return bool
 	 */
-	public function IsError() //: bool
+	public function IsError() : bool
 	{
 		return $this->errmsg != false;
 	}
@@ -614,7 +614,7 @@ class Mailer implements IMailer
 	 * Return the error information from the last error.
 	 * @return string
 	 */
-	public function GetErrorInfo() //: string
+	public function GetErrorInfo() : string
 	{
 		return $this->errmsg;
 	}
@@ -773,7 +773,7 @@ TEXT;
 				return;
 		}
 		$pref = ($this->ishtml) ? nl2br($str) : $str;
-		$sep = ($this->ishtml) ? '<br/>' : "\r\n"; // TODO generalise e.g. $this->transport->$eol
+		$sep = ($this->ishtml) ? '<br>' : "\r\n"; // TODO generalise e.g. $this->transport->$eol
 		$body = $this->GetBody();
 		$this->SetBody($pref . $sep . $sep . $body);
 	}
@@ -784,7 +784,7 @@ TEXT;
 	 * @param string $email
 	 * @return 2-member array [0] = email, [1] = name or ''
 	 */
-	protected function ParseAddress(string $email) //: array
+	protected function ParseAddress(string $email) : array
 	{
 		$s = trim($email);
 		if (($p = strpos($s, '<')) !== false) {

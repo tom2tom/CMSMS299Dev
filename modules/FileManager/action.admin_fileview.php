@@ -156,7 +156,7 @@ if (!empty($params['viewfile'])) {
                 echo $data;
             } elseif (in_array('image', $file->type)) {
                 //TODO $data = $themeObject->DisplayImage(fullpath-to-image,$file->name,'','','',$attrs = []);
-                $data = '<img src="'.$file->url.'" alt="'.$file->name.'" />';
+                $data = '<img src="'.$file->url.'" alt="'.$file->name.'">';
                 echo $data;
             }
             break;

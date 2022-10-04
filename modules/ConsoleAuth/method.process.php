@@ -51,7 +51,7 @@ $infomessage = $warnmessage = $errmessage = $changepwhash = '';
  * @param object $mod current module-object
  * @throws RuntimeException upon invalid token
  */
-$check_secure_param = function(string $clue, Authenticator $mod) use ($id, $csrf_key)
+$check_secure_param = function(string $clue, ConsoleAuth $mod) use ($id, $csrf_key)
 {
     $expected = $_SESSION[$csrf_key] ?? null;
     $provided = $_POST[$id.'csrf'] ?? null; //comparison value, no sanitize needed (unless $_SESSION hacked!)
@@ -68,7 +68,7 @@ $check_secure_param = function(string $clue, Authenticator $mod) use ($id, $csrf
  * @param object $mod current module-object
  * $return bool indicating all ok
  */
-$check_passwords = function(User $user, Authenticator $mod) use ($id, $errmessage, $userops) : bool
+$check_passwords = function(User $user, ConsoleAuth $mod) use ($id, $errmessage, $userops) : bool
 {
     $tmp = $_REQUEST[$id.'password'];
     $password = sanitizeVal($tmp, CMSSAN_NONPRINT);

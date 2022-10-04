@@ -9,7 +9,7 @@
 
 <div id="filterdialog" style="display:none;" title="{_ld($_module,'tpl_filter')|escape:'javascript'}">
   {form_start action='defaultadmin' id='filterdialog_form' __activetab='templates'}
-  <input type="hidden" id="submit_filter_tpl" name="{$actionid}submit_filter_tpl" value="1" />
+  <input type="hidden" id="submit_filter_tpl" name="{$actionid}submit_filter_tpl" value="1">
   <div class="colbox">
   <div class="rowbox flow">
     <label class="boxchild" for="filter_tpl">{_ld($_module,'prompt_options')}:</label>
@@ -50,7 +50,7 @@
  {if $list_types}
   <div id="addtemplatedialog" style="display: none;" title="{_ld($_module,'create_template')}">
     {form_start id="addtemplate_form"}
-    <input type="hidden" name="{$actionid}submit_create" value="1" />
+    <input type="hidden" name="{$actionid}submit_create" value="1">
     <div class="pageoverflow">
       <label class="pagetext" for="tpl_import_type">{_ld($_module,'tpl_type')}:</label>
       <div class="pageinput">

@@ -13,7 +13,7 @@
 {tab_start name='internal'}
 <p class="pageinfo">{_ld($_module,'info_outmailer1')}</p>
 {$startform}
-  {foreach $extraparms as $key => $val}<input type="hidden" name="{$actionid}{$key}" value="{$val}" />
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$actionid}{$key}" value="{$val}">
 {/foreach}
   <div class="pageinput postgap">
     <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{_ld($_module,'apply')}</button>
@@ -32,21 +32,21 @@
     {$t=$title_from}<label class="pagetext" for="from">{$t}:</label>
     {cms_help 0=$_module key='info_from' title=$t}
     <div class="pageinput">
-      <input type="text" id="from" name="{$actionid}from" value="{$value_from}" size="40" maxlength="80" />
+      <input type="text" id="from" name="{$actionid}from" value="{$value_from}" size="40" maxlength="80">
     </div>
   </div>
   <div class="pageoverflow">
     {$t=$title_fromuser}<label class="pagetext" for="fromuser">{$t}:</label>
     {cms_help 0=$_module key='info_fromuser' title=$t}
     <div class="pageinput">
-      <input type="text" id="fromuser" name="{$actionid}fromuser" value="{$value_fromuser}" size="40" maxlength="80" />
+      <input type="text" id="fromuser" name="{$actionid}fromuser" value="{$value_fromuser}" size="40" maxlength="80">
     </div>
   </div>
   <div class="pageoverflow">
     {$t=$title_charset}<label class="pagetext" for="charset">{$t}:</label>
     {cms_help 0=$_module key='info_charset' title=$t}
     <div class="pageinput">
-      <input type="text" id="charset" name="{$actionid}charset" value="{$value_charset}" size="10" maxlength="20" />
+      <input type="text" id="charset" name="{$actionid}charset" value="{$value_charset}" size="10" maxlength="20">
     </div>
   </div>
   <fieldset class="set_smtp"><legend >{_ld($_module,'smtp_legend')}</legend>
@@ -62,43 +62,43 @@
     {$t=$title_host}<label class="pagetext" for="host">{$t}:</label>
     {cms_help 0=$_module key='info_host' title=$t}
     <div class="pageinput">
-      <input type="text" id="host" name="{$actionid}host" value="{$value_host}" size="50" maxlength="80" />
+      <input type="text" id="host" name="{$actionid}host" value="{$value_host}" size="50" maxlength="80">
     </div>
   </div>
   <div class="pageoverflow">
     {$t=$title_port}<label class="pagetext" for="port">{$t}:</label>
     {cms_help 0=$_module key='info_port' title=$t}
     <div class="pageinput">
-      <input type="text" id="port" name="{$actionid}port" value="{$value_port}" size="5" maxlength="5" />
+      <input type="text" id="port" name="{$actionid}port" value="{$value_port}" size="5" maxlength="5">
     </div>
   </div>
   <div class="pageoverflow">
     {$t=$title_timeout}<label class="pagetext" for="timeout">{$t}:</label>
     {cms_help 0=$_module key='info_timeout' title=$t}
     <div class="pageinput">
-      <input type="text" id="timeout" name="{$actionid}timeout" value="{$value_timeout}" size="3" maxlength="5" />
+      <input type="text" id="timeout" name="{$actionid}timeout" value="{$value_timeout}" size="3" maxlength="5">
     </div>
   </div>
-  <input type="hidden" name="{$actionid}smtpauth" value="0" />
+  <input type="hidden" name="{$actionid}smtpauth" value="0">
   <div class="pageoverflow">
     {$t=$title_smtpauth}<label class="pagetext" for="smtpauth">{$t}:</label>
     {cms_help 0=$_module key='info_smtpauth' title=$t}
     <div class="pageinput">
-      <input type="checkbox" id="smtpauth" name="{$actionid}smtpauth" value="1"{if $value_smtpauth} checked="checked"{/if} />
+      <input type="checkbox" id="smtpauth" name="{$actionid}smtpauth" value="1"{if $value_smtpauth} checked{/if}>
     </div>
   </div>
   <div class="pageoverflow">
     {$t=$title_username}<label class="pagetext" for="username">{$t}:</label>
     {cms_help 0=$_module key='info_username' title=$t}
     <div class="pageinput">
-      <input type="text" id="username" name="{$actionid}username" value="{$value_username}" size="40" maxlength="64" />
+      <input type="text" id="username" name="{$actionid}username" value="{$value_username}" size="40" maxlength="64">
     </div>
   </div>
   <div class="pageoverflow">
     {$t=$title_password}<label class="pagetext" for="password">{$t}:</label>
     {cms_help 0=$_module key='info_password' title=$t}
     <div class="pageinput">
-      <input type="text" id="password" class="cloaked" name="{$actionid}password" value="{$value_password}" size="40" maxlength="80" />
+      <input type="text" id="password" class="cloaked" name="{$actionid}password" value="{$value_password}" size="40" maxlength="80">
     </div>
   </div>
   </fieldset>
@@ -107,20 +107,20 @@
     {$t=$title_sendmail}<label class="pagetext" for="sendmail">{$t}:</label>
     {cms_help 0=$_module key='info_sendmail' title=$t}
     <div class="pageinput">
-      <input type="text" id="sendmail" name="{$actionid}sendmail" value="{$value_sendmail}" size="50" maxlength="255" />
+      <input type="text" id="sendmail" name="{$actionid}sendmail" value="{$value_sendmail}" size="50" maxlength="255">
     </div>
   </div>
   </fieldset>
   </fieldset>
   <fieldset><legend>{_ld($_module,'specific_legend')}</legend>
-  <input type="hidden" name="{$actionid}single" value="0" />
+  <input type="hidden" name="{$actionid}single" value="0">
   <div class="pageoverflow">
     {$t=$title_single}<label class="pagetext" for="single0">{$t}:</label>
     {cms_help 0=$_module key='info_single' title=$t}
     <div class="pageinput">
       {foreach $opts_single as $i=>$one}
-      <input type="radio" name="{$actionid}single" id="single{$i}" value="{$one.value}"{if !empty($one.checked)} checked="checked"{/if} />
-      <label for="single{$i}">{$one.label}</label>{if !$one@last}<br />{/if}
+      <input type="radio" name="{$actionid}single" id="single{$i}" value="{$one.value}"{if !empty($one.checked)} checked{/if}>
+      <label for="single{$i}">{$one.label}</label>{if !$one@last}<br>{/if}
 {/foreach}
     </div>
   </div>
@@ -129,7 +129,7 @@
     {$t=$title_batchsize}<label class="pagetext" for="batchsize">{$t}:</label>
     {cms_help 0=$_module key='info_batchsize' title=$t}
     <div class="pageinput">
-      <input type="text" id="batchsize" name="{$actionid}batchsize" value="{$value_batchsize}" size="5" maxlength="8" />
+      <input type="text" id="batchsize" name="{$actionid}batchsize" value="{$value_batchsize}" size="5" maxlength="8">
     </div>
   </div>
   <div class="pageoverflow">
@@ -157,7 +157,7 @@
 {tab_start name='gates'}
 {$startform}
  {if $gatesdata}
- {foreach $extraparms as $key => $val}<input type="hidden" name="{$actionid}{$key}" value="{$val}" />
+ {foreach $extraparms as $key => $val}<input type="hidden" name="{$actionid}{$key}" value="{$val}">
 {/foreach}
 {* js hides all except current
   {if count($gatesdata) > 2}
@@ -197,13 +197,13 @@
 {/if}{* $pgates *}
 {tab_start name='test'}
 {$startform}
-  {foreach $extraparms as $key => $val}<input type="hidden" name="{$actionid}{$key}" value="{$val}" />
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$actionid}{$key}" value="{$val}">
 {/foreach}
   <div class="pageoverflow">
     {$t=$title_testaddress}<label class="pagetext" for="testaddress">{$t}:</label>
     {cms_help 0=$_module key='info_testaddress' title=$t}
     <div class="pageinput">
-      <input type="text" id="testaddress" name="{$actionid}testaddress" value="" size="40" maxlength="255" />
+      <input type="text" id="testaddress" name="{$actionid}testaddress" value="" size="40" maxlength="255">
       <div class="pregap">
         <button type="submit" name="{$actionid}sendtest" class="adminsubmit icon do">{_ld($_module,'sendtest')}</button>
       </div>
@@ -214,12 +214,12 @@
 {if $pmod}
 {tab_start name='settings'}
 {$startform}
-  {foreach $extraparms as $key => $val}<input type="hidden" name="{$actionid}{$key}" value="{$val}" />
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$actionid}{$key}" value="{$val}">
 {/foreach}
   <div class="pageoverflow">
     {$t=$title_modpassword}<label class="pagetext" for="modpassword">{$t}:</label>
     {cms_help 0=$_module key='info_modpassword' title=$t}
-    <br />
+    <br>
     <textarea id="modpassword" name="{$actionid}masterpass" class="cloaked" rows="2" cols="40">{$value_modpassword}</textarea>
   </div>
   <div class="pageinput pregap">

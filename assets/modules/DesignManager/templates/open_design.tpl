@@ -4,13 +4,13 @@
 {tab_header name='templates' label=_ld($_module,'template_settings') active=$tab}
 {tab_start name='general'}
 {$form_start}
-  {foreach $extraparms as $key => $val}<input type="hidden" name="{$actionid}{$key}" value="{$val}" />
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$actionid}{$key}" value="{$val}">
 {/foreach}
 <div class="pageoverflow">
   {$t=_ld($_module,'title_name')}<label class="pagetext" for="designname">* {$t}:</label>
   {cms_help 0=$_module key='help_design_name' title=$t}
   <div class="pageinput">
-    <input type="text" id="designname" name="{$actionid}name" value="{$name}" size="40" maxlength="64" placeholder="{_ld($_module,'enter_name')}" />
+    <input type="text" id="designname" name="{$actionid}name" value="{$name}" size="40" maxlength="64" placeholder="{_ld($_module,'enter_name')}">
   </div>
 </div>
 <div class="pageoverflow">

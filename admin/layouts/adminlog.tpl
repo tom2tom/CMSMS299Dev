@@ -64,15 +64,15 @@
     </div>
     <div class="rowbox flow">
     <label class="boxchild" for="f_act">{_la('f_msg')}:</label>
-    <input class="boxchild" id="f_act" name="{$actionid}f_msg" value="{$filter->message}" />
+    <input class="boxchild" id="f_act" name="{$actionid}f_msg" value="{$filter->message}">
   </div>
   <div class="rowbox flow">
     <label class="boxchild" for="f_item">{_la('f_subj')}:</label>
-    <input class="boxchild" id="f_item" name="{$actionid}f_subj" value="{$filter->subject}" />
+    <input class="boxchild" id="f_item" name="{$actionid}f_subj" value="{$filter->subject}">
   </div>
   <div class="rowbox flow">
     <label class="boxchild" for="f_user">{_la('f_user')}:</label>
-    <input class="boxchild" id="f_user" name="{$actionid}f_user" value="{$filter->username}" />
+    <input class="boxchild" id="f_user" name="{$actionid}f_user" value="{$filter->username}">
   </div>
   </div>
   <div class="pageinput pregap">

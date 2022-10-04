@@ -1,8 +1,8 @@
 <form action="{$selfurl}" enctype="multipart/form-data" method="post">
 <div class="hidden">
-  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
-  <input type="hidden" name="old_default_cms_lang" value="{$old_default_cms_lang}" />
+  <input type="hidden" name="old_default_cms_lang" value="{$old_default_cms_lang}">
 </div>
   <div class="pageinput postgap">
     <button type="submit" name="submit" class="adminsubmit icon apply">{_la('apply')}</button>
@@ -22,13 +22,13 @@
       {$t=_la('date_format')}<label class="pagetext" for="dateformat">{$t}:</label>
       {cms_help 0='help' key='user_dateformat' title=$t}
       <div class="pageinput">
-        <input type="text" id="dateformat" name="date_format" class="pagenb" size="20" maxlength="30" value="{$date_format}" />
+        <input type="text" id="dateformat" name="date_format" class="pagenb" size="20" maxlength="30" value="{$date_format}">
       </div>
 
       {$t=_la('datetime_format')}<label class="pagetext" for="dtformat">{$t}:</label>
       {cms_help 0='help' key='user_datetimeformat' title=$t}
       <div class="pageinput">
-        <input type="text" id="dtformat" name="datetime_format" class="pagenb" size="20" maxlength="30" value="{$datetime_format}" />
+        <input type="text" id="dtformat" name="datetime_format" class="pagenb" size="20" maxlength="30" value="{$datetime_format}">
       </div>
     </div>
   </fieldset>
@@ -46,7 +46,7 @@
       {$t=_la('adminindent')}<label class="pagetext" for="indent">{$t}:</label>
       {cms_help 0='help' key='user_indent' title=$t}
       <div class="pageinput">
-        <input type="checkbox" id="indent" name="indent" class="pagenb"{if $indent} checked="checked"{/if} />
+        <input type="checkbox" id="indent" name="indent" class="pagenb"{if $indent} checked{/if}>
       </div>
 
       {$t=_la('defaultparentpage')}<label class="pagetext" for="parent_id">{$t}:</label>
@@ -59,7 +59,7 @@
     <legend>{_la('general_operation_settings')}:</legend>
     <div class="pageoverflow">
      {if empty($themes_opts)}
-     <input type="hidden" name="admintheme" value="{$admintheme}" />
+     <input type="hidden" name="admintheme" value="{$admintheme}">
      {else}
       {$t=_la('admintheme')}<label class="pagetext" for="admintheme">{$t}:</label>
       {cms_help 0='help' key='user_admintheme' title=$t}
@@ -73,18 +73,18 @@
       {cms_help 0='help' key='settings_wysiwyg' title=$t}
       <div class="pageinput">
       {foreach $wysiwyg_opts as $i=>$one}
-       <input type="radio" name="wysiwygtype" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked="checked"{/if} />
+       <input type="radio" name="wysiwygtype" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked{/if}>
        <label class="pagetext" for="edt{$i}">{$one->label}</label>
        {if !empty($one->mainkey)}
        <span class="cms_help" data-cmshelp-key="{$one->mainkey}" data-cmshelp-title="{$t} {$one->label}">{$helpicon}</span>
-       {/if}{if !$one@last}<br />{/if}
+       {/if}{if !$one@last}<br>{/if}
       {/foreach}
       </div>
 
       {$t=_la('wysiwyg_theme')}<label class="pagetext" for="wysiwygtheme">{$t}:</label>
       {cms_help 0='help' key='user_wysiwygtheme' title=$t}
       <div class="pageinput">
-        <input id="wysiwygtheme" type="text" name="wysiwygtheme" size="30" value="{$wysiwygtheme}" maxlength="40" />
+        <input id="wysiwygtheme" type="text" name="wysiwygtheme" size="30" value="{$wysiwygtheme}" maxlength="40">
       </div>
      {/if}
      {if !empty($syntax_opts)}
@@ -93,18 +93,18 @@
       {cms_help 0='help' key='settings_syntax' title=$t}
       <div class="pageinput">{$t=_la('about')}
       {foreach $syntax_opts as $i=>$one}
-       <input type="radio" name="syntaxtype" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked="checked"{/if} />
+       <input type="radio" name="syntaxtype" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked{/if}>
        <label class="pagetext" for="edt{$i}">{$one->label}</label>
        {if !empty($one->mainkey)}
        <span class="cms_help" data-cmshelp-key="{$one->mainkey}" data-cmshelp-title="{$t} {$one->label}">{$helpicon}</span>
-       {/if}<br />
+       {/if}<br>
       {/foreach}
       </div>
 
       {$t=_la('syntax_editor_theme')}<label class="pagetext" for="syntaxtheme">{$t}:</label>
       {cms_help 0='help' key='user_syntaxtheme' title=$t}
       <div class="pageinput">
-        <input id="syntaxtheme" type="text" name="syntaxtheme" size="30" value="{$syntaxtheme}" maxlength="40" />
+        <input id="syntaxtheme" type="text" name="syntaxtheme" size="30" value="{$syntaxtheme}" maxlength="40">
       </div>
      {/if}
 
@@ -118,13 +118,13 @@
       {$t=_la('admincallout')}<label class="pagetext" for="admincallout">{$t}:</label>
       {cms_help 0='help' key='user_admincallout' title=$t}
       <div class="pageinput">
-        <input class="pagenb" id="admincallout" type="checkbox" name="bookmarks"{if $bookmarks} checked="checked"{/if} />
+        <input class="pagenb" id="admincallout" type="checkbox" name="bookmarks"{if $bookmarks} checked{/if}>
       </div>
 
       {$t=_la('hide_help_links')}<label class="pagetext" for="hidehelp">{$t}:</label>
       {cms_help 0='help' key='user_hidehelp' title=$t}
       <div class="pageinput">
-        <input class="pagenb" id="hidehelp" type="checkbox" name="hide_help_links"{if $hide_help_links} checked="checked"{/if} />
+        <input class="pagenb" id="hidehelp" type="checkbox" name="hide_help_links"{if $hide_help_links} checked{/if}>
       </div>
     </div>
   </fieldset>

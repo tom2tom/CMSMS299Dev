@@ -9,12 +9,12 @@
 {strip}
 {function err_info}
 {if count($arg) > 2}
- {$arg.0}<br />
+ {$arg.0}<br>
  <ul>{foreach $arg as $msg}{if !$msg@first}
  <li>{$msg}</li>
  {/if}{/foreach}</ul>
 {elseif count($arg) > 1}
- {$arg.0}<br />
+ {$arg.0}<br>
   &nbsp;{$arg.1}
 {elseif count($arg) > 0}
  {$arg.0}
@@ -27,9 +27,9 @@
  {wizard_form_start}
   <p>{'info_adminaccount'|tr}</p>
   {if isset($doerr)}
-  <input type="hidden" name="warndone" value="1" />
+  <input type="hidden" name="warndone" value="1">
   <div class="message red" style="margin-top:0.5em;">
-   {if $tellname}{err_info arg=$tellname}{if $tellpass}<br />{/if}{/if}
+   {if $tellname}{err_info arg=$tellname}{if $tellpass}<br>{/if}{/if}
    {if $tellpass}{err_info arg=$tellpass}{/if}
   </div>
   {/if}
@@ -39,7 +39,7 @@
         <label for="name">{'username'|tr}</label>
       </div>
       <div class="cell col-8 must">
-        <input type="text" class="form-field full-width max20 mustchild" id="name" name="username" value="{$account.username}" required="required" />
+        <input type="text" class="form-field full-width max20 mustchild" id="name" name="username" value="{$account.username}" required>
         <div class="corner red mustchild">
           <i class="icon-asterisk"></i>
         </div>
@@ -50,7 +50,7 @@
         <label for="pass">{'password'|tr}</label>
       </div>
       <div class="cell col-8 must">
-        <input type="password" class="form-field full-width max40 mustchild" id="pass" name="password" value="{$account.password}" required="required" autocomplete="off" />
+        <input type="password" class="form-field full-width max40 mustchild" id="pass" name="password" value="{$account.password}" required autocomplete="off">
         <div class="corner red mustchild">
           <i class="icon-asterisk"></i>
         </div>
@@ -61,7 +61,7 @@
         <label for="again">{'repeatpw'|tr}</label>
       </div>
       <div class="cell col-8 must">
-        <input type="password" class="form-field full-width max40 mustchild" id="again" name="repeatpw" value="{$account.password}" required="required" autocomplete="off" />
+        <input type="password" class="form-field full-width max40 mustchild" id="again" name="repeatpw" value="{$account.password}" required autocomplete="off">
         <div class="corner red mustchild">
           <i class="icon-asterisk"></i>
         </div>
@@ -73,9 +73,9 @@
       </div>
       <div class="cell col-8{* must*}">
 {*      {if $verbose} *}
-        <input type="email" class="form-field full-width max40" id="email" name="emailaddr" value="{$account.emailaddr}" />
+        <input type="email" class="form-field full-width max40" id="email" name="emailaddr" value="{$account.emailaddr}">
 {*      {else}
-        <input type="email" class="form-field full-width max40 mustchild" id="email" name="emailaddr" value="{$account.emailaddr}" required="required" />
+        <input type="email" class="form-field full-width max40 mustchild" id="email" name="emailaddr" value="{$account.emailaddr}" required>
         <div class="corner red mustchild">
           <i class="icon-asterisk"></i>
         </div>

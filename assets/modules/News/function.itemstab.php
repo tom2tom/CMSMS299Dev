@@ -269,8 +269,8 @@ class NewsItemData
 //   'selecttext' => $this->Lang('select'),
     ]);
 
-    $s1 = json_encode($this->Lang('confirm_delete'));
-    $s2 = json_encode($this->Lang('confirm_bulk'));
+    $s1 = addcslashes($this->Lang('confirm_delete'), "'");
+    $s2 = addcslashes($this->Lang('confirm_bulk'), "'");
     $submit = lang('submit');
     $cancel = lang('cancel');
 
@@ -349,7 +349,7 @@ $(function() {
   var l = cb.filter(':checked').length;
   if(l > 0) {
    var form = $(this).closest('form');
-   cms_confirm($s2).done(function() {
+   cms_confirm('$s2').done(function() {
     form.submit();
    });
   }
@@ -357,7 +357,7 @@ $(function() {
  });
  $('a.delete_article').on('click', function(ev) {
   ev.preventDefault();
-  cms_confirm_linkclick(this,$s1);
+  cms_confirm_linkclick(this,'$s1');
   return false;
  });
  $('a.move_article').on('click', function(ev) {
@@ -385,11 +385,11 @@ $(function() {
    width: 'auto',
    buttons: {
     '$submit': function() {
-     $(this).dialog('close');
-     $('#itemsfilter').find('form').trigger('submit');
+      $(this).dialog('close');
+      $('#itemsfilter').find('form').trigger('submit');
     },
     '$cancel': function() {
-     $(this).dialog('close');
+      $(this).dialog('close');
     }
    }
   });

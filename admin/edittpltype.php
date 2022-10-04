@@ -89,9 +89,9 @@ try {
 		add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 	}
 	$lock_refresh = AppParams::get('lock_refresh', 120);
-	$s1 = json_encode(_ld('layout', 'error_lock'));
-	$s2 = json_encode(_ld('layout', 'msg_lostlock'));
-	$s3 = json_encode(_ld('layout', 'confirm_reset_type'));
+	$s1 = addcslashes(_ld('layout', 'error_lock'), "'");
+	$s2 = addcslashes(_ld('layout', 'msg_lostlock'), "'");
+	$s3 = addcslashes(_ld('layout', 'confirm_reset_type'), "'");
 	$cancel = _la('cancel');
 
 	$jsm = new ScriptsMerger();
@@ -124,7 +124,7 @@ $(function() {
     lock_timeout: $lock_timeout,
     lock_refresh: $lock_refresh,
     error_handler: function(err) {
-      cms_alert($s1 + ' ' + err.type + ' // ' + err.msg);
+      cms_alert('{$s1} ' + err.type + ' // ' + err.msg);
     },
     lostlock_handler: function(err) {
      // we lost the lock on this type ... block saving and display a nice message.
@@ -132,7 +132,7 @@ $(function() {
      $('#form_edittype').dirtyForm('option', 'dirty', false);
      cms_button_able($('#submitbtn, #applybtn'), false);
      $('.lock-warning').removeClass('hidden-item');
-     cms_alert($s2);
+     cms_alert('$s2');
     }
   });
  }
@@ -146,7 +146,7 @@ $(function() {
  });
  $('[name="reset"]').on('click', function(ev) {
    ev.preventDefault();
-   cms_confirm_btnclick(this, $s3);
+   cms_confirm_btnclick(this, '$s3');
    return false;
  });
  $('#submitbtn, #applybtn, #cancelbtn').on('click', function(ev) {

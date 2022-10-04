@@ -69,9 +69,9 @@
 {if $manage_stylesheets} {* TODO && single(s) or group(s) exist *}
 <div id="replacedialog" title="" style="display:none;min-width:15em;">
   <form id="replacedialog_form" action="stylesheetoperations.php" enctype="multipart/form-data" method="post">
-  {foreach $extraparms2 as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+  {foreach $extraparms2 as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
-   <p>{_ld('layout','prompt_current')}<br />
+   <p>{_ld('layout','prompt_current')}<br>
    <span id="from"></span>
    </p>
    <div class="pregap">

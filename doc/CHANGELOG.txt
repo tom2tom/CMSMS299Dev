@@ -10,7 +10,7 @@ displayed images may also be svg, avif, png or fonticon, with svg preferred if p
 revised UI for UDT processing (those are now files, not database records) see next item
 editing of templates, stylesheets, user-defined-tags by syntax hilighter Ace or CodeMirror
 module-specific templates can also be processed via the general template-edit UI (which is no longer driven by DesignManager module)
-extra core module: Authenticator
+extra core module: ConsoleAuth
 
 BEHIND THE SCENES
 
@@ -365,7 +365,7 @@ DETAILS
   - FEATURE: New {theme_root} plugin for admin templates
   - FEATURE: New {admin_headtext} block plugin for admin templates
   - CHANGE: Module actions can now return output rather than echoing it.
-  - CHANGE: Core module (Authenticator) to process login/out
+  - CHANGE: Core module (ConsoleAuth) to process login/out
   - FEATURE: Adds a new hook for password strength
   - cms_mailer class now throws an exception if attempting to send an email without setting preferences first.
   - BREAKING: New methods and minor cleanup to admin themes (may introduce some breakage)

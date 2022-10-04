@@ -74,8 +74,7 @@ class RegularJob extends CronJob
      * @param mixed $val
      * @throws UnexpectedValueException
      */
-    #[\ReturnTypeWillChange]
-    public function __set(string $key, $val)// : void
+    public function __set(string $key, $val) : void
     {
         switch ($key) {
         case 'task':

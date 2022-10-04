@@ -117,8 +117,7 @@ final class App
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    public function __set(string $key, $value)// : void
+    public function __set(string $key, $value) : void
     {
         Lone::set('app.'.$key, $value);
     }

@@ -188,8 +188,7 @@ class FolderControls
      * @param string $key Property name
      * @param mixed $val Property value
      */
-    #[\ReturnTypeWillChange]
-    public function __set(string $key, $val)
+    public function __set(string $key, $val) : void
     {
         // TODO all 3.0 props
         switch( $key ) {

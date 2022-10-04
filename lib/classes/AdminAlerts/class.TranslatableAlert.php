@@ -122,8 +122,7 @@ class TranslatableAlert extends Alert
      * @param mixed $val
      * @throws InvalidArgumentException
      */
-    #[\ReturnTypeWillChange]
-    public function __set(string $key,$val)// : void
+    public function __set(string $key,$val) : void
     {
         switch( $key ) {
         case 'icon':

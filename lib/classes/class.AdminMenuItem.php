@@ -79,8 +79,7 @@ final class AdminMenuItem
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    public function __set(string $key,$val)// : void
+    public function __set(string $key,$val) : void
     {
         if( !in_array($key,self::ITEMKEYS) ) throw new LogicException('Property \''.$key.'\' is not valid in '.__CLASS__.' objects');
         $this->_data[$key] = $val;
@@ -89,8 +88,7 @@ final class AdminMenuItem
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    public function __isset(string $key)// : bool
+    public function __isset(string $key) : bool
     {
         if( !in_array($key,self::ITEMKEYS) ) throw new LogicException('Property \''.$key.'\' is not valid in '.__CLASS__.' objects');
         return isset($this->_data[$key]);
@@ -99,8 +97,7 @@ final class AdminMenuItem
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    public function __unset(string $key)// : void
+    public function __unset(string $key) : void
     {
         if( !in_array($key,self::ITEMKEYS) ) throw new LogicException('Property \''.$key.'\' is not valid in '.__CLASS__.' objects');
         throw new LogicException('Cannot unset properties of a '.__CLASS__.' object');

@@ -411,8 +411,8 @@ if ($do_locking) {
 }
 $lock_refresh = AppParams::get('lock_refresh', 120);
 $options_tab_name = ContentBase::TAB_OPTIONS;
-$msg = json_encode($this->Lang('msg_lostlock'));
-$msg2 = json_encode($this->Lang('error_editpage_contenttype'));
+$s1 = addcslashes($this->Lang('msg_lostlock'), "'");
+$s2 = addcslashes($this->Lang('error_editpage_contenttype'), "'");
 $close = $this->Lang('close');
 
 $jsm = new ScriptsMerger();
@@ -455,9 +455,9 @@ $(function() {
       lostlock_handler: function(err) {
       // we lost the lock on this content... make sure we can't save anything.
       // and display a nice message.
-        $('[name$="cancel"]').fadeOut().attr('value', '$close').fadeIn();
+        $('[name={$id}cancel]').fadeOut().attr('value', '$close').fadeIn();
         $('#Edit_Content').dirtyForm('option', 'dirty', false);
-        cms_alert($msg);
+        cms_alert('$s1');
       }
     });
   }
@@ -465,9 +465,15 @@ $(function() {
 EOS;
 
 if ($preview_url) {
+//TODO generic migration of all editor(s)-content to form-element(s) to be saved
 	$js .= <<<EOS
   $('#_preview_').on('click', function() {
-    if (typeof tinyMCE !== 'undefined') { tinyMCE.triggerSave(); } //TODO setpagecontent() to migrate editor-content into an input-element to be saved
+//    if (typeof tinyMCE !== 'undefined') {
+//      tinyMCE.triggerSave();
+//    } else {
+      var v = geteditorcontent();
+      setpagecontent(v);
+//    }
     var params = [{
       name: '{$id}ajax',
       value: 1
@@ -513,7 +519,7 @@ EOS;
          //invalid type
          v = ts.data('lastValue'); // revert value
          ts.val(v);
-         cms_notify('error', $msg2);
+         cms_notify('error', '$s2');
          ev.stopImmediatePropagation();
          ev.preventDefault();
          return false;
@@ -537,7 +543,7 @@ EOS;
   });
 
   // handle cancel/close ... and unlock
-  $('[name$="cancel"]').on('click', function(ev) {
+  $('[name={$id}cancel]').on('click', function(ev) {
     // turn off all required elements, we're cancelling
     $('#Edit_Content :hidden').removeAttr('required');
     // do not touch the dirty flag, so that theunload handler stuff can warn us.
@@ -547,14 +553,21 @@ EOS;
       var form = $(this).closest('form');
       ev.preventDefault();
       $('#Edit_Content').lockManager('unlock', 1).done(function() {
-        var el = $('<input type="hidden"/>');
+        var el = $('<input type="hidden"QQ>');
         el.attr('name', $(self).attr('name')).val($(self).val()).appendTo(form);
         form.submit();
       });
     }
   });
 
-  $('[name$="submit"]').on('click', function(ev) {
+  $('[name={$id}submit]').on('click', function(ev) {
+//    if (typeof tinyMCE !== 'undefined') {
+//      tinyMCE.triggerSave();
+//    } else {
+//TODO generic migration of all editor(s)-content to form element(s) to be saved
+      var v = geteditorcontent();
+      setpagecontent(v);
+//    }
     // set the form to not dirty.
     $('#Edit_Content').dirtyForm('option', 'dirty', false);
     if (do_locking) {
@@ -563,7 +576,7 @@ EOS;
       ev.preventDefault();
       var form = $(this).closest('form');
       $('#Edit_Content').lockManager('unlock', 1).done(function() {
-        var el = $('<input type="hidden"/>');
+        var el = $('<input type="hidden"QQ>');
         el.attr('name', $(self).attr('name')).val($(self).val()).appendTo(form);
         form.submit();
       });
@@ -571,9 +584,15 @@ EOS;
   });
 
   // handle apply (via ajax)
-  $('[name$="apply"]').on('click', function() {
+  $('[name={$id}apply]').on('click', function() {
+//    if (typeof tinyMCE !== 'undefined') {
+//      tinyMCE.triggerSave();
+//    } else {
+//TODO generic migration of all editor(s)-content to form-element(s) to be saved
+      var v = geteditorcontent();
+      setpagecontent(v);
+//    }
     // apply does not do an unlock
-    if (typeof tinyMCE !== 'undefined') { tinyMCE.triggerSave(); } //TODO setpagecontent() to migrate editor-content into an input-element to be saved
     var params = [{
       name: '{$id}ajax',
       value: 1
@@ -608,7 +627,7 @@ EOS;
 EOS;
 /*
 if ($designchanged_ajax_url) {
-	$msg = json_encode($this->Lang('warn_notemplates_for_design'));
+	$s1 = addcslashes($this->Lang('warn_notemplates_for_design'), "'");
 	$js .= <<<EOS
   $('#design_id').on('change', function(e, edata) {
     var v = $(this).val();
@@ -626,7 +645,7 @@ if ($designchanged_ajax_url) {
         }
         if (!first) {
           $('#design_id').val(lastValue);
-          cms_alert($msg);
+          cms_alert('$s1');
         }
         else {
           $('#template_id').val('');

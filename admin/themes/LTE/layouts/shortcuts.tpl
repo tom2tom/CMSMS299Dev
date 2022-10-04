@@ -99,7 +99,7 @@
 					<li><a{if $mark->bookmark_id > 0} class="bookmark"{/if} href="{$mark->url}" title="{$mark->title}">{$mark->title}</a></li>
 				{/foreach}
 			</ul>
-			<hr />
+			<hr>
 		{/if}
 
 		<h3>{'help'|lang}</h3>
@@ -121,7 +121,7 @@
 					<div class="alert-head ui-corner-all {if $one->priority == '_high'}ui-state-error red{elseif $one->priority == '_normal'}ui-state-highlight orange{else}ui-state-highlight blue{/if}">
 						{$icon = $one->get_icon()}
 						{if $icon}
-							<img class="alert-icon ui-icon" alt="" src="{$icon}" title="{'remove_alert')|lang" />
+							<img class="alert-icon ui-icon" alt="" src="{$icon}" title="{'remove_alert')|lang">
 						{else}
 							<span class="alert-icon ui-icon {if $one->priority != '_low'}ui-icon-alert{else}ui-icon-info{/if}" title="{'remove_alert'|lang}"></span>
 						{/if}

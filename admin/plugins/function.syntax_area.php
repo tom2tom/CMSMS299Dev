@@ -128,7 +128,7 @@ function smarty_cms_help_function_syntax_area()
 	echo '<h3>What does it do?</h3>
 This plugin generates html and javascript for a syntax-highlight textarea element.
 <h4>Parameters:</h4>
-As for <code>FormUtils::create_textarea()</code><br />
+As for <code>FormUtils::create_textarea()</code><br>
 <ul>
 <li>name: element name (only relevant for form submission, but the backend method always wants it)</li>
 <li>getid: submitted-parameter prefix (\'m1_\' etc)</li>
@@ -147,8 +147,8 @@ As for <code>FormUtils::create_textarea()</code><br />
 <li>text: alias for value</li>
 <li>addtext: additional attribute(s) for the element e.g. style="whatever" cms-data-X="whatever" readonly</li>
 </ul>
-<br />
-As for <code>get_syntaxeditor_setup()</code><br />
+<br>
+As for <code>get_syntaxeditor_setup()</code><br>
 <ul>
 <li>edit: bool whether editable (default) or read-only</li>
 <li>handle: js variable identifier (optional, internal use) </li>
@@ -157,6 +157,6 @@ As for <code>get_syntaxeditor_setup()</code><br />
 <li>typer: syntax identifier</li>
 <li>workid: div-tag id (optional, internal use)</li>
 </ul>
-<br />
+<br>
 and/or any of Smarty\'s generic parameters (nocache, assign etc)';
 }

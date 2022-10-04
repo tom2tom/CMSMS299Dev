@@ -618,7 +618,7 @@ class FormUtils
                 'type',
                 'selectedvalue',
                 ]);
-                $out .= ' />'.PHP_EOL;
+                $out .= '>'.PHP_EOL;
                 break;
             case 'radio':
                 $err = self::must_attrs($parms, ['options'=>'a', 'selectedvalue'=>'v']);
@@ -639,9 +639,9 @@ class FormUtils
                 foreach ($options as $key=>$val) {
                     $out .= $each . ' id="'.$name.$i.'" value="'.$val.'"';
                     if ($val == $selectedvalue) {
-                        $out .= ' checked="checked"';
+                        $out .= ' checked';
                     }
-                    $out .= ' /><label for="'.$name.$i.'">'.$key.'</label>';
+                    $out .= '><label for="'.$name.$i.'">'.$key.'</label>';
                     if ($i < $count && $delimiter) {
                         $out .= $delimiter;
                     }
@@ -745,7 +745,7 @@ class FormUtils
             $out .= self::join_attrs($parms, [
             'value', // might be acceptably empty, so add this one manually
             ]);
-            return $out.' value="'.$value.'" />'.PHP_EOL;
+            return $out.' value="'.$value.'">'.PHP_EOL;
         }
         unset($parms['type']); //don't confuse with 'wantedsyntax'
         return self::create_textarea($parms);
@@ -894,7 +894,7 @@ class FormUtils
             }
             $mod = Lone::get('ModuleOperations')->GetWYSIWYGModule($forcemodule);
             if ($mod && $mod->HasCapability(CapabilityType::WYSIWYG_MODULE)) {
-                // TODO use $config['content_language']
+                // TODO use $config['content_language'] for [in]direct frontend content
                 $parms['data-cms-lang'] = 'html'; //park badly-named variable
                 $modname = $mod->GetName();
                 $parms['class'] .= ' '.$modname;  //not for CSS ?!
@@ -1068,15 +1068,15 @@ class FormUtils
         $out .= self::join_attrs($parms, $excludes);
         $out .= '>'."\n".
         '<div class="hidden">'."\n".
-        '<input type="hidden" name="mact" value="'.$mod->GetName().','.$getid.','.$action.','.($inline?1:0).'" />'."\n";
+        '<input type="hidden" name="mact" value="'.$mod->GetName().','.$getid.','.$action.','.($inline?1:0).'">'."\n";
         if (isset($returnid) && $returnid != '') { //NB not strict - it may be null
-            $out .= '<input type="hidden" name="'.$getid.'returnid" value="'.$returnid.'" />'."\n";
+            $out .= '<input type="hidden" name="'.$getid.'returnid" value="'.$returnid.'">'."\n";
             if ($inline) {
                 $config = Lone::get('Config');
-                $out .= '<input type="hidden" name="'.$config['query_var'].'" value="'.$returnid.'" />'."\n";
+                $out .= '<input type="hidden" name="'.$config['query_var'].'" value="'.$returnid.'">'."\n";
             }
         } elseif (isset($_SESSION[CMS_USER_KEY])) { //there is a logged-in user TODO or this is a login-related form
-            $out .= '<input type="hidden" name="'.CMS_SECURE_PARAM_NAME.'" value="'.$_SESSION[CMS_USER_KEY].'" />'."\n";
+            $out .= '<input type="hidden" name="'.CMS_SECURE_PARAM_NAME.'" value="'.$_SESSION[CMS_USER_KEY].'">'."\n";
         }
         if (!empty($parms['extraparms'])) {
             $arr = $parms['extraparms'];
@@ -1084,7 +1084,7 @@ class FormUtils
             $parms = array_merge($parms, $arr);
         }
         foreach ($plain as $key) {
-            $out .= '<input type="hidden" name="'.$key.'" value="'.$parms[$key].'" />'."\n";
+            $out .= '<input type="hidden" name="'.$key.'" value="'.$parms[$key].'">'."\n";
         }
         $excludes = array_merge([
             'module',
@@ -1102,9 +1102,9 @@ class FormUtils
 //          $val = TODOfunc($val); urlencode ? serialize?
             if (!in_array($key, $excludes)) {
                 if (is_array($val)) {
-//TODO e.g. serialize $out .= '<input type="hidden" name="'.$getid.$key.'" value="'.TODO.'" />'."\n";
+//TODO e.g. serialize $out .= '<input type="hidden" name="'.$getid.$key.'" value="'.TODO.'">'."\n";
                 } else {
-                    $out .= '<input type="hidden" name="'.$getid.$key.'" value="'.$val.'" />'."\n";
+                    $out .= '<input type="hidden" name="'.$getid.$key.'" value="'.$val.'">'."\n";
                 }
             }
         }
@@ -1244,13 +1244,13 @@ class FormUtils
             ]);
             $out .= '>' . $contents . '</a>';
             if (!empty($warn_message)) {
-                $msg = json_encode($warn_message);
+                $msg = addcslashes($warn_message, "'");
                 $out .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[
 $(function() {
  $('#{$id}').on('click', function() {
-  cms_confirm_linkclick(this, $msg);
+  cms_confirm_linkclick(this, '$msg');
   return false;
  });
 });

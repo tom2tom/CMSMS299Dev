@@ -14,7 +14,7 @@
     <p>{'info_sitename'|tr}</p>
     <div class="row btm-margin">
       <div class="cell col-8 must">
-        <input type="text" class="form-field half-width max40 mustchild" name="sitename" value="{$sitename}" placeholder="{'ph_sitename'|tr}" required="required" />
+        <input type="text" class="form-field half-width max40 mustchild" name="sitename" value="{$sitename}" placeholder="{'ph_sitename'|tr}" required>
         <div class="corner red mustchild">
           <i class="icon-asterisk"></i>
         </div>
@@ -26,7 +26,7 @@
     <h3{if !$verbose} class="disabled"{/if}>{'prompt_supporturl'|tr}</h3>
     {if $verbose}<p>{'info_supporturl'|tr}</p>{/if}
     <div class="page-row">
-      <input type="text" class="form-field half-width max40{if !$verbose} disabled{/if}" name="supporturl" value="{$supporturl}"{if $verbose} placeholder="{'ph_supporturl'|tr}"{else} disabled="disabled"{/if} />
+      <input type="text" class="form-field half-width max40{if !$verbose} disabled{/if}" name="supporturl" value="{$supporturl}"{if $verbose} placeholder="{'ph_supporturl'|tr}"{else} disabled{/if}>
     </div>
   {/if}
 

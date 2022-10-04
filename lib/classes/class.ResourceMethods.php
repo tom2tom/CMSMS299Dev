@@ -299,7 +299,7 @@ class ResourceMethods
 
 	public function IsAdminOnly() { return true; }
 
-	public function Lang(...$args) //: string
+	public function Lang(...$args) : string
 	{
 		return LangOperations::domain_string($this->GetName(), ...$args);
 	}

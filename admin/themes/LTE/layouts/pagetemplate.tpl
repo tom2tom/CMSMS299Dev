@@ -2,45 +2,45 @@
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
 	<head>
 		<title>{$page_title} - {$page_subtitle|default:"{sitename}"}</title>
-		<base href="{$admin_url}/" />
-		<meta charset="{$encoding}" />
-		<meta name="generator" content="CMS Made Simple" />
-		<meta name="robots" content="noindex, nofollow" />
-		<meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
-		<meta name="msapplication-TileColor" content="#f89938" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<base href="{$admin_url}/">
+		<meta charset="{$encoding}">
+		<meta name="generator" content="CMS Made Simple">
+		<meta name="robots" content="noindex, nofollow">
+		<meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png">
+		<meta name="msapplication-TileColor" content="#f89938">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
-		<link rel="apple-touch-icon" href="themes/assets/images/apple-touch-icon-iphone.png" />
-		<link rel="apple-touch-icon" sizes="72x72" href="themes/assets/images/apple-touch-icon-ipad.png" />
-		<link rel="apple-touch-icon" sizes="114x114" href="themes/assets/images/apple-touch-icon-iphone4.png" />
-		<link rel="apple-touch-icon" sizes="144x144" href="themes/assets/images/apple-touch-icon-ipad3.png" />
+		<link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico">
+		<link rel="apple-touch-icon" href="themes/assets/images/apple-touch-icon-iphone.png">
+		<link rel="apple-touch-icon" sizes="72x72" href="themes/assets/images/apple-touch-icon-ipad.png">
+		<link rel="apple-touch-icon" sizes="114x114" href="themes/assets/images/apple-touch-icon-iphone4.png">
+		<link rel="apple-touch-icon" sizes="144x144" href="themes/assets/images/apple-touch-icon-ipad3.png">
 
-{*		<link href="themes/LTE/styles/fork-awesome.min.css" rel="stylesheet" />*}{* Fork Awesome *}
-		<link rel="stylesheet" href="themes/LTE/styles/fontawesome.min.css" />{* Font Awesome #1 *}
-		<link rel="stylesheet" href="themes/LTE/styles/solid.min.css" />{* Font Awesome #2 *}
-{*		<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />* } {* Ionicons *}
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&family=Source+Sans+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap" />
-		<link rel="stylesheet" href="themes/LTE/styles/OverlayScrollbars.min.css" />
-{*		<link rel="stylesheet" href="themes/LTE/styles/adminlte.min.css" />* }{* theme styles + bootstap grid *}
-		<link rel="stylesheet" href="themes/LTE/styles/adminlte.core.min.css" />{* theme styles + bootstap grid *}
-		<link rel="stylesheet" href="themes/LTE/styles/style-override.css" />
+{*		<link href="themes/LTE/styles/fork-awesome.min.css" rel="stylesheet">*}{* Fork Awesome *}
+		<link rel="stylesheet" href="themes/LTE/styles/fontawesome.min.css">{* Font Awesome #1 *}
+		<link rel="stylesheet" href="themes/LTE/styles/solid.min.css">{* Font Awesome #2 *}
+{*		<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">* } {* Ionicons *}
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&family=Source+Sans+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+		<link rel="stylesheet" href="themes/LTE/styles/OverlayScrollbars.min.css">
+{*		<link rel="stylesheet" href="themes/LTE/styles/adminlte.min.css">* }{* theme styles + bootstap grid *}
+		<link rel="stylesheet" href="themes/LTE/styles/adminlte.core.min.css">{* theme styles + bootstap grid *}
+		<link rel="stylesheet" href="themes/LTE/styles/style-override.css">
 {*
-		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" />{* Tempusdominus Bootstrap 4 * }
-		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/icheck-bootstrap/icheck-bootstrap.min.css" /> {* iCheck * }
-		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/overlayScrollbars/css/OverlayScrollbars.min.css" />{* overlayScrollbars * }
-		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/daterangepicker/daterangepicker.css" /> {* Daterange picker * }
-		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/summernote/summernote-bs4.css" /> {* summernote * }
+		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">{* Tempusdominus Bootstrap 4 * }
+		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/icheck-bootstrap/icheck-bootstrap.min.css"> {* iCheck * }
+		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/overlayScrollbars/css/OverlayScrollbars.min.css">{* overlayScrollbars * }
+		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/daterangepicker/daterangepicker.css"> {* Daterange picker * }
+		<link rel="stylesheet" href="themes/LTE/UNUSED-plugins/summernote/summernote-bs4.css"> {* summernote * }
 
 		{* backwards and CMSMS compatibility * }
-		<link rel="stylesheet" href="style.php?{$secureparam}" /> {* backwards compatibility * }
+		<link rel="stylesheet" href="style.php?{$secureparam}"> {* backwards compatibility * }
 *}
-		<link rel="stylesheet" href="themes/LTE/styles/style{if $lang_dir == 'rtl'}-rtl{/if}.min.css" />
-		<link rel="stylesheet" href="themes/LTE/styles/topfiles.css" />
+		<link rel="stylesheet" href="themes/LTE/styles/style{if $lang_dir == 'rtl'}-rtl{/if}.min.css">
+		<link rel="stylesheet" href="themes/LTE/styles/topfiles.css">
 {*
-		<link rel="stylesheet" href="themes/LTE/styles/default-cmsms/jquery-ui-1.10.4.custom.min.css" />
+		<link rel="stylesheet" href="themes/LTE/styles/default-cmsms/jquery-ui-1.10.4.custom.min.css">
 		<script src="themes/LTE/UNUSED-plugins/jquery/jquery.min.js"></script>{* jQuery * }
 		<script src="themes/LTE/UNUSED-plugins/jquery-ui/jquery-ui.min.js"></script>{* jQuery UI 1.11.4 * }
 		<script type="text/javascript" src="themes/LTE/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>{* Bootstrap 4 * }
@@ -140,7 +140,7 @@ moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conf
 
 			<aside class="main-sidebar sidebar-dark-primary elevation-4">
 {* page layout doesn't work {if isset($sitelogo)}
-				<a href="menu.php?{$secureparam}" title="{'home'|lang}"<img src="{$sitelogo}" class="brand-image elevation-3" /></a>
+				<a href="menu.php?{$secureparam}" title="{'home'|lang}"<img src="{$sitelogo}" class="brand-image elevation-3"></a>
 				{/if}
 				<span class="brand-text font-weight-light">{sitename}</span>
 *}
@@ -157,7 +157,7 @@ moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conf
 							{if isset($module_icon_url) || isset($page_title)}
 								<div class="col-12 col-sm-6 col-lg-6">
 									<h1 class="m-0 text-dark">
-										{if isset($module_icon_url)}<img src="{$module_icon_url}" alt="{$module_name|default:''}" class="module-icon" />{/if}
+										{if isset($module_icon_url)}<img src="{$module_icon_url}" alt="{$module_name|default:''}" class="module-icon">{/if}
 										{$page_title|default:''}
 									</h1>
 								</div>
@@ -202,7 +202,7 @@ moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conf
 			<div class="header-top cf">
 				<div class="cms-logo">
 					<a href="https://www.cmsmadesimple.org" rel="external">
-						<img src="themes/LTE/images/layout/cmsms-logo.jpg" width="205" height="69" alt="CMS Made Simple" title="CMS Made Simple" />
+						<img src="themes/LTE/images/layout/cmsms-logo.jpg" width="205" height="69" alt="CMS Made Simple" title="CMS Made Simple">
 					</a>
 				</div>
 				<span class="admin-title"> {'adminpaneltitle'|lang} - {sitename}</span>
@@ -236,7 +236,7 @@ moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conf
 				<article role="main" class="content-inner">
 					<header class="pageheader{if isset($is_ie)} drop-hidden{/if} cf">
 						{if isset($module_icon_url) or isset($page_title)}
-							<h1>{if isset($module_icon_url)}<img src="{$module_icon_url}" alt="{$module_name|default:''}" class="module-icon" />{/if}
+							<h1>{if isset($module_icon_url)}<img src="{$module_icon_url}" alt="{$module_name|default:''}" class="module-icon">{/if}
 								{$page_title|default:''}
 							</h1>
 						{/if}

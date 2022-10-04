@@ -5,10 +5,10 @@
     <label for="newname">{$newnametext}:</label>
   </p>
   <p class="pageinput">
-    <input id="newname" type="text" name="{$actionid}newname" value="{$newname}" size="40" />
+    <input id="newname" type="text" name="{$actionid}newname" value="{$newname}" size="40">
   </p>
 </div>
-<br />
+<br>
 <div class="pageoverflow">
   <p class="pageinput">
     <button type="submit" name="{$actionid}rename" class="adminsubmit icon do">{_ld($_module,'rename')}</button>

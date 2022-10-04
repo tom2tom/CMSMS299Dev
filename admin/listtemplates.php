@@ -307,16 +307,16 @@ $smarty->assign('tpl_choices',$replacements);
 
 $securekey = CMS_SECURE_PARAM_NAME;
 $jobkey = CMS_JOB_KEY;
-$s1 = json_encode(_ld('layout','confirm_delete_bulk'));
-$s2 = json_encode(_ld('layout','error_nothingselected'));
-$s3 = json_encode(_ld('layout','confirm_steal_lock'));
-$s4 = json_encode(_ld('layout','error_contentlocked'));
-//$s5 = json_encode(_ld('layout','confirm_replace_template'));
-$s6 = json_encode(_ld('layout','confirm_applytemplate'));
-$s7 = json_encode(_ld('layout','confirm_deletetemplate'));
-$s8 = json_encode(_ld('layout','confirm_removetemplate'));
-$s9 = json_encode(_ld('layout','confirm_clearlocks'));
-$title = _ld('layout','prompt_replace_typed',_ld('layout','prompt_template'));
+$s1 = addcslashes(_ld('layout','confirm_delete_bulk'), "'");
+$s2 = addcslashes(_ld('layout','error_nothingselected'), "'");
+$s3 = addcslashes(_ld('layout','confirm_steal_lock'), "'");
+$s4 = addcslashes(_ld('layout','error_contentlocked'), "'");
+//$s5 = addcslashes(_ld('layout','confirm_replace_template'), "'");
+$s6 = addcslashes(_ld('layout','confirm_applytemplate'), "'");
+$s7 = addcslashes(_ld('layout','confirm_deletetemplate'), "'");
+$s8 = addcslashes(_ld('layout','confirm_removetemplate'), "'");
+$s9 = addcslashes(_ld('layout','confirm_clearlocks'), "'");
+$title = addcslashes(_ld('layout','prompt_replace_typed',_ld('layout','prompt_template')), "'");
 $cancel = _la('cancel');
 $submit = _la('submit');
 $reset = _la('reset');
@@ -440,9 +440,9 @@ $(function() {
     e.preventDefault();
     var l = $('.tpl_select:checked').length;
     if(l > 0) {
-      cms_confirm_btnclick(this,$s1);
+      cms_confirm_btnclick(this,'$s1');
     } else {
-      cms_alert($s2);
+      cms_alert('$s2');
     }
     return false;
   });
@@ -519,7 +519,7 @@ $(function() {
     }).done(function(data) {
       if(data.status === 'success') {
         if(data.stealable) {
-          cms_confirm($s3).done(function() {
+          cms_confirm('$s3').done(function() {
             parms.op = 'unlock';
             parms.lock_id = data.lock_id;
 // TODO security : parms.X = Y suitable for ScriptsMerger
@@ -530,7 +530,7 @@ $(function() {
             window.location.href = url;
           });
         } else if(data.locked) {
-          cms_alert($s4);
+          cms_alert('$s4');
         } else {
           window.location.href = url;
         }
@@ -550,6 +550,7 @@ $(function() {
      from = $(this).attr('data-tpl-id'),
      opt = sel.find('option[value='+from+']'),
      name = opt.text();
+    //TODO find option prop disabled true?
     sel.find('option[disabled="disabled"]').prop('disabled', false);
     opt.prop('disabled',true);
     dlg.attr('title','$title').find('#from').html(name);
@@ -578,17 +579,17 @@ $(function() {
   });
   $('a.apply_tpl').on('click', function(e) {
     e.preventDefault();
-    cms_confirm_linkclick(this,$s6);
+    cms_confirm_linkclick(this,'$s6');
     return false;
   });
   $('a.del_tpl').on('click', function(e) {
     e.preventDefault();
-    cms_confirm_linkclick(this,$s7);
+    cms_confirm_linkclick(this,'$s7');
     return false;
   });
   $('a.remove_tpl').on('click', function(e) {
     e.preventDefault();
-    cms_confirm_linkclick(this,$s8);
+    cms_confirm_linkclick(this,'$s8');
     return false;
   });
   var watcher = Poller.run({
@@ -605,12 +606,12 @@ $(function() {
   });
   $('#clearlocks').on('click', function(e) {
     e.preventDefault();
-    cms_confirm_linkclick(this,$s9);
+    cms_confirm_linkclick(this,'$s9');
     return false;
   });
   $('a.steal_lock').on('click', function(e) {
     e.preventDefault();
-    cms_confirm_linkclick(this,$s3);
+    cms_confirm_linkclick(this,'$s3');
     return false;
   });
 });
@@ -662,8 +663,8 @@ if( $groups ) {
         'grpmenus' => $menus,
     ]);
 
-    $s1 = json_encode(_ld('layout','confirm_delete_group'));
-    $s2 = json_encode(_ld('layout','confirm_delete_groupplus'));
+    $s1 = addcslashes(_ld('layout','confirm_delete_group'), "'");
+    $s2 = addcslashes(_ld('layout','confirm_delete_groupplus'), "'");
 
     // groups supplementary script
     $js = <<<EOS
@@ -671,12 +672,12 @@ $(function() {
   $('#grouplist [context-menu]').ContextMenu();
   $('a.del_grp').on('click', function(e) {
     e.preventDefault();
-    cms_confirm_linkclick(this,$s1);
+    cms_confirm_linkclick(this,'$s1');
     return false;
   });
   $('a.del_grpall').on('click', function(e) {
     e.preventDefault();
-    cms_confirm_linkclick(this,$s2);
+    cms_confirm_linkclick(this,'$s2');
     return false;
   });
 });

@@ -120,8 +120,8 @@ if( $dbr ) {
 	 ->assign('tplcount2', $numrows)
 	 ->assign('tplpages2', $tplpages);
 
-	$s1 = json_encode($this->Lang('confirm_delete'));
-	$s2 = json_encode($this->Lang('confirm_tpldefault'));
+	$s1 = addcslashes($this->Lang('confirm_delete'), "'");
+	$s2 = addcslashes($this->Lang('confirm_tpldefault'), "'");
 
 	$js = <<<EOS
 <script type="text/javascript">
@@ -156,12 +156,12 @@ $(function() {
   }
   $('a.delete_tpl').on('click',function(e) {
     e.preventDefault();
-    cms_confirm_linkclick(this,$s1);
+    cms_confirm_linkclick(this,'$s1');
     return false;
   });
   $('a.default_tpl').on('click',function(e) {
     e.preventDefault();
-    cms_confirm_linkclick(this,$s2);
+    cms_confirm_linkclick(this,'$s2');
     return false;
   });
 });

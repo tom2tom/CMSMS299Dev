@@ -19,7 +19,7 @@
        <a {if isset($sitedown) && strpos($one.url,'logout')!==false}id="logoutitem" {/if}
         class="topmenu_item" href="{$one.url}"
         {if isset($one.target)} target="{$one.target}"{/if}
-        >{$one.title}</a><br />
+        >{$one.title}</a><br>
       {/if}
     {/strip}{/foreach}
   {/if}

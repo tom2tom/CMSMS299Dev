@@ -100,8 +100,7 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	public function __set(string $key,$value)// : void
+	public function __set(string $key,$value) : void
 	{
 		if( in_array($key,self::KEYS) ) $this->_data[$key] = $value;
 	}
@@ -109,8 +108,7 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	public function __isset(string $key)// : bool
+	public function __isset(string $key) : bool
 	{
 		return in_array($key,self::KEYS) && isset($this->_data[$key]);
 	}
@@ -137,8 +135,7 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	public function offsetSet($key,$value)// : void
+	public function offsetSet($key,$value) : void
 	{
 		if( in_array($key,self::KEYS) ) $this->_data[$key] = $value;
 	}
@@ -146,8 +143,7 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	public function offsetExists($key)// : bool
+	public function offsetExists($key) : bool
 	{
 		return in_array($key,self::KEYS) && isset($this->_data[$key]);
 	}
@@ -155,8 +151,7 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	public function offsetUnset($key)// : void
+	public function offsetUnset($key) : void
 	{
 		if( in_array($key,self::KEYS) && isset($this->_data[$key]) ) unset($this->_data[$key]);
 	}

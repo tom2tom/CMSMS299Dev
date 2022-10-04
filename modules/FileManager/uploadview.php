@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use FileManager\Utils;
 
 // UPSTREAM
-//if (!isset($gCms)) exit;
+//if (empty($gCms)) exit;
 //if (!$this->CheckPermission('Modify Files')) exit;
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('uploadview.tpl')); // ,null,null,$smarty);

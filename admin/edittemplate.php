@@ -293,7 +293,7 @@ try {
 //TODO alse entitize embedded smarty tags {php}...{/php} whatever left/right boundaries
 		$matches = [];
 		$content = preg_replace_callback('~<\s*(/?)\s*(textarea)\s*>~i', function($matches) {
-			$pre = ($matches[1]) ? '&sol;' : ''; // ?? OR &#47;
+			$pre = ($matches[1]) ? '&sol;' : ''; // OR &#47;
 			return '&lt;'.$pre.$matches[2].'&gt;';
 		}, $tmp);
 	} else {
@@ -331,7 +331,7 @@ try {
 			default:
 				$matches = [];
 				$props[$key] = preg_replace_callback('~<\s*(/?)\s*(textarea)\s*>~i', function($matches) {
-					$pre = ($matches[1]) ? '&sol;' : ''; // ?? OR &#47;
+					$pre = ($matches[1]) ? '&sol;' : ''; // OR &#47;
 					return '&lt;'.$pre.$matches[2].'&gt;';
 				}, $props[$key]);
 		}
@@ -386,7 +386,7 @@ try {
 		if ($usernames) {
 // TODO why omit super-admin here? If template owner is that user, this would unset that user as owner
 //          unset($usernames[1]);
-            $smarty->assign('user_list', $usernames); // no speciaize() etc ??
+            $smarty->assign('user_list', $usernames); // no speciaize() etc ?
         }
 
         $usernames = [];
@@ -421,8 +421,8 @@ try {
 	if ($do_locking) {
 		add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 	}
-	$s1 = json_encode(_ld('layout', 'error_lock'));
-	$s2 = json_encode(_ld('layout', 'msg_lostlock'));
+	$s1 = addcslashes(_ld('layout', 'error_lock'), "'");
+	$s2 = addcslashes(_ld('layout', 'msg_lostlock'), "'");
 	$cancel = _la('cancel');
 
 	$js = $pageincs['foot'] ?? '';
@@ -440,7 +440,7 @@ $(function() {
       lock_timeout: $lock_timeout,
       lock_refresh: $lock_refresh,
       error_handler: function(err) {
-        cms_alert($s1 + ' ' + err.type + ' // ' + err.msg);
+        cms_alert('{$s1} ' + err.type + ' // ' + err.msg);
       },
       lostlock_handler: function(err) {
        // we lost the lock on this template... make sure we can't save anything.
@@ -449,7 +449,7 @@ $(function() {
         $('#form_edittemplate').dirtyForm('option', 'dirty', false);
         cms_button_able($('#submitbtn, #applybtn'), false);
         $('.lock-warning').removeClass('hidden-item');
-        cms_alert($s2);
+        cms_alert('$s2');
       }
     });
   }

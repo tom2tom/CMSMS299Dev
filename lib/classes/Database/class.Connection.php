@@ -350,8 +350,7 @@ final class Connection
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    public function __isset(string $key)// : bool
+    public function __isset(string $key) : bool
     {
         switch ($key) {
          case 'database':
@@ -369,8 +368,7 @@ final class Connection
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    public function __set(string $key, $value)// : void
+    public function __set(string $key, $value) : void
     {
         switch ($key) {
          case '_in_smart_transaction':

@@ -1325,7 +1325,7 @@ abstract class AdminTheme
                             $alt = str_replace('avif','png',$path);
                             $out = <<<EOS
 <picture>
- <source srcset="$path" type="image/avif" />
+ <source srcset="$path" type="image/avif">
  <img src="$alt"
 EOS;
                         } else {
@@ -1338,9 +1338,9 @@ EOS;
                             }
                         }
                         if (endswith($path, '.avif')) {
-                            $out .= " />\n</picture>";
+                            $out .= ">\n</picture>";
                         } elseif (!endswith($path, '.i')) {
-                            $out .= ' />';
+                            $out .= '>';
                         } else {
                             $out .= '></i>';
                         }
@@ -1504,7 +1504,7 @@ EOS;
             $alt = str_replace('avif','png',$path);
             $res = <<<EOS
 <picture>
- <source srcset="$path" type="image/avif" />
+ <source srcset="$path" type="image/avif">
  <img src="$alt"
 EOS;
             break;
@@ -1525,9 +1525,9 @@ EOS;
         }
 
         if ($type == 'avif') {
-            $res .= " />\n</picture>";
+            $res .= ">\n</picture>";
         } elseif ($type != 'i') {
-            $res .= ' />';
+            $res .= '>';
         } else {
             $res .= '></i>';
         }
@@ -2147,14 +2147,14 @@ EOS;
 
         if (AppParams::get('site_downnow')) {
             $smarty->assign('sitedown', 1);
-            $str = json_encode(lang('maintenance_warning'));
+            $msg = addcslashes(lang('maintenance_warning'), "'");
             add_page_foottext(<<<EOS
 <script type="text/javascript">
 //<![CDATA[
 $(function() {
  $('#logoutitem').on('click', function(e) {
   e.preventDefault();
-  cms_confirm_linkclick(this, $str);
+  cms_confirm_linkclick(this, '$msg');
   return false;
  });
 });

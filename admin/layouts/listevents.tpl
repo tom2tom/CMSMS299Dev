@@ -1,7 +1,7 @@
 {if $events}
 <h4>{_la('filterbymodule')}</h4>
 <form action="{$selfurl}" enctype="multipart/form-data" method="post">
-  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
   <div class="oneliner cf">
   <select name="senderfilter">
@@ -12,7 +12,7 @@
   <button type="submit" name="submit" class="adminsubmit icon apply">{_la('apply')}</button>
   </div>
 </form>
-<br />
+<br>
 <table class="pagetable">
   <thead>
     <tr>

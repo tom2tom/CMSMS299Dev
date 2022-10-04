@@ -49,7 +49,7 @@ function smarty_function_metadata($params, $template)
 
 	if( $showbase ) {
 		$base = ( is_secure_request() ) ? $config['ssl_url'] : CMS_ROOT_URL;
-		$result .= "\n<base href=\"".$base."/\" />\n";
+		$result .= "\n<base href=\"".$base."/\">\n";
 	}
 
 	$result .= AppParams::get('metadata', '');

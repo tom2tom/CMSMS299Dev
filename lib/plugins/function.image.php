@@ -39,7 +39,7 @@ case 'addtext':
 */
 	if( !empty($params['src'] ) ) {
 		$imgstart = '<img src=';
-		$imgend = ' />';
+		$imgend = '>';
 		$config = Lone::get('Config');
 		$text = $imgstart .= '"'.$config['image_uploads_url'].'/'.strtr($params['src'], '\\', '/').'"';
 		$size = @getimagesize($config['image_uploads_path'].DIRECTORY_SEPARATOR.strtr($params['src'], '\/', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR));

@@ -88,7 +88,7 @@ function smarty_function_dump($params, $template)
 			$tmp2 = '$obj =& '.$str.';';
 			eval($tmp2);
 //			$type = gettype($obj);
-			if( $count > 4 ) { $str .= print_r( $obj,TRUE )."\n".'<hr />'; }
+			if( $count > 4 ) { $str .= print_r( $obj,TRUE )."\n".'<hr>'; }
 		}
 		else {
 			$done = true;
@@ -97,7 +97,7 @@ function smarty_function_dump($params, $template)
 
 	$parenttype = gettype($obj);
 	$str .= PHP_EOL.'<pre><strong>Dump of: $'.$item;
-	$str .= '</strong> ('.ucwords($parenttype).')<br />'.PHP_EOL;
+	$str .= '</strong> ('.ucwords($parenttype).')<br>'.PHP_EOL;
 
 	if( is_object($obj) ) {
 		$str .= dump_object($params, $obj, 0, $ignore, $item);
@@ -106,7 +106,7 @@ function smarty_function_dump($params, $template)
 		$str .= dump_array($params, $obj, 0, $ignore, $item);
 	}
 	else {
-		$str .= $obj.'<br />';
+		$str .= $obj.'<br>';
 	}
 	$str .= '</pre>';
 	if( !empty($params['assign']) ) {
@@ -169,15 +169,15 @@ function dump_object($params, &$obj, $level = 1, $ignore = [], $accessor)
 	if( $level > $maxlevel ) return '';
 
 	$objname = get_class($obj);
-	$str = str_repeat('  ',$level).'Object Name: '.$objname.'<br />';
-	$str .= str_repeat('  ',$level).'Parent: '.get_parent_class($obj).'<br />';
+	$str = str_repeat('  ',$level).'Object Name: '.$objname.'<br>';
+	$str .= str_repeat('  ',$level).'Parent: '.get_parent_class($obj).'<br>';
 
 	if( !isset($params['nomethods']) ) {
 		$methods = get_class_methods($objname);
 		if( $methods ) {
-			$str .= str_repeat('  ',$level).'Methods: <br />';
+			$str .= str_repeat('  ',$level).'Methods: <br>';
 			foreach( $methods as $one )	{
-				$str .= str_repeat('  ',$level).'- '.$one.'<br />';
+				$str .= str_repeat('  ',$level).'- '.$one.'<br>';
 			}
 		}
 	}
@@ -186,7 +186,7 @@ function dump_object($params, &$obj, $level = 1, $ignore = [], $accessor)
 		$ref = new ReflectionObject($obj);
 		$vars = $ref->getProperties();
 		if( $vars ) {
-			$str .= str_repeat('  ',$level).'Properties: <br />';
+			$str .= str_repeat('  ',$level).'Properties: <br>';
 			foreach( $vars as $prop ) {
 				$name = $prop->getName();
 				if( in_array($name,$ignore) ) continue;
@@ -195,18 +195,18 @@ function dump_object($params, &$obj, $level = 1, $ignore = [], $accessor)
 				$value = $prop->getValue($obj);
 				$type = gettype($value);
 				if( $type == 'object' )	{
-					$str .= str_repeat('  ',$level).'- '.'<u>'.$name.': Object</u> <em>{$'.$acc.'}</em><br />';
+					$str .= str_repeat('  ',$level).'- '.'<u>'.$name.': Object</u> <em>{$'.$acc.'}</em><br>';
 					if( isset($params['recurse']) )	$str .= dump_object($params,$value,$level+1,$ignore,$acc);
 				}
 				elseif( $type == 'array' ) {
-					$str .= str_repeat('  ',$level).'- '.'<u>'.$name.': Array ('.count($value).')</u> <em>{$'.$acc.'}</em><br />';
+					$str .= str_repeat('  ',$level).'- '.'<u>'.$name.': Array ('.count($value).')</u> <em>{$'.$acc.'}</em><br>';
 					if( isset($params['recurse']) )	$str .= dump_array($params,$value,$level+1,$ignore,$acc);
 				}
 				elseif( $type == 'NULL' ) {
-					$str .= str_repeat('  ',$level).'- '.$name.': NULL <em>{$'.$acc.'}</em><br />';
+					$str .= str_repeat('  ',$level).'- '.$name.': NULL <em>{$'.$acc.'}</em><br>';
 				}
 				else {
-					$str .= str_repeat('  ',$level).'- '.$name.' = '. specialize($value).' <em>{$'.$acc.'}</em><br />';
+					$str .= str_repeat('  ',$level).'- '.$name.' = '. specialize($value).' <em>{$'.$acc.'}</em><br>';
 				}
 			}
 		}
@@ -228,18 +228,18 @@ function dump_array($params, &$data, $level = 1, $ignore = [], $accessor)
 		$acc = build_accessor($accessor,'array',$key);
 		$type = gettype($value);
 		if( is_object($value) )	{
-			$str .= str_repeat('  ',$level).'- <u>'.$key.' = Object</u> <em>{$'.$acc.'}</em><br />';
+			$str .= str_repeat('  ',$level).'- <u>'.$key.' = Object</u> <em>{$'.$acc.'}</em><br>';
 			if( isset($params['recurse']) )	$str .= dump_object($params,$value,$level+1,$ignore,$acc);
 		}
 		elseif( is_array($value) )	{
-			$str .= str_repeat('  ',$level)."- <u>$key = Array (".count($value).')</u> <em>{$'.$acc.'}</em><br />';
+			$str .= str_repeat('  ',$level)."- <u>$key = Array (".count($value).')</u> <em>{$'.$acc.'}</em><br>';
 			if( isset($params['recurse']) )	$str .= dump_array($params,$value,$level+1,$ignore,$acc);
 		}
 		elseif( $type == 'NULL' ) {
-			$str .= str_repeat('  ',$level).'- '.$name.': NULL <em>{$'.$acc.'\}</em><br />';
+			$str .= str_repeat('  ',$level).'- '.$name.': NULL <em>{$'.$acc.'\}</em><br>';
 		}
 		else {
-			$str .= str_repeat('  ',$level)."- $key = ". specialize($value).' {$'.$acc.'}<br />';
+			$str .= str_repeat('  ',$level)."- $key = ". specialize($value).' {$'.$acc.'}<br>';
 		}
 	}
 	return $str;

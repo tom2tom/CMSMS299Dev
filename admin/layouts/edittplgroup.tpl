@@ -5,12 +5,12 @@
 {/if}
 
 <form id="edit_tplgroup" action="{$selfurl}" enctype="multipart/form-data" method="post">
-{foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />{/foreach}
+{foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">{/foreach}
 <div class="pageoverflow">
   {$t=_ld('layout','prompt_name')}<label class="pagetext" for="grp_name">* {$t}:</label>
   {cms_help 0='layout' key='help_group_name' title=$t}
   <div class="pageinput">
-    <input type="text" id="grp_name" name="name" value="{$group.name}" size="40" maxlength="64" placeholder="{_ld('layout','enter_name')}" />
+    <input type="text" id="grp_name" name="name" value="{$group.name}" size="40" maxlength="64" placeholder="{_ld('layout','enter_name')}">
   </div>
 </div>
 <div class="pageoverflow">

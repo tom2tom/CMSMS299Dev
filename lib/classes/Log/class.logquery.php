@@ -32,8 +32,7 @@ class logquery
         $this->_realquery = new dbquery($filter); // TODO relevant store c.f. logger->_store
     }
 
-    #[\ReturnTypeWillChange]
-    public function __set(string $key, $value)// : void
+    public function __set(string $key, $value) : void
     {
         $this->_realquery->$key = $value;
     }

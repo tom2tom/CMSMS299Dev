@@ -134,7 +134,7 @@ class Link extends ContentBase
 			return [
 			'for="pageurl">'.$this->mod->Lang('url'),
 			'',
-			'<input type="text" id="pageurl" name="m1_url" size="50" maxlength="255" value="'.$u.'" />'
+			'<input type="text" id="pageurl" name="m1_url" size="50" maxlength="255" value="'.$u.'">'
 			];
 
 		default:

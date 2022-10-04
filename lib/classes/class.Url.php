@@ -408,8 +408,7 @@ class Url
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    public function __toString()// : string
+    public function __toString() : string
     {
         $this->_clean_parts();
         // build the query array back into a string.

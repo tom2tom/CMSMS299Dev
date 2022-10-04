@@ -1,7 +1,7 @@
 <h3>{_ld('layout','prompt_edit_type')}</h3>
 
 <form id="form_edittype" action="{$selfurl}" enctype="multipart/form-data" method="post">
-{foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
 <fieldset>
   <div style="width: 49%; float: left;">{* left container *}
@@ -51,7 +51,7 @@
   <div style="clear: both;"></div>
 </fieldset>{* container *}
 
-<input type="hidden" name="type" value="{$type->get_id()}" />
+<input type="hidden" name="type" value="{$type->get_id()}">
 
 {if $type->get_content_callback()}
 {tab_header name='description' label=_ld('layout','prompt_description')}

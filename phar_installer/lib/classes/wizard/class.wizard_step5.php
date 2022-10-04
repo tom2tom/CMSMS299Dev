@@ -115,7 +115,7 @@ class wizard_step5 extends wizard_step
         } catch (Throwable $t) {
             $s = $this->forge_url;
             if ($s) {
-                $s = '<br />'.lang('error_notify', $s);
+                $s = '<br>'.lang('error_notify', $s);
             }
             $smarty = smarty();
             $smarty->assign('error', $t->GetMessage().$s);

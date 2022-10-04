@@ -13,7 +13,7 @@
    {else}
     {$hit.title}
    {/if}
-   <br />{$hit.text}{* might be newline-spararated multi-matches *}
+   <br>{$hit.text}{* might be newline-spararated multi-matches *}
    </li>
    {/foreach}
   </ul>

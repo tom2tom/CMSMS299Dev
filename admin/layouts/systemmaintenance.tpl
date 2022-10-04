@@ -12,12 +12,12 @@
   {/if}
   {if $invalidtypescount > 0}
   <form action="{$selfurl}" enctype="multipart/form-data" method="post" onsubmit="confirmsubmit(this,'{_la("sysmain_confirmfixtypes")|escape:"javascript"}');return false;">
-    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
     <div class="pageoverflow">
       <p class="pagetext">{_la('sysmain_pagesinvalidtypes',{$invalidtypescount})}:</p>
       <p class="pageinput">
-        {foreach $pageswithinvalidtype as $page} {$page.content_name} <em>({$page.content_alias}) - {$page.type}</em><br />{/foreach}
+        {foreach $pageswithinvalidtype as $page} {$page.content_name} <em>({$page.content_alias}) - {$page.type}</em><br>{/foreach}
         <button type="submit" name="fixtypes" class="pregap adminsubmit icon do">{_la('sysmain_fixtypes')}</button>
       </p>
     </div>
@@ -25,12 +25,12 @@
   {/if}
   {if $withoutaliascount > 0}
   <form action="{$selfurl}" enctype="multipart/form-data" method="post" onsubmit="confirmsubmit(this,'{_la("sysmain_confirmfixaliases")|escape:"javascript"}');return false;">
-    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
     <div class="pageoverflow">
       <p class="pagetext">{_la('sysmain_pagesmissinalias',{$withoutaliascount})}:</p>
       <p class="pageinput">
-        {foreach $pagesmissingalias as $page} {$page}<br /> {/foreach}
+        {foreach $pagesmissingalias as $page} {$page}<br> {/foreach}
         <button type="submit" name="addaliases" class="pregap adminsubmit icon do">{_la('sysmain_fixaliases')}</button>
       </p>
     </div>
@@ -38,7 +38,7 @@
   {/if}
 
   <form action="{$selfurl}" enctype="multipart/form-data" method="post" onsubmit="confirmsubmit(this,'{_la("sysmain_confirmupdatehierarchy")|escape:"javascript"}');return false;">
-    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
     <div class="pageoverflow">
       <p class="pageinput pregap">
@@ -47,7 +47,7 @@
     </div>
   </form>
   <form action="{$selfurl}" enctype="multipart/form-data" method="post" onsubmit="confirmsubmit(this,'{_la("sysmain_confirmupdateroutes")|escape:"javascript"}');return false;">
-    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
     <div class="pageoverflow">
       <p class="pageinput pregap">
@@ -58,7 +58,7 @@
 
 {if !empty($export)}
   <form action="{$selfurl}" enctype="multipart/form-data" method="post">
-    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
   <p class="pageinput pregap">
     <button type="submit" name="export" class="adminsubmit icon do" title="{_la('exportsite_tip')}">{_la('exportsite')}</button>
@@ -68,7 +68,7 @@
 
 {tab_start name='database'}
 <form action="{$selfurl}" enctype="multipart/form-data" method="post">
-    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
     <p>{_la('sysmain_tablesfound',$tablecount,$nonseqcount)}</p>
     {if $errorcount==0}
@@ -76,8 +76,8 @@
     {else}
     <p class="red"><strong>
       {if $errorcount>1}
-        {_la('sysmain_str_errors',{$errorcount})}:<br />
-        {foreach $errortables as $val}{$val}{if $val@last}<br />{else},<br />{/if}
+        {_la('sysmain_str_errors',{$errorcount})}:<br>
+        {foreach $errortables as $val}{$val}{if $val@last}<br>{else},<br>{/if}
 {/foreach}
       {else}
         {_la('sysmain_str_error',{$errorcount})}: {$errortables}
@@ -100,7 +100,7 @@
 {tab_start name='cache'}
   {if isset($cachetype)}{_la('sysmain_cache_type',{$cachetype})}{/if}
   <form action="{$selfurl}" enctype="multipart/form-data" method="post">
-    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
     <div class="pageoverflow">
       <p class="pageinput pregap">

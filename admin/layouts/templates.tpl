@@ -2,36 +2,36 @@
 {function tpl_info}
 {strip}{if $template->locked()}
   {$lock=$template->get_lock()}
-  {if $template->lock_expired()}<span style='font-weight:bold;color:red;'>{_ld('layout','msg_steal_lock')}</span><br />{/if}
-  <strong>{_ld('layout','prompt_lockedby')}:</strong> {cms_admin_user uid=$lock.uid}<br />
-  <strong>{_ld('layout','prompt_lockedsince')}:</strong> {$lock.create_date|cms_date_format:'timed'}<br />
+  {if $template->lock_expired()}<span style='font-weight:bold;color:red;'>{_ld('layout','msg_steal_lock')}</span><br>{/if}
+  <strong>{_ld('layout','prompt_lockedby')}:</strong> {cms_admin_user uid=$lock.uid}<br>
+  <strong>{_ld('layout','prompt_lockedsince')}:</strong> {$lock.create_date|cms_date_format:'timed'}<br>
   {if $lock.expires < $smarty.now}
     <strong>{_ld('layout','prompt_lockexpired')}:</strong> <span style='color:red;'>{$lock.expires|relative_time}</span>
   {else}
     <strong>{_ld('layout','prompt_lockexpires')}:</strong> {$lock.expires|relative_time}
   {/if}
 {else}
-  <strong>{_ld('layout','prompt_owner')}:</strong> {cms_admin_user uid=$template->get_owner_id()}<br />
+  <strong>{_ld('layout','prompt_owner')}:</strong> {cms_admin_user uid=$template->get_owner_id()}<br>
   {$tmp=$template->get_created()}
   <strong>{_ld('layout','prompt_created')}:</strong> {$tmp|cms_date_format:'timed'}
-  {$t2=$template->get_modified()}{if $t2 && ($t2!=$tmp)}<br />
+  {$t2=$template->get_modified()}{if $t2 && ($t2!=$tmp)}<br>
   <strong>{_ld('layout','prompt_modified')}:</strong> {$t2|cms_date_format:'timed'}
   {/if}
-  {$tmp=$template->get_description()}{if $tmp}<br />
+  {$tmp=$template->get_description()}{if $tmp}<br>
 <strong>{_ld('layout','prompt_description')}:</strong> {$tmp|strip_tags|cms_escape|summarize}{/if}
 {/if}{/strip}
 {/function}
 
 {function type_info}
 {strip}{$tpltype=$list_all_types.$type_id}
-<strong>{_ld('layout','prompt_type')}:</strong> {$type_id}<br />
+<strong>{_ld('layout','prompt_type')}:</strong> {$type_id}<br>
 {$tmp=$tpltype->get_description()}{if $tmp}
  <strong>{_ld('layout','prompt_description')}:</strong> {$tmp|summarize}
 {/if}{/strip}
 {/function}
 
 <form action="{$bulkurl}" enctype="multipart/form-data" method="post">
-  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
   <table class="pagetable" id="tpllist">
    <thead>
@@ -48,7 +48,7 @@
      <th class="pageicon nosort"></th>{ * delete * }
 *}
      <th class="pageicon nosort" title="{_ld('layout','title_menu')}"></th>{* locks/actions-menu *}
-     <th class="pageicon nosort"><input type="checkbox" id="tpl_selall" title="{_ld('layout','title_select_all')}" value="1" /></th>{* checkbox *}{/strip}
+     <th class="pageicon nosort"><input type="checkbox" id="tpl_selall" title="{_ld('layout','title_select_all')}" value="1"></th>{* checkbox *}{/strip}
     </tr>
    </thead>
    <tbody>
@@ -98,7 +98,7 @@
     {* checkbox column *}
     <td>
     {if $ul && ($manage_templates || $template->get_owner_id() == $curuser)}
-    <input type="checkbox" class="tpl_select action" name="tpl_select[]" value="{$tid}" title="{_ld('layout','title_tpl_bulk')}" />
+    <input type="checkbox" class="tpl_select action" name="tpl_select[]" value="{$tid}" title="{_ld('layout','title_tpl_bulk')}">
     {/if}
     </td>{/strip}
     </tr>

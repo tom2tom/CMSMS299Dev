@@ -9,10 +9,10 @@
 <div class="pageoverflow">
   <p class="pagetext">{_ld($_module,'deleteselected')}:</p>
   <p class="pageinput">
-    {'<br />'|implode:$sel}
+    {'<br>'|implode:$sel}
   </p>
 </div>
-<br />
+<br>
 <div class="pageoverflow">
   <p class="pageinput">
     {if !isset($errors)}

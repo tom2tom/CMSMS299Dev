@@ -27,7 +27,7 @@ function smarty_function_breadcrumbs($params, $template)
 	// put mention into the admin log
 	log_error('Plugin is non-functional','{breadcrumbs}');
 	return '<span style="font-weight:bold;color:#f00;">
-ERROR:<br />The &#123;breadcrumbs&#125; plugin is non-functional.
+ERROR:<br>The &#123;breadcrumbs&#125; plugin is non-functional.
 </span>';
 }
 /*

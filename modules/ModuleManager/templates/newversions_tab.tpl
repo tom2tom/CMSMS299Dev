@@ -37,7 +37,7 @@
     <td>{get_module_status_icon status=$entry->age}</td>
     <td>
      {if $entry->description}<span title="{$entry->description|cms_escape}">{/if}{$entry->name}{if $entry->description}</span>{/if}
-     {if $entry->error}<br /><span style="color:red;">{$entry->error}</span>{/if}
+     {if $entry->error}<br><span style="color:red;">{$entry->error}</span>{/if}
     </td>
     <td>{$entry->version|default:''}</td>
     <td>{$entry->date|cms_date_format}</td>

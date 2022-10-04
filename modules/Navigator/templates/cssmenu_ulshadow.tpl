@@ -56,7 +56,7 @@ CSS:
         {/if}
       </li>
     {elseif $type == 'separator'}
-      <li class="separator{if $liclass} {$liclass}{/if}"><hr class="separator" /></li>
+      <li class="separator{if $liclass} {$liclass}{/if}"><hr class="separator"></li>
     {else}{* regular item *}
       <li{if $liclass} class="{$liclass}"{/if}>
         {$t=$node->target}

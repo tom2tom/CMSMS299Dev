@@ -5,12 +5,12 @@
 <div class="pageoverflow">
   <p class="pagetext">{_ld($_module,'image')}: {$filename}</p>
   <div class="pageinput">
-    <img id="rotimg" src="{$image}" width="{$width}" height="{$height}" />
+    <img id="rotimg" src="{$image}" width="{$width}" height="{$height}">
   </div>
 </div>
 <div class="pageoverflow">
   <label class="pagetext">{_ld($_module,'angle')}:</label>
-  <input type="text" readonly="readonly" id="angletxt" name="{$actionid}angle" value="0" />{* WHAT ?? *}
+  <input type="text" readonly="readonly" id="angletxt" name="{$actionid}angle" value="0">{* WHAT ?? *}
   <div class="pageinput">{_ld($_module,'predefined')}:
     <button class="autorotate" id="neg180" title="{_ld($_module,'rotate_neg180')}">-180</button>
     <button class="autorotate" id="neg135" title="{_ld($_module,'rotate_neg135')}">-135</button>
@@ -35,9 +35,9 @@
 </div>
 <div class="pageoverflow">
   <label class="pagetext" for="createthumb">{_ld($_module,'createthumbnail')}:</label>
-  <input type="hidden" name="{$actionid}createthumb" value="0" />
+  <input type="hidden" name="{$actionid}createthumb" value="0">
   <div class="pageinput">
-    <input type="checkbox" name="{$actionid}createthumb" id="createthumb" value="1"{if $createthumb} checked="checked"{/if} />
+    <input type="checkbox" name="{$actionid}createthumb" id="createthumb" value="1"{if $createthumb} checked{/if}>
   </div>
 </div>
 <div class="pregap pageinput">

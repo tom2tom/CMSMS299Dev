@@ -1,5 +1,5 @@
 {capture assign='disable'}
-  {if $css.lock && ($css.lock.uid != $userid)}disabled="disabled"{/if}
+  {if $css.lock && ($css.lock.uid != $userid)}disabled{/if}
 {/capture}
 {*
 {if $css.id > 0}
@@ -13,7 +13,7 @@
 {/if}
 
 <form id="form_editcss" action="{$selfurl}" enctype="multipart/form-data" method="post">
-{foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />{/foreach}
+{foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">{/foreach}
 <fieldset>
 <div class="rowbox flow">
  <div class="boxchild">
@@ -28,7 +28,7 @@
     {$t=_ld('layout','prompt_name')}<label class="pagetext" for="css_name">*{$t}:</label>
     {cms_help 0='layout' key='help_stylesheet_name' title=$t}
     <div class="pageinput">
-      <input id="css_name" type="text" name="name" size="40" maxlength="64" value="{$css.name}" placeholder="{_ld('layout','enter_name')}" />
+      <input id="css_name" type="text" name="name" size="40" maxlength="64" value="{$css.name}" placeholder="{_ld('layout','enter_name')}">
     </div>
   </div>
  </div>{* boxchild *}
@@ -102,11 +102,11 @@
   <p class="pageinput media-type">
   {foreach $all_types as $type}{strip}
     <input id="media_type_{$type}" type="checkbox" name="media_type[]" value="{$type}"
-     {if !empty($css.types[$type])} checked="checked"{/if} />
+     {if !empty($css.types[$type])} checked{/if}>
     &nbsp;
     {$tmp='media_type_'|cat:$type}
       <label class="pagetext" for="media_type_{$type}">{_ld('layout',$tmp)}</label>
-      {if !$type@last}<br />{/if}
+      {if !$type@last}<br>{/if}
   {/strip}{/foreach}
   </p>
 </div>

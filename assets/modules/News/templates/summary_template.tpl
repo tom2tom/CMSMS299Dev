@@ -86,7 +86,7 @@
 
 {if !empty($entry->image_url)}
   <div class="NewsSummaryField">{* deprecated residual from earlier version *}
-    <img id="NewsSummaryImage" src="{$entry->image_url}" alt="{$entry->image_alt|default:''}" />
+    <img id="NewsSummaryImage" src="{$entry->image_url}" alt="{$entry->image_alt|default:''}">
   </div>
 {/if}
 </div>

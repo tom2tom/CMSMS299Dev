@@ -57,7 +57,7 @@
       </tr>
     </tbody>
   </table>
-  <br />
+  <br>
   <table class="bordered-table installer-test-information">
     <thead class="tbhead">
       <tr>
@@ -73,7 +73,7 @@
           {if $test->name_key}{$test->name_key|tr}{else}{$test->name}{/if}
           {$str = $test->msg()}
           {if $str && ($verbose || $test->status != 'test_pass')}
-            <br />
+            <br>
             <span class="tests-infotext">{$str}</span>
           {/if}
         </td>

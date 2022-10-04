@@ -115,7 +115,7 @@ function get_remote_data($url, $post_paramtrs=false, $curl_opts=[])
 	}
 	// if not redirected, and not "status 200" page, then error..
 	elseif ( $status['http_code'] != 200 ) {
-		$data = "ERRORCODE22 with $url<br/><br/>Last status codes:".json_encode($status)."<br/><br/>Last data got:$data";
+		$data = "ERRORCODE22 with $url<br><br>Last status codes:".json_encode($status)."<br><br>Last data got:$data";
 	}
 	//URLS correction
 	$answer = (!empty($extra['return_array']) ? array('data'=>$data, 'header'=>$header, 'info'=>$status) : $data);

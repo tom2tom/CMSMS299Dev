@@ -345,9 +345,9 @@ try {
     $url2 = cms_get_css('basictable.css');
     $url3 = cms_get_css('browsefiles.css');
     $headinc = <<<EOS
-<link rel="stylesheet" href="$url" /> if ($frontend)
-<link rel="stylesheet" href="$url2" />
-<link rel="stylesheet" href="$url3" />
+<link rel="stylesheet" href="$url"> if ($frontend)
+<link rel="stylesheet" href="$url2">
+<link rel="stylesheet" href="$url3">
 
 EOS;
 

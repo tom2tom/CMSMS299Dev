@@ -140,21 +140,21 @@ function smarty_function_form_start($params, $template)
 	$out .= '>'."\n".'<div class="hidden">';
 	if( $mactparms['module'] && $mactparms['action'] ) {
 		$mact = $mactparms['module'].','.$mactparms['mid'].','.$mactparms['action'].','.(int)$mactparms['inline'];
-		$out .= '<input type="hidden" name="mact" value="'.$mact.'" />';
+		$out .= '<input type="hidden" name="mact" value="'.$mact.'">';
 		if( $mactparms['returnid'] ) {
-			$out .= '<input type="hidden" name="'.$mactparms['mid'].'returnid" value="'.$mactparms['returnid'].'" />';
+			$out .= '<input type="hidden" name="'.$mactparms['mid'].'returnid" value="'.$mactparms['returnid'].'">';
 		}
 	}
 	if( !is_frontend_request() ) {
 		if( !isset($mactparms['returnid']) || $mactparms['returnid'] == '' ) {
 			if( isset( $_SESSION[CMS_USER_KEY] ) ) {
-				$out .= '<input type="hidden" name="'.CMS_SECURE_PARAM_NAME.'" value="'.$_SESSION[CMS_USER_KEY].'" />';
+				$out .= '<input type="hidden" name="'.CMS_SECURE_PARAM_NAME.'" value="'.$_SESSION[CMS_USER_KEY].'">';
 			}
 		}
 	}
 	foreach( $parms as $key => $value ) {
 		if( !in_array($key, ['module','mid','returnid','inline',]) ) {
-			$out .= '<input type="hidden" name="'.$mactparms['mid'].$key.'" value="'.$value.'" />'."\n";
+			$out .= '<input type="hidden" name="'.$mactparms['mid'].$key.'" value="'.$value.'">'."\n";
 		}
 	}
 	$out .= '</div>'."\n";

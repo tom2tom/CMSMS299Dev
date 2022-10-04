@@ -707,14 +707,14 @@ abstract class ContentBase implements IContentEditor, Serializable
 			return [
 			'for="in_title">* '.$this->mod->Lang('title'),
 			AdminUtils::get_help_tag($this->domain, 'help_content_title', $this->mod->Lang('help_title_content_title')),
-			'<input type="text" id="in_title" name="'.$id.'title" required="required" value="'. specialize($this->mName).'" />'
+			'<input type="text" id="in_title" name="'.$id.'title" required value="'. specialize($this->mName).'">'
 			];
 
 		case 'menutext':
 			return [
 			'for="in_menutext">'.$this->mod->Lang('menutext'),
 			AdminUtils::get_help_tag($this->domain, 'help_content_menutext', $this->mod->Lang('help_title_content_menutext')),
-			'<input type="text" id="in_menutext" name="'.$id.'menutext" value="'. specialize($this->mMenuText).'" />'
+			'<input type="text" id="in_menutext" name="'.$id.'menutext" value="'. specialize($this->mMenuText).'">'
 			];
 
 		case 'parent':
@@ -722,7 +722,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 			if (!($input || check_permission(get_userid(), 'Manage All Content'))) {
 				return [
 				'', '',
-				'<input type="hidden" name="'.$id.'parent_id" value="'.$this->mParentId.'" />'
+				'<input type="hidden" name="'.$id.'parent_id" value="'.$this->mParentId.'">'
 				];
 			}
 			if ($input) {
@@ -738,7 +738,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 				return [
 				'for="id_active">'.$this->mod->Lang('active'),
 				AdminUtils::get_help_tag($this->domain, 'help_content_active', $this->mod->Lang('help_title_content_active')),
-				'<input type="hidden" name="'.$id.'active" value="0" /><input type="checkbox" id="id_active" class="pagecheckbox" name="'.$id.'active" value="1"'.($this->mActive ? ' checked="checked"' : '').' />'
+				'<input type="hidden" name="'.$id.'active" value="0"><input type="checkbox" id="id_active" class="pagecheckbox" name="'.$id.'active" value="1"'.($this->mActive ? ' checked' : '').'>'
 				];
 			}
 			break;
@@ -747,7 +747,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 			return [
 			'for="showinmenu">'.$this->mod->Lang('showinmenu'),
 			AdminUtils::get_help_tag($this->domain, 'help_content_showinmenu', $this->mod->Lang('help_title_content_showinmenu')),
-			'<input type="hidden" name="'.$id.'showinmenu" value="0" /><input type="checkbox" id="showinmenu" class="pagecheckbox" value="1" name="'.$id.'showinmenu"'.($this->mShowInMenu ? ' checked="checked"' : '').' />'
+			'<input type="hidden" name="'.$id.'showinmenu" value="0"><input type="checkbox" id="showinmenu" class="pagecheckbox" value="1" name="'.$id.'showinmenu"'.($this->mShowInMenu ? ' checked' : '').'>'
 			];
 
 		case 'target':
@@ -781,21 +781,21 @@ abstract class ContentBase implements IContentEditor, Serializable
 			return [
 			'for="alias">'.$this->mod->Lang('pagealias'),
 			AdminUtils::get_help_tag($this->domain, 'help_page_alias', $this->mod->Lang('help_title_page_alias')),
-			'<input type="text" id="alias" name="'.$id.'alias" value="'.$this->mAlias.'" />'
+			'<input type="text" id="alias" name="'.$id.'alias" value="'.$this->mAlias.'">'
 			];
 
 		case 'cachable':
 			return [
 			'for="in_cachable">'.$this->mod->Lang('cachable'),
 			AdminUtils::get_help_tag($this->domain, 'help_content_cachable', $this->mod->Lang('help_title_content_cachable')),
-			'<input type="hidden" name="'.$id.'cachable" value="0" /><input type="checkbox" id="in_cachable" class="pagecheckbox" value="1" name="'.$id.'cachable"'.($this->mCachable ? ' checked="checked"' : '').' />'
+			'<input type="hidden" name="'.$id.'cachable" value="0"><input type="checkbox" id="in_cachable" class="pagecheckbox" value="1" name="'.$id.'cachable"'.($this->mCachable ? ' checked' : '').'>'
 			];
 
 		case 'secure': //deprecated since CMSMS3
 			return [
 			'for="secure">'.$this->mod->Lang('secure_page'),
 			AdminUtils::get_help_tag($this->domain, 'help_content_secure', $this->mod->Lang('help_title_content_secure')),
-			'<input type="hidden" name="'.$id.'secure" value="0"/><input type="checkbox" id="secure" class="pagecheckbox" value="1" name="'.$id.'secure"'.($this->mSecure ? ' checked="checked"' : '').' />'];
+			'<input type="hidden" name="'.$id.'secure" value="0"><input type="checkbox" id="secure" class="pagecheckbox" value="1" name="'.$id.'secure"'.($this->mSecure ? ' checked' : '').'>'];
 
 		case 'page_url':
 			if (!$this->DefaultContent()) {
@@ -806,7 +806,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 					return [
 					$marker.'for="page_url">'.$this->mod->Lang('page_url'),
 					AdminUtils::get_help_tag($this->domain, 'help_page_url', $this->mod->Lang('help_title_page_url')),
-					'<input type="text" id="page_url" name="'.$id.'page_url" size="50" maxlength="255" value="'.$this->mURL.'" />'
+					'<input type="text" id="page_url" name="'.$id.'page_url" size="50" maxlength="255" value="'.$this->mURL.'">'
 					];
 				}
 			}
@@ -901,42 +901,42 @@ abstract class ContentBase implements IContentEditor, Serializable
 			return [
 			'for="titleattribute">'.$this->mod->Lang('titleattribute'),
 			AdminUtils::get_help_tag($this->domain, 'help_content_titleattribute', $this->mod->Lang('help_title_content_titleattribute')),
-			'<input type="text" id="titleattribute" name="'.$id.'titleattribute" size="80" maxlength="255" value="'.specialize($this->mTitleAttribute).'" />'
+			'<input type="text" id="titleattribute" name="'.$id.'titleattribute" size="80" maxlength="255" value="'.specialize($this->mTitleAttribute).'">'
 			];
 
 		case 'accesskey':
 			return [
 			'for="accesskey">'.$this->mod->Lang('accesskey'),
 			AdminUtils::get_help_tag($this->domain, 'help_content_accesskey', $this->mod->Lang('help_title_content_accesskey')),
-			'<input type="text" id="accesskey" name="'.$id.'accesskey" maxlength="5" size="3" value="'. specialize($this->mAccessKey).'" />'
+			'<input type="text" id="accesskey" name="'.$id.'accesskey" maxlength="5" size="3" value="'. specialize($this->mAccessKey).'">'
 			];
 
 		case 'tabindex':
 			return [
 			'for="tabindex">'.$this->mod->Lang('tabindex'),
 			AdminUtils::get_help_tag($this->domain, 'help_content_tabindex', $this->mod->Lang('help_title_content_tabindex')),
-			'<input type="text" id="tabindex" name="'.$id.'tabindex" maxlength="3" size="3" value="'.specialize($this->mTabIndex).'" />'
+			'<input type="text" id="tabindex" name="'.$id.'tabindex" maxlength="3" size="3" value="'.specialize($this->mTabIndex).'">'
 			]; // prob. redundant cleaner
 
 		case 'extra1':
 			return [
 			'for="extra1">'.$this->mod->Lang('extra1'),
 			AdminUtils::get_help_tag($this->domain, 'help_content_extra1', $this->mod->Lang('help_title_content_extra1')),
-			'<input type="text" id="extra1" name="'.$id.'extra1" size="80" maxlength="255" value="'. specialize($this->GetPropertyValue('extra1')).'" />'
+			'<input type="text" id="extra1" name="'.$id.'extra1" size="80" maxlength="255" value="'. specialize($this->GetPropertyValue('extra1')).'">'
 			];
 
 		case 'extra2':
 			return [
 			'for="extra2">'.$this->mod->Lang('extra2'),
 			AdminUtils::get_help_tag($this->domain, 'help_content_extra2', $this->mod->Lang('help_title_content_extra2')),
-			'<input type="text" id="extra2" name="'.$id.'extra2" size="80" maxlength="255" value="'. specialize($this->GetPropertyValue('extra2')).'" />'
+			'<input type="text" id="extra2" name="'.$id.'extra2" size="80" maxlength="255" value="'. specialize($this->GetPropertyValue('extra2')).'">'
 			];
 
 		case 'extra3':
 			return [
 			'for="extra3">'.$this->mod->Lang('extra3'),
 			AdminUtils::get_help_tag($this->domain, 'help_content_extra3', $this->mod->Lang('help_title_content_extra3')),
-			'<input type="text" id="extra3" name="'.$id.'extra3" size="80" maxlength="255" value="'. specialize($this->GetPropertyValue('extra3')).'" />'
+			'<input type="text" id="extra3" name="'.$id.'extra3" size="80" maxlength="255" value="'. specialize($this->GetPropertyValue('extra3')).'">'
 			];
 
 		case 'owner':
@@ -969,7 +969,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 				$contentops->CheckPageOwnership($userid, $this->Id())) {
 				$addteditors = $this->GetAdditionalEditors();
 				$owner_id = $this->Owner();
-				$input = '<input type="hidden" name="'.$id.'additional_editors" value="" /><select id="addteditors" name="'.$id.'additional_editors[]" multiple="multiple" size="5">';
+				$input = '<input type="hidden" name="'.$id.'additional_editors" value=""><select id="addteditors" name="'.$id.'additional_editors[]" multiple="multiple" size="5">';
 				$topts = $contentops->ListAdditionalEditors();
 				foreach ($topts as $k => $v) {
 					if ($k == $owner_id) {
@@ -2823,7 +2823,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		]);
 
 		if (!$dbr) {
-			throw new Exception($db->sql.'<br />'.$db->errorMsg());
+			throw new Exception($db->sql.'<br>'.$db->errorMsg());
 		}
 
 		if ($this->_props) {

@@ -16,10 +16,10 @@
 <div class="pageoverflow">
   <label class="pagetext" for="searchterm">{_ld($_module,'searchterm')}:</label>
   <div class="pageinput">
-    <input id="searchterm" type="text" name="{$actionid}term" size="50" value="{$term}" title="{_ld($_module,'title_searchterm')}" placeholder="{_ld($_module,'entersearchterm')}" />&nbsp;
-    <input type="hidden" name="{$actionid}advanced" value="0" />
-    <input type="checkbox" id="advanced" name="{$actionid}advanced" value="1"{if $advanced} checked="checked"{/if} title="{_ld($_module,'title_advancedsearch')}" />&nbsp;<label for="advanced">{_ld($_module,'prompt_advancedsearch')}</label>
-    <span id="advhelp" style="display: none;"><br />{_ld($_module,'advancedsearch_help')}</span>
+    <input id="searchterm" type="text" name="{$actionid}term" size="50" value="{$term}" title="{_ld($_module,'title_searchterm')}" placeholder="{_ld($_module,'entersearchterm')}">&nbsp;
+    <input type="hidden" name="{$actionid}advanced" value="0">
+    <input type="checkbox" id="advanced" name="{$actionid}advanced" value="1"{if $advanced} checked{/if} title="{_ld($_module,'title_advancedsearch')}">&nbsp;<label for="advanced">{_ld($_module,'prompt_advancedsearch')}</label>
+    <span id="advhelp" style="display: none;"><br>{_ld($_module,'advancedsearch_help')}</span>
   </div>
 </div>
 <div class="pageinput pregap">

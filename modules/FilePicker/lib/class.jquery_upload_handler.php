@@ -62,7 +62,7 @@ abstract class jquery_upload_handler
             substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
     }
 
-    private function get_file_object(/*string */$file_name)
+    private function get_file_object(string $file_name)
     {
         $file_path = $this->options['upload_dir'].$file_name;
         if (is_file($file_path) && $file_name[0] !== '.') {
@@ -92,7 +92,7 @@ abstract class jquery_upload_handler
         )));
     }
 
-    private function create_scaled_image(/*string */$file_name, /*array */$options)
+    private function create_scaled_image(string $file_name, /*array */$options)
     {
         $file_path = $this->options['upload_dir'].$file_name;
         $new_file_path = $options['upload_dir'].$file_name;
@@ -188,7 +188,7 @@ abstract class jquery_upload_handler
         return $error;
     }
 
-    private function trim_file_name(/*string */$name, $type)
+    private function trim_file_name(string $name, $type)
     {
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.

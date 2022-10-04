@@ -1,5 +1,5 @@
 {strip} {process_pagedata} {/strip}
-<!doctype html>
+<!DOCTYPE html>
 <html lang="{cms_get_language}">
 <head>
   <title>{title} - {sitename}</title>

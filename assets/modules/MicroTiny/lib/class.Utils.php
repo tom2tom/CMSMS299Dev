@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace MicroTiny;
 
+use CMSModule;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
 use CMSMS\StylesheetOperations;
@@ -31,13 +32,17 @@ use RuntimeException;
 use Throwable;
 use const CMS_ASSETS_URL;
 use const CMS_JOB_KEY;
+use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const TMP_CACHE_LOCATION;
 use function add_page_headtext;
+use function cms_get_script;
 use function cms_join_path;
 use function cms_path_to_url;
 use function cmsms;
 use function CMSMS\is_frontend_request;
+use function CMSMS\preferred_lang;
+use function startswith;
 
 class Utils
 {
@@ -234,11 +239,27 @@ EOS;
 		$menu = ( $profile['menubar'] ) ? 'true' : 'false';
 		$resize = ( $profile['allowresize'] ) ? 'true' : 'false';
 		$status = ( $profile['showstatusbar'] ) ? 'true' : 'false';
+		switch(preferred_lang()) {
+			case ENT_HTML5:
+				$closing = 'html';
+				$schema = 'html5';
+				break;
+			case 0:
+			case ENT_HTML401:
+				$closing = 'html';
+				$schema = 'html';
+				break;
+			default:
+				$closing = 'xhtml';
+				$schema = 'xhtml';
+				break;
+		}
 
 		$js = <<<EOS
 // runtime variables
 var cmsms_tiny = {
  base_url: '$root_url/',
+ element_format: '$closing',
  filebrowser_title: '{$mod->Lang('title_cmsms_filebrowser')}',
 
 EOS;
@@ -282,7 +303,7 @@ EOS;
  prompt_target: '{$mod->Lang('prompt_target')}',
  prompt_text: '{$mod->Lang('prompt_texttodisplay')}',
  resize: $resize,
- schema: 'html5',
+ schema: '$schema',
  statusbar: $status,
  tab_advanced: '{$mod->Lang('tab_advanced_title')}',
  tab_general: '{$mod->Lang('tab_general_title')}',
@@ -290,8 +311,11 @@ EOS;
  target_none: '{$mod->Lang('none')}'
 };
 EOS;
+		// escape quote(s) inside the above supplied string(s)
+		// i.e. not following ": " AND not (before ",\n" OR before "\n")
+		$js = preg_replace(["/(?<!: )'/", "/\\\\',\n/", "/\\\\'\n/"] , ["\\'", "',\n", "'\n"], $js);
 		return $js;
- 	}
+	}
 
 	/**
 	 * Generate tinymce initialization javascript, for each distinct $selector.
@@ -347,6 +371,7 @@ tinymce.init({
  branding: false,
  browser_spellcheck: true,
  document_base_url: cmsms_tiny.base_url,
+ element_format: cmsms_tiny.element_format,
  image_title: true,
  language: '$languageid',
  menubar: cmsms_tiny.menubar,
@@ -442,29 +467,30 @@ EOS;
   var here = 1;
  });
 });
+// TODO iterate if > 1 editor
+function geteditorcontent() {
+//HTML contents of the currently active editor
+ return tinymce.activeEditor.getContent();
+}
+// migrate content of all active editors
+function setpagecontent(v) {
+ tinyMCE.triggerSave();
+}
 
 EOS;
 /* TODO API for editor(s) using this selector
 function seteditorcontent(v) {
 // HTML contents of the currently active editor
-tinymce.activeEditor.setContent(v + ' html');
+  tinymce.activeEditor.setContent(v + ' html');
 // raw contents of the currently active editor
-tinymce.activeEditor.setContent(v + ' html', {format: 'raw'});
+  tinymce.activeEditor.setContent(v + ' html', {format: 'raw'});
 // contents of a specific editor (my_editor in this example)
-tinymce.get('my_editor').setContent(data);
+  tinymce.get('my_editor').setContent(data);
 }
-function geteditorcontent() {
-// HTML contents of the currently active editor
-return tinymce.activeEditor.getContent();
 // raw contents of the currently active editor
 return tinymce.activeEditor.getContent({format: 'raw'});
 // contents of a specific editor
 return tinymce.get('my_editor').getContent()
-}
-function setpagecontent(v) {
-  var t = container[0]; // TODO c.f. tinyMCE.triggerSave()
-  t.textContent = v;
-}
 var $handle, $workid, container;
 $(function() {
   container = $('$selector');
@@ -494,11 +520,11 @@ $(function() {
 		$langs = [];
 		$files = glob($dir.DIRECTORY_SEPARATOR.'*.js');
 		if( $files ) {
-			 foreach( $files as $one ) {
-				 $one = basename($one);
-				 $one = substr($one,0,-3);
-				 $langs[] = $one;
-			 }
+			foreach( $files as $one ) {
+				$one = basename($one);
+				$one = substr($one,0,-3);
+				$langs[] = $one;
+			}
 		}
 
 		if( in_array($mylang,$langs) ) return $mylang;
@@ -521,7 +547,7 @@ $(function() {
 		if( is_file($imagepath) ) {
 			$imageurl = self::Slashes($url.'/thumb_'.$file);
 			//TODO omit extension from alt, title
-			$image = "<img src='".$imageurl."' alt='".$file."' title='".$file."' />";
+			$image = '<img src="'.$imageurl.'" alt="'.$file.'" title="'.$file.'">';
 		}
 		else {
 			$image = '';

@@ -149,8 +149,7 @@ abstract class Alert
      * @param string $val
      * @throws InvalidArgumentException or LogicException
      */
-    #[\ReturnTypeWillChange]
-    public function __set(string $key,$val)// : void
+    public function __set(string $key,$val) : void
     {
         if( $this->_loaded ) throw new LogicException('Alerts cannot be altered once saved');
         switch( $key ) {

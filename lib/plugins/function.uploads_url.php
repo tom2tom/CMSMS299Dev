@@ -45,5 +45,5 @@ function smarty_cms_help_function_uploads_url()
 	'This plugin retrieves the site-URL representing the topmost/base location of uploaded files',
 	'uploads_url',
 	"<li>$n</li>"
-	).'<br /><pre><code>{$smarty.const.CMS_UPLOADS_URL}</code></pre> is equivalent';
+	).'<br><pre><code>{$smarty.const.CMS_UPLOADS_URL}</code></pre> is equivalent';
 }

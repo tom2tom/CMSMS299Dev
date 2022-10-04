@@ -2,10 +2,10 @@
 {tab_header name='example' label=_ld($_module,'example')}
 {tab_start name ='settings'}
 {if isset($info)}
-<div class="pageinfo">{$info}</div><br />
+<div class="pageinfo">{$info}</div><br>
 {/if}
 {if isset($warning)}
-<div class="pagewarn">{$warning}</div><br />
+<div class="pagewarn">{$warning}</div><br>
 {/if}
 {if isset($form_start)}
 {$form_start}
@@ -14,17 +14,17 @@
   {$t=_ld($_module,'label_sourceurl')}<label class="pagetext" for="fromurl">* {$t}:</label>
   {cms_help 0=$_module key='help_sourceurl' title=$t}
   <div class="pageinput">
-   <input type="text" id="fromurl" name="{$actionid}source_url" value="{$source_url}" size="70" required="required" />
+   <input type="text" id="fromurl" name="{$actionid}source_url" value="{$source_url}" size="70" required>
   </div>
   {$t=_ld($_module,'label_sourcesri')}<label class="pagetext" for="srihash">{$t}:</label>
   {cms_help 0=$_module key='help_sourcesri' title=$t}
   <div class="pageinput">
-   <input type="text" id="srihash" name="{$actionid}source_sri" value="{$source_sri}" size="98" />
+   <input type="text" id="srihash" name="{$actionid}source_sri" value="{$source_sri}" size="98">
   </div>
   {$t=_ld($_module,'label_skin')}<label class="pagetext" for="skinurl">{$t}:</label>
   {cms_help 0=$_module key='help_skin' title=$t}
   <div class="pageinput">
-   <input type="text" id="skinurl" name="{$actionid}skin_url" value="{$skin_url}" size="70" />
+   <input type="text" id="skinurl" name="{$actionid}skin_url" value="{$skin_url}" size="70">
   </div>
   <div class="pageinput pregap">
    <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{_la('apply')}</button>
@@ -58,6 +58,6 @@
 {/if}
  </fieldset>
 {tab_start name='example'}
-{capture assign='value'}<p><img src="{uploads_url}/images/uTiny-demo.png" style="float:right;" />Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris et ipsum id ante dignissim cursus sollicitudin eget erat. Quisque sit amet arcu urna. Nulla ultricies lacinia sapien, sed aliquam quam feugiat in. Donec consectetur pretium congue. Integer aliquam facilisis lacus, ut facilisis erat pharetra eget. Duis dapibus posuere nunc, id gravida massa pellentesque ac.</p>{/capture}
+{capture assign='value'}<p><img src="{uploads_url}/images/uTiny-demo.png" style="float:right;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris et ipsum id ante dignissim cursus sollicitudin eget erat. Quisque sit amet arcu urna. Nulla ultricies lacinia sapien, sed aliquam quam feugiat in. Donec consectetur pretium congue. Integer aliquam facilisis lacus, ut facilisis erat pharetra eget. Duis dapibus posuere nunc, id gravida massa pellentesque ac.</p>{/capture}
 {cms_textarea forcemodule='MicroTiny' name='mt_example' id='mt_example' enablewysiwyg=1 rows=10 columns=80 value=$value}
 {tab_end}

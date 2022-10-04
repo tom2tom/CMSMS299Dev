@@ -1,7 +1,7 @@
 <?php
 /*
-CMSMS light-module: Authenticator - supports module-managed and theme-managed login/out
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+CMSMS light-module: ConsoleAuth - supports module-managed and theme-managed login/out
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -31,7 +31,7 @@ use CMSMS\ResourceMethods;
  * @package CMS
  * @license GPL
  */
-class Authenticator implements IResource, IAuthModule
+class ConsoleAuth implements IResource, IAuthModule
 {
     private $methods;
 
@@ -43,7 +43,7 @@ class Authenticator implements IResource, IAuthModule
         if (method_exists($this->methods, $name)) {
             return call_user_func([$this->methods, $name], ...$args);
         }
-        throw new RuntimeException('Authenticator resource-module invalid method: '.$name);
+        throw new RuntimeException('ConsoleAuth resource-module invalid method: '.$name);
     }
 
     public function GetAdminDescription() { return ''; } // no admin display

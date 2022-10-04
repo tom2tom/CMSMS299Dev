@@ -24,7 +24,7 @@
     {$t=_ld('layout','prompt_name')}<label class="pagetext" for="tplname">* {$t}:</label>
     {cms_help 0='layout' key='help_template_name' title=$t}
     <div class="pageinput">
-      <input type="text" id="tplname" name="{$actionid}name" size="40" maxlength="96" value="{$tpl_obj->get_name()}"{if !$can_manage} readonly="readonly"{/if} placeholder="{_ld('layout','enter_name')}" />
+      <input type="text" id="tplname" name="{$actionid}name" size="40" maxlength="96" value="{$tpl_obj->get_name()}"{if !$can_manage} readonly="readonly"{/if} placeholder="{_ld('layout','enter_name')}">
     </div>
   </div>
 
@@ -117,9 +117,9 @@
         <div class="pageoverflow pregap">
           {$t=_ld('layout','prompt_default')}<label class="pagetext" for="deflt">{$t}:</label>
           {cms_help 0='layout' key='help_template_dflt' title=$t}
-          <input type="hidden" name="{$actionid}default" value="0" />
+          <input type="hidden" name="{$actionid}default" value="0">
           <div class="pageinput">
-            <input type="checkbox" id="deflt" name="{$actionid}default" value="1"{if $tpl_obj->get_type_dflt()} checked="checked"{/if} />
+            <input type="checkbox" id="deflt" name="{$actionid}default" value="1"{if $tpl_obj->get_type_dflt()} checked{/if}>
           </div>
         </div>
       {/if}{* can be type-default *}
@@ -127,9 +127,9 @@
     <div class="pageoverflow pregap">
       {$t=_ld('layout','prompt_listable')}<label class="pagetext" for="listable">{$t}:</label>
       {cms_help 0='layout' key='help_template_listable' title=$t}
-      <input type="hidden" name="{$actionid}listable" value="0" />
+      <input type="hidden" name="{$actionid}listable" value="0">
       <div class="pageinput">
-        <input type="checkbox" id="listable" name="{$actionid}listable" value="1"{if $tpl_obj->get_listable()} checked="checked"{/if} />
+        <input type="checkbox" id="listable" name="{$actionid}listable" value="1"{if $tpl_obj->get_listable()} checked{/if}>
       </div>
     </div>
    {/if}

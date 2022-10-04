@@ -1,7 +1,7 @@
 <?php
 /*
 Admin operation: admin theme export/import/delete
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -42,10 +42,10 @@ function import_theme(string $xmlfile) : bool
 		//TODO popup message handling
 		$msg = 'Failed to load file '.$xmlfile;
 		foreach (libxml_get_errors() as $error) {
-			$msg .= '<br />'.'Line '.$error->line.': '.$error->message;
+			$msg .= '<br>'.'Line '.$error->line.': '.$error->message;
 		}
 		libxml_clear_errors();
-		//cms_notify('error', $msg);
+		//TODO cms_notify('error', $msg);
 		return false;
 	}
 

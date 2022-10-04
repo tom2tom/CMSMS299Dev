@@ -374,7 +374,7 @@ EOS;
             if( is_file($file) ) {
                 $base = $mod->GetModuleURLPath();
                 // OR $csm = new ... $csm->queue_matchedfile( );
-                add_page_headtext('<link rel="stylesheet" href="'.$base.'/css/modhelp.css" />');
+                add_page_headtext('<link rel="stylesheet" href="'.$base.'/css/modhelp.css">');
                 return file_get_contents($file);
             }
         }

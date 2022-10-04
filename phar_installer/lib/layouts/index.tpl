@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <!--[if gt IE 8]><!--> <html lang="en"> <!--<![endif]-->
   <head>
-    <base href="{$BASE_HREF}" />
-    <meta charset="utf-8">
-    <meta name='HandheldFriendly' content='True' />
-    <meta name='MobileOptimized' content='320' />
-    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-    <meta http-equiv='cleartype' content='on' />
-    <link rel="icon" type="image/ico" href="lib/images/favicon.ico" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap" />
-    <link rel="stylesheet" type="text/css" href="lib/js/jquery-ui/jquery-ui.min.css" />
-    <link rel="stylesheet" type="text/css" href="lib/js/jquery-ui/jquery-ui.theme.min.css" />
-    <link rel="stylesheet" type="text/css" href="lib/styles/install.min.css" />{*TODO use -rtl variant if relevant*}
+    <base href="{$BASE_HREF}">
+    <meta charset="UTF-8">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cleartype" content="on">
+    <link rel="icon" type="image/ico" href="lib/images/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+    <link rel="stylesheet" type="text/css" href="lib/js/jquery-ui/jquery-ui.min.css">
+    <link rel="stylesheet" type="text/css" href="lib/js/jquery-ui/jquery-ui.theme.min.css">
+    <link rel="stylesheet" type="text/css" href="lib/styles/install.min.css">{*TODO use -rtl variant if relevant*}
     <script src="lib/js/jquery.min.js"></script>
     <script src="lib/js/jquery-ui/jquery-ui.min.js"></script>
     <title>
@@ -30,7 +30,7 @@
   <body>
     <div class="page-row header-section">
       <a href="http://www.cmsmadesimple.org" rel="external" target="_blank" class="cmsms-logo" title="CMS Made Simple&trade;">
-       <img class="cmslogo" src="lib/images/cmsms-logo.svg" onerror="this.onerror=null;this.src='lib/images/cmsms-logo.png';" alt="CMS Made Simple" title="CMS Made Simple" />
+       <img class="cmslogo" src="lib/images/cmsms-logo.svg" onerror="this.onerror=null;this.src='lib/images/cmsms-logo.png';" alt="CMS Made Simple" title="CMS Made Simple">
       </a>
       <span class="installer-title">{'apptitle'|tr}</span>
     </div>
@@ -62,7 +62,7 @@
 {*          {if isset($dir) && ($in_phar || $cur_step > 1)}
           <div class="message blue icon">
             <i class="icon-folder message-icon"></i>
-            <div class="content"><span class="heavy">{'prompt_dir'|tr}:</span><br />{$dir}</div>
+            <div class="content"><span class="heavy">{'prompt_dir'|tr}:</span><br>{$dir}</div>
           </div>
           {/if}*}
           {if isset($error)}

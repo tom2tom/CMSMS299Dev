@@ -2,10 +2,10 @@
 <!DOCTYPE html>
 <html lang="en"{if !empty($rtl)} dir="rtl"{/if} data-cmsfp-inst="{$inst}">
  <head>
-  <meta charset="utf-8">
-  <meta http-equiv="Content-type" content="text/html;charset=utf-8" />
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-type" content="text/html;charset=utf-8">
   <title>{_ld($_module,'filepickertitle')}</title>
-  <base href="{$topurl}" />
+  <base href="{$topurl}">
   {$headercontent|default:''}
  </head>
  <body id="fp-body">
@@ -38,7 +38,7 @@
         <i class="ifm-upload"></i>
       </label>
     {if $do}
-      <input type="file" id="fp-file-upload" class="visuallyhidden" name="fp-upload" multiple="" />
+      <input type="file" id="fp-file-upload" class="visuallyhidden" name="fp-upload" multiple>
     {/if}
     </div>
     <div id="fp-type-filter">{* boxchild *}
@@ -75,19 +75,19 @@
         </a>
       {elseif !empty($file.is_small)}
         <a class="filepicker-file-action js-trigger-insert" href="{$file.relurl}" title="{_ld($_module,'chooseit',$file.name)}">
-          <img src="{$file.fullurl}" alt="{$file.name}" title="{_ld($_module,'chooseit',$file.name)}" />
+          <img src="{$file.fullurl}" alt="{$file.name}" title="{_ld($_module,'chooseit',$file.name)}">
         </a>
       {elseif !empty($file.is_svg)}
         <a class="filepicker-file-action js-trigger-insert" href="{$file.relurl}" title="{_ld($_module,'chooseit',$file.name)}">
-          <img class="svgimg" src="{$file.fullurl}" alt="{$file.name}" title="{_ld($_module,'chooseit',$file.name)}" />
+          <img class="svgimg" src="{$file.fullurl}" alt="{$file.name}" title="{_ld($_module,'chooseit',$file.name)}">
         </a>
       {elseif $profile->show_thumbs && !empty($file.thumbnail)}
         <a class="filepicker-file-action js-trigger-insert" href="{$file.relurl}" title="{_ld($_module,'chooseit',$file.name)}">
-          <img src="thumb_{$file.name}" alt="{$file.name}" title="{_ld($_module,'chooseit',$file.name)}" />
+          <img src="thumb_{$file.name}" alt="{$file.name}" title="{_ld($_module,'chooseit',$file.name)}">
         </a>
       {elseif $profile->show_thumbs && $file.is_thumb}
         <a class="filepicker-file-action js-trigger-insert" href="{$file.relurl}" title="{_ld($_module,'chooseit',$file.name)}">
-          <img src="{$file.fullurl}" alt="{$file.name}" title="{_ld($_module,'displayit',$file.name)}" />
+          <img src="{$file.fullurl}" alt="{$file.name}" title="{_ld($_module,'displayit',$file.name)}">
         </a>
       {else}
         <a class="filepicker-file-action js-trigger-insert icon-no-thumb" href="{$file.relurl}" title="{_ld($_module,'chooseit',$file.name)}">
@@ -129,7 +129,7 @@
   {if $profile->can_mkdir}{* popup dialog for mkdir *}
   <div id="mkdir_dlg" title="{_ld($_module,'mkdir')}" style="display:none;">
    <div class="dlg-options">
-    <label for="fld_mkdir">{_ld($_module,'name')}:</label> <input type="text" id="fld_mkdir" />
+    <label for="fld_mkdir">{_ld($_module,'name')}:</label> <input type="text" id="fld_mkdir">
    </div>
   </div>
   {/if}

@@ -27,11 +27,11 @@
     <label for="destname">{_ld($_module,'copy_destname')}:</label>
   </p>
   <p class="pageinput">
-    <input type="text" id="destname" name="{$actionid}destname" size="50" maxlength="255" />
+    <input type="text" id="destname" name="{$actionid}destname" size="50" maxlength="255">
   </p>
 </div>
 {/if}
-<br />
+<br>
 <div class="pageoverflow">
   <p class="pageinput">
     <button type="submit" name="{$actionid}submit" class="adminsubmit icon do">{_ld($_module,'copy')}</button>

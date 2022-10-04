@@ -339,7 +339,7 @@ abstract class Base_slave
         }
 
         if ($html) {
-            return implode('<br />', $html);
+            return implode('<br>', $html);
         }
         return '';
     }

@@ -1,14 +1,14 @@
 {if $padd}
-<br />
+<br>
 <div class="pageoptions">
   <a href="{$addurl}{$urlext}">{$iconadd}</a>
   <a href="{$addurl}{$urlext}" class="pageoptions">{_la('addbookmark')}</a>
 </div>
-<br />
+<br>
 {/if}
 {if $pagination}
 <div class="pagewarn">{_la('show_shortcuts_message')}</div>
-<br />
+<br>
 <p class="pageshowrows">{$pagination}</p>
 {/if}
 <table class="pagetable">
@@ -49,7 +49,7 @@
   </tbody>
 </table>
 {if $padd && count($marklist) > 20}
-<br />
+<br>
 <div class="pageoptions">
   <a href="{$addurl}{$urlext}">{$iconadd}</a>
   <a href="{$addurl}{$urlext}" class="pageoptions">{_la('addbookmark')}</a>

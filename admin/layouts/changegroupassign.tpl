@@ -10,7 +10,7 @@
 {if $group_list}
 <div class="pageoverflow">
   <form action="{$selfurl}" enctype="multipart/form-data" method="post">
-    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
     <strong>{_la('selectgroup')}:</strong>&nbsp;
     <select name="groupsel" id="groupsel">
@@ -22,9 +22,9 @@
   </form>
 </div>
 {if $displaygroups && $users}{$group_count=count($displaygroups)}
-<br />
+<br>
 <form id="groupname" action="{$selfurl}" enctype="multipart/form-data" method="post">
-{foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
 <div class="pageoptions postgap">
   <button type="submit" name="submit" class="adminsubmit icon check">{_la('submit')}</button>
@@ -59,14 +59,14 @@
       {foreach $displaygroups as $thisgroup}
         {if $thisgroup->id != -1} {$gid=$thisgroup->id}
         <td class="pagepos g{$gid}">
-        <input type="hidden" name="ug_{$user->id}_{$gid}" value="0" />
+        <input type="hidden" name="ug_{$user->id}_{$gid}" value="0">
         <input type="checkbox" name="ug_{$user->id}_{$gid}" value="1"
 {if $usr1perm}
-        {if isset($user->group[$gid])} checked="checked"{/if} />
+        {if isset($user->group[$gid])} checked{/if}>
 {elseif $grp1perm || $pmod} {* any non-Admin change, checked|disabled for Admin *}
-        {if isset($user->group[$gid])} checked="checked"{elseif $gid == 1} disabled{/if} />
+        {if isset($user->group[$gid])} checked{elseif $gid == 1} disabled{/if}>
 {elseif $user_id == $user->id} {* self-removal *}
-        {if isset($user->group[$gid])} checked="checked"{else} disabled{/if} />
+        {if isset($user->group[$gid])} checked{else} disabled{/if}>
 {/if}
         </td>
       {/if}{/foreach} {*displaygroups*}

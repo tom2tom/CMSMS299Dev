@@ -214,7 +214,7 @@ function is_email(string $str) : bool
  * ICMSSAN_PURESPC
  *  as for ICMSSAN_PURE, but allow space(s) (e.g. for a clean multi-word value)
  * ICMSSAN_PHPSTRING
- *  replicates the deprecated filter FILTER_SANITIZE_STRING, without any additional filter-flags
+ *  replicates the deprecated filter FILTER_SANITIZE_STRING with filter-flag FILTER_FLAG_STRIP_LOW except for \t,\r,\n
  * ICMSSAN_FILE
  *  remove non-printable chars plus these: * ? \ /
  *    (e.g. for file names, modules, plugins, UDTs, templates, stylesheets, admin themes, frontend themes)

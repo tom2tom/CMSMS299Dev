@@ -27,7 +27,7 @@ function smarty_cms_about_modifier_localedate_format()
 function smarty_cms_help_modifier_localedate_format()
 {
     echo _ld('tags', 'help_generic2',
-    'This is an alternate to Smarty\'s date_format modifier. Same API and functionality but without using deprecated PHP strftime().<br/>It converts a date-time value (timestamp or string or DateTime object) to the format specified',
+    'This is an alternate to Smarty\'s date_format modifier. Same API and functionality but without using deprecated PHP strftime().<br>It converts a date-time value (timestamp or string or DateTime object) to the format specified',
     '$datevar|localedate_format',
     '<li>first, optional strftime()- and/or date()-compatible format to use instead of the default (which is \'%e %b, %Y\')</li>
 <li>second, optional default (timestamp | string | DateTime object) to use if $datevar is empty</li>'

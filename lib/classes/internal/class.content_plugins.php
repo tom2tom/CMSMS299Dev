@@ -231,7 +231,7 @@ final class content_plugins
                     foreach( $tagparms as $key => $val ) {
                         $out .= " $key=\"$val\"";
                     }
-                    $out .= ' />';
+                    $out .= '>';
                 }
             }
         }

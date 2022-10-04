@@ -5,7 +5,7 @@
 
 <div class="pageoverflow">
   <form action="{$selfurl}" enctype="multipart/form-data" method="post">
-  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
     <strong>{_la('selectgroup')}:</strong>&nbsp;
     <select name="groupsel" id="groupsel">
@@ -16,10 +16,10 @@
   <button type="submit" name="filter" class="adminsubmit icon do">{_la('apply')}</button>
   </form>
 </div>
-<br />
+<br>
 <form id="groupname" action="{$selfurl}" enctype="multipart/form-data" method="post">
   <div class="hidden">
-    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
     {$hidden}
   </div>
@@ -57,22 +57,22 @@
         </td>
         {foreach $group_list as $thisgroup} {if $thisgroup->id != -1} {$gid=$thisgroup->id}
         <td class="pagepos g{$gid}">
-        <input type="hidden" name="pg_{$perm->id}_{$gid}" value="0" />
+        <input type="hidden" name="pg_{$perm->id}_{$gid}" value="0">
         <input type="checkbox" name="pg_{$perm->id}_{$gid}" value="1"{strip}
           {if $gid == 1}
             {if in_array($perm->id, $ultras)}
-              {if isset($perm->group[1])} checked="checked"{/if}
+              {if isset($perm->group[1])} checked{/if}
               {if !$usr1perm} disabled{/if}
             {else}
-              checked="checked" disabled
+              checked disabled
             {/if}
           {elseif isset($perm->group[$gid])}
-              checked="checked"
+              checked
               {if !( $usr1perm || (($grp1perm || $pmod) && !in_array($perm->id, $ultras)) )} disabled{/if}
           {elseif !( $usr1perm || (($grp1perm || $pmod) && !in_array($perm->id, $ultras)) )}
               disabled
           {/if}
-        {/strip} />
+        {/strip}>
         </td>
         {/if} {/foreach}
       </tr>

@@ -1,7 +1,7 @@
 {function menu_branch}
 {if $depth == 0}
  <div id="burger">
-  <svg><use xlink:href="themes/Ebonne/images/icons/system/sprite.svg#menu" /></svg>
+  <svg><use xlink:href="themes/Ebonne/images/icons/system/sprite.svg#menu"></svg>
  </div>
  <ul id="ggp_menu" class="noflash">{strip}
 {else}
@@ -19,9 +19,9 @@
       <a href="{$navitem.url}" class="{$type} icon"{if isset($navitem.target)} target="_blank"{/if}>
     {/if}
     {if !isset($navitem.icon)}
-    <svg><use xlink:href="themes/Ebonne/images/navsprite.svg#{$type}" /></svg>
+    <svg><use xlink:href="themes/Ebonne/images/navsprite.svg#{$type}"></svg>
     {elseif $navitem.icon}
-    <img src="{$navitem.icon}" />
+    <img src="{$navitem.icon}">
     {/if}
     {if $linked}
       </a>

@@ -24,7 +24,7 @@
     {if $direction == 'rtl'}
     {admin_icon icon='icons/extra/search' alt="{_ld('layout','search')}" addtext='style=position:relative;left:1.8em'}
     {/if}
-    <input type="text" id="finder" title="{_ld('layout','title_search')}" size="10" maxlength="15" placeholder="{_ld('layout','search')}" />
+    <input type="text" id="finder" title="{_ld('layout','title_search')}" size="10" maxlength="15" placeholder="{_ld('layout','search')}">
     {if $direction != 'rtl'}
     {admin_icon icon='icons/extra/search' alt="{_ld('layout','search')}" addtext='style=position:relative;left:-1.8em'}
     {/if}
@@ -80,7 +80,7 @@
 
 <div id="filterdialog" title="{_ld('layout','tpl_filter')}" style="display:none;">
  <form id="filterdialog_form" action="{$selfurl}" enctype="multipart/form-data" method="post">
-  {foreach $extraparms2 as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+  {foreach $extraparms2 as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
   {/foreach}
   <select class="boxchild" id="filter_tpl" name="filter[]" title="{_ld('layout','title_filter')}">
    {html_options options=$filter_tpl_options selected=$tpl_filter.0}  </select>
@@ -90,9 +90,9 @@
 {if $manage_templates}{* TODO && single(s) exist *}
 <div id="replacedialog" title="{_ld('layout','prompt_replace_typed',_ld('layout','prompt_template'))}" style="display:none;min-width:15em;">
   <form id="replacedialog_form" action="templateoperations.php" enctype="multipart/form-data" method="post">
-  {foreach $extraparms3 as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+  {foreach $extraparms3 as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
-   <p>{_ld('layout','prompt_current')}<br />
+   <p>{_ld('layout','prompt_current')}<br>
    <span id="from"></span>
    </p>
    <div class="pregap">

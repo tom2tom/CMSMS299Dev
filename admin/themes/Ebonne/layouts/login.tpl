@@ -2,18 +2,18 @@
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
 <head>
  <title>{_la('loginto', {sitename})}</title>
- <base href="{$admin_url}/" />
- <meta charset="{$encoding}" />
- <meta name="generator" content="CMS Made Simple" />
- <meta name="robots" content="noindex, nofollow" />
- <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
- <meta name="HandheldFriendly" content="true" />
- <meta name="msapplication-TileColor" content="#f89938" />
- <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
- <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
- <link rel="preconnect" href="https://fonts.googleapis.com" />
- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" />
+ <base href="{$admin_url}/">
+ <meta charset="{$encoding}">
+ <meta name="generator" content="CMS Made Simple">
+ <meta name="robots" content="noindex, nofollow">
+ <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no">
+ <meta name="HandheldFriendly" content="true">
+ <meta name="msapplication-TileColor" content="#f89938">
+ <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png">
+ <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico">
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap">
 {$header_includes|default:''}
 </head>
 <body>
@@ -24,7 +24,7 @@
         <div class="pageerror">{_la('login_info_needjs')}</div>
       </noscript>{$lost=isset($smarty.get.forgotpw)}{*$sitelogo=''DEBUG*}
       {if !empty($sitelogo)}
-       <img id="site-logo" src="{$sitelogo}" alt="{sitename}" />
+       <img id="site-logo" src="{$sitelogo}" alt="{sitename}">
       {/if}
       {if !$lost}
       <a id="toggle-info" href="javascript:void()" title="{_la('open')}/{_la('close')}">&nbsp;</a>

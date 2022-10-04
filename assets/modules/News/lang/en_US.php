@@ -118,7 +118,7 @@ $lang['help_article_status'] = 'If the news item is ready to be displayed on the
 $lang['help_article_summary'] = 'Enter a brief paragraph to describe the news item. This summary might be used when displaying views of a number of items.';
 $lang['help_article_title'] = 'Enter the news item title. It should be brief, and not include any html tags.';
 //$lang['help_article_url'] = 'A unique identifier used in the \'pretty-URL\' for accessing the item\'s detail view.';
-$lang['help_article_url'] = 'An URL-path <em>(some other platforms call this a slug)</em> to access this news item. Users can navigate to &lt;site_root&gt;/&lt;item_url&gt; to view this news item.<br />As for all URLs, it is case-insensitive, and for operational purposes, better without url-encodable characters i.e. with only ASCII letters, numbers, and/or these four "-._~".';
+$lang['help_article_url'] = 'An URL-path <em>(some other platforms call this a slug)</em> to access this news item. Users can navigate to &lt;site_root&gt;/&lt;item_url&gt; to view this news item.<br>As for all URLs, it is case-insensitive, and for operational purposes, better without url-encodable characters i.e. with only ASCII letters, numbers, and/or these four "-._~".';
 $lang['help_article_useexpiry'] = 'This checkbox toggles the expiry-date behavior. That dictates when a news item becomes visible on the website, and when it subsequently becomes invisible.';
 $lang['help_articleid'] = 'This parameter is only applicable to the detail view. It allows specifying which news item to display in detail mode. If the special value -1 is used, the system will display the newest, published, non expired news item.';
 $lang['help_articles_filtercategory'] = 'Optionally filter the list of displayed items in this list by those that belong to the selected category';
@@ -329,7 +329,7 @@ $lang['up'] = 'Up';
 $lang['url'] = 'Access URL';
 $lang['useexpiration'] = 'Use Expiration Date';
 
-$lang['warning_preview'] = 'This preview panel allows you to navigate away from the initially previewed page. Be aware that if you do so, you might experience unexpected behavior. Navigating away from the initial page and returning will not give the expected results.<br /><strong>Note:</strong> The preview does not upload files you might have selected for upload.';
+$lang['warning_preview'] = 'This preview panel allows you to navigate away from the initially previewed page. Be aware that if you do so, you might experience unexpected behavior. Navigating away from the initial page and returning will not give the expected results.<br><strong>Note:</strong> The preview does not upload files you might have selected for upload.';
 $lang['with_selected'] = 'With Selected';
 
 //$lang['yes'] = 'Yes';
@@ -360,7 +360,7 @@ $lang['with_selected'] = 'With Selected';
 //$lang['help_article_postdate'] = 'The postdate <em>(usually the current date, for new items)</em> is the date that will be used as the publish date for the news item. It is also used in sorting';
 //$lang['help_article_startdate'] = 'This date specifies the date from which the news item will be visible on the website';
 //$lang['help_articles_sortby'] = 'Select how items will be initially sorted.';
-//$lang['help_opt_allow_summary_wysiwyg'] = 'This field indicates whether a WYSIWYG editor should be enabled for the summary field when editing a news item. In many circumstances the summary field is a simple text field, however this is optional.<br />This setting is ignored if the summary field is disabled completely <em>(see above)</em>';
+//$lang['help_opt_allow_summary_wysiwyg'] = 'This field indicates whether a WYSIWYG editor should be enabled for the summary field when editing a news item. In many circumstances the summary field is a simple text field, however this is optional.<br>This setting is ignored if the summary field is disabled completely <em>(see above)</em>';
 //$lang['help_opt_hide_summary'] = 'This option allows disabling the summary field when adding and/or editing a news item';
 //$lang['helpsortasc'] = 'Sort news items in ascending date order rather than descending.';
 //$lang['helpsortby'] = 'Field to sort the display by. Options are: "summary", "news_data", "news_category", "news_title", "news_extra", "start_time", "end_time", "random". Defaults to "start_time". If "random" is specified, the sortasc parameter is ignored.';
@@ -481,7 +481,7 @@ item 'templates'. This means that template managment requires the general site t
 </ul>
 <p>Following these steps should solve the problem of news templates not being found and other Smarty errors.</p>
 <h4>Template Parameters</h4>
-For each relevant news item, the following properties are provided for use in templates:<br />
+For each relevant news item, the following properties are provided for use in templates:<br>
 <ul>
 <li>author</li>
 <li>author_id</li>
@@ -506,9 +506,9 @@ For each relevant news item, the following properties are provided for use in te
 <li>title</li>
 <li>titlelink</li>
 </ul>
-<br />Formerly-provided parameters <code>fields</code>, <code>fieldsbyname</code> and <code>file_location</code> were for frontend use, and are gone.
-<br/><br />
-The parameters which may validly be submitted from a frontend-displayed news item are:<br />
+<br>Formerly-provided parameters <code>fields</code>, <code>fieldsbyname</code> and <code>file_location</code> were for frontend use, and are gone.
+<br><br>
+The parameters which may validly be submitted from a frontend-displayed news item are:<br>
 <ul>
 <li>assign</li>
 <li>browsecat</li>
@@ -534,19 +534,19 @@ The parameters which may validly be submitted from a frontend-displayed news ite
 </ul>
 <h4>Deprecations</h4>
 The provided news-item property <code>-&gt;postdate</code> is deprecated. Templates should use <code>item-&gt;startdate</code> instead.
-<br />
+<br>
 Reminder: the <code>-&gt;formatpostdate</code> and <code>-&gt;dateformat</code> properties are long-gone (News 2.9?).
 <h3>Permissions</h3>
 <p>To add or edit news items, the user must belong to a group having 'Propose News' or 'Modify News' permission.
-<br />
+<br>
 <p>To self-publish news items, the user must belong to a group having 'Modify News' permission.
-<br />
+<br>
 To approve news items for publication, the user must belong to a group having 'Approve News' permission.
-<br />
+<br>
 To delete news items, the user must <strong>also</strong> belong to a group having 'Delete News' permission.
-<br />
+<br>
 To modify news item templates, the user must belong to a group having 'Modify News Preferences' permission, or if authorized, may process the templates via the site-wide templates interface.
-<br />
+<br>
 To modify news categories or News-module preferences, the user must belong to a group having 'Modify News Preferences' permission.
 </p>
 EOF;

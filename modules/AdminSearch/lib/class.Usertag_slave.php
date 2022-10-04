@@ -73,20 +73,20 @@ final class Usertag_slave extends Base_slave
         $html = '';
         $html2 = $this->get_matches_info($tagname);
         if ($html2) {
-            $html .= '<br />'.$html2;
+            $html .= '<br>'.$html2;
         }
         $props = $this->ops->GetUserTag($tagname, 'description,code');
         $desc = $props['description'] ?? '';
         if ($desc && $this->search_descriptions()) {
             $html2 = $this->get_matches_info($desc);
             if ($html2) {
-                $html .= '<br />'.$html2;
+                $html .= '<br>'.$html2;
             }
         }
         $content = $props['code'] ?? '';
         $html2 = $this->get_matches_info($content);
         if ($html2) {
-            $html .= '<br />'.$html2;
+            $html .= '<br>'.$html2;
         }
         if (!$html) {
             return [];

@@ -12,7 +12,7 @@
 *}
 <h3 id="NewsPostDetailTitle">{$entry->title|cms_escape|default:'&lt;missing title&gt;'}</h3>
 
-<hr id="NewsPostDetailHorizRule" />
+<hr id="NewsPostDetailHorizRule">
 
 {if $entry->summary}
   <div id="NewsPostDetailSummary">
@@ -46,7 +46,7 @@
 
 {if !empty($entry->image_url)}
   <div class="NewsDetailField">{* deprecated residual from earlier version *}
-    <img id="NewsPostDetailImage" src="{$entry->image_url}" alt="{$entry->image_alt|default:'news-item image'}" />
+    <img id="NewsPostDetailImage" src="{$entry->image_url}" alt="{$entry->image_alt|default:'news-item image'}">
   </div>
 {/if}
 

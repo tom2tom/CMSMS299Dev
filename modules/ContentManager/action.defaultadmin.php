@@ -199,15 +199,15 @@ $jobkey = CMS_JOB_KEY;
 //TODO any other action-specific js
 //TODO flexbox css for multi-row .colbox, .rowbox.flow, .boxchild
 
-$s1 = json_encode($this->Lang('confirm_setinactive'));
-$s2 = json_encode($this->Lang('confirm_setdefault'));
-$s3 = json_encode($this->Lang('confirm_delete_page'));
-$s4 = json_encode($this->Lang('confirm_steal_lock'));
-$s8 = json_encode($this->Lang('confirm_clearlocks'));
-$s5 = json_encode($this->Lang('error_contentlocked'));
-$s9 = json_encode($this->Lang('error_action_contentlocked'));
-$s6 = $this->Lang('submit');
-$s7 = $this->Lang('cancel');
+$s1 = addcslashes($this->Lang('confirm_setinactive'), "'");
+$s2 = addcslashes($this->Lang('confirm_setdefault'), "'");
+$s3 = addcslashes($this->Lang('confirm_delete_page'), "'");
+$s4 = addcslashes($this->Lang('confirm_steal_lock'), "'");
+$s5 = addcslashes($this->Lang('error_contentlocked'), "'");
+$s8 = addcslashes($this->Lang('confirm_clearlocks'), "'");
+$s9 = addcslashes($this->Lang('error_action_contentlocked'), "'");
+$submit = $this->Lang('submit');
+$cancel = $this->Lang('cancel');
 $secs = AppParams::get('lock_refresh', 120);
 $secs = max(30, min(600, $secs));
 
@@ -421,11 +421,11 @@ function setuplist(pause) {
    minHeight: 225,
    resizable: false,
    buttons: {
-    $s6: function() {
+    '$submit': function() {
      $(this).dialog('close');
      $('#filter_form').submit();
     },
-    $s7: function() {
+    '$cancel': function() {
      $(this).dialog('close');
     }
    }
@@ -440,16 +440,16 @@ function setuplist(pause) {
 */
  process_link('a.page_sortup');
  process_link('a.page_sortdown');
- process_link('a.page_setinactive', $s1);
+ process_link('a.page_setinactive', '$s1');
  process_link('a.page_setactive');
- process_link('a.page_setdefault', $s2);
- process_link('a.page_delete', $s3);
+ process_link('a.page_setdefault', '$s2');
+ process_link('a.page_delete', '$s3');
 
  $('a.steal_lock').on('click', function(e) {
   // we're gonna confirm stealing this lock
   e.preventDefault();
   var url = this.href;
-  cms_confirm($s4).done(function() {
+  cms_confirm('$s4').done(function() {
    window.location.href = url + '&{$id}steal=1';
   });
   return false;
@@ -479,7 +479,7 @@ function setuplist(pause) {
   }).done(function(data) {
    if(data.status == 'success') {
      if(data.stealable) {
-       cms_confirm($s4).done(function() {
+       cms_confirm('$s4').done(function() {
          parms.op = 'unlock';
          parms.lock_id = data.lock_id;
 // TODO security : parms.X = Y suitable for ScriptsMerger
@@ -490,7 +490,7 @@ function setuplist(pause) {
          window.location.href = url;
        });
      } else if(data.locked) {
-       cms_alert($s5);
+       cms_alert('$s5');
      } else {
        window.location.href = url;
      }
@@ -576,7 +576,7 @@ $(function() {
  });
  $('a#clearlocks').on('click', function(e) {
   e.preventDefault();
-  cms_confirm_linkclick(this, $s8);
+  cms_confirm_linkclick(this, '$s8');
   return false;
  });
  $('a#ordercontent').on('click', function(e) {
@@ -599,7 +599,7 @@ $(function() {
    }).done(function(data) {
     if(data.status == 'success') {
      if(data.stealable) {
-      cms_confirm($s4).done(function() {
+      cms_confirm('$s4').done(function() {
        parms.op = 'unlock';
  // TODO remove single anonymous lock
        parms.lock_id = data.lock_id;
@@ -611,7 +611,7 @@ $(function() {
        window.location.href = url;
       });
      } else if(data.locked) {
-      cms_alert($s9);
+      cms_alert('$s9');
      } else {
       window.location.href = url;
      }

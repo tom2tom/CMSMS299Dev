@@ -388,7 +388,7 @@ WHERE FD.type = 'linkedfile'
 EOS;
     $data = $db->getArray($sql);
     if( $data ) {
-        $tmpl = '<br /><br/>See also: <a href="%s" ...>this related information</a>.'; // TODO translated
+        $tmpl = '<br><br>See also: <a href="%s" ...>this related information</a>.'; // TODO translated
         $sql = 'UPDATE '.$tbl.' SET news_data=CONCAT(news_data,?) WHERE news_id=?';
         foreach( $data as $row ) {
             if (0) { // is acceptable link

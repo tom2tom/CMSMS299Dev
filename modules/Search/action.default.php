@@ -72,7 +72,7 @@ $tpl->assign('startform', $this->CreateFormStart($id, 'dosearch', $returnid, $is
 //->assign('hogan', $hogan)
 //->assign('inputbox', $this->CreateInputText($id, 'searchinput', $searchtext, 20, 50, 'placeholder="'.$searchtext.'" '.$hogan))
  ->assign('submittext', $submittext);
-//->assign('submitbutton', '<input type="submit" name="'.$id.'submit" id="'.$id.'submit" class="search-button" value=" " />');
+//->assign('submitbutton', '<input type="submit" name="'.$id.'submit" id="'.$id.'submit" class="search-button" value=" ">');
 
 $hidden = '';
 if( $origreturnid != $returnid ) $hidden .= $this->CreateInputHidden($id, 'origreturnid', $origreturnid);

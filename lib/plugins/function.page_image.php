@@ -57,7 +57,7 @@ function smarty_function_page_image($params, $template)
 				$val = sanitizeVal($val, CMSSAN_PUNCT);
 				$out .= " $key=\"$val\"";
 			}
-			$out .= ' />';
+			$out .= '>';
 		}
 	}
 

@@ -357,10 +357,10 @@ $jsm->queue_matchedfile('jquery.SSsort.js', 1);
 $jsm->queue_matchedfile('jquery.ContextMenu.js', 1);
 $out = $jsm->page_content();
 
-$confirm1 = json_encode(_la('confirm_switchuser'));
-$confirm2 = json_encode(_la('confirm_toggleuseractive'));
-$confirm3 = json_encode(_la('confirm_delete_user'));
-$confirm4 = json_encode(_la('confirm_bulkuserop'));
+$s1 = addcslashes(_la('confirm_switchuser'), "'");
+$s2 = addcslashes(_la('confirm_toggleuseractive'), "'");
+$s3 = addcslashes(_la('confirm_delete_user'), "'");
+$s4 = addcslashes(_la('confirm_bulkuserop'), "'");
 
 $out .= <<<EOS
 <script type="text/javascript">
@@ -407,17 +407,17 @@ $(function() {
  $('#sel_all').cmsms_checkall();
  $('.switchuser').on('click', function(ev) {
   ev.preventDefault();
-  cms_confirm_linkclick(this, $confirm1);
+  cms_confirm_linkclick(this, '$s1');
   return false;
  });
  $('.toggleactive').on('click', function(ev) {
   ev.preventDefault();
-  cms_confirm_linkclick(this, $confirm2);
+  cms_confirm_linkclick(this, '$s2');
   return false;
  });
  $('.js-delete').on('click', function(ev) {
   ev.preventDefault();
-  cms_confirm_linkclick(this, $confirm3);
+  cms_confirm_linkclick(this, '$s3');
   return false;
  });
  $('#withselected, #bulksubmit').prop('disabled', true);
@@ -435,11 +435,11 @@ $(function() {
   var el = this,
     v = $('#withselected').val();
   if(v === 'delete') {
-   cms_confirm($confirm3).done(function() {
+   cms_confirm('$s3').done(function() {
     $(el).off('submit').submit();
    });
   } else {
-   cms_confirm($confirm4).done(function() {
+   cms_confirm('$s4').done(function() {
     $(el).off('submit').submit();
    });
   }

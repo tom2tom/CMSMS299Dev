@@ -594,21 +594,21 @@ final class UserTagOperations
 		}
 
 		if (!empty($params['license'])) {
-			// TODO attend to stored newlines? e.g. strip <br/>
+			// TODO attend to stored newlines? e.g. strip <br>
 			$text = specialize(trim($params['license']), ENT_XML1 | ENT_NOQUOTES);
 			$l = '<license>'."\n".$text."\n".'</license>';
 		} else {
 			$l = '<license></license>';
 		}
 		if (!empty($params['description'])) {
-			// TODO attend to stored newlines? e.g. strip <br/>
+			// TODO attend to stored newlines? e.g. strip <br>
 			$text = specialize(trim($params['description']), ENT_XML1 | ENT_NOQUOTES);
 			$d = '<description>'."\n".$text."\n".'</description>';
 		} else {
 			$d = '<description></description>';
 		}
 		if (!empty($params['parameters'])) {
-			// TODO attend to stored newlines? e.g. strip <br/>
+			// TODO attend to stored newlines? e.g. strip <br>
 			$text = specialize(trim($params['parameters']), ENT_XML1 | ENT_NOQUOTES);
 			$p = '<parameters>'."\n".$text."\n".'</parameters>';
 		} else {
@@ -699,7 +699,7 @@ EOS;
 		$val = $params['description'] ?? '';
 		if ($val && !is_numeric($val)) {
 			$description = sanitizeVal($val, CMSSAN_NONPRINT);
-			// TODO attend to stored newlines? e.g. strip <br/>
+			// TODO attend to stored newlines? e.g. strip <br>
 			// OR nl2br( ,true) for newlines without a preceeding br '~(?<!(<br(\s*)?/?  >))[\n\r]{1,2}~i'
 		} else {
 			$description = null;
@@ -707,7 +707,7 @@ EOS;
 		$val = $params['parameters'] ?? '';
 		if ($val && !is_numeric($val)) {
 			$parameters = sanitizeVal($val, CMSSAN_NONPRINT);
-			// TODO attend to stored newlines? e.g. strip <br/>
+			// TODO attend to stored newlines? e.g. strip <br>
 			// OR nl2br( ,true) for newlines without a preceeding br '~(?<!(<br(\s*)?/?  >))[\n\r]{1,2}~i'
 		} else {
 			$parameters = null;
@@ -717,7 +717,7 @@ EOS;
 		if (!empty($params['contentfile'])) {
 			$val = $params['license'] ?? '';
 			if ($val && !is_numeric($val)) {
-				// TODO attend to stored newlines? e.g. strip <br/>
+				// TODO attend to stored newlines? e.g. strip <br>
 //				$license = sanitizeVal($val, CMSSAN_NONPRINT); // OR kill non- cr lf tab
 				$license = preg_replace(
 				['~/\*~', '~\*/~', '~[\r\n]+\s*#~', '~[\r\n]+\s*//~', '~<br(\s*)?/?>~i'],

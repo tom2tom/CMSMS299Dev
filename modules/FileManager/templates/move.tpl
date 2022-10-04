@@ -22,7 +22,7 @@
     </select>
   </p>
 </div>
-<br />
+<br>
 <div class="pageoverflow">
   <p class="pageinput">
     <button type="submit" name="{$actionid}submit" class="adminsubmit icon do">{_ld($_module,'move')}</button>

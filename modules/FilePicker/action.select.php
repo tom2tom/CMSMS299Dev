@@ -37,7 +37,7 @@ try {
     if( !$type ) {
         $parms = ['type' => FileType::IMAGE]; //default mode: image selection
     }
-    elseif( is_numeric($type) )
+    elseif( is_numeric($type) ) {
         $parms = ['type' => (int)$type];
     }
     else {

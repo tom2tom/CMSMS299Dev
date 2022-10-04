@@ -1,10 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8">
   <title>CMS Made Simple - Error console</title>
-  <meta name="robots" content="noindex, nofollow" />
+  <meta name="robots" content="noindex, nofollow">
   <style type="text/css">
 {literal}
 body {
@@ -124,13 +124,13 @@ function toggle() {
 
 <body>
   <div class="logo">
-    <img src="{root_url}/lib/assets/images/cmsms-logotext.png" alt="CMS Made Simple" />
+    <img src="{root_url}/lib/assets/images/cmsms-logotext.png" alt="CMS Made Simple">
   </div>
   <div id="wrapper">
     <h1>Oops!</h1>
     <p class="info cf">
-      Something went wrong!{if empty($loggedin)}<br />
-      Please report to the appropriate authorities, including this message from the system:<br />
+      Something went wrong!{if empty($loggedin)}<br>
+      Please report to the appropriate authorities, including this message from the system:<br>
       {$e_message}{/if}
     </p>
     {if !empty($loggedin)}

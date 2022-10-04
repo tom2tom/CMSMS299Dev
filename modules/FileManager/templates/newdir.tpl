@@ -4,10 +4,10 @@
    <label for="newdir">{_ld($_module,'newdir')}:</label>
   </p>
   <p class="pageinput">
-   <input type="text" name="{$actionid}newdirname" id="newdir" value="{$newdirname}" size="40" />
+   <input type="text" name="{$actionid}newdirname" id="newdir" value="{$newdirname}" size="40">
   </p>
 </div>
-<br />
+<br>
 <div class="pageoverflow">
   <p class="pageinput">
     <button type="submit" name="{$actionid}newdir" class="adminsubmit icon do">{_ld($_module,'create')}</button>

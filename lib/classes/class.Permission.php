@@ -118,8 +118,7 @@ final class Permission
 	 * @ignore
 	 * @throws LogicException or UnexpectedValueException
 	 */
-	#[\ReturnTypeWillChange]
-	public function __set(string $key,$value)// : void
+	public function __set(string $key,$value) : void
 	{
 		if( $key == 'id' ) {
 			throw new LogicException($key.' cannot be set this way in '.__CLASS__.' objects');

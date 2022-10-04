@@ -21,7 +21,7 @@
       </tr>
     </tbody>
   </table>
-  <br />
+  <br>
 
   <table class="pagetable" style="width:100%;" summary="{si_lang a=installed_modules}">
     <thead>
@@ -39,7 +39,7 @@
       {/foreach}
     </tbody>
   </table>
-  <br />
+  <br>
 
   <table class="pagetable" style="width:100%;" summary="{si_lang a=config_information}">
     <thead>
@@ -63,13 +63,13 @@
            {admin_icon icon='info-external.gif' title='?' alt='?'}
            </a>
           {/if}
-          {if isset($test->message)}<br />{$test->message}{/if}
+          {if isset($test->message)}<br>{$test->message}{/if}
         </td>
       </tr>
       {/foreach} {/foreach}
     </tbody>
   </table>
-  <br />
+  <br>
 
   <table class="pagetable" style="width:100%;" summary="{_la('performance_information')}">
     <thead>
@@ -91,13 +91,13 @@
           {admin_icon icon='info-external.gif' title='?' alt='?'}
            </a>
           {/if}
-          {if isset($test->message)}<br />{$test->message}{/if}
+          {if isset($test->message)}<br>{$test->message}{/if}
         </td>
       </tr>
       {/foreach} {/foreach}
     </tbody>
   </table>
-  <br />
+  <br>
 
   <table class="pagetable" style="width:100%;" summary="{si_lang a=php_information}">
     <thead>
@@ -116,7 +116,7 @@
         <td>
           {if isset($test->value) && $test->display_value}{$test->value}{/if}{if isset($test->secondvalue)} ({$test->secondvalue}){/if}{if isset($test->error_fragment)}<a href="{$cms_install_help_url}#{$test->error_fragment}" class="external" rel="external">{admin_icon icon='info-external.gif' title='?' alt='?'}</a>{/if} {if isset($test->message)}{$test->message}{/if}
           {if isset($test->opt)} {foreach $test->opt as $key => $opt}
-          {if (!$opt@first || isset($test->value) || isset($test->secondvalue) || !empty($test->message))}<br />{/if}{admin_icon
+          {if (!$opt@first || isset($test->value) || isset($test->secondvalue) || !empty($test->message))}<br>{/if}{admin_icon
             icon="icons/extra/{$opt.res|default:'space'}.gif"
            title={$opt.res_text|default:''}
              alt={$opt.res_text|default:''}} {$key}{if !empty($opt.message)}: {$opt.message}{/if}
@@ -126,7 +126,7 @@
       {/foreach} {/foreach}
     </tbody>
   </table>
-  <br />
+  <br>
 
   <table class="pagetable" style="width:100%;" summary="{si_lang a=server_information}">
     <thead>
@@ -143,13 +143,13 @@
            title={$test->res_text|default:''}
              alt={$test->res_text|default:''}}{/if}</td>
         <td>
-          {if isset($test->value)}{$test->value}{/if}{if isset($test->secondvalue)} ({$test->secondvalue}){/if} {if isset($test->message)}<br />{$test->message}{/if}
+          {if isset($test->value)}{$test->value}{/if}{if isset($test->secondvalue)} ({$test->secondvalue}){/if} {if isset($test->message)}<br>{$test->message}{/if}
         </td>
       </tr>
       {/foreach} {/foreach}
     </tbody>
   </table>
-  <br />
+  <br>
 
   <table class="pagetable" style="width:100%;" summary="{si_lang a=permission_information}">
     <thead>
@@ -166,9 +166,9 @@
            title={$test->res_text|default:''}
              alt={$test->res_text|default:''}}{/if}</td>
         <td>
-          {if isset($test->value)}{$test->value}{/if}{if isset($test->secondvalue)} ({$test->secondvalue}){/if}{if !empty($test->message)}<br />{$test->message}{/if}
+          {if isset($test->value)}{$test->value}{/if}{if isset($test->secondvalue)} ({$test->secondvalue}){/if}{if !empty($test->message)}<br>{$test->message}{/if}
           {if isset($test->opt)} {foreach $test->opt as $key => $opt}
-          {if (!$opt@first || isset($test->value) || isset($test->secondvalue) || !empty($test->message))}<br />{/if}{admin_icon
+          {if (!$opt@first || isset($test->value) || isset($test->secondvalue) || !empty($test->message))}<br>{/if}{admin_icon
             icon="icons/extra/{$opt.res|default:'space'}.gif"
            title={$opt.res_text|default:''}
              alt={$opt.res_text|default:''}} {$key}{if !empty($opt.message)}: {$opt.message}{/if}

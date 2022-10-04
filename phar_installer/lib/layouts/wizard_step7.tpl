@@ -9,7 +9,7 @@
 {block name='contents'}
   <div class="message blue icon">
     <i class="icon-folder message-icon"></i>
-    <div class="content"><span class="heavy">{'prompt_dir'|tr}:</span><br />{$dir}</div>
+    <div class="content"><span class="heavy">{'prompt_dir'|tr}:</span><br>{$dir}</div>
   </div>
 
   <div id="inner"></div>

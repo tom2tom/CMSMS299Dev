@@ -43,6 +43,7 @@ use function cms_get_script;
 use function cms_path_to_url;
 use function cmsms;
 use function CMSMS\is_frontend_request;
+use function CMSMS\preferred_lang;
 use function endswith;
 use function startswith;
 
@@ -193,7 +194,7 @@ class Utils
             foreach ($incpaths as $fp) {
                 if (endswith($fp, 'css')) {
                     $url = cms_path_to_url($fp);
-                    $cssinc .= '<link rel="stylesheet" href="' . $url . '" />'."\n";
+                    $cssinc .= '<link rel="stylesheet" href="' . $url . '">'."\n";
                 } else {
 //DEBUG             $jsm->queue_file($fp);
                     $url = cms_path_to_url($fp);
@@ -228,7 +229,7 @@ class Utils
 //<script type="text/javascript" src="$srcurl/$mainfile"$cspext></script>
 //<script type="text/javascript" src="$base_url/lib/UNUSED-summernote-0.8.20/dist/summernote-lite.js"></script>
 // TODO module.css might be .min and/or need rtl >> $csm = new CMSMS\StylesMerger();$csm->queue_matchedfile(); ...
-//<link rel="stylesheet" href="$pickurl4" />
+//<link rel="stylesheet" href="$pickurl4">
 //<script type="text/javascript" src="$pickurl"></script>
 //<script type="text/javascript" src="$pickurl1"></script>
 //<script type="text/javascript" src="$pickurl3"></script>
@@ -249,8 +250,8 @@ if (typeof Symbol === 'undefined') {
 */
             $output = <<<EOS
 $cssinc
-<link rel="stylesheet" href="$themeurl" />$xcss
-<link rel="stylesheet" href="$base_url/styles/module.css" />
+<link rel="stylesheet" href="$themeurl">$xcss
+<link rel="stylesheet" href="$base_url/styles/module.css">
 $jsinc
 <script type="text/javascript" src="$pickurl2"></script>
 <script type="text/javascript" src="$srcurl/$mainfile"$cspext></script>
@@ -290,8 +291,8 @@ if (typeof Symbol === 'undefined') {
                 foreach ($plugs[1] as $fp) {
                     $url = cms_path_to_url($fp);
 //                  $relurl = ''; // TODO func($url etc)
-//                  $output .= "\n<link rel=\"stylesheet\" href=\"$base_url/$relurl.css\" />";
-                    $output .= "\n<link rel=\"stylesheet\" href=\"$url\" />";
+//                  $output .= "\n<link rel=\"stylesheet\" href=\"$base_url/$relurl.css\">";
+                    $output .= "\n<link rel=\"stylesheet\" href=\"$url\">";
                 }
             }
 
@@ -576,7 +577,7 @@ EOS;
         } else {
             $insacts = "'link', 'sitelink', 'mailto', 'siteimage', 'specialchars'";
         }
-        $s1 = json_encode(_ld('HTMLEditor', 'inserts_btn_title'));
+        $s1 = addcslashes(_ld('HTMLEditor', 'inserts_btn_title'), "'");
 
 //      $pref = ($local) ? '' : '-'; // plugin-name prefix
 // en/disable context.toolbar
@@ -624,12 +625,7 @@ EOS;
         $js = <<<EOS
 var $handle, $workid, container;
 $(function() {
-/*
-  container = $('$selector');
-  container.each(function(idx) {
-   SETUP js for each editor, remember each one for cleanup etc
-  });
-*/
+ container = $('$selector');
  $('$selector').summernote({
   editing: $jsedit,
   tabsize: 4,
@@ -645,7 +641,7 @@ $(function() {
             contents: ui.dropdownButtonContents(
               '<i class="note-iconc-inserts"></i>', context.options
             ),
-            tooltip: $s1,
+            tooltip: '$s1',
             data: {
               toggle: 'dropdown'
             }
@@ -818,23 +814,59 @@ EOS;
      urlroot: '$base_url/lib/CMSMS-plugins/template',
      manifest: 'list.json'
     }
-  } // plugin paramters
+  } // plugin parameters
  }); //summernote
 }); // ready
-// TODO API for editor(s) using this selector
-function seteditorcontent(v) {
- $('$selector').summernote('code', v);
-}
-function geteditorcontent() {
-  return $('$selector').summernote('code');
-}
-function setpagecontent(v) {
- $('$selector').val(v);
-}
 
 EOS;
         return $js;
+    } // GenerateInit
+/*
+function seteditorcontent(v) {
+ $('$selector').summernote('code', v);
+}
+
+// Update form content when needed e.g. submit/apply/save
+container.each(function(idx, el) {
+  var ta = $(el),
+   content = ta.summernote('code');
+  clean it
+  ta.val(cleaned);
+});
+// if (preferred_lang() === ENT_XHTML) {
+//  //TODO also deploy the closeformat plugin
+//}
+
+$("#formId").submit(function(){
+  for(var i=0; i<summernoteObjects.length; i++){
+    var objectPointerName = summernoteObjects[i];
+>>>> KEY    var summernoteValue = $("#" + objectPointerName).summernote('code');
+>>>>    $("#formId input[name='"+objectPointerName+"']").val(summernoteValue);
+  }
+});
+
+});
+
+$('.summernote').each(function(i, obj) {
+   $(obj).summernote({
+    onblur: function(e) { SAVE ?
+      var sHTML = $(obj).code();
+      process it
     }
+  });
+});
+*/
+/*
+//TODO need this pair for each textarea/editor
+// i.e. var el = $(selector); el.val(el.summernote('code'));
+//OR el.val(sanitized(el.summernote('code')));
+function geteditorcontent(selector) {
+  return $('$selector').summernote('code');
+}
+function setpagecontent(v, selector) {
+  $('$selector').val(v);
+}
+*/
 
     /**
      * Convert user's current language to something summernote can prolly understand.
@@ -904,7 +936,7 @@ EOS;
         if (is_file($imagepath)) {
             $imageurl = self::Slashes($url.'/thumb_'.$file);
             //TODO omit extension from alt, title
-            $image = "<img src='".$imageurl."' alt='".$file."' title='".$file."' />";
+            $image = "<img src='".$imageurl."' alt='".$file."' title='".$file."'>";
         } else {
             $image = '';
         }

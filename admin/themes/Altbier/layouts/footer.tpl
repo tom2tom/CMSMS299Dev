@@ -14,7 +14,7 @@
 					</li>
 {*					<li>
 						<a href="https://www.cmsmadesimple.org" rel="external">
-						<img  class="cmsnav" src="themes/assets/images/cmsms-icon.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logo.png';" alt="CMS Made Simple" title="CMS Made Simple" />
+						<img  class="cmsnav" src="themes/assets/images/cmsms-icon.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logo.png';" alt="CMS Made Simple" title="CMS Made Simple">
 						</a>
 					</li>
 					<li>{$t='documentation'|lang}

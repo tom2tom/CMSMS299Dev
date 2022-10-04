@@ -1,6 +1,6 @@
 {$formstart}
 {$confirmed}{$dirname}{$path}
 <b>{$dirnotempty}</b>
-<br /><br />
+<br><br>
 {$sure}{$cancel}
 </form>

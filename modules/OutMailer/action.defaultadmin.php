@@ -219,9 +219,9 @@ $js = <<<EOS
 EOS;
 add_page_headtext($js);
 
-$s1 = json_encode($this->Lang('confirm_sendtestmail'));
-$s2 = json_encode($this->Lang('confirm_settings'));
-$s3 = json_encode($this->Lang('confirm_property'));
+$s1 = addcslashes($this->Lang('confirm_sendtestmail'), "'");
+$s2 = addcslashes($this->Lang('confirm_settings'), "'");
+$s3 = addcslashes($this->Lang('confirm_property'), "'");
 //TODO some js is permission-specific
 $js = <<<EOS
 <script type="text/javascript">
@@ -261,19 +261,19 @@ $(function() {
  $('#mailer').on('change', on_mailer);
  $('[name="{$id}sendtest"]').on('click activate', function(ev) {
   ev.preventDefault();
-  cms_confirm_btnclick(this, $s1);
+  cms_confirm_btnclick(this, '$s1');
   return false;
  });
  $('[name="{$id}submit"]').on('click activate', function(ev) {
   ev.preventDefault();
-  cms_confirm_btnclick(this, $s2);
+  cms_confirm_btnclick(this, '$s2');
   return false;
  });
  $('[name$="~delete"]').on('click activate', function(ev) {
   ev.preventDefault();
   var cb = $(this).closest('fieldset').find('input[name$="~sel"]:checked');
   if (cb.length > 0) {
-   cms_confirm_btnclick(this, $s3);
+   cms_confirm_btnclick(this, '$s3');
   }
   return false;
  });

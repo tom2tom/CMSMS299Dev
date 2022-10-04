@@ -492,12 +492,12 @@ function redirect(string $to)
 		} else {
 			$to2 = $to;
 		}
-		echo 'Please click <a accesskey="r" href="'.$to.'">this link</a> to complete redirection<br />from<br />'.
+		echo 'Please click <a accesskey="r" href="'.$to.'">this link</a> to complete redirection<br>from<br>'.
 $from.
-'<br />to<br />'.
+'<br>to<br>'.
 $to2.
-'<br />
-<br />
+'<br>
+<br>
 <div id="DebugFooter">';
 		foreach (get_debug_messages() as $msg) {
 			echo $msg;
@@ -1244,7 +1244,7 @@ function cms_get_jquery(string $exclude = '', bool $ssl = false, bool $cdn = fal
 	if ($include_css) {
 		$url1 = cms_path_to_url($incs['jquicss']);
 		$s1 = <<<EOS
-<link rel="stylesheet" href="{$url1}" />
+<link rel="stylesheet" href="{$url1}">
 
 EOS;
 	} else {
@@ -1737,9 +1737,9 @@ function stack_trace(string $title = '')
 			continue;
 		}
 		if (isset($elem['file'])) {
-			echo $elem['file'].':'.$elem['line'].' - '.$elem['function'].'<br />';
+			echo $elem['file'].':'.$elem['line'].' - '.$elem['function'].'<br>';
 		} else {
-			echo ' - '.$elem['function'].'<br />';
+			echo ' - '.$elem['function'].'<br>';
 		}
 	}
 }
@@ -2179,22 +2179,23 @@ function dbshutdown()
 }
 
 /**
- * Gets PHP enum corresponding to the configured 'content_language' i.e. the
- * preferred language/syntax for page-content
+ * Gets PHP enum corresponding to the configured 'content_language'
+ *  i.e. the preferred language/syntax for frontend-page-content
+ *  verbatim or via module in console
+ * (console content should conform to admin theme templates' doctype)
  * @since 3.0
  *
- * @return PHP enum value
+ * @return int PHP ENT* enum value
  */
 function preferred_lang() : int
 {
-	$val = str_toupper(Lone::get('Config')['content_language']);
+	$val = strtoupper(Lone::get('Config')['content_language']);
 	switch ($val) {
 		case 'HTML5':
 			return ENT_HTML5;
 		case 'HTML':
-			return ENT_HTML401; //a.k.a. 0
 		case 'NONE':
-			return 0;
+			return ENT_HTML401; //a.k.a. 0
 		default:
 			return ENT_XHTML;
 	}

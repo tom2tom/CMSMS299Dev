@@ -257,7 +257,7 @@ abstract class base_email_platform
 /*            if ($dcount > 0) {
                 $tplvars['btndelete'] = $mod->CreateInputSubmit($id, $alias.'~delete',
                     $mod->Lang('delete'), 'title="'.$mod->Lang('delete_tip').'"');
-                //confirmation js applied in $(document).ready() - see action.defaultadmin.php
+                //confirmation js applied in $(function(){}) - see action.defaultadmin.php
             }
 */
         }

@@ -1,6 +1,6 @@
 <?php
 /*
-Authenticator module installation process
+ConsoleAuth module uninstallation process
 Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -19,9 +19,4 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppParams;
-
-$modname = AppParams::get('loginmodule');
-if (!$modname) {
-    AppParams::set('loginmodule', $this->GetName());
-}
+return 'This module cannot be removed';

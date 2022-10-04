@@ -89,7 +89,7 @@ function smarty_cms_about_function_admin_icon()
 {
 	$n = _la('none');
 	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
-    support addtext parameter
+	support addtext parameter
 }
 */
 function smarty_cms_help_function_admin_icon()

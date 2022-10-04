@@ -1,7 +1,7 @@
 <h3>{si_lang a=systeminfo}</h3>
 <div class="pageoverflow">
     <p><strong>CMSMS version</strong>: {$cms_version}</p>
-    <br />
+    <br>
     <p><strong>Installed Modules</strong>:</p>
     <ul>
       {foreach $installed_modules as $module}
@@ -9,7 +9,7 @@
       {/foreach}
     </ul>
     {if $count_config_info > 1}
-    <br />
+    <br>
     <p><strong>Config information</strong>:</p>
     <ul>
       {foreach $config_info as $view => $tmp}
@@ -20,7 +20,7 @@
     </ul>
     {/if}
     {if $count_php_information > 1}
-    <br />
+    <br>
     <p><strong>PHP information</strong>:</p>
     <ul>
       {foreach $php_information as $view => $tmp}
@@ -35,7 +35,7 @@
     </ul>
     {/if}
     {if count($performance_info)}
-    <br />
+    <br>
     <p><strong>Performance information</strong>:</p>
     <ul>
       {$list=$performance_info[0]}
@@ -45,7 +45,7 @@
     </ul>
     {/if}
     {if $count_server_info > 1}
-    <br />
+    <br>
     <p><strong>Server information</strong>:</p>
     <ul>
       {foreach $server_info as $view => $tmp}
@@ -56,7 +56,7 @@
     </ul>
     {/if}
     {if $count_permission_info > 1}
-    <br />
+    <br>
     <p><strong>Permission information</strong>:</p>
     <ul>
       {foreach $permission_info as $view => $tmp}

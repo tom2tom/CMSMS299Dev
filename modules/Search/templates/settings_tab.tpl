@@ -11,28 +11,28 @@
   <button type="submit" name="{$actionid}resettodefault" id="resets" class="adminsubmit icon undo">{_ld($_module,'input_resetstopwords')}</button>
   </p>
 </div>
-<input type="hidden" name="{$actionid}usestemming" value="0" />
+<input type="hidden" name="{$actionid}usestemming" value="0">
 <div class="pageoverflow postgap">
   {$t=$prompt_stemming}<label class="pagetext" for="dostem">{$t}:</label>
-  {cms_help 0=$_module key='help_stemming' title=$t}<br />
-  <input type="checkbox" name="{$actionid}usestemming" id="dostem" class="pageinput pagecheckbox" value="1"{if $stemming} checked="checked"{/if} />
+  {cms_help 0=$_module key='help_stemming' title=$t}<br>
+  <input type="checkbox" name="{$actionid}usestemming" id="dostem" class="pageinput pagecheckbox" value="1"{if $stemming} checked{/if}>
 </div>
 <div class="pageoverflow postgap">
   {$t=$prompt_searchtext}<label class="pagetext" for="prompt">{$t}:</label>
-  {cms_help 0=$_module key='help_searchtext' title=$t}<br />
-  <input type="text" name="{$actionid}searchtext" id="prompt" class="pageinput" value="{$searchtext}" size="15" maxlength="100" />
+  {cms_help 0=$_module key='help_searchtext' title=$t}<br>
+  <input type="text" name="{$actionid}searchtext" id="prompt" class="pageinput" value="{$searchtext}" size="15" maxlength="100">
 </div>
-<input type="hidden" name="{$actionid}savephrases" value="0" />
+<input type="hidden" name="{$actionid}savephrases" value="0">
 <div class="pageoverflow postgap">
   {$t=$prompt_savephrases}<label class="pagetext" for="phrases">{$t}:</label>
-  {cms_help 0=$_module key='help_savephrases' title=$t}<br />
-  <input type="checkbox" name="{$actionid}savephrases" id="phrases" class="pageinput pagecheckbox" value="1"{if $savephrases} checked="checked"{/if} />
+  {cms_help 0=$_module key='help_savephrases' title=$t}<br>
+  <input type="checkbox" name="{$actionid}savephrases" id="phrases" class="pageinput pagecheckbox" value="1"{if $savephrases} checked{/if}>
 </div>
-<input type="hidden" name="{$actionid}alpharesults" value="0" />
+<input type="hidden" name="{$actionid}alpharesults" value="0">
 <div class="pageoverflow postgap">
   {$t=$prompt_alpharesults}<label class="pagetext" for="alpha">{$t}:</label>
-  {*cms_help 0=$_module key='help_alpharesults' title=$t*}<br />
-  <input type="checkbox" name="{$actionid}alpharesults" id="alpha" class="pageinput pagecheckbox" value="1"{if $alpharesults} checked="checked"{/if} />
+  {*cms_help 0=$_module key='help_alpharesults' title=$t*}<br>
+  <input type="checkbox" name="{$actionid}alpharesults" id="alpha" class="pageinput pagecheckbox" value="1"{if $alpharesults} checked{/if}>
 </div>
 <div class="pageoverflow postgap">
   {$t=$prompt_resultpage}<label class="pagetext" for="page">{$t}:</label>

@@ -84,7 +84,7 @@ WHERE (type='content' OR type='link') AND default_content!=1 AND active=1 AND sh
 ORDER BY IF(modified_date, modified_date, create_date) DESC LIMIT ".((int)$number);
 	$rst = $db->execute($sql);
 	if( !$rst ) {
-		$output = 'DB error: '. $db->errorMsg().'<br />';
+		$output = 'DB error: '. $db->errorMsg().'<br>';
 		// @todo: throw an exception here  - trigger_error()
 	if( !empty($params['assign']) ) {
 			$template->assign(trim($params['assign']), $output);
@@ -99,10 +99,10 @@ ORDER BY IF(modified_date, modified_date, create_date) DESC LIMIT ".((int)$numbe
 		$output .= '<li>';
 		$output .= '<a href="'.$curcontent->GetURL().'">'.$updated_page['content_name'].'</a>';
 		if( $showtitle && !empty($updated_page['titleattribute']) ) {
-			$output .= '<br />';
+			$output .= '<br>';
 			$output .= $updated_page['titleattribute'];
 		}
-		$output .= '<br />';
+		$output .= '<br>';
 		$output .= $leadin;
 		$datevar = strtotime($updated_page['modified_date']);
 		if( strpos($format, '%') !== false ) {
@@ -128,10 +128,10 @@ function smarty_cms_about_function_recently_updated()
 	echo '<p>Authors: Elijah Lofgren &lt;elijahlofgren@elijahlofgren.com&gt; Olaf Noehring &lt;http://www.team-noehring.de&gt;</p>
 <p>Change History:</p>
 <ul>
- <li>Added optional parameters:<br />
-  leadin<br />
-  $showtitle<br />
-  css_class<br />
+ <li>Added optional parameters:<br>
+  leadin<br>
+  $showtitle<br>
+  css_class<br>
   dateformat
  </li>
  <li>Dec 2021<ul>

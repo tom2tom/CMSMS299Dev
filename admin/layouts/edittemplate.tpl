@@ -1,5 +1,5 @@
 {capture assign='disable'}
-  {if $tpl.lock && ($tpl.lock.uid != $userid)}disabled="disabled"{/if}
+  {if $tpl.lock && ($tpl.lock.uid != $userid)}disabled{/if}
 {/capture}
 
 {if $tpl.lock}
@@ -7,7 +7,7 @@
 {/if}
 
 <form id="form_edittemplate" action="{$selfurl}" enctype="multipart/form-data" method="post">
-  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
 <fieldset>
 <div class="rowbox">
@@ -24,7 +24,7 @@
       {$t=_ld('layout','prompt_name')}<label class="pagetext" for="tpl_name">* {$t}:</label>
       {cms_help 0='layout' key='help_template_name' title=$t}
       <div class="pageinput">
-        <input id="tpl_name" type="text" name="name" size="40" maxlength="96" value="{$tpl.name}"{if !$can_manage} readonly="readonly"{/if} placeholder="{_ld('layout','enter_name')}" />
+        <input id="tpl_name" type="text" name="name" size="40" maxlength="96" value="{$tpl.name}"{if !$can_manage} readonly="readonly"{/if} placeholder="{_ld('layout','enter_name')}">
       </div>
     </div>
 
@@ -124,9 +124,9 @@
        <div class="pageoverflow postgap">
          {$t=_ld('layout','prompt_default')}<label class="pagetext" for="default">{$t}:</label>
          {cms_help 0='layout' key='help_template_dflt' title=$t}
-         <input type="hidden" name="default" value="0" />
+         <input type="hidden" name="default" value="0">
          <div class="pageinput">
-           <input type="checkbox" name="default" id="default" value="1"{if $tpl_candefault} checked="checked"{/if} />
+           <input type="checkbox" name="default" id="default" value="1"{if $tpl_candefault} checked{/if}>
          </div>
        </div>
        {/if}
@@ -134,9 +134,9 @@
      <div class="pageoverflow postgap">
        {$t=_ld('layout','prompt_listable')}<label class="pagetext" for="listable">{$t}:</label>
        {cms_help 0='layout' key='help_template_listable' title=$t}
-       <input type="hidden" name="listable" value="0" />
+       <input type="hidden" name="listable" value="0">
        <div class="pageinput">
-         <input type="checkbox" name="listable" id="listable" value="1"{if $tpl.listable} checked="checked"{/if} />
+         <input type="checkbox" name="listable" id="listable" value="1"{if $tpl.listable} checked{/if}>
        </div>
      </div>
 {* multi groups allowed

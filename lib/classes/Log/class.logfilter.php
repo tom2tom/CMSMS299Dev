@@ -52,8 +52,7 @@ class logfilter
         }
     }
 
-    #[\ReturnTypeWillChange]
-    public function __set( $key, $val)// : void
+    public function __set( $key, $val) : void
     {
         switch( $key) {
         case 'subject':

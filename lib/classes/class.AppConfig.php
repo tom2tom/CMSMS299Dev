@@ -178,8 +178,7 @@ final class AppConfig implements ArrayAccess
      * interface method
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    public function offsetExists($key)// : bool
+    public function offsetExists($key) : bool
     {
         return isset(self::PROPS[$key]) || isset($this->_data[$key]); //TODO do we want to allow 'foreign' parameters in there?
     }
@@ -436,8 +435,8 @@ final class AppConfig implements ArrayAccess
         case 'admin_encoding':
             return 'utf-8';
 
-        case 'content_language':
-            return 'xhtml';
+        case 'content_language': // for frontend pages, verbatim or via module in console
+            return 'html5';
 
 //        case 'secure_action_url':
 //            return $this->offsetGet('obscure_urls');
@@ -501,8 +500,7 @@ final class AppConfig implements ArrayAccess
      * instead supply install-time settings directly : Config::get_instance($config)
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    public function offsetSet($key,$value)// : void
+    public function offsetSet($key,$value) : void
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('Direct setting of a config property is not supported'));
     }
@@ -512,8 +510,7 @@ final class AppConfig implements ArrayAccess
      * instead supply install-time settings directly : Config::get_instance($config)
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($key)// : void
+    public function offsetUnset($key) : void
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('Direct removal of a config property is not supported'));
     }

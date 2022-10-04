@@ -2,18 +2,18 @@
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
  <head>
   <title>{['loginto',{sitename}]|lang}</title>
-  <base href="{$admin_url}/" />
-  <meta charset="{$encoding}" />
-  <meta name="generator" content="CMS Made Simple" />
-  <meta name="robots" content="noindex, nofollow" />
-  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
-  <meta name="HandheldFriendly" content="true" />
-  <meta name="msapplication-TileColor" content="#f89938" />
-  <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
-  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" />
+  <base href="{$admin_url}/">
+  <meta charset="{$encoding}">
+  <meta name="generator" content="CMS Made Simple">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no">
+  <meta name="HandheldFriendly" content="true">
+  <meta name="msapplication-TileColor" content="#f89938">
+  <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png">
+  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
  {$font_includes}
  {$header_includes|default:''}
  </head>
@@ -25,7 +25,7 @@
            <div class="message error">{'login_info_needjs'|lang}</div>
          </noscript>
          {if !empty($sitelogo)}
-           <img id="sitelogo" src="{$sitelogo}" title="{sitename}" alt="{sitename}" />
+           <img id="sitelogo" src="{$sitelogo}" title="{sitename}" alt="{sitename}">
          {/if}
          <header>{$lost=isset($smarty.get.forgotpw)}
            <h1>{if $lost}{['forgotpwtitle',{sitename}]|lang}
@@ -43,7 +43,7 @@
          {if !empty($message)}<div class="message information">{$message}</div>{/if}
          {if !$lost}
          <a id="toggle-info" href="javascript:void()" title="{'open'|lang}/{'close'|lang}"><i class="fa fa-info" aria-hidden="true"></i> {'login_info_title'|lang}</a>
-         <br />
+         <br>
          {/if}
          <a id="goto" href="{root_url}" title="{['goto',{sitename}]|lang}"><i class="cfi-mainsite" aria-hidden="true"></i> {'viewsite'|lang}</a>
          {if !$lost}
@@ -56,7 +56,7 @@
        </div>
      </div>
      <a id="cms-logo" href="http://www.cmsmadesimple.org" rel="external">
-       <img src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" alt="CMS Made Simple" />
+       <img src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" alt="CMS Made Simple">
      </a>
    </div>
  {$bottom_includes|default:''}

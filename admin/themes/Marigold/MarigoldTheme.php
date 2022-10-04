@@ -60,8 +60,8 @@ class MarigoldTheme extends AdminTheme
 	 * @ignore
 	 */
 	const AWESOME_CDN =
-	'<link rel="preconnect" href="https://cdnjs.cloudflare.com" />'."\n".
-	'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" referrerpolicy="same-origin" />';
+	'<link rel="preconnect" href="https://cdnjs.cloudflare.com">'."\n".
+	'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" referrerpolicy="same-origin">';
 
 	/**
 	 * @ignore
@@ -90,7 +90,7 @@ class MarigoldTheme extends AdminTheme
 		// jQUI css does, and theme-specific css files might, include relative URLs, so cannot be merged
 		$url = cms_path_to_url($incs['jquicss']);
 		$out .= <<<EOS
-<link rel="stylesheet" href="$url" />
+<link rel="stylesheet" href="$url">
 
 EOS;
 		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
@@ -103,7 +103,7 @@ EOS;
 			$extra = substr($fp, $n);
 			$sufx = strtr($extra, '\\', '/');
 			$after .= <<<EOS
-<link rel="stylesheet" href="{$rel_url}/{$sufx}" />
+<link rel="stylesheet" href="{$rel_url}/{$sufx}">
 
 EOS;
 		}
@@ -159,7 +159,7 @@ EOS;
 		$fp = cms_join_path(__DIR__, 'styles', 'font-awesome.min.css');
 		if (is_file($fp)) {
 			$url = cms_path_to_url($fp);
-			$smarty->assign('font_includes', ' <link rel="stylesheet" href="'.$url.'" />');
+			$smarty->assign('font_includes', ' <link rel="stylesheet" href="'.$url.'">');
 		} else {
 			$smarty->assign('font_includes', self::AWESOME_CDN);
 		}
@@ -174,8 +174,8 @@ EOS;
 		$incs = cms_installed_jquery();
 		$url = cms_path_to_url($incs['jquicss']);
 		$out = <<<EOS
- <link rel="stylesheet" href="$url" />
- <link rel="stylesheet" href="themes/Marigold/styles/{$fn}.css" />
+ <link rel="stylesheet" href="$url">
+ <link rel="stylesheet" href="themes/Marigold/styles/{$fn}.css">
 
 EOS;
 //		get_csp_token(); //setup CSP header (result not used)
@@ -312,11 +312,11 @@ EOS;
 
 		// icon
 		if ($modname && ($icon_url = $this->get_value('module_icon_url'))) {
-			$tag = '<img src="'.$icon_url.'" alt="'.$modname.'" class="module-icon" />';
+			$tag = '<img src="'.$icon_url.'" alt="'.$modname.'" class="module-icon">';
 		} elseif ($modname && $title) {
 			$tag = $this->get_module_icon($modname, ['alt'=>$modname, 'class'=>'module-icon']);
 		} elseif (($icon_url = $this->get_value('page_icon_url'))) {
-			$tag = '<img src="'.$icon_url.'" alt="TODO" class="TODO" />';
+			$tag = '<img src="'.$icon_url.'" alt="TODO" class="TODO">';
 		} else {
 			$tag = ''; //TODO get icon for admin operation
 		}
@@ -353,7 +353,7 @@ EOS;
 		$fp = cms_join_path(__DIR__, 'styles', 'font-awesome.min.css');
 		if (is_file($fp)) {
 			$url = cms_path_to_url($fp);
-			$s = '<link rel="stylesheet" href="'.$url.'" />';
+			$s = '<link rel="stylesheet" href="'.$url.'">';
 		} else {
 			$s = self::AWESOME_CDN; // TODO variable CDN URL
 		}

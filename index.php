@@ -60,7 +60,7 @@ if (!is_writable(TMP_TEMPLATES_C_LOCATION) || !is_writable(TMP_CACHE_LOCATION)) 
 	header('Status: 500 Internal Server Error');
 	echo '<!DOCTYPE html>
 <html><head><title>Error</title></head><body>
-<p>The web server is prevented from writing to one or more temporary-storage directories.<br />
+<p>The web server is prevented from writing to one or more temporary-storage directories.<br>
 Please contact the website administrator to request that this problem be corrected.</p>
 </body></html>';
 	Events::SendEvent('Core', 'PostRequest');
@@ -240,14 +240,14 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 			$msg = AppParams::get('sitedownmessage');
 			if (!$msg ) {
 			$msg = <<<'EOS'
-Maintenance is being done.<br />
+Maintenance is being done.<br>
 Please check back again shortly.
 EOS;
 			}
 		}
 		else {
 			$msg .= <<<'EOS'
-<br />
+<br>
 Please check back again shortly.
 EOS;
 		}
@@ -281,7 +281,7 @@ EOS;
 			{
 				return array_intersect_key($a,$keeps);
 			}, $t->getTrace());
-			debug_display($data, $t->GetMessage().'<br /><br />Backtrace:');
+			debug_display($data, $t->GetMessage().'<br><br>Backtrace:');
 		} else {
 			$msg = $t->GetMessage();
 			if (!$msg) $msg = 'The cause was not reported.';
@@ -291,7 +291,7 @@ EOS;
 			echo '<!DOCTYPE html>
 <html><head><title>Site Operation Error</title></head><body>
 <h1>Site Operation Error</h1>
-<p>'.$msg.'</p><br />
+<p>'.$msg.'</p><br>
 <p>Please notify the site administrator.</p>
 </body></html>';
 		}

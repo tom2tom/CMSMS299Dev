@@ -20,46 +20,70 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\Lone;
+
 function smarty_function_anchor($params, $template)
 {
-	$content = cmsms()->get_content_object();
-	if( !is_object($content) ) return '';
-
-	$class = '';
-	$title = '';
-	$tabindex = '';
-	$accesskey = '';
-	if( !empty($params['class']) ) $class = ' class="'.$params['class'].'"';
-	if( !empty($params['title']) ) $title = ' title="'.$params['title'].'"';
-	if( !empty($params['tabindex']) ) $tabindex = ' tabindex="'.$params['tabindex'].'"';
-	if( !empty($params['accesskey']) ) $accesskey = ' accesskey="'.$params['accesskey'].'"';
-
-	$url = $content->GetURL().'#'.trim($params['anchor']);
-//	$url = str_replace('&amp;','***',$url);
-//	$url = str_replace('&', '&amp;', $url);
-//	$url = str_replace('***','&amp;',$url);
-
-	if( isset($params['onlyhref']) && cms_to_bool($params['onlyhref']) ) {
-		$tmp = $url;
+	$to = (isset($params['anchor'])) ? trim($params['anchor']) : '';
+	if ($to === '') {
+		return '<!-- anchor tag: no anchor provided -->';
 	}
-	else {
-		$text = $params['text'] ?? '<!-- anchor tag: no text provided -->anchor';
+
+	if (!empty($_SERVER['QUERY_STRING'])) {
+		//$_SERVER['QUERY_STRING'] like 'page=news/99/107/somename'
+		$config = Lone::get('Config');
+		$tmp = $config['query_var'].'=';
+		$path = str_replace($tmp, '', $_SERVER['QUERY_STRING']);
+		$url = $config['root_url'].'/'.trim($path, ' /');
+	} else {
+		//this is useless for runtime-populated pages e.g. News details
+		$content = cmsms()->get_content_object();
+		if (!is_object($content)) {
+			return '';
+		}
+		$url = $content->GetURL();
+	}
+	$url = preg_replace('/&(?!amp;)/', '&amp;', $url.'#'.rawurlencode($to));
+
+	if (!empty($params['onlyhref']) && cms_to_bool($params['onlyhref'])) {
+		$tmp = $url;
+	} else {
+		$class = '';
+		if (isset($params['class']) && $params['class'] !== '') {
+			$class = ' class="'.$params['class'].'"';
+		}
+		$title = '';
+		if (isset($params['title']) && $params['title'] !== '') {
+			$title = ' title="'.$params['title'].'"';
+		}
+		$tabindex = '';
+		if (isset($params['tabindex']) && $params['tabindex'] !== '') {
+			$tabindex = ' tabindex="'.(int)$params['tabindex'].'"';
+		}
+		$accesskey = '';
+		if (isset($params['accesskey']) && $params['accesskey'] !== '') {
+			$accesskey = ' accesskey="'.$params['accesskey'].'"';
+		}
+		$text = trim($params['text'] ?? '');
+		if ($text === '') {
+			$text = htmlentities($to).'<!-- anchor tag: no text provided -->';
+		}
 		$tmp = '<a href="'.$url.'"'.$class.$title.$tabindex.$accesskey.'>'.$text.'</a>';
 	}
 
-	if( !empty($params['assign']) ) {
+	if (!empty($params['assign'])) {
 		$template->assign(trim($params['assign']), $tmp);
 		return '';
 	}
 	return $tmp;
 }
-/*
+
 function smarty_cms_about_function_anchor()
 {
-	$n = _la('none');
-	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', "<li>$n</li>");
+	$s = '<li>Oct 2022 generate URL from $_SERVER to support runtime-populated pages</li>';
+	echo _ld('tags', 'about_generic', 'Ted Kulp 2004', $s);
 }
-*/
+
 function smarty_cms_help_function_anchor()
 {
 	echo _ld('tags', 'help_generic',

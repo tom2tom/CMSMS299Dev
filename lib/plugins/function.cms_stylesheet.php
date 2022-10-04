@@ -122,13 +122,13 @@ function toString(string $filename, string $media_query = '', string $media_type
 		$out .= $root_url.$filename.',';
 	}
 	elseif( $media_query ) {
-		$out .= '<link rel="stylesheet" href="'.$root_url.$filename.'" media="'.$media_query.'" />'.PHP_EOL;
+		$out .= '<link rel="stylesheet" href="'.$root_url.$filename.'" media="'.$media_query.'">'.PHP_EOL;
 	}
 	elseif( $media_type && $media_type != 'all' ) {
-		$out .= '<link rel="stylesheet" href="'.$root_url.$filename.'" media="'.$media_type.'" />'.PHP_EOL;
+		$out .= '<link rel="stylesheet" href="'.$root_url.$filename.'" media="'.$media_type.'">'.PHP_EOL;
 	}
 	else {
-		$out .= '<link rel="stylesheet" href="'.$root_url.$filename.'" />'.PHP_EOL;
+		$out .= '<link rel="stylesheet" href="'.$root_url.$filename.'">'.PHP_EOL;
 	}
 }
 

@@ -41,7 +41,7 @@ if (isset($_POST['cancel'])) {
 $munge = function($text) {
     $matches = [];
     $clean = preg_replace_callback('~<\s*(/?)\s*(textarea)\s*>~i', function($matches) {
-        $pre = ($matches[1]) ? '&sol;' : ''; // ?? OR &#47;
+        $pre = ($matches[1]) ? '&sol;' : ''; // OR &#47;
         return '&lt;'.$pre.$matches[2].'>';
     }, $text);
     return $clean;
@@ -161,8 +161,8 @@ $js = $pageincs['foot'] ?? '';
 
 if ($edit) {
 //    $nonce = get_csp_token();
-    $s1 = json_encode(_la('error_usrplg_name'));
-    $s2 = json_encode(_la('error_usrplg_nocode'));
+    $s1 = addcslashes(_la('error_usrplg_name'), "'");
+    $s2 = addcslashes(_la('error_usrplg_nocode'), "'");
     $js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[
@@ -171,13 +171,13 @@ $(function() {
   var v = $('#name').val();
   if (v === '' || !v.match(/^[a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*$/)) {
    ev.preventDefault();
-   cms_notify('error', $s1);
+   cms_notify('error', '$s1');
    return false;
   }
   v = geteditorcontent().trim();
   if (v === '') {
    ev.preventDefault();
-   cms_notify('error', $s2);
+   cms_notify('error', '$s2');
    return false;
   }
   setpagecontent(v);

@@ -20,7 +20,7 @@
 
 <h3>{_ld($_module,'prompt_ordercontent')}</h3>
 {form_start action='ordercontent' id="theform"}
-<input type="hidden" id="orderlist" name="{$actionid}orderlist" value="" />
+<input type="hidden" id="orderlist" name="{$actionid}orderlist" value="">
 <div class="pageinfo">{_ld($_module,'info_ordercontent')}</div>
 <div class="pageinput postgap">
   <button type="submit" name="{$actionid}submit" class="adminsubmit icon check btn_submit">{_ld($_module,'submit')}</button>
@@ -31,7 +31,7 @@
 {if $dir == 'rtl'}
   {admin_icon icon='icons/extra/search' alt="{_ld('layout','search')}" addtext='style=position:relative;left:1.8em'}
 {/if}
-  <input type="text" id="ajax_find" title="{_ld($_module,'title_listcontent_find')}" size="15" maxlength="20" placeholder="{_ld('layout','search')}" />
+  <input type="text" id="ajax_find" title="{_ld($_module,'title_listcontent_find')}" size="15" maxlength="20" placeholder="{_ld('layout','search')}">
 {if $dir != 'rtl'}
   {admin_icon icon='icons/extra/search' alt="{_ld('layout','search')}" addtext='style=position:relative;left:-1.8em'}
 {/if}

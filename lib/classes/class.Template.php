@@ -149,8 +149,7 @@ class Template
 	/**
 	* @ignore
 	*/
-	#[\ReturnTypeWillChange]
-	public function __set(string $key,$value)
+	public function __set(string $key,$value) : void
 	{
 		switch( $key ) {
 			case 'id':

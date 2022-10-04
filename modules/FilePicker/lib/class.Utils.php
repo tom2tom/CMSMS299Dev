@@ -85,7 +85,7 @@ class Utils
 
             }
             //TODO return $themeObject->DisplayImage(fullpath-to-image,'directory','','','listicon',$attrs = []);
-            return '<img src="'.$baseurl.'/images/types/'.$lcext.'.png" class="listicon" alt="directory" />';
+            return '<img src="'.$baseurl.'/images/types/'.$lcext.'.png" class="listicon" alt="directory">';
         }
 
         if ($extension === '' || $extension === '.') {
@@ -109,7 +109,7 @@ class Utils
             $lcext = $dups[$lcext] ?? '0';
         }
         //TODO return $themeObject->DisplayImage(fullpath-to-image,$ext.'-file','','','listicon',$attrs = []);
-        return '<img src="'.$baseurl.'/images/types/'.$lcext.'.png" class="listicon" alt="'.$ext.'-file" />';
+        return '<img src="'.$baseurl.'/images/types/'.$lcext.'.png" class="listicon" alt="'.$ext.'-file">';
     }
 
     /**
@@ -606,9 +606,9 @@ class Utils
             $url2 = cms_get_css('basictable.css');
             $url3 = cms_get_css('browsefiles.css');
             $headinc = <<<EOS
-<link rel="stylesheet" href="$url1" />
-<link rel="stylesheet" href="$url2" />
-<link rel="stylesheet" href="$url3" />
+<link rel="stylesheet" href="$url1">
+<link rel="stylesheet" href="$url2">
+<link rel="stylesheet" href="$url3">
 
 EOS;
             $jsm = new ScriptsMerger();

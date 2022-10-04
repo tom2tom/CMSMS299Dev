@@ -234,7 +234,7 @@ class ContentBase implements Serializable
 		}
 	}
 
-	#[\ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
 	public function serialize()// : ?string
 	{
 		//TODO can all cachers cope with embedded null's in strings ? NB internal cryption is slow!
@@ -242,7 +242,7 @@ class ContentBase implements Serializable
 //		return $this->__toString();
 	}
 
-	#[\ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
 	public function unserialize(/*string*/$serialized)// : void
 	{
 		$str = Crypto::decrypt_string($serialized,__CLASS__,'best');

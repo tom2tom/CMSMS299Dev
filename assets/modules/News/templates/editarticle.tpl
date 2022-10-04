@@ -20,9 +20,9 @@
    <p class="pagetext">{_ld($_module,'prompt_history')}:</p>
    <div class="pageinput">
    {_ld($_module,'created')}: {$createat}
-{if isset($modat)}<br />{_ld($_module,'modified')}: {$modat}{/if}
-{if isset($pubat)}<br />{_ld($_module,'published')}: {$pubat}{/if}
-{if isset($archat)}<br />{_ld($_module,'archived')}: {$archat}{/if}
+{if isset($modat)}<br>{_ld($_module,'modified')}: {$modat}{/if}
+{if isset($pubat)}<br>{_ld($_module,'published')}: {$pubat}{/if}
+{if isset($archat)}<br>{_ld($_module,'archived')}: {$archat}{/if}
    </div>
 {/if}
 
@@ -40,7 +40,7 @@
       {$t=_ld($_module,'title')}<label class="pagetext" for="itemtitle">* {$t}:</label>
       {cms_help 0=$_module key='help_article_title' title=$t}
       <div class="pageinput">
-        <input type="text" name="{$actionid}title" id="itemtitle" value="{$title}" size="32" maxlength="48" required="required" />
+        <input type="text" name="{$actionid}title" id="itemtitle" value="{$title}" size="32" maxlength="48" required>
       </div>
     </div>
 
@@ -74,9 +74,9 @@
     <div class="pageoverflow">
       {$t=_ld($_module,'searchable')}<label class="pagetext" for="cansearch">{$t}:</label>
       {cms_help 0=$_module key='help_article_searchable' title=$t}
-      <input type="hidden" name="{$actionid}searchable" value="0" />
+      <input type="hidden" name="{$actionid}searchable" value="0">
       <div class="pageinput">
-        <input type="checkbox" name="{$actionid}searchable" id="cansearch" value="1"{if $searchable} checked="checked"{/if} />
+        <input type="checkbox" name="{$actionid}searchable" id="cansearch" value="1"{if $searchable} checked{/if}>
       </div>
     </div>
 
@@ -84,8 +84,8 @@
       {$t=_ld($_module,'prettyurl')}<label class="pagetext" for="itemurl">{$t}:</label>
       {cms_help 0=$_module key='help_article_url' title=$t}
       <div class="pageinput">
-        <input type="text" name="{$actionid}news_url" id="itemurl" value="{$news_url}" size="32" maxlength="64" /><br />
-        <input type="checkbox" id="genurl" name="{$actionid}generate_url" value="1" />
+        <input type="text" name="{$actionid}news_url" id="itemurl" value="{$news_url}" size="32" maxlength="64"><br>
+        <input type="checkbox" id="genurl" name="{$actionid}generate_url" value="1">
         <label for="genurl">{_ld($_module,'generateurl')}</label>
       </div>
     </div>
@@ -94,15 +94,15 @@
       {$t=_ld($_module,'extra')}<label class="pagetext" for="extradata">{$t}:</label>
       {cms_help 0=$_module key='help_article_extra' title=$t}
       <div class="pageinput">
-        <input type="text" name="{$actionid}extra" id="extradata" value="{$extra}" size="50" maxlength="255" />
+        <input type="text" name="{$actionid}extra" id="extradata" value="{$extra}" size="50" maxlength="255">
       </div>
     </div>
 
     <div class="pageoverflow">
       <label class="pagetext" for="itemimage">{_ld($_module,'item_image')}:</label>
       <div class="pageinput">
-        <img id="itemimage" class="yesimage" src="{$image_url}" alt="{$image_url}" />
-        <br class="yesimage" />
+        <img id="itemimage" class="yesimage" src="{$image_url}" alt="{$image_url}">
+        <br class="yesimage">
         {$filepicker}
       </div>
     </div>
@@ -116,21 +116,21 @@
       </div>
     </div>
   {else}
-    <input type="hidden" name="{$actionid}status" value="{$status}" />
+    <input type="hidden" name="{$actionid}status" value="{$status}">
   {/if}
 
     <div id="pickers" class="pageoverflow pagetext">
       {$t=_ld($_module,'prompt_publish')}{$t}:
       {cms_help 0=$_module key='help_article_publish' title=$t}
       <div class="pageinput">
-        <input type="text" name="{$actionid}fromdate" data-select="datepicker" value="{$fromdate}" size="12" />
-        {if $withtime}{_ld($_module,'at')} <input type="text" name="{$actionid}fromtime" class="time" value="{$fromtime}" size="10" />{/if}
+        <input type="text" name="{$actionid}fromdate" data-select="datepicker" value="{$fromdate}" size="12">
+        {if $withtime}{_ld($_module,'at')} <input type="text" name="{$actionid}fromtime" class="time" value="{$fromtime}" size="10">{/if}
       </div>
       {$t=_ld($_module,'prompt_expire')}{$t}:
       {cms_help 0=$_module key='help_article_expire' title=$t}
       <div class="pageinput">
-        <input type="text" name="{$actionid}todate" data-select="datepicker" value="{$todate}" size="12" />
-        {if $withtime}{_ld($_module,'at')} <input type="text" name="{$actionid}totime" class="time" value="{$totime}" size="10" />{/if}
+        <input type="text" name="{$actionid}todate" data-select="datepicker" value="{$todate}" size="12">
+        {if $withtime}{_ld($_module,'at')} <input type="text" name="{$actionid}totime" class="time" value="{$totime}" size="10">{/if}
       </div>
     </div>{*pickers*}
   </div>{*edit_article*}
@@ -146,7 +146,7 @@
     <label for="cms_hierdropdown1">{_ld($_module,'detail_page')}:</label>
     {$preview_returnid}
   </fieldset>
-  <br />
+  <br>
   <iframe id="previewframe" style="height:800px;width:100%;border:1px solid black;overflow:auto;"></iframe>
 
   {tab_end}

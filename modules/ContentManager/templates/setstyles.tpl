@@ -14,7 +14,7 @@
    <td>{if $obj->id >= 0}{$obj->id}{else}{-($obj->id)}{/if}</td>
    <td>{$obj->name}</td>
 {if $grouped}   <td>{$obj->members}</td>{/if}
-   <td style="text-align:center;"><input type="checkbox" name="{$actionid}styles[]" value="{$obj->id}"{if $obj->checked} checked="checked"{/if} /></td>
+   <td style="text-align:center;"><input type="checkbox" name="{$actionid}styles[]" value="{$obj->id}"{if $obj->checked} checked{/if}></td>
   </tr>{/foreach}
  </tbody>
 </table>

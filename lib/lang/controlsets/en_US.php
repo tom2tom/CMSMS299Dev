@@ -35,7 +35,7 @@ $lang = [
 'pagetitle_see_set' => 'Review Controls-Set',
 
 // I
-'info_selector' => 'Click a name to toggle display of that folder\'s contents, if any.<br />Double-click a name to select that folder.',
+'info_selector' => 'Click a name to toggle display of that folder\'s contents, if any.<br>Double-click a name to select that folder.',
 
 //M
 'match_groups' => 'Allowed User-Groups',

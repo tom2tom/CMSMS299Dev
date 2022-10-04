@@ -48,7 +48,7 @@
       <th{if $itemcount > 1} class="{literal}{sss:intfor}{/literal}"{/if}>{$enddatetext}</th>
       <th class="pageicon{if $itemcount > 1} {literal}{sss:intfor}{/literal}{/if}">{$statustext}</th>{*if papp*}
       <th class="pageicon{if $itemcount > 1} nosort{/if}"></th>{*if pmod &/| $pdel 0..4 icons in this column TODO replace by context menu *}
-      <th class="pageicon{if $itemcount > 1} nosort{/if}"><input type="checkbox" id="selectall" value="1" title="{_ld($_module,'selectall')}" /></th>{*if pANY*}
+      <th class="pageicon{if $itemcount > 1} nosort{/if}"><input type="checkbox" id="selectall" value="1" title="{_ld($_module,'selectall')}"></th>{*if pANY*}
     </tr>
   </thead>
   <tbody>{foreach $items as $entry}
@@ -64,13 +64,13 @@
           {$entry->enddate}
         {/if}
       </td>
-      <td{if $itemcount > 1} data-sss="{$entry->approve_mode}"{/if}>{if isset($entry->approve_link)}>{$entry->approve_link}{/if}</td>
+      <td{if $itemcount > 1} data-sss="{$entry->approve_mode}"{/if}>{if isset($entry->approve_link)}{$entry->approve_link}{/if}</td>
       <td>
         {if isset($entry->editlink)}{$entry->editlink} {$entry->copylink}{if $xcats} {$entry->movelink}{/if}{/if}
         {if isset($entry->deletelink)} {$entry->deletelink}{/if}
       </td>
       <td>
-        <input type="checkbox" name="{$actionid}sel[]" value="{$entry->id}" title="{_ld($_module,'tip_bulk')}" />
+        <input type="checkbox" name="{$actionid}sel[]" value="{$entry->id}" title="{_ld($_module,'tip_bulk')}">
       </td>
 {/strip}
     </tr>
@@ -114,7 +114,7 @@
     <label class="pagetext" for="childcats">{$label_filterinclude}:</label>
     {cms_help 0=$_module key='help_articles_filterchildcats' title=$label_filterinclude}
     <div class="pageinput">
-      <input id="childcats" type="checkbox" name="{$actionid}filter_descendants" value="1"{if $filter_descendants} checked="checked"{/if} />
+      <input id="childcats" type="checkbox" name="{$actionid}filter_descendants" value="1"{if $filter_descendants} checked{/if}>
     </div>
   </div>
  </form>
@@ -135,7 +135,7 @@
 {if $xcats && $itemcount > 0}
 <div id="catselector" title="{$selectortext}" style="display:none;">
   {$formstart_catselector}
-  <input type="hidden" id="movedarticle" name="{$actionid}articleid" />
+  <input type="hidden" id="movedarticle" name="{$actionid}articleid">
   <div class="pageoverflow">
    <select id="destcat" name="{$actionid}tocategory">
     {html_options options=$categorylist selected=-1}    </select>

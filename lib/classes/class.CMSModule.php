@@ -737,42 +737,46 @@ abstract class CMSModule
                     }
                 }
 
-                if( $paramtype != '' ) {
+                if( $paramtype ) {
                     ++$mappedcount;
                     $mapped = true;
                     switch( $paramtype ) {
                     case CLEAN_INT:
-                        $value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+                        $value = (int)filter_var($value, FILTER_SANITIZE_NUMBER_INT);
                         break;
                     case CLEAN_FLOAT:
-                        $value = filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT);
+                        $value = (float)filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT);
                         break;
                     case CLEAN_BOOL:
                         $value = cms_to_bool($value);
                         break;
                     case CLEAN_NONE:
-                        // pass through verbatim.
+                        // pass through verbatim
                         break;
                     case CLEAN_STRING:
-                        //TODO use sanitizeVal(), de_specialize()
-                        $value = sanitizeVal($value, CMSSAN_PHPSTRING); // deprecated FILTER_SANITIZE_STRING-compatible
+                        //TODO arguably this should be cleaned in context, where actual valid content is known
+                        //OR here use sanitizeVal(e.g. CMSSAN_PHPSTRING) after de_specialize()
+                        // deprecated FILTER_SANITIZE_STRING-replacement with some extras e.g. `<> allowed
+                        $value = strtr(strip_tags($value), ['"'=>'&#34;', "'"=>'&#39;']);
                         break;
                     case CLEAN_FILE:
-                        //TODO use sanitizeVal(), de_specialize()
+                        //TODO use sanitizeVal( CMSSAN_PATH)
                         $value = realpath($value);
                         if ($value === false || strpos($value, CMS_ROOT_PATH) !== 0) {
-                            $value = CLEANED_FILENAME;
+                            $value = CLEANED_FILENAME; // error message, effectively
                         }
                         break;
                     default:
                         if (is_string($value) && $value !== '') {
-                            //TODO use sanitizeVal(), de_specialize()
-                            $ss = strtr(strip_tags($value), ['`'=>'', '"'=>'&#34;', "'"=>'&#39;']); // deprecated FILTER_SANITIZE_STRING-replacement
-                            $value = filter_var($ss, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_LOW);
+                             //TODO arguably this should be cleaned in context, where actual valid content is known
+                             //OR here use sanitizeVal() after de_specialize()
+                             // deprecated FILTER_SANITIZE_STRING-replacement but with tags entitized, FILTER_FLAGs STRIP_LOW, STRIP_BACKTICK
+                            $ss = strtr($value, ['"'=>'&quot;', "'"=>'&apos;', '<'=>'&lt;', '>'=>'&gt;', "\t"=>' ']);
+                            $value = filter_var($ss, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
                         }
                         break;
                     } // switch
-                } // if $paramtype
+                } // $paramtype
             }
 
             if( $allow_unknown && !$mapped ) {
@@ -782,22 +786,22 @@ abstract class CMSModule
                 $mapped = true;
                 if( is_string($value) && $value !== '' ) {
                     //TODO use sanitizeVal(), de_specialize()
-                    $ss = strtr(strip_tags($value), ['`'=>'', '"'=>'&#34;', "'"=>'&#39;']);
-                    $value = filter_var($ss, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_LOW);
+                    $ss = strtr(strip_tags($value), ['"'=>'&#34;', "'"=>'&#39;']);
+                    $value = filter_var($ss, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
                 }
             }
 
             if( $clean_keys ) {
                 //TODO use sanitizeVal(), de_specialize()
-                $ss = strtr(strip_tags($key), ['`'=>'', '"'=>'&#34;', "'"=>'&#39;']);
-                $key = filter_var($ss, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_LOW);
+                $ss = strtr(strip_tags($key), ['"'=>'&#34;', "'"=>'&#39;']);
+                $key = filter_var($ss, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
             }
 
-            if( !$mapped && !$allow_unknown ) {
+            if( $allow_unknown || $mapped ) {
+                $result[$key] = $value;
+            } else {
                 trigger_error('Parameter '.$key.' is not known by module '.$modulename.', so dropped', E_USER_WARNING);
-                continue;
             }
-            $result[$key] = $value;
         }
         return $result;
     }
@@ -1521,7 +1525,7 @@ abstract class CMSModule
         $config = Lone::get('Config');
         //TODO a better approach for this stuff
         if( !$config['app_mode'] ) return null;
-        if( ! $app instanceof CMSMS\CLI\App ) return null;
+        if( !($app instanceof CMSMS\CLI\App) ) return null;
         if( !class_exists('CMSMS\CLI\GetOptExt\Command') ) return null;
         return [];
     }
@@ -2045,7 +2049,7 @@ abstract class CMSModule
      * Optional parameters:
      * @param string $selectedvalue The default selected index of the radio group.   Setting to -1 will result in the first choice being selected
      * @param string $addtext Any additional text that should be added into the tag when rendered
-     * @param string $delimiter A delimiter to throw between each radio button, e.g., a <br /> tag or something for formatting
+     * @param string $delimiter A delimiter to throw between each radio button, e.g., a <br> tag or something for formatting
      *
      * @return string
      */

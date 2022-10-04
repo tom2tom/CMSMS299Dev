@@ -92,11 +92,13 @@ if ($devmode) {
        $themeObject->DisplayImage($path,'export','','','systemicon',['title'=>$this->Lang('title_moduleexport')]));
 }
 
-$s1 = json_encode($this->Lang('confirm_upgrade'));
-$s2 = json_encode($this->Lang('confirm_remove'));
-$s3 = json_encode($this->Lang('confirm_chmod'));
-$s4 = json_encode($this->Lang('error_nofileuploaded'));
-$s5 = json_encode($this->Lang('error_invaliduploadtype'));
+$s1 = addcslashes($this->Lang('confirm_upgrade'), "'");
+$s2 = addcslashes($this->Lang('confirm_remove'), "'");
+$s3 = addcslashes($this->Lang('confirm_chmod'), "'");
+$s4 = addcslashes($this->Lang('error_nofileuploaded'), "'");
+$s5 = addcslashes($this->Lang('error_invaliduploadtype'), "'");
+$submit = $this->Lang('submit');
+$cancel = $this->Lang('cancel');
 
 $js = <<<EOS
 <script type="text/javascript">
@@ -104,38 +106,38 @@ $js = <<<EOS
 $(function() {
   $('a.mod_upgrade').on('click', function(ev) {
     ev.preventDefault();
-    cms_confirm_linkclick(this,$s1);
+    cms_confirm_linkclick(this,'$s1');
     return false;
   });
   $('a.mod_remove').on('click', function(ev) {
     ev.preventDefault();
-    cms_confirm_linkclick(this,$s2);
+    cms_confirm_linkclick(this,'$s2');
     return false;
   });
   $('a.mod_chmod').on('click', function(ev) {
     ev.preventDefault();
-    cms_confirm_linkclick(this,$s3);
+    cms_confirm_linkclick(this,'$s3');
     return false;
   });
   $('#importbtn').on('click', function() {
     cms_dialog($('#importdlg'), {
       modal: true,
       buttons: {
-        {$this->Lang('submit')}: function() {
+        '$submit': function() {
           var file = $('#xml_upload').val();
           if(file.length == 0) {
-            cms_alert($s4);
+            cms_alert('$s4');
           } else {
             var ext = file.split('.').pop().toLowerCase();
             if($.inArray(ext, ['xml','cmsmod']) == -1) {
-              cms_alert($s5);
+              cms_alert('$s5');
             } else {
               $(this).dialog('close');
               $('#local_import').submit();
             }
           }
         },
-        {$this->Lang('cancel')}: function() {
+        '$cancel': function() {
           $(this).dialog('close');
         }
       }

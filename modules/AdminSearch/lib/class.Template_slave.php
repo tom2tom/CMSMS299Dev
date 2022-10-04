@@ -90,19 +90,19 @@ final class Template_slave extends Base_slave
         $name = $tpl->get_name();
         $html2 = $this->get_matches_info($name);
         if ($html2) {
-            $html .= '<br />'.$html2;
+            $html .= '<br>'.$html2;
         }
         $desc = $tpl->get_description();
         if ($desc && $this->search_descriptions()) {
             $html2 = $this->get_matches_info($desc);
             if ($html2) {
-                $html .= '<br />'.$html2;
+                $html .= '<br>'.$html2;
             }
         }
         $content = $tpl->get_content();
         $html2 = $this->get_matches_info($content);
         if ($html2) {
-            $html .= '<br />'.$html2;
+            $html .= '<br>'.$html2;
         }
         if (!$html) {
             return [];

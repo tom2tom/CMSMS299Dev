@@ -1,11 +1,11 @@
 /*!
-jQuery toast plugin v1.4.0
-(C) 2015-2018 Kamran Ahmed <http://kamranahmed.info>
+jQuery toast plugin v1.5.0
+(C) 2015-2022 Kamran Ahmed <http://kamranahmed.info>
 License: MIT
 */
 /*
-jQuery toast plugin v.1.4.0
-Copyright (C) 2015-2018 Kamran Ahmed <http://kamranahmed.info>
+jQuery toast plugin v.1.5.0
+Copyright (C) 2015-2022 Kamran Ahmed <http://kamranahmed.info>
 License: MIT
 */
 /*
@@ -121,12 +121,12 @@ if ( typeof Object.create !== 'function' ) {
             if ( this.options.text instanceof Array ) {
                 _toastContent += '<ul>';
                 for (var i = 0; i < this.options.text.length; i++) {
-                    _toastContent += '<li id="jqt-item-' + i + '">' + this.options.text[i] + '</li>';
+                    var vc = this.entitize(this.options.text[i]);
+                    _toastContent += '<li id="jqt-item-' + i + '">' + vc + '</li>';
                 }
                 _toastContent += '</ul>';
-
             } else {
-                _toastContent += this.options.text;
+                _toastContent += this.entitize(this.options.text);
             }
 
             this._toastEl.html( _toastContent );
@@ -156,6 +156,21 @@ if ( typeof Object.create !== 'function' ) {
             }
 
             this._toastEl.hide();
+        },
+
+        entitize: function (str, subs) {
+            if (typeof subs === 'undefined' || !subs) {
+                subs = {
+                  '"': '&quot;',
+                  "'": '&apos;',
+                  '<': '&lt;',
+                  '>': '&gt;',
+                  '\\': ''
+                };
+//          } else {
+//TODO regex for supplied-subs properties
+            }
+            return str.replace(/["'<>\\]/g, function(m) { return subs[m]; });
         },
 
         position: function () {
@@ -410,7 +425,11 @@ if ( typeof Object.create !== 'function' ) {
     };
 
     $.toast.clear = function( ) {
-       for(var i in $.toast.options) $.toast.options[i] = false;
+        for (var i in $.toast.options) {
+            if ($.toast.options.hasownProperty(i)) {
+                $.toast.options[i] = false;
+            }
+        }
     };
 
 })( jQuery, window, document );

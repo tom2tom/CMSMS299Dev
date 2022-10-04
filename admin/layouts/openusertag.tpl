@@ -1,15 +1,15 @@
 <h3 class="pagesubtitle">{if $name!='-1'} {_la('edit_usrplg')}{else}{_la('add_usrplg')}{/if}</h3>
 <form id="userplugin" action="{$selfurl}" enctype="multipart/form-data" method="post">
 <div class="hidden">
-  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
-  <input type="hidden" name="oldtagname" value="{$name}" />
+  <input type="hidden" name="oldtagname" value="{$name}">
 </div>
   <div class="pageoverflow">
     {$t=_la('name')}* <label class="pagetext" for="name">{$t}:</label>
     {cms_help 0='tags' key='help_tagname' title=$t}
     <div class="pageinput">
-      <input type="text" id="name" name="tagname" value="{if $name!='-1'}{$name}{/if}" size="50" maxlength="50" />
+      <input type="text" id="name" name="tagname" value="{if $name!='-1'}{$name}{/if}" size="50" maxlength="50">
     </div>
   </div>
   <div class="pageoverflow">

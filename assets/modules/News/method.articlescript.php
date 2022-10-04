@@ -1,7 +1,7 @@
 <?php
 /*
 Page-resources generator for article add/edit actions
-Copyright (C) 2018-2021 CMS Made Simple Foundation News module installation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation News module installation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -55,6 +55,8 @@ switch($n) {
         break;
 }
 
+$s1 = addcslashes($this->Lang('error_unknown'), "'");
+
 $js = <<<EOS
 $.datePicker.strings = {
  monthsFull: [$mnames],
@@ -79,11 +81,15 @@ $.datePicker.defaults.parseDate = function(string) {
 
 EOS;
 if ($list) {
+//TODO generic migration of editor(s)-content to form-element(s) to be saved
     $js .= <<<EOS
 function news_dopreview() {
-  if(typeof tinyMCE !== 'undefined') {
-    tinyMCE.triggerSave(); //TODO generalise e.g. setpagecontent() to migrate editor-content into an input-element to be saved
-  }
+//  if(typeof tinyMCE !== 'undefined') {
+//    tinyMCE.triggerSave();
+//  } else {
+    var v = geteditorcontent();
+    setpagecontent(v);
+//  }
   var fm = $('form'),
      url = fm.attr('action'),
   params = [
@@ -96,23 +102,21 @@ function news_dopreview() {
   $.ajax(url, {
     method: 'POST',
     data: params,
-    dataType: 'xml'
+    dataType: 'json'
   }).done(function(data) {
-    var resp = $(data).find('Response').text(),
-     details = $(data).find('Details').text();
-    if(resp === 'Success' && details !== '') {
-      // preview worked... now the details should contain the url
-      details = details.replace(/amp;/g, '');
-      $('#previewframe').attr('src', details);
+    var message = data.message;
+    if(data.response === 'Success') {
+      // preview worked... the message should be the preview-url
+      $('#previewframe').attr('src', message);
     } else {
-      if(details === '') {
-        details = '$this->Lang("error_unknown")';
-      }
       // preview save did not work
-      cms_notify('error', details);
+      if(!message) {
+        message = '$s1';
+      }
+      cms_notify('error', message);
     }
   }).fail(function(jqXHR, textStatus, errorThrown) {
-    console.debug(errorThrown);
+    console.debug('AJAX error: ' + errorThrown);
     cms_notify('error', 'AJAX error: ' + errorThrown);
   });
 }
@@ -153,12 +157,16 @@ $(function() {
 
 EOS;
 if ($list) {
+//TODO generic migration of editor(s)-content to form-element(s) to be saved
     $js .= <<<EOS
   $('[name="{$id}apply"]').on('click', function(ev) {
     ev.preventDefault();
-    if(typeof tinyMCE !== 'undefined') {
-      tinyMCE.triggerSave(); //TODO generalise e.g. setpagecontent() to migrate editor-content into an input-element to be saved
-    }
+//    if(typeof tinyMCE !== 'undefined') {
+//      tinyMCE.triggerSave();
+//    } else {
+      var v = geteditorcontent();
+      setpagecontent(v);
+//    }
     var fm = $('form'),
        url = fm.attr('action'),
     params = [
@@ -169,18 +177,17 @@ if ($list) {
     $.ajax(url, {
       method: 'POST',
       data: params,
-      dataType: 'xml'
-    }).fail(function(jqXHR, textStatus, errorThrown) {
-      console.debug(errorThrown);
-      cms_notify('error', 'AJAX error: ' + errorThrown);
+      dataType: 'json'
     }).done(function(data) {
-      var resp = $(resultdata).find('Response').text(),
-       details = $(resultdata).find('Details').text();
-      if(resp === 'Success' && details !== '') {
-        cms_notify('info', details);
+      var message = data.message;
+      if(data.response === 'Success') {
+        cms_notify('info', message);
       } else {
-        cms_notify('error', details);
+        cms_notify('error', message);
       }
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      console.debug('AJAX error: ' + errorThrown);
+      cms_notify('error', 'AJAX error: ' + errorThrown);
     });
     return false;
   });
@@ -211,7 +218,7 @@ if ($list) {
 
 EOS;
     if ($pprop) { // current user may create an article but not self-publish
-        $t = lang('ok');
+        $s2 = addcslashes(lang('ok'), "'");
         $js .= <<<EOS
   $('[name="{$id}apply"],[name="{$id}submit"]').on('click', function(ev) {
     var st = $('[name="{$id}status"]').val();
@@ -224,7 +231,7 @@ EOS;
           $('#post_notice').find('form').trigger('submit');
         },
         buttons: {
-          '$t': function() {
+          '$s2': function() {
             $(this).dialog('close');
           }
         }

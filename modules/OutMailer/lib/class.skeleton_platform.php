@@ -88,7 +88,7 @@ class skeleton_platform extends base_email_platform
         //convert $parms data format if needed
         //MORE $parms - to, from, body etc, format-adjusted as needed
         $str = Utils::implode_with_key($parms);
-        $str = some_url.'?'.str_replace('amp;', '', $str);
+        $str = some_url.'?'.str_replace('&amp;', '&', $str);
         return $str;
     }
 

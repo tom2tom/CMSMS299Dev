@@ -22,10 +22,10 @@ $lang['info_cookies'] = 'Some admin operations use cookies and/or track your IP 
 $lang['info_wait'] = 'Wait a few minutes before proceeding.';
 //$lang['login_info_ipandcookies'] = '<strong>Warning:</strong> some admin operations use cookies and/or track your IP address';
 $lang['login_info_needjs'] = 'For login and the admin console to work properly, javascript must be enabled in your browser';
-//$lang['login_info_params'] = 'For the admin console to work properly:<br />&#8729; popup windows must be allowed for %s<br />&#8729; cookies must be enabled in your browser';
+//$lang['login_info_params'] = 'For the admin console to work properly:<br>&#8729; popup windows must be allowed for %s<br>&#8729; cookies must be enabled in your browser';
 $lang['login_info_params'] = 'For the admin console to work properly, cookies must be enabled in your browser';
 $lang['login_info_title'] = 'Information';
-$lang['login_sitetitle'] = 'Log in to<br />%s<br />Admin&nbsp;Console';
+$lang['login_sitetitle'] = 'Log in to<br>%s<br>Admin&nbsp;Console';
 //$lang['logintitle'] = 'Log in to CMS Made Simple&trade;';
 $lang['loginto'] = 'Log in to %s';
 $lang['lostpw'] = 'Forgot your password?';
@@ -54,7 +54,7 @@ $lang['recoveryemailsent'] = 'An email has been sent to the recorded address. Pl
 //$lang['settings_title'] = 'Authentication-Module Settings';
 $lang['submit'] = 'Submit';
 
-$lang['title_recover'] = 'Recover login credentials for<br />%s';
-$lang['title_replace'] = 'Renew password for<br />%s'; // see also lang('renewpwtitle')
+$lang['title_recover'] = 'Recover login credentials for<br>%s';
+$lang['title_replace'] = 'Renew password for<br>%s'; // see also lang('renewpwtitle')
 
 $lang['username'] = 'Username';

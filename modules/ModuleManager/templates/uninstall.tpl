@@ -6,7 +6,7 @@
 <div class="pageoverflow">
   <p class="pageinput">
     <label>
-      <input type="checkbox" name="{$actionid}confirm" value="1" /> {_ld($_module,'confirm_action')}
+      <input type="checkbox" name="{$actionid}confirm" value="1"> {_ld($_module,'confirm_action')}
     </label>
   </p>
 </div>

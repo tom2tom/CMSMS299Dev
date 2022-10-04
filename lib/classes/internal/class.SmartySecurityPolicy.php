@@ -56,6 +56,7 @@ final class SmartySecurityPolicy extends Smarty_Security
                 '_la', //since 3.0
                 '_ld', //since 3.0
                 '_lm', //since 3.0
+//              'addcslashes', //since 3.0 escaper for vars in js strings BUT otherwise dangerous?
                 'array_flip',
                 'array_rand',
                 'array_reverse',

@@ -82,7 +82,7 @@ class GhostgumTheme extends AdminTheme
 		// jQUI css does, and theme-specific css files might, include relative URLs, so cannot be merged
 		$url = cms_path_to_url($incs['jquicss']);
 		$out .= <<<EOS
-<link rel="stylesheet" href="$url" />
+<link rel="stylesheet" href="$url">
 
 EOS;
 		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
@@ -95,13 +95,13 @@ EOS;
 			$extra = substr($fp, $n);
 			$sufx = strtr($extra, '\\', '/');
 			$after .= <<<EOS
-<link rel="stylesheet" href="{$rel_url}/{$sufx}" />
+<link rel="stylesheet" href="{$rel_url}/{$sufx}">
 
 EOS;
 		}
 /*		//DEBUG
 		$after .= <<<EOS
-<link rel="stylesheet" href="{$rel_url}/styles/superfishnav.css" />
+<link rel="stylesheet" href="{$rel_url}/styles/superfishnav.css">
 
 EOS;
 */
@@ -173,7 +173,7 @@ EOS;
 			}
 		}
 		$out = <<<EOS
- <link rel="stylesheet" href="themes/Ghostgum/styles/{$fn}.min.css" />
+ <link rel="stylesheet" href="themes/Ghostgum/styles/{$fn}.min.css">
 
 EOS;
 //		get_csp_token(); //setup CSP header (result not used)
@@ -296,11 +296,11 @@ EOS;
 
 		// icon
 		if ($modname && ($icon_url = $this->get_value('module_icon_url'))) {
-			$tag = '<img src="'.$icon_url.'" alt="'.$modname.'" class="module-icon" />';
+			$tag = '<img src="'.$icon_url.'" alt="'.$modname.'" class="module-icon">';
 		} elseif ($modname && $title) {
 			$tag = $this->get_module_icon($modname, ['alt'=>$modname, 'class'=>'module-icon']);
 		} elseif (($icon_url = $this->get_value('page_icon_url'))) {
-			$tag = '<img src="'.$icon_url.'" alt="TODO" class="TODO" />';
+			$tag = '<img src="'.$icon_url.'" alt="TODO" class="TODO">';
 		} else {
 			$tag = ''; //TODO get icon for admin operation
 		}
@@ -407,7 +407,7 @@ EOS;
 		if ($extras['title']) {
 			$res .= "></use>\n<title>{$extras['title']}</title>";
 		} else {
-			$res.= ' />';
+			$res.= '>';
 		}
 		$res .="\n</svg>";
 		return $res;

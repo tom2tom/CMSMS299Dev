@@ -334,7 +334,7 @@ if (is_readable($ch_filename)) {
     if ($close) {
         $changelog[] = '</div>';
     }
-    $changelog = implode('<br />', $changelog);
+    $changelog = implode('<br>', $changelog);
 
     $smarty->assign([
 		'changelog' => $changelog,

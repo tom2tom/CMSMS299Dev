@@ -2,36 +2,36 @@
 <div class="pageoverflow">
   {$t=_ld($_module,'enableadvanced')}<label class="pagetext" for="advancedmode">{$t}:</label>
   {cms_help 0=$_module key='help_advancedmode' title=$t}
-  <input type="hidden" name="{$actionid}advancedmode" value="0" />
+  <input type="hidden" name="{$actionid}advancedmode" value="0">
   <div class="pageinput">
-    <input type="checkbox" name="{$actionid}advancedmode" id="advancedmode" value="1"{if $advancedmode} checked="checked"{/if} />
+    <input type="checkbox" name="{$actionid}advancedmode" id="advancedmode" value="1"{if $advancedmode} checked{/if}>
   </div>
 </div>
 
 <div class="pageoverflow">
   {$t=_ld($_module,'showhiddenfiles')}<label class="pagetext" for="showhidden">{$t}:</label>
   {cms_help 0=$_module key='help_showhiddenfiles' title=$t}
-  <input type="hidden" name="{$actionid}showhiddenfiles" value="0" />
+  <input type="hidden" name="{$actionid}showhiddenfiles" value="0">
   <div class="pageinput">
-    <input type="checkbox" name="{$actionid}showhiddenfiles" id="showhidden" value="1"{if $showhiddenfiles} checked="checked"{/if} />
+    <input type="checkbox" name="{$actionid}showhiddenfiles" id="showhidden" value="1"{if $showhiddenfiles} checked{/if}>
   </div>
 </div>
 
 <div class="pageoverflow">
   {$t=_ld($_module,'showthumbnails')}<label class="pagetext" for="showthumbnails">{$t}:</label>
   {cms_help 0=$_module key='help_showthumbnails' title=$t}
-  <input type="hidden" name="{$actionid}showthumbnails" value="0" />
+  <input type="hidden" name="{$actionid}showthumbnails" value="0">
   <div class="pageinput">
-    <input type="checkbox" name="{$actionid}showthumbnails" id="showthumbnails" value="1"{if $showthumbnails} checked="checked"{/if} />
+    <input type="checkbox" name="{$actionid}showthumbnails" id="showthumbnails" value="1"{if $showthumbnails} checked{/if}>
   </div>
 </div>
 
 <div class="pageoverflow">
   {$t=_ld($_module,'create_thumbnails')}<label class="pagetext" for="createthumbs">{$t}:</label>
   {cms_help 0=$_module key='help_create_thumbnails' title=$t}
-  <input type="hidden" name="{$actionid}create_thumbnails" value="0" />
+  <input type="hidden" name="{$actionid}create_thumbnails" value="0">
   <div class="pageinput">
-    <input type="checkbox" name="{$actionid}create_thumbnails" id="createthumbs" value="1"{if $create_thumbnails} checked="checked"{/if} />
+    <input type="checkbox" name="{$actionid}create_thumbnails" id="createthumbs" value="1"{if $create_thumbnails} checked{/if}>
   </div>
 </div>
 

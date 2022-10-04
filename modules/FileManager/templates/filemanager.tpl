@@ -43,7 +43,7 @@
           <th class="pageicon"></th>
           <th class="pageicon" title="{_ld($_module,'title_col_filedate')}">{$filedatetext}</th>
           <th class="pageicon">
-            <input type="checkbox" name="tagall" value="tagall" id="tagall" title="{_ld($_module,'title_tagall')}" />
+            <input type="checkbox" name="tagall" value="tagall" id="tagall" title="{_ld($_module,'title_tagall')}">
           </th>
         </tr>
       </thead>
@@ -61,7 +61,7 @@
           <td class="clickable" style="vertical-align:middle;padding-right:8px;white-space:pre;">{$thedate}</td>
           <td>{if !isset($file->noCheckbox)}
             <label for="x_{$file->urlname}" style="display: none;">{_ld($_module,'toggle')}</label>
-            <input type="checkbox" name="{$actionid}sel[]" id="x_{$file->urlname}" value="{$file->urlname}" title="{_ld($_module,'toggle')}" class="fileselect {implode(' ',$file->type)}"{if isset($file->checked)} checked="checked"{/if} />
+            <input type="checkbox" name="{$actionid}sel[]" id="x_{$file->urlname}" value="{$file->urlname}" title="{_ld($_module,'toggle')}" class="fileselect {implode(' ',$file->type)}"{if isset($file->checked)} checked{/if}>
           {/if}</td>
         </tr>
         {/foreach}

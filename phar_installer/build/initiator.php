@@ -65,4 +65,4 @@ if ($host && $uri) {
  $to = '//'.$host.substr($uri, 0, $p).'/installer/index.php';
  header('Location: '.$to);
 }
-exit("Unable to locate the installer-start-script.<br />You can point your browser to &lt;ROOT URL&gt;/installer/index.php");
+exit("Unable to locate the installer-start-script.<br>You can point your browser to &lt;ROOT URL&gt;/installer/index.php");

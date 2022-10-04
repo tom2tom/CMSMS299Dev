@@ -22,7 +22,7 @@ CSS:
         {/if}
       </li>
     {elseif $type == 'separator'}
-      <li style="list-style-type:none;"><hr class="separator" /></li>
+      <li style="list-style-type:none;"><hr class="separator"></li>
     {else}{* regular item, link etc *}
       {if $node->current}
         {$liclass='currentpage'}

@@ -47,7 +47,7 @@ function smarty_cms_help_function_cms_textarea()
 	echo '<h3>What does it do?</h3>
 Generates html for a textarea element.
 <h4>Parameters:</h4>
-As for <code>FormUtils::create_textarea()</code><br />
+As for <code>FormUtils::create_textarea()</code><br>
 <ul>
 <li>name: element name (mandatory, but only relevant for form submission)</li>
 <li>getid: submitted-parameter prefix (\'m1_\' etc)</li>
@@ -65,6 +65,6 @@ As for <code>FormUtils::create_textarea()</code><br />
 <li>text: alias for value</li>
 <li>addtext: additional attribute(s) for the element e.g. style="whatever" cms-data-X="whatever" readonly</li>
 </ul>
-<br />
+<br>
 And/or Smarty generic parameters: nocache, assign etc';
 }

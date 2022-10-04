@@ -678,8 +678,8 @@ License: MIT
 							} else {
 								alert($.datePicker.strings.messageLocked);
 							}
-						 	ret = false;
-						 	break;
+							ret = false;
+							break;
 						}
 					};
 				}

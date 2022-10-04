@@ -36,7 +36,7 @@ final class Utils
 
 //  private function __construct() {}
 //  #[\ReturnTypeWillChange]
-//  private function __clone() {}// : void {}
+//  private function __clone() : void {}
 
     /**
      * Munge supplied string to an URL-slug

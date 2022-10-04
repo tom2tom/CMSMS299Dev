@@ -67,8 +67,8 @@ class AltbierTheme extends AdminTheme
 	 * @ignore
 	 */
 	const AWESOME_CDN =
-	'<link rel="preconnect" href="https://cdnjs.cloudflare.com" />'."\n".
-	'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous" referrerpolicy="same-origin" />';
+	'<link rel="preconnect" href="https://cdnjs.cloudflare.com">'."\n".
+	'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous" referrerpolicy="same-origin">';
 
 	/**
 	 * @ignore
@@ -114,7 +114,7 @@ class AltbierTheme extends AdminTheme
 		// jQUI css does, and theme-specific css files might, include relative URLs, so cannot be merged
 		$url = cms_path_to_url($incs['jquicss']);
 		$out .= <<<EOS
-<link rel="stylesheet" href="$url" />
+<link rel="stylesheet" href="$url">
 
 EOS;
 		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
@@ -127,7 +127,7 @@ EOS;
 			$extra = substr($fp, $n);
 			$sufx = strtr($extra, '\\', '/');
 			$after .= <<<EOS
-<link rel="stylesheet" href="{$rel_url}/{$sufx}" />
+<link rel="stylesheet" href="{$rel_url}/{$sufx}">
 
 EOS;
 		}
@@ -281,7 +281,7 @@ EOS;
 		$fp = cms_join_path(__DIR__, 'styles', 'all.min.css');
 		if (is_file($fp)) {
 			$url = cms_path_to_url($fp);
-			$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
+			$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'">');
 		} else {
 			// TODO variable(s) for CDN URL and SRI hash
 			$smarty->assign('font_includes', self::AWESOME_CDN);
@@ -337,7 +337,7 @@ EOS;
 			$incs = cms_installed_jquery();
 			$url = cms_path_to_url($incs['jquicss']);
 			$out = <<<EOS
-<link rel="stylesheet" href="$url" />
+<link rel="stylesheet" href="$url">
 
 EOS;
 			$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
@@ -348,7 +348,7 @@ EOS;
 				$extra = substr($fp, $n);
 				$sufx = strtr($extra, '\\', '/');
 				$out .= <<<EOS
-<link rel="stylesheet" href="{$rel_url}/{$sufx}" />
+<link rel="stylesheet" href="{$rel_url}/{$sufx}">
 
 EOS;
 			}
@@ -385,9 +385,9 @@ EOS;
 
 			list($jqcss, $jqui, $jqcore) = $this->find_installed_jq();
 			$out = <<<EOS
-<link rel="stylesheet" href="$jqcss" />
-<link rel="stylesheet" href="themes/Altbier/styles/style{$dir}.css" />
-<link rel="stylesheet" href="loginstyle.php" />
+<link rel="stylesheet" href="$jqcss">
+<link rel="stylesheet" href="themes/Altbier/styles/style{$dir}.css">
+<link rel="stylesheet" href="loginstyle.php">
 <script type="text/javascript" src="$jqcore"></script>
 <script type="text/javascript" src="$jqui"></script>
 <script type="text/javascript" src="themes/Altbier/includes/login.min.js"></script>
@@ -532,11 +532,11 @@ EOS;
 
 		// icon
 		if ($modname && ($icon_url = $this->get_value('module_icon_url'))) {
-			$tag = '<img src="'.$icon_url.'" alt="'.$modname.'" class="module-icon" />';
+			$tag = '<img src="'.$icon_url.'" alt="'.$modname.'" class="module-icon">';
 		} elseif ($modname && $title) {
 			$tag = $this->get_module_icon($modname, ['alt'=>$modname, 'class'=>'module-icon']);
 		} elseif (($icon_url = $this->get_value('page_icon_url'))) {
-			$tag = '<img src="'.$icon_url.'" alt="TODO" class="TODO" />';
+			$tag = '<img src="'.$icon_url.'" alt="TODO" class="TODO">';
 		} else {
 			$name = $this->get_active('name');
 			$tag = ''; // TODO icon for admin operation func($name) ?
@@ -596,7 +596,7 @@ EOS;
 		$fp = cms_join_path(__DIR__, 'styles', 'all.min.css');
 		if (is_file($fp)) {
 			$url = cms_path_to_url($fp); // TODO 3.0+
-			$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
+			$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'">');
 		} else {
 			// TODO variable(s) for CDN URL and SRI hash
 			$smarty->assign('font_includes', self::AWESOME_CDN);
@@ -611,9 +611,9 @@ EOS;
 			$dir = ($lang_dir == 'ltr') ? '' : '-rtl';
 			list($jqcss, $jqui, $jqcore) = $this->find_installed_jq();
 			$smarty->assign('header_includes', <<<EOS
-<link rel="stylesheet" href="$jqcss" />
-<link rel="stylesheet" href="style.php?{$secureparam}" />
-<link rel="stylesheet" href="themes/Altbier/styles/style{$dir}.css" />
+<link rel="stylesheet" href="$jqcss">
+<link rel="stylesheet" href="style.php?{$secureparam}">
+<link rel="stylesheet" href="themes/Altbier/styles/style{$dir}.css">
 <script type="text/javascript" src="$jqcore"></script>
 <script type="text/javascript" src="$jqui"></script>
 //TODO jquery ancillaries

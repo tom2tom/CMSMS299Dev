@@ -23,10 +23,10 @@
       {if $row.can_edit}
       {if $indent}{repeat string='-&nbsp;&nbsp;' times=$row.depth-2}{/if}
       {* the tooltip *}{capture assign='tooltip_pageinfo'}{strip}
-      <strong>{_ld($_module,'prompt_content_id')}:</strong> {$row.id}<br />
-      <strong>{_ld($_module,'prompt_title')}:</strong> {$row.title|escape}<br />
-      <strong>{_ld($_module,'prompt_name')}:</strong> {$row.menutext|escape}<br />
-      {if isset($row.alias)}<strong>{_ld($_module,'prompt_alias')}:</strong> {$row.alias}<br />{/if}
+      <strong>{_ld($_module,'prompt_content_id')}:</strong> {$row.id}<br>
+      <strong>{_ld($_module,'prompt_title')}:</strong> {$row.title|escape}<br>
+      <strong>{_ld($_module,'prompt_name')}:</strong> {$row.menutext|escape}<br>
+      {if isset($row.alias)}<strong>{_ld($_module,'prompt_alias')}:</strong> {$row.alias}<br>{/if}
       {if $row.url}
        <strong>{_ld($_module,'colhdr_url')}:</strong>
        {if $prettyurls_ok}
@@ -35,29 +35,29 @@
          <span class="red">{$row.url}</span>
        {/if}
       {/if}
-      <strong>{_ld($_module,'prompt_owner')}:</strong> {$row.owner}<br />
-      <strong>{_ld($_module,'prompt_created')}:</strong> {$row.created|cms_date_format:'timed'}<br />
+      <strong>{_ld($_module,'prompt_owner')}:</strong> {$row.owner}<br>
+      <strong>{_ld($_module,'prompt_created')}:</strong> {$row.created|cms_date_format:'timed'}<br>
       {if !isset($columns['modified'])}
-      <strong>{_ld($_module,'prompt_lastmodified')}:</strong> {$row.lastmodified|cms_date_format:'timed'}<br />
+      <strong>{_ld($_module,'prompt_lastmodified')}:</strong> {$row.lastmodified|cms_date_format:'timed'}<br>
       {/if}
-      {if isset($row.lastmodifiedby)}<strong>{_ld($_module,'prompt_lastmodifiedby')}:</strong> {$row.lastmodifiedby}<br />{/if}
-      <strong>{_ld($_module,'prompt_cachable')}:</strong> {if $row.cachable}{_ld($_module,'yes')}{else}{_ld($_module,'no')}{/if}<br />
-      <strong>{_ld($_module,'prompt_showinmenu')}:</strong> {if $row.showinmenu}{_ld($_module,'yes')}{else}{_ld($_module,'no')}{/if}<br />
+      {if isset($row.lastmodifiedby)}<strong>{_ld($_module,'prompt_lastmodifiedby')}:</strong> {$row.lastmodifiedby}<br>{/if}
+      <strong>{_ld($_module,'prompt_cachable')}:</strong> {if $row.cachable}{_ld($_module,'yes')}{else}{_ld($_module,'no')}{/if}<br>
+      <strong>{_ld($_module,'prompt_showinmenu')}:</strong> {if $row.showinmenu}{_ld($_module,'yes')}{else}{_ld($_module,'no')}{/if}<br>
       <strong>{_ld($_module,'wantschildren')}:</strong> {if $row.wantschildren|default:1}{_ld($_module,'yes')}{else}{_ld($_module,'no')}{/if}
       {/strip}{/capture}
       <a href="{cms_action_url action='editcontent' content_id=$row.id}" class="page_edit tooltip" accesskey="e" data-cms-content='{$row.id}' data-cms-description='{$tooltip_pageinfo|cms_htmlentities}'>{$row.page|default:''}</a>
       {else}
         {if isset($row.lock)}
          {capture assign='tooltip_lockinfo'}{strip}
-       {if $row.can_steal}<strong>{_ld($_module,'locked_steal')}:</strong><br />{/if}
-      <strong>{_ld($_module,'locked_by')}:</strong> {$row.lockuser}<br />
-      <strong>{_ld($_module,'locked_since')}:</strong> {$row.lock.created|cms_date_format:'timed'}<br />
+       {if $row.can_steal}<strong>{_ld($_module,'locked_steal')}:</strong><br>{/if}
+      <strong>{_ld($_module,'locked_by')}:</strong> {$row.lockuser}<br>
+      <strong>{_ld($_module,'locked_since')}:</strong> {$row.lock.created|cms_date_format:'timed'}<br>
       {if $row.lock.expires < $smarty.now}
        <span style="color:red;"><strong>{_ld($_module,'lock_expired')}:</strong> {$row.lock.expires|relative_time}</span>
       {else}
        <strong>{_ld($_module,'lock_expires')}:</strong> {$row.lock.expires|relative_time}
       {/if}
-      <br />{/strip}{/capture}
+      <br>{/strip}{/capture}
          {if !$row.can_steal}
           <span class="tooltip" data-cms-description='{$tooltip_lockinfo|htmlentities}'>{$row.page}</span>
          {else}
@@ -91,12 +91,12 @@
       {$row.friendlyname}
     {elseif $column == 'owner'}
       {capture assign='tooltip_ownerinfo'}{strip}
-        <strong>{_ld($_module,'prompt_created')}:</strong> {$row.created|cms_date_format:'timed'}<br />
+        <strong>{_ld($_module,'prompt_created')}:</strong> {$row.created|cms_date_format:'timed'}<br>
         {if !isset($columns['modified'])}
-        <strong>{_ld($_module,'prompt_lastmodified')}:</strong> {$row.lastmodified|cms_date_format:'timed'}<br />
+        <strong>{_ld($_module,'prompt_lastmodified')}:</strong> {$row.lastmodified|cms_date_format:'timed'}<br>
         {/if}
         {if isset($row.lastmodifiedby)}
-        <strong>{_ld($_module,'prompt_lastmodifiedby')}:</strong> {$row.lastmodifiedby}<br />
+        <strong>{_ld($_module,'prompt_lastmodifiedby')}:</strong> {$row.lastmodifiedby}<br>
         {/if}
       {/strip}{/capture}
       <span class="tooltip" data-cms-description='{$tooltip_ownerinfo|htmlentities}'>{$row.owner}</span>
@@ -131,7 +131,7 @@
     {elseif $column == 'multiselect'}
       {if $row.multiselect}
       <label class="invisible" for="cb{$row.id}">{_ld($_module,'prompt_multiselect_toggle')}</label>
-      <input type="checkbox" id="cb{$row.id}" name="{$actionid}bulk_content[]" title="{_ld($_module,'prompt_multiselect_toggle')}" value="{$row.id}" />
+      <input type="checkbox" id="cb{$row.id}" name="{$actionid}bulk_content[]" title="{_ld($_module,'prompt_multiselect_toggle')}" value="{$row.id}">
       {/if}
     {/if}
   </td>
@@ -161,7 +161,7 @@
     {if $dir == 'rtl'}
     {admin_icon icon='icons/extra/search' alt="{_ld('layout','search')}" addtext='style=position:relative;left:1.8em'}
     {/if}
-    <input type="text" id="ajax_find" title="{_ld($_module,'title_listcontent_find')}" size="10" maxlength="15" value="{$pattern}" placeholder="{_ld('layout','search')}" />
+    <input type="text" id="ajax_find" title="{_ld($_module,'title_listcontent_find')}" size="10" maxlength="15" value="{$pattern}" placeholder="{_ld('layout','search')}">
     {if $dir != 'rtl'}
     {admin_icon icon='icons/extra/search' alt="{_ld('layout','search')}" addtext='style=position:relative;left:-1.8em'}
     {/if}
@@ -210,7 +210,7 @@
           {if $column == 'expand' || $column == 'hier' || $column == 'icon1'} {* || $column == 'view' || $column == 'copy' || $column == 'edit' || $column == 'delete'*}
             title="{_ld($_module,"coltitle_{$column}")}"> {* no column header *}
           {elseif $column == 'multiselect'}
-            ><input type="checkbox" id="selectall" value="1" title="{_ld($_module,'select_all')}" />
+            ><input type="checkbox" id="selectall" value="1" title="{_ld($_module,'select_all')}">
           {elseif $column == 'page'}
             title="{$coltitle_page}">{$colhdr_page}
           {elseif $column == 'default' && $have_locks}

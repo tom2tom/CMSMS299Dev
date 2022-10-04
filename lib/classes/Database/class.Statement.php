@@ -75,7 +75,7 @@ final class Statement
      * @param Connection      $conn The database connection
      * @param optional string $sql  The SQL query, default null
      */
-    public function __construct(Connection $conn, /*string*/$sql = null)
+    public function __construct(Connection $conn, string $sql = null)
     {
         $this->_conn = $conn;
         $this->_sql = $sql;

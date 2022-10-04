@@ -29,6 +29,6 @@ function smarty_function_cms_jquery($params, $template)
 function smarty_cms_help_function_cms_jquery()
 {
 	echo '<p>Deprecated since CMSMS 3.0.</p>
-<p>This merely hands-over to plugin <code>{get_jquery}</code>.<br />
+<p>This merely hands-over to plugin <code>{get_jquery}</code>.<br>
 Use that plugin instead.</p>';
 }

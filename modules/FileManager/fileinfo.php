@@ -33,7 +33,7 @@ const IMAGE_MIME = 'mime';
  * Returns false if $file is not a file, no arguments are supplied, $file is not an image, or otherwise fails.
  *
  */
-function image_info(/*string */$file = '', /*string */$out = '')
+function image_info(string $file = '', string $out = '')
 {
   // If $file is not supplied or is not a file, warn the user and return false.
   if (!$file || !is_file($file)) {

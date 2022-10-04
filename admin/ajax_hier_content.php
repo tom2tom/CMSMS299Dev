@@ -220,18 +220,23 @@ try {
         }
         else {
             $page = (int)$_REQUEST['page'];
-            if( $page < 1 ) {
-                $page = $contentops->GetDefaultContent();
-            }
-            // get the page properties
-            $content = $contentops->LoadContentFromId($page);
-            if( is_object($content) ) {
-                $out = $content->ToData();
-                if( $display == 'title' ) { $out['display'] = $out['content_name']; }
-                else { $out['display'] = $out['menu_text']; }
+            if( $page == -1 ) {
+                $out = [];
             }
             else {
-                throw new RuntimeException(_la('errorgettingcontent'));
+                if( $page < 1 ) {
+                    $page = $contentops->GetDefaultContent();
+                }
+                // get the page properties
+                $content = $contentops->LoadContentFromId($page);
+                if( is_object($content) ) {
+                    $out = $content->ToData();
+                    if( $display == 'title' ) { $out['display'] = $out['content_name']; }
+                    else { $out['display'] = $out['menu_text']; }
+                }
+                else {
+                    throw new RuntimeException(_la('errorgettingcontent'));
+                }
             }
         }
         break;

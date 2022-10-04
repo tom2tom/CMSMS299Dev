@@ -159,8 +159,8 @@ $jsm->queue_matchedfile('jquery.SSsort.js', 1);
 $jsm->queue_matchedfile('jquery.ContextMenu.js', 1);
 $out = $jsm->page_content();
 
-$confirm = json_encode(_la('confirm_togglegroupactive'));
-$confirm2 = json_encode(_la('confirm_delete_group'));
+$s1 = addcslashes(_la('confirm_togglegroupactive'), "'");
+$s2 = addcslashes(_la('confirm_delete_group'), "'");
 
 $out .= <<<EOS
 <script type="text/javascript">
@@ -205,12 +205,12 @@ $(function() {
  $(listtable).find('[context-menu]').ContextMenu();
  $('.toggleactive').on('click', function(ev) {
   ev.preventDefault();
-  cms_confirm_linkclick(this, $confirm);
+  cms_confirm_linkclick(this, '$s1');
   return false;
  });
  $('.js-delete').on('click', function(ev) {
   ev.preventDefault();
-  cms_confirm_linkclick(this, $confirm2);
+  cms_confirm_linkclick(this, '$s2');
   return false;
  });
 });

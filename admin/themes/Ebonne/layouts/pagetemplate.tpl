@@ -7,22 +7,22 @@
   {if $thetitle}{$thetitle="{$thetitle} - "}{/if}
   {if $thetitle}{$thetitle}{/if}{sitename}
   {/strip}</title>
-  <base href="{$admin_url}/" />
-  <meta charset="utf-8" />
-  <meta name="generator" content="CMS Made Simple" />
-  <meta name="robots" content="noindex, nofollow" />
-  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
-  <meta name="referrer" content="origin" />
-  <meta name="HandheldFriendly" content="true" />
-  <meta name="msapplication-TileColor" content="#f79838" />
-  <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
-  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
-  <link rel="apple-touch-icon" href="themes/assets/images/apple-touch-icon-iphone.png" />
-  <link rel="apple-touch-icon" sizes="72x72" href="themes/assets/images/apple-touch-icon-ipad.png" />
-  <link rel="apple-touch-icon" sizes="114x114" href="themes/assets/images/apple-touch-icon-iphone4.png" />
-  <link rel="apple-touch-icon" sizes="144x144" href="themes/assets/images/apple-touch-icon-ipad3.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <base href="{$admin_url}/">
+  <meta charset="UTF-8">
+  <meta name="generator" content="CMS Made Simple">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no">
+  <meta name="referrer" content="origin">
+  <meta name="HandheldFriendly" content="true">
+  <meta name="msapplication-TileColor" content="#f79838">
+  <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png">
+  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico">
+  <link rel="apple-touch-icon" href="themes/assets/images/apple-touch-icon-iphone.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="themes/assets/images/apple-touch-icon-ipad.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="themes/assets/images/apple-touch-icon-iphone4.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="themes/assets/images/apple-touch-icon-ipad3.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Red+Hat+Mono:wght@400;700&display=swap">
   {$header_includes|default:''}
  </head>
@@ -36,7 +36,7 @@
       <span id="site-text">-&nbsp;<a href="menu.php?{$secureparam}" title="{_la('home')}">{_la('adminpaneltitle')}</a></span>
      {else}
       <a href="menu.php?{$secureparam}" title="{_la('home')}">
-        <img src="{$sitelogo}" alt="{_la('home')}" />
+        <img src="{$sitelogo}" alt="{_la('home')}">
       </a>
       <span id="site-text">{_la('adminpaneltitle')}</span>
      {/if}

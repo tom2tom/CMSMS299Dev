@@ -123,13 +123,13 @@ C.page_url) LIKE ?'];
                     }
                 }
                 unset($val);
-                $html2 = $this->get_matches_info(implode('<br />', $checkfields));
+                $html2 = $this->get_matches_info(implode('<br>', $checkfields));
                 if ($html2) {
-                    $html .= '<br />'.$html2;
+                    $html .= '<br>'.$html2;
                 }
                 $html2 = $this->get_matches_info($row['content']);
                 if ($html2) {
-                    $html .= '<br />'.$html2;
+                    $html .= '<br>'.$html2;
                 }
 
                 if (!$html) {

@@ -21,7 +21,7 @@
 <div id="Edit_Content">
 <div class="pregap"></div>
 {form_start content_id=$content_id}
-  <input type="hidden" id="active_tab" name="{$actionid}active_tab" />
+  <input type="hidden" id="active_tab" name="{$actionid}active_tab">
   <div class="pageinput postgap">
   {submit_buttons}
   </div>
@@ -43,7 +43,7 @@
         <div class="pageoverflow">
           {if $fld.0}<label class="pagetext"{if (strpos($fld.0,'>') !== false)} {$fld.0}{else}>{$fld.0}{/if}:</label>{/if}
           {if $fld.1}{$fld.1}{/if}
-          <div class="pageinput">{$fld.2}{if !empty($fld.3)}<br />{$fld.3}{/if}</div>
+          <div class="pageinput">{$fld.2}{if !empty($fld.3)}<br>{$fld.3}{/if}</div>
         </div>
         {/if}{/foreach}
       {/if}

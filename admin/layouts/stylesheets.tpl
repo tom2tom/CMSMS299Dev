@@ -2,28 +2,28 @@
 {function css_info}
 {strip}{if $css->locked()}
 {$lock=$css->get_lock()}
-{if $css->lock_expired()}<span style='font-weight:bold;color:red;'>{_ld('layout','msg_steal_lock')}</span><br />{/if}
-<strong>{_ld('layout','prompt_lockedby')}:</strong> {cms_admin_user uid=$lock.uid}<br />
-<strong>{_ld('layout','prompt_lockedsince')}:</strong> {$lock.create_date|cms_date_format:'timed'}<br />
+{if $css->lock_expired()}<span style='font-weight:bold;color:red;'>{_ld('layout','msg_steal_lock')}</span><br>{/if}
+<strong>{_ld('layout','prompt_lockedby')}:</strong> {cms_admin_user uid=$lock.uid}<br>
+<strong>{_ld('layout','prompt_lockedsince')}:</strong> {$lock.create_date|cms_date_format:'timed'}<br>
 {if $lock.expires < $smarty.now}
 <strong>{_ld('layout','prompt_lockexpired')}:</strong> <span style='color:red;'>{$lock.expires|relative_time}</span>
 {else}
 <strong>{_ld('layout','prompt_lockexpires')}:</strong> {$lock.expires|relative_time}
 {/if}
 {else}
-<strong>{_ld('layout','prompt_name')}:</strong> {$css->get_name()} <em>({$css->get_id()})</em><br />
+<strong>{_ld('layout','prompt_name')}:</strong> {$css->get_name()} <em>({$css->get_id()})</em><br>
 {$tmp=$css->get_created()}
 <strong>{_ld('layout','prompt_created')}:</strong> {$tmp|cms_date_format:'timed'}
-{$t2=$css->get_modified()}{if $t2 && ($t2!=$tmp)}<br />
+{$t2=$css->get_modified()}{if $t2 && ($t2!=$tmp)}<br>
 <strong>{_ld('layout','prompt_modified')}:</strong> {$t2|cms_date_format:'timed'}
 {/if}
-{$tmp=$css->get_description()}{if $tmp}<br />
+{$tmp=$css->get_description()}{if $tmp}<br>
 <strong>{_ld('layout','prompt_description')}:</strong> {$tmp|strip_tags|cms_escape|summarize}{/if}
 {/if}{/strip}
 {/function}
 
 <form action="{$bulkurl}" enctype="multipart/form-data" method="post">
-  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
   <table id="csslist" class="pagetable">
     <thead>
@@ -35,7 +35,7 @@
       {if $manage_stylesheets}
       <th class="pageicon nosort"></th>{* menu *}
       <th class="pageicon nosort">
-       <input type="checkbox" id="css_selall" title="{_ld('layout','title_css_selectall')}" value="1" />
+       <input type="checkbox" id="css_selall" title="{_ld('layout','title_css_selectall')}" value="1">
       </th>
       {/if}
       </tr>{/strip}
@@ -56,7 +56,7 @@
        <a class="steal_lock" href="{$url}&steal=1" data-css-id="{$sid}" title="{$t}" accesskey="e"{if $ul} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
        <span class="action" context-menu="Stylesheet{$sid}"{if !$ul} style="display:none;"{/if}>{$micon}</span></td>
       <td>
-       <input type="checkbox" id="{$css@index}" class="css_select action" name="css_select[]" title="{_ld('layout','prompt_select')}" value="{$sid}" />
+       <input type="checkbox" id="{$css@index}" class="css_select action" name="css_select[]" title="{_ld('layout','prompt_select')}" value="{$sid}">
       </td>
       {else}
       <td><span class="tooltip" data-cms-description="{css_info}">{$css->get_name()}</span></td>

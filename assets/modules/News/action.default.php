@@ -304,7 +304,7 @@ if( $rst ) {
         $onerow->id = $row['news_id'];
         $onerow->title = $row['news_title'];
         $onerow->content = $row['news_data'];
-        $onerow->summary = (trim($row['summary'])!='<br />'?$row['summary']:'');
+        $onerow->summary = (trim($row['summary'])!='<br>'?$row['summary']:'');
         if( !empty($row['news_extra']) ) { $onerow->extra = $row['news_extra']; }
         $onerow->startdate = $this->FormatforDisplay($row['start_time']);
         $onerow->postdate = $onerow->startdate; //deprecated since 3.0

@@ -265,7 +265,7 @@ function getEmbedPhpInfo(int $info = INFO_ALL) : string
 
 	$output = preg_replace('/width="[0-9]+"/i', 'width="85%"', $output);
 	$output = str_replace('<table border="0" cellpadding="3" width="85%">', '<table class="phpinfo">', $output);
-	$output = str_replace('<hr />', '', $output);
+	$output = preg_replace('~<hr[ /]*>~', '', $output);
 	$output = str_replace('<tr class="h">', '<tr>', $output);
 	$output = str_replace('<a name=', '<a id=', $output);
 	$output = str_replace('<font', '<span', $output);

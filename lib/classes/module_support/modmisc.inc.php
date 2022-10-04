@@ -37,15 +37,15 @@ function GetAbout($mod) : string
 {
 	$str = '';
 	if (($val = $mod->GetAuthor())) {
-		$str .= '<br />'.lang('author').': ' . $val;
+		$str .= '<br>'.lang('author').': ' . $val;
 		if (($val = $mod->GetAuthorEmail())) $str .= ' &lt;' . $val . '&gt;';
-		$str .= '<br />';
+		$str .= '<br>';
 	}
-	$str .= '<br />'.lang('version').': ' .$mod->GetVersion() . '<br />';
+	$str .= '<br>'.lang('version').': ' .$mod->GetVersion() . '<br>';
 
 	if (($val = $mod->GetChangeLog())) {
-		$str .= '<br />'.lang('changehistory').':<br />';
-		$str .= $val . '<br />';
+		$str .= '<br>'.lang('changehistory').':<br>';
+		$str .= $val . '<br>';
 	}
 	return $str;
 }

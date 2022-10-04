@@ -414,7 +414,7 @@ add_page_foottext($out);
 
 		return <<<EOS
 
-<input type="text" id="$elemid" class="cms_hierdropdown" name="$name" title="$elemtitle" value="$selected" size="8" maxlength="8" />
+<input type="text" id="$elemid" class="cms_hierdropdown" name="$name" title="$elemtitle" value="$selected" size="8" maxlength="8">
 
 EOS;
 	}

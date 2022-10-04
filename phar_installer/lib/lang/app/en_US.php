@@ -87,7 +87,7 @@ $lang['error_adminacct_emailaddr'] = 'The email address is invalid';
 $lang['error_adminacct_password'] = 'The password is unsuitable. Please try again.'; //TODO supplementary details
 $lang['error_adminacct_repeatpw'] = 'The entered passwords do not match.';
 $lang['error_adminacct_username'] = 'The username is unsuitable. Please try again.';
-//$lang['error_admindirrenamed'] = 'It appears that the site\'s admin directory has been renamed. That change must be <a href="https://docs.cmsmadesimple.org/general-information/securing-cmsms#renaming-admin-folder" target="_blank" class="external">reversed</a> (on disk and in the config.php file) in order to proceed!<br /><br />After that directory has been reverted to &quot;admin&quot;, please reload this page.';
+//$lang['error_admindirrenamed'] = 'It appears that the site\'s admin directory has been renamed. That change must be <a href="https://docs.cmsmadesimple.org/general-information/securing-cmsms#renaming-admin-folder" target="_blank" class="external">reversed</a> (on disk and in the config.php file) in order to proceed!<br><br>After that directory has been reverted to &quot;admin&quot;, please reload this page.';
 $lang['error_backupconfig'] = 'Unable to properly backup the config file';
 $lang['error_checksum'] = 'Extracted file checksum does not match original (%s)';
 $lang['error_cmstablesexist'] = 'It appears that there is already a CMSMS installation on this database. Please enter different database information. If you would like to use a different table prefix you might need to restart the installation process and enable advanced mode.';
@@ -192,10 +192,10 @@ $lang['finished_all_msg1'] = 'You are most welcome to participate in the CMSMS c
 $lang['finished_all_msg2'] = '<strong>Please remember:</strong> the CMS Made Simple Foundation always appreciates %s from CMSMS fans.'; // will include a payment-link
 $lang['finished_custom_freshen_msg'] = 'The installation has been freshened. Please visit the website to check that everything is functioning correctly.';
 $lang['finished_custom_install_msg'] = 'Done! Please visit the website and log in to its <a href="%s">Admin Console</a>.';
-$lang['finished_custom_upgrade_msg'] = 'Done! Check that everything is working properly. Log in to the site\'s <a href="%s">Admin Console</a>. Among other things, look out for modules which need to be upgraded. Visit <a href="%s">the website</a>.<br /><strong>Hint:</strong> Now is a good time to create another backup.';
+$lang['finished_custom_upgrade_msg'] = 'Done! Check that everything is working properly. Log in to the site\'s <a href="%s">Admin Console</a>. Among other things, look out for modules which need to be upgraded. Visit <a href="%s">the website</a>.<br><strong>Hint:</strong> Now is a good time to create another backup.';
 $lang['finished_freshen_msg'] = 'The installation has been freshened. To check that everything is functioning correctly, please visit <a href="%s">the website</a> or log in to its <a href="%s">Admin Console</a>.';
 $lang['finished_install_msg'] = 'Done! You can now <a href="%s">visit the website</a> or log in to its <a href="%s">Admin Console</a>.';
-$lang['finished_upgrade_msg'] = 'Done! Please visit the <a href="%s">website</a> and its <a href="%s">Admin Console</a> to verify correct behavior. You might also need to upgrade some non-core modules.<br /><strong>Hint:</strong> Remember to create another backup after verifying correct behavior.';
+$lang['finished_upgrade_msg'] = 'Done! Please visit the <a href="%s">website</a> and its <a href="%s">Admin Console</a> to verify correct behavior. You might also need to upgrade some non-core modules.<br><strong>Hint:</strong> Remember to create another backup after verifying correct behavior.';
 $lang['freshen'] = 'Freshen (repair) installation';
 $lang['func_json'] = 'json functionality is available ?';
 $lang['func_md5'] = 'md5 functionality is available ?';
@@ -405,7 +405,7 @@ $lang['support_payments'] = 'contributions'; //finished-message link-text
 // T
 $lang['test_failed'] = 'A required test failed';
 $lang['test_passed'] = 'A test passed <em>(passed tests are only displayed in advanced mode)</em>';
-$lang['test_warning'] = 'A setting is above the required value, but below the recommended value, or...<br />A capability that might be required for some optional functionality is unavailable';
+$lang['test_warning'] = 'A setting is above the required value, but below the recommended value, or...<br>A capability that might be required for some optional functionality is unavailable';
 $lang['th_status'] = 'Status';
 $lang['th_testname'] = 'Test';
 $lang['th_value'] = 'Value';
@@ -444,7 +444,7 @@ $lang['version_writable'] = 'Version-data file can be saved ?';
 
 // W
 $lang['warn_default_charset'] = 'The site\'s default character-encoding is: %s.  A value other than UTF-8 may cause difficulties with text processing in non-english languages';
-$lang['warn_disable_functions'] = 'Note: one or more PHP core functions are disabled. This can have negative impact on your CMSMS installation, particularly with third party extensions. Please keep an eye on your error log. Your disabled functions are: <br /><br />%s';
+$lang['warn_disable_functions'] = 'Note: one or more PHP core functions are disabled. This can have negative impact on your CMSMS installation, particularly with third party extensions. Please keep an eye on your error log. Your disabled functions are: <br><br>%s';
 $lang['warn_max_execution_time'] = 'Although the max execution time (%s) meets or exceeds the minimum value of %s, we recommend it be increased to %s or greater';
 $lang['warn_memory_limit'] = 'The memory limit value is %s, which is above the minimum of %s. However, %s is recommended';
 $lang['warn_open_basedir'] = 'open_basedir is enabled in the php configuration.  Although you may continue, CMSMS will not support installs with open_basedir restrictions.';
@@ -452,7 +452,7 @@ $lang['warn_post_max_size'] = 'The post max size value is %s, which is above the
 $lang['warn_pwcommon'] = 'The password is too common';
 $lang['warn_pwdiscuss'] = 'You might like to discuss the database password with the db administrator:';
 $lang['warn_pwenviron'] = 'The password uses identifiable information and is guessable';
-$lang['warn_pwperms'] = 'You might like to discuss the database permissions with the db administrator.<br \>Some of them might be un-necessarily risky:';
+$lang['warn_pwperms'] = 'You might like to discuss the database permissions with the db administrator.<br>Some of them might be un-necessarily risky:';
 $lang['warn_pwweak'] = 'The password is weaker than it arguably should be';
 $lang['warn_tests'] = '<strong>Note:</strong> passing all of these tests should ensure that CMSMS will function properly for most sites. However, as the site grows and more functionality is added, these minimal values might become insufficient. Additionally, non-core (independently-developed) modules might have further requirements to function properly';
 $lang['warn_upload_max_filesize'] = 'The current upload_max_filesize setting (%s) is sufficient, but increasing it to at least %s is recommended';

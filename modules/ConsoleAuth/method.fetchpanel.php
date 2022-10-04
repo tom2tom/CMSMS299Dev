@@ -1,6 +1,6 @@
 <?php
 /*
-Authenticator module method to generate login-panel content
+ConsoleAuth module method to generate login-panel content
 Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>

@@ -30,7 +30,7 @@ function smarty_cms_help_block_add_bottomcontent()
 	echo '<h3>What does it do?</h3>
 Supports out-of-order processing, by appending content to the bottom of the page.
 <h3>How is it used?</h3>
-Put this in a template<br />
+Put this in a template<br>
 <code>
 {add_bottomcontent}
 e.g.

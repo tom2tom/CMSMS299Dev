@@ -119,7 +119,7 @@ function siteprefs_display_permissions(array $permsarr) : string
         $str .= implode(',', $permsarr[$i]);
         $result[] = $str;
     }
-    $str = implode('<br />&nbsp;&nbsp;', $result);
+    $str = implode('<br>&nbsp;&nbsp;', $result);
     return $str;
 }
 
@@ -193,9 +193,9 @@ if (isset($_POST['testumask'])) {
                 $userinfo = @posix_getpwuid($filestat[4]);
                 $username = $userinfo['name'] ?? _la('unknown');
                 $permsstr = siteprefs_display_permissions(siteprefs_interpret_permissions($filestat[2]));
-                $messages[] = sprintf('%s: %s<br />%s:<br />&nbsp;&nbsp;%s', _la('owner'), $username, _la('permissions'), $permsstr);
+                $messages[] = sprintf('%s: %s<br>%s:<br>&nbsp;&nbsp;%s', _la('owner'), $username, _la('permissions'), $permsstr);
             } else {
-                $errors[] = sprintf('%s: %s<br />%s:<br />&nbsp;&nbsp;%s', _la('owner'), 'N/A', _la('permissions'), 'N/A');
+                $errors[] = sprintf('%s: %s<br>%s:<br>&nbsp;&nbsp;%s', _la('owner'), 'N/A', _la('permissions'), 'N/A');
             }
             @unlink($testfile);
         }
@@ -684,9 +684,9 @@ add_page_headtext($js);
 $submit = _la('submit');
 $cancel = _la('cancel');
 $editortitle = _la('syntax_editor_deftheme');
-$nofile = json_encode(_la('nofiles'));
-$badfile = json_encode(_la('errorwrongfile'));
-$confirm = json_encode(_la('siteprefs_confirm'));
+$nofile = addcslashes(_la('nofiles'), "'");
+$badfile = addcslashes(_la('errorwrongfile'), "'");
+$confirm = addcslashes(_la('siteprefs_confirm'), "'");
 
 $out = <<<EOS
 <script type="text/javascript">
@@ -739,21 +739,21 @@ $(function() {
    cms_dialog($('#importdlg'), {
     modal: true,
     buttons: {
-     {$submit}: function() {
+     '$submit': function() {
       var file = $('#xml_upload').val();
       if(file.length === 0) {
-       cms_alert($nofile);
+       cms_alert('$nofile');
       } else {
        var ext = file.split('.').pop().toLowerCase();
        if(ext !== 'xml') {
-        cms_alert($badfile);
+        cms_alert('$badfile');
        } else {
         $(this).dialog('close');
         $('#importform').submit();
        }
       }
      },
-     {$cancel}: function() {
+     '$cancel': function() {
       $(this).dialog('close');
      }
     },
@@ -764,11 +764,11 @@ $(function() {
    cms_dialog($('#deletedlg'), {
     modal: true,
     buttons: {
-     {$submit}: function() {
+     '$submit': function() {
       $(this).dialog('close');
       $('#deleteform').submit();
      },
-     {$cancel}: function() {
+     '$cancel': function() {
       $(this).dialog('close');
      }
     },
@@ -783,11 +783,11 @@ $(function() {
     modal: true,
     width: 'auto',
     buttons: {
-     {$submit}: function() {
+     '$submit': function() {
       $(this).dialog('close');
       $('#exportform').submit();
      },
-     {$cancel}: function() {
+     '$cancel': function() {
       $(this).dialog('close');
      }
     }
@@ -810,7 +810,7 @@ $(function() {
  });
  $('[name="submit"]').on('click', function(e) {
   e.preventDefault();
-  cms_confirm_btnclick(this, $confirm);
+  cms_confirm_btnclick(this, '$confirm');
   return false;
  });
 });

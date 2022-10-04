@@ -151,10 +151,10 @@ h2 {
   <dl>
     <dt>Q: Where is the support for <em style="color: red;">&quot;some functionality&quot;</em> in the editor, and how do I activate it?</dt>
       <dd>A: You don&apos;t. The version of Summernote distributed with HTMLEditor is a trimmed down, custom package. It includes custom plugins, but doesn&apos;t support the addition of custom plugins or the ability to customize the configuration in any way other than the edit profile form. If you require additional functionality in a WYSIWYG editor you might find a suitable module in the CMSMS forge.</dd>
-    <br />
+    <br>
     <dt>Q: Which HTML/HTML5 tags are supported by this module, and how do I change that?</dt>
       <dd>A: The list of supported elements in the default Summernote editor can be found at <a href="https://www.tiny.cloud/docs-3x/reference/Configuration3x/Configuration3x@valid_elements/#defaultruleset" target="_blank">the Summernote website</a>. There is no mechanism in the HTMLEditor module to extend that.</dd>
-    <br />
+    <br>
     <dt>Q: I cannot get the HTMLEditor editor to work in the admin interface, what can I do?</dt>
       <dd>A: There are a few steps you can follow to diagnose this issue:
         <ol>
@@ -167,7 +167,7 @@ h2 {
       </dd>
     <dt>Q: How do I insert a &lt;br/&gt; instead of create new paragraphs?</dt>
       <dd>A: Press [shift]+Enter instead of just the Enter key.</dd>
-    <br />
+    <br>
     <dt>Q: Why is <em style="color: red;">&quot;some functionality&quot;</em> available in the menubar, and not the toolbar?</dt>
       <dd>A: For this most part this is done intentionally to allow web developers the ability to further restrict the functionality of certain editor profiles. The menubar can be toggled off in different profiles thus denying the user the functionality only available in the menubar.</dd>
   </dl>
@@ -192,24 +192,24 @@ $lang['help_profilestatusbar'] = 'This flag indicates if the statusbar at the bo
 $lang['help_profileresize'] = 'This flag indicates if the WYSIWYG area can be resized. In order for resize abilities to work the statusbar must be enabled';
 $lang['help_sourcesri'] = <<<'EOS'
 If using a non-local source, enter here a subresource integrity string like 'hashtype-base64string'; corresponding to the main script file i.e. &lt;selected source url&gt;/summernote-lite.min.js. The hash type and value would normally be available from the script source or otherwise from various online calculators e.g. <a href="https://www.srihash.org">srihash.org</a>.
-<br /><br />
+<br><br>
 Refer to <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity">MDI</a>.
-<br /><br />
+<br><br>
 Leave the value empty for a locally-sourced script.
 EOS;
 $lang['help_sourceurl'] = <<<'EOS'
 Enter here the topmost URL which specifies which, and from where, text-editor source files will be retrieved at runtime in preparation for using the editor.
-<br /><br />
+<br><br>
 The editor may be installed on and run from this website, or run from CDN. The last part of the URL will often be a version-number. To use onsite sources, they must be manually installed in the place represented by the specified URL.
-<br /><br />
+<br><br>
 CDN example: https://somecdnsite.com/summernote/0.8.9
-<br /><br />
+<br><br>
 One good CDN source, perhaps the best, is cdnjs. (browse for 'summernote'; omit the trailing '/summernote[.min].js'). Summernote operates its own cloud service, use of which requires registration and key-retrieval.
 EOS;
 $lang['help_theme'] = <<<'EOS'
-The editor theme may be changed by replacing the default CSS file with a suitable equivalent.<br />
-Enter here the URL of such file. The URL may be absolute, or website-relative, or HTMLEditor-module relative.<br />
-If absolute, and referring to an off-site file, [TODO security needed e.g. correspoding SRI hash]<br />
+The editor theme may be changed by replacing the default CSS file with a suitable equivalent.<br>
+Enter here the URL of such file. The URL may be absolute, or website-relative, or HTMLEditor-module relative.<br>
+If absolute, and referring to an off-site file, [TODO security needed e.g. correspoding SRI hash]<br>
 For further information, see e.g. <a href="https://github.com/DiemenDesign/summernote-themes" target="_blank">this site</a>.
 EOS;
 $lang['helpopt'] = 'Help'; // option label
@@ -223,9 +223,9 @@ $lang['image'] = 'Image';
 //$lang['info_linker_autocomplete'] = 'This is an auto complete field. Begin by typing a few characters of the desired page alias, menu text, or title. Any matching items will be displayed in a list.';
 $lang['info_source'] = <<<'EOS'
 The settings here are only for configuring Summernote, the editor provided by the HTMLEditor module.
-<br /><br />
+<br><br>
 Other similar editors might also be available, if suitable module(s) are installed. If so, such editors' configuration would be handled in the respective modules.
-<br /><br />
+<br><br>
 The editor which is actually used is determined by a selection on the System Settings page, perhaps overridden by individual users' choice on their (personal) Settings page.
 EOS;
 $lang['inserts_btn_title'] = 'Custom element'; // editor toolbutton tip

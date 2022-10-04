@@ -74,7 +74,7 @@ var ex = {
 EOS;
 for ($i=0; $i<$c; ++$i) {
     $key = key($data);
-    $value = json_encode(current($data));
+    $value = json_encode(current($data), JSON_UNESCAPED_UNICODE);
     $out .= " $key: $value,\n";
     next($data);
 }

@@ -53,7 +53,7 @@ class ExtendedModuleInfo extends ModuleInfo
             $this->emdata['admin_only'] = (int)($minfo[$module_name]['admin_only'] ?? 0);
 //          $this->emdata['allow_fe_lazyload'] = (int)$minfo[$module_name]['allow_fe_lazyload'];
 //          $this->emdata['allow_admin_lazyload'] = (int)$minfo[$module_name]['allow_admin_lazyload'];
-            $this->emdata['can_deactivate'] = !in_array($module_name,['Authenticator','ModuleManager']); // etc?
+            $this->emdata['can_deactivate'] = !in_array($module_name,['ConsoleAuth','ModuleManager']); // etc?
             $this->emdata['dependents'] = $minfo[$module_name]['dependents'] ?? [];
             $this->emdata['installed'] = 1;
             $this->emdata['installed_version'] = $minfo[$module_name]['version'];
@@ -87,8 +87,7 @@ class ExtendedModuleInfo extends ModuleInfo
         return null;
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetSet($key,$value)// : void
+    public function offsetSet($key,$value) : void
     {
         if( !in_array($key,self::EMPROPS) ) {
             parent::OffsetSet($key,$value);
@@ -102,8 +101,7 @@ class ExtendedModuleInfo extends ModuleInfo
         }
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetExists($key)// : bool
+    public function offsetExists($key) : bool
     {
         if( !in_array($key,self::EMPROPS) ) {
             return parent::OffsetExists($key);
@@ -112,8 +110,7 @@ class ExtendedModuleInfo extends ModuleInfo
             ['missingdeps']);
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($key)// : void
+    public function offsetUnset($key) : void
     {
     }
 }

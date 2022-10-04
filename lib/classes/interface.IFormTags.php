@@ -533,7 +533,7 @@ interface IFormTags
 	* @param string $items		An array of items to create as radio buttons... they should be $key=>$value pairs
 	* @param string $selectedvalue The default selected index of the radio group.	 Setting to -1 will result in the first choice being selected
 	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 3.0 - use $attrs[] instead
-	* @param string $delimiter	A delimiter to throw between each radio button, e.g., a <br /> tag or something for formatting
+	* @param string $delimiter	A delimiter to throw between each radio button, e.g., a <br> tag or something for formatting
 	* @param array  $attrs since 3.0 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string

@@ -167,17 +167,17 @@ function check_checksum_data(&$report)
             $tmp2[] = sprintf('%d %s', $md5failed, _la('files_checksum_failed'));
         }
         if (!empty($tmp)) {
-            $tmp .= '<br />';
+            $tmp .= '<br>';
         }
 
-        $tmp = implode('<br />', $tmp2);
+        $tmp = implode('<br>', $tmp2);
         if ($filenotfound) {
-            $tmp .= '<br />'._la('files_not_found').':';
-            $tmp .= '<br />'.implode('<br />', $filenotfound).'<br />';
+            $tmp .= '<br>'._la('files_not_found').':';
+            $tmp .= '<br>'.implode('<br>', $filenotfound).'<br>';
         }
         if ($filesfailed) {
-            $tmp .= '<br />'.count($filesfailed).' '._la('files_failed').':';
-            $tmp .= '<br />'.implode('<br />', $filesfailed).'<br />';
+            $tmp .= '<br>'.count($filesfailed).' '._la('files_failed').':';
+            $tmp .= '<br>'.implode('<br>', $filesfailed).'<br>';
         }
 
         $report = $tmp;

@@ -2,13 +2,13 @@
 <html lang="{$lang_code}" dir="{$lang_dir}">
 <head>
   <title>{_ld($_module,'loginto',{sitename})}</title>
-  <meta charset="{$encoding}" />
-  <meta name="generator" content="CMS Made Simple" />
-  <meta name="robots" content="noindex, nofollow" />
-  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0" />
-  <meta name="HandheldFriendly" content="true" />
-  <base href="{$admin_url}/" />
-  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
+  <meta charset="{$encoding}">
+  <meta name="generator" content="CMS Made Simple">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0">
+  <meta name="HandheldFriendly" content="true">
+  <base href="{$admin_url}/">
+  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico">
   {$header_includes|default:''}
 </head>
 <body>{$lost=isset($smarty.get.forgotpw)}
@@ -27,31 +27,31 @@
         {/if}
       </div>
      {$start_form}
-      {if isset($csrf)}<input type="hidden" name="{$actionid}csrf" value="{$csrf}" />{/if}
+      {if isset($csrf)}<input type="hidden" name="{$actionid}csrf" value="{$csrf}">{/if}
       <div class="boxchild">
         <label for="lbusername">{_ld($_module,'username')}</label>
         {if isset($renewpw)}
-        <input type="text" id="lbusername" size="25" value="{$username}" disabled />
-        <input type="hidden" name="{$actionid}renewpwform" value="1" />
-        <input type="hidden" name="{$actionid}username" value="{$username}" />
+        <input type="text" id="lbusername" size="25" value="{$username}" disabled>
+        <input type="hidden" name="{$actionid}renewpwform" value="1">
+        <input type="hidden" name="{$actionid}username" value="{$username}">
         {else}
-        <input type="text" id="lbusername" class="focus" name="{$actionid}username" placeholder="{_ld($_module,'username')}" size="25" autofocus="autofocus" />
+        <input type="text" id="lbusername" class="focus" name="{$actionid}username" placeholder="{_ld($_module,'username')}" size="25" autofocus>
         {if $lost}
-        <input type="hidden" name="{$actionid}lostpwform" value="1" />
+        <input type="hidden" name="{$actionid}lostpwform" value="1">
         {/if}
         {/if}
       </div>
       {if !$lost}
        <div class="boxchild">
         <label for="lbpassword">{_ld($_module,'password')}</label>
-        <input type="password" id="lbpassword" class="focus" name="{$actionid}password" placeholder="{_ld($_module,'password')}" size="25" maxlength="64" />
+        <input type="password" id="lbpassword" class="focus" name="{$actionid}password" placeholder="{_ld($_module,'password')}" size="25" maxlength="72">
       </div>
       {/if}
       {if !empty($changepwhash)}
       <div class="boxchild">
         <label for="lbpasswordagain">{_ld($_module,'passwordagain')}</label>
-        <input type="password" id="lbpasswordagain" name="{$actionid}passwordagain" placeholder="{_ld($_module,'passwordagain')}" size="25" maxlength="64" />
-        <input type="hidden" name="{$actionid}changepwhash" value="{$changepwhash}" />
+        <input type="password" id="lbpasswordagain" name="{$actionid}passwordagain" placeholder="{_ld($_module,'passwordagain')}" size="25" maxlength="64">
+        <input type="hidden" name="{$actionid}changepwhash" value="{$changepwhash}">
       </div>
       {/if}
       {strip}<div class="boxchild" style="margin-top:10px;">
@@ -83,7 +83,7 @@
       </div>
     </div>{* login-box *}
     <div id="logo">
-      <a href="https://www.cmsmadesimple.org"><img src="themes/assets/images/cmsms-logotext-dark.svg" alt="CMS Made Simple&trade;" /></a>
+      <a href="https://www.cmsmadesimple.org"><img src="themes/assets/images/cmsms-logotext-dark.svg" alt="CMS Made Simple&trade;"></a>
     </div>
     <a id="hide-info" href="javascript:void()" title="{_ld($_module,'close')}"></a>
     <div id="maininfo" class="message info" style="display:none">

@@ -193,7 +193,7 @@ final class FileManager extends CMSModule
         if (file_exists($imagepath)) {
             $imageurl=CMS_ROOT_URL.'/'.$this->Slashes($path).'/thumb_'.$file['name'];
             //TODO $image=$themeObject->DisplayImage(fullpath-to-image,$file['name'],'','','listicon',$attrs = []);
-            $image='<img src="'.$imageurl.'" class="listicon" alt="'.$file['name'].'" title="'.$file['name'].'" />';
+            $image='<img src="'.$imageurl.'" class="listicon" alt="'.$file['name'].'" title="'.$file['name'].'">';
             $url = $this->create_action_url($id, 'view', ['file'=>$this->encodefilename($file['name'])]);
             //$result="<a href=\"".$file['url']."\" target=\"_blank\">";
             $result='<a href="'.$url.'" target="_blank">'.$image.'</a>';
@@ -226,7 +226,7 @@ final class FileManager extends CMSModule
     {
         $base_url = $this->GetModuleURLPath();
         $out = '';
-        $fmt='<link rel="stylesheet" href="%s/%s" />';
+        $fmt='<link rel="stylesheet" href="%s/%s">';
         $cssfiles = [
         'css/filemanager.css',
         'lib/js/jrac/style.jrac.min.css'

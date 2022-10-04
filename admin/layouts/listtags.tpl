@@ -9,22 +9,22 @@
   </div>
  {else}
   <div class="information">
-   <p>{_ld('tags','tag_info')}<br />{_ld('tags','tag_info3')}</p>
+   <p>{_ld('tags','tag_info')}<br>{_ld('tags','tag_info3')}</p>
   </div>
 {/if}
 {if !empty($pdev)}
 <div class="pageoverflow pregap">
   <p class="pagetext">{_la('upload_plugin_file')}</p>
   <form action="{$selfurl}" enctype="multipart/form-data" method="post">
-  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
-  <p class="pageinput"><input type="file" name="pluginfile" size="30" maxlength="255" accept="application/x-php" /></p>
+  <p class="pageinput"><input type="file" name="pluginfile" size="30" maxlength="255" accept="application/x-php"></p>
   <div class="pageinput pregap">
    <button type="submit" name="upload" class="adminsubmit icon do">{_la('submit')}</button>
   </div>
   </form>
 </div>
-<br />
+<br>
 {/if}
 {if isset($content)}
   {$content}

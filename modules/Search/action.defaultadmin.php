@@ -131,8 +131,8 @@ $tpl->assign('formstart2',
  ->assign('input_resultpage',
      AdminUtils::CreateHierarchyDropdown(0,$this->GetPreference('resultpage',-1),$id.'resultpage',true));
 
-$s1 = $this->Lang('confirm_clearstats');
-$s2 = json_encode($this->Lang('confirm_reindex'));
+$s1 = addcslashes($this->Lang('confirm_clearstats'), "'");
+$s2 = addcslashes($this->Lang('confirm_reindex'), "'");
 
 $js = <<<EOS
 <script type="text/javascript">
@@ -143,7 +143,7 @@ $(function() {
   return false;
  });
  $('button[name="{$id}reindex"]').on('click', function() {
-  cms_confirm_btnclick(this, $s2);
+  cms_confirm_btnclick(this, '$s2');
   return false;
  });
 });

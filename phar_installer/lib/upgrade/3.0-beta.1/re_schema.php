@@ -724,7 +724,7 @@ EOS;
     $res = $handle->query($sql);
     if (!$res) {
         if ($incl) {
-            echo "TABLE $tbl ADDITION ERROR ".$handle->error.'<br/>';
+            echo "TABLE $tbl ADDITION ERROR ".$handle->error.'<br>';
         } else {
             error_msg("Table $tbl addition error: ".$handle->error);
         }
@@ -753,7 +753,7 @@ EOS;
     $res = $handle->query($sql);
     if (!$res) {
         if ($incl) {
-            echo "TABLE $tbl CHANGE ERROR ".$handle->error.'<br/>';
+            echo "TABLE $tbl CHANGE ERROR ".$handle->error.'<br>';
         } else {
             error_msg("Table $tbl change error: ".$handle->error);
         }
@@ -857,7 +857,7 @@ VALUES (?,?,?,?,?,?,?)");
         $res2 = $stmt3->execute();
         if (!$res || !$res2) {
             if ($incl) {
-                echo "MODULE-TEMPLATE '$s' TRANSER ERROR ".$stmt3->error.'<br/>';
+                echo "MODULE-TEMPLATE '$s' TRANSER ERROR ".$stmt3->error.'<br>';
             } else {
                 error_msg("Module-template '$s' transer error: ".$stmt3->error);
             }
@@ -979,7 +979,7 @@ if ($rst) {
                     }
                 } else {
                     if ($incl) {
-                        echo "DESIGN $tmp TEMPLATES-MIGRATION ERROR ".$stmt->error.'<br/>';
+                        echo "DESIGN $tmp TEMPLATES-MIGRATION ERROR ".$stmt->error.'<br>';
                     } else {
                         error_msg("Design $tmp templates-migration error: ".$stmt->error);
                     }
@@ -1025,7 +1025,7 @@ if ($rst) {
                     }
                 } else {
                     if ($incl) {
-                        echo "DESIGN $tmp STYLESHEETS-MIGRATION ERROR ".$stmt->error.'<br/>';
+                        echo "DESIGN $tmp STYLESHEETS-MIGRATION ERROR ".$stmt->error.'<br>';
                     } else {
                         error_msg("Design $tmp stylesheets-migration error: ".$stmt->error);
                     }
@@ -1055,7 +1055,7 @@ if ($rst) {
                         $res2 = $stmt->execute();
                         if (!$res || !$res2) {
                             if ($incl) {
-                                echo "PAGE $id STYLESHEET(S)-ASSIGNMENT ERROR ".$stmt->error.'<br/>';
+                                echo "PAGE $id STYLESHEET(S)-ASSIGNMENT ERROR ".$stmt->error.'<br>';
                             } else {
                                 error_msg("Page $id stylesheet(s)-assignment error: ".$stmt->error);
                             }
@@ -1074,7 +1074,7 @@ foreach ($drop_defns as $tbl) {
     $res = $handle->query('DROP TABLE '.$tbl);
     if (!$res) {
         if ($incl) {
-            echo 'DROP TABLE ERROR '.$handle->error.'<br/>';
+            echo 'DROP TABLE ERROR '.$handle->error.'<br>';
         } else {
             error_msg('Drop table error: '.$handle->error);
         }

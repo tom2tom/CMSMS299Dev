@@ -85,15 +85,13 @@ function getParms(tagname) {
  }, function(data) {
   dlg.find('#params').html(data);
   cms_dialog(dlg, {
-   buttons: [{
-   text: '$close',
-   icon: 'ui-icon-cancel',
-    click: function() {
+   modal: true,
+   width: 'auto',
+   buttons: {
+    '$close': function() {
      cms_dialog($(this), 'destroy');
     }
-   }],
-   modal: true,
-   width: 'auto'
+   }
   });
  },
  'html');
@@ -103,12 +101,12 @@ function getParms(tagname) {
 EOS;
     }
     if ($pmod) {
-        $confirm = json_encode(_la('confirm_delete_usrplg'));
+        $confirm = addcslashes(_la('confirm_delete_usrplg'), "'");
         $out .= <<<EOS
 function doDelete(tagname) {
- cms_confirm($confirm).done(function() {
+ cms_confirm('$confirm').done(function() {
   var u = 'deleteusertag.php{$urlext}&name=' + tagname;
-  window.location.replace(u);
+  window.location.replace(u); // no go-back
  });
 }
 

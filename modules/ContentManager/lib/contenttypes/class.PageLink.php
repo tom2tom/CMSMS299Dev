@@ -167,7 +167,7 @@ class PageLink extends ContentBase
 			return [
 			'for="addlparms">'.$this->mod->Lang('additional_params'),
 			AdminUtils::get_help_tag($this->domain, 'help_link_params', $this->mod->Lang('help_title_link_params')),
-			'<input type="text" id="addlparms" name="'.$id.'params" value="'.$val.'" />'
+			'<input type="text" id="addlparms" name="'.$id.'params" value="'.$val.'">'
 			];
 
 		default:

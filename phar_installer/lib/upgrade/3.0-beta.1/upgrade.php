@@ -580,6 +580,37 @@ foreach ($arr as $name) {
     AppParams::remove($name);
 }
 
+// 7B. If N/A now, upload-images folder / {pageimages, pagethumbs} or corresponding names per params
+$sysconfig = Lone::get('Config');
+$s = $sysconfig['image_uploads_path'];
+$modes = get_server_permissions();
+$d = AppParams::get('content_imagefield_path');
+if (!$d) {
+    $d = DIRECTORY_SEPARATOR.'pageimages';
+    AppParams::set('content_imagefield_path', $d);
+} elseif ($d[0] != '/' && $d[0] != '\\') {
+    $d = DIRECTORY_SEPARATOR.$d;
+    AppParams::set('content_imagefield_path', $d);
+}
+$fp = $s . $d;
+if (!is_dir($fp)) {
+    @mkdir($fp, $modes[3], true);
+}
+touch($fp . DIRECTORY_SEPARATOR . 'index.html');
+$d = AppParams::get('content_thumbnailfield_path');
+if (!$d) {
+    $d = DIRECTORY_SEPARATOR.'pagethumbs';
+    AppParams::set('content_thumbnailfield_path', $d);
+} elseif ($d[0] != '/' && $d[0] != '\\') {
+    $d = DIRECTORY_SEPARATOR.$d;
+    AppParams::set('content_thumbnailfield_path', $d);
+}
+$fp = $s . $d;
+if (!is_dir($fp)) {
+    @mkdir($fp, $modes[3], true);
+}
+touch($fp . DIRECTORY_SEPARATOR . 'index.html');
+
 // 8. Extra static events
 foreach ([
 //    'JobFailed',
@@ -735,7 +766,7 @@ while (($p = strpos($s, '\0', $p + 1)) !== false) {
     $s[$p] = $c;
 }
 file_put_contents($fp, $s);
-$modes = get_server_permissions();
+//$modes = get_server_permissions();
 chmod($fp, $modes[0]); // read-only
 
 // 13.2 maybe some classes were missed by the manifest processing

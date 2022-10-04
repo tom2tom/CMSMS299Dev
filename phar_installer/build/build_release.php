@@ -978,7 +978,7 @@ function verbose(int $lvl, string $msg)
         if ($cli) {
             echo $msg.PHP_EOL;
         } else {
-            echo $msg.'<br/>';
+            echo $msg.'<br>';
         }
     }
 }
@@ -1062,7 +1062,7 @@ if ($cli) {
         }
     }
 } else {
-    echo '<br/>';
+    echo '<br>';
 } //cli
 
 if (empty($pack)) {

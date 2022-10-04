@@ -48,7 +48,7 @@ class wizard_step8 extends wizard_step
         } catch (Throwable $t) {
             $s = $this->forge_url;
             if ($s) {
-                $s = '<br />'.lang('error_notify', $s);
+                $s = '<br>'.lang('error_notify', $s);
             }
             $smarty->assign('error', $t->GetMessage().$s);
         }
@@ -403,7 +403,7 @@ EOS
         } catch (Throwable $t) {
             $s = $this->forge_url;
             if ($s) {
-                $s = '<br />'.lang('error_notify', $s);
+                $s = '<br>'.lang('error_notify', $s);
             }
             $this->error($t->GetMessage().$s); // TODO 'real' error report with button-affect etc
         }

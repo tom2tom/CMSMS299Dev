@@ -398,7 +398,7 @@ $(function() {
   cms_dialog($('#popup'), {
    modal: true,
    buttons: {
-    {$close}: function() {
+    '$close': function() {
      $(this).dialog('close');
      dirs.off('dblclick').off('click');
     }

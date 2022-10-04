@@ -22,8 +22,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 if( !$this->CheckPermission('Modify Site Preferences') ) exit;
 
-$s1 = json_encode($this->Lang('confirm_reseturl'));
-$s2 = json_encode($this->Lang('confirm_settings'));
+$s1 = addcslashes($this->Lang('confirm_reseturl'), "'");
+$s2 = addcslashes($this->Lang('confirm_settings'), "'");
 
 $js = <<<EOS
 <script type="text/javascript">
@@ -32,7 +32,7 @@ $(function() {
   $('#reseturl').on('click', function(ev) {
     ev.preventDefault();
     var form = $(this).closest('form');
-    cms_confirm($s1).done(function() {
+    cms_confirm('$s1').done(function() {
       $('#inp_reset').val(1);
       form.submit();
     });
@@ -41,7 +41,7 @@ $(function() {
   $('#settings_submit').on('click', function(ev) {
     ev.preventDefault();
     var form = $(this).closest('form');
-    cms_confirm($s2).done(function() {
+    cms_confirm('$s2').done(function() {
       form.submit();
     });
     return false;

@@ -37,7 +37,7 @@ class xml_reader extends XMLReader
     if( strpos($errstr,'XMLReader') !== FALSE ) {
       log_error($errstr, 'DesignManger\xml_reader');
       $mod = Utils::get_module('DesignManager');
-      throw new XMLException($mod->Lang('error_xmlstructure').':<br />'.$errstr);
+      throw new XMLException($mod->Lang('error_xmlstructure').':<br>'.$errstr);
     }
   }
 

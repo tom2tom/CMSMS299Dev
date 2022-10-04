@@ -275,7 +275,7 @@ class StylesMerger
      *  to hold the generated styles file. Default '' hence use TMP_CACHE_LOCATION
      * @param bool   $force       Optional flag whether to force re-creation
      *  of the merged file. Default false
-     * @return string html like <link ...  /> | ''
+     * @return string html like <link ... > | ''
      */
     public function page_content(string $output_path = '', bool $force = false) : string
     {
@@ -285,7 +285,7 @@ class StylesMerger
             $output_file = $base_path.DIRECTORY_SEPARATOR.$cache_filename;
             $url = cms_path_to_url($output_file);
             $sri = base64_encode(hash_file('sha256', $output_file, true));
-            return "<link rel=\"stylesheet\" href=\"$url\" media=\"all\" integrity=\"sha256-$sri\" crossorigin=\"anonymous\" referrerpolicy=\"same-origin\" />\n";
+            return "<link rel=\"stylesheet\" href=\"$url\" media=\"all\" integrity=\"sha256-$sri\" crossorigin=\"anonymous\" referrerpolicy=\"same-origin\">\n";
         }
         return '';
     }

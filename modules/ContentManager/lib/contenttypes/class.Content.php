@@ -477,7 +477,7 @@ class Content extends ContentBase
 			return [
 			'for="defaultcontent">'.$this->mod->Lang('defaultcontent'),
 			AdminUtils::get_help_tag($this->domain, 'help_content_default', $this->mod->Lang('help_title_content_default')),
-			'<input type="hidden" name="'.$id.'defaultcontent" value="0" /><input type="checkbox" id="defaultcontent" name="'.$id.' value="1" defaultcontent"'.($this->mDefaultContent ? ' checked="checked"' : '').' />'
+			'<input type="hidden" name="'.$id.'defaultcontent" value="0"><input type="checkbox" id="defaultcontent" name="'.$id.' value="1" defaultcontent"'.($this->mDefaultContent ? ' checked' : '').'>'
 			];
 
 		case 'searchable':
@@ -488,7 +488,7 @@ class Content extends ContentBase
 			return [
 			'for="searchable">'.$this->mod->Lang('searchable'),
 			AdminUtils::get_help_tag($this->domain, 'help_page_searchable', $this->mod->Lang('help_title_page_searchable')),
-			'<input type="hidden" name="'.$id.'searchable" value="0" /><input type="checkbox" id="searchable" name="'.$id.'searchable" value="1"'.(($searchable) ? ' checked="checked"' : '').' />'
+			'<input type="hidden" name="'.$id.'searchable" value="0"><input type="checkbox" id="searchable" name="'.$id.'searchable" value="1"'.(($searchable) ? ' checked' : '').'>'
 			];
 
 		case 'disable_wysiwyg':
@@ -499,7 +499,7 @@ class Content extends ContentBase
 			return [
 			'for="disablewysiwyg">'.$this->mod->Lang('disable_wysiwyg'),
 			AdminUtils::get_help_tag($this->domain, 'help_page_disablewysiwyg', $this->mod->Lang('help_title_page_disablewysiwyg')),
-			'<input type="hidden" name="'.$id.'disable_wysiwyg" value="0" /><input type="checkbox" id="disablewysiwyg" name="'.$id.'disable_wysiwyg" value="1"'.(($disable_wysiwyg) ? ' checked="checked"' : '').' />'
+			'<input type="hidden" name="'.$id.'disable_wysiwyg" value="0"><input type="checkbox" id="disablewysiwyg" name="'.$id.'disable_wysiwyg" value="1"'.(($disable_wysiwyg) ? ' checked' : '').'>'
 			];
 
 		case 'wantschildren':
@@ -509,7 +509,7 @@ class Content extends ContentBase
 				return [
 				'for="wantschildren">'.$this->mod->Lang('wantschildren'),
 				AdminUtils::get_help_tag($this->domain, 'help_page_wantschildren', $this->mod->Lang('help_title_page_wantschildren')),
-				'<input type="hidden" name="'.$id.'wantschildren" value="0" /><input type="checkbox" id="wantschildren" name="'.$id.'wantschildren" value="1"'.(($wantschildren) ? ' checked="checked"' : '').' />'
+				'<input type="hidden" name="'.$id.'wantschildren" value="0"><input type="checkbox" id="wantschildren" name="'.$id.'wantschildren" value="1"'.(($wantschildren) ? ' checked' : '').'>'
 				];
 			}
 			break;
@@ -631,12 +631,12 @@ class Content extends ContentBase
 			$maxlength = (int) $this->_get_param($blockInfo, 'maxlength', 255);
 			$ret = '<input type="text" size="'.$size.'" maxlength="'.$maxlength.'" name="'.$blockInfo['id'].'" value="'. specialize($value, ENT_NOQUOTES).'"';
 			if ($required) {
-				$ret .= ' required="required"';
+				$ret .= ' required';
 			}
 			if ($placeholder) {
 				$ret .= " placeholder=\"{$placeholder}\"";
 			}
-			$ret .= ' />';
+			$ret .= '>';
 		} else {
 			if ($this->GetPropertyValue('disable_wysiwyg')) {
 				$block_wysiwyg = false;

@@ -33,7 +33,7 @@
     {/foreach}
     {capture append=stats}<span title="{_ld($_module,'title_depends_upon')}">{_ld($_module,'depends_upon')}</span>: {', '|implode:$deps}{/capture}
   {/if}
-{"<br />\n"|implode:$stats}
+{"<br>\n"|implode:$stats}
 {/function}
 
 {function actions}
@@ -57,7 +57,7 @@
       {capture append=acts}<a href="{cms_action_url action='local_chmod' mod=$item.name}" class="modop mod_chmod" title="{_ld($_module,'title_chmod')}">{_ld($_module,'changeperms')}</a>{/capture}
     {/if}{/if}
   {/if}
-{"<br />\n"|implode:$acts}
+{"<br>\n"|implode:$acts}
 {/function}
 
 {if !empty($module_info)}
@@ -152,7 +152,7 @@
     <label class="pagetext" for="xml_upload">{_ld($_module,'uploadfile')}:</label>
     {cms_help 0=$_module key='help_mm_importxml' title=_ld($_module,'title_mm_importxml')}
     <div class="pageinput">
-      <input id="xml_upload" type="file" name="{$actionid}upload" accept="text/xml" />
+      <input id="xml_upload" type="file" name="{$actionid}upload" accept="text/xml">
     </div>
   </div>
  </form>

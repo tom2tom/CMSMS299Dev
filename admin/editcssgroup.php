@@ -106,7 +106,7 @@ if ($props['description']) {
 	// specialize e.g. munge malicious <[/]textarea> tags
 	$matches = [];
 	$props['description'] = preg_replace_callback('~<\s*(/?)\s*(textarea)\s*>~i', function($matches) {
-		$pre = ($matches[1]) ? '&sol;' : ''; // ?? OR &#47;
+		$pre = ($matches[1]) ? '&sol;' : ''; // OR &#47;
 		return '&lt;'.$pre.$matches[2].'&gt;';
 	}, $props['description']);
 }
@@ -129,8 +129,8 @@ if ($js) {
 
 //$nonce = get_csp_token();
 $lock_refresh = AppParams::get('lock_refresh', 120);
-$s1 = json_encode(_ld('layout', 'error_lock'));
-$s2 = json_encode(_ld('layout', 'msg_lostlock'));
+$s1 = addcslashes(_ld('layout', 'error_lock'), "'");
+$s2 = addcslashes(_ld('layout', 'msg_lostlock'), "'");
 $cancel = _la('cancel');
 
 $js = <<<EOS
@@ -147,7 +147,7 @@ $(function() {
      lock_timeout: $lock_timeout,
      lock_refresh: $lock_refresh,
      error_handler: function(err) {
-       cms_alert($s1 + ' ' + err.type + ' // ' + err.msg);
+       cms_alert('{$s1} ' + err.type + ' // ' + err.msg);
      },
      lostlock_handler: function(err) {
       // we lost the lock on this type ... block saving and display a nice message.
@@ -155,7 +155,7 @@ $(function() {
       $('#edit_group').dirtyForm('option','dirty',false);
       cms_button_able($('#submitbtn,#applybtn'),false);
       $('.lock-warning').removeClass('hidden-item');
-      cms_alert($s2);
+      cms_alert('$s2');
      }
    });
   }

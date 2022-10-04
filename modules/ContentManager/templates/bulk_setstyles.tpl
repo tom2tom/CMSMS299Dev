@@ -9,7 +9,7 @@
 <p class="pageinfo">{_ld($_module,'info_styles')}</p>
 
 {form_start}
-{foreach $pagelist as $pid}<input type="hidden" name="{$actionid}bulk_content[]" value="{$pid}" />
+{foreach $pagelist as $pid}<input type="hidden" name="{$actionid}bulk_content[]" value="{$pid}">
 {/foreach}
 {include  file='module_file_tpl:ContentManager;setstyles.tpl' scope='global'}
 <div class="pageinput pregap">

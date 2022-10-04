@@ -73,7 +73,7 @@ if (isset($_POST['submit'])) {
     $username = sanitizeVal($tmp, CMSSAN_ACCOUNT);
     if ($username != $tmp) {
         $errors[] = _la('illegalcharacters', _la('username'));
-    } elseif (!($username || is_numeric($username))) { // allow username '0' ??
+    } elseif (!($username || is_numeric($username))) { // allow username '0' ?
         $errors[] = _la('nofieldgiven', _la('username'));
     }
 

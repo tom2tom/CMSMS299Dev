@@ -162,6 +162,14 @@ foreach ([
 
 create_deprec_links($bp);
 
+//upload-images folder subdirs {pageimages, pagehumbs} c.f. content_*_path preference values below
+$bp = $destdir.DIRECTORY_SEPARATOR.'uploads';
+create_private_dir($bp, 'images', $dirmode);
+$bp .= DIRECTORY_SEPARATOR.'images';
+foreach (['pageimages', 'pagethumbs'] as $name) {
+    create_private_dir($bp, $name, $dirmode);
+}
+
 status_msg(lang('install_requireddata'));
 
 //
@@ -202,8 +210,8 @@ foreach ([
     'cms_schema_version' => $schema,
     'cms_version' => $sysver, // ultimate source of CMSMS version value
     'cms_version_name' => $sysname, // public identifier for CMSMS version
-    'content_imagefield_path' => DIRECTORY_SEPARATOR.'navimages', // image-uploads-relative sub-path of nav-related images
-    'content_thumbnailfield_path' => DIRECTORY_SEPARATOR.'navthumbs', // image-uploads-relative sub-path of nav-related thumbs
+    'content_imagefield_path' => DIRECTORY_SEPARATOR.'pageimages', // image-uploads-relative sub-path of page-related images
+    'content_thumbnailfield_path' => DIRECTORY_SEPARATOR.'pagethumbs', // image-uploads-relative sub-path of page-related thumbs
     'coremodules' => $cores,
     'current_theme' => '', // frontend theme name
     'date_format' => 'j %B Y', // mixed format
@@ -224,7 +232,7 @@ foreach ([
     'loginsalt' => $salt,
     'logintheme' => $theme,
     'logintimeout' => 0, // login-cookie lifetime (days, 0 == session)
-    'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved." />'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
+    'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved.">'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'."\n",
     'password_level' => 0, // p/w policy-type enumerator
 //    'password_timeout' => 0, // p/w lifetime (days) NO TIMEOUT SUPPORT
     'site_help_url' => $helpurl,

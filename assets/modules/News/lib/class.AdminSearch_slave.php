@@ -120,7 +120,7 @@ final class AdminSearch_slave extends Base_slave
                     // search for the keyword
                     $html2 = $this->get_matches_info($value);
                     if( $html2 ) {
-                        $html .= '<br />'.$html2;
+                        $html .= '<br>'.$html2;
                     }
                 }
                 if( $html ) {

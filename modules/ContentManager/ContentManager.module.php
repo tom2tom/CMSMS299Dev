@@ -103,7 +103,7 @@ final class ContentManager extends CMSModule
 	public function GetHeaderHTML()
 	{
 		$out = '';
-		$fmt = '<link rel="stylesheet" href="%s/%s" />';
+		$fmt = '<link rel="stylesheet" href="%s/%s">';
 		$urlpath = $this->GetModuleURLPath();
 		$cssfiles = [
 			'css/module.min.css'

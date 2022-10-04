@@ -357,7 +357,7 @@ a campaign is using. You only want to use this if you want to allow editing temp
 
     /**
      * Update just about any setting besides type for a campaign that has <em>not</em> been sent. See campaigns/create() for details.
-Caveats:<br/><ul class='bullets'>
+Caveats:<br><ul class='bullets'>
 <li>If you set a new list_id, all segmentation options will be deleted and must be re-added.</li>
 <li>If you set template_id, you need to follow that up by setting it's 'content'</li>
 <li>If you set segment_opts, you should have tested your options against campaigns/segment-test().</li>

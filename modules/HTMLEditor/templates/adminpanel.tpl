@@ -2,10 +2,10 @@
 {tab_header name='example' label=_ld($_module,'example')}
 {tab_start name ='settings'}
 {if isset($info)}
-<div class="pageinfo">{$info}</div><br />
+<div class="pageinfo">{$info}</div><br>
 {/if}
 {if isset($warning)}
-<div class="pagewarn">{$warning}</div><br />
+<div class="pagewarn">{$warning}</div><br>
 {/if}
 {if isset($form_start)}
 {$form_start}
@@ -14,17 +14,17 @@
   {$t=_ld($_module,'prompt_sourceurl')}<label class="pagetext" for="fromurl">* {$t}:</label>
   {cms_help 0=$_module key='help_sourceurl' title=$t}
   <div class="pageinput">
-   <input type="text" id="fromurl" name="{$actionid}source_url" value="{$source_url}" size="70" required="required" />
+   <input type="text" id="fromurl" name="{$actionid}source_url" value="{$source_url}" size="70" required>
   </div>
   {$t=_ld($_module,'prompt_sourcesri')}<label class="pagetext" for="srihash">{$t}:</label>
   {cms_help 0=$_module key='help_sourcesri' title=$t}
   <div class="pageinput">
-   <input type="text" id="srihash" name="{$actionid}source_sri" value="{$source_sri}" size="98" />
+   <input type="text" id="srihash" name="{$actionid}source_sri" value="{$source_sri}" size="98">
   </div>
   {$t=_ld($_module,'prompt_theme')}<label class="pagetext" for="theme">{$t}:</label>
   {cms_help 0=$_module key='help_theme' title=$t}
   <div class="pageinput">
-   <input type="text" id="theme" name="{$actionid}theme" value="{$theme}" size="30" />
+   <input type="text" id="theme" name="{$actionid}theme" value="{$theme}" size="30">
   </div>
   <div class="pageinput pregap">
    <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{_la('apply')}</button>
@@ -58,6 +58,6 @@
 {/if}
  </fieldset>
 {tab_start name='example'}
-{capture assign='value'}<p><img src="{uploads_url}/images/HE-demo.png" style="float:right;" />Lorem ipsum dolor sit amet, consectetur adipiscing elit. {literal}{cms_selflink page = '3'}{/literal} Mauris et ipsum id ante dignissim cursus sollicitudin eget erat. <a href="mailto:me@here.com">email to me</a> Quisque sit amet arcu urna. Nulla ultricies lacinia sapien, sed aliquam quam feugiat in. Donec consectetur pretium congue. Integer aliquam facilisis lacus, ut facilisis erat pharetra eget.</p>{/capture}
+{capture assign='value'}<p><img src="{uploads_url}/images/HE-demo.png" style="float:right;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. {literal}{cms_selflink page = '3'}{/literal} Mauris et ipsum id ante dignissim cursus sollicitudin eget erat. <a href="mailto:me@here.com">email to me</a> Quisque sit amet arcu urna. Nulla ultricies lacinia sapien, sed aliquam quam feugiat in. Donec consectetur pretium congue. Integer aliquam facilisis lacus, ut facilisis erat pharetra eget.</p>{/capture}
 {cms_textarea forcemodule='HTMLEditor' name='example' id='example' enablewysiwyg=1 rows=10 columns=80 value=$value}
 {tab_end}

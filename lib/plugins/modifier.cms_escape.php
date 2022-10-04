@@ -30,7 +30,7 @@ If not, see <https://www.gnu.org/licenses/>.
  *          escape (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
  * @param string
- * @param html|htmlall|htmltiny|url|urlpathinfo|quotes|hex|hexentity|decentity|javascript|nonstd|smartyphp
+ * @param html|htmlall|htmltiny|htmltemplate|url|urlpathinfo|quotes|hex|hexentity|decentity|javascript|nonstd|textarea|smartyphp
  * @return string
  *
  * Robert Campbell: change default charset to UTF-8
@@ -141,6 +141,16 @@ function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
 		case 'htmltiny':
 			return str_replace('<', '&lt;', $string);
 
+		case 'htmltemplate': //since 3.0
+			return strtr($string, ['"'=>'&quot;',"'"=>'&apos;','<'=>'&lt;','>'=>'&gt;']);
+
+		case 'textarea':
+			$matches = [];
+			return preg_replace_callback('~<\s*(/?)\s*(textarea)~i', function($matches) {
+				$pre = ($matches[1]) ? '&sol;' : ''; // ?? OR &#47;
+				return '&lt;'.$pre.$matches[2];
+			}, $string);
+
 		case 'smartyphp':
 			$smarty = Lone::get('Smarty');
 			$ldl = $smarty->left_delimiter;
@@ -160,13 +170,6 @@ function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
 			$patn = "{$lsep}{$eldl}\s*/?php\s*{$erdl}{$rsep}i";
 			return preg_replace($patn, '', $string);
 
-		case 'textarea':
-			$matches = [];
-			return preg_replace_callback('~<\s*(/?)\s*(textarea)~i', function($matches) {
-				$pre = ($matches[1]) ? '&sol;' : ''; // ?? OR &#47;
-				return '&lt;'.$pre.$matches[2];
-			}, $string);
-
 		default:
 			return $string;
 	}
@@ -174,11 +177,12 @@ function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
 
 function smarty_cms_about_modifier_cms_escape()
 {
-	echo _ld('tags', 'about_generic', 'Monte Ohrt &lt;monte at ohrt dot com&gt;<br />supplemented by CMSMS-extensions. 2004',
+	echo _ld('tags', 'about_generic', 'Monte Ohrt &lt;monte at ohrt dot com&gt;<br>supplemented by CMSMS-extensions. 2004',
 	'<li>change default charset to UTF-8</li>
 <li>change html processor to CMSMS\specialize</li>
 <li>change htmlall processor to CMSMS\entitize</li>
-<li>support Smarty2 php tags removal</li>
+<li>add Smarty2 {php} tags removal</li>
+<li>add htmltemplate processor to convert \'"&lt;&gt; to corresponding entities</li>
 <li>support textarea-tag escaping, for e.g. a template to be edited using a textarea</li>'
 	);
 }
@@ -187,7 +191,7 @@ function smarty_cms_help_modifier_cms_escape()
 {
 	echo _ld('tags', 'help_generic2',
 	'This plugin converts some or all of the content of a string variable, to tailor it for its context e.g. URL-capable or more secure',
-	'$somevar|cms_escape:\'type\'}<br />{$somevar|cms_escape:\'type\':\'charset\'',
+	'$somevar|cms_escape:\'type\'}<br>{$somevar|cms_escape:\'type\':\'charset\'',
 	'<li>type: one of
 <ul>
 <li>decentity: substitute &#N;</li>
@@ -196,11 +200,13 @@ function smarty_cms_help_modifier_cms_escape()
 <li>html (<em>default</em>): apply CMSMS\specialize</li>
 <li>htmlall: apply CMSMS\entitize</li>
 <li>htmltiny: substitute &amplt; for &lt;</li>
+<li>htmltemplate: substitute for &apos; &quot; &lt; &gt;</li>
 <li>javascript: escape quotes, backslashes, newlines etc</li>
 <li>mail: substitute [AT], [DOT]</li>
 <li>nonstd: substitute &#N; for chars &gt;= 126</li>
 <li>quotes: escape unescaped single-quotes</li>
 <li>smartyphp: remove Smarty-2-compatible {php},{/php} tags (however de-limited)</li>
+<li>textarea: substitute embedded &lt;</li>
 <li>url: apply rawurlencode to appropriate chars (see rfc3986)</li>
 <li>urlpathinfo: apply rawurlencode to appropriate chars except for '/'</li>
 </ul>

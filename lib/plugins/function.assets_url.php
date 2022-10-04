@@ -43,5 +43,5 @@ function smarty_cms_help_function_assets_url()
 	echo _ld('tags', 'help_generic',
 	'This plugin retrieves an URL representing the site\'s topmost/base folder where assets are stored.',
 	'assets_url',
-	"<li>$n</li>").'<br /><pre><code>{$smarty.const.CMS_ASSETS_URL}</code></pre> is equivalent';
+	"<li>$n</li>").'<br><pre><code>{$smarty.const.CMS_ASSETS_URL}</code></pre> is equivalent';
 }

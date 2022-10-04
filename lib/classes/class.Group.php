@@ -77,8 +77,7 @@ use function lang;
 	/**
 	 * @ignore
 	 */
-    #[\ReturnTypeWillChange]
-	public function __set(string $key,$val)
+	public function __set(string $key,$val) : void
 	{
 		if( !in_array($key,self::PROPS) ) {
 			throw new LogicException($key.' is not a property of '.__CLASS__);

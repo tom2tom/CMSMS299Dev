@@ -96,7 +96,7 @@ if (isset($_POST['submit'])) {
     $username = sanitizeVal($tmp, CMSSAN_ACCOUNT);
     if ($username != $tmp) {
         $errors[] = _la('illegalcharacters', _la('username'));
-    } elseif (!($username || is_numeric($username))) { // allow username '0' ??
+    } elseif (!($username || is_numeric($username))) { // allow username '0' ?
         $errors[] = _la('nofieldgiven', _la('username'));
     }
 
@@ -284,7 +284,7 @@ $jsm = new ScriptsMerger();
 $jsm->queue_matchedfile('jquery-inputCloak.js', 1);
 
 //$nonce = get_csp_token();
-$confirm = json_encode(_la('confirm_edituser'));
+$s1 = addcslashes(_la('confirm_edituser'), "'");
 $js = <<<EOS
 $(function() {
  $('#password,#passagain').inputCloak({
@@ -293,7 +293,7 @@ $(function() {
  });
  $('#submit').on('click', function(ev) {
   ev.preventDefault();
-  cms_confirm_btnclick(this, $confirm);
+  cms_confirm_btnclick(this, '$s1');
   return false;
  });
  $('#copyusersettings').on('change', function() {

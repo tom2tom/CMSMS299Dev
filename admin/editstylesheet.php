@@ -190,10 +190,10 @@ try {
 					case 'media_query':
 						return '';
 					case 'content':
-						$pre = ($matches[1]) ? '&sol;' : ''; // ?? OR &#47;
+						$pre = ($matches[1]) ? '&sol;' : ''; // OR &#47;
 						return '/* &lt;'.$pre.$matches[2].'&gt; */';
 					default:
-						$pre = ($matches[1]) ? '&sol;' : ''; // ?? OR &#47;
+						$pre = ($matches[1]) ? '&sol;' : ''; // OR &#47;
 						return '&lt;'.$pre.$matches[2].'&gt;';
 				}
 			}, $props[$key]);
@@ -316,8 +316,8 @@ try {
 	if ($do_locking) {
 		add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 	}
-	$s1 = json_encode(_ld('layout', 'error_lock'));
-	$s2 = json_encode(_ld('layout', 'msg_lostlock'));
+	$s1 = addcslashes(_ld('layout', 'error_lock'), "'");
+	$s2 = addcslashes(_ld('layout', 'msg_lostlock'), "'");
 	$cancel = _la('cancel');
 
 	$js = $pageincs['foot'] ?? '';
@@ -335,7 +335,7 @@ $(function() {
       lock_timeout: $lock_timeout,
       lock_refresh: $lock_refresh,
       error_handler: function(err) {
-        cms_alert($s1 + ' ' + err.type + ' // ' + err.msg);
+        cms_alert('{$s1} ' + err.type + ' // ' + err.msg);
       },
       lostlock_handler: function(err) {
         // we lost the lock on this stylesheet... make sure we can't save anything.
@@ -344,7 +344,7 @@ $(function() {
         $('#form_editcss').dirtyForm('option', 'dirty', false);
         cms_button_able($('#submitbtn, #applybtn'), false);
         $('.lock-warning').removeClass('hidden-item');
-        cms_alert($s2);
+        cms_alert('$s2');
       }
     });
   }

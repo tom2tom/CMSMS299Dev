@@ -87,13 +87,13 @@ final class ModuleOperations
 	private const CORENAMES_PREF = 'coremodules';
 
 //	const CORENAMES_DEFAULT = TODO
-//'Authenticator,AdminSearch,ContentManager,FileManager,FilePicker,MicroTiny,ModuleManager,Navigator,OutMailer,Search';
+//'AdminSearch,ConsoleAuth,ContentManager,FileManager,FilePicker,MicroTiny,ModuleManager,Navigator,OutMailer,Search';
 
 	/**
 	 * Name of default login-processor module
 	 * @ignore
 	 */
-	const STD_LOGIN_MODULE = 'Authenticator';
+	const STD_LOGIN_MODULE = 'ConsoleAuth';
 
 	/**
 	 * @ignore

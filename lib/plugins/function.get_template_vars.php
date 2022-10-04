@@ -70,25 +70,25 @@ use ReflectionObject;
 			$out .= str_repeat($depth_str,$depth);
 			$out .= "{$acc} <em>(object of type: ".get_class($val).')</em> = {';
 			if( $o_items ) {
-				$out .= '<br />';
+				$out .= '<br>';
 				foreach( $o_items as $prop ) {
 					$o_key = $prop->getName();
 					$o_val = $prop->getValue($val);
 					$out .= _cms_output_var($o_key,$o_val,$type,$depth+1);
 				}
 			}
-			$out .= str_repeat($depth_str,$depth).'}<br />';
+			$out .= str_repeat($depth_str,$depth).'}<br>';
 		}
 		elseif( is_array($val) ) {
 			$out .= str_repeat($depth_str,$depth);
-			$out .= "{$acc} <em>($type)</em> = [<br />";
+			$out .= "{$acc} <em>($type)</em> = [<br>";
 			foreach( $val as $a_key => $a_val ) {
 				$out .= _cms_output_var($a_key,$a_val,$type,$depth+1);
 			}
-			$out .= str_repeat($depth_str,$depth).']<br />';
+			$out .= str_repeat($depth_str,$depth).']<br>';
 		}
 		elseif( is_callable($val) ) {
-			$out .= str_repeat($depth_str,$depth)."{$acc} <em>($type)</em> = callable<br />";
+			$out .= str_repeat($depth_str,$depth)."{$acc} <em>($type)</em> = callable<br>";
 		}
 		else {
 			$out .= str_repeat($depth_str,$depth);
@@ -98,7 +98,7 @@ use ReflectionObject;
 			else {
 				$out .= '.'.$key;
 			}
-			$out .= " <em>($type)</em> = $val<br />";
+			$out .= " <em>($type)</em> = $val<br>";
 		}
 		return $out;
 	}

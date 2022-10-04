@@ -23,7 +23,7 @@
 {block name='contents'}
 <div class="message blue icon">
   <i class="icon-folder message-icon"></i>
-  <div class="content"><span class="heavy">{'prompt_dir'|tr}:</span><br />{$dir}</div>
+  <div class="content"><span class="heavy">{'prompt_dir'|tr}:</span><br>{$dir}</div>
 </div>
 
 <div class="installer-form">
@@ -85,7 +85,7 @@
   {else}
    {$label='upgrade'|tr} {if isset($upgrade_info)}
      <div class="message blue icon">
-      <div class="content"><span class="heavy">{'step2_hdr_upgradeinfo'|tr}</span><br />{'step2_info_upgradeinfo'|tr}</div>
+      <div class="content"><span class="heavy">{'step2_hdr_upgradeinfo'|tr}</span><br>{'step2_info_upgradeinfo'|tr}</div>
      </div>
      <ul id="upgrade_info" class="no-list">
      {foreach $upgrade_info as $ver => $data}

@@ -1,7 +1,7 @@
 <?php
 /*
 Class to process extra-extended module information
-Copyright (C) 2017-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2017-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -269,7 +269,7 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
                 }
             }
 //            return parent::OffsetGet($key);
-            return !in_array($modname,['Authenticator','ModuleManager']);
+            return !in_array($modname,['ConsoleAuth','ModuleManager']);
           case 'missing_deps':
               // is any dependency missing
               return $this->_get_missing_dependencies();

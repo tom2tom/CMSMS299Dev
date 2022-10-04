@@ -2,21 +2,21 @@
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
  <head>
   <title>{['loginto',{sitename}]|lang}</title>
-  <base href="{$admin_url}/" />
-  <meta charset="{$encoding}" />
-  <meta name="generator" content="CMS Made Simple" />
-  <meta name="robots" content="noindex, nofollow" />
-  <meta name="referrer" content="origin" />
-  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
-  <meta name="HandheldFriendly" content="true" />
-  <meta name="msapplication-TileColor" content="#f89938" />
-  <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
-  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" />
+  <base href="{$admin_url}/">
+  <meta charset="{$encoding}">
+  <meta name="generator" content="CMS Made Simple">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="origin">
+  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="msapplication-TileColor" content="#f89938">
+  <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png">
+  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap">
   {$font_includes}
-  <link rel="stylesheet" href="themes/Altbier/styles/bootstrap_reboot-grid.min.css" />
+  <link rel="stylesheet" href="themes/Altbier/styles/bootstrap_reboot-grid.min.css">
   {$header_includes|default:''}
  </head>{$lost=isset($smarty.get.forgotpw)}{if 0}{$c=''}{elseif !$lost}{$c=' class="login"'}{else}{$c=' class="forgotpw"'}{/if}
  <body id="login"{$c}>
@@ -45,7 +45,7 @@
         {if empty($sitelogo)}
         <span></span>
         {else}
-        <img id="sitelogo" class="cell" src="{$sitelogo}" title="{sitename}" alt="{sitename}" />
+        <img id="sitelogo" class="cell" src="{$sitelogo}" title="{sitename}" alt="{sitename}">
         {/if}
       </div>
       <header class="cell col-12 text-center">
@@ -95,7 +95,7 @@
      </div>
      <div class="cell col-12 mx-auto text-center">
       <a rel="external" href="http://www.cmsmadesimple.org">
-       <img class="img-fluid" src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" style="width:11em;margin-top:3px" alt="CMS Made Simple" />
+       <img class="img-fluid" src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" style="width:11em;margin-top:3px" alt="CMS Made Simple">
       </a>
      </div>
     </div>

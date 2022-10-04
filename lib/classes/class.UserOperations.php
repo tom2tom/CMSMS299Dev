@@ -116,7 +116,7 @@ final class UserOperations
 	 * @param int $offset Optional recordset offset. Default 0.
 	 * @return array of User objects
 	 */
-	public function LoadUsers(int $limit = 10000, int $offset = 0) //: array
+	public function LoadUsers(int $limit = 10000, int $offset = 0) : array
 	{
 //		if (!is_array($this->_users) || $limit != $this->_limit || $offset != $this->_offset) {
 		$db = Lone::get('Db');
@@ -155,7 +155,7 @@ final class UserOperations
 	 * @param int $gid Group enumerator for the loaded users
 	 * @return array of User objects
 	 */
-	public function LoadUsersInGroup(int $gid) //: array
+	public function LoadUsersInGroup(int $gid) : array
 	{
 		$db = Lone::get('Db');
 		$pref = CMS_DB_PREFIX;
@@ -415,7 +415,7 @@ EOS;
 	 * @param mixed $userobj User object to save
 	 * @return int The new user id upon success | -1 on failure
 	 */
-	public function InsertUser(User $userobj) //: int
+	public function InsertUser(User $userobj) : int
 	{
 		$pref = CMS_DB_PREFIX;
 		//just in case username is not unique-indexed by the db
@@ -453,7 +453,7 @@ EOS;
 	 * @param mixed $userobj User object including the data to save
 	 * @return bool indicating success
 	 */
-	public function UpdateUser($userobj) //: bool
+	public function UpdateUser($userobj) : bool
 	{
 		$db = Lone::get('Db');
 		// check for username conflict
@@ -487,7 +487,7 @@ EOS;
 	 * @param int $uid Id of the user to delete
 	 * @return bool indicating success
 	 */
-	public function DeleteUserByID(int $uid) //: bool
+	public function DeleteUserByID(int $uid) : bool
 	{
 		if ($uid <= 1) {
 			return false;
@@ -529,7 +529,7 @@ EOS;
 	 * @param int $uid Id of the user to count
 	 * @return int Number of owned pages | 0 upon a problem
 	 */
-	public function CountPageOwnershipByID(int $uid) //: int
+	public function CountPageOwnershipByID(int $uid) : int
 	{
 		$db = Lone::get('Db');
 		$query = 'SELECT COUNT(*) AS count FROM '.CMS_DB_PREFIX.'content WHERE owner_id = ?';
@@ -545,7 +545,7 @@ EOS;
 	 * @param int $offset Since 3.0 Optional recordset offset. Default 0.
 	 * @return array, each member like userid => user public name etc
 	 */
-	public function GetList(int $limit = 10000, int $offset = 0) //: array
+	public function GetList(int $limit = 10000, int $offset = 0) : array
 	{
 		$result = [];
 		$allusers = $this->LoadUsers($limit, $offset); // want id,username,firstname,lastname,
@@ -576,7 +576,7 @@ EOS;
 	 * @param string $name The HTML element name
 	 * @return string maybe empty
 	 */
-	public function GenerateDropdown($currentuserid = null, $name = 'ownerid') //: string
+	public function GenerateDropdown($currentuserid = null, $name = 'ownerid') : string
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'GetList'));
 		$result = '';
@@ -602,7 +602,7 @@ EOS;
 	 * @param int $gid Group ID to test
 	 * @return bool indicating whether the test passes
 	 */
-	public function UserInGroup(int $uid, int $gid) //: bool
+	public function UserInGroup(int $uid, int $gid) : bool
 	{
 		$groups = $this->GetMemberGroups($uid);
 		return in_array($gid, $groups);
@@ -615,7 +615,7 @@ EOS;
 	 * @param int $uid
 	 * @return bool
 	 */
-	public function IsSuperuser(int $uid) //: bool
+	public function IsSuperuser(int $uid) : bool
 	{
 		if ($uid == 1) {
 			return true;
@@ -635,7 +635,7 @@ EOS;
 	 * @param int $uid
 	 * @return array
 	 */
-	public function GetMemberGroups(int $uid) //: array
+	public function GetMemberGroups(int $uid) : array
 	{
 		if (!is_array($this->_user_groups) || !isset($this->_user_groups[$uid])) {
 			$db = Lone::get('Db');
@@ -682,7 +682,7 @@ EOS;
 	 *  optionally with following bool to indicate type (AND|OR) of check wanted
 	 * @return bool
 	 */
-	public function CheckPermission(int $uid, $permname) //: bool
+	public function CheckPermission(int $uid, $permname) : bool
 	{
 		if ($uid <= 0) {
 			return false;
@@ -881,7 +881,7 @@ EOS;
 			'report' => &$msg,
 		]);
 		if ($username && !$this->UsernameAvailable($userobj, $username, $update)) {
-			if ($msg) { $msg .= '<br />'; }
+			if ($msg) { $msg .= '<br>'; }
 			$msg .= _la('errorusernameexists', $username);
 		}
 		return $msg;

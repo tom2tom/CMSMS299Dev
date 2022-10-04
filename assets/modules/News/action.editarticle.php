@@ -251,16 +251,19 @@ WHERE news_id=?';
         } // !error
 
         if (isset($params['apply']) && isset($params['ajax'])) {
-            $response = '<?xml version="1.0"?><EditArticle>';
-            if ($error) {
-                $response .= '<Response>Error</Response>';
-                $response .= '<Details><![CDATA[' . $error . ']]></Details>';
+            if (empty($error)) {
+                $out = ['response' => 'Success', 'message' => $this->Lang('articleupdated')];
             } else {
-                $response .= '<Response>Success</Response>';
-                $response .= '<Details><![CDATA[' . $this->Lang('articleupdated') . ']]></Details>';
+                $out = ['response' => 'Error', 'message' => $error];
             }
-            $response .= '</EditArticle>';
-            echo $response;
+            $flags = JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_INVALID_UTF8_IGNORE;
+
+            $handlers = ob_list_handlers();
+            for ($cnt = 0; $cnt < count($handlers); $cnt++) {
+                ob_end_clean();
+            }
+
+            echo json_encode($out, $flags);
             exit;
         }
 
@@ -306,11 +309,7 @@ WHERE news_id=?';
         $params['cancel'],
         $params['ajax']);
 
-    $response = '<?xml version="1.0"?><EditArticle>';
-    if (!empty($error)) {
-        $response .= '<Response>Error</Response>';
-        $response .= '<Details><![CDATA[' . $error . ']]></Details>';
-    } else {
+    if (empty($error)) {
         $detail_returnid = $this->GetPreference('detail_returnid', -1);
         if ($detail_returnid <= 0) {
             // get the default content id
@@ -331,18 +330,19 @@ WHERE news_id=?';
             $tparms['detailtemplate'] = trim($params['detailtemplate']);
         }
         $url = $this->create_url('_preview_', 'detail', $detail_returnid, $tparms, true, false, '', false, 2);
-
-        $response .= '<Response>Success</Response>';
-        $response .= '<Details><![CDATA[' . $url . ']]></Details>';
+        $out = ['response' => 'Success', 'message' => $url];
+        $flags = 0;
+    } else {
+        $out = ['response' => 'Error', 'message' => $error];
+        $flags = JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_INVALID_UTF8_IGNORE;
     }
-    $response .= '</EditArticle>';
 
     $handlers = ob_list_handlers();
     for ($cnt = 0, $n = count($handlers); $cnt <$n; ++$cnt) {
         ob_end_clean();
     }
-    header('Content-Type: text/xml');
-    echo $response;
+
+    echo json_encode($out, $flags);
     exit;
 }
 

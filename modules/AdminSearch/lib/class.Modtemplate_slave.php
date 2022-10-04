@@ -100,18 +100,18 @@ final class Modtemplate_slave extends Base_slave
                 $html = '';
                 $html2 = $this->get_matches_info($row['name']);
                 if ($html2) {
-                    $html .= '<br />'.$html2;
+                    $html .= '<br>'.$html2;
                 }
                 $desc = $row['description'];
                 if ($desc && $ds) {
                     $html2 = $this->get_matches_info($desc);
                     if ($html2) {
-                        $html .= '<br />'.$html2;
+                        $html .= '<br>'.$html2;
                     }
                 }
                 $html2 = $this->get_matches_info($row['content']);
                 if ($html2) {
-                    $html .= '<br />'.$html2;
+                    $html .= '<br>'.$html2;
                 }
                 if (!$html) {
                     continue;

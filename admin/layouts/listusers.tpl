@@ -1,5 +1,5 @@
 <form id="listusers" action="{$selfurl}" enctype="multipart/form-data" method="post">
-  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
   <div class="pageoptions">
   <a href="{$addurl}{$urlext}" title="{_la('info_adduser')}">{admin_icon icon='newobject.gif' class='systemicon'}&nbsp;{_la('adduser')}</a>
@@ -27,7 +27,7 @@
     <th class="{literal}{sss:intfor}{/literal}" style="text-align: center;">{_la('active')}</th>
     {if $become}<th class="pageicon nosort"></th>{/if}{* become user *}
     <th class="pageicon nosort"></th>{* menu *}
-    <th class="pageicon nosort"><input type="checkbox" id="sel_all" value="1" title="{_la('selectall')}" /></th>
+    <th class="pageicon nosort"><input type="checkbox" id="sel_all" value="1" title="{_la('selectall')}"></th>
   </tr>
   </thead>
   <tbody>
@@ -68,7 +68,7 @@
 
     <td>
     {if $can_edit && $user.id != $my_userid}
-    <input type="checkbox" name="multiselect[]" class="multiselect" value="{$user.id}" title="{_la('info_selectuser')}" />
+    <input type="checkbox" name="multiselect[]" class="multiselect" value="{$user.id}" title="{_la('info_selectuser')}">
     {/if}
     </td>
 {/strip}

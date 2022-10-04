@@ -48,7 +48,7 @@ function smarty_cms_help_function_setlist()
 {foreach $varname as $color=>$colorcode}
  {$color} is {$colorcode}
 {/foreach}
-</code></pre><br />
+</code></pre><br>
 It uses JSON syntax (with implicit curly-brace wrappers), so you can do crazy stuff:
 <pre><code>
 {capture assign="json_sample_struct"}"layered":{ldelim}"bar":"baz"{rdelim},"flat":"blank","layered2":{ldelim}"qux":"quux","crox":"bagg"{rdelim}{/capture}

@@ -104,13 +104,13 @@ $lang = [
 <h3>What does the File Picker module do?</h3>
 <p>It provides infrastructure for use by other parts of CMSMS. Specifically, it supports selection and uploading of files.</p>
 <h3>How is it used?</h3>
-<p>This module can be used by other modules via various API's, or via plugin(s) in any page or template:<br />
-<pre><code>{cms_module module=FilePicker action=select name='string' optional other params <em>see below</em>...}</code></pre><br />
-or<br />
-<pre><code>{content_module module=FilePicker block='string' [profile='string' <em>see below</em>]}</code></pre><br />
-or (when this module is the system-default for selecting files)<br />
-<pre><code>{cms_filepicker name='string' optional other params...}</code></pre><br />
-Refer also to the {content_module} plugin help, for more information about using that tag.<br />
+<p>This module can be used by other modules via various API's, or via plugin(s) in any page or template:<br>
+<pre><code>{cms_module module=FilePicker action=select name='string' optional other params <em>see below</em>...}</code></pre><br>
+or<br>
+<pre><code>{content_module module=FilePicker block='string' [profile='string' <em>see below</em>]}</code></pre><br>
+or (when this module is the system-default for selecting files)<br>
+<pre><code>{cms_filepicker name='string' optional other params...}</code></pre><br>
+Refer also to the {content_module} plugin help, for more information about using that tag.<br>
 Refer to the {cms_filepicker} plugin help, for information about using that tag.</p>
 <h3>Support</h3>
 <p>This software is provided as-is. Please read the text of the license for the full disclaimer.</p>
@@ -119,7 +119,7 @@ Refer to the {cms_filepicker} plugin help, for information about using that tag.
  <li>first, <a href="https://forum.cmsmadesimple.org" target="_blank">search the forum</a> for issues with the module similar to those you are finding.</li>
  <li>then, if necessary, <a href="https://forum.cmsmadesimple.org/posting.php?mode=post&f=7" target="_blank">open a new forum topic</a> to request help, with a thorough description of your issue, and steps to reproduce it.</li>
 </ul>
-If you find a bug you can <a href="http://dev.cmsmadesimple.org/bug/list/6" target="_blank">submit a bug report</a>.<br />
+If you find a bug you can <a href="http://dev.cmsmadesimple.org/bug/list/6" target="_blank">submit a bug report</a>.<br>
 You can <a href="http://dev.cmsmadesimple.org/feature_request/list/6" target="_blank">submit a feature request</a> to suggest improvement.
 <h3>Copyright and License</h3>
 <p>Copyright &copy; 2017-2018, Fernando Morgado and Robert Campbell, &copy; 2019-2022, CMS Made Simple Foundation. All rights reserved.</p>

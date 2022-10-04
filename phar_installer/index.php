@@ -52,7 +52,7 @@ try {
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <title>CMS Made Simple Installer : Fatal Error</title>
   </head>
   <body>

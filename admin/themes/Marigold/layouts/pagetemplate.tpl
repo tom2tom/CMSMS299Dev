@@ -5,23 +5,23 @@
 {if $thetitle && $subtitle}{$thetitle="{$thetitle} - {$subtitle}"}{/if}
 {if $thetitle}{$thetitle="{$thetitle} - "}{/if}
   <title>{$thetitle}{sitename}</title>
-  <base href="{$admin_url}/" />
-  <meta charset="utf-8" />
-  <meta name="generator" content="CMS Made Simple" />
-  <meta name="robots" content="noindex, nofollow" />
-  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
-  <meta name="referrer" content="origin" />
-  <meta name="HandheldFriendly" content="true" />
-  <meta name="msapplication-TileColor" content="#f89938" />
-  <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
-  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
-  <link rel="apple-touch-icon" href="{$assets_url}/images/apple-touch-icon-iphone.png" />
-  <link rel="apple-touch-icon" sizes="72x72" href="themes/assets/images/apple-touch-icon-ipad.png" />
-  <link rel="apple-touch-icon" sizes="114x114" href="themes/assets/images/apple-touch-icon-iphone4.png" />
-  <link rel="apple-touch-icon" sizes="144x144" href="themes/assets/images/apple-touch-icon-ipad3.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap" />
+  <base href="{$admin_url}/">
+  <meta charset="UTF-8">
+  <meta name="generator" content="CMS Made Simple">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no">
+  <meta name="referrer" content="origin">
+  <meta name="HandheldFriendly" content="true">
+  <meta name="msapplication-TileColor" content="#f89938">
+  <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png">
+  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico">
+  <link rel="apple-touch-icon" href="{$assets_url}/images/apple-touch-icon-iphone.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="themes/assets/images/apple-touch-icon-ipad.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="themes/assets/images/apple-touch-icon-iphone4.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="themes/assets/images/apple-touch-icon-ipad3.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap">
   {$font_includes}
   {$header_includes|default:''}
  </head>
@@ -34,12 +34,12 @@
     <div class="header-top cf">
      <div id="admin-title">
       {if empty($sitelogo)}{sitename} - {'adminpaneltitle'|lang}
-      {else}<img src="{$sitelogo}" alt="{sitename}" /> {'adminpaneltitle'|lang}
+      {else}<img src="{$sitelogo}" alt="{sitename}"> {'adminpaneltitle'|lang}
       {/if}
      </div>
      <div id="cms-logo">
       <a href="http://www.cmsmadesimple.org" rel="external">
-       <img src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" alt="CMS Made Simple" title="CMS Made Simple" />
+       <img src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" alt="CMS Made Simple" title="CMS Made Simple">
       </a>
      </div>
     </div>

@@ -319,7 +319,7 @@ class wizard_step9 extends wizard_step
 (parent_module,child_module,minimum_version,create_date) VALUES (?,?,?,NOW())');
 
         $modops = Lone::get('ModuleOperations');
-//abandoned        $coremodules = $app->get_config()['coremodules'];
+        $corenames = $app->get_config()['coremodules'];
 //abandoned        $modops->RegisterSystemModules($coremodules);
 
         $choices = $this->get_wizard()->get_data('sessionchoices');
@@ -335,7 +335,8 @@ class wizard_step9 extends wizard_step
                     $msg = lang('error_modulebad', $modname).': '.$res[1];
                     $this->error($msg);
                 }
-/*            } else { //module not installed, don't automatically upgrade
+            //module not installed, install if it's a new core, otherwise ignore i.e. don't automatically upgrade
+            } elseif (in_array($modname, $corenames)) {
                 $fp = joinpath($destdir, 'modules', $modname, $modname.'.module.php');
                 try {
                     require_once $fp;
@@ -355,7 +356,6 @@ class wizard_step9 extends wizard_step
                     }
                     $this->error($msg);
                 }
-*/
             }
         }
         $stmt1->close();

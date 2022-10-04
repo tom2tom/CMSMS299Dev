@@ -1,17 +1,17 @@
 <div class="information">
  <p>
- {_ld('tags','tag_info')}<br />
- {_ld('tags','tag_info2')}<br />
+ {_ld('tags','tag_info')}<br>
+ {_ld('tags','tag_info2')}<br>
  {_ld('tags','udt__scope')}
  </p>
 </div>
-<br />
+<br>
 {if $pmod && count($tags) > 20}
 <div class="pageoptions">
   <a href="{$addurl}{$urlext}&tagname=-1" title="{_la('add_usrplg')}">{$iconadd}</a>
   <a href="{$addurl}{$urlext}&tagname=-1">{_la('add_usrplg')}</a>
 </div>
-<br />
+<br>
 {/if}
 <table class="pagetable">
   <thead>
@@ -51,7 +51,7 @@
   </tbody>
 </table>
 {if $pmod}
-<br />
+<br>
 <div class="pageoptions">
   <a href="{$addurl}{$urlext}&tagname=-1" title="{_la('add_usrplg')}">{$iconadd}</a>
   <a href="{$addurl}{$urlext}&tagname=-1">{_la('add_usrplg')}</a>

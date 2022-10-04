@@ -44,5 +44,5 @@ function smarty_cms_help_function_root_url()
 	'This plugin retrieves the base/root URL of the website',
 	'root_url',
 	"<li>$n</li>"
-	).'<br /><pre><code>{$smarty.const.CMS_ROOT_URL}</code></pre> is equivalent';
+	).'<br><pre><code>{$smarty.const.CMS_ROOT_URL}</code></pre> is equivalent';
 }

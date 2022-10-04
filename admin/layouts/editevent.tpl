@@ -14,7 +14,7 @@
     <p class="pageinput">{$description}</p>
   </div>
 </fieldset>
-<br />
+<br>
 <h4>{_la('eventhandlers')}</h3>
 {if $handlers}
   <table class="pagetable">
@@ -55,7 +55,7 @@
   {/foreach}</tbody>
   </table>
 {else}
-{_la('none')}<br />
+{_la('none')}<br>
 {/if}
 
 {if $allhandlers}
@@ -63,10 +63,10 @@
  <p class="pageinfo">{_la('info_handlers')}</p>
  <form action="{$selfurl}" enctype="multipart/form-data" method="post">
   <div class="hidden">
-   {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+   {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
-   <input type="hidden" name="originator" value="{$originator}" />
-   <input type="hidden" name="event" value="{$event}" />
+   <input type="hidden" name="originator" value="{$originator}">
+   <input type="hidden" name="event" value="{$event}">
   </div>
   <select name="handler">
   {foreach $allhandlers as $key => $value}

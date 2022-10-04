@@ -144,7 +144,7 @@ if ($results) {
 
 $selfurl = basename(__FILE__);
 $pageurl = $selfurl.get_secure_param().'&page=xxx';
-$prompt = json_encode(_la('sysmain_confirmclearlog'));
+$prompt = addcslashes(_la('sysmain_confirmclearlog'), "'");
 
 $js = <<<EOS
 <script type="text/javascript">
@@ -153,11 +153,11 @@ $(function() {
   $('#pagenum').on('change', function() {
     var v = $(this).val();
     var t_url = '$pageurl'.replace('xxx', v);
-    window.location = t_url;
+    window.location.href = t_url;
   });
   $('#clearlink').on('click', function(ev) {
     ev.preventDefault();
-    cms_confirm_linkclick(this,$prompt);
+    cms_confirm_linkclick(this,'$prompt');
     return false;
   });
   $('#filterlink').on('click', function() {

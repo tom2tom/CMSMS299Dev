@@ -5,10 +5,10 @@ $lang['core'] = 'Core';
 $lang['created'] = 'Created';
 $lang['errors'] = 'Errors';
 $lang['frequency'] = 'Frequency';
-$lang['info_background_jobs'] = 'This page lists information about all currently known background jobs.<br />
-Such jobs normally appear in and disappear from this list frequently.<br />
+$lang['info_background_jobs'] = 'This page lists information about all currently known background jobs.<br>
+Such jobs normally appear in and disappear from this list frequently.<br>
 If a job has a high error count or its next-start is not sensible, some investigation is needed.';
-//<br />
+//<br>
 //If no request has occurred since a job was due to start, its displayed next-start will be in the past. That job will have been been started after the end of this current request. Re-//display this page to see the job\'s actual next-start';
 $lang['info_no_jobs'] = 'There are currently no jobs in the queue';
 $lang['jobs'] = 'Jobs';

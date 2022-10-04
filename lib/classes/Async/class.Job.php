@@ -100,8 +100,7 @@ abstract class Job
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    public function __set(string $key, $val)// : void
+    public function __set(string $key, $val) : void
     {
         switch ($key) {
         case 'id':

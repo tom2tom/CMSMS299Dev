@@ -138,8 +138,7 @@ final class Lone //extends SplObjectStorage worth doing this subclass? (iteratio
 	 * @param string $name Property name, with suitable namespace-differentiation
 	 * @param mixed $value The data to be cached
 	 */
-	#[\ReturnTypeWillChange]
-	public function __set(string $name, $value)
+	public function __set(string $name, $value) : void
 	{
 		if (!self::$instance) {
 			self::$instance = new self();
@@ -179,7 +178,7 @@ final class Lone //extends SplObjectStorage worth doing this subclass? (iteratio
 	 * Static analog of magic method __get()
 	 * For properties, not class-singletons
 	 * @see also Lone::get()
-	 * 
+	 *
 	 * @param string $name Property name, with suitable namespace-differentiation
 	 * @return mixed
 	 */

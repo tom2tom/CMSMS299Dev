@@ -31,7 +31,7 @@ function smarty_function_cms_render_css($params, $template)
 		$url = cms_path_to_url(TMP_CACHE_LOCATION)."/$filename";
 		$nocache = cms_to_bool($params['nocache'] ?? false);
 		if( $nocache ) $url .= '?t='.time();
-		$out = "<link rel=\"stylesheet\" href=\"$url\" />\n";
+		$out = "<link rel=\"stylesheet\" href=\"$url\">\n";
 	}
 	else {
 		trigger_error('Failed to merge recorded stylesheets');

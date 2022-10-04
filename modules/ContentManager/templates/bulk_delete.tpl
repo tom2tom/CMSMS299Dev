@@ -2,7 +2,7 @@
 <h4>{_ld($_module,'prompt_bulk_delete_content2')}</h4>
 
 {form_start}
-{foreach $pagelist as $pid}<input type="hidden" name="{$actionid}bulk_content[]" value="{$pid}" />
+{foreach $pagelist as $pid}<input type="hidden" name="{$actionid}bulk_content[]" value="{$pid}">
 {/foreach}
 
 <div class="pageoverflow">
@@ -16,10 +16,10 @@
 <div class="pageoverflow">
   <p class="pagetext">{_ld($_module,'prompt_confirm_operation')}:</p>
   <p class="pageinput">
-    <input type="checkbox" id="confirm1" value="1" name="{$actionid}confirm1" />
+    <input type="checkbox" id="confirm1" value="1" name="{$actionid}confirm1">
     &nbsp; <label for="confirm1">{_ld($_module,'prompt_confirm1')}</label>
-    <br />
-    <input type="checkbox" id="confirm2" value="1" name="{$actionid}confirm2" />
+    <br>
+    <input type="checkbox" id="confirm2" value="1" name="{$actionid}confirm2">
     &nbsp; <label for="confirm2">{_ld($_module,'prompt_confirm2')}</label>
   </p>
 </div>
