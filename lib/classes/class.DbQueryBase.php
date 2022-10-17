@@ -103,7 +103,7 @@ abstract class DbQueryBase
 				if( $this->_rs && !$this->_rs->EOF() ) {
 					return $this->_rs->fields;
 				}
-				return;
+				break;
 			case 'EOF':
 				return $this->_rs->EOF();
 			case 'limit':
@@ -115,6 +115,7 @@ abstract class DbQueryBase
 			case 'numpages':
 				return ceil($this->_totalmatchingrows / $this->_limit);
 		}
+		return null;
 	}
 
 	/**

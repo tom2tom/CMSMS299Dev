@@ -292,6 +292,8 @@ final class Utils
 	public static function get_real_ip()
 	{
 		$ip = $_SERVER['REMOTE_ADDR'];
+		//NOTE: never trust $_SERVER['HTTP_*'] variables which contain IP address
+		//? maybe sanitize and/or whitelist-check
 		if (empty($ip) && !empty($_SERVER['HTTP_CLIENT_IP'])) {
 			$ip = $_SERVER['HTTP_CLIENT_IP'];
 		}

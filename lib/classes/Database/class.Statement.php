@@ -102,6 +102,7 @@ final class Statement
          case 'affected':
             return $this->_stmt->affected_rows;
         }
+        return null;
     }
 
     /**

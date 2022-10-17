@@ -129,8 +129,8 @@ if ($js) {
 
 //$nonce = get_csp_token();
 $lock_refresh = AppParams::get('lock_refresh', 120);
-$s1 = addcslashes(_ld('layout', 'error_lock'), "'");
-$s2 = addcslashes(_ld('layout', 'msg_lostlock'), "'");
+$s1 = addcslashes(_ld('layout', 'error_lock'), "'\n\r");
+$s2 = addcslashes(_ld('layout', 'msg_lostlock'), "'\n\r");
 $cancel = _la('cancel');
 
 $js = <<<EOS

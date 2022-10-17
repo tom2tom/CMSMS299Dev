@@ -4,7 +4,7 @@
 // replace all previous secure params with [SECURITYTAG]
 // remove the admin dir name from the url (url should be relative to admin dir)
 $sql = 'SELECT user_id,`value` FROM '.CMS_DB_PREFIX.'userprefs WHERE preference = ?';
-$homepages = $db->getAll($sql, ['homepage']);
+$homepages = $db->getArray($sql, ['homepage']);
 if ($homepages) {
     status_msg('Converting backend users\' homepage preference');
 
@@ -12,7 +12,7 @@ if ($homepages) {
 
     foreach ($homepages as $homepage) {
         $url = $homepage['value'];
-        if (empty($url)) {
+        if (!$url) {
             continue;
         }
 
@@ -20,17 +20,17 @@ if ($homepages) {
         // and replace with the correct one.
         $url = str_replace('&amp;', '&', $url);
         $tmp = explode('?', $url);
-        @parse_str($tmp[1], $tmp2);
-        if (in_array('_s_', array_keys($tmp2))) {
-            unset($tmp2['_s_']);
+        @parse_str($tmp[1], $query);
+        //secure-key names are|have been: '_s_','sp_','_sx_','_sk_','__c','_k_'
+        foreach (['_s_', 'sp_', '_sx_', '_sk_', '__c', '_k_'] as $k) {
+            if (isset($query[$k])) {
+                unset($query[$k]);
+            }
         }
-        if (in_array('sp_', array_keys($tmp2))) {
-            unset($tmp2['sp_']);
-        }
+        $query['_CMSKEY_'] = 'XXXX'; // current secure param placeholder
 
-        $tmp2['_CMSKEY_'] = 'XXXX'; // current secure param
-
-        foreach ($tmp2 as $k => $v) {
+        $tmp3 = [];
+        foreach ($query as $k => $v) {
             $tmp3[] = $k.'='.$v;
         }
         $url = $tmp[0].'?'.implode('&amp;', $tmp3);
@@ -38,7 +38,7 @@ if ($homepages) {
 
         $url = preg_replace('@^/[^/]+/@', '', $url); //remove admin folder from the url (if applicable)
 
-        unset($tmp2,$tmp3);
+        unset($query,$tmp3);
 
         $db->execute($update_statement, [$url, $homepage['user_id'], 'homepage']);
     }

@@ -39,6 +39,6 @@ class Node
     #[\ReturnTypeWillChange]
     public function __get(string $prop) // : mixed
     {
-       return $this->statics->$prop;
+       return $this->statics->$prop ?? null;
     }
 }

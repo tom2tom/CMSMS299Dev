@@ -22,8 +22,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 if( !$this->CheckPermission('Modify Site Preferences') ) exit;
 
-$s1 = addcslashes($this->Lang('confirm_reseturl'), "'");
-$s2 = addcslashes($this->Lang('confirm_settings'), "'");
+$s1 = addcslashes($this->Lang('confirm_reseturl'), "'\n\r");
+$s2 = addcslashes($this->Lang('confirm_settings'), "'\n\r");
 
 $js = <<<EOS
 <script type="text/javascript">

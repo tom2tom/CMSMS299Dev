@@ -1,0 +1,7 @@
+<FilesMatch "\.htaccess$">
+#2.4
+	Require all denied
+#2.2
+	Order deny,allow
+	Deny from all
+</FilesMatch>

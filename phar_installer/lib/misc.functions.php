@@ -41,6 +41,8 @@ function redirect(string $to)
     $_SERVER['PHP_SELF'] = null;
     //TODO generally support the websocket protocol 'wss' : 'ws'
     $schema = $_SERVER['SERVER_PORT'] == '443' ? 'https' : 'http';
+    //NOTE: never trust $_SERVER['HTTP_*'] variables which contain IP address
+    //? maybe sanitize c.f. $val = (new Url())->sanitize($_SERVER['HTTP_*']);
     $host = strlen($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
 
     $components = parse_url($to);

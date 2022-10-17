@@ -47,7 +47,7 @@ class gui_install extends installer_base
         if ($this->in_phar() && !$config['nobase']) {
             $base_href = $_SERVER['SCRIPT_NAME'];
             if (endswith($base_href, '.php')) {
-                $base_href = $base_href . '/';
+                $base_href .= '/';
                 $smarty->assign('BASE_HREF', $base_href);
             }
         }
@@ -55,11 +55,13 @@ class gui_install extends installer_base
 
     public function get_root_url() : string
     {
-        if (isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off') {
+        if (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off') {
             $prefix = 'https';
         } else {
             $prefix = 'http';
         }
+        //NOTE: never trust $_SERVER['HTTP_*'] variables which contain IP address
+        //? maybe sanitize and/or whitelist-check
         $prefix .= '://'.$_SERVER['HTTP_HOST'];
 
         // if we are putting files somewhere else, we cannot determine

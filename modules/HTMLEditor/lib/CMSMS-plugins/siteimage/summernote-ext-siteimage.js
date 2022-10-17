@@ -383,7 +383,7 @@
       function selector(e) {
         e.preventDefault();
         return $.Deferred(function(deferred) {
-          var $picked = $('<input type="text"/>').addClass('cmsfp_elem').css('display','none').appendTo($(document.body));
+          var $picked = $('<input type="text">').addClass('cmsfp_elem').css('display','none').appendTo($(document.body));
           var $selector = ui.dialog({
             title: cms_data.image_select_title,
             body: '',

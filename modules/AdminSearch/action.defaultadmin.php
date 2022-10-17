@@ -44,9 +44,9 @@ $styles
 EOS;
 add_page_headtext($out, false);
 
-$s1 = addcslashes($this->Lang('warn_clickthru'), "'");
-$s2 = addcslashes($this->Lang('error_search_text'), "'");
-$s3 = addcslashes($this->Lang('error_select_slave'), "'");
+$s1 = addcslashes($this->Lang('warn_clickthru'), "'\n\r");
+$s2 = addcslashes($this->Lang('error_search_text'), "'\n\r");
+$s3 = addcslashes($this->Lang('error_select_slave'), "'\n\r");
 $ajax_url = $this->create_action_url($id,'admin_search',['forjs'=>1, CMS_JOB_KEY=>1]);
 
 /*function _update_status(html) {

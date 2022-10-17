@@ -30,6 +30,7 @@ require ".{$dsep}admininit.php";
 
 check_login();
 
+//NOTE: never trust $_SERVER['HTTP_*'] variables which contain IP address
 $tmp = $_SERVER['HTTP_REFERER'];
 $link = (new Url())->sanitize($tmp);
 

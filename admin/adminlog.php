@@ -144,7 +144,7 @@ if ($results) {
 
 $selfurl = basename(__FILE__);
 $pageurl = $selfurl.get_secure_param().'&page=xxx';
-$prompt = addcslashes(_la('sysmain_confirmclearlog'), "'");
+$prompt = addcslashes(_la('sysmain_confirmclearlog'), "'\n\r");
 
 $js = <<<EOS
 <script type="text/javascript">

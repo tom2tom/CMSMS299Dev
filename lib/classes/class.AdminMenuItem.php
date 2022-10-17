@@ -74,6 +74,7 @@ final class AdminMenuItem
         default:
             if( isset($this->_data[$key]) ) return $this->_data[$key];
         }
+        return null;
     }
 
     /**

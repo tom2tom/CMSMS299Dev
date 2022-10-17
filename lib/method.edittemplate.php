@@ -237,8 +237,8 @@ $do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0
 if( $do_locking) {
     add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 }
-$s1 = addcslashes(_ld('layout', 'error_lock'), "'");
-$s2 = addcslashes(_ld('layout', 'msg_lostlock'), "'");
+$s1 = addcslashes(_ld('layout', 'error_lock'), "'\n\r");
+$s2 = addcslashes(_ld('layout', 'msg_lostlock'), "'\n\r");
 $cancel = lang('cancel');
 */
 /*

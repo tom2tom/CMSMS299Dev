@@ -120,8 +120,8 @@ if( $dbr ) {
 	 ->assign('tplcount2', $numrows)
 	 ->assign('tplpages2', $tplpages);
 
-	$s1 = addcslashes($this->Lang('confirm_delete'), "'");
-	$s2 = addcslashes($this->Lang('confirm_tpldefault'), "'");
+	$s1 = addcslashes($this->Lang('confirm_delete'), "'\n\r");
+	$s2 = addcslashes($this->Lang('confirm_tpldefault'), "'\n\r");
 
 	$js = <<<EOS
 <script type="text/javascript">

@@ -993,6 +993,7 @@ function urlencode(string $str, string $keeps = '\w.~!$&\'()*\-+,/:;=%') : strin
  * @since 3.0
  * @see https://portswigger.net/web-security/cross-site-scripting/cheat-sheet
  * @see https://owasp.org/www-community/xss-filter-evasion-cheatsheet
+ * @see http://www.bioinformatics.org/phplabware/internal_utilities/htmLawed/index.php
  *
  * @param string $val input value
  * @return string

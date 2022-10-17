@@ -2147,7 +2147,7 @@ EOS;
 
         if (AppParams::get('site_downnow')) {
             $smarty->assign('sitedown', 1);
-            $msg = addcslashes(lang('maintenance_warning'), "'");
+            $msg = addcslashes(lang('maintenance_warning'), "'\n\r");
             add_page_foottext(<<<EOS
 <script type="text/javascript">
 //<![CDATA[

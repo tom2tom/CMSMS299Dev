@@ -161,8 +161,8 @@ $js = $pageincs['foot'] ?? '';
 
 if ($edit) {
 //    $nonce = get_csp_token();
-    $s1 = addcslashes(_la('error_usrplg_name'), "'");
-    $s2 = addcslashes(_la('error_usrplg_nocode'), "'");
+    $s1 = addcslashes(_la('error_usrplg_name'), "'\n\r");
+    $s2 = addcslashes(_la('error_usrplg_nocode'), "'\n\r");
     $js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[

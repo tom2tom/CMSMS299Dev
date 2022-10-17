@@ -170,17 +170,17 @@ catch( Throwable $t ) {
 
 $securekey = CMS_SECURE_PARAM_NAME;
 $jobkey = CMS_JOB_KEY;
-$s1 = addcslashes(_ld('layout','confirm_delete_bulk'), "'");
-$s2 = addcslashes(_ld('layout','error_nothingselected'), "'");
-$s3 = addcslashes(_ld('layout','confirm_steal_lock'), "'");
-$s4 = addcslashes(_ld('layout','error_contentlocked'), "'");
-//$s5 = addcslashes(_ld('layout','confirm_replacestyle'), "'");
-$s6 = addcslashes(_ld('layout','confirm_deletestyle'), "'");
-$s7 = addcslashes(_ld('layout','confirm_removestyle'), "'");
-$s8 = addcslashes(_ld('layout','confirm_applystyle'), "'");
-$s9 = addcslashes(_ld('layout','confirm_clearlocks'), "'");
-$t1 = addcslashes(_ld('layout','prompt_replace_typed',_ld('layout','prompt_stylesheet')), "'");
-$t2 = addcslashes(_ld('layout','prompt_replace_typed',_ld('layout','prompt_stylesgroup')), "'");
+$s1 = addcslashes(_ld('layout','confirm_delete_bulk'), "'\n\r");
+$s2 = addcslashes(_ld('layout','error_nothingselected'), "'\n\r");
+$s3 = addcslashes(_ld('layout','confirm_steal_lock'), "'\n\r");
+$s4 = addcslashes(_ld('layout','error_contentlocked'), "'\n\r");
+//$s5 = addcslashes(_ld('layout','confirm_replacestyle'), "'\n\r");
+$s6 = addcslashes(_ld('layout','confirm_deletestyle'), "'\n\r");
+$s7 = addcslashes(_ld('layout','confirm_removestyle'), "'\n\r");
+$s8 = addcslashes(_ld('layout','confirm_applystyle'), "'\n\r");
+$s9 = addcslashes(_ld('layout','confirm_clearlocks'), "'\n\r");
+$t1 = addcslashes(_ld('layout','prompt_replace_typed',_ld('layout','prompt_stylesheet')), "'\n\r");
+$t2 = addcslashes(_ld('layout','prompt_replace_typed',_ld('layout','prompt_stylesgroup')), "'\n\r");
 $cancel = _la('cancel');
 $submit = _la('submit');
 $secs = AppParams::get('lock_refresh', 120);
@@ -503,8 +503,8 @@ if( $groups ) {
      ->assign('grppages', $grppages);
 //   ->assign('TODO', $title);
 
-    $s1 = addcslashes(_ld('layout','confirm_delete_group'), "'");
-    $s2 = addcslashes(_ld('layout','confirm_delete_groupplus'), "'");
+    $s1 = addcslashes(_ld('layout','confirm_delete_group'), "'\n\r");
+    $s2 = addcslashes(_ld('layout','confirm_delete_groupplus'), "'\n\r");
 
     // groups supplementary-script
     $js = <<<EOS

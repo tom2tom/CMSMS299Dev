@@ -230,6 +230,7 @@ class Article
 // assert IF DEBUGGING
 //          throw new Exception('Requesting invalid data from News article object '.$key);
         }
+        return null;
     }
 
     public function __isset(string $key) : bool

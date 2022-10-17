@@ -357,10 +357,10 @@ $jsm->queue_matchedfile('jquery.SSsort.js', 1);
 $jsm->queue_matchedfile('jquery.ContextMenu.js', 1);
 $out = $jsm->page_content();
 
-$s1 = addcslashes(_la('confirm_switchuser'), "'");
-$s2 = addcslashes(_la('confirm_toggleuseractive'), "'");
-$s3 = addcslashes(_la('confirm_delete_user'), "'");
-$s4 = addcslashes(_la('confirm_bulkuserop'), "'");
+$s1 = addcslashes(_la('confirm_switchuser'), "'\n\r");
+$s2 = addcslashes(_la('confirm_toggleuseractive'), "'\n\r");
+$s3 = addcslashes(_la('confirm_delete_user'), "'\n\r");
+$s4 = addcslashes(_la('confirm_bulkuserop'), "'\n\r");
 
 $out .= <<<EOS
 <script type="text/javascript">

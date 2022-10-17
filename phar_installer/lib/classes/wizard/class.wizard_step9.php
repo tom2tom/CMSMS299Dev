@@ -165,56 +165,109 @@ class wizard_step9 extends wizard_step
     private function securitize(string $destdir, bool $upgrade = true)
     {
         $perms = get_server_permissions();
-        $filemode = $perms[0]; // read-only
+        $filemode = $perms[0]; // read-only OR 0444?
 
         // some security for the config-data files
         @chmod(CONFIG_FILE_LOCATION, $filemode);
-        $fp = dirname(CONFIG_FILE_LOCATION).DIRECTORY_SEPARATOR.'version.php';
+        $fp = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'version.php';
         @chmod($fp, $filemode);
 
         // ensure current .htaccess or web.config files to limit direct access
-        $str = $_SERVER['SERVER_SOFTWARE'];
-        $apache = $str && stripos($str, 'apache') !== false;
-        $tofn = ($apache) ? '.htaccess' : 'web.config';
-        // in the user_plugins folder
-        $ops = Lone::get('UserTagOperations');
-        $sp = $ops->FilePath($tofn);
-        $fp = str_replace($ops::PLUGEXT, '', $sp); // strip trailing fake-extension
-        if ($upgrade && is_file($fp)) {
-            chmod($fp, $perms[1]); // writable
+        $str = $_SERVER['SERVER_SOFTWARE'] ?? '';
+        if (!$str) {
+            $str = ''.PHP_SAPI;
         }
-        $fromfn = ($apache) ? 'block.plugins.htaccess' : 'block.plugins.config';
-        $sp = joinpath($destdir, 'lib', 'security', $fromfn);
-        copy($sp, $fp);
-        chmod($fp, $filemode); // NOT 0444?
-        // in the tmp folder OR dirname(CONFIG_FILE_LOCATION) ?
-        $fp = $destdir.DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR. $tofn;
+        if (stripos($str, 'apache') !== false) {
+            $apache = true;
+            $tofn = '.htaccess';
+        } elseif (stripos($str, 'iis') !== false) {
+            $apache = false;
+            $tofn = 'web.config';
+        } else {
+            return;
+        }
+        if ($upgrade) {
+            $config = Lone::get('Config');
+        }
+
+        // tmp folder
+        $fp = dirname(CONFIG_FILE_LOCATION).DIRECTORY_SEPARATOR. $tofn;
         if ($upgrade && is_file($fp)) {
-            chmod($fp, $perms[1]);
+            @chmod($fp, $perms[1]); // ensure writable
         }
         $fromfn = ($apache) ? 'block.tmp.htaccess' : 'block.tmp.config';
         $sp = joinpath($destdir, 'lib', 'security', $fromfn);
         copy($sp, $fp);
-        chmod($fp, $filemode);
-        // in the uploads folder OR config value for uploads ?
-        $fp = $destdir.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.$tofn;
-        if ($upgrade && is_file($fp)) {
-            chmod($fp, $perms[1]);
+        @chmod($fp, $filemode);
+        // topmost admin folder
+        if ($upgrade) {
+            $bp = $destdir.DIRECTORY_SEPARATOR.$config['admin_dir'];
+        } else {
+            $bp = $destdir.DIRECTORY_SEPARATOR.'admin';
         }
-        $fromfn = ($apache) ? 'block.php.htaccess' : 'block.php.config';
+        $fp = $bp.DIRECTORY_SEPARATOR.$tofn;
+        if ($upgrade && is_file($fp)) {
+            @chmod($fp, $perms[1]);
+        }
+        $fromfn = ($apache) ? 'block.admin.htaccess' : 'block.admin.config';
         $sp = joinpath($destdir, 'lib', 'security', $fromfn);
         copy($sp, $fp);
-        chmod($fp, $filemode);
-        // in the topmost lib folder
+        @chmod($fp, $filemode);
+        // also the admin/themes sub-folder
+        $fp = $bp.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.$tofn;
+        if ($upgrade && is_file($fp)) {
+            @chmod($fp, $perms[1]);
+        }
+        copy($sp, $fp);
+        @chmod($fp, $filemode);
+        // uploads folder
+        if ($upgrade) {
+            $bp = $config['uploads_path'];
+        } else {
+            $bp = $destdir.DIRECTORY_SEPARATOR.'uploads';
+        }
+        $fp = $bp.DIRECTORY_SEPARATOR.$tofn;
+        if ($upgrade && is_file($fp)) {
+            @chmod($fp, $perms[1]);
+        }
+        $fromfn = ($apache) ? 'block.exe.htaccess' : 'block.exe.config';
+        $sp = joinpath($destdir, 'lib', 'security', $fromfn);
+        copy($sp, $fp);
+        @chmod($fp, $filemode);
+        // topmost lib folder
         $fp = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.$tofn;
         if ($upgrade && is_file($fp)) {
-            chmod($fp, $perms[1]);
+            @chmod($fp, $perms[1]);
         }
         $fromfn = ($apache) ? 'allow.moduleinterface.htaccess' : 'allow.moduleinterface.config';
         $sp = joinpath($destdir, 'lib', 'security', $fromfn);
         copy($sp, $fp);
-        chmod($fp, $filemode);
-        // TODO anywhere else ? modules ? any-name-assets ? any-name-admin (unlikely)
+        @chmod($fp, $filemode);
+        // doc folder
+        $fp = $destdir.DIRECTORY_SEPARATOR.'doc'.DIRECTORY_SEPARATOR.$tofn;
+        if ($upgrade && is_file($fp)) {
+            @chmod($fp, $perms[1]);
+        }
+        $fromfn = ($apache) ? 'block.doc.htaccess' : 'block.doc.config';
+        $sp = joinpath($destdir, 'lib', 'security', $fromfn);
+        copy($sp, $fp);
+        @chmod($fp, $filemode);
+        // user_plugins folder
+        if ($upgrade) {
+            $fp = $config['usertags_path'].DIRECTORY_SEPARATOR.$tofn;
+        } else {
+            $ops = Lone::get('UserTagOperations');
+            $sp = $ops->FilePath($tofn);
+            $fp = str_replace($ops::PLUGEXT, '', $sp); // strip trailing fake-extension
+        }
+        if ($upgrade && is_file($fp)) {
+            @chmod($fp, $perms[1]);
+        }
+        $fromfn = ($apache) ? 'block.plugins.htaccess' : 'block.plugins.config';
+        $sp = joinpath($destdir, 'lib', 'security', $fromfn);
+        copy($sp, $fp);
+        @chmod($fp, $filemode);
+        // TODO anywhere else ? modules ? any-name-assets ?
     }
 
     /**
@@ -267,11 +320,8 @@ class wizard_step9 extends wizard_step
                 Lone::get('ContentTypeOperations')->RebuildStaticContentTypes(); // uses unforced 'methodic_modules' metadata
                 break;
             case 3: // freshen
-                // freshen permissions for config files
-                $filemode = get_server_permissions()[0]; // read-only
-                @chmod(CONFIG_FILE_LOCATION, $filemode);
-                $filename = dirname(CONFIG_FILE_LOCATION).DIRECTORY_SEPARATOR.'version.php';
-                @chmod($filename, $filemode);
+                // freshen permissions for config files etc
+                $this->securitize($destdir);
                 // clear file-caches
                 $this->message(lang('msg_clearcache'));
                 $this->clear_filecaches($destdir); // OR AdminUtils::clear_cached_files()

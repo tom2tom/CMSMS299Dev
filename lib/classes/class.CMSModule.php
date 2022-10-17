@@ -223,7 +223,7 @@ abstract class CMSModule
             try {
                 $md = $flect->getMethod($name);
             } catch (ReflectionException $e) {
-                return false;
+                return null;
             }
 
             $parms = [];
@@ -233,7 +233,7 @@ abstract class CMSModule
             }
             return FormUtils::create($this, $name, $parms);
         }
-        return false;
+        return null;
     }
 
     /**
@@ -695,8 +695,11 @@ abstract class CMSModule
 
     /**
      * Sanitize the action-parameters in the provided data array.
-     * This method is called to deal with action-parameters incoming from the
-     * frontend. It uses the map created by the module's SetParameterType() method.
+     * This method is called to deal with action-parameters incoming from
+     * the frontend. It uses the map created by the module's SetParameterType() method.
+     * The generic approach to string-value cleaning used here might be
+     * invalid for some contexts, in which case, the relevant
+     * $_RESPONSE|GET|POST member(s) must be re-processed there
      *
      * @internal
      * @access private
@@ -713,6 +716,31 @@ abstract class CMSModule
     {
         $mappedcount = 0;
         $result = [];
+        // deprecated FILTER_SANITIZE_STRING-replacement with some extras e.g. verbatim \t \r \n < >
+        // OR use sanitizeVal() after de_specialize()
+        $clean_str = function(string $value) : string
+        {
+            $ss = preg_replace([
+             '/[\x00-\x08\x0b\x0c\x0e-\x1f]/',
+             '/<\?php/i',
+             '/<\?=/',
+             '/<\?(\s|\n)/',
+             '/<+\s*script.*script\s*>/is',
+             '/<+\s*script[^<>]*>?/is',
+             '/<+\s*script[^<>]*</is',
+             '/jav.+?script\s*:\s*(.+?)(\n|;|$)/i'
+            ],[
+             '',
+             '',
+             '',
+             '',
+             '',
+             '',
+             '<',
+             '$1 '
+            ], $value);
+            return strtr($ss, ['"'=>'&#34;', "'"=>'&#39;', '`'=>'&#96;']);
+        };
         foreach( $data as $key => $value ) {
             $mapped = false;
             $paramtype = '';
@@ -754,10 +782,7 @@ abstract class CMSModule
                         // pass through verbatim
                         break;
                     case CLEAN_STRING:
-                        //TODO arguably this should be cleaned in context, where actual valid content is known
-                        //OR here use sanitizeVal(e.g. CMSSAN_PHPSTRING) after de_specialize()
-                        // deprecated FILTER_SANITIZE_STRING-replacement with some extras e.g. `<> allowed
-                        $value = strtr(strip_tags($value), ['"'=>'&#34;', "'"=>'&#39;']);
+                        $value = $clean_str($value);
                         break;
                     case CLEAN_FILE:
                         //TODO use sanitizeVal( CMSSAN_PATH)
@@ -767,12 +792,19 @@ abstract class CMSModule
                         }
                         break;
                     default:
-                        if (is_string($value) && $value !== '') {
-                             //TODO arguably this should be cleaned in context, where actual valid content is known
-                             //OR here use sanitizeVal() after de_specialize()
-                             // deprecated FILTER_SANITIZE_STRING-replacement but with tags entitized, FILTER_FLAGs STRIP_LOW, STRIP_BACKTICK
-                            $ss = strtr($value, ['"'=>'&quot;', "'"=>'&apos;', '<'=>'&lt;', '>'=>'&gt;', "\t"=>' ']);
-                            $value = filter_var($ss, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+                        if ($value && is_string($value)) {
+                            $ss = $clean_str($value);
+                            $value = str_replace([
+                             '&#96;',
+                             '<',
+                             '>',
+                             "\t"
+                            ],[
+                             '',
+                             '&lt;',
+                             '&gt;',
+                             ' '
+                            ], $ss);
                         }
                         break;
                     } // switch

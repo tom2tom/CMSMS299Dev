@@ -72,22 +72,6 @@ try {
             throw new RuntimeException('File exceeded size limit');
         }
 
-        $tmppath = $fileval('tmp_name', $idx);
-        // Check content
-        if ($profile->type == FileType::IMAGE) {
-            if( function_exists('exif_imagetype') ) {
-                if (!exif_imagetype($tmppath)) {
-                    if (1) { //TODO extra check needed e.g. svg files
-                        $here = 1; //DEBUG
-                    } else {
-                        throw new RuntimeException('Invalid file type');
-                    }
-                }
-            }
-            //else fallbacks
-        }
-        // else others TODO
-
         $fn = $fileval('name', $idx);
         $testpath = cms_join_path($fullpath, $fn);
         $destpath = Utils::clean_path($topdir, $testpath);
@@ -100,12 +84,28 @@ try {
             throw new RuntimeException($fn.': '.$this->Lang('error_ajax_fileexists'));
         }
 
-        if (move_uploaded_file($tmppath, $destpath)) {
-            // Check file name, extension (tho the ext might be faked)
-            if (!FolderControlOperations::is_file_name_acceptable($profile,$destpath)) {
-                unlink($destpath);
-                throw new RuntimeException($fn.': '.$this->Lang('error_upload_acceptFileTypes'));
+        // Check name, extension (tho the identity might be spoofed)
+        if (!FolderControlOperations::is_file_name_acceptable($profile,$destpath)) {
+            throw new RuntimeException($fn.': '.$this->Lang('error_upload_acceptFileTypes'));
+        }
+
+        $tmppath = $fileval('tmp_name', $idx);
+        // Check malicious content
+        if ($profile->type == FileType::IMAGE) {
+            if( function_exists('exif_imagetype') ) {
+                if (!exif_imagetype($tmppath)) {
+                    if (1) { //TODO extra check needed e.g. svg files
+                        $here = 1; //DEBUG
+                    } else {
+                        throw new RuntimeException('Invalid file type');
+                    }
+                }
             }
+            //else fallbacks TODO
+        }
+        // else others TODO
+
+        if (cms_move_uploaded_file($tmppath, $destpath)) {
             if ($mime) { // skip check if any mime will do
                 // Check mimetype (maybe dodgy, depending on installed capabilities)
                 $filemime = $helper->get_mime_type($destpath);

@@ -101,7 +101,7 @@ function getParms(tagname) {
 EOS;
     }
     if ($pmod) {
-        $confirm = addcslashes(_la('confirm_delete_usrplg'), "'");
+        $confirm = addcslashes(_la('confirm_delete_usrplg'), "'\n\r");
         $out .= <<<EOS
 function doDelete(tagname) {
  cms_confirm('$confirm').done(function() {

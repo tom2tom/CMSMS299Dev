@@ -1244,7 +1244,7 @@ class FormUtils
             ]);
             $out .= '>' . $contents . '</a>';
             if (!empty($warn_message)) {
-                $msg = addcslashes($warn_message, "'");
+                $msg = addcslashes($warn_message, "'\n\r");
                 $out .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[

@@ -30,7 +30,7 @@ $dsep = DIRECTORY_SEPARATOR;
 require ".{$dsep}admininit.php";
 
 $handlers = ob_list_handlers();
-for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
+for ($i = 0, $n = count($handlers); $i < $n; ++$i) { ob_end_clean(); }
 
 //$urlext = get_secure_param();
 $userid = get_userid(false);
@@ -39,7 +39,7 @@ $contentops = Lone::get('ContentOperations');
 try {
     $display = Utils::get_pagenav_display();
 }
-catch( Throwable $t ) {
+catch (Throwable $t) {
     $display = 'title';
 }
 
@@ -48,7 +48,7 @@ $op = trim($_REQUEST['op'] ?? 'pageinfo'); // no sanitizeVal() etc cuz only expl
 $allow_all = isset($_REQUEST['allow_all']) && cms_to_bool($_REQUEST['allow_all']);
 
 try {
-    if( $userid < 1 ) {
+    if ($userid < 1) {
         throw new Error403Exception(_la('permissiondenied'));
     }
 
@@ -59,17 +59,17 @@ try {
       case 'userlist':
       case 'userpages':
         $tmplist = $contentops->GetPageAccessForUser($userid);
-        if( $tmplist ) {
+        if ($tmplist) {
             $displaylist = $pagelist = [];
-            foreach( $tmplist as $nid ) {
+            foreach ($tmplist as $nid) {
                 // get all this one's ancestors
                 $parents = [];
                 $node = $ptops->get_node_by_id($nid);
-                while( $node && $node->getId() > 0 ) {
+                while ($node && $node->getId() > 0) {
                     $content = $node->get_content();
                     $rec = $content->ToData();
                     $rec['can_edit'] = $can_edit_any || $contentops->CheckPageAuthorship($userid,$content->Id());
-                    if( $display == 'title' ) { $rec['display'] = strip_tags($rec['content_name']); }
+                    if ($display == 'title') { $rec['display'] = strip_tags($rec['content_name']); }
                     else { $rec['display'] = strip_tags($rec['menu_text']); }
                     $rec['has_children'] = $node->has_children();
                     $parents[] = $rec;
@@ -78,9 +78,9 @@ try {
                 // start at root
                 // push items from list on the stack if they are root, or the previous item is in the opened array.
                 $parents = array_reverse($parents);
-                for( $i = 0, $n = count($parents); $i < $n; $i++ ) {
+                for ($i = 0, $n = count($parents); $i < $n; $i++) {
                     $content_id = $parents[$i]['content_id'];
-                    if( !in_array($content_id,$pagelist) ) {
+                    if (!in_array($content_id,$pagelist)) {
                         $pagelist[] = $content_id;
                         $displaylist[] = $parents[$i];
                     }
@@ -98,26 +98,26 @@ try {
       case 'here_up':
         // given a page id, get all of the info for all ancestors, and their peers,
         // and the info for children.
-        if( !isset($_REQUEST['page']) ) {
+        if (!isset($_REQUEST['page'])) {
             throw new DataException(_la('missingparams').' (page)');
         }
-        $current = ( isset($_REQUEST['current']) ) ? (int)$_REQUEST['current'] : 0;
+        $current = (isset($_REQUEST['current'])) ? (int)$_REQUEST['current'] : 0;
 //UNUSED $for_child = isset($_REQUEST['for_child']) && cms_to_bool($_REQUEST['for_child']);
         $allow_current = isset($_REQUEST['allowcurrent']) && cms_to_bool($_REQUEST['allowcurrent']);
         $children_to_data = function($node) use ($display,$userid,$contentops,$allow_all,$can_edit_any,$allow_current,$current) {
             $children = $node->load_children(false,$allow_all);
-            if( empty($children) ) return;
+            if (empty($children)) return;
 
             $child_info = [];
-            foreach( $children as $child ) {
+            foreach ($children as $child) {
                 $content = $child->get_content();
-                if( !is_object($content) ) continue;
-                if( !$allow_all && !$content->Active() ) continue;
-                if( !$allow_all && !$content->HasUsableLink() ) continue;
-                if( !$allow_current && $current == $content->Id() ) continue;
+                if (!is_object($content)) continue;
+                if (!$allow_all && !$content->Active()) continue;
+                if (!$allow_all && !$content->HasUsableLink()) continue;
+                if (!$allow_current && $current == $content->Id()) continue;
                 $rec = $content->ToData();
                 $rec['can_edit'] = $can_edit_any || $contentops->CheckPageAuthorship($userid,$rec['content_id']);
-                if( $display == 'title' ) { $rec['display'] = strip_tags($rec['content_name']); }
+                if ($display == 'title') { $rec['display'] = strip_tags($rec['content_name']); }
                 else { $rec['display'] = strip_tags($rec['menu_text']); }
                 $rec['has_children'] = $child->has_children();
                 $child_info[] = $rec;
@@ -127,9 +127,9 @@ try {
 
         $out = [];
         $page = (int)$_REQUEST['page'];
-        if( $page < 1 ) $page = -1;
+        if ($page < 1) $page = -1;
         $node = $thiscontent = null;
-        if( $page == -1 ) {
+        if ($page == -1) {
             $node = $ptops; // PageTreeOperations object, not a PageTreeNode node
         } else {
             $node = $ptops->get_node_by_id($page);
@@ -137,35 +137,35 @@ try {
         do {
             $out[] = $children_to_data($node); // get children of current page.
             $node = $node->get_parent();
-        } while( $node );
+        } while ($node);
         $out = array_reverse($out);
         break;
 
       case 'childrenof':
-        if( !isset($_REQUEST['page']) ) {
+        if (!isset($_REQUEST['page'])) {
             throw new DataException(_la('missingparams').' (page)');
         }
         else {
             $page = (int)$_REQUEST['page'];
-            if( $page < 1 ) $page = -1;
+            if ($page < 1) $page = -1;
             $node = null;
-            if( $page == -1 ) {
+            if ($page == -1) {
                 $node = $ptops; // PageTreeOperations, not a PageTreeNode node
             }
             else {
                 $node = $ptops->get_node_by_id($page);
             }
-            if( $node ) {
+            if ($node) {
                 $children = $node->load_children(false,$allow_all);
-                if( $children ) {
+                if ($children) {
                     $out = [];
-                    foreach( $children as $child ) {
+                    foreach ($children as $child) {
                         $content = $child->get_content();
-                        if( !is_object($content) ) continue;
-                        if( !$allow_all && !$content->Active() ) continue;
+                        if (!is_object($content)) continue;
+                        if (!$allow_all && !$content->Active()) continue;
                         $rec = $content->ToData();
                         $rec['can_edit'] = check_permission($userid,'Manage All Content') || $contentops->CheckPageAuthorship($userid,$rec['content_id']);
-                        if( $display == 'title' ) { $rec['display'] = strip_tags($rec['content_name']); }
+                        if ($display == 'title') { $rec['display'] = strip_tags($rec['content_name']); }
                         else { $rec['display'] = strip_tags($rec['menu_text']); }
                         $out[] = $rec;
                     }
@@ -175,23 +175,23 @@ try {
         break;
 
       case 'pagepeers':
-        if( !isset($_REQUEST['pages']) || !is_array($_REQUEST['pages']) ) {
+        if (!isset($_REQUEST['pages']) || !is_array($_REQUEST['pages'])) {
             throw new DataException(_la('missingparams'));
         }
         else {
             // clean up the data a bit
             $tmp = [];
-            foreach( $_REQUEST['pages'] as $one ) {
+            foreach ($_REQUEST['pages'] as $one) {
                 $one = (int)$one;
                 // ignore invalid identifiers
-                if( $one > 0 ) $tmp[] = $one;
+                if ($one > 0) $tmp[] = $one;
             }
             $peers = array_unique($tmp);
 
             $out = [];
-            foreach( $peers as $one ) {
+            foreach ($peers as $one) {
                 $node = $ptops->get_node_by_id($one);
-                if( !$node ) continue;
+                if (!$node) continue;
 
                 // get the parent
                 $parent_node = $node->get_parent();
@@ -199,9 +199,9 @@ try {
                 // and its (viewable) children
                 $out[$one] = [];
                 $children = $parent_node->load_children(false,$allow_all);
-                for( $i = 0, $n = count($children); $i < $n; $i++ ) {
+                for ($i = 0, $n = count($children); $i < $n; $i++) {
                     $content = $children[$i]->get_content();
-                    if( ! $content->IsViewable() ) continue;
+                    if (!$content->IsViewable()) continue;
                     $rec = [];
                     $rec['content_id'] = $content->Id();
                     $rec['id_hierarchy'] = $content->IdHierarchy();
@@ -215,23 +215,23 @@ try {
         break;
 
       case 'pageinfo':
-        if( !isset($_REQUEST['page']) ) {
+        if (!isset($_REQUEST['page'])) {
             throw new DataException(_la('missingparams').' (page)');
         }
         else {
             $page = (int)$_REQUEST['page'];
-            if( $page == -1 ) {
+            if ($page == -1) {
                 $out = [];
             }
             else {
-                if( $page < 1 ) {
+                if ($page < 1) {
                     $page = $contentops->GetDefaultContent();
                 }
                 // get the page properties
                 $content = $contentops->LoadContentFromId($page);
-                if( is_object($content) ) {
+                if (is_object($content)) {
                     $out = $content->ToData();
-                    if( $display == 'title' ) { $out['display'] = $out['content_name']; }
+                    if ($display == 'title') { $out['display'] = $out['content_name']; }
                     else { $out['display'] = $out['menu_text']; }
                 }
                 else {

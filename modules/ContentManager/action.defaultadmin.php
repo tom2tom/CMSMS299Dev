@@ -199,13 +199,13 @@ $jobkey = CMS_JOB_KEY;
 //TODO any other action-specific js
 //TODO flexbox css for multi-row .colbox, .rowbox.flow, .boxchild
 
-$s1 = addcslashes($this->Lang('confirm_setinactive'), "'");
-$s2 = addcslashes($this->Lang('confirm_setdefault'), "'");
-$s3 = addcslashes($this->Lang('confirm_delete_page'), "'");
-$s4 = addcslashes($this->Lang('confirm_steal_lock'), "'");
-$s5 = addcslashes($this->Lang('error_contentlocked'), "'");
-$s8 = addcslashes($this->Lang('confirm_clearlocks'), "'");
-$s9 = addcslashes($this->Lang('error_action_contentlocked'), "'");
+$s1 = addcslashes($this->Lang('confirm_setinactive'), "'\n\r");
+$s2 = addcslashes($this->Lang('confirm_setdefault'), "'\n\r");
+$s3 = addcslashes($this->Lang('confirm_delete_page'), "'\n\r");
+$s4 = addcslashes($this->Lang('confirm_steal_lock'), "'\n\r");
+$s5 = addcslashes($this->Lang('error_contentlocked'), "'\n\r");
+$s8 = addcslashes($this->Lang('confirm_clearlocks'), "'\n\r");
+$s9 = addcslashes($this->Lang('error_action_contentlocked'), "'\n\r");
 $submit = $this->Lang('submit');
 $cancel = $this->Lang('cancel');
 $secs = AppParams::get('lock_refresh', 120);

@@ -72,6 +72,7 @@ class ContentTypeOperations
 		if( $key == 'content_types' ) {
 			return $this->_content_types ?? null; //for PageLoader class to access
 		}
+		return null;
 	}
 
 	/**

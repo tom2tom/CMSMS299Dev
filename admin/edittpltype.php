@@ -89,9 +89,9 @@ try {
 		add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 	}
 	$lock_refresh = AppParams::get('lock_refresh', 120);
-	$s1 = addcslashes(_ld('layout', 'error_lock'), "'");
-	$s2 = addcslashes(_ld('layout', 'msg_lostlock'), "'");
-	$s3 = addcslashes(_ld('layout', 'confirm_reset_type'), "'");
+	$s1 = addcslashes(_ld('layout', 'error_lock'), "'\n\r");
+	$s2 = addcslashes(_ld('layout', 'msg_lostlock'), "'\n\r");
+	$s3 = addcslashes(_ld('layout', 'confirm_reset_type'), "'\n\r");
 	$cancel = _la('cancel');
 
 	$jsm = new ScriptsMerger();

@@ -12,6 +12,7 @@
 namespace FilePicker;
 
 use stdClass;
+use function cms_move_uploaded_file;
 use function file_put_contents;
 
 abstract class jquery_upload_handler
@@ -54,7 +55,7 @@ abstract class jquery_upload_handler
     public function getFullUrl()
     {
         return
-            (isset($_SERVER['HTTPS']) ? 'https://' : 'http://').
+            ((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off') ? 'https://' : 'http://').
             (isset($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').
             (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ($_SERVER['SERVER_NAME'].
             (isset($_SERVER['HTTPS']) && $_SERVER['SERVER_PORT'] === 443 ||
@@ -253,8 +254,11 @@ abstract class jquery_upload_handler
                         fopen($uploaded_file, 'r'),
                         FILE_APPEND
                     );
-                } else {
-                    move_uploaded_file($uploaded_file, $file_path);
+                } else if (!cms_move_uploaded_file($uploaded_file, $file_path)) {
+                  // cmsms extension
+                  //TODO handle error
+//                $file->error = 'Something useful';
+//                $file = $this->process_error( $file, $error );
                 }
             } else {
                 // Non-multipart uploads (PUT method support)

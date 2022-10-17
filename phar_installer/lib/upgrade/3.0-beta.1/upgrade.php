@@ -702,25 +702,36 @@ foreach ($files as $one) {
     }
 }
 
-/* TODO improve 2.2.15 users' homepage URL upgrade
-// 12.2 remove old secure param name from homepage url
-$url = str_replace('&amp;','&',$url);
-$tmp = explode('?',$url);
-@parse_str($tmp[1],$tmp2);
-$arr = array_keys($tmp2);
-// param names have been: '_s_','sp_','_sx_','_sk_','__c','_k_'
-foreach (['_s_','sp_','_sx_','_sk_','__c','_k_'] as $sk) {
-    if( in_array($sk,$arr) ) unset($tmp2[$sk]);
+// 12.2 remove any old secure-param member from homepage url
+$sql = 'SELECT user_id,`value` FROM '.CMS_DB_PREFIX.'userprefs WHERE preference = \'homepage\'';
+$data = $db->getArray($sql);
+if ($data) {
+    status_msg('Converting backend users\' homepage preference');
+    $stmt = $db->prepare('UPDATE ' . CMS_DB_PREFIX . 'userprefs SET `value` = ? WHERE user_id = ? AND preference = \'homepage\'');
+    foreach ($data as $row) {
+        $url = $row['value'];
+        if (!$url) {
+            continue;
+        }
+        $url = str_replace('&amp;', '&', $url);
+        $tmp = explode('?', $url);
+        @parse_str($tmp[1], $query);
+        // param names have been: '_s_','sp_','_sx_','_sk_','__c','_k_'
+        foreach (['_s_', 'sp_', '_sx_', '_sk_', '__c', '_k_'] as $sk) {
+            if (isset($query[$sk])) { unset($query[$sk]); }
+        }
+        $tmp3 = [];
+        foreach ($query as $k => $v) {
+            $tmp3[] = $k.'='.$v;
+        }
+        //remove admin folder from the url (if applicable)
+        //(url should be relative to admin dir)
+        $url = preg_replace('@^/[^/]+/@','',$tmp[0]).'?'.implode('&', $tmp3);
+        $db->execute($stmt, [$url, $row['user_id']]);
+    }
+    $stmt->close();
 }
 
-foreach( $tmp2 as $k => $v ) {
-    $tmp3[] = $k.'='.$v;
-}
-$url = $tmp[0].'?'.implode('&',$tmp3);
-//remove admin folder from the url (if applicable)
-//(url should be relative to admin dir)
-$url = preg_replace('@^/[^/]+/@','',$url);
-*/
 // 12.3 migrate user-homepages like 'index.php*' to 'menu.php*'
 $sql = 'UPDATE '.CMS_DB_PREFIX."userprefs SET `value` = REPLACE(`value`,'index.php','menu.php') WHERE preference='homepage' AND `value` LIKE 'index.php%'";
 $db->execute($sql);

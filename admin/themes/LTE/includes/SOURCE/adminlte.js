@@ -678,7 +678,7 @@
       _proto._addOverlay = function _addOverlay() {
         var _this2 = this;
 
-        var overlay = $('<div />', {
+        var overlay = $('<div>', {
           id: 'sidebar-overlay'
         });
         overlay.on('click', function () {
@@ -1759,7 +1759,7 @@
         var toast_header = $('<div class="toast-header">');
 
         if (this._config.image != null) {
-          var toast_image = $('<img />').addClass('rounded mr-2').attr('src', this._config.image).attr('alt', this._config.imageAlt);
+          var toast_image = $('<img>').addClass('rounded mr-2').attr('src', this._config.image).attr('alt', this._config.imageAlt);
 
           if (this._config.imageHeight != null) {
             toast_image.height(this._config.imageHeight).width('auto');
@@ -1769,19 +1769,19 @@
         }
 
         if (this._config.icon != null) {
-          toast_header.append($('<i />').addClass('mr-2').addClass(this._config.icon));
+          toast_header.append($('<i>').addClass('mr-2').addClass(this._config.icon));
         }
 
         if (this._config.title != null) {
-          toast_header.append($('<strong />').addClass('mr-auto').html(this._config.title));
+          toast_header.append($('<strong>').addClass('mr-auto').html(this._config.title));
         }
 
         if (this._config.subtitle != null) {
-          toast_header.append($('<small />').html(this._config.subtitle));
+          toast_header.append($('<small>').html(this._config.subtitle));
         }
 
         if (this._config.close == true) {
-          var toast_close = $('<button data-dismiss="toast" />').attr('type', 'button').addClass('ml-2 mb-1 close').attr('aria-label', 'Close').append('<span aria-hidden="true">&times;</span>');
+          var toast_close = $('<button data-dismiss="toast">').attr('type', 'button').addClass('ml-2 mb-1 close').attr('aria-label', 'Close').append('<span aria-hidden="true">&times;</span>');
 
           if (this._config.title == null) {
             toast_close.toggleClass('ml-2 ml-auto');
@@ -1793,7 +1793,7 @@
         toast.append(toast_header);
 
         if (this._config.body != null) {
-          toast.append($('<div class="toast-body" />').html(this._config.body));
+          toast.append($('<div class="toast-body">').html(this._config.body));
         }
 
         $(this._getContainerId()).prepend(toast);

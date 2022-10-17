@@ -219,9 +219,9 @@ $js = <<<EOS
 EOS;
 add_page_headtext($js);
 
-$s1 = addcslashes($this->Lang('confirm_sendtestmail'), "'");
-$s2 = addcslashes($this->Lang('confirm_settings'), "'");
-$s3 = addcslashes($this->Lang('confirm_property'), "'");
+$s1 = addcslashes($this->Lang('confirm_sendtestmail'), "'\n\r");
+$s2 = addcslashes($this->Lang('confirm_settings'), "'\n\r");
+$s3 = addcslashes($this->Lang('confirm_property'), "'\n\r");
 //TODO some js is permission-specific
 $js = <<<EOS
 <script type="text/javascript">

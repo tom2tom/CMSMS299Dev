@@ -54,7 +54,7 @@
 
       // called when editor is initialized by $('..').summernote()
       this.initialize = function() {
-        this.$panel = $('<div class="plugName-panel"/>').css({
+        this.$panel = $('<div class="plugName-panel"></div>').css({
           position: 'absolute',
           width: 100,
           height: 100,

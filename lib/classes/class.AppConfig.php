@@ -212,7 +212,8 @@ final class AppConfig implements ArrayAccess
                 if ($str[0] == '0') { $mask = octdec($str); }
                 else { $mask = (int)$str; }
                 $val = 0666 & ~$mask;
-            } else {
+            }
+            else {
                 $val = get_server_permissions()[1]; // file read+write
             }
             return decoct($val);
@@ -380,14 +381,15 @@ final class AppConfig implements ArrayAccess
         case 'admin_dir':
             return 'admin';
 
+//      case 'app_mode':
+//      case 'debug':
+        case 'develop_mode':
+            return false; //c.f. default return null
+
         case 'developer_mode';
             // deprecated from v 3.0 this is just an alias for develop_mode
             assert(empty(CMS_DEPREC), new DeprecationNotice('property', 'develop_mode'));
             return $this->offsetGet('develop_mode');
-//        case 'app_mode':
-//        case 'debug':
-//        case 'develop_mode':
-//            return false; c.f. default return null
 
         case 'assets_dir': // deprecated from v 3.0 but used in derivative members
             return 'assets';
@@ -487,8 +489,8 @@ final class AppConfig implements ArrayAccess
         case 'jqversion':
             return ''; // i.e. latest
 
-//        case 'host_whitelist':
-//            return callable | array | comma-separated string
+        case 'host_whitelist':
+            return ''; // TODO callable | array | comma-separated string
 
         default:
             return null; // a key that we can't autofill
@@ -531,7 +533,8 @@ final class AppConfig implements ArrayAccess
             $s = substr($url, strlen(CMS_ROOT_URL));
             $s = rawurldecode($s);
             $fp = CMS_ROOT_PATH . strtr($s, '/', DIRECTORY_SEPARATOR);
-        } else {
+        }
+        else {
             $s = preg_replace('~^(\w+?:)?//~', '', $url);
             $s = rawurldecode($s);
             $fp = strtr($s, '/', DIRECTORY_SEPARATOR);
@@ -563,8 +566,10 @@ final class AppConfig implements ArrayAccess
      */
     private function calculate_request_hostname() : string
     {
+        //NOTE: never trust $_SERVER['HTTP_*'] variables which contain IP address
         if( $_SERVER['HTTP_HOST'] === $_SERVER['SERVER_NAME'] ) return $_SERVER['SERVER_NAME'];
 
+        //? maybe sanitize and/or whitelist-check
         $whitelist = $this['host_whitelist'] ?? null;
         if( !$whitelist ) return $_SERVER['SERVER_NAME'];
         $requested = $_SERVER['HTTP_HOST'];

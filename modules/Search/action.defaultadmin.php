@@ -131,8 +131,8 @@ $tpl->assign('formstart2',
  ->assign('input_resultpage',
      AdminUtils::CreateHierarchyDropdown(0,$this->GetPreference('resultpage',-1),$id.'resultpage',true));
 
-$s1 = addcslashes($this->Lang('confirm_clearstats'), "'");
-$s2 = addcslashes($this->Lang('confirm_reindex'), "'");
+$s1 = addcslashes($this->Lang('confirm_clearstats'), "'\n\r");
+$s2 = addcslashes($this->Lang('confirm_reindex'), "'\n\r");
 
 $js = <<<EOS
 <script type="text/javascript">

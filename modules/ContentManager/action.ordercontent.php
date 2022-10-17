@@ -109,7 +109,7 @@ $pagecount = $ptops->count_nodes();
 //TODO custom requirements
 
 $base_url = CMS_ASSETS_URL;
-$msg = addcslashes($this->Lang('confirm_reorder'), "'");
+$msg = addcslashes($this->Lang('confirm_reorder'), "'\n\r");
 if ($pagecount > 20) {
 	$xjs = <<<'EOS'
   $('#masterlist > li > ul').find('.haschildren').each(function() {

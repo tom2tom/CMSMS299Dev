@@ -9,8 +9,8 @@
 {block name='javascript' append}
 <script type="text/javascript">
 {literal}$(function() {
-  $('#upgrade_info .link').css('cursor','pointer').click(function() {
-   var e = '#'+$(this).data('content');
+  $('#upgrade_info .link').css('cursor','pointer').on('click',function() {
+   var e = '#' + $(this).data('content');
    $(e).dialog({
      minWidth: 500,
      modal: true

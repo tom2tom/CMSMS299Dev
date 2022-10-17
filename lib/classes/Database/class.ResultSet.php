@@ -104,6 +104,7 @@ class ResultSet
          case 'result':
             return $this->_result;
         }
+        return null;
     }
 
     /**

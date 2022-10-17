@@ -362,7 +362,7 @@ searchable I1 UNSIGNED DEFAULT 1
     // see: former AdminOperations::handle_upload()
     $pref = CMS_DB_PREFIX;
     $sql = <<<EOS
-SELECT FV.news_id,FV.value
+SELECT FV.news_id,FV.`value`
 FROM {$pref}module_news_fieldvals FV
 INNER JOIN {$pref}module_news_fielddefs FD
 ON FV.fielddef_id = FD.id
@@ -380,7 +380,7 @@ EOS;
         }
     }
     $sql = <<<EOS
-SELECT FV.news_id,FV.value
+SELECT FV.news_id,FV.`value`
 FROM {$pref}module_news_fieldvals FV
 INNER JOIN {$pref}module_news_fielddefs FD
 ON FV.fielddef_id = FD.id

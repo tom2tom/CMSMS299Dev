@@ -284,7 +284,7 @@ $jsm = new ScriptsMerger();
 $jsm->queue_matchedfile('jquery-inputCloak.js', 1);
 
 //$nonce = get_csp_token();
-$s1 = addcslashes(_la('confirm_edituser'), "'");
+$s1 = addcslashes(_la('confirm_edituser'), "'\n\r");
 $js = <<<EOS
 $(function() {
  $('#password,#passagain').inputCloak({

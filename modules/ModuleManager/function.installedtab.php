@@ -92,11 +92,11 @@ if ($devmode) {
        $themeObject->DisplayImage($path,'export','','','systemicon',['title'=>$this->Lang('title_moduleexport')]));
 }
 
-$s1 = addcslashes($this->Lang('confirm_upgrade'), "'");
-$s2 = addcslashes($this->Lang('confirm_remove'), "'");
-$s3 = addcslashes($this->Lang('confirm_chmod'), "'");
-$s4 = addcslashes($this->Lang('error_nofileuploaded'), "'");
-$s5 = addcslashes($this->Lang('error_invaliduploadtype'), "'");
+$s1 = addcslashes($this->Lang('confirm_upgrade'), "'\n\r");
+$s2 = addcslashes($this->Lang('confirm_remove'), "'\n\r");
+$s3 = addcslashes($this->Lang('confirm_chmod'), "'\n\r");
+$s4 = addcslashes($this->Lang('error_nofileuploaded'), "'\n\r");
+$s5 = addcslashes($this->Lang('error_invaliduploadtype'), "'\n\r");
 $submit = $this->Lang('submit');
 $cancel = $this->Lang('cancel');
 

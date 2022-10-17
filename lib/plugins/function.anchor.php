@@ -29,17 +29,21 @@ function smarty_function_anchor($params, $template)
 		return '<!-- anchor tag: no anchor provided -->';
 	}
 
+	$url = '';
 	if (!empty($_SERVER['QUERY_STRING'])) {
 		//$_SERVER['QUERY_STRING'] like 'page=news/99/107/somename'
 		$config = Lone::get('Config');
 		$tmp = $config['query_var'].'=';
-		$path = str_replace($tmp, '', $_SERVER['QUERY_STRING']);
-		$url = $config['root_url'].'/'.trim($path, ' /');
-	} else {
+		$path = str_ireplace($tmp, '', $_SERVER['QUERY_STRING']); // TODO sanitize $_SERVER value somewhere
+		if ($path != $_SERVER['QUERY_STRING']) {
+			$url = $config['root_url'].'/'.trim($path, ' /');
+		}
+	}
+	if (!$url) {
 		//this is useless for runtime-populated pages e.g. News details
 		$content = cmsms()->get_content_object();
 		if (!is_object($content)) {
-			return '';
+			return ''; // never any assignment ?
 		}
 		$url = $content->GetURL();
 	}

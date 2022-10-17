@@ -52,6 +52,44 @@ use function CMSMS\get_installed_schema_version;
  * @package CMS
  */
 
+// sanitize $_SERVER somewhat
+/* see
+https://security.stackexchange.com/questions/32299/is-server-a-safe-source-of-data-in-php
+discussion at http://htmlpurifier.org/comparison
+https://portswigger.net/web-security/cross-site-scripting/cheat-sheet
+https://owasp.org/www-community/xss-filter-evasion-cheatsheet
+http://www.bioinformatics.org/phplabware/internal_utilities/htmLawed/index.php
+*/
+$descript = function(/*string*/&$value) use(&$descript)
+{
+    if (!is_array($value)) {
+        $tmp = preg_replace([
+         '/[[:cntrl:]]/',
+         '/<\?php/i',
+         '/<\?=/',
+         '/<\?(\s|\n)/',
+         '/<+\s*script.*script\s*>/is',
+         '/<+\s*script[^<>]*>?/is',
+         '/<+\s*script[^<>]*</is',
+         '/jav.+?script\s*:\s*(.+?)(\n|;|$)/i'
+        ],[
+         '',
+         '',
+         '',
+         '',
+         '',
+         '',
+         '<',
+         '$1 '
+        ], $value);
+        $value = strtr($tmp, ['"'=>'&#34;', "'"=>'&#39;', '`'=>'&#96;']);
+    }
+    else {
+        array_walk($value, $descript);
+    }
+};
+array_walk($_SERVER, $descript);
+
 $dirpath = __DIR__.DIRECTORY_SEPARATOR;
 if (class_exists('CMSMS\AppState', false)) {
     $installing = AppState::test(AppState::INSTALL);
@@ -112,13 +150,19 @@ switch (basename($includer, '.php')) {
 
 require_once $dirpath.'page.functions.php'; // system-dependent methods
 register_shutdown_function('CMSMS\run_shutters');
-add_shutdown(500, 'CSMS\dbshutdown');
 
-$db = new Connection($config);
-Lone::insert('Db', $db);
-require_once $dirpath.'compat.functions.php'; // old function- and/or class-aliases
-//deprecated since 3.0 (at most): make old stuff available
-require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'Database'.DIRECTORY_SEPARATOR.'class.compatibility.php';
+if (!isset($DONT_LOAD_DB)) { // TODO deprecate this global ?
+    add_shutdown(500, 'CSMS\dbshutdown');
+
+    $db = new Connection($config);
+    Lone::insert('Db', $db);
+    require_once $dirpath.'compat.functions.php'; // old function- and/or class-aliases
+    //deprecated since 3.0 (at most): make old stuff available
+    require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'Database'.DIRECTORY_SEPARATOR.'class.compatibility.php';
+} else {
+    Lone::insert('Db', null);
+}
+
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'library.Exception.php'; // bundle of exception-classes in 1 file, not auto-loadable
 
 $params = RequestParameters::get_request_values(
@@ -133,6 +177,9 @@ if ($params[CMS_JOB_KEY] !== null) {
 } elseif ($params['showtemplate'] == 'false' || $params['suppressoutput'] !== null) {
     // undocumented, deprecated, output-suppressors
     $CMS_JOB_TYPE = 1;
+} elseif (isset($DONT_LOAD_SMARTY)) {
+    // deprecated since 3.0 Smarty-suppressor
+    $CMS_JOB_TYPE = 2;
 } else {
     // normal output
     $CMS_JOB_TYPE = 0;

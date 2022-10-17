@@ -2,7 +2,7 @@
 /*
 FileManager module utilities class
 Copyright (C) 2006-2018 Morten Poulsen <morten@poulsen.org>
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -35,7 +35,7 @@ use const CMSSAN_PATH;
 use function cms_join_path;
 use function cms_relative_path;
 use function CMSMS\sanitizeVal;
-use function endswith;
+//use function endswith;
 use function startswith;
 
 final class Utils
@@ -54,8 +54,7 @@ final class Utils
         if( $tmp !== $filename ) return FALSE;
         if( ($p = strpos($filename,'..')) !== FALSE && (($c = $filename[$p+2]) == '/' || $c == '\\') ) return FALSE;
         $cset = FolderControlOperations::get_profile_for(dirname($filename));
-        if( !FolderControlOperations::is_file_name_acceptable($cset, $filename) ) return FALSE;
-        return TRUE;
+        return FolderControlOperations::is_file_name_acceptable($cset, $filename);
     }
 
     /**
@@ -75,7 +74,7 @@ final class Utils
 
         $name = basename($filename);
         if( $name === '' ) return FALSE;
-        // no browser-executable files
+        // no browser-executable files TODO not a name-specific check
         $helper = new FileTypeHelper();
         if( $helper->is_executable($name) ) return FALSE;
         return TRUE;
@@ -217,7 +216,9 @@ final class Utils
 
     public static function is_image_file($file)
     {
-        // it'd be nice to check mime type here.
+        $helper = new FileTypeHelper();
+        return $helper->is_image($file);
+/*      // it'd be nice to check mime type here.
         $ext = substr(strrchr($file, '.'), 1);
         if (!$ext) {
             return false;
@@ -228,17 +229,21 @@ final class Utils
             return true;
         }
         return false;
+*/
     }
 
     public static function is_archive_file($file)
     {
-        $tmp = ['.tar.gz', '.tar.bz2', '.zip', '.tgz'];
+        $helper = new FileTypeHelper();
+        return $helper->is_archive($file);
+/*      $tmp = ['.tar.gz', '.tar.bz2', '.zip', '.tgz'];
         foreach ($tmp as $t2) {
             if (endswith(strtolower($file), $t2)) {
                 return true;
             }
         }
         return false;
+*/
     }
 
     /**

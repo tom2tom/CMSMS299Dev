@@ -441,7 +441,7 @@ License GPL2+
                 var button = $(this),
                     icon = button.data('uiIcon') || 'ui-icon-circle-check',
                     label = button.val(),
-                    $btn = $('<button />');
+                    $btn = $('<button>');
                 if (!button.hasClass('noautobtn') || !button.hasClass('no-ui-btn')) {
                     if (button.is('[name*=apply]')) {
                         icon = button.data('uiIcon') || 'ui-icon-disk';

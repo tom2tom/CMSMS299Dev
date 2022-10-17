@@ -269,8 +269,8 @@ class NewsItemData
 //   'selecttext' => $this->Lang('select'),
     ]);
 
-    $s1 = addcslashes($this->Lang('confirm_delete'), "'");
-    $s2 = addcslashes($this->Lang('confirm_bulk'), "'");
+    $s1 = addcslashes($this->Lang('confirm_delete'), "'\n\r");
+    $s2 = addcslashes($this->Lang('confirm_bulk'), "'\n\r");
     $submit = lang('submit');
     $cancel = lang('cancel');
 

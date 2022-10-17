@@ -159,8 +159,8 @@ $jsm->queue_matchedfile('jquery.SSsort.js', 1);
 $jsm->queue_matchedfile('jquery.ContextMenu.js', 1);
 $out = $jsm->page_content();
 
-$s1 = addcslashes(_la('confirm_togglegroupactive'), "'");
-$s2 = addcslashes(_la('confirm_delete_group'), "'");
+$s1 = addcslashes(_la('confirm_togglegroupactive'), "'\n\r");
+$s2 = addcslashes(_la('confirm_delete_group'), "'\n\r");
 
 $out .= <<<EOS
 <script type="text/javascript">

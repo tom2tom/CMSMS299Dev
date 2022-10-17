@@ -684,9 +684,9 @@ add_page_headtext($js);
 $submit = _la('submit');
 $cancel = _la('cancel');
 $editortitle = _la('syntax_editor_deftheme');
-$nofile = addcslashes(_la('nofiles'), "'");
-$badfile = addcslashes(_la('errorwrongfile'), "'");
-$confirm = addcslashes(_la('siteprefs_confirm'), "'");
+$nofile = addcslashes(_la('nofiles'), "'\n\r");
+$badfile = addcslashes(_la('errorwrongfile'), "'\n\r");
+$confirm = addcslashes(_la('siteprefs_confirm'), "'\n\r");
 
 $out = <<<EOS
 <script type="text/javascript">

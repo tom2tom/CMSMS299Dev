@@ -55,7 +55,7 @@ switch($n) {
         break;
 }
 
-$s1 = addcslashes($this->Lang('error_unknown'), "'");
+$s1 = addcslashes($this->Lang('error_unknown'), "'\n\r");
 
 $js = <<<EOS
 $.datePicker.strings = {
@@ -218,7 +218,7 @@ if ($list) {
 
 EOS;
     if ($pprop) { // current user may create an article but not self-publish
-        $s2 = addcslashes(lang('ok'), "'");
+        $s2 = addcslashes(lang('ok'), "'\n\r");
         $js .= <<<EOS
   $('[name="{$id}apply"],[name="{$id}submit"]').on('click', function(ev) {
     var st = $('[name="{$id}status"]').val();

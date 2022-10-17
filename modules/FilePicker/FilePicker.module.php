@@ -385,7 +385,11 @@ EOS;
      */
     public function is_acceptable_filename($profile, $filepath, $type = 0)
     {
-        if( endswith($filepath, 'index.html') || endswith($filepath, 'index.php') ) {
+        $nm = basename($filepath);
+        if( strcasecmp($nm, 'index.html') == 0 || strcasecmp($nm, 'index.php') == 0 ) {
+            return false;
+        }
+        if( $nm == '.htaccess' || strcasecmp($nm, 'web.config') == 0 ) {
             return false;
         }
         if( $type ) {

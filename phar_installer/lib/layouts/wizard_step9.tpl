@@ -17,7 +17,7 @@
 <a href="https://www.facebook.com/cmsmadesimple" target="_blank"><i class="icon-facebook"></i> Facebook</a><br>
 <a href="https://www.linkedin.com/groups/1139537" target="_blank"><i class="icon-linkedin"></i> LinkedIn</a><br>
 <a href="https://twitter.com/#!/cmsms" target="_blank"><i class="icon-twitter"></i> Twitter</a>
-</p><br>{$msg='support_payments'|tr}
-{['finished_all_msg2','<a href="https://www.cmsmadesimple.org/donations" target="_blank">'|cat:$msg|cat:'</a>']|tr}
+</p><br>{$link="<a href=\"https://cms-made-simple-foundation.raisely.com\" target=\"_blank\">{'support_payments'|tr}</a>"}
+{['finished_all_msg2',$link]|tr}
 </div>
 {/block}

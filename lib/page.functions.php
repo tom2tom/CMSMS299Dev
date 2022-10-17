@@ -137,6 +137,8 @@ function setup_session(bool $cachable = false)
 		@ini_set('session.use_trans_sid', 0);
 	}
 	// see also SignedCookieOperations::set_cookie()
+	//NOTE: never trust $_SERVER['HTTP_*'] variables which contain IP address
+	//? maybe sanitize and/or whitelist-check
 	$domain = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
 	$p = strrpos(CMS_ROOT_URL, '/');
 	$path = substr(CMS_ROOT_URL, $p); //OR the bit after $domain ?
@@ -423,6 +425,7 @@ function redirect(string $to)
 	//TODO generally support the websocket protocol 'wss' : 'ws'
 	$schema = (is_secure_request()) ? 'https' : 'http';
 
+	//NOTE: never trust $_SERVER['HTTP_*'] variables which contain IP address
 	$host = $_SERVER['HTTP_HOST'];
 	$components = parse_url($to);
 	if ($components) {
@@ -1053,12 +1056,21 @@ function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
 		$s = execSpecialize($p);
 		if ($s != $p) {
 			//TODO report error or throw new Exception(lang(''))
+			audit('', 'Upload rejection', 'Mal image: '.$destination);
 			return false;
 		}
 	}
-	// do not accept browser-executable files
+	// reject browser-executable files
 	if ($helper->is_executable($cleaned)) {
 		//TODO report|log error or throw new Exception(lang(''))
+		audit('', 'Upload rejection', 'Executable: '.$destination);
+		return false;
+	}
+	// reject access-control files
+	$s = basename($destination);
+	if ($s == '.htaccess' || strcasecmp($s, 'web.config') ) { // NOTE IIS aliases some e.g. WEB>>
+		//TODO report|log error or throw new Exception(lang(''))
+		audit('', 'Upload rejection', 'Controller: '.$destination);
 		return false;
 	}
 
@@ -1070,9 +1082,8 @@ function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
 			$destination = $cleaned;
 		}
 		return @chmod($destination, octdec(Lone::get('Config')['default_upload_permission']));
-	} else {
-		//TODO report error or throw new Exception(lang('TODO'))
 	}
+	//TODO report error or throw new Exception(lang('TODO'))
 	return false;
 }
 
@@ -2022,7 +2033,7 @@ function add_page_header($name, $value, bool $replace = false, bool $after = tru
 				}
 			}
 		} elseif ($after) {
-		   $HEADERS[] = [$key, $value[$i]];
+			$HEADERS[] = [$key, $value[$i]];
 		} else {
 			array_unshift($HEADERS, [$key, $value[$i]]);
 		}

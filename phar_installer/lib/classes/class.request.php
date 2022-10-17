@@ -120,10 +120,7 @@ final class request implements ArrayAccess
     #[\ReturnTypeWillChange]
     public function offsetGet($key)// : mixed
     {
-        if (isset($_REQUEST[$key])) {
-            return $_REQUEST[$key];
-        }
-        return null;
+        return $_REQUEST[$key] ?? null;
     }
 
     public function offsetSet($key, $value) : void

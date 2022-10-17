@@ -411,8 +411,8 @@ if ($do_locking) {
 }
 $lock_refresh = AppParams::get('lock_refresh', 120);
 $options_tab_name = ContentBase::TAB_OPTIONS;
-$s1 = addcslashes($this->Lang('msg_lostlock'), "'");
-$s2 = addcslashes($this->Lang('error_editpage_contenttype'), "'");
+$s1 = addcslashes($this->Lang('msg_lostlock'), "'\n\r");
+$s2 = addcslashes($this->Lang('error_editpage_contenttype'), "'\n\r");
 $close = $this->Lang('close');
 
 $jsm = new ScriptsMerger();
@@ -550,12 +550,10 @@ EOS;
     if (do_locking) {
       // unlock the item, and submit the form.
       var self = this;
-      var form = $(this).closest('form');
       ev.preventDefault();
       $('#Edit_Content').lockManager('unlock', 1).done(function() {
-        var el = $('<input type="hidden"QQ>');
-        el.attr('name', $(self).attr('name')).val($(self).val()).appendTo(form);
-        form.submit();
+        var el = $('<input type="hidden">').attr('name', $(self).attr('name')).val($(self).val());
+        $(self).closest('form').append(el).submit();
       });
     }
   });
@@ -574,11 +572,9 @@ EOS;
       // unlock the item, and submit the form
       var self = this;
       ev.preventDefault();
-      var form = $(this).closest('form');
       $('#Edit_Content').lockManager('unlock', 1).done(function() {
-        var el = $('<input type="hidden"QQ>');
-        el.attr('name', $(self).attr('name')).val($(self).val()).appendTo(form);
-        form.submit();
+        var el = $('<input type="hidden">').attr('name', $(self).attr('name')).val($(self).val());
+        $(self).closest('form').append(el).submit();
       });
     }
   });
@@ -627,7 +623,7 @@ EOS;
 EOS;
 /*
 if ($designchanged_ajax_url) {
-	$s1 = addcslashes($this->Lang('warn_notemplates_for_design'), "'");
+	$s1 = addcslashes($this->Lang('warn_notemplates_for_design'), "'\n\r");
 	$js .= <<<EOS
   $('#design_id').on('change', function(e, edata) {
     var v = $(this).val();

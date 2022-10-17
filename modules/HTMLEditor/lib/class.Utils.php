@@ -577,7 +577,7 @@ EOS;
         } else {
             $insacts = "'link', 'sitelink', 'mailto', 'siteimage', 'specialchars'";
         }
-        $s1 = addcslashes(_ld('HTMLEditor', 'inserts_btn_title'), "'");
+        $s1 = addcslashes(_ld('HTMLEditor', 'inserts_btn_title'), "'\n\r");
 
 //      $pref = ($local) ? '' : '-'; // plugin-name prefix
 // en/disable context.toolbar

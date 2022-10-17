@@ -119,7 +119,7 @@ class Route implements ArrayAccess
 	#[\ReturnTypeWillChange]
 	public function __get(string $key)// : mixed
 	{
-		return $this->_data[$key] ?? NULL;
+		return $this->_data[$key] ?? null;
 	}
 
 	/**

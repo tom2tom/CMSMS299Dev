@@ -48,7 +48,8 @@ class UploadHandler extends jquery_upload_handler
     }
 
     /**
-     * Minimal check whether the specified file is ok
+     * Minimal check whether the specified file is ok. Not just its 'type'.
+     * @see also FolderControlOperations::is_file_name_acceptable()
      * @param stdClass object $fileobject with properties ->name, size, type (at least)
      * @return boolean
      */
@@ -56,9 +57,19 @@ class UploadHandler extends jquery_upload_handler
     {
         //TODO $tmp = \CMSMS\sanitizeVal($file->name, CMSSAN_FILE) cleanup return false if invalid
         if (!Lone::get('Config')['developer_mode']) {
-            // do not accept browser-executable files
+            // reject browser-executable files
             $helper = new FileTypeHelper();
-          	if ($helper->is_executable($fileobject->name)) {
+            if ($helper->is_executable($fileobject->name)) {
+                return false;
+            }
+            // reject bodgy image files
+            if ($helper->is_image($fileobject->name)) {
+            // TODO get its content, check that & return false
+            // OR just in case: log_info('', 'FileManager', 'uploaded '.$fileobject->name);
+            }
+            // reject access-control files
+            $nm = basename($fileobject->name);
+            if ($nm == '.htaccess' || strcasecmp($nm, 'web.config') == 0) {
                 return false;
             }
         }
@@ -85,7 +96,7 @@ class UploadHandler extends jquery_upload_handler
             $thumb = null;
             $helper = new FileTypeHelper();
             if ($helper->is_image($fileobject->name)) {
-               //TODO sanitize content of image files c.f. cms_move_uploaded_file()
+               //TODO check content of image files c.f. cms_move_uploaded_file()
                 $mod = AppUtils::get_module('FileManager');
                 if ($mod->GetPreference('create_thumbnails')) {
                     $thumb = Utils::create_thumbnail($file, null, true);

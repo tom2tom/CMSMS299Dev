@@ -137,6 +137,8 @@ final class SystemCache
 			$parms['auto_cleaning'] = true;
 		}
 
+		//NOTE: never trust $_SERVER['HTTP_*'] variables which contain IP address
+		//? maybe sanitize and/or whitelist-check
 		$host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
 		$tmp = AppParams::getraw(['cache_file_blocking', 'cache_file_locking'],[0, 1]);
 		$settings = [
