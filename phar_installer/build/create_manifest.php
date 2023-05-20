@@ -48,6 +48,8 @@ $src_excludes = [
 '/index\.html?$/',
 '/config\.php$/',
 '/siteuuid\.dat$/',
+'/master\.dat$/',
+'/master\.ini$/',
 '/\.htccess$/',
 '/web\.config$/i',
 '/phar_installer/',
@@ -108,8 +110,8 @@ if ($_cli) {
     'to',
     ]);
     // parse config-file argument
-    $val = $opts['c'] ?? $opts['config'] ?? null;
-    if ($val !== null) {
+    $val = $opts['c'] ?? $opts['config'] ?? '';
+    if ($val) {
         $_configfile = $val;
     }
 }
@@ -439,6 +441,9 @@ if ($mode == 'd' || $mode == 'f') {
     $out = $obj->get_deleted_files();
     foreach ($out as $fn) {
         $file = $_fromdir.DIRECTORY_SEPARATOR.$fn;
+        if (is_dir($file)) {
+            continue;
+        }
         if ($mode == 'd') {
             $str = "DELETED :: $fn";
         } else {
@@ -470,6 +475,9 @@ if ($mode == 'n' || $mode == 'f') {
     $out = $obj->get_new_files();
     foreach ($out as $fn) {
         $file = $_todir.DIRECTORY_SEPARATOR.$fn;
+        if (is_dir($file)) {
+            continue;
+        }
         if ($mode == 'n') {
             $str = "ADDED :: $fn";
         } else {
@@ -524,11 +532,18 @@ if (defined('STDOUT') && $_outfile == STDOUT) {
     $file = '';
     if ($_to_ver) {
         $dir = __DIR__;
-        while ($dir != '.' && basename($dir) != 'phar_installer') {
+        $base = basename($dir);
+        //CMSMS2.2 uses foldername phar-installer, CMSMS2.99+ uses phar_installer
+        //and topmost reachable dirname is not '.' if there is any slash in the path
+        while ($dir != '.' && $dir != '/' && $base != 'phar_installer') {
             $dir = dirname($dir);
+            $base = basename($dir);
         }
-        if ($dir != '.') {
-            $file = joinpath($dir, 'lib', 'upgrade', $_to_ver);
+        if ($dir !== '.' && $dir !== '/') {
+//2.99+
+           $file = joinpath($dir, 'lib', 'upgrade', $_to_ver);
+//2.2
+//          $file = joinpath($dir, 'app', 'upgrade', $_to_ver);
             if (is_dir($file)) {
                 if (!is_file($file.DIRECTORY_SEPARATOR.'changelog.txt')) {
                     touch($file.DIRECTORY_SEPARATOR.'changelog.txt');
@@ -538,7 +553,7 @@ if (defined('STDOUT') && $_outfile == STDOUT) {
                 touch($file.DIRECTORY_SEPARATOR.'changelog.txt');
                 $file .= DIRECTORY_SEPARATOR.$_outfile;
             } else {
-                fatal('Cannot create upgrade-version folder');
+                fatal('Cannot create upgrade-version folder ' . $file);
             }
         } else {
             fatal('Cannot find upgrade-version data');
@@ -892,9 +907,16 @@ function get_version(string $basedir) : array
         $A = $CMS_VERSION ?? '';
         $B = $CMS_VERSION_NAME ?? '';
         $C = $CMS_SCHEMA_VERSION ?? '';
+        if ($A) {
+            //prevent warning from re-definition of 3 consts in included 'to' version-file
+            $lvl = error_reporting();
+            error_reporting(0);
+        }
         include $file;
         $ret = [$CMS_VERSION, $CMS_VERSION_NAME];
         if ($A) {
+            error_reporting($lvl);
+            // reinstate the 'from' release values
             $CMS_VERSION = $A;
             $CMS_VERSION_NAME = $B;
             $CMS_SCHEMA_VERSION = $C;
@@ -1069,6 +1091,7 @@ class compare_dirs
             foreach ($out as $file) {
                 $skipped = false;
                 foreach ($this->_donotdelete as $nd) {
+                    //TODO skip / filter out dirs here ?
                     if (startswith($file, $nd)) {
                         // skip this file at this stage
                         $skipped = true;

@@ -30,8 +30,13 @@ use CMSMS\Utils as AppUtils;
 use function CMSMS\de_specialize;
 use function CMSMS\specialize;
 
-//if (some worthy test fails) exit;
-
+if (empty($this) || !($this instanceof OutMailer)) exit;
+/*
+$Apw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY);
+$val0 = bin2hex(random_bytes(32));
+$val2 = base64_encode(Crypto::encrypt_string($val0, $vpw));
+$X = $CRASH;
+*/
 $pmod = $this->CheckPermission('Modify Site Preferences') ||
     $this->CheckPermission('Modify Mail Preferences');
 $pgates = false; // NOT YET IMPLEMENTED $pmod || $this->CheckPermission('Modify Email Gateways');
@@ -45,6 +50,7 @@ if (!empty($params['activetab'])) {
     $activetab = 'internal';
 }
 
+$pw = '';
 // names and types of OutMailer preferences
 $mailprefs = [
  'mailer' => 1,
@@ -52,13 +58,18 @@ $mailprefs = [
  'fromuser'  => 1,
  'host' => 1,
  'charset' => 1,
- 'password' => 4,
+ 'password' => 5,
  'port' => 2,
  'secure' => 1,
  'sendmail' => 1,
  'smtpauth' => 3,
  'timeout' => 2,
  'username' => 1,
+//OAuth-related extras for this mailer
+ 'oauthProvider' => 1,
+ 'oauthClientId' => 1,
+ 'oauthClientSecret' => 5,
+ 'oauthUserEmail' => 1, //same as from?
 /*/spool-related extras for this mailer
  'batchgap' => 2,
  'batchsize' => 2,
@@ -83,7 +94,13 @@ if (isset($params['apply'])/* || isset($params['sendtest'])*/) {
                         $val = (bool)$params[$key];
                         break;
                     case 4:
-                        $val = base64_encode(Crypto::encrypt_string(trim($params[$key]))); // no custom P/W
+                        $val = base64_encode(Crypto::encrypt_string(trim($params[$key]))); // default P/W
+                        break;
+                    case 5:
+                        if (empty($pw)) {
+                            $pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY);
+                        }
+                        $val = base64_encode(Crypto::encrypt_string(trim($params[$key]), $pw)); // custom P/W
                         break;
                     default:
                         $val = trim($params[$key]);
@@ -101,7 +118,6 @@ if (isset($params['apply'])/* || isset($params['sendtest'])*/) {
         }
     }
 
-    $pw = null;
     foreach ($mailprefs as $key => &$val) {
         if (isset($params[$key])) {
             switch ($val) {
@@ -112,7 +128,10 @@ if (isset($params['apply'])/* || isset($params['sendtest'])*/) {
                 $tmp = (bool)$params[$key];
                 break;
             case 4:
-                if ($pw === null) {
+                $tmp = base64_encode(Crypto::encrypt_string(trim($params[$key]))); //default P/W
+                break;
+            case 5:
+                if (empty($pw)) {
                     $pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY);
                 }
                 $tmp = base64_encode(Crypto::encrypt_string(trim($params[$key]), $pw));
@@ -125,11 +144,12 @@ if (isset($params['apply'])/* || isset($params['sendtest'])*/) {
         }
     }
     unset($val, $pw);
-    $pw = null;
+    $pw = null; // assist garbage collector
 }
 
 if (isset($params['sendtest'])) {
-    $messages = []; $errors = [];
+    $messages = [];
+    $errors = [];
     if ($params['testaddress'] == '') {
         $errors[] = $this->Lang('error_notestaddress');
     } else {
@@ -196,8 +216,8 @@ if ($pgates) {
             $current = $params['platform'] ?? reset($gatesnames); //TODO
         }
     } else {
-        $gatesnames = null;
-        $current = null;
+        $gatesnames = [];
+        $current = '';
     }
 //    $addurl1 = $this->CreateLink($id, 'opengate', '', '', ['gate_id' => -1], '', true);
     $addurl = FormUtils::create_action_link($this, [
@@ -300,10 +320,6 @@ foreach ($mailprefs as $key => &$val) {
 }
 unset($val);
 
-$pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY);
-$s2 = Crypto::decrypt_string(base64_decode($mailprefs['password']), $pw);
-$mailprefs['password'] = specialize($s2);
-
 if (empty($activetab)) { $activetab = 'internal'; }
 
 $mailers = [
@@ -325,6 +341,15 @@ $singl_opts = [
 ];
 $val = (int)$mailprefs['single'];
 $singl_opts[$val] += ['checked'=> true];
+
+if (empty($pw)) {
+    $pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY);
+}
+
+$val = (string)$mailprefs['password'];
+$smptpass = Crypto::decrypt_string(base64_decode($val), $pw);
+//$useit = specialize($smptpass); ?
+//ditto for other displayed strings?
 
 //$extras = []; //TODO all 'other' hidden items in each form
 
@@ -369,7 +394,7 @@ $tpl->assign([
  'title_username' => $this->Lang('username'),
  'value_username' => $mailprefs['username'],
  'title_password' => $this->Lang('password'),
- 'value_password' => $mailprefs['password'],
+ 'value_password' => $smptpass,
 /* if batching is supported ...
  'title_batchgap' => $this->Lang('batchgap'),
  'opts_batchgap' => [
@@ -387,6 +412,46 @@ $tpl->assign([
  'opts_single' => $singl_opts,
  'title_testaddress' => $this->Lang('testaddress'),
 ]);
+
+//TODO perm(s) for changing oauth settings
+//TODO relevance of email setting for oauth
+$provider1 = (string)$mailprefs['oauthProvider'];
+//TODO get & assign actual supported identity providers
+if (in_array($provider1, [
+    '',
+    'fb',
+    'ghub',
+    'ggl',
+    'insta',
+    'in'
+])) {
+    $provider2 = '';
+} else {
+    $provider2 = $provider1;
+    $provider1 = 'custom';
+}
+$val = (string)$mailprefs['oauthClientSecret'];
+$secret = Crypto::decrypt_string(base64_decode($val), $pw);
+
+$tpl->assign('opts_provider', [
+    '' => $this->Lang('na'),
+    'fb' => 'Facebook',
+    'ghub' => 'Github',
+    'ggl' => 'Google',
+    'insta' => 'Instagram',
+    'in' => 'LinkedIn',
+    'custom' => $this->Lang('other'),
+])
+ ->assign('title_provider', $this->Lang('lbl_provider'))
+ ->assign('value_provider', $provider1)
+ ->assign('title_otherprovider', $this->Lang('lbl_otherprovider'))
+ ->assign('value_otherprovider', $provider2)
+ ->assign('title_oclient', $this->Lang('lbl_client'))
+ ->assign('value_oclient', (string)$mailprefs['oauthClientId'])
+ ->assign('title_osecret', $this->Lang('lbl_secret'))
+ ->assign('value_osecret', $secret)
+ ->assign('title_oemail', $this->Lang('lbl_email'))
+ ->assign('value_oemail', (string)$mailprefs['oauthUserEmail']);
 
 if ($pgates) {
     $tpl->assign([

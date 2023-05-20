@@ -24,6 +24,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\FolderControlOperations;
 use FilePicker\PathAssistant;
 use FilePicker\Utils;
+use function CMSMS\sendhostheaders;
 
 //if (some worthy test fails) exit;
 
@@ -132,8 +133,10 @@ catch (Throwable $t) {
     $handlers = ob_list_handlers();
     for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
-    $proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0';
+    $proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1';
     header($proto . ' 500 Internal Server Error');
+    sendhostheaders();
+    header('Status: 500 Internal Server Error');
     header('Content-type: text/plain');
     echo $t->getMessage() . "\n";
 }

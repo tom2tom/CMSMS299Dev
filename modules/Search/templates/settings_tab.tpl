@@ -2,7 +2,7 @@
 <div class="pageoverflow postgap">
   {$t=$prompt_stopwords}<label class="pagetext" for="stops">{$t}:</label>
   {cms_help 0=$_module key='help_stopwords' title=$t}
-  <p class="pageinput" id="stops">{$input_stopwords|html_entity_decode}</p>
+  <p class="pageinput" id="stops">{html_entity_decode($input_stopwords)}</p>{*TODO why decode for display?*}
 </div>
 <div class="pageoverflow postgap">
   {$t=$prompt_resetstopwords}<label class="pagetext" for="resets">{$t}:</label>

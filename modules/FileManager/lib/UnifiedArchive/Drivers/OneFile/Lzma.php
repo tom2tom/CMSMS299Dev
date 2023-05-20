@@ -2,46 +2,26 @@
 namespace wapmorgan\UnifiedArchive\Drivers\OneFile;
 
 use wapmorgan\UnifiedArchive\Formats;
-use wapmorgan\UnifiedArchive\Drivers\OneFile\OneFileDriver;
 
 /**
  * Class Lzma
  *
  * @package wapmorgan\UnifiedArchive\Formats
  * @requires ext-lzma2
+ * @link https://github.com/payden/php-xz
+ * @link https://github.com/codemasher/php-ext-xz
  */
 class Lzma extends OneFileDriver
 {
-    const FORMAT_SUFFIX =  'xz';
-
-    /**
-     * @return array
-     */
-    public static function getSupportedFormats()
-    {
-        return [
-            Formats::LZMA,
-        ];
-    }
-
-    /**
-     * @param $format
-     * @return bool
-     */
-    public static function checkFormatSupport($format)
-    {
-        switch ($format) {
-            case Formats::LZMA:
-                return extension_loaded('xz');
-        }
-    }
+    const EXTENSION_NAME = 'xz';
+    const FORMAT = Formats::LZMA;
 
     /**
      * @inheritDoc
      */
     public static function getDescription()
     {
-        return 'adapter for ext-xz';
+        return 'adapter for ext-xz'.(static::isInstalled() ? ' ('.phpversion(static::EXTENSION_NAME).')' : null);
     }
 
     /**
@@ -49,9 +29,7 @@ class Lzma extends OneFileDriver
      */
     public static function getInstallationInstruction()
     {
-        return !extension_loaded('xz')
-            ? 'install `xz` extension'
-            : null;
+        return 'install [' . static::EXTENSION_NAME . '] extension' . "\n" . 'For 5.x: https://github.com/payden/php-xz' . "\n" . 'For 7.x/8.x: https://github.com/codemasher/php-ext-xz';
     }
 
     /**
@@ -59,7 +37,7 @@ class Lzma extends OneFileDriver
      */
     public function __construct($archiveFileName, $format, $password = null)
     {
-        parent::__construct($archiveFileName, $password);
+        parent::__construct($archiveFileName, $format, $password);
         $this->modificationTime = filemtime($this->fileName);
     }
 
@@ -90,10 +68,6 @@ class Lzma extends OneFileDriver
      */
     protected static function compressData($data, $compressionLevel)
     {
-        $fp = xzopen('php://temp', 'w');
-        xzwrite($fp, $data);
-        $data = stream_get_contents($fp);
-        xzclose($fp);
-        return $data;
+        return xzencode($data);
     }
 }

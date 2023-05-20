@@ -49,7 +49,7 @@ $items = Utils::get_categories($id, $params, $returnid);
 specialize_array($items);
 
 // display template
-$tpl = $smarty->createTemplate($this->GetTemplateResource($tplname)); //,null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($tplname)); //, '', '', $smarty);
 $tpl->assign('cats', $items)
  ->assign('count', count($items))
  ->display();

@@ -33,7 +33,7 @@ use CMSMS\Lone;
  * @since 3.0 non-final status is deprecated
  * @license GPL
  */
-/*final*/ class User
+/*final */class User
 {
 	/**
 	 * @var int $id User id
@@ -41,12 +41,19 @@ use CMSMS\Lone;
 	public $id;
 
 	/**
-	 * @var string Username / login / account
+	 * @var string $account Username hash
+	 * @since 3.0
+	 */
+	public $account;
+
+	/**
+	 * @var string $username Username / login / account
+	 * @since 3.0 plaintext here but stored encrypted
 	 */
 	public $username;
 
 	/**
-	 * @var string $password Password password_hash()'d
+	 * @var string $password Password hash
 	 */
 	public $password;
 
@@ -74,6 +81,7 @@ use CMSMS\Lone;
 
 	/**
 	 * @var string $email User's email address, if any
+	 * @since 3.0 plaintext here but stored encrypted
 	 */
 	public $email;
 
@@ -104,6 +112,7 @@ use CMSMS\Lone;
 	public function SetInitialValues()
 	{
 		$this->id = 0;
+		$this->account = '';
 		$this->username = '';
 		$this->password = '';
 		$this->newpass = false;

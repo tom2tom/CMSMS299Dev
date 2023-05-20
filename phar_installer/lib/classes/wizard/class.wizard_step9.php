@@ -10,8 +10,10 @@ use CMSMS\Lone;
 use Exception;
 use Throwable;
 use const CMS_DB_PREFIX;
+use const CMS_ROOT_PATH;
 use const CMS_VERSION;
 use const CONFIG_FILE_LOCATION;
+use const TMP_CACHE_LOCATION;
 use function cms_installer\endswith;
 use function cms_installer\get_app;
 use function cms_installer\get_server_permissions;
@@ -191,7 +193,7 @@ class wizard_step9 extends wizard_step
         }
 
         // tmp folder
-        $fp = dirname(CONFIG_FILE_LOCATION).DIRECTORY_SEPARATOR. $tofn;
+        $fp = dirname(TMP_CACHE_LOCATION).DIRECTORY_SEPARATOR. $tofn;
         if ($upgrade && is_file($fp)) {
             @chmod($fp, $perms[1]); // ensure writable
         }
@@ -234,6 +236,14 @@ class wizard_step9 extends wizard_step
         $sp = joinpath($destdir, 'lib', 'security', $fromfn);
         copy($sp, $fp);
         @chmod($fp, $filemode);
+        // modules folder
+        $bp = $destdir.DIRECTORY_SEPARATOR.'modules';
+        $fp = $bp.DIRECTORY_SEPARATOR.$tofn;
+        if ($upgrade && is_file($fp)) {
+            @chmod($fp, $perms[1]);
+        }
+        copy($sp, $fp);
+        @chmod($fp, $filemode);
         // topmost lib folder
         $fp = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.$tofn;
         if ($upgrade && is_file($fp)) {
@@ -267,7 +277,7 @@ class wizard_step9 extends wizard_step
         $sp = joinpath($destdir, 'lib', 'security', $fromfn);
         copy($sp, $fp);
         @chmod($fp, $filemode);
-        // TODO anywhere else ? modules ? any-name-assets ?
+        // TODO anywhere else ? modules (c.f. uploads must allow e.g. module-specific css,js) ? any-name-assets ?
     }
 
     /**

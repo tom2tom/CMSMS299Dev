@@ -185,7 +185,7 @@ try {
 		if ($props[$key]) {
 			// specialize e.g. munge malicious <[/]textarea> tags
 			$matches = [];
-			$props[$key] = preg_replace_callback('~<\s*(/?)\s*(textarea)\s*>~i', function($matches) use($key) {
+			$props[$key] = preg_replace_callback('~<\s*(/?)\s*(textarea)\s*>~i', function($matches) use ($key) {
 				switch ($key) {
 					case 'media_query':
 						return '';
@@ -212,7 +212,6 @@ try {
 		if ($lock_timeout > 0) {
 			$lock_refresh = AppParams::get('lock_refresh', 0);
 			try {
-				$lock = null;
 				$lock_id = LockOperations::is_locked('stylesheet', $props['id']);
 				if ($lock_id > 0) {
 					// it's locked... by somebody. Steal if expired TODO if stealable
@@ -244,16 +243,16 @@ try {
 		 * @param  string $status The status of returned response : error, success, warning, info
 		 * @param  string $message The message of returned response
 		 * @param  mixed $data A string or array of response data
-		 * @return string containing the JSON representation of provided response data
+		 * @return mixed false or not at all
 		 */
-		function GetJSONResponse($status, $message, $data = null)
+		function GetJSONResponse(string $status, string $message, $data = '')
 		{
 			if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
 
 				$handlers = ob_list_handlers();
-				for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
+				for ($n = count($handlers), $cnt = 0; $cnt < $n; ++$cnt) { ob_end_clean(); }
 
-				header('Content-type:application/json; charset=utf-8');
+				header('Content-type: application/json; charset=utf-8');
 
 				if ($data) {
 					$json = json_encode(['status' => $status, 'message' => $message, 'data' => $data]);

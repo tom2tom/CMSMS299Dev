@@ -214,11 +214,11 @@ abstract class Alert
     /**
      * Get the name of the preference that this alert will be stored as.
      *
-     * @param mixed string|null $name optional name for the alert.
+     * @param string $name optional name for the alert.
 	 *   If not specified the current alert name will be used.
      * @return string
      */
-    public function get_prefname($name = null)
+    public function get_prefname($name = '')
     {
         if( !$name ) $name = $this->name;
         return self::get_fixed_prefname($name);

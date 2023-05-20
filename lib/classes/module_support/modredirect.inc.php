@@ -23,7 +23,7 @@ namespace CMSMS\module_support;
 
 use CMSMS\Lone;
 use CMSMS\RequestParameters;
-use const CMS_ROOT_URL;
+//use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
 use function CMSMS\urlencode;
@@ -101,7 +101,8 @@ function Redirect($mod, $id, $action, $returnid = '', array $params = [], bool $
 		}
 	}
 	else {
-		$text = CMS_ROOT_URL.'/lib/moduleinterface.php?';
+        $config = Lone::get('Config');
+		$text = $config['admin_url'].'/moduleinterface.php?'; //NOT /lib/... TODO variable admin name
 	}
 
 	$name = $mod->GetName();

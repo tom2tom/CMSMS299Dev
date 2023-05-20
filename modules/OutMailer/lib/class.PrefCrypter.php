@@ -33,7 +33,7 @@ class PrefCrypter
     /**
      * Get a unique module-specific constant string
      * This must be site- and database-independent, and not accessible
-	 * externally or displayed as a class-constant in debugger dumps etc
+     * externally or displayed as a class-constant in debugger dumps etc
      * @ignore
      *
      * @return string 20+ bytes

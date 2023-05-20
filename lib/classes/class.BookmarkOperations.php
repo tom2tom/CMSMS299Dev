@@ -87,18 +87,19 @@ final class BookmarkOperations
 	}
 
 	/**
-	 * Get a list of all bookmarks for a given user
+	 * Get all bookmarks for the specified user
 	 *
 	 * @param int $user_id The desired user id.
-	 * @return array An array of Bookmark objects
+	 * @return array An array of Bookmark objects, or maybe empty
 	 */
 	public function LoadBookmarks(int $user_id) : array
 	{
+		$result = [];
 		$db = Lone::get('Db');
-		$query = 'SELECT bookmark_id, user_id, title, url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE user_id = ? ORDER BY title';
+
+        $query = 'SELECT bookmark_id, user_id, title, url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE user_id = ? ORDER BY title';
 		$rs = $db->execute($query, [$user_id]);
 
-		$result = [];
 		while ($rs && ($row = $rs->FetchRow())) {
 			$onemark = new Bookmark();
 			$onemark->bookmark_id = $row['bookmark_id'];
@@ -113,15 +114,15 @@ final class BookmarkOperations
 	}
 
 	/**
-	 * Load a bookmark by bookmark_id.
-	 *
-	 * @param int $id bookmark_id to load
-	 * @return mixed Bookmark | null
+	 * Load a specified bookmark.
 	 * @since 0.6.1
+	 *
+	 * @param int $id bookmark enumerator
+	 * @return mixed Bookmark | null
 	 */
-	public function LoadBookmarkByID(int $id)
+	public function LoadBookmarkByID(int $id) : ?Bookmark
 	{
-		$result = null;
+		$result = null; // no object
 		$db = Lone::get('Db');
 
 		$query = 'SELECT bookmark_id, user_id, title, url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE bookmark_id = ?';
@@ -144,7 +145,7 @@ final class BookmarkOperations
 	 * Save a new bookmark in the database.
 	 *
 	 * @param Bookmark $bookmark Bookmark object to save
-	 * @return int The new bookmark_id.  If it fails, it returns -1.
+	 * @return int The new bookmark_id, or -1 on failure
 	 */
 	public function InsertBookmark(Bookmark $bookmark) : int
 	{

@@ -67,7 +67,7 @@ class Smarty_Resource_module_db_tpl extends Smarty_Resource_Custom
                 return;
             }
             $db = Lone::get('Db');
-            $stmt = $db->prepare('SELECT content,COALESCE(modified_date,create_date,\'2000-1-1 00:00:01\') AS modified FROM '.CMS_DB_PREFIX.'layout_templates WHERE originator=? AND name=?');
+            $stmt = $db->prepare('SELECT content,COALESCE(modified_date,create_date,\'2000-1-1 00:00:01\') AS modified FROM '.CMS_DB_PREFIX.'layout_templates WHERE originator=? AND `name`=?');
             $rst = $db->execute($stmt,$parts);
             if( !$rst || $rst->EOF() ) {
                 if( $rst ) $rst->Close();

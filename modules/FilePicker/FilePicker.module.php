@@ -26,6 +26,7 @@ use CMSMS\CapabilityType;
 use CMSMS\FileType;
 use CMSMS\FileTypeHelper;
 use CMSMS\FolderControlOperations;
+use CMSMS\FolderControls;
 use CMSMS\IFilePicker;
 use CMSMS\Lone;
 use FilePicker\Utils;
@@ -156,7 +157,7 @@ EOS;
      * @param string $dirpath Optional filesystem path, absolute or relative
      * @return array, possibly empty
      */
-    public function GetFileList($dirpath = '')
+    public function GetFileList(string $dirpath = '') : array
     {
         return Utils::get_file_list($this, null, $dirpath);
     }
@@ -169,7 +170,7 @@ EOS;
      * @param mixed $uid Optional user-identifier
      * @return FolderControls object
      */
-    public function get_profile_or_default($profile_name, $dirpath = null, $uid = null)
+    public function get_profile_or_default($profile_name, string $dirpath = '', int $uid = 0) : FolderControls
     {
         return FolderControlOperations::get_profile($profile_name, $dirpath, (int)$uid);
     }
@@ -180,7 +181,7 @@ EOS;
      * @param mixed $uid Optional user id Default null hence current user
      * @return FolderControls object
      */
-    public function get_default_profile( $dirpath = null, $uid = null )
+    public function get_default_profile($dirpath = '', $uid = 0) : FolderControls
     {
         return FolderControlOperations::get_profile_for($dirpath, (int)$uid);
     }
@@ -189,7 +190,7 @@ EOS;
      * Generate the URL which initiates this module's filepicker action
      * @return string (formatted for js use)
      */
-    public function get_browser_url()
+    public function get_browser_url() : string
     {
         return $this->create_action_url('', 'filepicker', ['forjs'=>1, CMS_JOB_KEY=>1]);
     }
@@ -209,7 +210,7 @@ EOS;
      * @param mixed $content_obj UNUSED The (possibly-unsaved) content object being edited.
      * @return string
      */
-    public function GetContentBlockFieldInput($blockName, $value, $params, $adding, $content_obj)
+    public function GetContentBlockFieldInput(/*string */$blockName, /*mixed */$value, /*array */$params, /*bool */$adding, $content_obj)// : string
     {
         if( !$blockName) return '';
 //      $uid = get_userid(false);
@@ -229,16 +230,16 @@ EOS;
      *
      * @staticvar boolean $first_time
      * @param string $name the name-attribute of the element
-     * @param string $value the initial value of the element
+     * @param mixed $value the initial value of the element May be '-1' or null or empty string
      * @param FolderControls $profile
-     * @param bool $required Optional flag, whether some choice must be entered, default false
+     * @param bool $required Optional flag, whether some choice must be entered. Default false
      * @return string
      */
-    public function get_html($name, $value, $profile, $required = false)
+    public function get_html(string $name, /*mixed */$value, FolderControls $profile, bool $required = false) : string
     {
         static $first_time = true;
 
-        if( $value === '-1' ) { $value = null; }
+        if( $value === null || $value === '-1' ) { $value = ''; }
 
         // store the profile as a 'useonce' and add its signature to the params on the url
         $inst = FolderControlOperations::store_cached($profile);

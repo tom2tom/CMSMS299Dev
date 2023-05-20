@@ -46,8 +46,15 @@ $move_directory_files = function($srcdir, $destdir) {
 
 //$gCms = cmsms();
 $dbdict = $db->NewDataDictionary();
-$taboptarray = ['mysql' => 'TYPE=MyISAM'];
-
+/*
+$str = $db->server_info;
+if (stripos($str, 'Maria') === false) {
+    $tblengn = 'MyISAM';
+} else {
+    $tblengn = 'Aria';
+}
+$taboptarray = ['mysqli' => "ENGINE=$tblengn"];
+*/
 $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.TemplateType::TABLENAME, 'help_content_cb C(255), one_only I1');
 $dbdict->ExecuteSQLArray($sqlarray);
 

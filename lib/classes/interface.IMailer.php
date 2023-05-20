@@ -34,30 +34,30 @@ interface IMailer
 
 	// PHPMailer class methods (some to be deprecated?)
 	public function GetAltBody();
-	public function SetAltBody($txt);
+	public function SetAltBody(string $txt);
 	public function GetBody();
-	public function SetBody($txt);
+	public function SetBody(string $txt);
 	public function GetCharSet();
 	public function SetCharSet($charset);
 	public function GetConfirmReadingTo();
-	public function SetConfirmReadingTo($email);
+	public function SetConfirmReadingTo(string $email);
 	public function GetEncoding();
-	public function SetEncoding($encoding);
+	public function SetEncoding(string $encoding);
 	public function GetErrorInfo();
 	public function GetFrom();
-	public function SetFrom($email);
+	public function SetFrom(string $email);
 	public function GetFromName();
-	public function SetFromName($name);
+	public function SetFromName(string $name);
 	public function GetHelo();
-	public function SetHelo($helo);
+	public function SetHelo(?string $helo);
 	public function GetHostname();
-	public function SetHostname($hostname);
+	public function SetHostname(string $hostname);
 	public function GetMailer();
-	public function SetMailer($mailer);
+	public function SetMailer(string $mailer);
 	public function GetPriority();
-	public function SetPriority($priority);
+	public function SetPriority(int $priority);
 	public function GetSender();
-	public function SetSender($sender);
+	public function SetSender(?string $sender);
 	public function GetSendmail();
 	public function SetSendmail($path);
 	public function GetWordWrap();
@@ -82,16 +82,16 @@ interface IMailer
 	public function GetSMTPSecure();
 	public function SetSMTPSecure($value);
 
-	public function AddAddress($address, $name = '');
+	public function AddAddress(string $address, string $name = '') : bool;
 	public function AddAttachment($path, $name = '', $encoding = 'base64', $type = 'application/octet-stream');
-	public function AddBCC($addr, $name = '');
-	public function AddCC($addr, $name = '');
-	public function AddCustomHeader($header);
+	public function AddBCC(string $addr, string $name = '') : bool;
+	public function AddCC(string $addr, string $name = '') : bool;
+	public function AddCustomHeader(string $header);
 	public function AddEmbeddedImage($path, $cid, $name = '', $encoding = 'base64', $type = 'application/octet-stream');
 	public function AddReplyTo($addr, $name = '');
 	public function AddStringAttachment($string, $filename, $encoding = 'base64', $type = 'application/octet-stream');
 	public function GetSubject();
-	public function SetSubject($subject);
+	public function SetSubject(string $subject);
 	public function ClearAddresses();
 	public function ClearAllRecipients();
 	public function ClearAttachments();
@@ -101,11 +101,22 @@ interface IMailer
 	public function ClearReplyTos();
 
 	public function IsError();
-	public function IsHTML($state = true);
+	public function IsHTML(bool $state = true) : void;
 	public function IsMail();
 	public function IsSendmail();
 	public function IsSMTP();
 	public function Send(); // TODO (int $batchsize = 0) // 3.0+
 	public function SetLanguage($lang_type);
 	public function SmtpClose();
+	// OutMailer (at least) Oauth2 methods TODO to be refined
+	public function getOAuth() : ?\OutMailer\IOAuthTokenProvider;
+	public function setOAuth(?\OutMailer\IOAuthTokenProvider $oauth);
+	public function getOAuthType() : ?string;
+	public function setOAuthType(?string $val);
+	public function GetOauthSender() : string;
+	public function SetOauthSender(string $email);
+	public function GetOauthClient() : string;
+	public function SetOauthClient(string $val);
+	public function GetOauthSecret() : string;
+	public function SetOauthSecret(string $val);
 }

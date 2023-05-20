@@ -111,6 +111,41 @@
     </div>
   </div>
   </fieldset>
+  <fieldset class="set_oauth"><legend>{_ld($_module,'oauth_legend')}</legend>
+  <div class="pageoverflow">
+    {$t=$title_provider}<label class="pagetext" for="oprovider">{$t}:</label>
+    {cms_help 0=$_module key='info_provider' title=$t}
+    <div class="pageinput">
+      <select id="oprovider" name="{$actionid}oauthprovider">
+      {html_options options=$opts_provider selected=$value_provider}      </select>
+    </div>
+    <label class="pagetext" for="cprovider">{$title_otherprovider}:</label><br>
+    <div class="pageinput">
+      <input type="text" id="cprovider" name="{$actionid}ouathprovider2" value="{$value_otherprovider}" size="24" maxlength="64">
+    </div>
+  </div>
+  <div class="pageoverflow">
+    {$t=$title_oclient}<label class="pagetext" for="oclient">{$t}:</label>
+    {cms_help 0=$_module key='info_client' title=$t}
+    <div class="pageinput">
+      <input type="text" id="oclient" name="{$actionid}ouathclient" value="{$value_oclient}" size="40" maxlength="64">
+    </div>
+  </div>
+  <div class="pageoverflow">
+    {$t=$title_osecret}<label class="pagetext" for="osecret">{$t}:</label>
+    {cms_help 0=$_module key='info_secret' title=$t}
+    <div class="pageinput">
+      <input type="text" id="osecret" class="cloaked" name="{$actionid}ouathsecret" value="{$value_osecret}" size="64" maxlength="128">
+    </div>
+  </div>
+  <div class="pageoverflow">
+    {$t=$title_oemail}<label class="pagetext" for="oemail">{$t}:</label>
+    {cms_help 0=$_module key='info_email' title=$t}
+    <div class="pageinput">
+      <input type="text" id="oemail" name="{$actionid}ouathemail" value="{$value_oemail}" size="40" maxlength="64">
+    </div>
+  </div>
+  </fieldset>
   </fieldset>
   <fieldset><legend>{_ld($_module,'specific_legend')}</legend>
   <input type="hidden" name="{$actionid}single" value="0">

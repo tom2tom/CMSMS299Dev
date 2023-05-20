@@ -61,12 +61,18 @@ class SimpleAlert extends Alert
     private $_msg;
 
     /**
-     * @param string[] $perms An array of permission names.  Or null.
+     *
+     * @param mixed $perms A single permission name, or array of such name(s)
      * @throws InvalidArgumentException
      */
-    public function __construct(/*array*/$perms = null)
+    public function __construct($perms)
     {
-        if( $perms && !is_array($perms) ) throw new InvalidArgumentException('perms must be an array of permission name strings');
+        if( $perms ) {
+            if( is_string($perms) ) $perms = [ $perms ];
+        }
+        if( !$perms || !is_array($perms) ) {
+            throw new InvalidArgumentException('SimpleAlert constructor argument must be permission-name string(s)');
+        }
         $this->_perms = $perms;
         parent::__construct();
     }

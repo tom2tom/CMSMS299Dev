@@ -1,2 +1,3 @@
+Options -Indexes
 RedirectMatch 403 \.htaccess
 RedirectMatch 403 (?i)\.phphp$

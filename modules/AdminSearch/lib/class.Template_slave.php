@@ -51,7 +51,7 @@ final class Template_slave extends Base_slave
         }
         $db = Lone::get('Db');
         // get all template ids
-        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' ORDER BY name';
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' ORDER BY `name`';
         $all_ids = $db->getCol($sql);
         $output = [];
         if ($all_ids) {

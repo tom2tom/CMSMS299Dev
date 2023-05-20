@@ -3,6 +3,7 @@
 \#*\#
 tmp/
 #.htaccess
+#web.config
 config.php
 index.html
 moduleinfo.ini

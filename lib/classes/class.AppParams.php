@@ -135,7 +135,7 @@ final class AppParams
 				$query .= '=?';
 				$dbr = $db->getRow($query,[$key]);
 				if( $dbr ) {
-					$value = end($dbr);
+					$value = (string)end($dbr);
 					if( strncmp($value,self::SERIAL,$l) == 0 ) {
 						$value = unserialize(substr($val,$l),['allowed_classes' => self::PREF_CLASSES]);
 					}
@@ -160,7 +160,7 @@ final class AppParams
 	{
 		$prefs = Lone::get('LoadedData')->get('site_params');
 		if( $like ) {
-			$arr = array_filter($prefs,function($name) use($key) {
+			$arr = array_filter($prefs,function($name) use ($key) {
 				return fnmatch($name,$key);
 			},ARRAY_FILTER_USE_KEY);
 			if( $arr ) {

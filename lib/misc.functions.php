@@ -462,7 +462,7 @@ function cms_ipmatches(string $ip, $checklist) : bool
 
             for ($i = 0; $i < 31; ++$i) {
                 if ($i < $regs[5] - 1) {
-                    $maskl = $maskl + pow(2, (30 - $i));
+                    $maskl = $maskl + 2 ** (30 - $i);
                 }
             }
 
@@ -520,8 +520,8 @@ function is_email($email, bool $checkDNS = false)
     if ($checkDNS && function_exists('checkdnsrr')) {
         list($user, $domain) = explode('@', $email, 2);
         if (!(checkdnsrr($domain, 'A') || checkdnsrr($domain, 'MX'))) {
-            return false;
-        } // Domain doesn't actually exist
+            return false; // Domain doesn't actually exist
+        }
     }
     return $email;
 }
@@ -1044,6 +1044,7 @@ function execSpecialize(string $val) : string
 
 /**
  * Create an almost-certainly-unique identifier.
+ * Not in DCE UUID format (no '-' etc)
  *
  * @since 3.0
  * @return string 32 random hexits
@@ -1072,13 +1073,23 @@ function is_secure_request() : bool
  * Sort array of strings which include, or may do so, non-ASCII-encoded char(s)
  * @param array $arr data to be sorted
  * @param bool $preserve Optional flag whether to preserve key-value associations during the sort Default false
+ * @param bool $cased Optional flag whether to do case-sensitive matching Default true
  * @since 3.0
  * @return sorted array
 */
-function utf8_sort(array $arr, bool $preserve = false) : array
+function utf8_sort(array $arr, bool $preserve = false, bool $cased = true) : array
 {
-    $enc = null; //TODO something relevant to site e.g. func($config), func(ini_get()), func(LOCALE), some Nls func
+    //TODO ensure non-UTF8 char(s) are migrated
+    //TODO an encoding relevant to site e.g. func($config), func(ini_get()), func(LOCALE),
+    // some Nls func e.g. NlsOperations::get_default_language();
+    // and the corresponding locale is available on the host system
+    $enc = 'root';
     $collator = new Collator($enc);
+    if ($cased) {
+        $collator->setStrength(Collator::TERTIARY);
+    } else {
+        $collator->setStrength(Collator::SECONDARY);
+    }
     if ($preserve) {
         $collator->asort($arr);
     } else {

@@ -41,7 +41,7 @@ function smarty_function_cms_html_options($params, $template)
 
 	$out = '';
 	if( $options ) {
-		$selected = null;
+		$selected = '';
 		if( isset($params['selected']) ) {
 			$selected = $params['selected'];
 			if( !is_array($selected) ) $selected = explode(',', $selected);

@@ -1,7 +1,7 @@
 <?php
 /*
 ModuleManager module function: populate search tab
-Copyright (C) 2011-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2011-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use ModuleManager\ModuleRepClient;
 use ModuleManager\Utils;
 
-$search_data = null;
+$search_data = [];
 $term = '';
 $advanced = false;
 // check for saved results (too bad if data are now crap of some sort!)
@@ -33,7 +33,7 @@ if( isset($_SESSION['modmgr_searchadv']) ) $advanced = (bool)$_SESSION['modmgr_s
 
 $clear_search = function() use (&$search_data) {
     unset($_SESSION['modmgr_search']);
-    $search_data = null;
+    $search_data = [];
 };
 
 // get the modules that are already installed
@@ -45,15 +45,15 @@ if( !$result[0] ) {
 }
 $instmodules = $result[1];
 
-if( isset($params['submit']) ) {
+if( isset($params['search']) ) {
 
-    $url = $this->GetPreference('module_repository');
+//  $url = $this->GetPreference('module_repository'); unused
     $error = 0;
     $advanced = (bool)$params['advanced']; // boolean for js
     $search_data = [];
 
     try {
-        $term = trim($params['term']);
+        $term = trim($params['term']); //TODO sanitizeval()
         if( strlen($term) < 3 ) throw new Exception($this->Lang('error_searchterm'));
 
         $res = ModuleRepClient::search($term,$advanced);
@@ -178,7 +178,7 @@ if( isset($params['submit']) ) {
         }
         $_SESSION['modmgr_search'] = serialize($search_data);
         $_SESSION['mogmgr_searchterm'] = $term;
-        $_SESSION['modmgr_searchadv'] = $params['advanced'];
+        $_SESSION['modmgr_searchadv'] = $advanced;
     }
     catch( Throwable $t ) {
         $clear_search();
@@ -192,7 +192,6 @@ $tpl->assign('search_data',$search_data)
 $basic = ($advanced) ? 'false' : 'true';
 $js = <<<EOS
 <script type="text/javascript">
-//<![CDATA[
 $(function() {
  if ($basic) {
   $('#advhelp').hide();
@@ -201,7 +200,6 @@ $(function() {
   $('#advhelp').toggle();
  });
 });
-//]]>
 </script>
 EOS;
 add_page_foottext($js);

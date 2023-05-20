@@ -24,6 +24,7 @@ use CMSMS\AdminAlerts\Alert;
 use CMSMS\Error403Exception;
 use function CMSMS\de_specialize;
 use function CMSMS\sanitizeVal;
+use function CMSMS\sendhostheaders;
 
 $dsep = DIRECTORY_SEPARATOR;
 require ".{$dsep}admininit.php";
@@ -48,10 +49,11 @@ try {
 }
 catch( Throwable $t ) {
     $handlers = ob_list_handlers();
-    for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
+    for ($n = count($handlers), $cnt = 0; $cnt < $n; ++$cnt) { ob_end_clean(); }
 
-    $protocol = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0';
+    $protocol = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1';
     header($protocol.' 500 Internal Server Error');
+    sendhostheaders();
     header('Status: 500 Server Error');
     header('Content-type: text/plain');
     echo $t->GetMessage()."\n";

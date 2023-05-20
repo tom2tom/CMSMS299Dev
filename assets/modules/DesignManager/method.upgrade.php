@@ -49,7 +49,7 @@ EOS;
 	$sqlarray = $dict->DropColumnSQL($tbl, 'dflt');
 	$dict->ExecuteSQLArray($sqlarray);
 	// migrate timestamps to datetime
-	$sqlarray = $dict->AddColumnSQL($tbl, 'create_date DT DEFAULT CURRENT_TIMESTAMP');
+	$sqlarray = $dict->AddColumnSQL($tbl, 'create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP');
 	$dict->ExecuteSQLArray($sqlarray);
 	$sqlarray = $dict->AddColumnSQL($tbl, 'modified_date DT ON UPDATE CURRENT_TIMESTAMP');
 	$dict->ExecuteSQLArray($sqlarray);

@@ -45,7 +45,7 @@
       <strong>{_ld($_module,'prompt_showinmenu')}:</strong> {if $row.showinmenu}{_ld($_module,'yes')}{else}{_ld($_module,'no')}{/if}<br>
       <strong>{_ld($_module,'wantschildren')}:</strong> {if $row.wantschildren|default:1}{_ld($_module,'yes')}{else}{_ld($_module,'no')}{/if}
       {/strip}{/capture}
-      <a href="{cms_action_url action='editcontent' content_id=$row.id}" class="page_edit tooltip" accesskey="e" data-cms-content='{$row.id}' data-cms-description='{$tooltip_pageinfo|cms_htmlentities}'>{$row.page|default:''}</a>
+      <a href="{cms_action_url action='editcontent' content_id=$row.id}" class="page_edit tooltip" accesskey="e" data-cms-content="{$row.id}" data-cms-description="{$tooltip_pageinfo|cms_escape:'htmlall'}">{$row.page|default:''}</a>
       {else}
         {if isset($row.lock)}
          {capture assign='tooltip_lockinfo'}{strip}
@@ -59,9 +59,9 @@
       {/if}
       <br>{/strip}{/capture}
          {if !$row.can_steal}
-          <span class="tooltip" data-cms-description='{$tooltip_lockinfo|htmlentities}'>{$row.page}</span>
+          <span class="tooltip" data-cms-description='{$tooltip_lockinfo|escape:'htmlall'}'>{$row.page}</span>
          {else}
-          <a href="{cms_action_url action='editcontent' content_id=$row.id}" class="page_edit tooltip steal_lock" accesskey="e" data-cms-content='{$row.id}' data-cms-description='{$tooltip_lockinfo|htmlentities}'>{$row.page}</a>
+          <a href="{cms_action_url action='editcontent' content_id=$row.id}" class="page_edit tooltip steal_lock" accesskey="e" data-cms-content="{$row.id}" data-cms-description="{$tooltip_lockinfo|escape:'htmlall'}">{$row.page}</a>
          {/if}
         {else}
          {$row.page}
@@ -99,8 +99,8 @@
         <strong>{_ld($_module,'prompt_lastmodifiedby')}:</strong> {$row.lastmodifiedby}<br>
         {/if}
       {/strip}{/capture}
-      <span class="tooltip" data-cms-description='{$tooltip_ownerinfo|htmlentities}'>{$row.owner}</span>
-    {elseif $column == 'active'}
+      <span class="tooltip" data-cms-description="{$tooltip_ownerinfo|escape:'htmlall'}">{$row.owner}</span>
+    {elseif $column == 'active'}{*TODO td style="text-align:center"*}
       {if $row.active == 'inactive'}
       <a href="{cms_action_url action='defaultadmin' setactive=$row.id}" class="page_setactive" accesskey="a">
         {admin_icon icon='false.gif' class='systemicon' title=_ld($_module,'prompt_page_setactive')}
@@ -110,7 +110,7 @@
         {admin_icon icon='true.gif' class='systemicon' title=_ld($_module,'prompt_page_setinactive')}
       </a>
       {/if}
-    {elseif $column == 'default'}
+    {elseif $column == 'default'}{*TODO td style="text-align:center"*}
        {if $row.default == 'yes'}
         {admin_icon icon='true.gif' class='systemicon page_default' title=_ld($_module,'prompt_page_default')}
        {else if $row.default == 'no' && $row.can_edit}
@@ -122,13 +122,13 @@
        <span style="display:none">{$row.created}</span>{$row.created|date_format:'Y-m-d H:i'}
     {elseif $column == 'modified'}
        <span style="display:none">{$row.lastmodified}</span>{$row.lastmodified|date_format:'Y-m-d H:i'}
-    {elseif $column == 'actions'}
+    {elseif $column == 'actions'}{*TODO td style="text-align:center"*}
     {$hide=empty($row.lock) || $row.lock == 1}{$t=_ld($_module,'locked_hard')}
       <span class="locked" data-id="{$row.id}" title="{$t}"{if $hide} style="display:none;"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
     {$hide=empty($row.lock) || $row.lock == -1}{$t=_ld($_module,'locked_steal')}{$url=sprintf($stealurl,$row.id)}
       <a href="{$url}" class="steal_lock" data-id="{$row.id}" title="{$t}" accesskey="e"{if $hide} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
       <span context-menu="Page{$row.id}" style="cursor:pointer;">{admin_icon icon='menu.gif' alt='menu' title=_ld($_module,'title_menu') class='systemicon'}</span>
-    {elseif $column == 'multiselect'}
+    {elseif $column == 'multiselect'}{*TODO td style="text-align:center"*}
       {if $row.multiselect}
       <label class="invisible" for="cb{$row.id}">{_ld($_module,'prompt_multiselect_toggle')}</label>
       <input type="checkbox" id="cb{$row.id}" name="{$actionid}bulk_content[]" title="{_ld($_module,'prompt_multiselect_toggle')}" value="{$row.id}">
@@ -158,11 +158,11 @@
     {if !empty($have_filter)}<span style="color: red;"><em>({_ld($_module,'filter_applied')})</em></span>{/if}
   </div>{*boxchild*}
   <div class="boxchild">
-    {if $dir == 'rtl'}
+    {if $lang_dir == 'rtl'}
     {admin_icon icon='icons/extra/search' alt="{_ld('layout','search')}" addtext='style=position:relative;left:1.8em'}
     {/if}
     <input type="text" id="ajax_find" title="{_ld($_module,'title_listcontent_find')}" size="10" maxlength="15" value="{$pattern}" placeholder="{_ld('layout','search')}">
-    {if $dir != 'rtl'}
+    {if $lang_dir != 'rtl'}
     {admin_icon icon='icons/extra/search' alt="{_ld('layout','search')}" addtext='style=position:relative;left:-1.8em'}
     {/if}
   </div>{*boxchild*}

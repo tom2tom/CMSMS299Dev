@@ -25,7 +25,7 @@ use CMSMS\Lone;
 
 function smarty_function_admin_icon($params, $template)
 {
-	$icon = null;
+	$icon = '';
 
 	if( AppState::test(AppState::ADMIN_PAGE) ) {
 		$tagparms = ['class'=>'systemicon'];
@@ -33,7 +33,7 @@ function smarty_function_admin_icon($params, $template)
 			switch( $key ) {
 			case 'icon':
 			case 'module':
-				$icon = trim($value);
+				$icon = trim((string)$value);
 				break;
 			case 'width':
 			case 'height':
@@ -44,11 +44,11 @@ function smarty_function_admin_icon($params, $template)
 			case 'name':
 			case 'title':
 			case 'accesskey':
-				$tagparms[$key] = trim($value, " '\"");
+				$tagparms[$key] = trim((string)$value, " '\"");
 				break;
 			case 'addtext':
 				//parse 'A=B C=D ...'
-				$s = trim($value, " \t'\"");
+				$s = trim((string)$value, " \t'\"");
 				$matches = [];
 				preg_match_all('/([\w\-]+)\s*?=\s*?(".*?"|\'.*?\'|[^ ]+?(\s|$))/', $s, $matches, PREG_SET_ORDER);
 				if( $matches ) {

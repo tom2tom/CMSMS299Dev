@@ -241,16 +241,16 @@ class Design
 	 */
 	public function add_stylesheet($css)
 	{
-		$css_t = null;
+		$css_t = 0;
 		if( $css instanceof Stylesheet ) {
 			$css_t = $css->get_id();
 		}
 		elseif( is_numeric($css) && $css > 0 ) {
-			$css_t = (int) $css;
+			$css_t = (int)$css;
 		}
 		if( $css_t < 1 ) throw new LogicException('Invalid css id provided to '.__METHOD__);
 
-		if( !in_array($css_t,$this->css_members) ) {
+		if( !in_array($css_t, $this->css_members) ) {
 			$this->css_members[] = (int)$css_t;
 			$this->dirty = TRUE;
 		}
@@ -264,16 +264,16 @@ class Design
 	 */
 	public function delete_stylesheet($css)
 	{
-		$css_t = null;
+		$css_t = 0;
 		if( $css instanceof Stylesheet ) {
 			$css_t = $css->id;
 		}
 		elseif( is_numeric($css) ) {
-			$css_t = (int) $css;
+			$css_t = (int)$css;
 		}
 		if( $css_t < 1 ) throw new LogicException('Invalid css id provided to '.__METHOD__);
 
-		if( !in_array($css_t,$this->css_members) ) return;
+		if( !in_array($css_t, $this->css_members) ) return;
 		$t = [];
 		foreach( $this->css_members as $one ) {
 			if( $css_t != $one ) {
@@ -336,12 +336,12 @@ class Design
 	 */
 	public function add_template($tpl)
 	{
-		$tpl_id = null;
+		$tpl_id = 0;
 		if( $tpl instanceof Template ) {
 			$tpl_id = $tpl->get_id();
 		}
 		elseif( is_numeric($tpl) ) {
-			$tpl_id = (int) $tpl;
+			$tpl_id = (int)$tpl;
 		}
 		if( $tpl_id < 1 ) throw new LogicException('Invalid template id specified to '.__METHOD__);
 
@@ -358,16 +358,16 @@ class Design
 	 */
 	public function delete_template($tpl)
 	{
-		$tpl_id = null;
+		$tpl_id = 0;
 		if( $tpl instanceof Template ) {
 			$tpl_id = $tpl->get_id();
 		}
 		elseif( is_numeric($tpl) ) {
-			$tpl_id = (int) $tpl;
+			$tpl_id = (int)$tpl;
 		}
-		if( $tpl_id <= 0 ) throw new LogicException('Invalid template id specified to '.__METHOD__);
+		if( $tpl_id < 1 ) throw new LogicException('Invalid template id specified to '.__METHOD__);
 
-		if( !in_array($tpl_id,$this->tpl_members) ) return;
+		if( !in_array($tpl_id, $this->tpl_members) ) return;
 		$t = [];
 		foreach( $this->tpl_members as $one ) {
 			if( $tpl_id != $one ) {
@@ -399,13 +399,12 @@ class Design
 		}
 
 		$db = Lone::get('Db');
-		$tmp = null;
 		if( $this->get_id() ) {
-			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
+			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE `name` = ? AND id != ?';
 			$tmp = $db->getOne($query,[$this->get_name(),$this->get_id()]);
 		}
 		else {
-			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
+			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE `name` = ?';
 			$tmp = $db->getOne($query,[$this->get_name()]);
 		}
 		if( $tmp ) {
@@ -425,7 +424,7 @@ class Design
 		$db = Lone::get('Db');
 		//TODO DT fields for created, modified
 		// ,dflt,created,modified
-		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description) VALUES (?,?)'; //,?,?,?
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (`name`,description) VALUES (?,?)'; //,?,?,?
 //		$now = time();
 		$dbr = $db->execute($query,[$this->get_name(),$this->get_description()]); //,($this->get_default())?1:0, $now, $now
 		if( !$dbr ) {
@@ -471,7 +470,7 @@ class Design
 
 		$did = $this->get_id();
 		$db = Lone::get('Db');
-		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ? WHERE id = ?'; //, dflt = ?, modified = ?
+		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET `name` = ?, description = ? WHERE id = ?'; //, dflt = ?, modified = ?
 //		$dbr = useless for update
 		$db->execute($query,[$this->get_name(),$this->get_description(),$did]); //,($this->get_default())?1:0, time(),
 		if( $db->errorNo() > 0 ) throw new SQLException($db->sql.' --2 '.$db->errorMsg());
@@ -582,20 +581,17 @@ class Design
 	protected static function _load_from_data($row)
 	{
 		$ob = new self();
-		$css = null;
-		$tpls = null;
 		if( isset($row['css']) ) {
 			$css = $row['css'];
 			unset($row['css']);
+			if( $css ) $ob->css_members = $css;
 		}
 		if( isset($row['templates']) ) {
 			$tpls = $row['templates'];
 			unset($row['templates']);
+			if( $tpls ) $ob->tpl_members = $tpls;
 		}
 		$ob->props = $row;
-		if( $css ) $ob->css_members = $css;
-		if( $tpls ) $ob->tpl_members = $tpls;
-
 		return $ob;
 	}
 
@@ -609,7 +605,6 @@ class Design
 	public static function load($x)
 	{
 		$db = Lone::get('Db');
-		$row = null;
 		if( is_numeric($x) && $x > 0 ) {
 			if( self::$raw_cache ) {
 				if( isset(self::$raw_cache[$x]) ) return self::_load_from_data(self::$raw_cache[$x]);
@@ -624,7 +619,7 @@ class Design
 				}
 			}
 
-			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
+			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE `name` = ?';
 			$row = $db->getRow($query,[trim($x)]);
 		}
 
@@ -649,13 +644,13 @@ class Design
 	 *
 	 * @param bool $quick Optional flag whether to also load the design's
 	 *  templates and stylesheets. Default false.
-	 * @return array Each member a Design object
+	 * @return array of Design object(s) or maybe empty
 	 */
 	public static function get_all($quick = FALSE)
 	{
-		$out = null;
-		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY name ASC';
+		$out = [];
 		$db = Lone::get('Db');
+		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY `name`';
 		$dbr = $db->getArray($query);
 		if( $dbr ) {
 			$ids = [];
@@ -691,12 +686,11 @@ class Design
 
 			self::$raw_cache = $cache;
 
-			$out = [];
 			foreach( $cache as $key => $row ) {
 				$out[] = self::_load_from_data($row);
 			}
-			return $out;
 		}
+		return $out;
 	}
 
 	/**
@@ -719,17 +713,18 @@ class Design
 	/**
 	 * Load the default design
 	 * @deprecated since 3.0 there is no such thing as a default design
+     * Does nothing
 	 *
 	 * @throws LogicException
 	 * @return null
 	 */
 	public static function load_default()
 	{
-/*		$tmp = null;
+/*		$tmp = 0;
 		if( self::$_dflt_id == '' ) {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE dflt = 1';
 			$db = Lone::get('Db');
-			$tmp = (int) $db->getOne($query);
+			$tmp = (int)$db->getOne($query);
 			if( $tmp > 0 ) self::$_dflt_id = $tmp;
 		}
 

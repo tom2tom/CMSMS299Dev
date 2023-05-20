@@ -101,7 +101,7 @@ class Link extends ContentBase
 			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('url'));
 			$result = false;
 		}
-		return $errors ? $errors : false;
+		return $errors ?: false;
 	}
 
 	public function GetTabNames() : array

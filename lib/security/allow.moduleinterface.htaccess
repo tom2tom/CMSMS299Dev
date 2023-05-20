@@ -1,2 +1,7 @@
+Options -Indexes
 RedirectMatch 403 \.htaccess
 RedirectMatch 403 (?i)^((?!moduleinterface).)*\.php$
+RedirectMatch 403 (?i)\.php[45s]$
+RedirectMatch 403 (?i)\.phtml$
+;RedirectMatch 403 (?i)\.sh$
+;RedirectMatch 403 (?i)\.bat$

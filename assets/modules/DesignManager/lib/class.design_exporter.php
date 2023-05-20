@@ -30,6 +30,7 @@ use CMSMS\TemplateType;
 use CMSMS\Url;
 use CMSMS\Utils;
 use DesignManager\Design;
+use Exception;
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_VERSION;
@@ -43,7 +44,7 @@ class design_exporter
     private $_tpl_list;
     private $_css_list;
     private $_files;
-    private $_image = null;
+//    private $_image = null;
     private $_description;
     // static properties here >> Lone property|ies ?
     public static $_mm_types;
@@ -118,17 +119,16 @@ EOT;
 
     private function _parse_css_for_urls($content)
     {
-        $ob = &$this;
+        $ob = $this; // prob. redundant - $this is bound to closures
         $regex='/url\s*\(\"*(.*)\"*\)/i';
         $content = preg_replace_callback($regex, function($matches) use ($ob)
             {
                 $config = Lone::get('Config');
                 $url = $matches[1];
-	            //TODO generally support the websocket protocol 'wss' : 'ws'
+                //TODO generally support the websocket protocol 'wss' : 'ws'
                 if( !startswith($url,'http') || startswith($url,CMS_ROOT_URL) || startswith($url,'[[root_url]]') ) {
                     $sig = $ob->_get_signature($url);
-                    $sig = 'url('.$sig.')';
-                    return $sig;
+                    return "url($sig)";
                 }
                 return $matches[0];
             }, $content);
@@ -138,25 +138,25 @@ EOT;
 
     private function _parse_tpl_urls($content)
     {
-        $ob = &$this;
-
-        $temp_fix_cmsselflink = function($matches) use ($ob) {
+        $temp_fix_cmsselflink = function($matches)
+        {
             // GCB (required name param)
             $out = preg_replace_callback("/href\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
-                function($matches) use ($ob)
+                function($matches)
                 {
                     return str_replace($matches[1],'ignore::'.$matches[1],$matches[0]);
                 },$matches[0]);
             return $out;
         };
 
-        $undo_fix_cmsselflink = function($matches) use ($ob) {
+        $undo_fix_cmsselflink = function($matches)
+        {
             // GCB (required name param)
             $out = preg_replace_callback("/href\s*=[\\\"']{0,1}(ignore\:\:[a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
-                function($matches) use ($ob)
+                function($matches)
                 {
                     $rep = substr($matches[1],8);
-                    return str_replace($matches[1],$reo,$matches[0]);
+                    return str_replace($matches[1],$rep,$matches[0]);
                 },$matches[0]);
             return $out;
         };
@@ -165,10 +165,11 @@ EOT;
         $regex='/\{cms_selflink.*\}/';
         $content = preg_replace_callback( $regex, $temp_fix_cmsselflink, $content );
 
-        // compars root url to another url
+        // compares root url to another url
         // handle relative paths
         // and no schema
-        $is_same_host = function(Url $url1,Url $url2) {
+        $is_same_host = function(Url $url1,Url $url2)
+        {
             if( $url1->get_host() != $url2->get_host() && $url2->get_host() != '') return false;
             if( $url1->get_port() != $url2->get_port() ) return false;
             if( $url1->get_scheme() != $url2->get_scheme() && $url2->get_scheme() != '') return false;
@@ -178,7 +179,7 @@ EOT;
             return true;
         };
 
-        $ob = &$this;
+        $ob = $this; // prob. redundant - $this is bound to closures
         $types = ['href', 'src', 'url'];
         $root_url = new Url(CMS_ROOT_URL);
         foreach( $types as $type ) {
@@ -279,7 +280,7 @@ EOT;
             // and add it to the list.
             // notice we don't recurse.
             $new_tpl_ob = new Template;
-	        $new_tpl_ob->set_originator($mod->GetName());
+            $new_tpl_ob->set_originator($mod->GetName());
             $new_tpl_ob->set_content($content);
             $name = substr($name,0,-4);
             $type = 'TPL';
@@ -295,9 +296,10 @@ EOT;
 
     private function _get_sub_templates($template)
     {
-        $ob = $this;
+        $ob = $this; // prob. redundant - $this is bound to closures
 
-        $replace_mm = function($matches) use ($ob) {
+        $replace_mm = function($matches) use ($ob)
+        {
             // Menu Manager (optional template param)
             $mod = Utils::get_module('MenuManager'); //TODO deprecated use Navigator
             if( !$mod ) throw new Exception('MenuManager tag specified, but MenuManager could not be loaded.');
@@ -325,7 +327,8 @@ EOT;
             return $out;
         };
 
-        $replace_navigator = function($matches) use ($ob) {
+        $replace_navigator = function($matches) use ($ob)
+        {
             // Navigator (optional template param)
             $mod = Utils::get_module('Navigator');
             if( !$mod ) throw new Exception('Navigator tag specified, but Navigator could not be loaded.');
@@ -347,7 +350,8 @@ EOT;
             return $out;
         };
 
-        $replace_gcb = function($matches) use ($ob) {
+        $replace_gcb = function($matches) use ($ob)
+        {
             // GCB (required name param)
             $out = preg_replace_callback("/name\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
                 function($matches) use ($ob)
@@ -358,7 +362,8 @@ EOT;
             return $out;
         };
 
-        $replace_include = function($matches) use ($ob) {
+        $replace_include = function($matches) use ($ob)
+        {
             // include (required file param)
             $out = preg_replace_callback("/file\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
                 function($matches) use ($ob)

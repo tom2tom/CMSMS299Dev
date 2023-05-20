@@ -139,7 +139,7 @@ class CacheFile extends CacheDriver
 		return $out;
 	}
 
-	public function get($key, string $space = '')
+	public function get(string $key, string $space = '')// : mixed string | null
 	{
 		if (!$space) { $space = $this->_space; }
 		$this->_auto_clean_files();
@@ -147,7 +147,7 @@ class CacheFile extends CacheDriver
 		return $this->_read_cache_file($fn);
 	}
 
-	public function has($key, string $space = '')
+	public function has(string $key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$this->_auto_clean_files();
@@ -156,7 +156,7 @@ class CacheFile extends CacheDriver
 		return is_file($fn);
 	}
 
-	public function set($key, $value, string $space = '')
+	public function set(string $key, $value, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$fn = $this->_get_filename($key, $space);
@@ -165,12 +165,12 @@ class CacheFile extends CacheDriver
 	}
 
 	// custom lifetime N/A for file-cache
-	public function set_timed($key, $value, int $ttl = 0, string $space = '')
+	public function set_timed(string $key, $value, int $ttl = 0, string $space = '')
 	{
 		return $this->set($key, $value, $space);
 	}
 
-	public function delete($key, string $space = '')
+	public function delete(string $key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$fn = $this->_get_filename($key, $space);
@@ -192,7 +192,7 @@ class CacheFile extends CacheDriver
 	 * @ignore
 	 * TODO need distinguishable "group" files
 	 */
-	private function _get_filename($key, string $space) : string
+	private function _get_filename(string $key, string $space) : string
 	{
 		$fn = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->get_cachekey($key, static::class, $space) . $space . '.cache';
 		return $fn;
@@ -235,8 +235,9 @@ class CacheFile extends CacheDriver
 
 	/**
 	 * @ignore
+     * @return mixed string | null
 	 */
-	private function _read_cache_file(string $fn)
+	private function _read_cache_file(string $fn)// : mixed
 	{
 		$this->_cleanup($fn);
 		$value = null;
@@ -254,9 +255,9 @@ class CacheFile extends CacheDriver
 				if (startswith($value, parent::SERIALIZED)) {
 					$value = unserialize(substr($value, strlen(parent::SERIALIZED)));
 				}
-				return $value;
 			}
 		}
+    	return $value;
 	}
 
 	/**

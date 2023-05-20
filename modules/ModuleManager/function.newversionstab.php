@@ -69,10 +69,17 @@ if( $newversions ) {
         $mod = $this->GetModuleInstance($row['name']);
         if( !is_object($mod) ) {
             $onerow->error = $this->Lang('error_module_object',$row['name']);
-            $onerow->txt = $onerow->age = $onerow->depends_url = $onerow->about_url = $onerow->help_url = $onerow->helplink = $onerow->aboutlink = $onerow->dependslink = null;
+            $onerow->txt = '';
+            $onerow->age = '';
+            $onerow->depends_url = '';
+            $onerow->about_url = '';
+            $onerow->help_url = '';
+            $onerow->helplink = '';
+            $onerow->aboutlink = '';
+            $onerow->dependslink =  '';;
         }
         else {
-            $onerow->error = null;
+            $onerow->error = '';
             $mver = $mod->GetVersion();
             if( version_compare($row['version'],$mver) > 0 ) {
                 $onerow->age = Utils::get_status($row['date']);
@@ -80,14 +87,14 @@ if( $newversions ) {
                 if( !empty($row['description']) ) {
                     $onerow->description = $row['description'];
                 } else {
-                    $onerow->description = null;
+                    $onerow->description = '';
                 }
                 $onerow->downloads = $row['downloads'];
                 $installed_mod = AppUtils::get_module($row['name']);
                 if( is_object($installed_mod) ) {
                     $onerow->haveversion = $installed_mod->GetVersion();
                 } else {
-                    $onerow->haveversion = null;
+                    $onerow->haveversion = '';
                 }
                 $onerow->name = $this->CreateLink($id, 'modulelist', $returnid, $row['name'], ['name'=>$row['name']]);
                 $onerow->size = (int)((float) $row['size'] / 1024.0 + 0.5);

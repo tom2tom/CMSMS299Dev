@@ -70,7 +70,7 @@ class ExtendedModuleInfo extends ModuleInfo
         if( !in_array($key,self::EMPROPS) ) { return parent::OffsetGet($key); }
         if( isset($this->emdata[$key]) ) { return $this->emdata[$key]; }
         if( $key == 'missingdeps' ) {
-            $out = null;
+            $out = [];
             $deps = $this['depends'];
             if( $empty($deps) ) {
                 foreach( $deps as $mname => $mversion ) {

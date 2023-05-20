@@ -82,10 +82,10 @@ final class GroupOperations
 	 * Get all the user-id's in the specified group(s)
 	 * @since 3.0
 	 *
-	 * @param mixed $from optional group(s) identifier, [ints] | comma-sep-ints string | scalar int Default null (hence all groups)
+	 * @param mixed $from optional group(s) identifier, [ints] | comma-sep-ints string | scalar int Default ''(hence all groups)
 	 * @return array
 	 */
-	public function GetGroupMembers($from = NULL) : array
+	public function GetGroupMembers($from = '') : array
 	{
 		$db = Lone::get('Db');
 		$query = 'SELECT group_id,user_id FROM '.CMS_DB_PREFIX.'user_groups';
@@ -261,13 +261,32 @@ VALUES (?,?,?,NOW())';
 		$db = Lone::get('Db');
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id = ?';
 		$dbr = $db->execute($query, [$id]);
+        if (!$dbr) $dbr = ($db->errorNo() === 0); // ok if none to delete
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ?';
 		if( $dbr ) $dbr = $db->execute($query, [$id]);
+        if (!$dbr) $dbr = ($db->errorNo() === 0); // ok if none to delete
 		$query = 'DELETE FROM `'.CMS_DB_PREFIX.'groups` WHERE group_id = ?';
 		if( $dbr ) $dbr = $db->execute($query, [$id]);
-		return $dbr;
+		return $dbr != false;
 // TODO Lone::get('LoadedData')->delete('menu_modules' for all users in group, if not installing?
 	}
+
+	/**
+	 * Remove the named group and all its associations from the database
+	 * @since 3.0
+	 *
+	 * @param string $name The name of the group to load
+	 * @return bool
+	 * @throws DataException or LogicException
+     */
+	public function DeleteGroupByName(string $name) : bool
+	{
+		if( !$name ) throw new DataException(lang('missingparams'));
+		$db = Lone::get('Db');
+		$query = 'SELECT group_id FROM `'.CMS_DB_PREFIX.'groups` WHERE group_name = ?';
+        $dbr = $db->getOne($query, [$name]);
+        return $this->DeleteGroupByID((int)$dbr);
+    }
 
 	/**
 	 * Report whether the specified group has the named permission(s)

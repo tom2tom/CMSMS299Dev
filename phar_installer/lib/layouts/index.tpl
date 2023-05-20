@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--[if gt IE 8]><!--> <html lang="en"> <!--<![endif]-->
   <head>
-    <base href="{$BASE_HREF}">
+{if isset($BASE_HREF)}    <base href="{$BASE_HREF}">{/if}
     <meta charset="UTF-8">
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
@@ -87,11 +87,13 @@
     </footer>
   {block name='javascript'}
   <script>
-  var cmsms_lang = {
-    freshen : '{'confirm_freshen'|tr|addslashes}',
-    upgrade : '{'confirm_upgrade'|tr|addslashes}',
-    message : '{'social_message'|tr|addslashes}'
-  };
+{literal}
+  var cmsms_lang = {{/literal}
+    freshen: {addslashes("{'confirm_freshen'|tr}")},
+    upgrade: {addslashes("{'confirm_upgrade'|tr}")},
+    message: {addslashes("{'social_message'|tr}")}
+{literal}
+  };{/literal}
   </script>
   {/block}
   </body>

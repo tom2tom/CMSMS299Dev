@@ -66,7 +66,7 @@ $themeObject = Lone::get('Theme');
 if ($pmod) {
     $iconedit = $themeObject->DisplayImage('icons/system/edit.gif',_la('modifyeventhandlers'),'','','systemicon');
 } else {
-    $iconedit = null;
+    $iconedit = '';
 }
 $iconinfo = $themeObject->DisplayImage('icons/system/info.png', _la('help'),'','','systemicon');
 

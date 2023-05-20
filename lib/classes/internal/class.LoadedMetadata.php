@@ -143,7 +143,7 @@ final class LoadedMetadata extends LoadedData
 		$availmodules = $modops->GetInstalledModules();
 		$out = [];
 		foreach( $availmodules as $modname ) {
-			$modops->PollModule($modname, $force, function($mod) use($capability, $params, $match, &$out, $modname) {
+			$modops->PollModule($modname, $force, function($mod) use ($capability, $params, $match, &$out, $modname) {
 				if( $mod ) {
 					$res = $mod->HasCapability($capability, $params);
 					if( $res == $match ) {
@@ -185,7 +185,7 @@ final class LoadedMetadata extends LoadedData
 		$availmodules = $modops->GetInstalledModules();
 		$out = [];
 		foreach( $availmodules as $modname ) {
-			$modops->PollModule($modname, $force, function($mod) use($method, $returnvalue, &$out, $modname) {
+			$modops->PollModule($modname, $force, function($mod) use ($method, $returnvalue, &$out, $modname) {
 				if( $mod && method_exists($mod, $method) ) {
 					// check if this is just an inherited method
 					$reflector = new ReflectionMethod($mod, $method);

@@ -72,6 +72,11 @@ final class SmtpTransport implements Transport
     private $responseLogger = null;
 
     /**
+     * @var bool
+     */
+    private $streamer = false;
+
+    /**
      * @param Associative array of all interface-parameters
      * OR (old API) individual parameter-values, as many of the following as needed:
      * @param string $host
@@ -95,7 +100,6 @@ final class SmtpTransport implements Transport
          'domain'  => '',
          'timeout' => 25,
         );
-
         $args = func_get_args();
         if (count($args) == 1 && is_array($args[0])) {
             $vals = $args[0] + $vals;
@@ -292,6 +296,8 @@ final class SmtpTransport implements Transport
     public function send(Message $message)
     {
         if (!$this->socket) {
+//TODO support authentication using oAuth parameters fro upstream
+// when relevant - provider, type etc etc
             $this->connect();
         }
         /*$res = */$this->smtpSend('MAIL FROM: <' . $this->sender . '>');

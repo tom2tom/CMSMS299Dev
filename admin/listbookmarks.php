@@ -38,11 +38,11 @@ $page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
 $limit = 20;
 
 if ($n > $limit) {
-	$pagination = pagination($page, $n, $limit); //TODO
+	$pagination = false; //TODO abandoned method pagination($page, $n, $limit); generated content for first,prev,next,last links
 	$minsee = $page * $limit - $limit;
 	$maxsee = $page * $limit - 1;
 } else {
-	$pagination = null;
+	$pagination = false;
 	$minsee = 0;
 	$maxsee = $n;
 }

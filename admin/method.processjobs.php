@@ -24,6 +24,8 @@ use CMSMS\Lone;
 use function CMSMS\log_error;
 use function CMSMS\log_notice;
 
+$started_at = time(); //default value
+
 try {
     $ops->process_errors();
     $n = $ops->refresh_jobs();
@@ -116,7 +118,7 @@ try {
             } else {
                 $ops->unload_job($job);
             }
-/* TMI      if ($dev && ($res == 2 || $res === null)) {
+/* TMI      if ($dev && ($res == 2 || $res === null)) { OR == 0?
                 log_notice('Completed job',$job->name);
             }
 */

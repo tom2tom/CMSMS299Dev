@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to minimize and merge contents of stylesheets for frontend pages
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -24,6 +24,7 @@ namespace cms_stylesheet {
 
 use CMSMS\Events;
 use SmartyException;
+use Smarty_Internal_Template;
 use function endswith;
 use function CMSMS\log_error;
 
@@ -34,7 +35,7 @@ use function CMSMS\log_error;
  * @param bool $min
  * @param Smarty_Internal_Template $template
  */
-function writeCache(string $filename, $list, bool $trimbackground, bool $min, \Smarty_Internal_Template $template)
+function writeCache(string $filename, $list, bool $trimbackground, bool $min, Smarty_Internal_Template $template) : void
 {
 	if( is_string($list) && !is_array($list) ) $list = [$list];
 
@@ -62,7 +63,7 @@ function writeCache(string $filename, $list, bool $trimbackground, bool $min, \S
 		return;
 	}
 
-	// Revert demimiters
+	// Reinstate default demimiters
 	$template->smarty->left_delimiter = '{';
 	$template->smarty->right_delimiter = '}';
 
@@ -108,13 +109,13 @@ function writeCache(string $filename, $list, bool $trimbackground, bool $min, \S
 
 /**
  * @param string $filename
- * @param string $media_query (if present, used in preference to $media_type)
- * @param string $media_type
  * @param string $root_url
  * @param string $out in/out parameter, supplemented here
  * @param array $params
+ * @param string $media_query Default '' (if present, used in preference to $media_type)
+ * @param string $media_type Default ''
  */
-function toString(string $filename, string $media_query = '', string $media_type = '', $root_url, string &$out, array &$params)
+function toString(string $filename, string $root_url, string &$out, array $params, string $media_query = '', string $media_type = '') : void
 {
 	// TODO CSP support
 	if( !endswith($root_url, '/') ) $root_url .= '/';
@@ -201,7 +202,7 @@ function smarty_function_cms_stylesheet($params, $template)
 		}
 
 		// build query
-		$query = null;
+		$query = null; // no object yet
 		if( $name ) {
 			// stylesheet by name(prefix)
 			$query = new StylesheetQuery(['name'=>$name]);
@@ -301,7 +302,7 @@ function smarty_function_cms_stylesheet($params, $template)
 					}
 					writeCache($fp, $list, $trimbackground, $minimise, $template);
 				}
-				toString($filename, $params['media'], '', $root_url, $out, $params);
+				toString($filename, $root_url, $out, $params, $params['media']);
 			}
 			else {
 				foreach( $all_media as $onemedia ) {
@@ -321,7 +322,7 @@ function smarty_function_cms_stylesheet($params, $template)
 					$val = $cssobj->get_media_query();
 					$media_query = ($val) ? trim(strtr($val, ['  ' => ' ']), ' ,') : '';
 					$media_type = implode(',', $cssobj->get_media_types());
-					toString($filename, $media_query, $media_type, $root_url, $out, $params);
+					toString($filename, $root_url, $out, $params, $media_query, $media_type);
 				}
 			}
 		}
@@ -346,7 +347,7 @@ function smarty_function_cms_stylesheet($params, $template)
 				if( !is_file($fp) ) {
 					writeCache($fp, $cssobj->get_name(), $trimbackground, $minimise, $template);
 				}
-				toString($filename, $media_query, $media_type, $root_url, $out, $params);
+				toString($filename, $root_url, $out, $params, $media_query, $media_type);
 			}
 		}
 
@@ -379,7 +380,8 @@ function smarty_cms_about_function_cms_stylesheet()
 	echo _ld('tags', 'about_generic', 'jeff &lt;jeff@ajprogramming.com&gt;',
 	'<li>Rework from {stylesheet}</li>
 <li>(Stikki and Calguy1000) Code cleanup, added grouping by media type / media query, fixed cache issues</li>
-<li>Added optional \'min\' parameter (default true)</li>'
+<li>Added optional \'min\' parameter (default true)</li>
+<li>Rearrange method args to make defaulted items last</li>'
 	);
 }
 /*

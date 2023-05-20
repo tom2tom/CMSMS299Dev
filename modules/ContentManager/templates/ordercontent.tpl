@@ -28,11 +28,11 @@
   <button type="submit" name="{$actionid}revert" class="adminsubmit icon undo btn_revert">{_ld($_module,'revert')}</button>
   <button type="button" class="adminsubmit icon do btn_expall">{_ld($_module,'expandall')}</button>
   <button type="button" class="adminsubmit icon do btn_expnone">{_ld($_module,'contractall')}</button>
-{if $dir == 'rtl'}
+{if $lang_dir == 'rtl'}
   {admin_icon icon='icons/extra/search' alt="{_ld('layout','search')}" addtext='style=position:relative;left:1.8em'}
 {/if}
   <input type="text" id="ajax_find" title="{_ld($_module,'title_listcontent_find')}" size="15" maxlength="20" placeholder="{_ld('layout','search')}">
-{if $dir != 'rtl'}
+{if $lang_dir != 'rtl'}
   {admin_icon icon='icons/extra/search' alt="{_ld('layout','search')}" addtext='style=position:relative;left:-1.8em'}
 {/if}
 </div>

@@ -49,7 +49,7 @@ if (isset($params['cancel'])) {
 
 $me = $this->GetName();
 //$cz = $config['timezone'];
-$dt = new DateTime(null, new DateTimeZone('UTC'));
+$dt = new DateTime('@0', new DateTimeZone('UTC'));
 
 $query = 'SELECT news_category_id,long_name FROM ' . CMS_DB_PREFIX . 'module_news_categories ORDER BY hierarchy';
 $categorylist = $db->getAssoc($query);
@@ -75,7 +75,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
         $fst = (int)$dt->format('U');
     }
     else {
-        $longstart = null;
+        $longstart = null; // record null in db
         $fst = 0;
     }
 
@@ -86,7 +86,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
         $tst = (int)$dt->format('U');
     }
     else {
-        $longend = null;
+        $longend = null; // record null in db
         $tst = 0;
     }
 
@@ -147,7 +147,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
     if ($image_url) {
         // TODO validate, cleanup this
     } else {
-        $image_url = null;
+        $image_url = null; // record null in db
     }
 
     if (!$error) {
@@ -427,7 +427,7 @@ specialize_array($parms);
  Pass everything to smarty
  ------------------------*/
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('editarticle.tpl')); //, null, null, $smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('editarticle.tpl')); //, '', '', $smarty);
 
 $tpl->assign('formaction', 'editarticle')
   ->assign('formparms', $parms);

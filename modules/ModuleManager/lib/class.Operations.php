@@ -87,18 +87,19 @@ class Operations
     }
 
     /**
-     * Unpackage a module from an xml string
+     * Un-package a module from an xml string
      * Does not touch the database
      *
      * @internal
      * @param string $xmlfile The filepath of uploaded xml file containing data for the package
-     * @param bool $overwrite Should we overwrite files if they exist?
-     * @param bool $brief If set to true, less checking is done and no errors are returned
+     * @param bool $overwrite Optional flag, if true, overwrite existing files. Default false
+     * @param bool $brief Optional flag, if true, less checking is done and no errors are returned. Default false
+     * @param bool $meta Optional flag since 3.0, if true, do not process files in the package. Default false
      *
      * @return array A hash of details about the installed module (if it returns at all)
      * @throws XMLException or FileSystemException or LogicException or RuntimeException
      */
-    public function expand_xml_package($xmlfile, $overwrite = false, $brief = false)
+    public function expand_xml_package($xmlfile, $overwrite = false, $brief = false, $meta = false)
     {
         libxml_use_internal_errors(true);
         $xml = simplexml_load_file($xmlfile, 'SimpleXMLElement', LIBXML_NOCDATA);
@@ -168,7 +169,7 @@ class Operations
                         $reqs['name'][] = (string)$one->requiredname;
                         $reqs['version'][] = (string)$one->requiredversion;
                     }
-                    $moduledetails[$lkey] = $reqs; //upstream validation?
+                    $moduledetails[$lkey] = $reqs; //upstream validation? Forge/ModuleRepository processing?
                     break;
                 case 'help':
                 case 'about':
@@ -178,6 +179,7 @@ class Operations
                       base64_decode((string)$node);
                     break;
                 case 'file':
+                    if( $meta ) { break; }
                     if( !$filedone ) {
                         $dirlist = cms_module_places($moduledetails['name']);
                         if( empty($dirlist) ) {
@@ -238,7 +240,8 @@ class Operations
     }
 
     /**
-     * generate xml representing all the content of the specified module
+     * Generate xml representing all the content of the specified module
+     * ABANDONED including a metadata file (moduleinfo.ini) for Forge use
      * @internal
      * @param CMSModule  | IResource $mod
      * @param string $message for returning

@@ -14,7 +14,7 @@
     <ul>
       {foreach $config_info as $view => $tmp}
         {if $view < 1} {foreach $tmp as $key => $test}
-          <li>{$key|ucfirst|replace:'_':' '}:{if isset($test->value)} {$test->value}{/if}</li>
+          <li>{ucfirst($key)|replace:'_':' '}:{if isset($test->value)} {$test->value}{/if}</li>
         {/foreach} {/if}
       {/foreach}
     </ul>
@@ -25,9 +25,9 @@
     <ul>
       {foreach $php_information as $view => $tmp}
        {if $view < 1} {foreach $tmp as $key => $test}
-        <li>{$key|ucfirst|replace:'_':' '}: {if isset($test->secondvalue)}{$test->value} ({$test->secondvalue}){elseif isset($test->value)}{$test->value}{/if}
+        <li>{ucfirst($key)|replace:'_':' '}: {if isset($test->secondvalue)}{$test->value} ({$test->secondvalue}){elseif isset($test->value)}{$test->value}{/if}
          {if isset($test->opt)}<ul>{foreach $test->opt as $key => $opt}
-           <li>{$key} {$opt.message|default:''}</li>  
+           <li>{$key} {$opt.message|default:''}</li>
          {/foreach}</ul>{/if}
         </li>
        {/foreach} {/if}
@@ -40,7 +40,7 @@
     <ul>
       {$list=$performance_info[0]}
       {foreach $list as $key => $test}
-      <li>{$key|ucfirst|replace:'_':' '}: {if isset($test->secondvalue)}{$test->value} ({$test->secondvalue}){elseif isset($test->value)}{$test->value}{/if}</li>
+      <li>{ucfirst($key)|replace:'_':' '}: {if isset($test->secondvalue)}{$test->value} ({$test->secondvalue}){elseif isset($test->value)}{$test->value}{/if}</li>
       {/foreach}
     </ul>
     {/if}
@@ -50,7 +50,7 @@
     <ul>
       {foreach $server_info as $view => $tmp}
         {if $view < 1} {foreach $tmp as $key => $test}
-         <li>{$key|ucfirst|replace:'_':' '}: {if isset($test->value)}{$test->value}{/if}</li>
+         <li>{ucfirst($key)|replace:'_':' '}: {if isset($test->value)}{$test->value}{/if}</li>
         {/foreach} {/if}
       {/foreach}
     </ul>
@@ -63,7 +63,7 @@
        {if $view < 1} {foreach $tmp as $key => $test}
         <li>{$key}: {if isset($test->secondvalue)}{$test->value} ({$test->secondvalue}){elseif isset($test->value)}{$test->value}{/if}
           {if isset($test->opt)}<ul>{foreach $test->opt as $key => $opt}
-           <li>{$key} {$opt.message|default:''}</li>  
+           <li>{$key} {$opt.message|default:''}</li>
           {/foreach}</ul>{/if}
         </li>
        {/foreach} {/if}

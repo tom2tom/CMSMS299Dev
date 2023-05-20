@@ -25,7 +25,7 @@ use CMSMS\Log\logfilter;
 
 interface ILogManager
 {
-	public function info(string $msg, string $subject = '', $item_id = null);
+	public function info(string $msg, string $subject = '', $item_id = 0);
 	public function notice(string $msg, string $subject = '');
 	public function warning(string $msg, string $subject = '');
 	public function error(string $msg, string $subject = '');

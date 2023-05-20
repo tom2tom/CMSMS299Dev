@@ -830,6 +830,7 @@ class http_request
             // Set http headers with host, user-agent and content type
             $this->addRequestHeader($this->method .' '. $this->path. ' HTTP/1.1', true);
             $this->addRequestHeader('Host: ' . $this->host);
+            //if (is secure request) addRequestHeader('TODO: ' . $this->host);
             $this->addRequestHeader('Accept: */*');
             $this->addRequestHeader('User-Agent: ' . $this->userAgent);
             if (!$this->requestHeaderExists('Content-Type')) {
@@ -1145,7 +1146,7 @@ class http_request
     */
     public function _domainMatch($requestHost, $cookieDomain)
     {
-        if ('.' != $cookieDomain{0}) {
+        if ('.' != $cookieDomain[0]) {
             return $requestHost == $cookieDomain;
         } elseif (substr_count($cookieDomain, '.') < 2) {
             return false;

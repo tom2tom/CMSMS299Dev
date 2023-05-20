@@ -3,34 +3,61 @@ namespace wapmorgan\UnifiedArchive\Drivers\OneFile;
 
 use wapmorgan\UnifiedArchive\ArchiveEntry;
 use wapmorgan\UnifiedArchive\ArchiveInformation;
-use wapmorgan\UnifiedArchive\Drivers\BasicDriver;
+use wapmorgan\UnifiedArchive\Drivers\Basic\BasicDriver;
+use wapmorgan\UnifiedArchive\Drivers\Basic\BasicExtensionDriver;
 use wapmorgan\UnifiedArchive\Exceptions\ArchiveCreationException;
 use wapmorgan\UnifiedArchive\Exceptions\ArchiveExtractionException;
 use wapmorgan\UnifiedArchive\Exceptions\EmptyFileListException;
 use wapmorgan\UnifiedArchive\Exceptions\UnsupportedOperationException;
+use wapmorgan\UnifiedArchive\Formats;
 
-abstract class OneFileDriver extends BasicDriver
+abstract class OneFileDriver extends BasicExtensionDriver
 {
     /** @var null|string Should be filled for real format like 'gz' or other */
-    const FORMAT_SUFFIX = null;
+    const FORMAT = null;
 
     protected $fileName;
     protected $inArchiveFileName;
     protected $uncompressedSize;
     protected $modificationTime;
 
+    public static function getSupportedFormats()
+    {
+        return [static::FORMAT];
+    }
+
+    /**
+     * @param $format
+     * @return array
+     */
+    public static function checkFormatSupport($format)
+    {
+        if (!static::isInstalled()) {
+            return [];
+        }
+        switch ($format) {
+            case static::FORMAT:
+                return [BasicDriver::OPEN, BasicDriver::EXTRACT_CONTENT, BasicDriver::STREAM_CONTENT, BasicDriver::CREATE];
+        }
+    }
+
     /**
      * @inheritDoc
+     * @throws UnsupportedOperationException
+     * @throws \Exception
      */
     public function __construct($archiveFileName, $format, $password = null)
     {
-        if (static::FORMAT_SUFFIX === null)
-            throw new \Exception('Format should be initialized');
-        if ($password !== null)
-            throw new UnsupportedOperationException(self::FORMAT_SUFFIX.' archive does not support password!');
+        $suffix = Formats::getFormatExtension(static::FORMAT);
+        if ($suffix === null) {
+            throw new \Exception('Format suffix is empty for ' . static::FORMAT . ', it should be initialized!');
+        }
+        if ($password !== null) {
+            throw new UnsupportedOperationException($suffix . ' archive does not support password!');
+        }
 
-        $this->fileName = $archiveFileName;
-        $this->inArchiveFileName = basename($archiveFileName, '.'.self::FORMAT_SUFFIX);
+        parent::__construct($archiveFileName, $format);
+        $this->inArchiveFileName = basename($archiveFileName, '.' . $suffix);
     }
 
     /**
@@ -111,36 +138,23 @@ abstract class OneFileDriver extends BasicDriver
 
     /**
      * @param array $files
-     * @return void
-     * @throws UnsupportedOperationException
-     */
-    public function deleteFiles(array $files)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * @param string $inArchiveName
-     * @param string $content
-     * @return bool|void
-     * @throws UnsupportedOperationException@
-     */
-    public function addFileFromString($inArchiveName, $content)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * @param array $files
      * @param string $archiveFileName
      * @param int $archiveFormat
      * @param int $compressionLevel
-     * @param null $password
-     * @return int
+     * @param string|null $password
+     * @param callable|null $fileProgressCallable
+     * @return int Number of archived files
      * @throws ArchiveCreationException
      * @throws UnsupportedOperationException
      */
-    public static function createArchive(array $files, $archiveFileName, $archiveFormat, $compressionLevel = self::COMPRESSION_AVERAGE, $password = null) {
+    public static function createArchive(
+        array $files,
+        $archiveFileName,
+        $archiveFormat,
+        $compressionLevel = self::COMPRESSION_AVERAGE,
+        $password = null,
+        $fileProgressCallable = null
+    ) {
         if (count($files) > 1) {
             throw new UnsupportedOperationException('One-file format ('.__CLASS__.') could not archive few files');
         }
@@ -171,24 +185,5 @@ abstract class OneFileDriver extends BasicDriver
      * @return mixed
      * @throws UnsupportedOperationException
      */
-    protected static function compressData($data, $compressionLevel)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function canCreateArchive($format)
-    {
-        return true;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function canStream($format)
-    {
-        return true;
-    }
+    abstract protected static function compressData($data, $compressionLevel);
 }

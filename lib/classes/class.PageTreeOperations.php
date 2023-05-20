@@ -139,7 +139,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 *
 	 * @param int $id Optional node enumerator. Default -99 (N/A)
 	*/
-	public function remove(int $id = -99)
+	public function remove(int $id = -99) : void
 	{
 		$this->remove_node(false, $id);
 	}
@@ -150,7 +150,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * @param mixed $value
 	 * @param int $id optional node enumerator Default -99 (N/A)
 	 */
-	public function set_tag(string $key, $value, int $id = -99)
+	public function set_tag(string $key, $value, int $id = -99) : void
 	{
 		$oval = $this->get_tag($id, $key); // ensure the property is loaded
 		if ($oval != $value) {
@@ -166,13 +166,13 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * @param int $id optional node enumerator Default -99 (N/A)
 	 * @return mixed value | null
 	 */
-	public function get_tag(string $key, int $id = -99)
+	public function get_tag(string $key, int $id = -99)// : mixed
 	{
 		if ($key == 'id') {
 			if (isset($this->props[$id])) {
 				return $id;
 			}
-			return;
+			return null;
 		}
 		if (isset($this->props[$id][$key]) || $this->props[$id][$key] === null) {
 			return $this->props[$id][$key];
@@ -183,6 +183,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 		if (isset($this->props[$id][$key]) || $this->props[$id][$key] === null) {
 			return $this->props[$id][$key];
 		}
+    	return null;
 	}
 
 	/**

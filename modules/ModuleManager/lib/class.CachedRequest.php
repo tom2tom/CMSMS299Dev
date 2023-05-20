@@ -40,7 +40,7 @@ final class CachedRequest //was modmgr_cached_request
    * @param array $data optional POST-parameters array
    * @param mixed $age optional int or numeric string allowed cache-item age (minutes)
    */
-  public function execute(string $target = '',array $data = [], $age = '')
+  public function execute(string $target = '',array $data = [],$age = 0)
   {
     // build a cache key
     $signature = Crypto::hash_string(serialize([$target,$data]));

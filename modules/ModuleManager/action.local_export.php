@@ -1,7 +1,7 @@
 <?php
 /*
 Module Manager action: export module
-Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of ModuleManager, an addon module for
@@ -29,7 +29,8 @@ use function CMSMS\log_error;
 use function CMSMS\log_notice;
 use function CMSMS\sanitizeVal;
 
-//if( some worthy test fails ) exit;
+if( empty($this) || !($this instanceof ModuleManager) ) { exit; }
+if( empty($gCms) ) { exit; }
 if( !$this->CheckPermission('Modify Modules') ) exit;
 
 $this->SetCurrentTab('installed');
@@ -45,7 +46,7 @@ try {
     }
     else {
         $modname = 'Not Specified'; // not translated - export could go to anywhere
-        $mod = null;
+        $mod = null; // no object
     }
     if( !is_object($mod) ) {
         $this->SetError($this->Lang('error_getmodule', $modname));

@@ -25,15 +25,17 @@ If not, see <https://www.gnu.org/licenses/>.
  *
  * Type:     modifier
  * Name:     escape
- * Purpose:  Escape the string according to escapement type
+ * Purpose:  Escape the supplied string according to escapement type
  * @link http://smarty.php.net/manual/en/language.modifier.escape.php
  *          escape (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
- * @param string
- * @param html|htmlall|htmltiny|htmltemplate|url|urlpathinfo|quotes|hex|hexentity|decentity|javascript|nonstd|textarea|smartyphp
+ * @param string variable to process
+ * @param string type of processing
+ *  html|htmlall|htmltiny|htmltemplate|url|urlpathinfo|quotes|hex|hexentity|decentity|javascript|mail|nonstd|textarea|smartyphp
+ *  default 'html'
+ * @param string $char_set encoding used when converting characters default '' hence TBA
+ * @param bool $double_encode since 2.2.17 whether to encode existing html entities|chars default true
  * @return string
- *
- * Robert Campbell: change default charset to UTF-8
  */
 
 /*
@@ -53,7 +55,7 @@ use CMSMS\Lone;
 use function CMSMS\entitize;
 use function CMSMS\specialize;
 
-function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
+function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '', $double_encode = true)
 {
 	$esc_type = strtolower($esc_type);
 /*
@@ -71,13 +73,13 @@ function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
 	switch ($esc_type) {
 		case 'html':
 			if ($char_set) {
-				return specialize($string, 0, $char_set);
+				return specialize($string, 0, $char_set); // TODO $double_encode relevance
 			}
 			return specialize($string);
 
 		case 'htmlall':
 			if ($char_set) {
-				return entitize($string, 0, $char_set);
+				return entitize($string, 0, $char_set); // TODO $double_encode relevance
 			}
 			return entitize($string);
 
@@ -116,8 +118,11 @@ function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
 			return $_res;
 
 		case 'javascript':
-			// escape quotes, backslashes, newlines, etc
-			return strtr($string, ['\\'=>'\\\\',"'"=>"\\'",'"'=>'\\"',"\r"=>'\\r',"\n"=>'\\n','</'=>'<\/']);
+			// escape quotes, backslashes, newlines, etc.
+			$_res = strtr($string, ['\\'=>'\\\\',"'"=>"\\'",'"'=>'\\"',"\r"=>'\\r',"\n"=>'\\n']);
+			// see https://html.spec.whatwg.org/multipage/scripting.html#restrictions-for-contents-of-script-elements
+			// see OWASP XSS cheatsheet, the following is weak
+			return preg_replace(['%<\s*!\s*\-\-%', '%script\s*>%i'], ['&lt;!--', '&#115;cript&gt;'], $_res);
 
 		case 'mail':
 			// safer way to display e-mail address on a web page

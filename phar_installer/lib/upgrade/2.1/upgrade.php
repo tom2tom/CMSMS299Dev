@@ -7,8 +7,15 @@ status_msg('Upgrading schema for CMSMS 2.1');
 
 //$gCms = cmsms();
 $dbdict = $db->NewDataDictionary();
-$taboptarray = ['mysql' => 'TYPE=MyISAM'];
-
+/*
+$str = $db->server_info;
+if (stripos($str, 'Maria') === false) {
+    $tblengn = 'MyISAM';
+} else {
+    $tblengn = 'Aria';
+}
+$taboptarray = ['mysqli' => "ENGINE=$tblengn"];
+*/
 $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.Template::TABLENAME, 'listable I1 DEFAULT 1');
 $dbdict->ExecuteSQLArray($sqlarray);
 

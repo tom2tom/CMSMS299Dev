@@ -48,7 +48,7 @@ function ListTemplates($mod, $modname = '')
 	if (!$modname) {
 		$modname = $mod->GetName();
 	}
-	$query = 'SELECT name FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE listable!=0 AND originator=? ORDER BY name';
+	$query = 'SELECT `name` FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE listable!=0 AND originator=? ORDER BY `name`';
 	return $db->getCol($query, [$modname]);
 }
 
@@ -67,7 +67,7 @@ function GetTemplate($mod, $tpl_name, $modname = '')
 	if (!$modname) {
 		$modname = $mod->GetName();
 	}
-	$query = 'SELECT content FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE name=? AND originator=?';
+	$query = 'SELECT content FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE `name`=? AND originator=?';
 	return $db->getOne($query, [$tpl_name, $modname]);
 }
 
@@ -118,37 +118,35 @@ function SetTemplate($mod, $tpl_name, $content, $modname = '')
 		$modname = $mod->GetName();
 	}
 	$now = time();
+    $longnow = date('Y-M-d H:i:s', $now);
 	$pref = CMS_DB_PREFIX;
 	$tbl = CMS_DB_PREFIX.TemplateOperations::TABLENAME;
 
 	$query = <<<EOS
-SELECT id FROM {$pref}layout_tpl_types WHERE originator=? AND name='moduleactions'
+SELECT id FROM {$pref}layout_tpl_types WHERE originator=? AND `name`='moduleactions'
 EOS;
 	$tt = (int)$db->getOne($query, [$modname]);
 	if (!$tt) {
 		$query = <<<EOS
-INSERT INTO {$pref}layout_tpl_types (
-originator,
-name,
-description,
-owner_id) VALUES (?,'moduleactions',?,0)
+INSERT INTO {$pref}layout_tpl_types
+(originator,`name`,description,owner_id) VALUES (?,'moduleactions',?,1)
 EOS;
-		$db->execute($query, [$modname, 'Action templates for module: '.$modname, $now, $now]);
+		$db->execute($query, [$modname, 'Action templates for module: '.$modname, $now, $now]); //TODO timestamp for description, owner_id values ?
 		$tt = $db->insert_id();
 	}
 	// upsert TODO MySQL ON DUPLICATE KEY UPDATE useful here?
 	$query = <<<EOS
-UPDATE {$tbl} SET content=?,modified=? WHERE originator=? AND name=?
+UPDATE {$tbl} SET content=?,modified_date=? WHERE originator=? AND `name`=?
 EOS;
-	$db->execute($query, [$content,$now,$modname,$tpl_name]);
+	$db->execute($query, [$content,$longnow,$modname,$tpl_name]);
 	//just in case (originator,name) is not unique-indexed by the db
 	$query = <<<EOS
-INSERT INTO {$tbl} (originator,name,content,type_id,created,modified) SELECT ?,?,?,?,?,?
+INSERT INTO {$tbl} (originator,`name`,content,type_id,create_date,modified_date) SELECT ?,?,?,?,?,?
 FROM (SELECT 1 AS dmy) Z
-WHERE NOT EXISTS (SELECT 1 FROM {$tbl} T WHERE T.originator=? AND T.name=?)
+WHERE NOT EXISTS (SELECT 1 FROM {$tbl} T WHERE T.originator=? AND T.`name`=?)
 EOS;
 	$db->execute($query,
-	 [$modname, $tpl_name, $content, $tt, $now, $now, $modname, $tpl_name]);
+	 [$modname, $tpl_name, $content, $tt, $longnow, $longnow, $modname, $tpl_name]);
 }
 
 /**
@@ -168,7 +166,7 @@ function DeleteTemplate($mod, $tpl_name = '', $modname = '')
 	}
 	$vars = [$modname];
 	if ($tpl_name) {
-		$query .= 'AND name=?';
+		$query .= 'AND `name`=?';
 		$vars[] = $tpl_name;
 	}
 	$result = $db->execute($query, $vars);

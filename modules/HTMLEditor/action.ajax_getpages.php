@@ -88,7 +88,7 @@ $alias = 'selpagealias';
  * @param int  $depth current recursion level, 0-based
  * @return array
  */
-$fill_node = function($node, int $depth = 0) use(&$fill_node, &$page, &$title, &$alias) : array
+$fill_node = function($node, int $depth = 0) use (&$fill_node, &$page, &$title, &$alias) : array
 {
 	if (!is_object($node)) { return []; }
 	$content = $node->get_content(false);

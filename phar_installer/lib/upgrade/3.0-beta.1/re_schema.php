@@ -25,6 +25,14 @@ $add_defns = [];
 $mod_defns = [];
 $drop_defns = [];
 
+//prefer MariaDB Aria engine if available
+$s = $db->server_info;
+if (stripos($s, 'Maria') === false) {
+    $engn = 'MyISAM';
+} else {
+    $engn = 'Aria';
+}
+
 // ~~~~~~~~~~~~~ TABLE ADDITIONS ~~~~~~~~~~~~
 
 //data field holds a serialized class, size 1000 is probably enough
@@ -39,11 +47,11 @@ recurs I2 UNSIGNED,
 errors I2 UNSIGNED DEFAULT 0,
 data C(2000),
 ';
-$tabopts = '
-ENGINE MyISAM,
+$tabopts = "
+ENGINE $engn,
 CHARACTER SET ascii,
 COLLATE ascii_bin,
-';
+";
 $add_defns[$tblprefix.'asyncjobs'] = [$tabopts, $flds];
 
 $flds = '
@@ -55,11 +63,11 @@ displayclass C(255) NOTNULL,
 editclass C(255),
 UNIQUE KEY i_originat_name (originator,name),
 ';
-$tabopts = '
-ENGINE MyISAM,
+$tabopts = "
+ENGINE $engn,
 CHARACTER SET ascii,
 COLLATE ascii_bin,
-';
+";
 $add_defns[$tblprefix.'content_types'] = [$tabopts, $flds];
 
 $flds = '
@@ -67,51 +75,51 @@ id I UNSIGNED AUTO PKEY(`id`),
 name C(80) CHARACTER SET utf8mb4 NOTNULL,
 reltoppath C(255),
 data X(16383) NOTNULL,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 UNIQUE KEY i_name (name),
 ';
-$tabopts = '
-ENGINE MyISAM,
+$tabopts = "
+ENGINE $engn,
 CHARACTER SET ascii,
 COLLATE ascii_bin,
-';
+";
 $add_defns[$tblprefix.'controlsets'] = [$tabopts, $flds];
 /*
 // unique-integer provider
 $flds = '
 id I UNSIGNED NOTNULL,
 ';
-$tabopts = '
-ENGINE MyISAM,
+$tabopts = "
+ENGINE $engn,
 CHARACTER SET ascii,
 COLLATE ascii_bin,
-';
+";
 $add_defns[$tblprefix.'counter'] = [$tabopts, $flds];
 */
 $flds = '
 token C(16) NOTNULL PKEY(`token`),
 hash C(32) NOTNULL,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 ';
-$tabopts = '
-ENGINE MyISAM,
+$tabopts = "
+ENGINE $engn,
 CHARACTER SET ascii,
 COLLATE ascii_bin,
-';
+";
 $add_defns[$tblprefix.'job_records'] = [$tabopts, $flds];
 
 $flds = '
 id I UNSIGNED AUTO NOTNULL PKEY(`id`),
 name C(60) CHARACTER SET utf8mb4 NOTNULL UNIQUE,
 description C(1500) CHARACTER SET utf8mb4,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 ';
-$tabopts = '
-ENGINE MyISAM,
+$tabopts = "
+ENGINE $engn,
 CHARACTER SET utf8mb4,
-';
+";
 $add_defns[$tblprefix.'layout_css_groups'] = [$tabopts, $flds]; // aka StylesheetsGroup::TABLENAME
 
 $flds = '
@@ -120,11 +128,11 @@ group_id I UNSIGNED NOTNULL,
 css_id I UNSIGNED NOTNULL,
 item_order I1 UNSIGNED DEFAULT 0,
 ';
-$tabopts = '
-ENGINE MyISAM,
+$tabopts = "
+ENGINE $engn,
 CHARACTER SET ascii,
 COLLATE ascii_bin,
-';
+";
 $add_defns[$tblprefix.'layout_cssgroup_members'] = [$tabopts, $flds]; // aka StylesheetsGroup::MEMBERSTABLE
 
 $flds = '
@@ -138,15 +146,15 @@ help_content_cb C(255),
 owner_id I UNSIGNED DEFAULT 1,
 has_dflt I1 UNSIGNED DEFAULT 0,
 dflt_content X(65535),
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 UNIQUE KEY i_originat_name (originator,name),
 ';
-$tabopts = '
-ENGINE MyISAM,
+$tabopts = "
+ENGINE $engn,
 CHARACTER SET ascii,
 COLLATE ascii_bin,
-';
+";
 $add_defns[$tblprefix.'layout_css_types'] = [$tabopts, $flds]; // future StylesheetsType::TABLENAME
 
 $flds = '
@@ -155,11 +163,11 @@ group_id I UNSIGNED NOTNULL,
 tpl_id I UNSIGNED NOTNULL,
 item_order I1 UNSIGNED DEFAULT 0,
 ';
-$tabopts = '
-ENGINE MyISAM,
+$tabopts = "
+ENGINE $engn,
 CHARACTER SET ascii,
 COLLATE ascii_bin,
-';
+";
 $add_defns[$tblprefix.'layout_tplgroup_members'] = [$tabopts, $flds]; // aka TemplatesGroup::MEMBERSTABLE
 
 // ~~~~~~~~~~~~~ TABLE MODIFICATIONS ~~~~~~~~~~~~~
@@ -214,7 +222,7 @@ DROP collapsed,
 MODIFY content_alias C(255),
 MODIFY content_id I UNSIGNED,
 MODIFY content_name C(255) CHARACTER SET utf8mb4,
-MODIFY create_date DT DEFAULT CURRENT_TIMESTAMP,
+MODIFY create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 MODIFY default_content I1 UNSIGNED DEFAULT 0,
 MODIFY hierarchy C(40) COLLATE ascii_bin,
 MODIFY hierarchy_path C(500),
@@ -250,7 +258,7 @@ $mod_defns[$tblprefix.'content'] = [$tabopts, $flds];
 $flds = '
 MODIFY content X(65535) CHARACTER SET utf8mb4,
 MODIFY content_id I UNSIGNED,
-MODIFY create_date DT DEFAULT CURRENT_TIMESTAMP,
+MODIFY create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 MODIFY modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 MODIFY param1 C(255) CHARACTER SET utf8mb4,
 MODIFY param2 C(255) CHARACTER SET utf8mb4,
@@ -294,7 +302,7 @@ $mod_defns[$tblprefix.'event_handlers'] = [$tabopts, $flds];
 
 $flds = '
 MODIFY active I1 UNSIGNED DEFAULT 1,
-MODIFY create_date DT DEFAULT CURRENT_TIMESTAMP,
+MODIFY create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 MODIFY group_desc C(255) CHARACTER SET utf8mb4 AFTER group_name,
 MODIFY group_id I UNSIGNED AUTO,
 MODIFY group_name C(50) CHARACTER SET utf8mb4 NOTNULL,
@@ -307,7 +315,7 @@ CHARACTER SET ascii,
 $mod_defns[$tblprefix.'groups'] = [$tabopts, $flds];
 
 $flds = '
-MODIFY create_date DT DEFAULT CURRENT_TIMESTAMP,
+MODIFY create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 MODIFY group_id I UNSIGNED,
 MODIFY group_perm_id I UNSIGNED AUTO,
 MODIFY modified_date DT ON UPDATE CURRENT_TIMESTAMP,
@@ -321,14 +329,14 @@ $mod_defns[$tblprefix.'group_perms'] = [$tabopts, $flds];
 
 // UPDATE tbl SET *_date = DATE_FORMAT(FROM_UNIXTIME(*_stamp), '%Y-%m-%d %H:%i:%s') WHERE *_stamp > 0
 //// migrate layout_designs created,modified expected to produce
-////create_date DT DEFAULT CURRENT_TIMESTAMP,
+////create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 ////modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 $flds = '
 MODIFY description C(1500) CHARACTER SET utf8mb4,
 DROP dflt,
 MODIFY id I UNSIGNED NOTNULL AUTO,
 MODIFY name C(50) CHARACTER SET utf8mb4 NOTNULL,
-ADD create_date DT DEFAULT CURRENT_TIMESTAMP,
+ADD create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 ADD modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 ';
 $tabopts = '
@@ -368,7 +376,7 @@ CHARACTER SET ascii,
 $mod_defns[$tblprefix.'layout_design_tplassoc'] = [$tabopts, $flds];
 
 //// migrate layout_stylesheets created,modified expected to produce
-////create_date DT DEFAULT CURRENT_TIMESTAMP,
+////create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 ////modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 $flds = '
 MODIFY content X(65535),
@@ -383,7 +391,7 @@ ADD type_id I UNSIGNED,
 ADD type_dflt I1 UNSIGNED DEFAULT 0,
 ADD listable I1 UNSIGNED DEFAULT 1,
 ADD contentfile I1 UNSIGNED DEFAULT 0,
-ADD create_date DT DEFAULT CURRENT_TIMESTAMP,
+ADD create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 ADD modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 ';
 $tabopts = '
@@ -396,7 +404,7 @@ CHARACTER SET ascii,
 $mod_defns[$tblprefix.'layout_stylesheets'] = [$tabopts, $flds];
 
 //// migrate layout_templates created,modified expected to produce
-////create_date DT DEFAULT CURRENT_TIMESTAMP,
+////create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 ////modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 //// defer DROP category_id, until processed later
 $flds = '
@@ -410,7 +418,7 @@ ADD originator C(50) AFTER id,
 MODIFY owner_id I UNSIGNED DEFAULT 1 AFTER hierarchy,
 MODIFY type_dflt I1 UNSIGNED DEFAULT 0 AFTER owner_id,
 MODIFY type_id I UNSIGNED,
-ADD create_date DT DEFAULT CURRENT_TIMESTAMP,
+ADD create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 ADD modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 ';
 // DROP UNIQUE index on name add UNIQUE on (originator,name),
@@ -436,7 +444,7 @@ $mod_defns[$tblprefix.'layout_tpl_addusers'] = [$tabopts, $flds];
 //// migrate layout_tpl_categories/groups modified ONLY expected to produce
 ////modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 $flds = '
-ADD create_date DT DEFAULT CURRENT_TIMESTAMP,
+ADD create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 MODIFY description C(1500),
 MODIFY id I UNSIGNED AUTO,
 DROP item_order,
@@ -464,7 +472,7 @@ MODIFY one_only I1 UNSIGNED DEFAULT 0 AFTER requires_contentblocks,
 MODIFY originator C(50),
 CHANGE owner owner_id I UNSIGNED DEFAULT 1,
 MODIFY requires_contentblocks I1 UNSIGNED DEFAULT 0,
-ADD create_date DT DEFAULT CURRENT_TIMESTAMP,
+ADD create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 ADD modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 ';
 //ADD UNIQUE '.$tblprefix.'i_originat_name (originator,name),
@@ -483,7 +491,7 @@ MODIFY lifetime I2 UNSIGNED,
 MODIFY oid I UNSIGNED NOTNULL,
 MODIFY type C(25) NOTNULL,
 MODIFY uid I UNSIGNED NOTNULL,
-ADD create_date DT DEFAULT CURRENT_TIMESTAMP,
+ADD create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 ADD modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 ';
 $tabopts = '
@@ -510,7 +518,7 @@ $mod_defns[$tblprefix.'modules'] = [$tabopts, $flds];
 
 $flds = '
 MODIFY child_module C(50),
-MODIFY create_date DT DEFAULT CURRENT_TIMESTAMP,
+MODIFY create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 MODIFY minimum_version C(16),
 MODIFY modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 MODIFY parent_module C(50),
@@ -541,7 +549,7 @@ COLLATE ascii_bin,
 $mod_defns[$tblprefix.'module_smarty_plugins'] = [$tabopts, $flds];
 
 $flds = '
-MODIFY create_date DT DEFAULT CURRENT_TIMESTAMP,
+MODIFY create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 MODIFY modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 CHANGE permission_id id I UNSIGNED AUTO NOTNULL,
 CHANGE permission_name name C(50) NOTNULL,
@@ -556,7 +564,7 @@ CHARACTER SET ascii,
 $mod_defns[$tblprefix.'permissions'] = [$tabopts, $flds];
 
 $flds = '
-CHANGE created create_date DT DEFAULT CURRENT_TIMESTAMP,
+CHANGE created create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 MODIFY data C(600) NOTNULL,
 ADD id I UNSIGNED AUTO NOTNULL FIRST APKEY(`id`),
 CHANGE key1 dest1 C(50) COLLATE ascii_general_ci NOTNULL,
@@ -574,7 +582,7 @@ COLLATE ascii_bin,
 $mod_defns[$tblprefix.'routes'] = [$tabopts, $flds];
 
 $flds = '
-MODIFY create_date DT DEFAULT CURRENT_TIMESTAMP,
+MODIFY create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 MODIFY modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 MODIFY sitepref_name C(255) NOTNULL UNIQUE,
 MODIFY sitepref_value X(65535) CHARACTER SET utf8mb4,
@@ -588,7 +596,7 @@ $mod_defns[$tblprefix.'siteprefs'] = [$tabopts, $flds];
 // name must support case-insenstive matching, TODO might include UTF8 ?
 // code might include UTF8 for UI ?
 $flds = '
-MODIFY create_date DT DEFAULT CURRENT_TIMESTAMP,
+MODIFY create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 MODIFY description C(1500) CHARACTER SET utf8mb4,
 MODIFY modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 ADD parameters C(1000) CHARACTER SET utf8mb4 AFTER description,
@@ -620,24 +628,27 @@ $mod_defns[$tblprefix.'userprefs'] = [$tabopts, $flds];
 $flds = '
 MODIFY active I1 UNSIGNED DEFAULT 1,
 DROP admin_access,
-MODIFY create_date DT DEFAULT CURRENT_TIMESTAMP,
-MODIFY email C(255) CHARACTER SET utf8mb4,
+MODIFY create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
+MODIFY email B(256),
 MODIFY first_name C(64) CHARACTER SET utf8mb4,
-MODIFY last_name C(64) CHARACTER SET utf8mb4,
+MODIFY last_name B(256),
 MODIFY modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 MODIFY password C(128),
 MODIFY user_id I UNSIGNED,
-MODIFY username C(80) CHARACTER SET utf8mb4 NOTNULL UNIQUE,
+MODIFY username B(256) NOTNULL,
+ADD account C(48) NOTNULL AFTER user_id,
 ADD pwreset I1 UNSIGNED DEFAULT 0 AFTER active,
 ADD tailor B(16384),
 ';
 $tabopts = '
+ADD UNIQUE KEY i_account (account),
+ADD UNIQUE KEY i_username (username(100)),
 CHARACTER SET ascii,
 ';
 $mod_defns[$tblprefix.'users'] = [$tabopts, $flds];
 
 $flds = '
-MODIFY create_date DT DEFAULT CURRENT_TIMESTAMP,
+MODIFY create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 MODIFY group_id I UNSIGNED NOTNULL,
 MODIFY modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 MODIFY user_id I UNSIGNED NOTNULL,
@@ -826,10 +837,10 @@ if ($rst) {
     $types = [];
     $gid = 0;
     // aka TemplateType::TABLENAME
-    $stmt = $handle->prepare("INSERT INTO {$tblprefix}layout_tpl_types (originator,name,description,owner_id) VALUES (?,'moduleactions',?,0)");
-    $stmt2 = $handle->prepare("INSERT INTO {$tblprefix}layout_tpl_groups (name,description,create_date) VALUES (?,?,?)");
+    $stmt = $handle->prepare("INSERT INTO {$tblprefix}layout_tpl_types (originator,`name`,description,owner_id) VALUES (?,'moduleactions',?,1)");
+    $stmt2 = $handle->prepare("INSERT INTO {$tblprefix}layout_tpl_groups (`name`,description,create_date) VALUES (?,?,?)");
     // category_id used only for transition
-    $stmt3 = $handle->prepare("INSERT INTO {$tblprefix}layout_templates (originator,name,content,type_id,category_id,create_date,modified_date)
+    $stmt3 = $handle->prepare("INSERT INTO {$tblprefix}layout_templates (originator,`name`,content,type_id,category_id,create_date,modified_date)
 VALUES (?,?,?,?,?,?,?)");
     foreach ($data as $row) {
         $name = $row['module_name'];
@@ -873,7 +884,7 @@ VALUES (?,?,?,?,?,?,?)");
 $drop_defns[] = $tblprefix.'module_templates';
 
 // migrate existing template category_id values to new table
-$sql = 'SELECT id,category_id FROM '.$tblprefix.'layout_templates WHERE category_id IS NOT NULL ORDER BY category_id, name'; // aka TemplateOperations::TABLENAME
+$sql = 'SELECT id,category_id FROM '.$tblprefix.'layout_templates WHERE category_id IS NOT NULL ORDER BY category_id, `name`'; // aka TemplateOperations::TABLENAME
 $rst = $handle->query($sql);
 if ($rst) {
     $data = $rst->fetch_all(MYSQLI_ASSOC);
@@ -903,7 +914,7 @@ if ($rst) {
     $data = $rst->fetch_all(MYSQLI_ASSOC);
     $rst->close();
     $nullfy = false;
-    $stmt = $handle->prepare("INSERT INTO {$tblprefix}controlsets (name,reltoppath,data,create_date,modified_date) VALUES (?,?,?,?,?)");
+    $stmt = $handle->prepare("INSERT INTO {$tblprefix}controlsets (`name`,reltoppath,data,create_date,modified_date) VALUES (?,?,?,?,?)");
     foreach ($data as $row) {
         $arr = unserialize($row['data']); // no class in there
         $reltop = (!empty($arr['top'])) ? $arr['top'] : 'uploads'; //CHECKME should be site-root-relative TODO later: replace by actual config['uploads_path']
@@ -932,7 +943,7 @@ if ($rst) {
 $handle->query('DROP TABLE '.$tbl); // don't care if this fails
 
 // migrate design stylesheets and/or templates to layout tables and pages as respective groups
-$rst = $handle->query('SELECT id,name,create_date,modified_date FROM '.$tblprefix.'module_designs');
+$rst = $handle->query('SELECT id,`name`,create_date,modified_date FROM '.$tblprefix.'module_designs');
 if ($rst) {
     $data = $rst->fetch_all(MYSQLI_ASSOC);
     $rst->close();
@@ -944,7 +955,7 @@ if ($rst) {
         }
         $rst = $handle->query('SELECT A.* FROM '.
             $tblprefix.'module_designs_tpl A LEFT JOIN '.
-            $tblprefix.'layout_templates T ON A.tpl_id=T.id ORDER BY A.design_id,A.tpl_order,T.name');
+            $tblprefix.'layout_templates T ON A.tpl_id=T.id ORDER BY A.design_id,A.tpl_order,T.`name`');
         if ($rst) {
             $templates = $rst->fetch_all(MYSQLI_ASSOC);
             $rst->close();
@@ -958,7 +969,7 @@ if ($rst) {
                 $bank[$id][] = (int)$row['tpl_id'];
             }
             $stmt = $handle->prepare("INSERT INTO {$tblprefix}layout_tpl_groups
-(name,description,create_date,modified_date) VALUES (?,?,?,?)");
+(`name`,description,create_date,modified_date) VALUES (?,?,?,?)");
             $tmpl = "INSERT INTO {$tblprefix}layout_tplgroup_members
 (group_id,tpl_id,item_order) VALUES (%d,%d,%d)";
             foreach ($bank as $id => $row) {
@@ -1003,7 +1014,7 @@ if ($rst) {
             $trans = []; // design-id cache
             $sizes = []; // item-count cache
             $stmt = $handle->prepare("INSERT INTO {$tblprefix}layout_css_groups
-(name,description,create_date,modified_date) VALUES(?,?,?,?)");
+(`name`,description,create_date,modified_date) VALUES(?,?,?,?)");
             $tmpl = "INSERT INTO {$tblprefix}layout_cssgroup_members
 (group_id,css_id,item_order) VALUES (%d,%d,%d)";
             foreach ($bank as $id => $row) {

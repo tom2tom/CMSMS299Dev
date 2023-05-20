@@ -175,8 +175,6 @@ EOS;
 			}
 			$params['_modulename'] = $originator; //might be 'Core'
 			$params['_eventname'] = $eventname;
-			$mgr = null;
-			$smarty = null;
 			foreach ($results as $row) {
 				$handler = $row['method'];
 				switch ($row['type']) {
@@ -197,15 +195,15 @@ EOS;
 					break;
 				  case 'U': //UDT
 					if (!empty($handler)) {
-						if ($mgr === null) {
-							$mgr = Lone::get('UserTagOperations');
+						if (!isset($tagops)) {
+							$tagops = Lone::get('UserTagOperations');
 						}
 						debug_buffer($eventname.' event notice to user-plugin ' . $row['method']);
-						$mgr->DoEvent($handler, $originator, $eventname, $params); //CHECKME $handler for UDTfiles
+						$tagops->DoEvent($handler, $originator, $eventname, $params); //CHECKME $handler for UDTfiles
 					}
 					break;
 				  case 'P': //regular plugin
-					if ($smarty === null) {
+					if (!isset($smarty)) {
 						$smarty = Lone::get('Smarty');
 					}
 					if ($smarty->is_plugin($handler)) {
@@ -370,7 +368,7 @@ EOS;
 	public static function AddStaticHandler(string $originator, string $eventname, $handler, string $type = 'C', bool $removable = true) : bool
 	{
 		$params = self::InterpretHandler($handler, $type);
-		if (!$params || (empty($params[0]) && empty($params[1]))) {
+		if (!$params || (!$params[0] && !$params[1])) {
 			return false;
 		}
 		$db = Lone::get('Db');
@@ -660,9 +658,12 @@ EOS;
 	 * @param string $type Optional indicator of $handler type
 	 *  ('M' module 'U' UDT 'P' regular plugin 'C' callable, 'auto' interpret). Default 'auto'.
 	 * @param string $type $handler type-indicator. Default 'auto'
-	 * @return mixed 3-member array | false upon error
+	 * @return mixed 3-member array | empty upon error
+     * [0] = handler class name maybe empty
+     * [1] = handler method maybe empty
+     * [2] = handler-type indicator 'M'|'U'|'P'|'C'
 	 */
-	private static function InterpretHandler($handler, string $type = 'auto')
+	private static function InterpretHandler($handler, string $type = 'auto') : array
 	{
 		$parsed = ''; // result-receiver
 		if (is_callable($handler, true, $parsed)) {
@@ -670,7 +671,7 @@ EOS;
 		} elseif ($handler && is_string($handler)) {
 			list($class, $method) = explode('::', $handler, 2);
 		} else {
-			return false;
+			return [];
 		}
 
 		switch ($type) {
@@ -692,10 +693,10 @@ EOS;
 		 case 'M':
 			if ($method && !$class) {
 				$class = $method;
-				$method = null;
+				$method = '';
 			}
 			if (!$class) {
-				return false;
+				return [];
 			} elseif ($method) {
 				$type = 'C';
 			}
@@ -704,36 +705,36 @@ EOS;
 		 case 'P':
 			if ($class && !$method) {
 				$method = $class;
-				$class = null;
+				$class = '';
 			}
 			if (!$method) {
-				return false;
+				return [];
 			} elseif ($class) {
 				$type = 'C';
 			} else {
-				$class = null;
+				$class = '';
 			}
 			break;
 		 case 'C':
 			if (!$class || !$method) {
-				return false;
+				return [];
 			}
 			break;
 		 case 'auto':
 			if ($class && $method) {
 				$type = 'C';
 			} elseif ($class) {
-				$method = null;
+				$method = '';
 				$type = 'M'; /*TODO $class is module name type=M | UDT name  method=class type=U | plugin name method=class type=P */
 			} elseif ($method) {
-				$class = null;
+				$class = '';
 				$type = 'U'; /*TODO $method is module name class=method type=M | UDT name type=U | plugin name type=P */
 			} else {
-				return false;
+				return [];
 			}
 			break;
 		 default:
-			return false;
+			return [];
 		}
 
 		return [$class, $method, $type];

@@ -84,7 +84,7 @@ abstract class installer_base
         if (is_object(self::$_instance)) {
             throw new Exception('Cannot create another '.__CLASS__.' object');
         }
-        $this->signature = hash('fnv132', __CLASS__); //ATM only existence is checked, so any value would do
+        $this->signature = hash('fnv132', get_class($this)); //ATM only existence is checked, so any value would do
         self::$_instance = $this; //used during init()
         $this->init($configfile);
     }
@@ -188,7 +188,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         $sess['config'] = $config;
         // lazy place to do some onetime work
         if (!empty($config['debug'])) {
-            $fp = realpath(getcwd());
+            $fp = realpath(getcwd()); //NB realpath N/A inside phars
             $tmp = joinpath($fp, 'lib', 'assets', 'initial.xml');
             $msg = (is_file($tmp)) ? 'XML EXISTS' : 'NO XML at '.$tmp;
             file_put_contents($config['tmpdir'].DIRECTORY_SEPARATOR.'guiinstaller-cwd.txt', $msg);
@@ -549,7 +549,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
             $fp = $configfile;
         }
         $config = (is_file($fp)) ? parse_ini_file($fp, false, INI_SCANNER_TYPED) : [];
-        $this->_config = ($config) ? $config : [];
+        $this->_config = $config ?: [];
 
         // handle debug mode
         if (!empty($config['debug'])) {

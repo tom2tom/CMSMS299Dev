@@ -150,8 +150,8 @@ if (isset($params['save'])) {
     }
 
     // save the thing.
-    $res = null;
     switch ($imageinfo['mime']) {
+        //$res for debugging only
     case 'image/gif':
         $res = imagegif($rotated, $src);
         break;

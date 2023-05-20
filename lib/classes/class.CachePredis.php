@@ -161,35 +161,35 @@ class CachePredis extends CacheDriver
 		return $out;
 	}
 
-	public function get($key, string $space = '')
+	public function get(string $key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
 		return $this->_read_cache($key);
 	}
 
-	public function has($key, string $space = '')
+	public function has(string $key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
 		return $this->instance->exists($key) > 0;
 	}
 
-	public function set($key, $value, string $space = '')
+	public function set(string $key, $value, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
 		return $this->_write_cache($key, $value);
 	}
 
-	public function set_timed($key, $value, int $ttl = 0, string $space = '')
+	public function set_timed(string $key, $value, int $ttl = 0, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
 		return $this->_write_cache($key, $value, $ttl);
 	}
 
-	public function delete($key, string $space = '')
+	public function delete(string $key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
@@ -206,7 +206,7 @@ class CachePredis extends CacheDriver
 	/**
 	 * @ignore
 	 */
-	private function _read_cache($key)
+	private function _read_cache(string $key)
 	{
 		$value = $this->instance->get($key);
 		if ($value !== false) {
@@ -223,14 +223,14 @@ class CachePredis extends CacheDriver
 	/**
 	 * @ignore
 	 */
-	private function _write_cache($key, $value, $ttl = null) : bool
+	private function _write_cache(string $key, $value, int $ttl = -1) : bool
 	{
 		if (is_scalar($value)) {
 			$value = (string)$value;
 		} else {
 			$value = parent::SERIALIZED.serialize($value);
 		}
-		if ($ttl === null) {
+		if ($ttl == -1) {
 			$ttl = ($this->_auto_cleaning) ? 0 : $this->_lifetime;
 		}
 		if ($ttl > 0) {

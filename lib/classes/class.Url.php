@@ -84,7 +84,7 @@ class Url
     {
         $key = trim((string)$key);
         if( !($value || is_numeric($value)) ) {
-            $this->_parts[$key] = null;
+            $this->_parts[$key] = null; // i.e. unset
         }
         else {
             $this->_parts[$key] = $value;

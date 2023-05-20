@@ -79,34 +79,34 @@ class FolderControls
     {
         $longnow = date('Y-m-d H:i:s', time()); // i.e. $db->DbTimeStamp(time())
         $this->data = array_merge([
-         'id'=>0, // if the profile data are db-stored, this is for the row-index
-         'name'=>'',
-         'can_delete'=>FSControlValue::YES,
-         'can_mkdir'=>FSControlValue::YES,
-         'can_mkfile'=>FSControlValue::YES,
-         'can_upload'=>FSControlValue::YES,
-         'case_sensitive'=>FSControlValue::NO,
-         'create_date'=>$longnow,
-         'exclude_groups'=>[], //array of group-id's
-         'exclude_patterns'=>[], //array of regex's - barred item-names
-         'exclude_prefix'=>'', // deprecated, unused since 3.0 see exclude_pattern
-         'exclude_users'=>[],  //array of user-id's
-         'file_extensions'=>'', // deprecated, unused since 2.99s see match_pattern allowed_types etc
-         'file_mimes'=>'', //since 2.0
-         'file_types'=>[FileType::ANY], //array of acceptable type-enumerators
-         'match_groups'=>[], //array of group-id's
-         'match_patterns'=>[], //array of regex's representing acceptable item-names
-         'match_prefix'=>'', // deprecated, unused since 3.0 see match_pattern allowed_types etc
-         'match_users'=>[], //array of user-id's
-         'modified_date'=>null,
-         'reltop'=>'', // topmost (aka 'senior') filepath relative to website root, generally the name of the uploads folder
-         'show_hidden'=>FSControlValue::NO,
-         'show_thumbs'=>FSControlValue::YES,
-         'sort'=>FSControlValue::YES, // deprecated, unused since 3.0 see sort_asc etc
-         'sort_asc'=>FSControlValue::YES,
-         'sort_by'=>'name', // item-property - name,size,created,modified + [a[sc]] | d[esc]
-         'type'=>FileType::ANY,
-         'typename'=>'ANY',
+         'id' => 0, // if the profile data are db-stored, this is for the row-index
+         'name' => '',
+         'can_delete' => FSControlValue::YES,
+         'can_mkdir' => FSControlValue::YES,
+         'can_mkfile' => FSControlValue::YES,
+         'can_upload' => FSControlValue::YES,
+         'case_sensitive' => FSControlValue::NO,
+         'create_date' => $longnow,
+         'exclude_groups' => [], //array of group-id's
+         'exclude_patterns' => [], //array of regex's - barred item-names
+         'exclude_prefix' => '', // deprecated, unused since 3.0 see exclude_pattern
+         'exclude_users' => [],  //array of user-id's
+         'file_extensions' => '', // deprecated, unused since 2.99s see match_pattern allowed_types etc
+         'file_mimes' => '', //since 2.0
+         'file_types' => [FileType::ANY], //array of acceptable type-enumerators
+         'match_groups' => [], //array of group-id's
+         'match_patterns' => [], //array of regex's representing acceptable item-names
+         'match_prefix' => '', // deprecated, unused since 3.0 see match_pattern allowed_types etc
+         'match_users' => [], //array of user-id's
+         'modified_date' => null, // record NULL in db
+         'reltop' => '', // topmost (aka 'senior') filepath relative to website root, generally the name of the uploads folder
+         'show_hidden' => FSControlValue::NO,
+         'show_thumbs' => FSControlValue::YES,
+         'sort' => FSControlValue::YES, // deprecated, unused since 3.0 see sort_asc etc
+         'sort_asc' => FSControlValue::YES,
+         'sort_by' => 'name', // item-property - name,size,created,modified + [a[sc]] | d[esc]
+         'type' => FileType::ANY,
+         'typename' => 'ANY',
         ], $params);
 
         $this->data['id'] = (int)$this->data['id'];
@@ -129,7 +129,7 @@ class FolderControls
         }
         if( !empty($params['reltop']) ) {
             $s = $this->rel_top($params['reltop']);
-            if( $s !== null ) {
+            if( $s !== null ) { //success
                 $this->data['reltop'] = $s;
             }
         }
@@ -180,7 +180,7 @@ class FolderControls
     {
         $this->data['id'] = 0;
         $this->data['create_date'] = date('Y-m-d H:i:s', time());
-        $this->data['modified_date'] = null;
+        $this->data['modified_date'] = null; // aka unset
     }
 
     /**
@@ -288,7 +288,7 @@ class FolderControls
         case 'top': // accepted aliases (for setting only)
         case 'topdir':
             $s = $this->rel_top($val);
-            if( $s !== null ) {
+            if( $s !== null ) { // success
                 $this->data['reltop'] = $s;
                 break;
             }
@@ -305,7 +305,7 @@ class FolderControls
                     $this->data[$key] = date('Y-m-d H:i:s', time()); // i.e. $db->DbTimeStamp(time())
                 }
                 else {
-                    $this->data[$key] = null;
+                    $this->data[$key] = null; // aka undefined
                 }
             }
             elseif ($val) {
@@ -412,7 +412,7 @@ class FolderControls
      *  Setting a specific id is automatic when a set is saved, and prohibited otherwise
      * @return self
      */
-    public function withNewId($new_id = null)
+    public function withNewId($new_id = 0)
     {
         return clone $this;
     }

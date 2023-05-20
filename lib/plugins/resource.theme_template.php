@@ -86,7 +86,7 @@ class Smarty_Resource_theme_template extends Smarty_Resource_Custom
 
         // here we replicate CMSMS\Template::get_content() without the overhead of loading that class
         $db = Lone::get('Db');
-        $sql = 'SELECT id,name,content,contentfile,COALESCE(modified_date,create_date,\'2000-1-1 00:00:01\') AS modified FROM '.CMS_DB_PREFIX.'layout_templates WHERE id=? OR name=?';
+        $sql = 'SELECT id,`name`,content,contentfile,COALESCE(modified_date,create_date,\'2000-1-1 00:00:01\') AS modified FROM '.CMS_DB_PREFIX.'layout_templates WHERE id=? OR `name`=?';
         $data = $db->getRow($sql,[$name,$name]);
         if( $data ) {
             if( $data['contentfile'] ) {

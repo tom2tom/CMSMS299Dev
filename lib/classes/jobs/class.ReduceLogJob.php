@@ -113,7 +113,7 @@ class ReduceLogJob extends CronJob
         $db = Lone::get('Db');
         $table = dbstorage::TABLENAME;
         $lastrec['message'] .= sprintf(' (repeated %d times)',$n);
-        $sql = "UPDATE $table SET message = ? WHERE timestamp = ? AND user_id = ? AND username = ? AND item_id = ? AND subject = ? AND ip_addr = ?";
+        $sql = "UPDATE $table SET message=? WHERE timestamp=? AND user_id=? AND username=? AND item_id=? AND subject=? AND ip_addr=?";
         $db->execute($sql,[$lastrec['message'],$lastrec['timestamp'],$lastrec['user_id'],$lastrec['username'],
                            $lastrec['item_id'],$lastrec['subject'],$lastrec['ip_addr']]);
     }
@@ -125,7 +125,7 @@ class ReduceLogJob extends CronJob
 
         $table = dbstorage::TABLENAME;
         $db = Lone::get('Db');
-        $sql = "DELETE FROM $table WHERE timestamp = ? AND user_id = ? AND username = ? AND item_id = ? AND subject = ? AND message = ? AND ip_addr = ?";
+        $sql = "DELETE FROM $table WHERE timestamp=? AND user_id=? AND username=? AND item_id=? AND subject=? AND message=? AND ip_addr=?";
         for ($i = 0; $i < $n; $i++) {
             $rec = $this->_queue[$i];
             $db->execute($sql,[$rec['timestamp'],$rec['user_id'],$rec['username'],

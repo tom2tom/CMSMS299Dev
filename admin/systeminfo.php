@@ -42,9 +42,9 @@ $selfurl = basename(__FILE__);
 
 require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'test.functions.php');
 /*
-function installerHelpLanguage($lang, $default = null)
+function installerHelpLanguage(string $lang, string $default = '') : string
 {
-    if ((!is_null($default)) && ($default == $lang)) {
+    if ($default && ($default == $lang)) {
         return '';
     }
     return substr($lang, 0, 2);

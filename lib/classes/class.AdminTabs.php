@@ -99,7 +99,7 @@ final class AdminTabs
      */
     public static function reset()
     {
-        self::$_current_tab = null;
+        self::$_current_tab = '';
         self::$_start_headers_sent = 0;
         self::$_end_headers_sent = 0;
         self::$_start_content_sent = 0;
@@ -113,7 +113,7 @@ final class AdminTabs
      *
      * @param string $tab The param key
      */
-    public static function set_current_tab($tab)
+    public static function set_current_tab(string $tab)
     {
         self::$_current_tab = $tab;
     }
@@ -142,7 +142,7 @@ final class AdminTabs
      * @param bool   $autoflow Since 3.0 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
-    public static function set_tab_header($tabid, $title, $active = false, $autoflow = true)
+    public static function set_tab_header(string $tabid, string $title, bool $active = false, bool $autoflow = true)
     {
         if (!$active) {
             if ((self::$_tab_idx == 0 && self::$_current_tab == '') || $tabid == self::$_current_tab) {

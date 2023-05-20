@@ -98,7 +98,7 @@ $Ares = $tester($userobj, 's11ku');
 
 if (isset($_POST['submit'])) {
     $errors = [];
-    $usrops = new UserOperations();
+    $userops = Lone::get('UserOperations');
 
     $tpw = $_POST['password'] ?? ''; // preserve these verbatim
     $tpw2 = $_POST['passwordagain'] ?? '';
@@ -112,12 +112,12 @@ if (isset($_POST['submit'])) {
     if ($username != $tmp) {
         $errors[] = _la('illegalcharacters', _la('username'));
         $nmok = false; // no name-policy-check
-    } elseif (!($username || is_numeric($username))) { // allow username '0' ???
+    } elseif (!($username || is_numeric($username))) { // allow username '0' ?
         $errors[] = _la('nofieldgiven', _la('username'));
         $nmok = false;
     } elseif ($username != $userobj->username) {
         //check for duplication of new name
-        if (!$usrops->ReserveUsername($username)) {
+        if (!$userops->ReserveUsername($username)) {
             $errors[] = _la('errorbadname');
             $nmok = false;
         }
@@ -137,7 +137,7 @@ if (isset($_POST['submit'])) {
             }
         }
     } else {
-        $password = null;
+        $password = '';
     }
 
     //$tmp = trim($_POST['email']);
@@ -151,7 +151,7 @@ if (isset($_POST['submit'])) {
 
     //if credentials policy(ies) apply, check
     if (($nmok && $username && $username != $userobj->username) ||
-        ($pwok && $password && $usrops->PreparePassword($password) != $userobj->password)) {
+        ($pwok && $password && $userops->PreparePassword($password) != $userobj->password)) {
           // record properties involved in credentials checks
 //        $userobj->username = $username;
         $val = sanitizeVal($_POST['firstname'], CMSSAN_NONPRINT); // OR ,CMSSAN_PUNCT OR ,CMSSAN_PURESPC OR no-gibberish 3.0 breaking change
@@ -162,8 +162,8 @@ if (isset($_POST['submit'])) {
         $msg = ''; //feedback err msg holder
         Events::SendEvent('Core', 'CheckUserData', [
             'user'=>$userobj,
-            'username'=> (($nmok) ? $username : null),
-            'password'=> (($pwok) ? $password : null),
+            'username'=> (($nmok) ? $username : ''),
+            'password'=> (($pwok) ? $password : ''),
             'update'=>true,
             'report'=>&$msg,
         ]);

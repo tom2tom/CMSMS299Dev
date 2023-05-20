@@ -34,15 +34,15 @@ class StupidPass
 {
     const DEFAULT_DICTIONARY = 'StupidPass.default.dict';
 
-    private $params = array();
-    private $original = null;
-    private $pass = array();
-    private $errors = array();
+    private $options = [];
+    private $original = '';
+    private $pass = [];
+    private $errors = [];
     private $minlen = 8; // No, this is not an option (https://pages.nist.gov/800-63-3/sp800-63b.html : P/W 8-64 chars)
     private $maxlen = 0; // Password max byte-length. 0 = unlimited. Could be set according to your system.
-    private $dict = null; // Path to the dictionary
-    private $environ = array(); // Array of 'environmental' info such as the name of the company.
-    private $lang = array(
+    private $dict = ''; // Path to the dictionary
+    private $environ = []; // Array of 'environmental' info such as the name of the company.
+    private $lang = [
         'length' => 'Password length must be between %s and %s characters inclusively',
         'minlength' => 'Password length must be at least %s characters',
         'common' => 'Password is too common',
@@ -53,7 +53,7 @@ class StupidPass
         'type_medium' => 'Medium',
         'type_strong' => 'Strong',
         'type_vstrong' => 'Very Strong',
-    );
+    ];
 
     /**
      * StupidPass constructor.
@@ -61,26 +61,24 @@ class StupidPass
      * @param string[] $environ Optional regex(s) to be explicitly disallowed
      * @param string $dict Optional rel. or absolute filepath of alternate dictionary file
      * @param string[] $lang Optional replacement error messages to report if a specific test fails
-     * @param assoc. array $params Optional validation parameters e.g. to disable or enable
+     * @param assoc. array $options Optional validation parameters e.g. to disable or enable
      */
-    public function __construct($maxlen = 64, $environ = array(), $dict = '', $lang = array(), $params = array())
+    public function __construct(int $maxlen = 64, array $environ = [], string $dict = '', array $lang = [], array $options = [])
     {
-        if (is_array($params)) {
-            $this->options = $params;
-        } elseif ($params) {
-            $this->options = array($params); //useless: what parameter ??
+        if ($options) {
+            $this->options = $options;
         }
         if (!isset($this->options['disable'])) {
-            $this->options['disable'] = array();
+            $this->options['disable'] = [];
         }
         if (!isset($this->options['maxlen-guessable-test'])) {
             $this->options['maxlen-guessable-test'] = 24;
         }
+        $this->minlen = max(8, (int)($options['minlen'] ?? 0));
         $this->maxlen = max(0, (int)$maxlen);
-        if (is_array($environ)) {
+
+        if ($environ) {
             $this->environ = $environ;
-        } elseif ($environ) {
-            $this->environ = array($environ);
         }
         if ($dict && is_file($dict)) {
             $this->dict = $dict;
@@ -95,12 +93,13 @@ class StupidPass
     /**
      * Validate a password based on the configuration in the constructor.
      * @param string $pass
-     * @return bool true if validated, false if failed.  Call $this->getErrors() to retrieve the array of errors.
+     * @return bool true if validated, false if failed.
+     *  In which case call $this->getErrors() to retrieve the array of errors.
      * @throws DictionaryNotFoundException
      */
     public function validate($pass)
     {
-        $this->errors = array();
+        $this->errors = [];
         $this->original = $pass;
 
         if (!in_array('strength', $this->options['disable'])) {
@@ -249,11 +248,11 @@ class StupidPass
 
         /*
         If the sum of points is:
-         less than 5, the password is Very Weak.
-         between 5 and 14, it is Weak.
-         between 15 and 24, it is Medium.
-         between 25 and 34, it is Strong.
-         more than 34, it is Very Strong.
+         less than 5, the password is very weak.
+         between 5 and 14, it is weak.
+         between 15 and 24, it is medium.
+         between 25 and 34, it is strong.
+         more than 34, it is very strong.
         */
         switch ($this->options['strength']) {
             case 'Weak':
@@ -320,7 +319,7 @@ class StupidPass
             '6' => array('b', 'd'),
             '7' => array('t')
         );
-        $map = array();
+        $map = [];
         $plower = strtolower($this->original);
         $l = strlen($plower);
         for ($i = 0; $i < $l; $i++) {
@@ -340,9 +339,9 @@ class StupidPass
 
     // expand all possible passwords recursively
 
-    private function expand(&$map, $old = array(), $index = 0)
+    private function expand(&$map, $old = [], $index = 0)
     {
-        $xtras = array();
+        $xtras = [];
         foreach ($map[$index] as $ch) {
             $c = count($old);
             if ($c == 0) {

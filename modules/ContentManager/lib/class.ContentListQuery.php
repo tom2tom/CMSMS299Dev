@@ -115,7 +115,7 @@ final class ContentListQuery extends DbQueryBase
 		if (!$this->_rs || $this->_rs->errno !== 0) {
 			throw new SQLException($db->sql.' -- '.$db->errorMsg());
 		}
-		$this->_totalmatchingrows = $db->getOne('SELECT FOUND_ROWS()');
+		$this->_totalmatchingrows = $db->getOne(str_replace(['SELECT C.content_id'],['SELECT COUNT(C.content_id) AS num'],$sql));
 	}
 
 	/**

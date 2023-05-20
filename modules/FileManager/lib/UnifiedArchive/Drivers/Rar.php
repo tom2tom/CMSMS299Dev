@@ -4,17 +4,33 @@ namespace wapmorgan\UnifiedArchive\Drivers;
 use Exception;
 use wapmorgan\UnifiedArchive\ArchiveEntry;
 use wapmorgan\UnifiedArchive\ArchiveInformation;
-use wapmorgan\UnifiedArchive\Drivers\BasicDriver;
-use wapmorgan\UnifiedArchive\Exceptions\ArchiveModificationException;
-use wapmorgan\UnifiedArchive\Exceptions\UnsupportedOperationException;
+use wapmorgan\UnifiedArchive\Drivers\Basic\BasicDriver;
+use wapmorgan\UnifiedArchive\Drivers\Basic\BasicExtensionDriver;
 use wapmorgan\UnifiedArchive\Formats;
 
-class Rar extends BasicDriver
+class Rar extends BasicExtensionDriver
 {
     const NONE_RAR_COMPRESSION = 48;
+    const EXTENSION_NAME = 'rar';
 
     /** @var \RarArchive */
     protected $rar;
+
+    /**
+     * @inheritDoc
+     */
+    public static function getDescription()
+    {
+        return 'adapter for ext-rar' . (self::isInstalled() ? ' (' . phpversion('rar') . ')' : null);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getInstallationInstruction()
+    {
+        return 'install [rar] extension.' . "\n" . 'Can be installed with pecl: `pecl install rar`';
+    }
 
     /**
      * @return array
@@ -28,40 +44,23 @@ class Rar extends BasicDriver
 
     /**
      * @param $format
-     * @return bool
+     * @return array
      */
     public static function checkFormatSupport($format)
     {
+        if (!static::isInstalled()) {
+            return [];
+        }
         switch ($format) {
             case Formats::RAR:
-                return extension_loaded('rar');
+                return [
+                    BasicDriver::OPEN,
+                    BasicDriver::OPEN_ENCRYPTED,
+                    BasicDriver::OPEN_VOLUMED,
+                    BasicDriver::EXTRACT_CONTENT,
+                    BasicDriver::STREAM_CONTENT,
+                ];
         }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getDescription()
-    {
-        return 'adapter for ext-rar';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getInstallationInstruction()
-    {
-        return !extension_loaded('rar')
-            ? 'install `rar` extension'
-            : null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function canStream($format)
-    {
-        return true;
     }
 
     /**
@@ -69,6 +68,7 @@ class Rar extends BasicDriver
      */
     public function __construct($archiveFileName, $format, $password = null)
     {
+        parent::__construct($archiveFileName, $format);
         \RarException::setUsingExceptions(true);
         $this->open($archiveFileName, $password);
     }
@@ -80,7 +80,10 @@ class Rar extends BasicDriver
      */
     protected function open($archiveFileName, $password)
     {
-        $this->rar = \RarArchive::open($archiveFileName, $password);
+        $this->rar = \RarArchive::open($archiveFileName, $password, function ($vol) {
+            throw new Exception('Could not open volumed Rar archive');
+        });
+        $this->rar->setAllowBroken(true);
         if ($this->rar === false) {
             throw new Exception('Could not open Rar archive');
         }
@@ -201,16 +204,5 @@ class Rar extends BasicDriver
     public function extractArchive($outputFolder)
     {
         return $this->extractFiles($outputFolder, $this->getFileNames());
-    }
-
-    /**
-     * @param string $inArchiveName
-     * @param string $content
-     * @return bool|void
-     * @throws UnsupportedOperationException
-     */
-    public function addFileFromString($inArchiveName, $content)
-    {
-        throw new UnsupportedOperationException();
     }
 }

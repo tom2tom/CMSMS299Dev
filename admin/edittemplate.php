@@ -229,15 +229,14 @@ try {
 			$lock_refresh = AppParams::get('lock_refresh', 0);
 			try {
 				$lock_id = LockOperations::is_locked('template', $tpl_obj->get_id());
-				$lock = null;
 				if ($lock_id > 0) {
 					// it's locked... by somebody, make sure it's expired before we allow stealing it.
 					$lock = LockOperations::load('template',$tpl_obj->get_id());
 					if (!$lock->expired()) throw new LockException('CMSEX_L010');
 					LockOperations::unlock($lock_id,'template',$tpl_obj->get_id());
 				}
-			} catch( Exception $e) {
-				$message = $e->GetMessage();
+			} catch( Throwable $t) {
+				$message = $t->getMessage();
 				$themeObject->ParkNotice('error',$message);
 				redirect('listtemplates.php'.$urlext);
 			}
@@ -256,16 +255,16 @@ try {
 		 * @param  string $status The status of returned response : error, success, warning, info
 		 * @param  string $message The message of returned response
 		 * @param  mixed $data A string or array of response data
-		 * @return string containing the JSON representation of provided response data
+		 * @return false or not at all
 		 */
-		function GetJSONResponse($status, $message, $data = null)
+		function GetJSONResponse(string $status, string $message, $data = '')
 		{
 			if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
 
 				$handlers = ob_list_handlers();
-				for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
+				for ($n = count($handlers), $cnt = 0; $cnt < $n; ++$cnt) { ob_end_clean(); }
 
-				header('Content-type:application/json; charset=utf-8');
+				header('Content-type: application/json; charset=utf-8');
 
 				if ($data) {
 					$json = json_encode(['status' => $status, 'message' => $message, 'data' => $data]);

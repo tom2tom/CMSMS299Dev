@@ -51,7 +51,7 @@ if (isset($params['orderlist']) && $params['orderlist']) { // != ''
 	function ordercontent_create_flatlist($tree, $parent_id = -1)
 	{
 		$data = [];
-		$cur_parent = null;
+		$cur_parent = 0;
 		$order = 1;
 		foreach ($tree as &$node) {
 			if (is_string($node)) {
@@ -201,13 +201,13 @@ $(function() {{$xjs}
           var a = ir.indexOf(c) > -1;
           var b = er.indexOf(c) > -1;
           if (a && b) {
-            return m + '[^\\\\' + c + ']*?\\\\' + c;
+            return m + '[^\\\\' + c + ']{0,3}\\\\' + c;
           } else if (a) {
-            return m + '[^\\\\' + c + ']*?' + c;
+            return m + '[^\\\\' + c + ']{0,3}' + c;
           } else if (b) {
-            return m + '[^' + c + ']*?\\\\' + c;
+            return m + '[^' + c + ']{0,3}\\\\' + c;
           } else {
-            return m + '[^' + c + ']*?' + c;
+            return m + '[^' + c + ']{0,3}' + c;
           }
         }, t);
         var rex = new RegExp(patn, 'uig'),

@@ -117,7 +117,7 @@ EOS;
                 //Start looking at modules...
                 $modulename = $rst->fields['module_name'];
                 $moduleobj = $this->GetModuleInstance($modulename);
-                if ($moduleobj != FALSE) {
+                if ($moduleobj) {
                     if (method_exists($moduleobj, 'SearchResultWithParams')) {
                         // search through the params, for all the passthru ones
                         // and get only the ones matching this module name

@@ -6,7 +6,7 @@
   <div class="pageoverflow">
     <label class="pagetext" for="mr_url">{_ld($_module,'prompt_repository_url')}:</label>
     <div class="pageinput">
-      <input type="text" name="{$actionid}url" id="mr_url" size="50" maxlength="255" value="{$module_repository}">
+      <input type="text" name="{$actionid}url" id="mr_url" size="55" value="{$module_repository}">
       <button type="submit" name="{$actionid}reset" id="reseturl" class="adminsubmit icon undo">{_ld($_module,'reset')}</button>
     </div>
   </div>
@@ -32,7 +32,8 @@
 {if !empty($develop_mode)}
   <div class="pageoverflow">
     <label class="pagetext" for="allowuninstall">{_ld($_module,'allowuninstall')}:</label>
-    {cms_help 0=$_module key='help_allowuninstall' title=_ld($_module,'allowuninstall')}
+    {cms_help 0=$_module key='help_allowuninstall' title=_ld($_module,'allowuninstall')}<br>
+    <p class="warning">{_ld($_module,'allowuninstallwarn')}</p>
     <input type="hidden" name="{$actionid}allowuninstall" value="0">
     <div class="pageinput">
       <input type="checkbox" name="{$actionid}allowuninstall" id="allowuninstall" value="1"{if $allowuninstall} checked{/if}>

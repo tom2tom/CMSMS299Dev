@@ -165,7 +165,7 @@ class CacheMemcached extends CacheDriver
 		return $out;
 	}
 
-	public function get($key, string $space = '')
+	public function get(string $key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
@@ -176,7 +176,7 @@ class CacheMemcached extends CacheDriver
 		return $res;
 	}
 
-	public function has($key, string $space = '')
+	public function has(string $key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
@@ -184,21 +184,21 @@ class CacheMemcached extends CacheDriver
 				$this->instance->getResultCode() == Memcached::RES_SUCCESS);
 	}
 
-	public function set($key, $value, string $space = '')
+	public function set(string $key, $value, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
 		return $this->_write_cache($key, $value);
 	}
 
-	public function set_timed($key, $value, int $ttl = 0, string $space = '')
+	public function set_timed(string $key, $value, int $ttl = 0, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
 		return $this->_write_cache($key, $value, $ttl);
 	}
 
-	public function delete($key, string $space = '')
+	public function delete(string $key, string $space = '')
 	{
 		if (!$space) { $space = $this->_space; }
 		$key = $this->get_cachekey($key, static::class, $space);
@@ -215,9 +215,9 @@ class CacheMemcached extends CacheDriver
 	/**
 	 * @ignore
 	 */
-	private function _write_cache($key, $value, $ttl = null) : bool
+	private function _write_cache(string $key, $value, int $ttl = -1) : bool
 	{
-		if ($ttl === null) {
+		if ($ttl == -1) {
 			$ttl = ($this->_auto_cleaning) ? 0 : $this->_lifetime;
 		}
 		if ($ttl > 0) {

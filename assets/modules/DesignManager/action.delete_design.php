@@ -91,12 +91,11 @@ try {
         $this->RedirectToAdminTab();
     }
 
-    $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_delete_design.tpl')); //,null,null,$smarty);
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_delete_design.tpl','','',$smarty));
     $tpl->assign('tpl_permission',$can_delete_templates)
      ->assign('css_permission',$can_delete_stylesheets)
-     ->assign('design',$design);
-
-    $tpl->display();
+     ->assign('design',$design)
+     ->display();
 }
 catch( Throwable $t ) {
     $this->SetError($t->GetMessage());

@@ -1,7 +1,7 @@
 <?php
 /*
 ModuleManager class: Utils
-Copyright (C) 2011-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2011-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace ModuleManager;
 
 use CMSMS\CommunicationException;
+//use CMSMS\HttpRequest;
 use CMSMS\Lone;
 use CMSMS\Utils as AppUtils;
 use ModuleManager\CachedRequest;
@@ -48,7 +49,7 @@ final class Utils
      * [0] = true always
      * [1] = array of arrays
      */
-    public static function get_installed_modules($include_inactive = FALSE,$as_hash = FALSE)
+    public static function get_installed_modules(bool $include_inactive = FALSE,bool $as_hash = FALSE)
     {
         $modops = Lone::get('ModuleOperations');
         $module_list = $modops->GetInstalledModules($include_inactive); // available | all
@@ -82,7 +83,7 @@ final class Utils
      * @param mixed $e2 object | array
      * @return int
      */
-    private static function uasort_cmp_details($e1,$e2)
+    private static function uasort_cmp_details($e1,$e2) : int
     {
         if( is_object($e1) ) {
             $n1 = $e1->name;
@@ -131,7 +132,7 @@ final class Utils
      * @param bool $newest Optional flag whether to retrieve the latest available version
      * @return array maybe empty
      */
-    public static function build_module_data(&$xmldetails,&$installdetails,$newest = TRUE)
+    public static function build_module_data(array &$xmldetails,array &$installdetails,bool $newest = TRUE)
     {
         if( !is_array($xmldetails) ) return [];
         // sort
@@ -207,20 +208,21 @@ final class Utils
     }
 
     /**
+     * Report whether the md5sum signature of the supplied file is valid
      *
      * @param string $filename
      * @param int $size byte-size of download chunks
-     * @param mixed $md5sum string | falsy Optional expected checksum of the retrieved file
-     * @return string
+     * @param string $md5sum Optional expected checksum of the retrieved file
+     * @return string downloaded xmlfile name if test is passed
      * @throws CommunicationException or RuntimeException
      */
-    public static function get_module_xml($filename,$size,$md5sum = NULL)
+    public static function get_module_xml(string $filename,int $size,string $md5sum = '') : string
     {
         $mod = AppUtils::get_module('ModuleManager');
         $xml_filename = ModuleRepClient::get_repository_xml($filename,$size);
         if( !$xml_filename ) throw new CommunicationException($mod->Lang('error_downloadxml',$filename));
 
-        if( !$md5sum ) $md5sum = ModuleRepClient::get_module_md5($filename);
+        if( !$md5sum ) { $md5sum = ModuleRepClient::get_module_md5($filename); }
         $dl_md5 = md5_file($xml_filename);
 
         if( $md5sum != $dl_md5 ) {
@@ -231,20 +233,37 @@ final class Utils
     }
 
     /**
+     * Report whether the Forge backend connection is usable
      *
      * @staticvar bool $ok
      * @return boolean
      */
-    public static function is_connection_ok()
+    public static function is_connection_ok() : bool
     {
         // static properties here >> Lone property|ies ?
         static $ok = -1;
-        if( $ok != -1 ) return $ok;
+        if( $ok != -1 ) { return $ok; }
+
+        list($res,$data) = ModuleRepClient::get_repository_version(); //TODO
+        if( $res ) {
+            $mod = AppUtils::get_module('ModuleManager');
+            $ok = (version_compare($data,$mod::MIN_FORGE_VERSION) >= 0);
+            return $ok;
+        }
+        else {
+            $ok = FALSE;
+            return FALSE;
+        }
 
         $mod = AppUtils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
         if( $url ) {
             $url .= '/version';
+/*          $req = new HttpRequest();
+            $req->setTimeout(5);
+            $res = $req->execute($url,'','POST');
+            $stat = $req->getStatus();
+*/
             $req = new CachedRequest($url);
 //          $req->setTimeout(10); use default
             $req->execute($url);
@@ -265,11 +284,12 @@ final class Utils
     }
 
     /**
+     * Get a status-descriptor corresponding to the supplied $date
      *
      * @param string $date supplied by Forge, formatted like Y-m-d G:i:s
      * @return string maybe empty
      */
-    public static function get_status($date)
+    public static function get_status(string $date) : string
     {
         $ts = strtotime($date);
         $limit = strtotime('-2 years');
@@ -282,7 +302,9 @@ final class Utils
     }
 
     /**
-     * set smarty vars for various image tags
+     * Set template-vars for various image tags
+     *
+     * @param $template Smarty_Internal_Template object
      */
     public static function get_images($template)
     {

@@ -25,7 +25,13 @@ status_msg('Upgrading database for CMSMS 2.0');
 
 $gCms = cmsms();
 $dbdict = $db->NewDataDictionary();
-$taboptarray = ['mysql' => 'TYPE=MyISAM'];
+$str = $db->server_info;
+if (stripos($str, 'Maria') === false) {
+    $tblengn = 'MyISAM';
+} else {
+    $tblengn = 'Aria';
+}
+$taboptarray = ['mysqli' => "ENGINE=$tblengn"];
 
 verbose_msg('updating structure of content tables');
 $sqlarray = $dbdict->DropColumnSQL(CMS_DB_PREFIX.'content', ['collapsed', 'markup']);
@@ -218,7 +224,7 @@ for ($tries = 0; $tries < 2; ++$tries) {
         verbose_msg('create initial template types');
 
         $contents = std_layout_template_callbacks::reset_tpltype_default();
-        $sql = 'INSERT INTO '.CMS_DB_PREFIX.TemplateType::TABLENAME.' (originator,name,has_dflt,dflt_contents,description,
+        $sql = 'INSERT INTO '.CMS_DB_PREFIX.TemplateType::TABLENAME.' (originator,`name`,has_dflt,dflt_contents,description,
                     lang_cb, dflt_content_cb, requires_contentblocks, owner, created, modified)
                 VALUES (?,?,?,?,?,?,?,?,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())';
         $dbr = $db->execute($sql, [TemplateType::CORE, 'page', true, $contents, null,
@@ -327,8 +333,8 @@ $fix_template_name = function($in) use (&$db,&$_fix_name) {
 // not yet exist.
 verbose_msg('convert global content blocks to generic templates');
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'htmlblobs';
-$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.Template::TABLENAME.' (name,content,description,type_id,type_dflt,owner_id,created,modified) VALUES (?,?,?,?,0,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())';
-$gcblist = null;
+$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.Template::TABLENAME.' (`name`,content,description,type_id,type_dflt,owner_id,created,modified) VALUES (?,?,?,?,0,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())';
+$gcblist = [];
 $tmp = $db->getArray($query);
 if ($tmp) {
     // for each gcb, come up with a new name and if the new name does not exist in the database, create a new template by that name.
@@ -429,7 +435,7 @@ verbose_msg('converting page templates');
 
 /* this is now DesignManager module stuff
 $tpl_query = 'SELECT * FROM '.CMS_DB_PREFIX.'templates';
-$tpl_insert_query = 'INSERT INTO '.CMS_DB_PREFIX.Template::TABLENAME.' (name,content,description,type_id,type_dflt,owner_id,created,modified) VALUES (?,?,?,?,?,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())';
+$tpl_insert_query = 'INSERT INTO '.CMS_DB_PREFIX.Template::TABLENAME.' (`name`,content,description,type_id,type_dflt,owner_id,created,modified) VALUES (?,?,?,?,?,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())';
 $css_assoc_query = 'SELECT * FROM '.CMS_DB_PREFIX.'css_assoc WHERE assoc_to_id = ? ORDER BY assoc_order ASC';
 $tmp = $db->getArray($tpl_query);
 $template_list = array();

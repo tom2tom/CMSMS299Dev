@@ -4,7 +4,8 @@ namespace wapmorgan\UnifiedArchive\Drivers;
 use Archive_Tar;
 use wapmorgan\UnifiedArchive\ArchiveEntry;
 use wapmorgan\UnifiedArchive\ArchiveInformation;
-use wapmorgan\UnifiedArchive\Drivers\BasicDriver;
+use wapmorgan\UnifiedArchive\Drivers\Basic\BasicDriver;
+use wapmorgan\UnifiedArchive\Drivers\Basic\BasicPureDriver;
 use wapmorgan\UnifiedArchive\Exceptions\ArchiveCreationException;
 use wapmorgan\UnifiedArchive\Exceptions\ArchiveExtractionException;
 use wapmorgan\UnifiedArchive\Exceptions\ArchiveModificationException;
@@ -13,12 +14,9 @@ use wapmorgan\UnifiedArchive\Exceptions\UnsupportedOperationException;
 use wapmorgan\UnifiedArchive\Formats;
 use wapmorgan\UnifiedArchive\LzwStreamWrapper;
 
-class TarByPear extends BasicDriver
+class TarByPear extends BasicPureDriver
 {
-    /**
-     * @var string Full path to archive
-     */
-    protected $archiveFileName;
+    const MAIN_CLASS = '\\Archive_Tar';
 
     /**
      * @var Archive_Tar
@@ -34,6 +32,24 @@ class TarByPear extends BasicDriver
      * @var array<string, integer> List of files and their index in listContent() result
      */
     protected $pearFilesIndex;
+
+    protected $pureFilesNumber;
+
+    /**
+     * @inheritDoc
+     */
+    public static function getDescription()
+    {
+        return 'php-library for tar';
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getInstallationInstruction()
+    {
+        return 'install library [pear/archive_tar]: `composer require pear/archive_tar`' . "\n"  . ' and optionally php-extensions (zlib, bz2)';
+    }
 
     /**
      * @return array
@@ -51,47 +67,50 @@ class TarByPear extends BasicDriver
 
     /**
      * @param $format
-     * @return bool
+     * @return array
      * @throws \Exception
      */
     public static function checkFormatSupport($format)
     {
-        $availability = class_exists('\Archive_Tar');
-        if (!$availability) return false;
+        if (!static::isInstalled()) {
+            return [];
+        }
+
+        $abilities = [
+            BasicDriver::OPEN,
+            BasicDriver::EXTRACT_CONTENT,
+            Basic\BasicDriver::APPEND,
+            Basic\BasicDriver::CREATE,
+        ];
+
         switch ($format) {
             case Formats::TAR:
-                return true;
+                return $abilities;
 
             case Formats::TAR_GZIP:
-                return extension_loaded('zlib');
+                if (!extension_loaded('zlib')) {
+                    return [];
+                }
+                return $abilities;
 
             case Formats::TAR_BZIP:
-                return extension_loaded('bz2');
+                if (!extension_loaded('bz2')) {
+                    return [];
+                }
+                return $abilities;
 
             case Formats::TAR_LZMA:
-                return extension_loaded('xz');
+                if (!extension_loaded('xz')) {
+                    return [];
+                }
+                return $abilities;
 
             case Formats::TAR_LZW:
-                return LzwStreamWrapper::isBinaryAvailable();
+                if (!LzwStreamWrapper::isBinaryAvailable()) {
+                    return [];
+                }
+                return $abilities;
         }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getDescription()
-    {
-        return 'php-library for tar';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getInstallationInstruction()
-    {
-        return !class_exists('\Archive_Tar')
-            ? 'install library `pear/archive_tar` and optionally php-extensions (zlib, bzip2)'
-            : null;
     }
 
     /**
@@ -100,14 +119,26 @@ class TarByPear extends BasicDriver
      * @param int $archiveFormat
      * @param int $compressionLevel
      * @param null $password
+     * @param $fileProgressCallable
      * @return int
      * @throws ArchiveCreationException
      * @throws UnsupportedOperationException
      */
-    public static function createArchive(array $files, $archiveFileName, $archiveFormat, $compressionLevel = self::COMPRESSION_AVERAGE, $password = null)
+    public static function createArchive(
+        array $files,
+        $archiveFileName,
+        $archiveFormat,
+        $compressionLevel = self::COMPRESSION_AVERAGE,
+        $password = null,
+        $fileProgressCallable = null
+    )
     {
         if ($password !== null) {
             throw new UnsupportedOperationException('One-file format ('.__CLASS__.') could not encrypt an archive');
+        }
+
+        if ($fileProgressCallable !== null && !is_callable($fileProgressCallable)) {
+            throw new ArchiveCreationException('File progress callable is not callable');
         }
 
         $compression = null;
@@ -133,16 +164,21 @@ class TarByPear extends BasicDriver
         else
             $tar = new Archive_Tar($archiveFileName, $compression);
 
-        foreach ($files  as $localName => $filename) {
+        $current_file = 0;
+        $total_files = count($files);
+        foreach ($files as $localName => $filename) {
             $remove_dir = dirname($filename);
             $add_dir = dirname($localName);
 
             if (is_null($filename)) {
-                if ($tar->addString($localName, '') === false)
-                    throw new ArchiveCreationException('Error when adding directory '.$localName.' to archive');
+//                if ($tar->addString($localName, '') === false)
+//                    throw new ArchiveCreationException('Error when adding directory '.$localName.' to archive');
             } else {
                 if ($tar->addModify($filename, $add_dir, $remove_dir) === false)
                     throw new ArchiveCreationException('Error when adding file '.$filename.' to archive');
+            }
+            if ($fileProgressCallable !== null) {
+                call_user_func_array($fileProgressCallable, [$current_file++, $total_files, $filename, $localName]);
             }
         }
         $tar = null;
@@ -155,7 +191,7 @@ class TarByPear extends BasicDriver
      */
     public function __construct($archiveFileName, $format, $password = null)
     {
-        $this->archiveFileName = realpath($archiveFileName);
+        parent::__construct($archiveFileName, $format);
         $this->open($format);
     }
 
@@ -163,24 +199,24 @@ class TarByPear extends BasicDriver
     {
         switch ($archiveType) {
             case Formats::TAR_GZIP:
-                $this->tar = new Archive_Tar($this->archiveFileName, 'gz');
+                $this->tar = new Archive_Tar($this->fileName, 'gz');
                 break;
 
             case Formats::TAR_BZIP:
-                $this->tar = new Archive_Tar($this->archiveFileName, 'bz2');
+                $this->tar = new Archive_Tar($this->fileName, 'bz2');
                 break;
 
             case Formats::TAR_LZMA:
-                $this->tar = new Archive_Tar($this->archiveFileName, 'lzma2');
+                $this->tar = new Archive_Tar($this->fileName, 'lzma2');
                 break;
 
             case Formats::TAR_LZW:
                 LzwStreamWrapper::registerWrapper();
-                $this->tar = new Archive_Tar('compress.lzw://' . $this->archiveFileName);
+                $this->tar = new Archive_Tar('compress.lzw://' . $this->fileName);
                 break;
 
             default:
-                $this->tar = new Archive_Tar($this->archiveFileName);
+                $this->tar = new Archive_Tar($this->fileName);
                 break;
         }
     }
@@ -192,6 +228,7 @@ class TarByPear extends BasicDriver
     {
         $information = new ArchiveInformation();
         $this->pearFilesIndex = [];
+        $this->pureFilesNumber = 0;
 
         foreach ($this->tar->listContent() as $i => $file) {
             // BUG workaround: http://pear.php.net/bugs/bug.php?id=20275
@@ -204,9 +241,10 @@ class TarByPear extends BasicDriver
             $information->files[] = $file['filename'];
             $information->uncompressedFilesSize += $file['size'];
             $this->pearFilesIndex[$file['filename']] = $i;
+            $this->pureFilesNumber++;
         }
 
-        $information->compressedFilesSize = filesize($this->archiveFileName);
+        $information->compressedFilesSize = filesize($this->fileName);
         $this->pearCompressionRatio = $information->uncompressedFilesSize != 0
             ? ceil($information->compressedFilesSize / $information->uncompressedFilesSize)
             : 1;
@@ -258,7 +296,7 @@ class TarByPear extends BasicDriver
         unset($files_list);
 
         return new ArchiveEntry($fileName, $data['size'] / $this->pearCompressionRatio,
-            $data['size'], $data['mtime'], in_array(strtolower(pathinfo($this->archiveFileName,
+            $data['size'], $data['mtime'], in_array(strtolower(pathinfo($this->fileName,
                 PATHINFO_EXTENSION)), ['gz', 'bz2', 'xz', 'z']));
     }
 
@@ -291,7 +329,10 @@ class TarByPear extends BasicDriver
     {
         $result = $this->tar->extractList($files, $outputFolder);
         if ($result === false) {
-            throw new ArchiveExtractionException('Error when extracting from '.$this->archiveFileName);
+            if (isset($this->tar->error_object)) {
+                throw new ArchiveExtractionException('Error when extracting from ' . $this->fileName . ': ' . $this->tar->error_object->getMessage(0));
+            }
+            throw new ArchiveExtractionException('Error when extracting from '.$this->fileName);
         }
 
         return count($files);
@@ -304,10 +345,15 @@ class TarByPear extends BasicDriver
     {
         $result = $this->tar->extract($outputFolder);
         if ($result === false) {
-            throw new ArchiveExtractionException('Error when extracting from '.$this->archiveFileName);
+            if (isset($this->tar->error_object)) {
+                throw new ArchiveExtractionException('Error when extracting ' . $this->fileName . ': '
+                                                     . $this->tar->error_object->toString()
+                );
+            }
+            throw new ArchiveExtractionException('Error when extracting '.$this->fileName);
         }
 
-        return 1;
+        return $this->pureFilesNumber;
     }
 
     /**
@@ -320,9 +366,9 @@ class TarByPear extends BasicDriver
             $remove_dir = dirname($filename);
             $add_dir = dirname($localName);
             if (is_null($filename)) {
-                if ($this->tar->addString($localName, "") === false) {
-                    throw new ArchiveModificationException('Could not add directory "'.$filename.'": '.$this->tar->error_object->message, $this->tar->error_object->code);
-                }
+//                if ($this->tar->addString($localName, "") === false) {
+//                    throw new ArchiveModificationException('Could not add directory "'.$filename.'": '.$this->tar->error_object->message, $this->tar->error_object->code);
+//                }
             } else {
                 if ($this->tar->addModify($filename, $add_dir, $remove_dir) === false) {
                     throw new ArchiveModificationException('Could not add file "'.$filename.'": '.$this->tar->error_object->message, $this->tar->error_object->code);
@@ -331,20 +377,6 @@ class TarByPear extends BasicDriver
             }
         }
         return $added;
-    }
-
-    public static function canCreateArchive($format)
-    {
-        return true;
-    }
-
-    /**
-     * @param $format
-     * @return bool
-     */
-    public static function canAddFiles($format)
-    {
-        return true;
     }
 
     /**

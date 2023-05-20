@@ -1,4 +1,4 @@
-Version 2.99 - Skye Isle
+Version 3.0-beta.1 - Skye Isle
 ----------------------------------
 ADMIN USER-FACING CHANGES
 
@@ -28,13 +28,13 @@ also support installation based on sources in a git repo
 
 INFRASTRUCTURE
 
-Coded for PHP 7.1+, compatible with 7.1.x to 8.1 (at least)
-jQuery 3.6.0 (but use of 2.2.4 may be configured, to provide for effective upgrades
+Coded for PHP 7.2+, compatible with 7.2.x to 8.1 (at least)
+jQuery 3.7.0 (but use of 2.2.4 may be configured, to provide for effective upgrades
  from 1.x to 3.x which need two stages, via an intermediate 2.x)
 jQuery migrate 3.4.0 (but use of 1.4.1 may be configured, to work with jQ 2.2.4)
-jQuery-UI & jQuery-UI-css 1.13.1
+jQuery-UI & jQuery-UI-css 1.13.2
 support-js (cookies, sortable, uploads etc) latest relevant releases
-Smarty 4.2.0 (Smarty 2 API support is retained and deprecated)
+Smarty 4.3.0 (Smarty 2 API support is retained and deprecated)
 replacement for the OutMailer (formerly CMSMailer) module backend PHPMailer class (due to license incompatibility)
 TinyMCE (MicroTiny module) 4.9.11 Now has incompatible license, so a replacement editor is needed
 
@@ -157,13 +157,16 @@ UI supports rtl locales
 non-core modules can also be included by the release-builder among installer source-files, in which case those modules become optional selections during installation
 a custom 'support-url' can be specified, in which case it will be displayed in the admin console instead of a link to CMSMS website
 installs and upgrades support renamed admin and/or assets and/or user_plugins folders
-minimum database server (MySQL or MariaDB) version 5.5 (released in 2011)
+processes initial/demo-site content in .xml file
+uses shared copies of db-connection and smarty classes
+minimum database server MySQL version 5.5 (released in 2011) or MariaDB equivalent
 warns if database permissions are unnecessarily broad/risky (a matter for discussion with the db admin)
 cleans up after itself
 
 deprecated
 
 Smarty2 API - e.g. method assign_by_ref() wraps assignByRef(). {php}{/php} tags remain valid, though disabled by CMSMS in many contexts. See https://github.com/smarty-php/smarty/blob/master/libs/SmartyBC.class.php
+use of any php method as a variable-modifier in templates Direct use of such methods remains valid, provided the security policy allows the method 
 adodb-lite database-interface API
 page-element creation via the module-class API (CreateInput...() and the like) - use CMSMS\FormUtils-class (aka CmsFormUtils-class) API See also related BREAKING item, below
 page-tab functions via the Admintheme classes - use CMSMS\AdminTabs-class (aka cms_admin_tabs-class) API
@@ -212,8 +215,10 @@ DETAILS
       PageHeadPostRender, PageHeadPreRender, PageBodyPostRender, PageBodyPreRender, PostRequest
   - CHANGE: improved scalability, peformance on large sites
   - CHANGE: parameter-seprarators in generated URL strings default to '&' instead of '&amp;' (per RFC 3986)
+  - CHANGE: don't ignore module-action parameters in frontend-request URLs
   - CHANGE: formerly hard-coded admin-menu data have been migrated into a standalone file. Those data can be tailored e.g. by the theme at runtime or by the site-developer anytime
   - FEATURE: new globally-available context-validation functions e.g. in module-actions :: if (!checkuuid($uuid)) exit; OR if (!$this->CheckContext()) exit;
+  - CHANGE: if MariaDB database server is operating, prefer Aria databse engine over MyISAM
   - CHANGE: database connection also supports parameterized commands with a single non-array value (other than null) instead of an array including just that value
   - CHANGE: database connection reports success as the insert-id after an INSERT command applied to a table with an autoincrement field, instead of just true
   - CHANGE: database connection reports success as the the no. of affected rows after a DELETE command
@@ -236,6 +241,9 @@ DETAILS
   - CHANGE: added ContentManager events: AddPre,AddPost,DeletePre,DeletePost,EditPre,EditPost,OrderPre,OrderPost
   - CHANGE: renamed CMSMailer module to OutMailer (with pending support for sending via external platforms like Mailchimp)
   - CHANGE: News module is non-core, and in future will be distributed independently of the core files (and possibly replaced)
+  - SECURITY: admin users' personal data are stored in encrypted form
+  - BREAKING: using the values of users' username, last_name, email in database queries (for sorting, filtering etc) is not useful. Instead massage query results in PHP, after decryption.
+  - CHANGE: UTF8 string sorting and some other things e.g. strftime() replacement require PHP's Intl extension 
   - BREAKING: long-deprecated frontend creation of news items has been removed
   - BREAKING: newly created pages and newly-stored module-plugins default to cachable. This can be overridden when the page is saved, or the plugin deployed {nocache}{/nocache}.
   - ADD: extra permissions: 'Remote Administration', 'View Admin Log'
@@ -269,7 +277,7 @@ DETAILS
   - DEPRECATED: module-plugin cachability is set permanently when module is installed. Should always be true, and overridden by a nocache parameter in template where relevant
   - FEATURE: Sitedown mode now throws a 503 exception and outputs a 503 error code
   - FEATURE: The 503 error handler (maintenance mode) can be an Error Page.
-  - BREAKING: module page-element creation methods like Create*() are processed via __call() in the module parent class. So any module which uses its own __call() AND whose script(s) use such Create* method(s), must be adjusted. Best to call the relevant FormUtils-class method(s) directly. Otherwise, substitue parent::Create*() or e.g. work with get_parent_class($moduleobject) or tailor the local __call() to use the parent's __call() as needed.
+  - BREAKING: module page-element creation methods like Create*() are processed via __call() in the module parent class. So any module-class which has its own __call() AND whose script(s) use such Create* method(s), must be adjusted. Best to call the relevant FormUtils-class method(s) directly. Otherwise, substitue parent::Create*() or e.g. work with get_parent_class($moduleobject) or tailor the local __call() to use the parent's __call() as needed.
   - DEPRECATED: Some seldom-used methods in the module API
   - DEPRECATED: Method CmsApp::clear_cached_files - replaced by more-secure alternative
   - DEPRECATED: Method cms_db_prefix(). Constant CMS_DB_PREFIX replaces that
@@ -377,7 +385,7 @@ DETAILS
   - FEATURE: When using {cms_render_scripts} adds the ability to put inline javascript into <script type="text/cms_javascript">...</script>
     - javascript in these tags will be deferred loaded.
   - CHANGE: Fix lib/nls files so that UTF-8 locales are searched first.
-  - FEATURE: cms_admin_utils::get_icon() and {admin_icon} can now find icons without specifying an extension.
+  - FEATURE: cms_admin_utils::get_icon() and {admin_icon} can now find a suitable icon without having specified a filename extension.
   - SECURITY: checksum verification can no longer fish for files outside of the root directory.
   - Improvement to contentoperations::SetDefaultContent()
   - Improve input checking to cms_ipmatches.

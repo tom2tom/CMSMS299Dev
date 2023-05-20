@@ -29,6 +29,7 @@ namespace CMSMS {
  */
 class InstallTest
 {
+    //null values indicate unset
 	public $title = null;
 	public $res = null;
 	public $value = null;
@@ -37,6 +38,11 @@ class InstallTest
 	public $ini_val = null;
 	public $error = null;
 	public $display_value = true;
+    public $continueon = null;
+    public $special_failed = null;
+    public $res_text = null;
+    public $error_fragment = null;
+    public $opt = null;
 }
 \class_alias('CMSMS\InstallTest', 'CmsInstallTest', false);
 }
@@ -150,7 +156,7 @@ function extension_loaded_or(string $test) : bool
  * @param string  $error Optional
  * @return string
  */
-function getTestReturn(InstallTest& $test, bool $required, string $message = '',
+function getTestReturn(InstallTest &$test, bool $required, string $message = '',
 						string $error_fragment = '', string $error = '') : string
 {
 	global $lang_fn;
@@ -628,11 +634,11 @@ function testVersionRange(bool $required, string $title, $var, string $message =
  * @param string  $title
  * @param mixed   $var
  * @param string  $message Optional
- * @param mixed   $minimum Optional
- * @param mixed   $recommended Optional
+ * @param mixed   $minimum Optional minimum wanted value
+ * @param mixed   $recommended Optional recommended value
  * @param boolean $ini Optional
  * @param boolean $test_as_bytes Optional
- * @param mixed   $unlimited Optional
+ * @param mixed   $unlimited Optional null to skip test or int limit?
  * @param string  $error_fragment Optional
  * @return InstallTest object
  */

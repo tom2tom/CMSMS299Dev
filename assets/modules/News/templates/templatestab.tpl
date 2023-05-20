@@ -7,12 +7,12 @@
 {if $tplcount2 > 0 && isset($rowchanger2)}
   <div class="boxchild">
    <span id="tpglink">
-   <span id="ftpage2" class="pagelink">{_ld('layout','pager_first')}</span>
+   <span id="ftpage2" class="pagechange">{_ld('layout','pager_first')}</span>
 {if $tplpages2 > 2}
-   <span id="pspage2" class="pagelink">{_ld('layout','pager_previous')}</span>
-   <span id="ntpage2" class="pagelink">{_ld('layout','pager_next')}</span>
+   <span id="pspage2" class="pagechange">{_ld('layout','pager_previous')}</span>
+   <span id="ntpage2" class="pagechange">{_ld('layout','pager_next')}</span>
 {/if}
-   <span id="ltpage2" class="pagelink">{_ld('layout','pager_last')}</span>
+   <span id="ltpage2" class="pagechange">{_ld('layout','pager_last')}</span>
    {_ld('layout','pageof','<span id="cpage2">1</span>',"<span id='tpage2' style='margin-right:0.5em;'>{$totpg2}</span>")}
    </span>
    {$rowchanger2}{_ld('layout','pager_rowspp')}{*TODO sometimes show 'pager_rows'*}

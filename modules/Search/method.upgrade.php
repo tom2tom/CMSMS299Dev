@@ -131,8 +131,15 @@ if (version_compare($oldversion,'2.0') < 0) {
         CMS_DB_PREFIX.'module_search_index',
         CMS_DB_PREFIX.'module_search_words',
     ];
+    //prefer MariaDB Aria engine if available
+    $str = $db->server_info;
+    if (stripos($str, 'Maria') === false) {
+        $tblengn = 'MyISAM';
+    } else {
+        $tblengn = 'Aria';
+    }
+    $sql = "ALTER TABLE %s ENGINE=$tblengn";
     //TODO recreate indices if needed
-    $sql = 'ALTER TABLE %s ENGINE=MyISAM';
     foreach ($tables as $table) {
         $db->execute(sprintf($sql, $table));
     }

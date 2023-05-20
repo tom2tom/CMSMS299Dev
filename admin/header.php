@@ -135,10 +135,10 @@ if ($list) {
 
 		foreach ($info as $rec) {
 			$selector = $rec['id'];
-			$cssname = $rec['stylesheet'] ?? null;
+			$cssname = $rec['stylesheet'] ?? '';
 
 			if ($cssname == FormUtils::NONE) {
-				$cssname = null;
+				$cssname = '';
 			}
 			if (!$cssname || !is_array($cssnames) || !in_array($cssname, $cssnames) || $selector == FormUtils::NONE) {
 				$need_generic = true;

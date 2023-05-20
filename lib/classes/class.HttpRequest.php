@@ -680,7 +680,7 @@ class HttpRequest
     }
 
     /**
-     * Test if the installed curl version (if any) is suitable
+     * Test whether the installed curl version (if any) is suitable (>= 7.19.7, why so?)
      *
      * @return bool
      */
@@ -708,13 +708,13 @@ class HttpRequest
 
     /**
      * Execute a HTTP request
-     * Performs the http fetch using all the set properties. Uses CURL or
+     * Performs the http fetch using all the set properties. Uses cURL or
      * a stream-socket if cURL is not present. Follows redirects (if so asked).
      *
-     * @param string $target URL of the target page (optional)
-     * @param string $referrer URL of the referrer page (optional)
-     * @param string $method The http method (GET or POST) (optional)
-     * @param array $data Parameters array for GET or POST (optional)
+     * @param string Optional $target URL of the request Default this->target
+     * @param string $referrer Optional URL of the referrer page
+     * @param string $method Optional request method (GET or POST) Default '' hence GET
+     * @param array $data Optional parameters array for GET or POST
      * @return string Response body of the target page
      */
     public function execute($target = '', $referrer = '', $method = '', $data = [])
@@ -1220,7 +1220,7 @@ class HttpRequest
      */
     public function _domainMatch($requestHost, $cookieDomain)
     {
-        if ('.' != $cookieDomain{0}) {
+        if ('.' != $cookieDomain[0]) {
             return $requestHost == $cookieDomain;
         } elseif (substr_count($cookieDomain, '.') < 2) {
             return false;

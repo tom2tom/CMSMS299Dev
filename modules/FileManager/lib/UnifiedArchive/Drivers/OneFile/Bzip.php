@@ -2,11 +2,11 @@
 namespace wapmorgan\UnifiedArchive\Drivers\OneFile;
 
 use wapmorgan\UnifiedArchive\Formats;
-use wapmorgan\UnifiedArchive\Drivers\OneFile\OneFileDriver;
 
 class Bzip extends OneFileDriver
 {
-    const FORMAT_SUFFIX =  'bz2';
+    const EXTENSION_NAME = 'bz2';
+    const FORMAT = Formats::BZIP;
 
     /**
      * @return array
@@ -19,33 +19,11 @@ class Bzip extends OneFileDriver
     }
 
     /**
-     * @param $format
-     * @return bool
-     */
-    public static function checkFormatSupport($format)
-    {
-        switch ($format) {
-            case Formats::BZIP:
-                return extension_loaded('bz2');
-        }
-    }
-
-    /**
      * @inheritDoc
      */
     public static function getDescription()
     {
-        return 'adapter for ext-bzip2';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getInstallationInstruction()
-    {
-        return !extension_loaded('bz2')
-            ? 'install `bz2` extension'
-            : null;
+        return 'adapter for ext-bzip2'.(static::isInstalled() ? ' ('.phpversion(static::EXTENSION_NAME).')' : null);
     }
 
     /**
@@ -53,7 +31,7 @@ class Bzip extends OneFileDriver
      */
     public function __construct($archiveFileName, $format, $password = null)
     {
-        parent::__construct($archiveFileName, $password);
+        parent::__construct($archiveFileName, $format, $password);
         $this->modificationTime = filemtime($this->fileName);
     }
 

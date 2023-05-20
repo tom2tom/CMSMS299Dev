@@ -256,7 +256,7 @@ final class ContentOperations
 		// content_types::name and content::type are both case-insensitive fields
 		$query = <<<EOS
 SELECT originator,editclass FROM {$pref}content_types T
-LEFT JOIN {$pref}content C ON T.name = C.type
+LEFT JOIN {$pref}content C ON T.`name` = C.type
 WHERE C.content_id = $id
 EOS;
 		$row = $db->getRow($query);
@@ -517,7 +517,7 @@ EOS;
 			}
 			$rst->MoveFirst();
 
-			$tmp = null;
+			$tmp = [];
 			if( $child_ids ) {
 				// get all the properties for the child_ids
 				$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content_props WHERE content_id IN ('.implode(', ', $child_ids).') ORDER BY content_id';
@@ -630,26 +630,26 @@ EOS;
 				$tmp = $db->getArray($query);
 			}
 			else {
-				$tmp = null;
+				$tmp = [];
 			}
 
 			// re-organize the tmp data into a hash of arrays of properties for each content id.
 			if( $tmp ) {
-				for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
+				for( $n = count($tmp), $i = 0; $i < $n; $i++ ) {
 					$content_id = $tmp[$i]['content_id'];
 					if( in_array($content_id, $child_ids) ) {
 						if( !isset($contentprops[$content_id]) ) $contentprops[$content_id] = [];
 						$contentprops[$content_id][] = $tmp[$i];
 					}
 				}
-				$tmp = null;
+				$tmp = null; //assist garbage collector
 			}
 		}
 
 		$valids = array_keys(Lone::get('ContentTypeOperations')->get_content_types());
 
 		// build the content objects
-		for( $i = 0, $n = count($contentrows); $i < $n; $i++ ) {
+		for( $n = count($contentrows), $i = 0; $i < $n; $i++ ) {
 			$row = &$contentrows[$i];
 
 			if( !in_array($row['type'], $valids) ) {
@@ -680,7 +680,7 @@ EOS;
 		}
 		//cleanup
 		unset($row);
-		$contentrows = null; //force-garbage
+		$contentrows = null; //assist garbage-collector
 		$contentprops = null;
 	}
 
@@ -733,7 +733,7 @@ EOS;
 	 * @param bool $extended optional parameter for LoadAllContent(). Default true
 	 * @return array The array of content objects
 	 */
-	public function GetAllContent(bool $extended = TRUE)
+	public function GetAllContent(bool $extended = TRUE) : array
 	{
 		debug_buffer('get all content...');
 		$ptops = Lone::get('PageTreeOperations');
@@ -747,7 +747,7 @@ EOS;
 			unset($node); //free space a bit
 		}
 
-		$list = null;
+		$list = null; //assist garbage collector
 		debug_buffer('end get all content...');
 		return $output;
 	}

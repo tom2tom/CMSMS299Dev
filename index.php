@@ -1,7 +1,7 @@
 <?php
 /*
 Entry point for all non-admin pages
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -34,6 +34,7 @@ use CMSMS\PageLoader;
 use CMSMS\StopProcessingContentException;
 use function CMSMS\get_debug_messages;
 use function CMSMS\is_secure_request;
+use function CMSMS\sendhostheaders;
 use function CMSMS\template_processing_allowed;
 
 /**
@@ -55,8 +56,9 @@ AppState::set(AppState::FRONT_PAGE);
 require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 if (!is_writable(TMP_TEMPLATES_C_LOCATION) || !is_writable(TMP_CACHE_LOCATION)) {
-	$proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0';
+	$proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1';
 	header($proto.' 500 Internal Server Error');
+	sendhostheaders();
 	header('Status: 500 Internal Server Error');
 	echo '<!DOCTYPE html>
 <html><head><title>Error</title></head><body>
@@ -68,7 +70,7 @@ Please contact the website administrator to request that this problem be correct
 }
 
 // further setup (see also include.php)
-$params = array_merge($_GET, $_POST);
+$params = array_merge($_GET, $_POST); //sanitize later
 if (!isset($smarty)) {
 	$smarty = Lone::get('Smarty');
 }
@@ -136,7 +138,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 			throw new Error403Exception('Permission denied');
 		}
 
-//      $userid = get_userid(false); admin N/A here (except preview etc) & don't want auto-login
+//		$userid = get_userid(false); admin N/A here (except preview etc) & don't want auto-login
 		if ($page == CMS_PREVIEW_PAGEID ||/* $userid ||*/ $_SERVER['REQUEST_METHOD'] != 'GET') {
 			$cachable = false;
 		} else {
@@ -157,12 +159,16 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 
 		Events::SendEvent('Core', 'ContentPreRender', ['content' => &$contentobj]);
 
-		$html = null;
+		$html = '';
 		$showtemplate = template_processing_allowed();
 		if ($showtemplate) {
 			$tpl_rsrc = $contentobj->TemplateResource();
 			if ($tpl_rsrc) {
 				$tpl = $smarty->createTemplate($tpl_rsrc);
+				foreach ($params as $k => $v) {
+					//TODO sanitized values
+					$tpl->assign($k, $v);
+				}
 				$html = $tpl->fetch();
 				unset($tpl);
 			}
@@ -183,14 +189,15 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 		// 404 error thrown... maybe gotta do this process all over again
 		$page = 'error404';
 		unset($_REQUEST['mact'], $_REQUEST['module'], $_REQUEST['action']); //ignore any secure params
-		$handlers = ob_list_handlers();
-		for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
+		$n = count(ob_list_handlers());
+		for ($cnt = 0; $cnt < $n; ++$cnt) { ob_end_clean(); }
 
 		// specified page not found, load the 404 error page, if any
-		$contentobj = ($showtemplate) ? PageLoader::LoadContent($page) : null;
-		$proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0';
+		$proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1'; // TODO 1.1 changes @ https://stackoverflow.com/questions/246859/http-1-0-vs-1-1
 		header($proto.' 404 Not Found');
+		sendhostheaders();
 		header('Status: 404 Not Found');
+		$contentobj = ($showtemplate) ? PageLoader::LoadContent($page) : null;
 		if (!$showtemplate || !is_object($contentobj)) {
 			// default
 			echo '<!DOCTYPE html>
@@ -198,26 +205,27 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 <h1>Not Found</h1>
 <p>The requested URL was not found on this server.</p>
 </body></html>';
-			exit;
 		}
+		exit;
 	}
 
 	catch (Error403Exception $e) {
 		$page = 'error403';
 		unset($_REQUEST['mact'], $_REQUEST['module'], $_REQUEST['action']); //ignore any secure params
-		$handlers = ob_list_handlers();
-		for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
+		$n = count(ob_list_handlers());
+		for ($cnt = 0; $cnt < $n; ++$cnt) { ob_end_clean(); }
 
 		$msg = $e->GetMessage();
 		if (!$msg) $msg = 'You do not have the appropriate permission to view the requested page.';
 		// specified page blocked, load the 403 error page, if any
-		$contentobj = ($showtemplate) ? PageLoader::LoadContent($page) : null;
-		$proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0';
+		$proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1';
+		header($proto.' 403 Forbidden');
+		sendhostheaders();
+		header('Status: 403 Forbidden');
 		header('Expires: 0');
 		header('Cache-Control: no-store, no-cache, must-revalidate');
 		header('Cache-Control: post-check=0, pre-check=0', false);
-		header($proto.' 403 Forbidden');
-		header('Status: 403 Forbidden');
+		$contentobj = ($showtemplate) ? PageLoader::LoadContent($page) : null;
 		if (!$showtemplate || !is_object($contentobj)) {
 			// default
 			echo '<!DOCTYPE html>
@@ -225,15 +233,15 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 <h1>Forbidden</h1>
 <p>'.$msg.'</p>
 </body></html>';
-			exit;
 		}
+		exit;
 	}
 
 	catch (Error503Exception $e) {
 		$page = 'error503';
 		unset($_REQUEST['mact'], $_REQUEST['module'], $_REQUEST['action']); //ignore any secure params
-		$handlers = ob_list_handlers();
-		for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
+		$n = count(ob_list_handlers());
+		for ($cnt = 0; $cnt < $n; ++$cnt) { ob_end_clean(); }
 
 		$msg = $e->GetMessage();
 		if ($msg == 'Service unavailable - .') { // default message intended
@@ -253,14 +261,15 @@ EOS;
 		}
 		//TODO c.f. AppParams::get('sitedownmessage')
 		// specified page not available, load the 503 error page, if any
-		$contentobj = ($showtemplate) ? PageLoader::LoadContent($page) : null;
-		$proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0';
+		$proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1';
+		header($proto.' 503 Temporarily unavailable');
+		sendhostheaders();
+		header('Status: 503 Temporarily unavailable');
 		header('Expires: 0');
 		header('Cache-Control: no-store, no-cache, must-revalidate');
 		header('Cache-Control: post-check=0, pre-check=0', false);
-		header($proto.' 503 Temporarily unavailable');
-		header('Status: 503 Temporarily unavailable');
 //TODO	header('Retry-After: e.g. Wed, 21 Oct 2015 07:28:00 GMT');
+		$contentobj = ($showtemplate) ? PageLoader::LoadContent($page) : null;
 		if (!$showtemplate || !is_object($contentobj)) {
 			// default
 			echo '<!DOCTYPE html>
@@ -268,13 +277,13 @@ EOS;
 <h1>Site Not Available</h1>
 <p>'.$msg.'</p>
 </body></html>';
-			exit;
 		}
+		exit;
 	}
 
 	catch (Throwable $t) { // <- Catch other exceptions|errors
-		$handlers = ob_list_handlers();
-		for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
+		$n = count(ob_list_handlers());
+		for ($cnt = 0; $cnt < $n; ++$cnt) { ob_end_clean(); }
 		if (CMS_DEBUG) {
 			$keeps = ['file'=>1,'line'=>1,'function'=>1];
 			$data = array_map(function($a) use ($keeps)
@@ -283,11 +292,12 @@ EOS;
 			}, $t->getTrace());
 			debug_display($data, $t->GetMessage().'<br><br>Backtrace:');
 		} else {
-			$msg = $t->GetMessage();
-			if (!$msg) $msg = 'The cause was not reported.';
+			sendhostheaders();
 			header('Expires: 0');
 			header('Cache-Control: no-store, no-cache, must-revalidate');
 			header('Cache-Control: post-check=0, pre-check=0', false);
+			$msg = $t->GetMessage();
+			if (!$msg) $msg = 'The cause was not reported.';
 			echo '<!DOCTYPE html>
 <html><head><title>Site Operation Error</title></head><body>
 <h1>Site Operation Error</h1>

@@ -58,8 +58,9 @@ class theme_reader extends reader_base
 
   private function _scan()
   {
+    if( $this->_scanned ) return;
+
     $in = [];
-    $cur_key = null;
 
     $get_in = function() use ($in) {
       if( $in ) {
@@ -67,9 +68,7 @@ class theme_reader extends reader_base
       }
     };
 
-    if( $this->_scanned ) return;
-
-    $cur_key = null;
+    $cur_key = '';
     while( $this->_xml->read() ) {
       switch( $this->_xml->nodeType ) {
         case XmlReader::ELEMENT:
@@ -81,126 +80,148 @@ class theme_reader extends reader_base
           case 'reference':
           case 'mmtemplate':
             $in[] = $this->_xml->localName;
-            break;
+            break 2;
 
           case 'name':
             if( $get_in() != 'theme' ) {
               // validity error.
             }
-            $this->_xml->read();
-            $this->_design_info['name'] = $this->_xml->value;
-            break;
+            else {
+                $this->_xml->read();
+                $this->_design_info['name'] = $this->_xml->value;
+            }
+            break 2;
 
           case 'tname':
             if( $get_in() != 'template' ) {
               // validity error.
             }
-            $this->_xml->read();
-            $cur_key = $this->_xml->value;
-            if( !isset($this->_tpl_info[$cur_key]) ) $this->_tpl_info[$cur_key] = [];
-            if( isset($this->_tpl_info[$cur_key]) ) {
-              // error, duplicate template name in XML file
+            else {
+                $this->_xml->read();
+                $cur_key = $this->_xml->value;
+                if( !isset($this->_tpl_info[$cur_key]) ) $this->_tpl_info[$cur_key] = [];
+                if( isset($this->_tpl_info[$cur_key]) ) {
+                  // error, duplicate template name in XML file
+                }
+                $this->_tpl_info[$cur_key]['name'] = $cur_key;
+                $p = strpos($cur_key,'.');
+                if( $p !== FALSE ) {
+                  $tmp = substr($cur_key,0,$p);
+                  $this->_tpl_info[$cur_key]['name'] = $cur_key;
+                }
             }
-            $this->_tpl_info[$cur_key]['name'] = $cur_key;
-            $p = strpos($cur_key,'.');
-            if( $p !== FALSE ) {
-              $tmp = substr($cur_key,0,$p);
-              $this->_tpl_info[$cur_key]['name'] = $cur_key;
-            }
-            break;
+            break 2;
 
           case 'tdata':
             if( $get_in() != 'template' ) {
               // validity error.
             }
-            $this->_xml->read();
-            $this->_tpl_info[$cur_key]['data'] = $this->_xml->value;
-            break;
+            else {
+                $this->_xml->read();
+                $this->_tpl_info[$cur_key]['data'] = $this->_xml->value;
+            }
+            break 2;
 
           case 'mmtemplate_name':
             if( $get_in() != 'template' ) {
               // validity error.
             }
-            $this->_xml->read();
-            $cur_key = $this->_xml->value;
-            if( !isset($this->_tpl_info[$cur_key]) ) $this->_tpl_info[$cur_key] = [];
-            if( isset($this->_tpl_info[$cur_key]) ) {
-              // error, duplicate template name in XML file
+            else {
+                $this->_xml->read();
+                $cur_key = $this->_xml->value;
+                if( !isset($this->_tpl_info[$cur_key]) ) $this->_tpl_info[$cur_key] = [];
+                if( isset($this->_tpl_info[$cur_key]) ) {
+                  // error, duplicate template name in XML file
+                }
+                $this->_tpl_info[$cur_key]['name'] = $cur_key;
+                $this->_tpl_info[$cur_key]['type'] = 'MM';
+                $p = strpos($cur_key,'.');
+                if( $p !== FALSE ) {
+                  $tmp = substr($cur_key,0,$p);
+                  $this->_tpl_info[$cur_key]['name'] = $tmp;
+                }
             }
-            $this->_tpl_info[$cur_key]['name'] = $cur_key;
-            $this->_tpl_info[$cur_key]['type'] = 'MM';
-            $p = strpos($cur_key,'.');
-            if( $p !== FALSE ) {
-              $tmp = substr($cur_key,0,$p);
-              $this->_tpl_info[$cur_key]['name'] = $tmp;
-            }
-            break;
+            break 2;
 
           case 'mmtemplate_data':
             if( $get_in() != 'template' ) {
               // validity error.
             }
-            $this->_xml->read();
-            $this->_tpl_info[$cur_key]['data'] = $this->_xml->value;
-            break;
+            else {
+                $this->_xml->read();
+                $this->_tpl_info[$cur_key]['data'] = $this->_xml->value;
+            }
+            break 2;
 
           case 'cssname':
             if( $get_in() != 'stylesheet' ) {
               // validity error.
             }
-            $this->_xml->read();
-            $cur_key = $this->_xml->value;
-            if( !isset($this->_css_info[$cur_key]) ) $this->_css_info[$cur_key] = [];
-            if( isset($this->_css_info[$cur_key]) ) {
-              // error, duplicate stylesheet name in XML file
+            else {
+                $this->_xml->read();
+                $cur_key = $this->_xml->value;
+                if( !isset($this->_css_info[$cur_key]) ) $this->_css_info[$cur_key] = [];
+                if( isset($this->_css_info[$cur_key]) ) {
+                  // error, duplicate stylesheet name in XML file
+                }
+                $this->_css_info[$cur_key]['name'] = $cur_key;
             }
-            $this->_css_info[$cur_key]['name'] = $cur_key;
-            break;
+            break 2;
 
           case 'cssdata':
             if( $get_in() != 'stylesheet' ) {
               // validity error.
             }
-            $this->_xml->read();
-            $this->_css_info[$cur_key]['data'] = $this->_xml->value;
-            break;
+            else {
+                $this->_xml->read();
+                $this->_css_info[$cur_key]['data'] = $this->_xml->value;
+            }
+            break 2;
 
           case 'cssmediatype':
             if( $get_in() != 'stylesheet' ) {
               // validity error.
             }
-            $this->_xml->read();
-            $this->_css_info[$cur_key]['mediatype'] = $this->_xml->value;
-            break;
+            else {
+                $this->_xml->read();
+                $this->_css_info[$cur_key]['mediatype'] = $this->_xml->value;
+            }
+            break 2;
 
           case 'refname':
             if( $get_in() != 'reference' ) {
               // validity error.
             }
-            $this->_xml->read();
-            $cur_key = $this->_xml->value;
-            if( !isset($this->_ref_map[$cur_key]) ) $this->_ref_map[$cur_key] = [];
-            if( isset($this->_ref_map[$cur_key]) ) {
-              // error, duplicate reference name in XML file
+            else {
+                $this->_xml->read();
+                $cur_key = $this->_xml->value;
+                if( !isset($this->_ref_map[$cur_key]) ) $this->_ref_map[$cur_key] = [];
+                if( isset($this->_ref_map[$cur_key]) ) {
+                  // error, duplicate reference name in XML file
+                }
+                $this->_ref_map[$cur_key]['name'] = $cur_key;
             }
-            $this->_ref_map[$cur_key]['name'] = $cur_key;
-            break;
+            break 2;
 
           case 'refdata':
             if( $get_in() != 'reference' ) {
               // validity error.
             }
-            $this->_xml->read();
-            $this->_ref_map[$cur_key]['data'] = $this->_xml->value;
-            break;
+            else {
+                $this->_xml->read();
+                $this->_ref_map[$cur_key]['data'] = $this->_xml->value;
+            }
+            break 2;
 
           case 'reflocation':
             if( $get_in() != 'reference' ) {
               // validity error.
             }
-            $this->_xml->read();
-            $this->_ref_map[$cur_key]['location'] = $this->_xml->value;
-            break;
+            else {
+                $this->_xml->read();
+                $this->_ref_map[$cur_key]['location'] = $this->_xml->value;
+            }
+            break 2;
           }
           break;
 
@@ -215,12 +236,11 @@ class theme_reader extends reader_base
             if( $in ) {
               array_pop($in);
             }
-            $cur_key = null;
+            $cur_key = '';
           }
           break;
       }
     }
-
     $this->_scanned = TRUE;
   }
 

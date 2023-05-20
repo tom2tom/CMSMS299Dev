@@ -130,6 +130,6 @@
 </div>
 <div class="pageinput pregap">
   <button type="submit" name="{$actionid}next2" class="adminsubmit icon go">{_ld($_module,'next')}</button>
-  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{_ld($_module,'cancel')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel" formnovalidate>{_ld($_module,'cancel')}</button>
 </div>
 </form>

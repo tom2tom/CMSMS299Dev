@@ -34,7 +34,7 @@ class logfilter
     ];
 
     #[\ReturnTypeWillChange]
-    public function __get( $key)// : mixed
+    public function __get($key)// : mixed
     {
         switch( $key) {
         case 'subject':
@@ -45,25 +45,25 @@ class logfilter
         case 'severity':
         case 'limit':
         case 'offset':
-            return (int) $this->_data[$key];
+            return (int)$this->_data[$key];
 
         default:
             throw new LogicException("$key is not a gettable member of ".__CLASS__);
         }
     }
 
-    public function __set( $key, $val) : void
+    public function __set($key, $val) : void
     {
         switch( $key) {
         case 'subject':
         case 'username':
         case 'message':
-            $this->_data[$key] = trim($val);
+            $this->_data[$key] = trim((string)$val);
             break;
         case 'severity':
             // allow null or negative value to indicate any severity
-            if (is_null($val) || (int) $val < 0) {
-                $this->_data[$key] = null;
+            if (is_null($val) || (int)$val < 0) {
+                $this->_data[$key] = null; // i.e. any severity
             }
             else {
                 $this->_data[$key] = max(0,min(3,(int)$val));

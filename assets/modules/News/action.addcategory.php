@@ -57,7 +57,7 @@ if( isset($params['name']) ) {
         }
         else {
             if( !empty($params['generate_url']) ) {
-                $str = ( $name ) ? $name : 'newscategory'.mt_rand(10000, 99999);
+                $str = $name ?: 'newscategory'.mt_rand(10000, 99999);
                 $category_url = Utils::condense($str, true);
             }
             else {
@@ -137,7 +137,7 @@ unset($parms['action'], $parms['name']);
 
 // pass it all to template for display
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('editcategory.tpl')); //, null, null, $smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('editcategory.tpl')); //, '', '', $smarty);
 
 $tpl->assign('formaction', 'addcategory')
  ->assign('formparms', $parms)

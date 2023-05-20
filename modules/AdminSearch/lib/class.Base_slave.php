@@ -266,13 +266,13 @@ abstract class Base_slave
             $a = strpos($reserved, $c) !== false;
             $b = strpos($reserved2, $c) !== false;
             if ($a && $b) {
-                return $m . "[^\\$c]*?\\$c";
+                return $m . "[^\\$c]{0,3}\\$c";
             } elseif ($a) {
-                return $m . "[^\\$c]*?$c";
+                return $m . "[^\\$c]{0,3}$c";
             } elseif ($b) {
-                return $m . "[^$c]*?\\$c";
+                return $m . "[^$c]{0,3}\\$c";
             } else {
-                return $m . "[^$c]*?$c";
+                return $m . "[^$c]{0,3}$c";
             }
         }, $t);
         $patn .= $tail;

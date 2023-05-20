@@ -49,11 +49,11 @@ final class Modtemplate_slave extends Base_slave
         $fz = $this->search_fuzzy();
         $output = [];
         $db = Lone::get('Db');
-        $query = 'SELECT originator,name,description,content FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE (originator IS NOT NULL AND originator != \'\' AND originator != \'__CORE__\' '; //other originators are for module-templates or themes
+        $query = 'SELECT originator,`name`,description,content FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE (originator IS NOT NULL AND originator != \'\' AND originator != \'__CORE__\' '; //other originators are for module-templates or themes
         if ($fz) {
             if ($this->search_casesensitive()) {
                 $wheres = [
-                 'name REGEXP BINARY ?',
+                 '`name` REGEXP BINARY ?',
                  'description REGEXP BINARY ?',
                  'content REGEXP BINARY ?'
                 ];

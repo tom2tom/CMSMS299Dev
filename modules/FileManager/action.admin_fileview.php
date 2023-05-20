@@ -49,7 +49,7 @@ for ($i = 0; $i < $times; ++$i) {
     $onerow->name = $filelist[$i]['name'];
     $onerow->urlname = $this->encodefilename($filelist[$i]['name']);
     $onerow->type = ['file'];
-    $onerow->mime = $filelist[$i]['mime'] ?? null;
+    $onerow->mime = $filelist[$i]['mime'] ?? '';
     if (isset($params[$onerow->urlname])) {
         $onerow->checked = true;
     }
@@ -114,7 +114,7 @@ for ($i = 0; $i < $times; ++$i) {
         $onerow->txtlink = "<a class=\"filelink\" href='" . $url . "' target='_blank' title=\"".$this->Lang('title_view_newwindow').'">' . $link . '</a>';
     }
     if (!empty($filelist[$i]['archive'])) {
-        $onerow->type[] = 'archive';
+        $onerow->type[] = 'archive'; // TODO develop_mode-processing only
     }
 
     $onerow->fileinfo = Utils::get_file_details($filelist[$i]);

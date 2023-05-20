@@ -64,7 +64,7 @@ function process_results(c) {
   if(d === undefined || d.length === 0) {
    \$el.on('click', function(e) {
      e.preventDefault();
-     cms_confirm_linkclick(this,'$s1');
+     cms_confirm_linkclick(this, '$s1');
      return false;
    });
   }

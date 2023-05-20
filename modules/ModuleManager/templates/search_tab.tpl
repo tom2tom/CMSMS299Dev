@@ -10,25 +10,25 @@
 {/strip}
 {/function}
 
-{$formstart}
 <fieldset>
 <legend>{_ld($_module,'search_input')}:</legend>
+{form_start}
 <div class="pageoverflow">
+  <input type="hidden" name="{$actionid}advanced" value="0">
   <label class="pagetext" for="searchterm">{_ld($_module,'searchterm')}:</label>
   <div class="pageinput">
     <input id="searchterm" type="text" name="{$actionid}term" size="50" value="{$term}" title="{_ld($_module,'title_searchterm')}" placeholder="{_ld($_module,'entersearchterm')}">&nbsp;
-    <input type="hidden" name="{$actionid}advanced" value="0">
     <input type="checkbox" id="advanced" name="{$actionid}advanced" value="1"{if $advanced} checked{/if} title="{_ld($_module,'title_advancedsearch')}">&nbsp;<label for="advanced">{_ld($_module,'prompt_advancedsearch')}</label>
-    <span id="advhelp" style="display: none;"><br>{_ld($_module,'advancedsearch_help')}</span>
+    <span id="advhelp" style="display:none;"><br>{_ld($_module,'advancedsearch_help')}</span>
   </div>
 </div>
 <div class="pageinput pregap">
-  <button type="submit" name="{$actionid}submit" class="adminsubmit icon search">{_ld($_module,'search')}</button>
+  <button type="submit" name="{$actionid}search" class="adminsubmit icon search">{_ld($_module,'search')}</button>
 </div>
-</fieldset>
 </form>
+</fieldset>
 
-{if isset($search_data)}
+{if !empty($search_data)}
 <fieldset>
   <legend>{_ld($_module,'search_results')}:</legend>
   <table class="pagetable scrollable">

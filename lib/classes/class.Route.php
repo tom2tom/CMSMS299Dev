@@ -65,17 +65,17 @@ class Route implements ArrayAccess
 	 *
 	 * @param string $pattern The route matcher (exact URL-slug or regular expression)
 	 * @param mixed string | int $dest1 Optional route destination identifier.
-	 *  Unless $pattern is exact, usually a module name or page id. Default NULL.
-	 * @param mixed array | null $defaults Optional parameter defaults for this
-	 *  route's destination-module. Applicable only when the destination is a module.
+	 *  Unless $pattern is exact, usually a module name or page id. Default ''.
+	 * @param mixed $defaults Optional parameter-defaults for this
+	 *  route's destination-module. Normally array. Applicable only when the destination is a module.
 	 * @param bool   $is_exact Optional flag indicating whether $pattern is
 	 *  for exact-matching. Default FALSE (indicating a regular expression).
-	 * @param mixed string | null $page Optional route destination page id. Default NULL
-	 * @param mixed string | null $delmatch Optional specific-row identifier.
+	 * @param string $page Optional route destination page id. Default ''
+	 * @param string $delmatch Optional specific-row identifier. Default ''
 	 *  May be specified to tailor static-route deletion in a case where
 	 *  dest1 and page are both non-falsy i.e. the destination is a content page.
 	 */
-	public function __construct($pattern,$dest1 = NULL,$defaults = [],$is_exact = FALSE,$page = NULL,$delmatch = NULL)
+	public function __construct(string $pattern, /*mixed */$dest1 = '',/*mixed */$defaults = [],bool $is_exact = FALSE,string $page = '',string $delmatch = '')
 	{
 		$this->_data['term'] = $pattern;
 
@@ -93,7 +93,14 @@ class Route implements ArrayAccess
 		}
 
 		$this->_data['exact'] = $is_exact;
-		if( $defaults ) $this->_data['defaults'] = $defaults;
+		if( $defaults ) {
+            if( is_array($defaults) ) {
+                $this->_data['defaults'] = $defaults;
+            }
+            else {
+                $this->_data['defaults'] = [$defaults]; //TODO support eg comma-separated string
+            }
+        }
 		if( $delmatch ) $this->_data['delmatch'] = $delmatch;
 	}
 
@@ -171,7 +178,7 @@ class Route implements ArrayAccess
 	 *  May be specified to tailor static-route deletion in a case where
 	 *  dest1 and page are both non-falsy i.e. the destination is a content page.
 	 */
-	public static function new_builder($pattern,$dest1 = NULL,$page = NULL,$defaults = [],$is_exact = FALSE,$delmatch = NULL)
+	public static function new_builder(string $pattern,$dest1 = '',$page = '',$defaults = [],bool $is_exact = FALSE,$delmatch = '')
 	{
 		return new self($pattern,$dest1,$defaults,$is_exact,$page,$delmatch);
 	}

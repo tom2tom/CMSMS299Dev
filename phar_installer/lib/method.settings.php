@@ -162,6 +162,23 @@ foreach ([
 
 create_deprec_links($bp);
 
+// siteuuid-file: content = 72 random-bytes without any NUL char
+//verbose_msg(lang('install_TODO'));
+$s = Crypto::random_string(72); //max byte-length of BCRYPT passwords
+$p = -1;
+while (($p = strpos($s, '\0', $p + 1)) !== false) {
+    $c = crc32(substr($s, 0, $p) . 'A') & 0xff;
+    $s[$p] = $c;
+}
+$fp = $bp.DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'siteuuid.dat';
+file_put_contents($fp, $s);
+chmod($fp, $modes[0]); // read-only
+$s = Crypto::random_string(40, true);
+$r = strtr($s, ['"'=>'=', '\''=>'-']);
+$fp = $bp.DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'master.dat';
+file_put_contents($fp, $r);
+chmod($fp, $modes[0]); // read-only
+
 //upload-images folder subdirs {pageimages, pagehumbs} c.f. content_*_path preference values below
 $bp = $destdir.DIRECTORY_SEPARATOR.'uploads';
 create_private_dir($bp, 'images', $dirmode);
@@ -257,18 +274,6 @@ foreach ([
 ] as $name => $val) {
     AppParams::set($name, $val);
 }
-
-// siteuuid-file: content = 72 random-bytes without any NUL char
-//verbose_msg(lang('install_TODO'));
-$s = Crypto::random_string(72); //max byte-length of BCRYPT passwords
-$p = -1;
-while (($p = strpos($s, '\0', $p + 1)) !== false) {
-    $c = crc32(substr($s, 0, $p) . 'A') & 0xff;
-    $s[$p] = $c;
-}
-$fp = $bp.DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'siteuuid.dat';
-file_put_contents($fp, $s);
-chmod($fp, $modes[0]); // read-only
 
 //$query = 'INSERT INTO '.CMS_DB_PREFIX.'version VALUES (CURRENT_SCHEMA)';
 //$db->execute($query);

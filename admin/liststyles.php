@@ -140,7 +140,7 @@ try {
             $elid1 = 'null';
             $elid2 = 'null';
             $navpages = 1;
-            $pagelengths = null;
+            $pagelengths = [];
         }
         $sellength = 10; //OR some $_REQUEST[]
 
@@ -379,7 +379,7 @@ $(function() {
   });
   $('a.append_css').on('click', function(e) {
     e.preventDefault();
-    cms_confirm_linkclick(this,$s8);
+    cms_confirm_linkclick(this,'$s8');
     return false;
   });
   var watcher = Poller.run({
@@ -539,12 +539,12 @@ $(function() {
   $(grptable).find('[context-menu]').ContextMenu();
   $('a.del_grp').on('click', function(e) {
     e.preventDefault();
-    cms_confirm_linkclick(this,$s1);
+    cms_confirm_linkclick(this,'$s1');
     return false;
   });
   $('a.del_grpall').on('click', function(e) {
     e.preventDefault();
-    cms_confirm_linkclick(this,$s2);
+    cms_confirm_linkclick(this,'$s2');
     return false;
   });
 });
@@ -571,7 +571,7 @@ if( $list ) {
     $replacements = [-1 => _ld('layout','select_one')] + $list;
 }
 else {
-    $replacements = null;
+    $replacements = [];
 }
 $smarty->assign('css_choices',$replacements);
 
@@ -580,7 +580,7 @@ $extras2 = $extras + [
     'op' => 'replace',
     'css' => '', //populted by js
 ];
-$seetab = $_REQUEST['_activetab'] ?? null;
+$seetab = $_REQUEST['_activetab'] ?? '';
 if( $seetab ) { $seetab = sanitizeVal($seetab, CMSSAN_NAME); }
 //$selfurl = basename(__FILE__);
 

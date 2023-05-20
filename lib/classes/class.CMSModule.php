@@ -34,14 +34,16 @@ use CMSMS\internal\ModulePluginOperations;
 use CMSMS\internal\Smarty;
 use CMSMS\LangOperations;
 use CMSMS\Lone;
+use CMSMS\NlsOperations;
 use CMSMS\Permission;
+use CMSMS\RequestParameters;
 use CMSMS\Route;
 use CMSMS\RouteOperations;
 use CMSMS\Utils;
 use ContentManager\BulkOperations;
 use function CMSMS\get_site_UUID;
 use function CMSMS\log_info;
-use function CMSMS\sanitizeVal;
+//use function CMSMS\sanitizeVal;
 use function CMSMS\template_processing_allowed;
 //use function CMSMS\de_entitize;
 
@@ -177,12 +179,13 @@ abstract class CMSModule
                 'action' => CLEAN_STRING,
                 'assign' => CLEAN_STRING,
                 'id' => CLEAN_STRING,
-                'inline' => CLEAN_INT, // OR _BOOL ?
+                'inline' => CLEAN_INT, // OR CLEAN_BOOL ?
                 'lang' => CLEAN_STRING,
                 'module' => CLEAN_STRING,
-                'returnid' => CLEAN_INT, // string|null for backend pages
+                'returnid' => CLEAN_INT, //an empty string (for backend pages) is not relevant here
                 'showtemplate' => CLEAN_STRING, //deprecated since 3.0, use CMS_JOB_KEY
                 CMS_JOB_KEY => CLEAN_INT,
+                CMS_SECURE_PARAM_NAME => CLEAN_STRING
             ]);
         }
     }
@@ -210,7 +213,7 @@ abstract class CMSModule
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __call(string $name, array $args)
+    public function __call(string $name, array $args)// : mixed
     {
         if (strncmp($name, 'Create', 6) == 0) {
             //maybe it's a now-removed form-element call
@@ -423,12 +426,12 @@ abstract class CMSModule
      *  in the database. Default false. If true, the module is not immediately
      *  registered with Smarty i.e. for use during module installation/upgrade.
      *  Ignored since 3.0. Automatic true|false per install/upgrade | not.
-     * @param mixed bool|null $cachable Optional indicator whether the plugin's
+     * @param bool $cachable Optional indicator whether the plugin's
      *  (frontend) output is cachable by Smarty. Default false.
-     *  Deprecated since 3.0 (Make it always be cachable, with override in page|template)
+     * @deprecated since 3.0 (Make it always be cachable, with override in page|template)
      * @return bool
      */
-    final public function RegisterModulePlugin(bool $static = false, $cachable = false) : bool
+    final public function RegisterModulePlugin(bool $static = false, bool $cachable = false) : bool
     {
         $name = $this->GetName();
         if( $this->modinstall ) {
@@ -641,32 +644,18 @@ abstract class CMSModule
 
     /**
      * Register all static (database-recorded) routes for this module.
-     *
-     * @abstract
-     * @since 1.11
-     * @since 3.0 this is a deprecated alias for CreateStaticRoutes()
-     */
-    public function CreateRoutes()
-    {
-        assert(!CMS_DEPREC, new DeprecationNotice('method','CreateStaticRoutes'));
-        $this->CreateStaticRoutes();
-    }
-
-    /**
-     * Register all static (database-recorded) routes for this module.
      * This method should be called rarely e.g. during module installation
      * or upgrade or after module-settings change.
      *
      * @abstract
-     * @since 3.0
-     * @since 1.11 as CreateRoutes()
+     * @since 1.11
      */
     public function CreateStaticRoutes() {}
 
     /**
      * This is a transitional mechanism to speed up module processing.
      * Returns true/false indicating whether the module registers route(s) during
-     * construction/intialization.  Defaults to true.
+     * construction/initialization.  Defaults to true.
      * @see CMSModule::RegisterRoute() and CreateStaticRoutes()
      * @since 3.0
      * @deprecated since 3.0 Instead CMSModule::HasCapability() should report CMSMS\CapabilityType::ROUTE_MODULE
@@ -703,7 +692,8 @@ abstract class CMSModule
      *
      * @internal
      * @access private
-     * @param string $modulename Module name
+     * @param string $modulename Module name, used in error message only
+     * @param string $id action-parameters prefix
      * @param array  $data The data to process
      * @param array  $map  A map of registered parameter names and corresponding types
      * @param bool   $allow_unknown A flag indicating whether unknown keys in $data
@@ -712,10 +702,22 @@ abstract class CMSModule
      *  treated as strings and cleaned. Default true.
      * @return array
      */
-    private function _cleanParamHash(string $modulename, array $data, array $map, bool $allow_unknown = false, bool $clean_keys = true) : array
+    private function _cleanParamHash(string $modulename, string $id, array $data, array $map, bool $allow_unknown = false, bool $clean_keys = true) : array
     {
         $mappedcount = 0;
         $result = [];
+        $map = array_merge([
+            'action' => CLEAN_STRING,
+            'assign' => CLEAN_STRING,
+            'id' => CLEAN_STRING,
+            'inline' => CLEAN_INT, // OR CLEAN_BOOL ?
+            'lang' => CLEAN_STRING,
+            'module' => CLEAN_STRING,
+            'returnid' => CLEAN_INT, //an empty string (for backend pages) is not relevant here
+            'showtemplate' => CLEAN_STRING, //deprecated since 3.0, use CMS_JOB_KEY
+            CMS_JOB_KEY => CLEAN_INT,
+            CMS_SECURE_PARAM_NAME => CLEAN_STRING
+        ], $map);
         // deprecated FILTER_SANITIZE_STRING-replacement with some extras e.g. verbatim \t \r \n < >
         // OR use sanitizeVal() after de_specialize()
         $clean_str = function(string $value) : string
@@ -741,6 +743,8 @@ abstract class CMSModule
             ], $value);
             return strtr($ss, ['"'=>'&#34;', "'"=>'&#39;', '`'=>'&#96;']);
         };
+        $pl = strlen($id);
+
         foreach( $data as $key => $value ) {
             $mapped = false;
             $paramtype = '';
@@ -749,18 +753,15 @@ abstract class CMSModule
                     $paramtype = $map[$key];
                 }
                 else {
-                    // key not found in the map
-                    // see if one matches via regular expressions
+                    // key not found in the map, check for a regex match
                     foreach( $map as $mk => $mv ) {
-                        if(strstr($mk,CLEAN_REGEXP) === false) continue;
-                        // mk is a regular expression
-                        $ss = substr($mk,strlen(CLEAN_REGEXP));
-                        if( $ss !== false ) {
-                            if( preg_match($ss, $key) ) {
-                                // it matches, we now know what type to use
-                                $paramtype = $mv;
-                                break;
-                            }
+                        if( strstr($mk, CLEAN_REGEXP) === false ) continue;
+                        // $mk is a regular expression
+                        $patn = substr($mk, strlen(CLEAN_REGEXP));
+                        if( $patn && preg_match($patn, $key, $matches) ) {
+                            // it matches, we now know what type to use
+                            $paramtype = $mv;
+                            break;
                         }
                     }
                 }
@@ -823,6 +824,10 @@ abstract class CMSModule
                 }
             }
 
+            // any prefix can go away
+            if( strncmp($key, $id, $pl) == 0 ) {
+                $key = substr($key, $pl);
+            }
             if( $clean_keys ) {
                 //TODO use sanitizeVal(), de_specialize()
                 $ss = strtr(strip_tags($key), ['"'=>'&#34;', "'"=>'&#39;']);
@@ -839,11 +844,12 @@ abstract class CMSModule
     }
 
     /*
-     * Note: In past versions of CMSMS, SetParameters() was used for both admin and
-     * frontend requests to register routes, create parameters, register a module plugin, etc.
-     * As of version 1.10 this method was deprecated, replaced by InitializeFrontend()
-     * and InitializeAdmin(). This method was scheduled for removal in version 1.11,
-     * and as of 3.0, is gone.
+     * Note: In past versions of CMSMS, SetParameters() was used in
+     * admin and frontend requests to register routes, create parameters,
+     * register a module plugin etc.
+     * As of version 1.10 that method was deprecated, replaced by
+     * InitializeFrontend() and InitializeAdmin(). The method was
+     * scheduled for removal in version 1.11, and as of 3.0, is gone.
      */
 
     /**
@@ -950,7 +956,7 @@ abstract class CMSModule
      * @see CMSModule::SetParameterType()
      * @final
      * @param string $param Parameter name
-     * @param mixed  $defaultval Optional default parameter value string | null
+     * @param mixed  $defaultval Optional default parameter value Default ''
      * @param string $helpstring Optional help string
      * @param bool   $optional  Optional flag indicating whether this parameter is optional or required. Default true
      */
@@ -1081,7 +1087,7 @@ abstract class CMSModule
      * @return mixed Array with two elements (prompt and xhtml element) or
      *  string containing only the xhtml input element.
      */
-    public function GetContentBlockFieldInput($blockName, $value, $params, $adding, $content_obj)
+    public function GetContentBlockFieldInput(/*string */$blockName, /*mixed */$value, /*array */$params, /*bool*/$adding, /*object*/$content_obj)// : mixed
     {
         return '';
     }
@@ -1107,8 +1113,9 @@ abstract class CMSModule
      * @return mixed The content block value to be used | (since 3.0) null (formerly false)
      *  A falsy return value will be ignored.
      */
-    public function GetContentBlockFieldValue($blockName, $blockParams, $inputParams, $content_obj)
+    public function GetContentBlockFieldValue(/*string */$blockName, /*array */$blockParams, /*array */$inputParams, /*object */$content_obj)// : mixed
     {
+        return null;
     }
 
     /**
@@ -1128,7 +1135,7 @@ abstract class CMSModule
      *  A core ContentBase object, or equivalent module-specific object.
      * @return string An error message if the value is invalid, empty otherwise.
      */
-    public function ValidateContentBlockFieldValue($blockName, $value, $blockparams, $content_obj)
+    public function ValidateContentBlockFieldValue(/*string */$blockName, /*mixed */$value, /*array */$blockparams, /*object */$content_obj)// : string
     {
         return '';
     }
@@ -1146,7 +1153,7 @@ abstract class CMSModule
      *  A core ContentBase object, or equivalent module-specific object.
      * @return string
      */
-    public function RenderContentBlockField($blockName, $value, $blockparams, $content_obj)
+    public function RenderContentBlockField(/*string */$blockName, /*string */$value, /*array */$blockparams, /*object */$content_obj)// : string
     {
         return $value;
     }
@@ -1158,7 +1165,7 @@ abstract class CMSModule
      * @param string $label A label for the action
      * @param string $action A module action name.
      */
-    final public function RegisterBulkContentFunction(string $label, string $action)
+    final public function RegisterBulkContentFunction(string $label, string $action) : void
     {
         try {
             BulkOperations::register_function($label,$action,$this->GetName());
@@ -1552,7 +1559,7 @@ abstract class CMSModule
      * @param CMSMS\CLI\App $app (this class may not exist) TODO better namespace
      * @return mixed array of CMSMS\CLI\GetOptExt\Command objects, or one such object, or NULL if not handled.
      * /
-    public function get_cli_commands($app)
+    public function get_cli_commands($app)// : mixed
     {
         $config = Lone::get('Config');
         //TODO a better approach for this stuff
@@ -1640,11 +1647,11 @@ abstract class CMSModule
      * @param string $name The name of the action to perform
      * @param mixed $id string|null GET|POST-submitted-parameters name-prefix e.g. 'm1_' for admin
      * @param array  $params The parameters targeted for this module
-     * @param mixed int|''|null $returnid Identifier of the page being displayed, ''|null for admin
+     * @param mixed int|'' $returnid Identifier of the page being displayed, '' for admin
      * @return mixed callable | null
      */
 /* action-spoofing : NOT YET, IF EVER
-    protected function get_controller(string $name, $id, array $params, $returnid = null)
+    protected function get_controller(string $name, $id, array $params, $returnid = '')// : mixed
     {
         if( isset( $params['controller']) ) {
             $ctrl = $params['controller'];
@@ -1659,6 +1666,7 @@ abstract class CMSModule
             $ctrl = new $ctrl( $this, $id, $returnid );
         }
         if( is_callable( $ctrl ) ) return $ctrl;
+        return null
     }
 */
     /**
@@ -1671,7 +1679,7 @@ abstract class CMSModule
      *
      * To allow segregating functionality into multiple PHP files the default
      * behavior of this method is to look for a file named action.<action name>.php
-     * in the modules directory, and if it exists include it.
+     * in the module's directory, and if such file exists, include it.
      *
      * Variables in-scope for the included file will be:
      *  $action see below
@@ -1696,12 +1704,12 @@ abstract class CMSModule
      * @param mixed $id string|null GET|POST-submitted-parameters name-prefix e.g. 'm1_' for admin
      * @param array  $params The parameters specified for the action
      * @param mixed  $returnid Optional id of the page being displayed,
-     *  numeric(int) for frontend, ''|null for admin. Default null.
+     *  numeric(int) for frontend, '' for admin. Default ''.
      * @return string output XHTML
      * @throws Error404Exception if action not named or not found
      */
 // or from 'controller' if relevant IGNORED
-    public function DoAction($action, $id, $params, $returnid = null)
+    public function DoAction($action, $id, $params, $returnid = '')
     {
         if( !is_numeric($returnid) ) {
             $key = $this->GetName().'::activetab';
@@ -1767,19 +1775,19 @@ abstract class CMSModule
      * @internal
      * @ignore
      * @param mixed $action The action name, string|falsy (in which case an exception will be thrown)
-     * @param mixed $id string|null GET|POST-submitted-parameters name-prefix
+     * @param string $id string GET|POST-submitted-parameters name-prefix (regex non-word-char(s) are stripped)
      * @param array  $params The action parameters
-     * @param mixed  $returnid The current page id. numeric(int) for frontend, null|'' for admin|login requests.
+     * @param mixed  $returnid The current page id. numeric(int) for frontend, '' for admin|login requests.
      * @param mixed  $smartob  A CMSMS\internal\template_wrapper object, or CMSMS\internal\Smarty object, or null
      * @return mixed '' if output is assigned to a smarty variable
      */
 //output from action 'controller' if relevant, or null, or N/A
-    public function DoActionBase($action, $id, $params, $returnid, $smartob)
+    public function DoActionBase($action, $id, $params, $returnid, $smartob)// : mixed
     {
         $action = preg_replace('/[^\w\-+]/', '', $action); //simple sanitize
-        $id = preg_replace('/\W/', '', $id); //only alphanum
+        $id = preg_replace('/\W/', '', $id); //ignore non-word chars
 
-        if( is_numeric($returnid) ) { // assumes 0 value N/A for admin
+        if( is_numeric($returnid) ) { // aka is frontend request - assumes 0 value N/A for admin
             // merge in params from module hints.
             $hints = Utils::get_app_data('__CMS_MODULE_HINT__'.$this->GetName());
             if( is_array($hints) ) {
@@ -1790,12 +1798,16 @@ abstract class CMSModule
                 unset($hints);
             }
 
-            $this->InitializeFrontend(); // just in case
+            $this->InitializeFrontend(); // in case called here directly?
             // to try to avert XSS flaws, clean parameters according to the map generated
             // by this module's InitializeFrontend() method. The map should have been populated
             // using SetParameterType() calls.
             // TODO if InitializeFrontend() has not been called? incomplete ->param_map here
-            $params = $this->_cleanParamHash( $this->GetName(),$params,$this->param_map );
+            $params = $this->_cleanParamHash($this->GetName(), $id, $params, $this->param_map);
+        }
+        else {
+//          $returnid = '';
+//          $this->InitializeAdmin(); // TODO in case called here directly?
         }
 
         // handle the stupid input type='image' problem.
@@ -1811,13 +1823,13 @@ abstract class CMSModule
         }
 
         if( is_numeric($returnid) ) {
-            $returnid = filter_var($returnid, FILTER_SANITIZE_NUMBER_INT);
+            $returnid = (int)filter_var($returnid, FILTER_SANITIZE_NUMBER_INT);
             $tmp = $params;
             $tmp['module'] = $this->GetName();
             HookOperations::do_hook('module_action', $tmp); //TODO BAD no namespace, some miscreant handler can change the parameters ... deprecate ?
         }
         else {
-            $returnid = null;
+            $returnid = '';
         }
 
         if( ($cando = template_processing_allowed()) ) {
@@ -1827,9 +1839,10 @@ abstract class CMSModule
             else {
                 $smarty = Lone::get('Smarty');
             }
+            $dir = NlsOperations::get_language_direction(); //'ltr' or 'rtl'
             // create a template object to hold some default variables
             // the module-action will normally use another template created/derived fom this one
-            $tpl = $smarty->createTemplate('string:DUMMY PARENT TEMPLATE',null,null,$smartob);
+            $tpl = $smarty->createTemplate('string:DUMMY PARENT TEMPLATE', '', '', $smartob);
             $tpl->assign([
             '_action' => $action,
             '_module' => $this->GetName(),
@@ -1837,10 +1850,11 @@ abstract class CMSModule
             'actionparams' => $params,
             'returnid' => $returnid,
             'mod' => $this,
+            'lang_dir' => $dir
             ]);
 
             $this->_action_tpl = $tpl;
-        }
+        } //? else {$this->_action_tpl = null;}
         $output = $this->DoAction($action, $id, $params, $returnid);
         if( $cando ) {
             $this->_action_tpl = null;
@@ -1865,7 +1879,7 @@ abstract class CMSModule
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_form_start() with $inline = true
      *
      * @param mixed $id string|null GET|POST-submitted-parameters name-prefix
-     * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
+     * @param mixed  $returnid The page id (int|'') to return to when the module has finished its task
      * Optional parameters:
      * @param string $action The name of the action that this form should do when the form is submitted
      * @param string $method Method to use for the form tag.  Defaults to 'post'
@@ -1886,7 +1900,7 @@ abstract class CMSModule
      * @param mixed $id string|null GET|POST-submitted-parameters name-prefix
      * @param string $action The action that this form should do when the form is submitted
      * Optional parameters:
-     * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
+     * @param mixed  $returnid The page id (int|'') to return to when the module has finished its task
      * @param string $method Method to use for the form tag.  Defaults to 'post'
      * @param string $enctype Enctype to use, Good for situations where files are being uploaded
      * @param bool   $inline A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
@@ -2141,14 +2155,14 @@ abstract class CMSModule
      * @param mixed $id string|null GET|POST-submitted-parameters name-prefix
      * @param string $action The action that this form should do when the link is clicked
      * Optional parameters:
-     * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
+     * @param mixed  $returnid The page id (int|'') to return to when the module has finished its task
      * @param string $contents The displayed clickable text or markup. Defaults to 'Click here'
      * @param string $params An array of params that should be included in the URL of the link.  These should be in a $key=>$value format.
      * @param string $warn_message Text to display in a javascript warning box.  If the user clicks no, the link is not followed by the browser.
      * @param bool   $onlyhref A flag to determine if only the href section should be returned
      * @param bool   $inline A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
      * @param string $addtext Any additional text that should be added into the tag when rendered
-     * @param bool   $targetcontentonly A flag to determine if the link should target the default content are of the destination page.
+     * @param bool   $targetcontentonly A flag indicating that the link output will populate the default content area of the destination page.
      * @param string $prettyurl A pretty url segment (related to the root of the website) for a pretty url.
      *
      * @return string
@@ -2161,7 +2175,7 @@ abstract class CMSModule
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_action_link() with adjusted params
      *
      * @param mixed $id string|null GET|POST-submitted-parameters name-prefix
-     * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
+     * @param mixed  $returnid The page id (int|'') to return to when the module has finished its task
      * @param string $action The action that this form should do when the link is clicked
      * Optional parameters:
      * @param string $contents The displayed clickable text or markup. Defaults to 'Click here'
@@ -2170,7 +2184,7 @@ abstract class CMSModule
      * @param bool   $onlyhref A flag to determine if only the href section should be returned
      * @param bool   $inline A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
      * @param string $addtext Any additional text that should be added into the tag when rendered
-     * @param bool   $targetcontentonly A flag indicating that the output of this link should target the content area of the destination page.
+     * @param bool   $targetcontentonly A flag indicating that the output of this link will populate the default content area of the destination page.
      * @param string $prettyurl A pretty url segment (relative to the root of the site) to use when generating the link.
      *
      * @return string
@@ -2198,7 +2212,7 @@ abstract class CMSModule
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_return_link()
      *
      * @param mixed $id string|null GET|POST-submitted-parameters name-prefix
-     * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
+     * @param mixed  $returnid The page id (int|'') to return to when the module has finished its task
      * Optional parameters:
      * @param string $contents The text that will have to be clicked to follow the link
      * @param array  $params Parameters to be included in the URL of the link.  These should be in a $key=>$value format.
@@ -2223,14 +2237,14 @@ abstract class CMSModule
      *  'cntnt01' indicates that the default content block of the destination page should be used.
      * @param string $action The module action name
      * Optional parameters:
-     * @param mixed  $returnid Optional page id (int|''|null) to return to. Default null (i.e. admin)
+     * @param mixed  $returnid Optional page id (int|'') to return to. Default '' (i.e. admin)
      * @param array  $params Optional parameters for the URL. Default []. These
      * will be ignored if the prettyurl argument is specified.
      * Since 3.0 array value(s) may be non-scalar.
      * @param bool   $inline Option flag whether the target of the output link
      *  is the same tag on the same page. Default false.
      * @param bool   $targetcontentonly Optional flag whether the target of the
-     * generated link targets the content area of the destination page. Default false.
+     * generated link targets the default content area of the destination page. Default false.
      * @param string $prettyurl Optional URL slug relative to the root of the page,
      *  for pretty url creation. Used verbatim. May be ':NOPRETTY:' to omit this part. Default ''.
      * @param bool $relative since 3.0 Optional flag whether to omit the
@@ -2243,42 +2257,48 @@ abstract class CMSModule
      *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
      * @return string
      */
-    public function create_url($id, $action, $returnid = null, $params = [], $inline = false, $targetcontentonly = false, $prettyurl = '', $relative = false, $format = 0)
+    public function create_url($id, /*string */$action, /*mixed */$returnid = '',
+    /*array */$params = [], /*bool */$inline = false, /*bool */$targetcontentonly = false,
+    /*string */$prettyurl = '', /*bool */$relative = false, /*int */$format = 0)
     {
         $this->_loadUrlMethods();
+        if (isset($params['forjs'])) {
+            unset($params['forjs']);
+            $format = 2;
+        }
         return call_user_func('CMSMS\module_support\CreateActionUrl',
-            $this, $id, $action, $returnid, $params, $inline,
-            $targetcontentonly, $prettyurl, $relative, $format);
+            $this, $id, $action, $returnid, $params,
+            $inline, $targetcontentonly, $prettyurl, $relative, $format);
     }
 
     /**
      * Return the URL for an action of this module
      * @since 3.0
      * @see also CMSModule::create_url() for more-flexible URL creation
-     *
+     * NOTE downstream $inline usage false always
      * @param mixed $id string|null GET|POST-submitted-parameters name-prefix.
      *  Anything falsy will trigger use of the admin id ('m1_').
      * @param string $action The module action name
+     * Optional parameters:
      * @param array  $params Optional parameters for the URL. Default [].
      *  These will be ignored if $prettyurl is specified.
      *  Since 3.0 array value(s) may be non-scalar.
-     * @param bool $relative since 3.0 Optional flag whether to omit the
-     *  site-root from the created url. Default false.
+     * @param mixed  $returnid Optional page id (int|'') to return to. Default '' (i.e. admin)
      * @param string $prettyurl Optional URL slug relative to the root of
      *  the page, for pretty url creation. Used verbatim. Default ''.
-     * @return string
+     * @param bool $relative since 3.0 Optional flag whether to omit the
+     *  site-root from the created url. Default false.
+     * @return string with rawurlencoded keys and values, '&' for parameter separators
      */
-    public function create_action_url($id, string $action, array $params = [], bool $relative = false, string $prettyurl = '')
+    public function create_action_url($id, string $action, array $params = [], /*mixed */$returnid = '', string $prettyurl = '', bool $relative = false)
     {
         $this->_loadUrlMethods();
-        if (isset($params['forjs'])) {
+        if (isset($params['forjs'])) { //deprecated, unused here
             unset($params['forjs']);
-//          $format = 2;
-        }// else {
-            $format = 2;
-//      }
+        }
         return call_user_func('CMSMS\module_support\CreateActionUrl',
-            $this, $id, $action, '', $params, false, false, $prettyurl, $relative, $format);
+            $this, $id, $action, $returnid, $params,
+            false, false, $prettyurl, $relative, 2);
     }
 
     /**
@@ -2289,7 +2309,7 @@ abstract class CMSModule
      *
      * @param mixed $id string|null GET|POST-submitted-parameters name-prefix.
      * Optional parameters:
-     * @param mixed  $returnid Return-page identifier (int|''|null). Default null (i.e. admin)
+     * @param mixed  $pageid Page identifier (int id|string alias)
      * @param array  $params Parameters for the action. Default []
      *  Since 3.0 array value(s) may be non-scalar.
      * @param bool $relative since 3.0 Optional flag whether to omit the
@@ -2302,11 +2322,11 @@ abstract class CMSModule
      *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
      * @return string
      */
-    public function create_pageurl($id, $returnid = null, array $params = [], bool $relative = false, int $format = 0) : string
+    public function create_pageurl($id, $pageid, array $params = [], bool $relative = false, int $format = 0) : string
     {
         $this->_loadUrlMethods();
         return call_user_func('CMSMS\module_support\CreatePageUrl',
-            $this, $id, $returnid, $params, $relative, $format);
+            $this, $id, $pageid, $params, $relative, $format);
     }
 
     /**
@@ -2319,13 +2339,13 @@ abstract class CMSModule
      * @param mixed $id string|null GET|POST-submitted-parameters name-prefix
      *  e.g 'cntnt01' which signals that the default content block of the
      *  destination page should be used.
-     * @param string $action The module action name
-     * @param mixed  $returnid Optional page id (int|''|null) to return to. Default null
+     * @param string $action The module action name TODO support empty name ?
+     * @param mixed  $returnid Optional page id (int|'') to return to. Default ''
      * @param array  $params Optional parameters for the URL. These will be ignored if $prettyurl is provided. Default []
-     * @param bool   $inline Optional flag whether the target of the output link is the same tag on the same page. Default false
+     * @param bool   $inline Optional flag whether link output will populate the same tag on the same page. Default false
      * @return string
      */
-    public function get_pretty_url($id, $action, $returnid = null, $params = [], $inline = false)
+    public function get_pretty_url($id, $action, $returnid = '', $params = [], $inline = false)
     {
         return '';
     }
@@ -2342,15 +2362,15 @@ abstract class CMSModule
      *
      * @since 1.11
      * @param string $tab Optional tab name.  Default current tab.
-     * @param mixed|null  $params Optional associative array of params, or null
+     * @param mixed  $params Optional associative array of parameters. Default [].
      * @param string $action Optional action name. Default 'defaultadmin'.
      * @see CMSModule::SetCurrentTab()
      */
     public function RedirectToAdminTab($tab = '', $params = [], $action = '')
     {
-        if( $params === '' ) $params = [];
-        if( $tab != '' ) $this->SetCurrentTab($tab);
-        if( empty($action) ) $action = 'defaultadmin';
+        if( $tab !== '' ) { $this->SetCurrentTab($tab); }
+        if( !$params ) { $params = []; }
+        if( !$action ) { $action = 'defaultadmin'; }
         $this->Redirect('m1_',$action,'',$params,false);
     }
 
@@ -2359,7 +2379,7 @@ abstract class CMSModule
      * This function is optimized for frontend use.
      *
      * @param mixed $id string|null GET|POST-submitted-parameters name-prefix
-     * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
+     * @param mixed  $returnid The page id (int|'') to return to when the module has finished its task
      * @param string $action The action that this form should do when the form is submitted
      * @param string $params Optional array of parameters to be provided to the action.
      *   These should be in a $key=>$value format.
@@ -2375,13 +2395,13 @@ abstract class CMSModule
      *
      * @param mixed $id string|null GET|POST-submitted-parameters name-prefix
      * @param string $action The action that this form should do when the form is submitted
-     * @param mixed  $returnid Optional page id (int|''|null) to return to when the module is finished its task
+     * @param mixed  $returnid Optional page id (int|'') to return to when the action has finished
      * @param string $params Optional array of parameters to be included in
      *  the URL of the link.  These should be in a $key=>$value format.
      * @param bool $inline A flag determining whether the actions should be
      *  handled inline (no moduleinterface.php -- only works for frontend)
      */
-    public function Redirect($id, $action, $returnid = null, $params = [], $inline = false)
+    public function Redirect($id, /*string */$action, $returnid = '', /*array */$params = [], /*bool */$inline = false)
     {
         $this->_loadRedirectMethods();
         call_user_func('CMSMS\module_support\\'.__FUNCTION__,
@@ -2393,7 +2413,7 @@ abstract class CMSModule
      * @param string $page PHP script to redirect to
      * @param array  $params Optional array of parameters to be sent to the page
      */
-    public function RedirectToAdmin($page, $params = [])
+    public function RedirectToAdmin($page, /*array */$params = [])
     {
         $this->_loadRedirectMethods();
         call_user_func('CMSMS\module_support\\'.__FUNCTION__,
@@ -2483,9 +2503,10 @@ abstract class CMSModule
      * @since 2.0.1
      * @return mixed Smarty_Internal_Template | null
      */
-    final public function GetActionTemplateObject() : Smarty_Internal_Template
+    final public function GetActionTemplateObject() : ?Smarty_Internal_Template
     {
         if( $this->_action_tpl ) return $this->_action_tpl;
+        return null;
     }
 
     /**
@@ -2574,14 +2595,15 @@ abstract class CMSModule
 
     /**
      * Return the content of a database-stored template.
-     * This should be used for admin functions only, as it doesn't involve any smarty caching.
+     * This should be used for admin functions only, as it doesn't
+     *  involve any Smarty caching.
      *
      * @final
      * @param string $tpl_name    The template name.
      * @param string $modulename  Optional name. Default current-module's name.
-     * @return mixed string|null
+     * @return mixed string | null
      */
-    final public function GetTemplate(string $tpl_name, string $modulename = '')
+    final public function GetTemplate(string $tpl_name, string $modulename = '') : ?string
     {
         $this->_loadTemplateMethods();
         return call_user_func('CMSMS\module_support\\'.__FUNCTION__,
@@ -2597,7 +2619,7 @@ abstract class CMSModule
      * @return array
      * @return mixed string | null
      */
-    final public function GetTemplateFromFile(string $tpl_name, string $modulename = '')
+    final public function GetTemplateFromFile(string $tpl_name, string $modulename = '') : ?string
     {
         $this->_loadTemplateMethods();
         return call_user_func('CMSMS\module_support\\'.__FUNCTION__,
@@ -2613,7 +2635,7 @@ abstract class CMSModule
      * @param string $modulename Optional module name. Default current-module's name.
      * @return bool (OR null ?)
      */
-    final public function SetTemplate(string $tpl_name, string $content, string $modulename = '')
+    final public function SetTemplate(string $tpl_name, string $content, string $modulename = '')// : bool? mixed? TBA
     {
         $this->_loadTemplateMethods();
         return call_user_func('CMSMS\module_support\\'.__FUNCTION__,
@@ -2648,7 +2670,7 @@ abstract class CMSModule
      * @param string  $cacheid     Optional unique cache flag (ignored)
      * @return mixed  string | null
      */
-    final public function ProcessTemplate(string $tpl_name, string $designation = '', bool $cache = false, string $cacheid = '') : string
+    final public function ProcessTemplate(string $tpl_name, string $designation = '', bool $cache = false, string $cacheid = '') : ?string
     {
         if( strpos($tpl_name, '..') !== false ) return '';
         $tpl = $this->_action_tpl;
@@ -2681,7 +2703,7 @@ abstract class CMSModule
      * @param string $modulename (ignored)
      * @return mixed string | null
      */
-    final public function ProcessTemplateFromDatabase(string $tpl_name, string $designation = '', bool $cache = false, string $modulename = '')
+    final public function ProcessTemplateFromDatabase(string $tpl_name, string $designation = '', bool $cache = false, string $modulename = ''): ?string
     {
         return $this->_action_tpl->fetch('module_db_tpl:'.$this->GetName().';'.$tpl_name);
     }
@@ -3141,8 +3163,8 @@ abstract class CMSModule
             if( $name == '' ) {
                 $me = $this->GetName();
                 $db = Lone::get('Db');
-           		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms G JOIN '.CMS_DB_PREFIX.'permissions P ON G.permission_id=P.id WHERE P.originator=?';
-          		$db->execute($query, [$me]);
+                $query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms G JOIN '.CMS_DB_PREFIX.'permissions P ON G.permission_id=P.id WHERE P.originator=?';
+                $db->execute($query, [$me]);
                 $query = 'DELETE FROM '.CMS_DB_PREFIX.'permissions WHERE originator=?';
                 $db->execute($query, [$me]);
             }
@@ -3162,7 +3184,7 @@ abstract class CMSModule
      * except when running 'inline'.
      * @since 3.0
      *
-     * @return bool indicating acceptability
+     * @return bool indicating running moduleinterface script
      */
     public function CheckContext() : bool
     {
@@ -3182,13 +3204,12 @@ abstract class CMSModule
     /**
      * Returns a module preference if it exists, or else the specified default value.
      *
-     * @final
      * @param string $preference_name The name of the preference to check
      *   Since 3.0 $preference_name may be '', to get all recorded preferences for the module
-     * @param mixed  $defaultvalue    Optional default value (single | array). Default ''.
+     * @param mixed  $defaultvalue    Optional default value (scalar | array). Default ''.
      * @return mixed value | array
      */
-    final public function GetPreference(string $preference_name = '', $defaultvalue='')
+    public function GetPreference(string $preference_name = '', $defaultvalue = '')
     {
         $pref = $this->GetName().AppParams::NAMESPACER;
         if ($preference_name) {
@@ -3208,25 +3229,23 @@ abstract class CMSModule
     /**
      * Sets a module preference.
      *
-     * @final
-     * @param string $preference_name The name of the preference to set
-     * @param mixed $value string|null The value to set it to
+     * @param string $name The name of the preference to set
+     * @param mixed $value The value to be recorded
      */
-    final public function SetPreference(string $preference_name, $value)
+    public function SetPreference(string $name, $value)
     {
-        return AppParams::set($this->GetName().AppParams::NAMESPACER.$preference_name, $value);
+        return AppParams::set($this->GetName().AppParams::NAMESPACER.$name, $value);
     }
 
     /**
      * Removes a module preference, or if no preference name is specified,
      * removes all module preferences.
-     * @final
      *
      * @param string $name Optional name of the preference to remove.
      *  Default '', which implies all preferences associated with this module.
      * @param bool $like since 3.0 Optional flag indicating wildcard removal. Default false.
      */
-    final public function RemovePreference(string $name = '', bool $like = false)
+    public function RemovePreference(string $name = '', bool $like = false)
     {
         $prefix = $this->GetName().AppParams::NAMESPACER;
         $args = ( $name ) ?
@@ -3237,13 +3256,12 @@ abstract class CMSModule
     /**
      * List all preferences for a specific module by prefix.
      * @since 2.0
-     * @final
      *
      * @param string $prefix
      * @return array preference name(s) | empty
      * @throws RuntimeException
      */
-    final public function ListPreferencesByPrefix(string $prefix)
+    public function ListPreferencesByPrefix(string $prefix)
     {
         if( !$prefix ) return [];
         $prefix = $this->GetName().AppParams::NAMESPACER.$prefix;
@@ -3260,24 +3278,15 @@ abstract class CMSModule
         return [];
     }
 
+    /*
+     * @see also HookOperations
+     * Hooks can perform a similar role to Events
+     */
     /**
      * ------------------------------------------------------------------
-     * Event Handler Related Functions
+     * Event Related Functions
      * ------------------------------------------------------------------
      */
-
-    /**
-     * From version 2.2 onwards, CMSMS also has another notification mechanism
-     * which can be used instead of Events. Known as a 'Hook'.
-     *
-     * As in the case of events, it is possible to register(listen) for, and
-     * un-register from, named 'reportables'. Registered handers (PHP callbacks)
-     * will be called with information about whatever happened. Hook data are
-     * less-durable, stored in cache instead of the database.
-     *
-     * @see HookOperations
-     */
-
     /**
      * Add a handler for an existing event.
      *
@@ -3350,7 +3359,6 @@ abstract class CMSModule
         return '';
     }
 
-
     /**
      * Get a (translated) description of the parameters that are
      * delivered with an event originated by this module.
@@ -3417,6 +3425,5 @@ abstract class CMSModule
     {
         Events::SendEvent($this->GetName(), $eventname, $params);
     }
-
 } // class
 

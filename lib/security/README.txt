@@ -6,6 +6,7 @@ This folder contains orginal/backup access-control files for folders:
  TMP block.tmp.*
  USERTAGS block.plugins.*
  UPLOADS block.exe.*
+ MODULES block.exe.*
 
 unused block.all.*
 

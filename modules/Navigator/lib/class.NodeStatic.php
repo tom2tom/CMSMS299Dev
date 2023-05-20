@@ -31,6 +31,7 @@ class NodeStatic
     public $alias;
     public $children; //id's array maybe empty
     public $created; // timestamp
+    public $default;
     public $hierarchy; // 'friendly' format like '2.4.1'
     public $id; // numeric identifier
     public $inmenu; // whether this content will actually be included in menus

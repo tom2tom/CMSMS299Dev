@@ -116,7 +116,7 @@ if (1) { //$access) {
 
 		case 'delete':
 			if (!$handler) {
-//				$themeObject->RecordNotice('error', _la('missingparams')); //TODO useless befor return
+//				$themeObject->RecordNotice('error', _la('missingparams')); //TODO useless before return
 				return;
 			}
 			Events::RemoveEventHandlerById($handler);
@@ -161,11 +161,11 @@ if (1) { //$access) {
 	}
 	// TODO etc e.g. regular plugins, any callable ?
 } else {
-	$allhandlers = null;
-	$handlers = null;
-	$icondel = null;
-	$icondown = null;
-	$iconup = null;
+	$allhandlers = [];
+	$handlers = [];
+	$icondel = '';
+	$icondown = '';
+	$iconup = '';
 }
 
 $selfurl = basename(__FILE__);

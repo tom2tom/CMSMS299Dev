@@ -75,7 +75,7 @@ class Utils
             require_once __DIR__ . DIRECTORY_SEPARATOR . 'PorterStemmer.class.php';
             $stemmer = new PorterStemmer();
         } else {
-            $stemmer = null;
+            $stemmer = null; // no object
         }
 
         foreach ($words as $word) {

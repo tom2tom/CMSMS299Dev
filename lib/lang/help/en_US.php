@@ -23,7 +23,7 @@ EOS
 'user_dateformat' => 'Enter a string, in <a href="https://php.net/manual/en/datetime.format.php" class="external" target="_blank"><u>PHP date</u></a>-compatible format, that will be used <em>(by default)</em> to display dates on the admin pages of this website.<br><strong>Note:</strong> Some modules might choose to display dates differently.',
 'user_datetimeformat' => 'Enter a string, in <a href="https://php.net/manual/en/datetime.format.php" class="external" target="_blank"><u>PHP date</u></a>-compatible format, that will be used <em>(by default)</em> to display dates including time on the admin pages of this website.<br><strong>Note:</strong> Some modules might choose to display date-times differently.',
 'user_dfltparent' => 'Specify the default parent page for creating a new content page. The use of this setting also depends on your content editing permissions.<br><br>Drill down to the selected default parent page by selecting the topmost parent, and successive child pages from the provided dropdowns.<br><br>The text field on the right will always indicate which page is currently selected.',
-'user_edit_password' => 'Change this field to change the current password',
+'user_edit_password' => 'Enter a value in this field to replace the current password',
 'user_edit_passwordagain' => 'Match this field to the other password entry, to change the password',
 'user_email' => 'Specify an email address. This is used for the lost password functionality, and for any notification emails sent by the system (or add-on modules).',
 'user_enablenotifications' => 'If enabled, the system will display various notifications about things that need to be taken care of in the navigation',
@@ -35,7 +35,7 @@ EOS
 'user_language' => 'Select the language to display for the Admin interface. The list of available languages might vary on each CMSMS install',
 'user_lastname' => 'Optionally specify your surname. This might be used in the Admin theme, or to personally address emails to you',
 //'user_login' => 'If disabled, the user will be prevented from logging in to the admin console', //for adminaccess
-'user_name' => 'The username field must consist of alphanumeric characters, dot(.), underscore, or space',
+'user_name' => 'The username field may contain only alphanumeric characters, underscores, periods(.) and/or spaces',
 'user_password' => 'Please enter a secure password for accessing this site\'s admin console. The password must be eight or more characters long, and must comply with the site\'s passwords-policy (content, repetition). Please leave this field blank if you do no wish to change your password.',
 'user_passwordagain' => 'To reduce errors, please enter the password again. Leave this field empty if you do not wish to change the password.',
 'user_repass' => 'If this option is selected, the current or here-specified password will be valid for the next login only, and the user will then be required to replace the password. If appropriate, a message about this will immediately be emailed to the user.',

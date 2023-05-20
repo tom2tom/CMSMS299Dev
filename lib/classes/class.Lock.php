@@ -198,8 +198,8 @@ final class Lock implements ArrayAccess
      */
     public function set_properties(array $params)
     {
-        $val = $params['type'] ?? null;
-        if ($val !== null) {
+        $val = $params['type'] ?? '';
+        if ($val) {
             $val = trim($val);
             if ($val !== '') {
                 $params['type'] = $val;
@@ -308,7 +308,7 @@ final class Lock implements ArrayAccess
      * @return Lock
      * @throws NoLockException
      */
-    public static function load_by_id($lock_id, $type, $oid, $userid = null)
+    public static function load_by_id(int $lock_id, string $type, int $oid, int $userid = 0)
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'LockOperations::load_by_id'));
         return LockOperations::load_by_id($lock_id, $type, $oid, $userid);
@@ -324,7 +324,7 @@ final class Lock implements ArrayAccess
      * @return Lock
      * @throws NoLockException
      */
-    public static function load($type, $oid, $userid = null)
+    public static function load(string $type, int $oid, int $userid = 0)
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'LockOperations::load'));
         return LockOperations::load($type, $oid, $userid);

@@ -73,7 +73,7 @@ class AltbierTheme extends AdminTheme
 	/**
 	 * @ignore
 	 */
-	private $_havetree = null;
+//	private $_havetree = [];
 
 	// 3.0+ will access these via parent-class
 	protected $_errors = [];
@@ -84,11 +84,11 @@ class AltbierTheme extends AdminTheme
 	 */
 	protected function currentversion() : bool
 	{
-		static $flag = null;
-		if ($flag === null) {
-			$flag = method_exists($this, 'RecordNotice');
+		static $cvflag = null;
+		if ($cvflag === null) {
+			$cvflag = method_exists($this, 'RecordNotice');
 		}
-		return $flag;
+		return $cvflag;
 	}
 
 	/**
@@ -100,7 +100,7 @@ class AltbierTheme extends AdminTheme
 	 * [0] = array of data for js vars, members like varname=>varvalue
 	 * [1] = array of string(s) for includables
 	 */
-	public function AdminHeaderSetup()
+	public function AdminHeaderSetup() : array
 	{
 		list($vars, $add_list) = parent::AdminHeaderSetup();
 
@@ -152,7 +152,7 @@ EOS;
 		return [$vars, $add_list];
 	}
 
-	public function ShowHeader($title_name, $extra_lang_params = [], $link_text = '', $module_help_type = FALSE)
+	public function ShowHeader(/*string */$title_name, /*array */$extra_lang_params = [], /*string */$link_text = '', /*mixed */$module_help_type = false)
 	{
 		if ($this->currentversion()) {
 			parent::ShowHeader($title_name, $extra_lang_params, $link_text, $module_help_type);
@@ -205,7 +205,7 @@ EOS;
 					if ($modname[0] == '_')
 						$modname = substr($modname, 1);
 				} else {
-					if (($p = strrchr($title, ':')) !== FALSE) {
+					if (($p = strrchr($title, ':')) !== false) {
 						$title = substr($title, 0, $p);
 					}
 					// find the key of the item with this title.
@@ -273,7 +273,7 @@ EOS;
 		return [$jqcss, $jqui, $jqcore];
 	}
 
-	public function display_login_page()
+	public function display_login_page()// : void
 	{
 		$gCms = cmsms();
 		$smarty = $gCms->GetSmarty();
@@ -414,7 +414,7 @@ EOS;
 	 *  but usually null to use the whole menu
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function fetch_menu_page($section_name)
+	public function fetch_menu_page(string $section_name) : ?string
 	{
 		$flag = $this->currentversion();
 
@@ -425,13 +425,13 @@ EOS;
 				$nodes = $this->get_navigation_tree($section_name, 0);
 				$smarty->assign('pagetitle', $this->title);
 			} else { // old CMSMS
-				$nodes = $this->get_navigation_tree($section_name, -1, FALSE);
+				$nodes = $this->get_navigation_tree($section_name, -1, false);
 				$smarty->assign('pagetitle', _la($section_name)); //CHECKME
 			}
 		} elseif ($flag) {
 			$nodes = $this->get_navigation_tree(null, 3, 'root:view:dashboard');
 		} else {
-			$nodes = $this->get_navigation_tree(-1, 2, FALSE);
+			$nodes = $this->get_navigation_tree(-1, 2, false);
 		}
 //		$this->_havetree = $nodes; //block further tree-data changes
 		$smarty->assign('nodes', $nodes);
@@ -450,10 +450,10 @@ EOS;
 	}
 
 	/**
-	 * @param string $html page content to be processed
+	 * @param string $content page content to be processed
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function fetch_page($html)
+	public function fetch_page(string $content) : ?string
 	{
 		$flag = $this->currentversion();
 
@@ -573,7 +573,7 @@ EOS;
 		$secureparam = CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY];
 		// other variables
 		$smarty->assign('admin_url', $config['admin_url'])
-		  ->assign('content', str_replace('</body></html>', '', $html))
+		  ->assign('content', str_replace('</body></html>', '', $content))
 		  ->assign('theme', $this)
 		  ->assign('secureparam', $secureparam);
 		$user = Lone::get('UserOperations')->LoadUserByID($userid);
@@ -638,7 +638,7 @@ EOS
 
 	// for pre-3.0 compatibility
 
-	public function ShowErrors($errors, $get_var = '')
+	public function ShowErrors($errors, $get_var = '')// : string
 	{
 /*		if ($this->currentversion()) {
 			$this->RecordNotice('error', $errors, '', false, $get_var);
@@ -661,7 +661,6 @@ EOS
 			$this->_errors[] = $errors;
 		}
 		return '<!-- Altbier::ShowErrors() called -->';
-
 //		} //pre 3.0
 	}
 
@@ -687,11 +686,11 @@ EOS
 		} elseif (is_string($message)) {
 			$this->_messages[] = $message;
 		}
-
+        return '';
 //		} // pre 3.0
 	}
 
-	public function do_toppage($section_name)
+	public function do_toppage(string $section_name)
 	{
 		echo $this->fetch_menu_page($section_name);
 	}
@@ -701,12 +700,12 @@ EOS
 		$this->display_login_page($params);
 	}
 
-	public function postprocess($html)
+	public function postprocess(string $content)
 	{
-		return $this->fetch_page($html);
+		return $this->fetch_page($content);
 	}
 
-	public function get_my_alerts()
+	public function get_my_alerts() : array
 	{
 		return Alert::load_my_alerts();
 	}

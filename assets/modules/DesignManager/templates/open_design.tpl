@@ -10,7 +10,7 @@
   {$t=_ld($_module,'title_name')}<label class="pagetext" for="designname">* {$t}:</label>
   {cms_help 0=$_module key='help_design_name' title=$t}
   <div class="pageinput">
-    <input type="text" id="designname" name="{$actionid}name" value="{$name}" size="40" maxlength="64" placeholder="{_ld($_module,'enter_name')}">
+    <input type="text" id="designname" name="{$actionid}name" value="{$name}" size="40" maxlength="64" placeholder="{_ld($_module,'enter_name')}" required>
   </div>
 </div>
 <div class="pageoverflow">
@@ -34,6 +34,6 @@
 <div class="pageinput pregap">
   <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{_ld($_module,'submit')}</button>
   <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{_ld($_module,'apply')}</button>
-  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{_ld($_module,'cancel')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel" formnovalidate>{_ld($_module,'cancel')}</button>
 </div>
 </form>

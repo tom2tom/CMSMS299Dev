@@ -225,7 +225,7 @@ final class Message implements MessageContract
     public function setCharset($charset = 'UTF-8')
     {
         $value = $this->charset;
-        $this->charset = ($charset) ? $charset : 'UTF-8';
+        $this->charset = $charset ?: 'UTF-8';
         if ($value != $this->charset) {
             $this->headers['content-type'] = 'text/plain; charset=' . $this->charset;
         }
@@ -241,7 +241,7 @@ final class Message implements MessageContract
     public function setEncoding($encoding = 'quoted-printable')
     {
         $value = $this->encoding;
-        $this->encoding = ($encoding) ? $encoding : 'quoted-printable';
+        $this->encoding = $encoding ?: 'quoted-printable';
         if ($value != $this->encoding) {
             $this->headers['content-transfer-encoding'] = $this->encoding;
         }
@@ -1054,7 +1054,7 @@ final class Message implements MessageContract
     private function getContact($email, $name = '')
     {
         $email = (string)$email;
-        $name = preg_replace('/[^\w\pL\s,.]/u', '', trim($name));
+        $name = preg_replace('/[^\w\pL\s,.]/u', '', trim((string)$name));
         if ((strpos($name, ' ') !== false || strpos($name, "\t") !== false) && $name) {
             $name = '"' . $name . '"';
         }

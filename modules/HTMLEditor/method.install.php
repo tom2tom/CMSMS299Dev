@@ -1,7 +1,7 @@
 <?php
 /*
 HTMLEditor module installation procedure
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of the Microtiny module for CMS Made Simple
 <http://dev.cmsmadesimple.org/projects/microtiny>
@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminAlerts\TranslatableAlert;
 use CMSMS\AppParams;
+//use CMSMS\AppState;
 use CMSMS\Lone;
 use CMSMS\UserParams;
 use HTMLEditor\Profile;

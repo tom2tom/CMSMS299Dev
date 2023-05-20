@@ -65,13 +65,13 @@ try {
       $this->ShowErrors($t->GetMessage());
     }
 
-    $tpl = $smarty->createTemplate($this->GetTemplateResource('import_design.tpl')); //,null,null,$smarty);
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('import_design.tpl','','',$smarty));
     $tpl->display();
     break;
 
   case 2:
     // preview what's going to be imported
-    $tpl = $smarty->createTemplate($this->GetTemplateResource('import_design2.tpl')); //,null,null,$smarty);
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('import_design2.tpl','','',$smarty));
     try {
         if( !isset($params['tmpfile']) ) {
             // bad error, redirect to admin tab.
@@ -88,13 +88,10 @@ try {
         $reader = reader_factory::get_reader($tmpfile);
 
         if( isset($params['next2']) ) {
-            $error = null;
             if( !isset($params['check1']) ) {
-                $error = 1;
                 $this->ShowErrors($this->Lang('error_notconfirmed'));
             }
             elseif( !isset($params['newname']) || $params['newname'] == '' ) {
-                $error = 1;
                 $this->ShowErrors($this->Lang('error_missingparam'));
             }
             else {

@@ -46,6 +46,7 @@ use const CMS_ROOT_PATH;
 use function check_permission;
 //TODO if running in main system, what namespaces,funcnames ?
 use function cms_installer\get_server_permissions;
+use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\rrmdir;
 use function error_msg;
@@ -448,7 +449,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
       ]
      ],
      'stylesheets' => [
-      'sql' => 'SELECT * FROM %slayout_stylesheets WHERE originator=\''.$corename.'\' OR originator LIKE \'%%Theme\' ORDER BY REPLACE(originator,\'_\',\' \'),name',
+      'sql' => 'SELECT * FROM %slayout_stylesheets WHERE originator=\''.$corename.'\' OR originator LIKE \'%%Theme\' ORDER BY REPLACE(originator,\'_\',\' \'),`name`',
       'subtypes' => [
        'stylesheet' => [
         'id' => [],
@@ -461,7 +462,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
         'type_id' => ['optional' => 1],
         'type_dflt' => ['optional' => 1],
         'listable' => ['optional' => 1],
-        'contentfile' => ['optional' => 1],
+        'contentfile' => ['isdata' => 1, 'optional' => 1],
         'content' => ['isdata' => 1],
        ]
       ]
@@ -477,7 +478,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
       ]
      ],
      'templatetypes' => [
-      'sql' => 'SELECT * FROM %slayout_tpl_types WHERE originator=\''.$corename.'\' OR originator LIKE \'%%Theme\' ORDER BY REPLACE(originator,\'_\',\' \'),name',
+      'sql' => 'SELECT * FROM %slayout_tpl_types WHERE originator=\''.$corename.'\' OR originator LIKE \'%%Theme\' ORDER BY REPLACE(originator,\'_\',\' \'),`name`',
       'subtypes' => [
        'tpltype' => [
         'id' => [],
@@ -508,7 +509,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
       ]
      ],
      'templates' => [
-      'sql' => 'SELECT * FROM %slayout_templates WHERE originator=\''.$corename.'\' OR originator LIKE \'%%Theme\' ORDER BY REPLACE(originator,\'_\',\' \'),name',
+      'sql' => 'SELECT * FROM %slayout_templates WHERE originator=\''.$corename.'\' OR originator LIKE \'%%Theme\' ORDER BY REPLACE(originator,\'_\',\' \'),`name`',
       'subtypes' => [
        'template' => [
         'id' => [],
@@ -520,7 +521,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
         'type_id' => ['optional' => 1],
         'type_dflt' => ['optional' => 1],
         'listable' => ['optional' => 1],
-        'contentfile' => ['optional' => 1],
+        'contentfile' => ['isdata' => 1, 'optional' => 1],
         'content' => ['isdata' => 1],
        ]
       ]
@@ -579,7 +580,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
         'name' => [],
         'description' => ['isdata' => 1, 'optional' => 1],
         'parameters' => ['isdata' => 1, 'optional' => 1],
-        'contentfile' => ['optional' => 1],
+        'contentfile' => ['isdata' => 1, 'optional' => 1],
         'code' => ['isdata' => 1],
        ]
       ]
@@ -911,8 +912,22 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							$val = (string)$node->listable;
 							$ob->set_listable((bool)$val);
 							$val = (string)$node->contentfile;
-							$ob->set_content_file((bool)$val);
-							$ob->set_content(htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES)); // NOT worth CMSMS\de_specialize
+							if ($val) {
+								$ob->set_content_file(true);
+								$val2 = htmlspecialchars_decode($val, ENT_XML1 | ENT_QUOTES);
+								$ob->set_content($val2);
+								$val = (string)$node->content;
+								if ($val) {
+									$fp = joinpath(CMS_ASSETS_PATH, 'styles', $val2);
+									@mkdir(dirname($fp), 0755, true);
+									$val2 = htmlspecialchars_decode($val, ENT_XML1 | ENT_QUOTES);
+									file_put_contents($fp, $val2, LOCK_EX);
+									chmod($fp, 0644);
+								}
+							} else {
+								$ob->set_content_file(false);
+								$ob->set_content(htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES)); // NOT worth CMSMS\de_specialize
+							}
 							$ob->save();
 						} catch (DataException $e) {
 							if ($runtime) {
@@ -1090,8 +1105,22 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							$val = (string)$node->listable;
 							$ob->set_listable((bool)$val);
 							$val = (string)$node->contentfile;
-							$ob->set_content_file((bool)$val);
-							$ob->set_content(htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
+							if ($val) {
+								$ob->set_content_file(true);
+								$val2 = htmlspecialchars_decode($val, ENT_XML1 | ENT_QUOTES);
+								$ob->set_content($val2);
+								$val = (string)$node->content;
+								if ($val) {
+									$fp = joinpath(CMS_ASSETS_PATH, 'layouts', $val2);
+									@mkdir(dirname($fp), 0755, true);
+									$val2 = htmlspecialchars_decode($val, ENT_XML1 | ENT_QUOTES);
+									file_put_contents($fp, $val2, LOCK_EX);
+									chmod($fp, 0644);
+								}
+							 } else {
+								$ob->set_content_file(false);
+								$ob->set_content(htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES)); // NOT worth CMSMS\de_specialize
+							}
 							$ob->save();
 						} catch (Throwable $t) {
 							if ($runtime) {
@@ -1157,7 +1186,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 					foreach ($typenode->children() as $node) {
 						//replicate table-row somewhat
 						$parms = (array)$node;
-						$val = (int)$parms['template_id'] ?? 0;
+						$val = (int)($parms['template_id'] ?? 0);
 						$parms['template_id'] = $templates[$val] ?? 0;
 						$val = $parms['parent_id'] ?? -1;
 						if ($val < 1) {
@@ -1293,7 +1322,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 					}
 					$db = Lone::get('Db');
 					$query = 'INSERT INTO '.CMS_DB_PREFIX.'userplugins (
-name,
+`name`,
 description,
 parameters,
 contentfile,
@@ -1314,6 +1343,7 @@ code) VALUES (?,?,?,?,?)';
 							$args[] = null;
 						}
 						// if the plugin is file-stored, that file is expected to be processed separately
+                        //TODO c.f. template-files & stylesheet-files content processing
 						$val = $parms['contentfile'] ?? 0;
 						if ($val) {
 							$args[] = (int)htmlspecialchars_decode($val, ENT_XML1 | ENT_QUOTES);

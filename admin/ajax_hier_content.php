@@ -128,7 +128,6 @@ try {
         $out = [];
         $page = (int)$_REQUEST['page'];
         if ($page < 1) $page = -1;
-        $node = $thiscontent = null;
         if ($page == -1) {
             $node = $ptops; // PageTreeOperations object, not a PageTreeNode node
         } else {
@@ -148,11 +147,9 @@ try {
         else {
             $page = (int)$_REQUEST['page'];
             if ($page < 1) $page = -1;
-            $node = null;
             if ($page == -1) {
                 $node = $ptops; // PageTreeOperations, not a PageTreeNode node
-            }
-            else {
+            } else {
                 $node = $ptops->get_node_by_id($page);
             }
             if ($node) {

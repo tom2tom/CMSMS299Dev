@@ -45,7 +45,7 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data
     public $offset = 0;
 
     /**
-     * Start logging template
+     * Start logging template processing
      *
      * @param \Smarty_Internal_Template $template template
      * @param null                      $mode     true: display   false: fetch  null: subtemplate
@@ -55,22 +55,25 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data
         if (isset($mode) && !$template->_isSubTpl()) {
             $this->index++;
             $this->offset++;
-            $this->template_data[ $this->index ] = null;
+            $this->template_data[ $this->index ] = [];
         }
         $key = $this->get_key($template);
         $this->template_data[ $this->index ][ $key ][ 'start_template_time' ] = microtime(true);
     }
 
     /**
-     * End logging of cache time
+     * End logging template processing
      *
      * @param \Smarty_Internal_Template $template cached template
      */
     public function end_template(Smarty_Internal_Template $template)
     {
         $key = $this->get_key($template);
-        $this->template_data[ $this->index ][ $key ][ 'total_time' ] +=
+        //if processing happened (?) record total duration
+        if (isset($this->template_data[ $this->index ][ $key ][ 'start_time' ])) {
+            $this->template_data[ $this->index ][ $key ][ 'total_time' ] +=
             microtime(true) - $this->template_data[ $this->index ][ $key ][ 'start_template_time' ];
+        }
         //$this->template_data[$this->index][$key]['properties'] = $template->properties;
     }
 
@@ -119,8 +122,11 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data
             }
             $key = $this->get_key($template);
         }
-        $this->template_data[ $this->index ][ $key ][ 'compile_time' ] +=
+        //if compilation happened (?), record its duration
+        if (isset($this->template_data[ $this->index ][ $key ][ 'start_time' ])) {
+            $this->template_data[ $this->index ][ $key ][ 'compile_time' ] +=
             microtime(true) - $this->template_data[ $this->index ][ $key ][ 'start_time' ];
+        }
     }
 
     /**
@@ -135,15 +141,18 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data
     }
 
     /**
-     * End logging of compile time
+     * End logging of render time
      *
      * @param \Smarty_Internal_Template $template
      */
     public function end_render(Smarty_Internal_Template $template)
     {
         $key = $this->get_key($template);
-        $this->template_data[ $this->index ][ $key ][ 'render_time' ] +=
+        //if rendering happened (?), record its duration
+        if (isset($this->template_data[ $this->index ][ $key ][ 'start_time' ])) {
+            $this->template_data[ $this->index ][ $key ][ 'render_time' ] +=
             microtime(true) - $this->template_data[ $this->index ][ $key ][ 'start_time' ];
+        }
     }
 
     /**
@@ -165,8 +174,11 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data
     public function end_cache(Smarty_Internal_Template $template)
     {
         $key = $this->get_key($template);
-        $this->template_data[ $this->index ][ $key ][ 'cache_time' ] +=
+        //if cache processing happened (?), record its duration
+        if (isset($this->template_data[ $this->index ][ $key ][ 'start_time' ])) {
+            $this->template_data[ $this->index ][ $key ][ 'cache_time' ] +=
             microtime(true) - $this->template_data[ $this->index ][ $key ][ 'start_time' ];
+        }
     }
 
     /**
@@ -210,8 +222,8 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data
         // copy the working dirs from application
         $debObj->setCompileDir($smarty->getCompileDir());
         // init properties by hand as user may have edited the original Smarty class
-        $debObj->setPluginsDir(is_dir(dirname(__FILE__) . '/../plugins') ? dirname(__FILE__) .
-                                                                           '/../plugins' : $smarty->getPluginsDir());
+        $dirn = dirname(__DIR__) . '/plugins';
+        $debObj->setPluginsDir(is_dir($dirn) ? $dirn : $smarty->getPluginsDir());
         $debObj->force_compile = false;
         $debObj->compile_check = Smarty::COMPILECHECK_ON;
         $debObj->left_delimiter = '{';
@@ -221,7 +233,7 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data
         $debObj->debugging_ctrl = 'NONE';
         $debObj->error_reporting = E_ALL & ~E_NOTICE;
         $debObj->debug_tpl =
-            isset($smarty->debug_tpl) ? $smarty->debug_tpl : 'file:' . dirname(__FILE__) . '/../debug.tpl';
+            isset($smarty->debug_tpl) ? $smarty->debug_tpl : 'file:' . dirname(__DIR__) . '/debug.tpl';
         $debObj->registered_plugins = array();
         $debObj->registered_resources = array();
         $debObj->registered_filters = array();

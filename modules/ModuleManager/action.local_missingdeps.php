@@ -1,7 +1,7 @@
 <?php
 /*
 Module Manager action: display missing dependencies
-Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of ModuleManager, an addon module for
@@ -24,7 +24,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use ModuleManager\ModuleInfo;
 
-//if( some worthy test fails ) exit;
+if( empty($this) || !($this instanceof ModuleManager) ) { exit; }
+if( empty($gCms) ) { exit; }
 if( !$this->CheckPermission('Modify Modules') ) exit;
 
 $this->SetCurrentTab('installed');
@@ -37,7 +38,7 @@ if( $modname ) {
     $info = ModuleInfo::get_module_info($modname);
 }
 else {
-    $info = null;
+    $info = [];
 }
 $url = $this->create_action_url($id,'defaultadmin');
 

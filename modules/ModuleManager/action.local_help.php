@@ -1,7 +1,7 @@
 <?php
 /*
 Module Manager action: display help
-Copyright (C) 2008-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of ModuleManager, an addon module for
@@ -27,7 +27,8 @@ use CMSMS\NlsOperations;
 use CMSMS\Utils;
 use function CMSMS\sanitizeVal;
 
-//if( some worthy test fails ) exit;
+if( empty($this) || !($this instanceof ModuleManager) ) { exit; }
+if( empty($gCms) ) { exit; }
 //if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 if( !isset($params['mod']) ) {
@@ -42,7 +43,7 @@ if( $modname ) {
 }
 else {
     $modname = lang('notspecified');
-    $mod = null;
+    $mod = null; // no object
 }
 if( !is_object($mod) ) {
     $this->SetError($this->Lang('error_getmodule', $modname));

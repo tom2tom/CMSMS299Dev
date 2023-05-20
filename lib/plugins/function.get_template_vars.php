@@ -26,13 +26,13 @@ use LogicException;
 use ReflectionObject;
 
 	/**
-	 * @param mixed $ptype the parent type
+	 * @param string $ptype the parent type
 	 * @param mixed $key string|number the current key we are trying to output
 	 * @param int $depth recursion depth, internal use only
 	 * @return string
 	 * @throws LogicException
 	 */
-	function _cms_output_accessor($ptype, $key, int $depth) : string
+	function _cms_output_accessor(string $ptype, $key, int $depth) : string
 	{
 		if( $depth == 0 ) return "\${$key}";
 		switch( strtolower($ptype) ) {
@@ -54,11 +54,11 @@ use ReflectionObject;
 	 * Output html similar to json, but with type information and indentation
 	 * @param string $key
 	 * @param mixed $val
-	 * @param mixed $ptype
-	 * @param int $depth
+	 * @param string $ptype Default ''
+	 * @param int $depth Default 0
 	 * @return string
 	 */
-	function _cms_output_var(string $key, $val, $ptype = null, int $depth = 0) : string
+	function _cms_output_var(string $key, $val, $ptype = '', int $depth = 0) : string
 	{
 		$type = gettype($val);
 		$out = '';
@@ -73,7 +73,8 @@ use ReflectionObject;
 				$out .= '<br>';
 				foreach( $o_items as $prop ) {
 					$o_key = $prop->getName();
-					$o_val = $prop->getValue($val);
+					$prop->setAccessible(true); // PHP < 8.1
+					$o_val = $prop->getValue($val); //TODO handle non-public properties
 					$out .= _cms_output_var($o_key,$o_val,$type,$depth+1);
 				}
 			}

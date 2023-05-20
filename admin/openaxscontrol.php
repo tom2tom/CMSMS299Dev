@@ -75,9 +75,9 @@ try {
             $cset = $cset->overrideWith($_POST);
             FolderControlOperations::save($cset);
             redirect('listaxscontrols.php'.$urlext);
-        } catch (Exception $e) {
+        } catch (Throwable $t) {
             $themeObject = Utils::get_theme_object();
-            $themeObject->RecordNotice('error', $e->GetMessage());
+            $themeObject->RecordNotice('error', $t->getMessage());
         }
     }
 
@@ -96,7 +96,7 @@ try {
             }
         }
         ksort($arr);
-        $sel = ($cset->file_types) ? $cset->file_types : [$arr['ALL']];
+        $sel = $cset->file_types ?: [$arr['ALL']];
         $typesel = FormUtils::create_select([
          'type' => 'list',
          'name' => 'file_types',
@@ -123,7 +123,7 @@ try {
          'size' => _ld('controlsets', 'size'),
          'date' => _ld('controlsets', 'modified'),
         ];
-        $sel = ($cset->sort_by) ? $cset->sort_by : 'name';
+        $sel = $cset->sort_by ?: 'name';
         $sortsel = FormUtils::create_select([
          'type' => 'drop',
          'name' => 'sort_by',
@@ -143,19 +143,35 @@ try {
 
     // don't care about users' active-state
     // or admin_access=1 if that still exists
-    $sql = 'SELECT user_id,first_name,last_name FROM '.CMS_DB_PREFIX.'users WHERE user_id > 1 ORDER BY last_name, first_name';
+    $sql = 'SELECT user_id,first_name,last_name FROM '.CMS_DB_PREFIX.'users WHERE user_id > 1';
     $rows = $db->getArray($sql);
     if ($rows) {
-        $users = [-1 => _ld('controlsets', 'all_users')];
+        $userops = Lone::get('UserOperations');
+        $salt = $userops->DefaultKey();
         foreach ($rows as &$one) {
-            $nm = trim($one['first_name'].' '.$one['last_name']);
-            if (!$nm) {
-                $nm = _ld('controlsets', 'nousername', $one['user_id']);
+            if ($one['last_name']) {
+                $one['last_name'] = $userops->Restore($one['last_name'], $salt);
             }
-            $users[$one['user_id']] = $nm;
         }
         unset($one);
-        $sel = ($cset->match_users) ? $cset->match_users : [-1];
+        // sort by UTF-8 lastname, firstname
+        $coll = new Collator('root'); // TODO relevant locale for usernames
+        $coll->setStrength(Collator::SECONDARY);
+        usort($rows, function($a, $b) use ($coll) {
+            $i = $coll->compare($a['last_name'], $b['last_name']);
+            if ($i != 0) { return $i; }
+            return $coll->compare($a['first_name'], $b['first_name']);
+        });
+        $users = [-1 => _ld('controlsets', 'all_users')];
+        foreach ($rows as &$one) {
+            $fn = trim($one['first_name'].' '.$one['last_name']);
+            if (!$fn) {
+                $fn = _ld('controlsets', 'nousername', $one['user_id']);
+            }
+            $users[$one['user_id']] = $fn;
+        }
+        unset($one);
+        $sel = $cset->match_users ?: [-1];
         if ($pmod) {
             $inusersel = FormUtils::create_select([
              'type' => 'list',
@@ -221,7 +237,7 @@ try {
             }
         }
         unset($grps[-1]);
-        $sel = ($cset->exclude_groups) ? $cset->exclude_groups : [''];
+        $sel = $cset->exclude_groups ?: [''];
         if ($pmod) {
             $outgrpsel = FormUtils::create_select([
              'type' => 'list',
@@ -298,7 +314,10 @@ try {
         if (!$alldirs) {
             return '';
         }
-        natcasesort($alldirs); //TODO mb_ sorting $col = new Collator(TODO) $col->sort($alldirs)
+        //TODO mb_ sorting $col = new Collator('root');
+        //$col->set ... flags;
+        //$col->sort($alldirs);
+        natcasesort($alldirs);
 
         $tree_content = '';
         foreach ($alldirs as $onedir) {

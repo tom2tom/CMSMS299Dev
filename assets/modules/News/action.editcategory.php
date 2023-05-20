@@ -56,7 +56,7 @@ if( isset($params['catid']) ) {
 else {
     $catid = 0;
     $category_url = '';
-    $row = null;
+    $row = [];
     $name = '';
     $parentid = -1;
     $image_url = '';
@@ -82,7 +82,7 @@ if( isset($params['submit']) ) {
             if( $parentid == $catid ) {
                 $this->ShowErrors($this->Lang('error_categoryparent'));
             }
-            elseif( $parentid != $row['parent_id'] ) {
+            elseif( $row && $parentid != $row['parent_id'] ) {
                 // parent changed
                 // gotta figure out a new item order
                 $query = 'SELECT max(item_order) FROM '.CMS_DB_PREFIX.
@@ -173,7 +173,7 @@ $text = $picker->get_html($id.'image_url',$image_url,$profile);
 
 // pass it all to template for display
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('editcategory.tpl')); //,null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('editcategory.tpl')); //,'','',$smarty);
 
 $tpl->assign('formaction','editcategory')
  ->assign('formparms',$parms)

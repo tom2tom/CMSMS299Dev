@@ -102,6 +102,7 @@ final class ModulePluginOperations
 			$args[0]['module'] = $name;
 			return $obj->_call_plugin_module(...$args);
 		}
+        return null;
 	}
 
 	/**
@@ -176,8 +177,8 @@ final class ModulePluginOperations
 
 	/**
 	 * Process a module-tag
-	 * This method (or its static equivalent) is used by the {cms_module} plugin
-	 * and to process {ModuleName} tags
+	 * This method (or its static equivalent) is used by the {cms_module}
+     * plugin and to process {ModuleName} tags
 	 * @since 3.0 this does the work for global method cms_module_plugin()
 	 *
 	 * @param array $params A hash of action-parameters
@@ -500,14 +501,14 @@ final class ModulePluginOperations
 		$db = Lone::get('Db');
 		$pref = CMS_DB_PREFIX;
 		$query = <<<EOS
-UPDATE {$pref}module_smarty_plugins SET type=?,callable=?,available=?,cachable=? WHERE name=? AND module=?
+UPDATE {$pref}module_smarty_plugins SET type=?,callable=?,available=?,cachable=? WHERE `name`=? AND module=?
 EOS;
 		$db->execute($query, [$type, $callable, $available, $cachable, $name, $module_name]);
 		//just in case (module,name) is not unique-indexed by the db
 		$query = <<<EOS
-INSERT INTO {$pref}module_smarty_plugins (name,module,type,callable,available,cachable)
+INSERT INTO {$pref}module_smarty_plugins (`name`,module,type,callable,available,cachable)
 SELECT ?,?,?,?,?,? FROM (SELECT 1 AS dmy) Z
-WHERE NOT EXISTS (SELECT 1 FROM {$pref}module_smarty_plugins T WHERE T.name=? AND T.module=?)
+WHERE NOT EXISTS (SELECT 1 FROM {$pref}module_smarty_plugins T WHERE T.`name`=? AND T.module=?)
 EOS;
 		$dbr = $db->execute($query, [
 			$name,
@@ -552,7 +553,7 @@ EOS;
 	public function _remove_by_name(string $name)
 	{
 		$db = Lone::get('Db');
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE name=?';
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE `name`=?';
 		$dbr = $db->execute($query, [$name]);
 		if( $dbr ) {
 			Lone::get('LoadedData')->refresh('module_plugins');

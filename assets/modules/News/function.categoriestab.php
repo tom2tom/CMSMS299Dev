@@ -44,7 +44,7 @@ if ($rst) {
         if ($cid > 1) {
             $onerow->delete_url = $this->create_action_url($id, 'deletecategory', ['catid'=>$cid]);
         } else {
-            $onerow->delete_url = null;
+            $onerow->delete_url = '';
         }
         $entryarray[] = $onerow;
     }

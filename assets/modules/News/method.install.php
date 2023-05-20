@@ -49,7 +49,14 @@ if( !class_exists('News\AdminOperations') ) {
 $me = $this->GetName();
 $dict = $db->NewDataDictionary();  // OR new DataDictionary($db);
 
-$taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
+//prefer MariaDB Aria engine if available
+$s = $db->server_info;
+if (stripos($s, 'Maria') === false) {
+    $tblengn = 'MyISAM';
+} else {
+    $tblengn = 'Aria';
+}
+$taboptarray = ['mysqli' => "ENGINE=$tblengn CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci"];
 $tbl = CMS_DB_PREFIX.'module_news';
 // news_date I no longer used
 // image_url replaces 'icon' used in ancient versions
@@ -91,7 +98,7 @@ $db->CreateSequence(CMS_DB_PREFIX.'module_news_seq'); //race-preventer
 //long_name akin to id-hierarchy for content pages, cat names separated by ' | ', 630 = name(60) * 10 levels
 //category_url alias/slug intended for pretty-urls c.f. content pages
 //TODO news_category_name UNIQUE ? OR long_name ?
-$taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii'];
+$taboptarray = ['mysqli' => "ENGINE=$tblengn CHARACTER SET ascii"];
 $flds = '
 news_category_id I UNSIGNED AUTO KEY,
 news_category_name C(60) NOTNULL CHARACTER SET utf8mb4,
@@ -165,7 +172,7 @@ $this->CreatePermission('Propose News','Create News Items For Approval');
 $this->CreatePermission('Delete News','Delete News Items');
 $this->CreatePermission('Modify News Preferences','Modify News Module Settings');
 // grant them
-$perm_id = $db->getOne('SELECT id FROM '.CMS_DB_PREFIX."permissions WHERE name = 'Modify News'");
+$perm_id = $db->getOne('SELECT id FROM '.CMS_DB_PREFIX."permissions WHERE `name` = 'Modify News'");
 $group_id = $db->getOne('SELECT group_id FROM `'.CMS_DB_PREFIX."groups` WHERE group_name = 'Admin'");
 
 $count = $db->getOne('SELECT COUNT(*) FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ? AND permission_id = ?',[$group_id,$perm_id]);

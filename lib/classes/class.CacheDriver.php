@@ -80,11 +80,11 @@ abstract class CacheDriver
     /**
      * Get a cached value
      *
-     * @param mixed $key
+     * @param string $key
      * @param string $space Optional keys-space name, default ''.
      *  If not specified, the default keys-space will be used.
      */
-    abstract public function get($key, string $space = '');
+    abstract public function get(string $key, string $space = '');
 
     /**
      * Get all cached values in a keys-space
@@ -107,42 +107,42 @@ abstract class CacheDriver
     /**
      * Report whether a cached value exists
      *
-     * @param mixed $key
+     * @param string $key
      * @param string $space Optional keys-space name, default ''.
      *  If not specified, the default keys-space will be used.
      * @return bool
      */
-    abstract public function has($key, string $space = '');
+    abstract public function has(string $key, string $space = '');
 
     /**
      * Set a cached value
      *
-     * @param mixed $key
+     * @param string $key
      * @param mixed $value
      * @param string $space Optional keys-space name, default ''.
      *  If not specified, the default keys-space will be used.
      */
-    abstract public function set($key, $value, string $space = '');
+    abstract public function set(string $key, $value, string $space = '');
 
     /**
      * Set a cached value with a custom lifetime
      *
-     * @param mixed $key
+     * @param string $key
      * @param mixed $value
      * $param int $ttl Optional value-lifetime (seconds), default 0. Hence unlimited.
      * @param string $space Optional keys-space name, default ''.
      *  If not specified, the default keys-space will be used.
      */
-    abstract public function set_timed($key, $value, int $ttl = 0, string $space = '');
+    abstract public function set_timed(string $key, $value, int $ttl = 0, string $space = '');
 
     /**
      * Remove a cached value
      *
-     * @param mixed $key
+     * @param string $key
      * @param string $space Optional keys-space name, default ''.
      *  If not specified, the default keys-space will be used.
      */
-    abstract public function delete($key, string $space = '');
+    abstract public function delete(string $key, string $space = '');
 
     /**
      * Remove all cached values from a keys-space, or from the whole cache
@@ -206,12 +206,12 @@ abstract class CacheDriver
 
     /**
      * Construct a cache-key with identifiable space-prefix
-     * @param mixed $key cache-item key
+     * @param string $key cache-item key
      * @param string $class initiator class
      * @param string $space cache keys-space
      * @return string
      */
-    protected function get_cachekey($key, string $class, string $space) : string
+    protected function get_cachekey(string $key, string $class, string $space) : string
     {
         return $this->_globlspace.$this->hash(CMS_ROOT_URL.$class.$space).$key;
     }

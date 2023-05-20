@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to display an object in a friendly fashion
-Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -100,7 +100,7 @@ function smarty_function_dump($params, $template)
 	$str .= '</strong> ('.ucwords($parenttype).')<br>'.PHP_EOL;
 
 	if( is_object($obj) ) {
-		$str .= dump_object($params, $obj, 0, $ignore, $item);
+		$str .= dump_object($params, $obj, $item, 0, $ignore);
 	}
 	elseif( is_array($obj) ) {
 		$str .= dump_array($params, $obj, 0, $ignore, $item);
@@ -119,6 +119,7 @@ function smarty_function_dump($params, $template)
 function smarty_cms_about_function_dump()
 {
 	//TODO announce presence of protected, private object-properties
+	//TODO <li>Rearrange method args to make defaults last</li>
 	$n = _la('none');
 	echo _ld('tags', 'about_generic', 'Robert Campbell 2012',"<li>$n</li>");
 }
@@ -159,7 +160,7 @@ function build_accessor($parent_str, $parent_type, $childname)
 	return $str;
 }
 
-function dump_object($params, &$obj, $level = 1, $ignore = [], $accessor)
+function dump_object($params, &$obj, $accessor, $level = 1, $ignore = [])
 {
 	$maxlevel = 3;
 	if( isset($params['maxlevel']) ) {
@@ -196,11 +197,11 @@ function dump_object($params, &$obj, $level = 1, $ignore = [], $accessor)
 				$type = gettype($value);
 				if( $type == 'object' )	{
 					$str .= str_repeat('  ',$level).'- '.'<u>'.$name.': Object</u> <em>{$'.$acc.'}</em><br>';
-					if( isset($params['recurse']) )	$str .= dump_object($params,$value,$level+1,$ignore,$acc);
+					if( isset($params['recurse']) )	$str .= dump_object($params,$value,$acc,$level+1,$ignore);
 				}
 				elseif( $type == 'array' ) {
 					$str .= str_repeat('  ',$level).'- '.'<u>'.$name.': Array ('.count($value).')</u> <em>{$'.$acc.'}</em><br>';
-					if( isset($params['recurse']) )	$str .= dump_array($params,$value,$level+1,$ignore,$acc);
+					if( isset($params['recurse']) )	$str .= dump_array($params,$value,$acc,$level+1,$ignore);
 				}
 				elseif( $type == 'NULL' ) {
 					$str .= str_repeat('  ',$level).'- '.$name.': NULL <em>{$'.$acc.'}</em><br>';
@@ -214,7 +215,7 @@ function dump_object($params, &$obj, $level = 1, $ignore = [], $accessor)
 	return $str;
 }
 
-function dump_array($params, &$data, $level = 1, $ignore = [], $accessor)
+function dump_array($params, &$data, $accessor, $level = 1, $ignore = [])
 {
 	$maxlevel = 3;
 	if( isset($params['maxlevel']) ) {
@@ -229,11 +230,11 @@ function dump_array($params, &$data, $level = 1, $ignore = [], $accessor)
 		$type = gettype($value);
 		if( is_object($value) )	{
 			$str .= str_repeat('  ',$level).'- <u>'.$key.' = Object</u> <em>{$'.$acc.'}</em><br>';
-			if( isset($params['recurse']) )	$str .= dump_object($params,$value,$level+1,$ignore,$acc);
+			if( isset($params['recurse']) )	$str .= dump_object($params,$value,$acc,$level+1,$ignore);
 		}
 		elseif( is_array($value) )	{
 			$str .= str_repeat('  ',$level)."- <u>$key = Array (".count($value).')</u> <em>{$'.$acc.'}</em><br>';
-			if( isset($params['recurse']) )	$str .= dump_array($params,$value,$level+1,$ignore,$acc);
+			if( isset($params['recurse']) )	$str .= dump_array($params,$value,$acc,$level+1,$ignore);
 		}
 		elseif( $type == 'NULL' ) {
 			$str .= str_repeat('  ',$level).'- '.$name.': NULL <em>{$'.$acc.'\}</em><br>';

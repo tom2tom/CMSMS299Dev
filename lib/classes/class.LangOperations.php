@@ -388,14 +388,14 @@ final class LangOperations
 	 * @see also LangOperations::lang_key_exists()
 	 *
 	 * @param mixed $key string|null The wanted key
-	 * @param string $domain Optional lang domain. Default null, hence the
+	 * @param string $domain Optional lang domain. Default '', hence the
 	 *  currently-recorded default domain.
 	 * @since 3.0 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return bool
 	 */
-	public static function key_exists($key, $domain = NULL) : bool
+	public static function key_exists($key, string $domain = '') : bool
 	{
-		if( $domain == NULL ) $domain = self::$_default_domain;
+		if( $domain === '') $domain = self::$_default_domain;
 		$locale = NlsOperations::get_current_language();
 		self::_load_realm($domain, $locale);
 		return isset(self::$_langdata[$locale][$domain][''.$key]);
@@ -405,14 +405,14 @@ final class LangOperations
 	 * Set the default domain for subsequent 'un-realmed' default_string() calls.
 	 *
 	 * @since 2.0
-	 * @param string $domain Optional domain name.  Default self::CMSMS_ADMIN_REALM.
+	 * @param string $domain Optional domain name. Default self::CMSMS_ADMIN_REALM.
 	 * @since 3.0 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return string the previous/replaced domain-name
 	 */
-	public static function set_realm($domain = self::CMSMS_ADMIN_REALM) : string
+	public static function set_realm(string $domain = self::CMSMS_ADMIN_REALM) : string
 	{
 		$old = self::$_default_domain;
-		if( $domain == '' ) $domain = self::CMSMS_ADMIN_REALM;
+		if( $domain === '' ) $domain = self::CMSMS_ADMIN_REALM;
 		self::$_default_domain = $domain;
 		return $old;
 	}

@@ -118,10 +118,10 @@ if ($jobs) {
             } else {
                 $obj->frequency = ''; //unknown parameter
             }
-            $obj->until = $job->until; // TODO format
+            $obj->until = $job->until;
         } else {
-            $obj->frequency = null;
-            $obj->until = null;
+            $obj->frequency = '';
+            $obj->until = 0;
         }
         $obj->created = $job->created;
         $obj->start = ($obj->frequency || $obj->until) ? $job->start : 0;

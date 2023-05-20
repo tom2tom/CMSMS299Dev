@@ -1,4 +1,5 @@
 <?php
+
 namespace wapmorgan\UnifiedArchive;
 
 /**
@@ -20,17 +21,27 @@ class ArchiveEntry
     public $isCompressed;
     /** @var string Comment */
     public $comment;
+    /** @var string|null Control check summ */
+    public $crc32;
 
     /**
      * ArchiveEntry constructor.
-     * @param $path
-     * @param $compressedSize
-     * @param $uncompressedSize
-     * @param $modificationTime
-     * @param $isCompressed
-     * @param null $comment
+     * @param string $path
+     * @param int $compressedSize
+     * @param int $uncompressedSize
+     * @param int $modificationTime
+     * @param bool|null $isCompressed
+     * @param string|null $comment
+     * @param string|null $crc32
      */
-    public function __construct($path, $compressedSize, $uncompressedSize, $modificationTime, $isCompressed = null, $comment = null)
+    public function __construct(
+        $path,
+        $compressedSize,
+        $uncompressedSize,
+        $modificationTime,
+        $isCompressed = null,
+        $comment = null,
+        $crc32 = null)
     {
         $this->path = $path;
         $this->compressedSize = $compressedSize;
@@ -40,5 +51,6 @@ class ArchiveEntry
             $isCompressed = $uncompressedSize !== $compressedSize;
         $this->isCompressed = $isCompressed;
         $this->comment = $comment;
+        $this->crc32 = $crc32;
     }
 }

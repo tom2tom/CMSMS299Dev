@@ -7,14 +7,15 @@ use Alchemy\Zippy\Zippy;
 use Exception;
 use wapmorgan\UnifiedArchive\ArchiveEntry;
 use wapmorgan\UnifiedArchive\ArchiveInformation;
+use wapmorgan\UnifiedArchive\Drivers\Basic\BasicDriver;
+use wapmorgan\UnifiedArchive\Drivers\Basic\BasicUtilityDriver;
 use wapmorgan\UnifiedArchive\Exceptions\ArchiveCreationException;
 use wapmorgan\UnifiedArchive\Exceptions\ArchiveExtractionException;
 use wapmorgan\UnifiedArchive\Exceptions\ArchiveModificationException;
 use wapmorgan\UnifiedArchive\Exceptions\UnsupportedOperationException;
 use wapmorgan\UnifiedArchive\Formats;
-use wapmorgan\UnifiedArchive\Drivers\BasicDriver;
 
-class AlchemyZippy extends BasicDriver
+class AlchemyZippy extends BasicUtilityDriver
 {
     /**
      * @var Zippy
@@ -37,14 +38,35 @@ class AlchemyZippy extends BasicDriver
     protected $files;
 
     /**
-     * @var string
-     */
-    protected $format;
-
-    /**
      * @var Member[]
      */
     protected $members;
+
+    /**
+     * @inheritDoc
+     */
+    public static function getDescription()
+    {
+        return 'php-library and console programs';
+    }
+
+    public static function isInstalled()
+    {
+        self::init();
+        return static::$zippy !== false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getInstallationInstruction()
+    {
+        self::init();
+        return 'install library [alchemy/zippy]: `composer require alchemy/zippy`' . "\n"  . ' and console programs (tar, zip): `apt install tar zip` - depends on OS'
+            . "\n" . 'If you install SevenZip and AlchemyZippy:' . "\n" .
+            '1. You should specify symfony/console version before installation to any **3.x.x version**:' . "\n" . '`composer require symfony/process:~3.4`, because they require different `symfony/process` versions.' . "\n" .
+            '2. Install archive7z version 4.0.0: `composer require gemorroj/archive7z:~4.0`';
+    }
 
     /**
      * @return mixed|void
@@ -69,41 +91,32 @@ class AlchemyZippy extends BasicDriver
 
     /**
      * @param $format
-     * @return bool
+     * @return array
      */
     public static function checkFormatSupport($format)
     {
         static::init();
 
         if (static::$zippy === false)
-            return false;
+            return [];
 
         switch ($format) {
             case Formats::TAR_BZIP:
             case Formats::TAR:
             case Formats::TAR_GZIP:
             case Formats::ZIP:
-                return static::checkAdapterFor($format);
+                if (static::checkAdapterFor($format) === false) {
+                    return [];
+                }
+
+                return [
+                    BasicDriver::OPEN,
+                    BasicDriver::EXTRACT_CONTENT,
+                    BasicDriver::APPEND,
+                    BasicDriver::DELETE,
+                    BasicDriver::CREATE,
+                ];
         }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getDescription()
-    {
-        return 'php-library and console programs';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getInstallationInstruction()
-    {
-        self::init();
-        return static::$zippy === false
-            ? 'install library `alchemy/zippy` and console programs (tar, zip)'
-            : null;
     }
 
     /**
@@ -122,43 +135,24 @@ class AlchemyZippy extends BasicDriver
     }
 
     /**
-     * @param $format
-     * @return bool
-     */
-    public static function canCreateArchive($format)
-    {
-        return true;
-    }
-
-    /**
-     * @param $format
-     * @return bool
-     */
-    public static function canAddFiles($format)
-    {
-        return true;
-    }
-
-    /**
-     * @param $format
-     * @return bool
-     */
-    public static function canDeleteFiles($format)
-    {
-        return true;
-    }
-
-    /**
      * @param array $files
      * @param string $archiveFileName
      * @param int $archiveFormat
      * @param int $compressionLevel
      * @param null $password
+     * @param $fileProgressCallable
      * @return int
      * @throws ArchiveCreationException
      * @throws UnsupportedOperationException
      */
-    public static function createArchive(array $files, $archiveFileName, $archiveFormat, $compressionLevel = self::COMPRESSION_AVERAGE, $password = null)
+    public static function createArchive(
+        array $files,
+        $archiveFileName,
+        $archiveFormat,
+        $compressionLevel = self::COMPRESSION_AVERAGE,
+        $password = null,
+        $fileProgressCallable = null
+    )
     {
         if ($password !== null) {
             throw new UnsupportedOperationException('AlchemyZippy could not encrypt an archive');
@@ -177,8 +171,7 @@ class AlchemyZippy extends BasicDriver
      */
     public function __construct($archiveFileName, $format, $password = null)
     {
-        $this->fileName = $archiveFileName;
-        $this->format = $format;
+        parent::__construct($archiveFileName, $format);
         $this->archive = static::$zippy->open($archiveFileName);
     }
 

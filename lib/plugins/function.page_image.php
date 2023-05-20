@@ -31,12 +31,12 @@ function smarty_function_page_image($params, $template)
 	$assign = trim($params['assign'] ?? '');
 	unset($params['full'], $params['thumbnail'], $params['tag'], $params['assign']);
 
-	$val = null;
+	$val = '';
 	$contentobj = cmsms()->get_content_object();
 	if( is_object($contentobj) ) {
 		$propname = ( $thumbnail ) ? 'thumbnail' : 'image';
 		$val = $contentobj->GetPropertyValue($propname);
-		if( $val == -1 ) $val = null;
+		if( $val == -1 ) $val = '';
 	}
 
 	$out = '';

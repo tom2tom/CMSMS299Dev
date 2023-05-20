@@ -1,8 +1,7 @@
 <?php
+namespace cms_installer\tests;
 
 use cms_installer\tests\test_base;
-
-namespace cms_installer\tests;
 
 class informational_test extends test_base
 {

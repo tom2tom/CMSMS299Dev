@@ -36,6 +36,13 @@ if ($newsite) {
 }
 
 $dict = new DataDictionary($db);
+//prefer MariaDB Aria engine if available
+$str = $db->server_info;
+if (stripos($str, 'Maria') === false) {
+    $tblengn = 'MyISAM';
+} else {
+    $tblengn = 'Aria';
+}
 
 $flds = '
 id I UNSIGNED KEY,
@@ -45,7 +52,7 @@ extra_attr C(100),
 expires DT
 ';
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_items', $flds,
-['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii']); // assumes ascii is ok for extra_attr field
+['mysqli' => "ENGINE=$tblengn CHARACTER SET ascii"]); // assumes ascii is ok for extra_attr field
 $dict->ExecuteSQLArray($sqlarray);
 // use of inserted-data identifier is a bit racy elsewhere, and a sequencer helps a bit
 $db->CreateSequence(CMS_DB_PREFIX.'module_search_items_seq');
@@ -66,7 +73,7 @@ word C(128) CHARACTER SET utf8mb4 NOTNULL,
 count I UNSIGNED NOTNULL DEFAULT 0
 ';
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_index', $flds,
-['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii COLLATE ascii_bin']);
+['mysqli' => "ENGINE=$tblengn CHARACTER SET ascii COLLATE ascii_bin"]);
 $dict->ExecuteSQLArray($sqlarray);
 // TODO index params if InnoDB engine used
 $sqlarray = $dict->CreateIndexSQL('i_itemid',
@@ -84,7 +91,7 @@ word C(128) NOTNULL KEY,
 count I UNSIGNED NOTNULL DEFAULT 0
 ';
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_words', $flds,
-['mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8mb4']);
+['mysqli' => "ENGINE=$tblengn CHARACTER SET utf8mb4"]);
 $dict->ExecuteSQLArray($sqlarray);
 
 $me = $this->GetName();

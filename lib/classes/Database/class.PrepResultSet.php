@@ -40,7 +40,7 @@ class PrepResultSet extends ResultSet
      * @param object $statmt mysqli_stmt
      * @param bool   $buffer optional flag whether to buffer results. Default true
      */
-    public function __construct(mysqli_stmt &$statmt, $buffer = true)
+    public function __construct(mysqli_stmt &$statmt, bool $buffer = true)
     {
         $this->_stmt = $statmt;
         if ($buffer) {
@@ -86,7 +86,7 @@ class PrepResultSet extends ResultSet
         $this->_stmt->free_result();
     }
 
-    protected function move($idx)
+    protected function move(int $idx) : bool
     {
         if ($idx == $this->_pos) {
             return true;
@@ -105,7 +105,7 @@ class PrepResultSet extends ResultSet
         return false;
     }
 
-    public function getArray()
+    public function getArray() : array
     {
         $results = [];
         if (($c = $this->_nrows) > 0) {
@@ -124,11 +124,10 @@ class PrepResultSet extends ResultSet
                 }
             }
         }
-
         return $results;
     }
 
-    public function getAssoc($force_array = false, $first2cols = false)
+    public function getAssoc(bool $force_array = false, bool $first2cols = false) : array
     {
         $results = [];
         $c = $this->_nrows;
@@ -140,7 +139,12 @@ class PrepResultSet extends ResultSet
             }
             for ($i = 0; $i < $c; ++$i) {
                 if ($this->move($i)) {
-                    $key = trim(reset($this->_row));
+                    $f = reset($this->_row);
+                    if ($f !== null) {
+                        $key = trim($f);
+                    } else {
+                        continue; //just ignore it ok?
+                    }
                     if ($short) {
                         $results[$key] = next($this->_row);
                     } else {
@@ -159,18 +163,21 @@ class PrepResultSet extends ResultSet
                 }
             }
         }
-
         return $results;
     }
 
-    public function getCol($trim = false)
+    public function getCol(bool $trim = false) : array
     {
         $results = [];
         if (($c = $this->_nrows) > 0) {
             $key = key($this->_row);
             for ($i = 0; $i < $c; ++$i) {
                 if ($this->move($i)) {
-                    $results[] = ($trim) ? trim($this->_row[$key]) : $this->_row[$key]; //copy on write
+                    if ($this->_row[$key] !== null) {
+                        $results[] = ($trim) ? trim($this->_row[$key]) : $this->_row[$key]; //copy on write
+                    } else {
+                        $results[] = null; //TODO continue just ignore it?
+                    }
                 } else {
                     //TODO handle error
                     $this->_nrows = $i;
@@ -178,11 +185,10 @@ class PrepResultSet extends ResultSet
                 }
             }
         }
-
         return $results;
     }
 
-    public function getOne()
+    public function getOne()// : mixed
     {
         if (!$this->EOF()) {
             //avoid returning a reference
@@ -190,19 +196,18 @@ class PrepResultSet extends ResultSet
             $key = key($this->_row);
             return $this->_row[$key];
         }
-
         return null;
     }
 
-    public function fieldCount()
+    public function fieldCount() : int
     {
         return $this->_stmt->field_count;
     }
 
-    public function fields($key = null)
+    public function fields($key = '')// : mixed
     {
         if ($this->_row) {
-            if (empty($key)) {
+            if (!$key) {
                 //dereference the values
                 $row = [];
                 foreach ($this->_row as $key=>$val) {
@@ -210,12 +215,11 @@ class PrepResultSet extends ResultSet
                 }
                 return $row;
             }
-            $key = (string) $key;
+            $key = (string)$key;
             if (isset($this->_row[$key])) {
                 return $this->_row[$key];
             }
         }
-
         return null;
     }
 } //class

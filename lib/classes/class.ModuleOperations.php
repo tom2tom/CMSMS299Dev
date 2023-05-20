@@ -343,18 +343,20 @@ final class ModuleOperations
 	}
 
 	/* *
-	 * Generate a moduleinfo.ini file for a module.
-	 *
+	 * Generate a metadata file (moduleinfo.ini) for a module.
+     * For e.g. processing dependency relationships in the CMSMS Forge
 	 * @since 3.0
+     * @see also xml-file processing, which includes same/similar metadata
+     *
 	 * @param CMSModule $mod a loaded-module object
 	 */
 /*	public function generate_moduleinfo(CMSModule $mod)
 	{
 		$dir = $this->get_module_path($mod->GetName());
-		if( !is_writable($dir) ) throw new CMSMS\FileSystemException(lang('errordirectorynotwritable'));
+		if( !is_writable($dir) ) { throw new CMSMS\FileSystemException(lang('errordirectorynotwritable')); }
 
 		$fh = @fopen($dir.'/moduleinfo.ini','w');
-		if( $fh === false ) throw new CMSMS\FileSystemException(lang('errorfilenotwritable','moduleinfo.ini'));
+		if( $fh === false ) { throw new CMSMS\FileSystemException(lang('errorfilenotwritable','moduleinfo.ini')); }
 
 		fputs($fh,"[module]\n");
 		fputs($fh,'name = "'.$mod->GetName()."\"\n");
@@ -363,11 +365,12 @@ final class ModuleOperations
 		fputs($fh,'author = "'.$mod->GetAuthor()."\"\n");
 		fputs($fh,'authoremail = "'.$mod->GetAuthorEmail()."\"\n");
 		fputs($fh,'mincmsversion = "'.$mod->MinimumCMSVersion()."\"\n");
-		fputs($fh,'lazyloadadmin = '.($mod->LazyLoadAdmin()?'1':'0')."\n");
-		fputs($fh,'lazyloadfrontend = '.($mod->LazyLoadFrontend()?'1':'0')."\n");
+//		fputs($fh,'maxcmsversion = "'.$mod->?CMSVersion()."\"\n"); N/A 2.0+
+//		fputs($fh,'lazyloadadmin = '.($mod->LazyLoadAdmin()?'1':'0')."\n"); unused 3.0+
+//		fputs($fh,'lazyloadfrontend = '.($mod->LazyLoadFrontend()?'1':'0')."\n"); unused 3.0+
 		$requisites = $mod->GetDependencies();
 		if( $requisites ) {
-			fputs($fh,"[depends on]\n");
+			fputs($fh,"[depends]\n");
 			foreach( $requisites as $mname => $mversion ) {
 				fputs($fh,"$mname = \"$mversion\"\n");
 			}
@@ -540,6 +543,7 @@ abandoned				if( !$mod->HasCapability(CapabilityType::CORE_MODULE) ) {
 //					}
 				}
 			}
+//	$this->moduleinfo[$modname] = ['BLAH'=>'woo']; // DEBUG
 
 			// do the actual installation stuff
 //abandoned			if( !$core ) {
@@ -1126,29 +1130,30 @@ EOS;
 	 * @since 1.11.8
 	 * @param string $modname The module name
 	 * @param bool $flat since 3.0 whether to get un-ordered dependencies
-	 * @return mixed array of prerequisite-module names and versions | null
+	 * @return array of prerequisite-module names and versions, maybe empty
 	 */
-	public function get_module_dependencies(string $modname, $flat = true)
+	public function get_module_dependencies(string $modname, bool $flat = true) : array
 	{
-		if( !$modname ) return;
+        if( !$modname ) { return []; }
 		$all_deps = $this->_get_module_dependencies($flat);
 		if( $flat ) {
-			return $all_deps[$modname] ?? NULL;
+			return $all_deps[$modname] ?? [];
 		}
 		$path = ArrayTree::find($all_deps, 'name', $modname);
-		if( $path !== NULL ) {
+		if( $path ) {
 			$n = count($path);
 			if( $path[$n-1] == $modname ) {
 				unset($path[$n-1]); // no self-dependency
 			}
 			if( count($path) == 1 ) {
-				return NULL; // just the irrelevant root node
+				return []; // just the irrelevant root node
 			}
 			$ver = ArrayTree::path_get_data($all_deps, $path, 'version', '');
 			unset($path[0]); // bye, root node
 			$ret = array_combine($path, $ver);
 			return $ret;
 		}
+        return [];
 	}
 
 	/**
@@ -1442,11 +1447,12 @@ EOS;
 	 * @since 1.10
 	 * @deprecated since 3.0. Instead, generate and place content (js etc) directly
 	 *
-	 * @param mixed string|null|-1 $modname allows specifying a
-	 * module to be used instead of the user's recorded preference.
+	 * @param mixed $modname string|null|-1 $modname optional allows
+     *  specifying a module to be used instead of the user's
+     *  recorded preference.
 	 * @return mixed CMSModule | IResource | null
 	 */
-	public function GetSyntaxHighlighter($modname = NULL)
+	public function GetSyntaxHighlighter($modname = '')// : mixed
 	{
 		if( !$modname ) {
 			if( AppState::test(AppState::ADMIN_PAGE) ) {
@@ -1464,6 +1470,7 @@ EOS;
 				return $mod;
 			}
 		}
+        return null;
 	}
 
 	/**
@@ -1473,9 +1480,9 @@ EOS;
 	 * @deprecated since 3.0
 	 * @since 1.10
 	 * @param mixed $modname string | null
-	 * @return CMSModule | IResource
+	 * @return mixed CMSModule | IResource | null
 	 */
-	public function GetSyntaxModule($modname = NULL)
+	public function GetSyntaxModule($modname = '')// : mixed
 	{
 		return $this->GetSyntaxHighlighter($modname);
 	}
@@ -1493,7 +1500,7 @@ EOS;
 	 *  detection process and specifying a WYSIWYG module.
 	 * @return mixed CMSModule | IResource | null
 	 */
-	public function GetWYSIWYGModule($modname = NULL)
+	public function GetWYSIWYGModule($modname = '')// : mixed
 	{
 		if( !$modname ) {
 			if( is_frontend_request() ) {
@@ -1502,14 +1509,19 @@ EOS;
 			else {
 				$modname = UserParams::get_for_user(get_userid(false),'wysiwyg');
 			}
-			if( $modname ) $modname = html_entity_decode($modname); // TODO OR CMSMS replacement ?
+			if( $modname ) {
+                $modname = de_entitize($modname); // for some reason entities may have gotten in there?
+            }
 		}
 
-		if( !$modname || $modname == -1 ) return;
-		$mod = $this->get_module_instance($modname);
-		if( $mod && $mod->HasCapability(CapabilityType::WYSIWYG_MODULE) ) {
-			return $mod;
-		}
+        if( $modname && $modname != -1 ) {
+			$modname = sanitizeVal($modname,CMSSAN_FILE);
+			$mod = $this->get_module_instance($modname);
+            if( $mod && $mod->HasCapability(CapabilityType::WYSIWYG_MODULE) ) {
+                return $mod;
+            }
+        }
+        return null;
 	}
 
 	/**

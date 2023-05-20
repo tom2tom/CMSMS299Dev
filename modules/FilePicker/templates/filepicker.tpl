@@ -1,5 +1,5 @@
 {if empty($getcontent)}
-<!DOCTYPE html>
+<!DOCTYPE html>{*TODO if $lang_dir == 'rtl'*}
 <html lang="en"{if !empty($rtl)} dir="rtl"{/if} data-cmsfp-inst="{$inst}">
  <head>
   <meta charset="UTF-8">

@@ -139,8 +139,12 @@
      {$t=_ld('layout','prompt_owner')}<label class="pagetext" for="owner">{$t}:</label>
      {cms_help 0='layout' key='help_template_owner' title=$t}
      <div class="pageinput">
+     {if $can_manage}
      <select id="owner" name="{$actionid}owner_id">
-       {html_options options=$user_list selected=$tpl_obj->get_owner_id()}   </select>
+       {html_options options=$user_list selected=$tpl_obj->get_owner()}   </select>
+     {else}
+       TODO owner name
+     {/if}
      </div>
    </div>
    {/if}
@@ -149,8 +153,15 @@
      {$t=_ld('layout','additional_editors')}<label class="pagetext" for="addeditor">{$t}:</label>
      {cms_help 0='layout' key='help_template_addteditors' title=$t}
      <div class="pageinput">
+     {if $can_manage}
      <select id="addeditor" name="{$actionid}addt_editors[]" multiple="multiple" size="5">
        {html_options options=$addt_editor_list selected=$tpl_obj->get_additional_editors()}    </select>
+     {else}
+       TODO names if any
+       {foreach $tpl_obj->get_additional_editors() as $nm}
+       {$nm}<br>
+       {/foreach}
+     {/if}
      </div>
    </div>
    {/if}

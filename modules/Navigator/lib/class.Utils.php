@@ -62,7 +62,7 @@ final class Utils
 
     public static function clear_excludes()
     {
-        self::$excludes = null;
+        self::$excludes = [];
     }
 
     public static function is_excluded($alias)
@@ -195,7 +195,7 @@ final class Utils
             $obj->extra1 = $values['extra1'];
             $obj->extra2 = $values['extra2'];
             $obj->extra3 = $values['extra3'];
-            $obj->target = ($values['target']) ? $values['target'] : ''; //default empty, hence '_self'
+            $obj->target = $values['target'] ?: ''; //default empty, hence '_self'
             $tmp = $values['image'];
             if( $tmp && $tmp != -1 ) {
                 $part = AppParams::get('content_imagefield_path');
@@ -533,7 +533,7 @@ ORDER BY content_id";
             return CMS_ROOT_URL . '/index.php/' . $str . $config['page_extension'];
         }
 
-        $alias = ($props['content_alias']) ? $props['content_alias'] : $props['content_id'];
+        $alias = $props['content_alias'] ?: $props['content_id'];
         return CMS_ROOT_URL . '/index.php?' . $config['query_var'] . '=' . $alias;
     }
 } // class

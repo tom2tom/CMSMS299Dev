@@ -5,16 +5,27 @@ use CabArchive;
 use Exception;
 use wapmorgan\UnifiedArchive\ArchiveEntry;
 use wapmorgan\UnifiedArchive\ArchiveInformation;
-use wapmorgan\UnifiedArchive\Drivers\BasicDriver;
+use wapmorgan\UnifiedArchive\Drivers\Basic\BasicDriver;
+use wapmorgan\UnifiedArchive\Drivers\Basic\BasicPureDriver;
 use wapmorgan\UnifiedArchive\Exceptions\ArchiveExtractionException;
-use wapmorgan\UnifiedArchive\Exceptions\ArchiveModificationException;
 use wapmorgan\UnifiedArchive\Exceptions\UnsupportedOperationException;
 use wapmorgan\UnifiedArchive\Formats;
 
-class Cab extends BasicDriver
+class Cab extends BasicPureDriver
 {
+    const PACKAGE_NAME = 'wapmorgan/cab-archive';
+    const MAIN_CLASS = '\CabArchive';
+
     /** @var CabArchive */
     protected $cab;
+
+    /**
+     * @inheritDoc
+     */
+    public static function getDescription()
+    {
+        return 'php-library';
+    }
 
     /**
      * @return array
@@ -28,39 +39,37 @@ class Cab extends BasicDriver
 
     /**
      * @param $format
-     * @return bool
+     * @return array
      */
     public static function checkFormatSupport($format)
     {
+        if (!class_exists('\CabArchive')) {
+            return [];
+        }
+
         switch ($format) {
             case Formats::CAB:
-                return class_exists('\CabArchive');
+                $abilities = [
+                    BasicDriver::OPEN,
+                ];
+
+                $parts = explode('.', PHP_VERSION);
+                // not supported on versions below 7.0.22, 7.1.8, 7.2.0
+                if ($parts[0] > 7 || $parts[1] >= 2 || (($parts[1] == 1 && $parts[2] >= 8) || ($parts[1] == 0 && $parts[2] >= 22))) {
+                    $abilities[] = BasicDriver::EXTRACT_CONTENT;
+                }
+
+                return $abilities;
         }
     }
 
     /**
      * @inheritDoc
-     */
-    public static function getDescription()
-    {
-        return 'php-library';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getInstallationInstruction()
-    {
-        return !class_exists('\CabArchive')
-            ? 'install library `wapmorgan/cab-archive`'
-            : null;
-    }
-
-    /**
-     * @inheritDoc
+     * @throws Exception
      */
     public function __construct($archiveFileName, $format, $password = null)
     {
+        parent::__construct($archiveFileName, $format);
         if ($password !== null)
             throw new UnsupportedOperationException('Cab archive does not support password!');
         $this->open($archiveFileName);
@@ -187,16 +196,5 @@ class Cab extends BasicDriver
                 $e->getPrevious()
             );
         }
-    }
-
-    /**
-     * @param string $inArchiveName
-     * @param string $content
-     * @return bool|void
-     * @throws UnsupportedOperationException
-     */
-    public function addFileFromString($inArchiveName, $content)
-    {
-        throw new UnsupportedOperationException();
     }
 }

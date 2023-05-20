@@ -63,7 +63,7 @@ if ($flag) {
 	$group->GrantPermission('View Tag Help');
 } else {
 	// existing site, replacement module
-	$sql = 'UPDATE '.CMS_DB_PREFIX."permissions SET originator='$me',description=? WHERE name=?";
+	$sql = 'UPDATE '.CMS_DB_PREFIX."permissions SET originator='$me',description=? WHERE `name`=?";
 	$vals = [
 	 'Add Pages', $this->Lang('perm_add'),
 	 'Manage All Content', $this->Lang('perm_manage'),

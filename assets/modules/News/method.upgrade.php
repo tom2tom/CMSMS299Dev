@@ -98,7 +98,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
 
         $uquery = 'UPDATE '.$tbl.' SET item_order = ? WHERE news_category_id = ?';
         if( $categories ) {
-            $prev_parent = null;
+            $prev_parent = null; // TODO ok ?
             $item_order = 0;
             foreach( $categories as $row ) {
                 $parent = $row['parent_id'];
@@ -348,7 +348,7 @@ status C(25) CHARACTER SET ascii COLLATE ascii_bin,
 news_data X(65535),
 summary C(1000),
 news_url C(255) CHARACTER SET ascii COLLATE ascii_general_ci,
-create_date DT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 author_id I UNSIGNED DEFAULT 0,
 searchable I1 UNSIGNED DEFAULT 1
@@ -428,8 +428,8 @@ modified_date DT ON UPDATE CURRENT_TIMESTAMP
 
     $db->DropSequence(CMS_DB_PREFIX.'module_news_categories_seq');
 
-    $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_templates WHERE type_id=(SELECT id FROM '.CMS_DB_PREFIX."layout_tpl_types WHERE originator='$me' AND name='form')";
+    $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_templates WHERE type_id=(SELECT id FROM '.CMS_DB_PREFIX."layout_tpl_types WHERE originator='$me' AND `name`='form')";
     $db->execute($query);
-    $query = 'DELETE FROM '.CMS_DB_PREFIX."layout_tpl_types WHERE originator='$me' AND name='form'";
+    $query = 'DELETE FROM '.CMS_DB_PREFIX."layout_tpl_types WHERE originator='$me' AND `name`='form'";
     $db->execute($query);
 }

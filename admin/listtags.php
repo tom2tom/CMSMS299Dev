@@ -232,9 +232,12 @@ if ($action == 'showpluginhelp') {
 	]);
 }
 
+$extras = get_secure_param_array();
+
 $smarty->assign([
     'urlext' => $urlext,
     'selfurl' => $selfurl,
+    'extraparms' => $extras
 ]);
 
 $content = $smarty->fetch('listtags.tpl');

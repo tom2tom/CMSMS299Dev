@@ -214,7 +214,7 @@ AS tmp1';
 					$this->_sortby = $val;
 					break;
 				  case 'type':
-					$this->_sortby = 'CONCAT(TT.originator,TT.name)';  //no prefix for this one
+					$this->_sortby = 'CONCAT(TT.originator,TT.`name`)';  //no prefix for this one
 					$typejoin = true;
 					break;
 				  default:
@@ -280,7 +280,7 @@ AS tmp1';
 		if (!$this->_rs || $this->_rs->errno !== 0) {
 			throw new SQLException($db->sql.' -- '.$db->errorMsg());
 		}
-		$this->_totalmatchingrows = $db->getOne('SELECT FOUND_ROWS()'); //$this->_rs->RecordCount(); N/A until all processed
+		$this->_totalmatchingrows = $db->getOne(str_replace(['SELECT TPL.id','SELECT id'],['SELECT COUNT(TPL.id) AS num ','SELECT COUNT(id) AS num'],$query));
 	}
 
 	/**

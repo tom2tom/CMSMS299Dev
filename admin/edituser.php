@@ -117,8 +117,8 @@ if (isset($_POST['submit'])) {
             }
         }
     } else {
-        $password = null;
-        $passwordagain = null;
+        $password = '';
+        $passwordagain = '';
     }
 
     //PHP's FILTER_VALIDATE_EMAIL mechanism is not entirely reliable - see notes at https://www.php.net/manual/en/function.filter-var.php
@@ -127,7 +127,7 @@ if (isset($_POST['submit'])) {
     $email = sanitizeVal($tmp, CMSSAN_NONPRINT);
     if (($email != $tmp) || ($email && !is_email($email))) {
         $errors[] = _la('invalidemail') . ': ' . $email;
-        $mailcheck = null;
+        $mailcheck = '';
     } else {
         $mailcheck = $email;
     }
@@ -200,7 +200,7 @@ if (isset($_POST['submit'])) {
                 Events::SendEvent('Core', 'EditUserPost', ['user' => &$userobj]);
                 $themeObject->RecordNotice('success', _la('accountupdated'));
                 if ($userobj->pwreset && $userobj->email) {
-                    if ($userops->Send_replacement_email($userobj)) {
+                    if ($userops->SendReplacementEmail($userobj)) {
                         log_notice('', 'Sent replace-password email for '.$userobj->username);
                     } else {
                         log_error('', 'Failed to send replace-password email to '.$userobj->username);

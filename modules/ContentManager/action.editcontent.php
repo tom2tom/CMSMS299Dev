@@ -76,7 +76,8 @@ if ($content_id == 0 || $copy) {
 }
 
 $userid = get_userid();
-$parent_id = $error = null;
+$parent_id = 0;
+$error = '';
 $pagedefaults = Utils::get_pagedefaults();
 $contentops = Lone::get('ContentOperations');
 $domain = $this->GetName(); // translated-strings domain is this module
@@ -267,7 +268,7 @@ try {
 
 if ($content_id > 0 && Utils::locking_enabled()) {
 	try {
-		$lock_id = null;
+		$lock_id = 0;
 		// check if this thing is locked
 		for ($i = 0; $i < 3; ++$i) {
 			$lock_id = LockOperations::is_locked('content', $content_id);
@@ -360,7 +361,7 @@ try {
 		$tab_contents_array[$currenttab] = $bundles;
 	}
 } catch (Throwable $t) {
-	$tab_names = null;
+	$tab_names = [];
 	$error = $t->getMessage();
 }
 
@@ -368,7 +369,7 @@ if ($error) {
 	$this->ShowErrors($error);
 }
 
-$active_tab = $params['active_tab'] ?? null;
+$active_tab = $params['active_tab'] ?? '';
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('editcontent.tpl')); //,null,null,$smarty);
 

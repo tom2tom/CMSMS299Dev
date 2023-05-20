@@ -274,7 +274,7 @@ if (isset($_GET['switchuser'])) {
                     $nusers = 0;
                     foreach ($adjust as $oneuser) {
                         if ($oneuser->email) {
-                            if ($userops->Send_replacement_email($oneuser)) {
+                            if ($userops->SendReplacementEmail($oneuser)) {
                                 log_notice('', 'Sent replace-password email for '.$oneuser->username);
                                 $nusers++;
                             } else {
@@ -347,7 +347,7 @@ if ($n > 10) {
     $pagelengths[0] = _la('all');
 } else {
     $tblpages = 1;
-    $pagelengths = null;
+    $pagelengths = [];
 }
 
 //------- page footer script -------
@@ -484,6 +484,7 @@ $bulkactions['retire'] = _la('retirepass');
 $smarty = Lone::get('Smarty');
 $smarty->assign([
     'addurl' => 'adduser.php',
+    'editurl' => 'edituser.php',
     'iconadd' => $iconadd,
     'iconfalse' => $iconfalse,
     'iconfalse2' => $iconfalse2,

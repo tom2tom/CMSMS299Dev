@@ -56,7 +56,7 @@ final class LockOperations
      * @return Lock
      * @throws DataException or NoLockException
      */
-    public static function load(string $type, int $oid, $userid = null)
+    public static function load(string $type, int $oid, int $userid = 0)
     {
         $db = Lone::get('Db');
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE type = ? AND oid = ?';
@@ -80,11 +80,11 @@ final class LockOperations
      * @param int $lock_id Lock identifier
      * @param string $type Locked-object type
      * @param int $oid Locked-object identifier
-     * @param mixed $userid int|null Optional lock-holder identifier
+     * @param int $userid Optional lock-holder identifier
      * @return Lock
      * @throws DataException or NoLockException
      */
-    public static function load_by_id(int $lock_id, string $type, int $oid, $userid = null)
+    public static function load_by_id(int $lock_id, string $type, int $oid, int $userid = 0)
     {
         $db = Lone::get('Db');
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE id=? AND type=? AND oid=?';

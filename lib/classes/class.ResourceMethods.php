@@ -22,10 +22,12 @@ namespace CMSMS;
 
 use CMSMS\AdminMenuItem;
 use CMSMS\AppParams;
+use CMSMS\AppState;
 use CMSMS\Crypto;
 use CMSMS\FormUtils;
 use CMSMS\LangOperations;
 use CMSMS\Lone;
+use CMSMS\NlsOperations;
 use CMSMS\RequestParameters;
 use LogicException;
 use ReflectionClass;
@@ -115,8 +117,8 @@ class ResourceMethods
 	}
 
 	// TODO arguments $targetcontentonly, $prettyurl are ignored ATM
-	public function create_url($id, $action, $returnid = null, $params = [],
-		$inline = false, $targetcontentonly = false, $prettyurl = '', bool $relative = false, $format = 0) : string
+	public function create_url($id, string $action, $returnid = '', array $params = [],
+		bool $inline = false, bool $targetcontentonly = false, string $prettyurl = '', bool $relative = false, int $format = 0) : string
 	{
 		if (!$id) { $id = chr(mt_rand(97, 122)) . Crypto::random_string(3, true); }
 		$parms = [
@@ -140,7 +142,8 @@ class ResourceMethods
 		if (is_numeric($returnid)) {
 			$text = $base_url . '/index.php?';
 		} else {
-			$text = $base_url . '/lib/moduleinterface.php?';
+        	$config = Lone::get('Config');
+			$text = $base_url . '/'.$config['admin_dir'].'/moduleinterface.php?';
 		}
 		$text .= RequestParameters::create_action_params($parms, $format); //TODO ok for resource-action ?
 		if ($format == 3) {
@@ -149,9 +152,9 @@ class ResourceMethods
 		return $text;
 	}
 
-	public function create_action_url($id, string $action, array $params = [], bool $relative = false, string $prettyurl = '')
+	public function create_action_url($id, string $action, array $params = [], $returnid = '', bool $relative = false, string $prettyurl = '')
 	{
-		return $this->create_url($id, $action, '', $params, false, false, $prettyurl, $relative, 2);
+		return $this->create_url($id, $action, $returnid, $params, false, false, $prettyurl, $relative, 2);
 	}
 
 	public function DoAction(string $action, $id, array $params) : string
@@ -257,11 +260,15 @@ class ResourceMethods
 			$resource = $tpl_name;
 		}
 
+		$id = (AppState::test(AppState::ADMIN_PAGE)) ? 'm1_' : 'cntnt01';
+		$dir = NlsOperations::get_language_direction(); //'ltr' or 'rtl'
 		$smarty = Lone::get('Smarty');
 		$tpl = $smarty->createTemplate($resource); //, null, null, $smarty);
 		$tpl->assign([
-			'mod' => $this->mod, //or just $this ?
+            'actionid' => $id,
+			'mod' => $this->mod,
 			'_module' => $this->GetName(),
+            'lang_dir' => $dir
 		]);
 		return $tpl;
 	}

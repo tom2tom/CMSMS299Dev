@@ -14,7 +14,8 @@ $lang = [
 'active' => 'Active',
 'admindescription' => 'Manage the modules which provide custom functionality to the website',
 'advancedsearch_help' => 'Specify words to include or exclude from the search using a \'+\' or \'-\', surround exact phrases with quotes e.g. +red -apple +"some text"',
-'allowuninstall' => 'Allow Module Manager to be uninstalled? Be careful, the uninstallation is irreversible!',
+'allowuninstall' => 'Allow Module Manager to be uninstalled',
+'allowuninstallwarn' => 'This is to inhibit careless uninstallation, which would be irreversible!',
 'all_modules_up_to_date' => 'No module newer than the ones installed is available in the repository',
 'availablemodules' => 'The current status of modules available from the current repository',
 'available_updates' => 'One or more modules are available for upgrade; Before upgrading, please read the about information for the release and make sure you have a current backup of this website.',
@@ -56,7 +57,7 @@ $lang = [
 'downloads' => 'Downloads',
 
 // E
-'entersearchterm' => 'Enter search term',
+'entersearchterm' => 'Enter search term >= 3 chars',
 'error' => 'Error!',
 'err_nothingtodo' => 'Nothing to do',
 'err_xml_open' => 'Probllem opening XML file to import',
@@ -115,7 +116,7 @@ $lang = [
 // H
 'helptxt' => 'Help',
 'help_allowuninstall' => 'If enabled, then this module can be uninstalled.  This option is provided to prevent the accidental removal of this module which would result in an unrecoverable error',
-'help_disable_caching' => 'TODO',
+'help_disable_caching' => 'If enabled, the repository will be interrogated for each piece of wanted information, instead of using data from a prior request if available',
 'help_dl_chunksize' => 'This parameter specifies the size <em>(in kilobytes)</em> of each chunk of data that will be downloaded from the repository when requesting a module.',
 'help_latestdepends' => 'When installing a module with dependencies, this will ensure that the newest version of a dependent module is installed',
 'help_mm_importxml' => 'This form allows importing a module XML file that you received from another user, or downloaded from the <a class="external" href="http://dev.cmsmadesimple.org" target="_blank">CMSMS Forge</a>',
@@ -134,7 +135,7 @@ $lang = [
 'instcount' => 'Modules currently installed',
 
 // L
-'latestdepends' => 'Always install the newest dependency module',
+'latestdepends' => 'Always install the newest dependant-modules',
 
 // M
 'minversion' => 'Minimum Version',
@@ -179,10 +180,10 @@ $lang = [
 'preferences' => 'Preferences',
 'preferencessaved' => 'Preferences saved',
 'prompt_advancedsearch' => 'Advanced Search',
-'prompt_disable_caching' => 'Disable caching of requests from the server',
-'prompt_dl_chunksize' => 'Download Chunk Size (kB)',
+'prompt_disable_caching' => 'Do not cache modules-repository data',
+'prompt_dl_chunksize' => 'Download chunk size (kB)',
 'prompt_otheroptions' => 'Other Options',
-'prompt_repository_url' => 'Modules-Repository URL',
+'prompt_repository_url' => 'Modules-repository URL',
 'prompt_settings' => 'Settings',
 
 // R
@@ -195,7 +196,7 @@ $lang = [
 
 // S
 'search' => 'Search',
-'searchterm' => 'Search Term',
+'searchterm' => 'Search For',
 'search_input' => 'Search Input',
 'search_noresults' => 'Search succeeded but no result matched the expression',
 'search_results' => 'Search Results',

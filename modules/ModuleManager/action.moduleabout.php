@@ -1,7 +1,7 @@
 <?php
 /*
 ModuleManager action: show module 'about' information
-Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -22,13 +22,20 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use ModuleManager\CachedRequest;
 
-//if (some worthy test fails) exit;
+if( empty($this) || !($this instanceof ModuleManager) ) { exit; }
+if( empty($gCms) ) { exit; }
 
 $this->SetCurrentTab('modules');
 
 $name = $params['name'] ?? '';
 if( !$name ) {
   $this->SetError($this->Lang('error_insufficientparams'));
+  $this->RedirectToAdminTab();
+}
+
+$xmlfile = $params['filename'] ?? '';
+if( !$xmlfile ) {
+  $this->SetError($this->Lang('error_nofilename'));
   $this->RedirectToAdminTab();
 }
 
@@ -45,13 +52,7 @@ if( !$url ) {
 }
 $url .= '/moduleabout';
 
-$xmlfile = $params['filename'] ?? '';
-if( !$xmlfile ) {
-  $this->SetError($this->Lang('error_nofilename'));
-  $this->RedirectToAdminTab();
-}
-
-//$req = new cms_http_request();
+//$req = new CMSMS\HttpRequest();
 $req = new CachedRequest();
 $req->execute($url,['name'=>$xmlfile]);
 $status = $req->getStatus();

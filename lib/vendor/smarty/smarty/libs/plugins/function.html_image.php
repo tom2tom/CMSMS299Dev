@@ -154,5 +154,5 @@ function smarty_function_html_image($params, Smarty_Internal_Template $template)
         $height = round($height * $_resize);
     }
     return $prefix . '<img src="' . $path_prefix . $file . '" alt="' . $alt . '" width="' . $width . '" height="' .
-           $height . '"' . $extra . '>' . $suffix;
+           $height . '"' . $extra . ' />' . $suffix;
 }

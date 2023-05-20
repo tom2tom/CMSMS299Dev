@@ -29,14 +29,22 @@ if (empty($this) || !($this instanceof DesignManager)) exit;
 //if (!($installing || $this->CheckPermission('Modify Modules'))) exit;
 
 $dict = new DataDictionary($db);
-$taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii'];
+
+//prefer MariaDB Aria engine if available
+$s = $db->server_info;
+if (stripos($s, 'Maria') === false) {
+    $tblengn = 'MyISAM';
+} else {
+    $tblengn = 'Aria';
+}
+$taboptarray = ['mysqli' => "ENGINE=$tblengn CHARACTER SET ascii"];
 
 $tbl = CMS_DB_PREFIX.'module_designs'; // aka Design::TABLENAME
 $flds = '
 id I UNSIGNED AUTO KEY,
 name C(50) CHARACTER SET utf8mb4 NOTNULL,
 description C(1500) CHARACTER SET utf8mb4,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);

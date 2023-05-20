@@ -99,7 +99,7 @@ if (isset($_POST['submit'])) {
     $email = sanitizeVal($tmp, CMSSAN_NONPRINT);
     if (($email != $tmp) || ($email && !is_email($email))) {
         $errors[] = _la('invalidemail') . ': ' . $email;
-        $checkmail = null; // prevent use in P/W check
+        $checkmail = ''; // prevent use in P/W check
     } else {
         $checkmail = $email;
     }
@@ -130,7 +130,7 @@ if (isset($_POST['submit'])) {
             $userobj->pwreset = (!empty($_POST['pwreset'])) ? 1 : 0;
             Events::SendEvent('Core', 'AddUserPre', ['user' => $userobj]);
 
-            $result = $userobj->save();
+            $result = $userobj->Save();
             if ($result) {
                 Events::SendEvent('Core', 'AddUserPost', ['user' => $userobj]);
 
@@ -174,7 +174,7 @@ if (isset($_POST['submit'])) {
                 // put mention into the admin log
                 log_info($userobj->id, 'Admin User ' . $userobj->username, 'Added');
                 if ($userobj->pwreset && $userobj->email) {
-                    if ($userops->Send_replacement_email($userobj)) {
+                    if ($userops->SendReplacementEmail($userobj)) {
                         log_notice('', 'Sent replace-password email to '.$user->username);
                     } else {
                         log_error('', 'Failed to send replace-password email to '.$user->username);
@@ -241,7 +241,7 @@ if ($manage_groups) {
         }
     }
 } else {
-    $groups = null;
+    $groups = [];
 }
 
 $selfurl = basename(__FILE__);

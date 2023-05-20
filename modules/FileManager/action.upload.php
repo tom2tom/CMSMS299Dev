@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use FileManager\UploadHandler;
+use function CMSMS\sendhostheaders;
 
 //if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) {
@@ -35,7 +36,8 @@ if (!$real) {
 
 $UploadHandler = new UploadHandler(['upload_dir' => $real, 'param_name' => $id.'files']);
 
-header('Pragma: no-cache');
+sendhostheaders();
+header('Pragma: no-cache'); // 1.0 deprecated
 header('Cache-Control: private, no-cache');
 header('Content-Disposition: inline; filename="files.json"');
 header('X-Content-Type-Options: nosniff');
@@ -57,8 +59,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
     case 'OPTIONS':
         break;
     default:
-        $proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0';
+        $proto = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1';
         header($proto.' 405 Method Not Allowed');
-}
+        header('Status: 405 Method Not Allowed');
 
+}
 exit;

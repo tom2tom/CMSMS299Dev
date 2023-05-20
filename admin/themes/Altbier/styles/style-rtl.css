@@ -349,6 +349,7 @@ input[type="submit"],
 .pagechange, /* fake button */
 button,
 .ui-button {
+    margin: 4px 0 4px 4px;
     border: 1px solid #d3d3d3;
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;

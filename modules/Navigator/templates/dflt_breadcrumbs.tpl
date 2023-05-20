@@ -20,7 +20,7 @@ CSS:
       {else}
         <a href="{$node->url}" title="{$node->name}">{$node->menutext}</a>
       {/if}
-    </span>
+    </span>{* TODO if $lang_dir == 'rtl' *}
     {if !$id@last}&nbsp;{if !empty($rtl)}&laquo;{else}&raquo;{/if} {/if}
   {/foreach}{/strip}
 </div>

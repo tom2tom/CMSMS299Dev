@@ -48,17 +48,18 @@ use function startswith;
  * @param string $action	 The module action name
  * Optional parameters
  * @param mixed $returnid Optional page-id to return to after the action
- *   is done, numeric(int) or ''|null for admin. Default null.
+ *   is done, numeric(int) or '' for admin. May be 0 for frontend, in which
+ *   case ignored. Default ''.
  * @param array $params	Optional parameters to include in the URL. Default []
  *   These will be ignored if the prettyurl parameter is present.
  *   Since 3.0, parameter value(s) may be non-scalar: 1-D arrays processed directly,
  *   other things json-encoded if possible.
  * @param string $prettyurl URL segment(s) relative to the root-URL of the
  *   action, to generate a pretty-formatted URL
- * @param bool	$inline	Optional flag whether the target of the output link
- *   is the same tag on the same page Default false
- * @param bool	$targetcontentonly Optional flag whether the target of the
- *   output link targets the content area of the destination page Default false
+ * @param bool $inline Optional flag whether TBA ? the link output populates
+ *   the same tag on the same page? Default false
+ * @param bool $targetcontentonly Optional flag whether the link output populates
+ *  the default content area of the destination page Default false
  * @param string $prettyurl Optional url part(s), or ':NOPRETTY:' Default ''
  * @param bool $relative since 3.0 Optional flag whether to omit the site-root
  *   from the created url. Default false
@@ -74,12 +75,12 @@ function CreateActionUrl(
 	$mod,
 	$id,
 	string $action,
-	$returnid = null,
+	$returnid = '',
 	array $params = [],
 	bool $inline = false,
 	bool $targetcontentonly = false,
 	string $prettyurl = '',
-    bool $relative = false,
+	bool $relative = false,
 	int $format = 2
 	) : string
 {
@@ -93,7 +94,7 @@ function CreateActionUrl(
 		$id = 'm1_';
 	}
 
-	$action = trim($action); //sanitize not needed, breaks back-compatibility
+	$action = trim($action); //sanitize not needed, breaks back-compatibility, and might be/include sprintf formatting etc
 	assert($action != false, __METHOD__.' error : $action parameter is missing');
 	if (!$action) {
 		return '<!-- '.__METHOD__.' error : "action" parameter is missing -->';
@@ -124,9 +125,9 @@ function CreateActionUrl(
 		];
 
 		if ($frontend) {
-			$text = $base_url.'index.php';
-		} else {
 			$text = $base_url.'lib/moduleinterface.php';
+		} else {
+			$text = $base_url.$config['admin_dir'].'/moduleinterface.php';
 			if (isset($_SESSION[CMS_USER_KEY])) {
 				$parms[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
 			}
@@ -142,7 +143,7 @@ function CreateActionUrl(
 				$parms[$id.$key] = $value;
 			}
 		}
-		if ($frontend) {
+		if ($frontend && $returnid > 0) {
 			$parms[$id.'returnid'] = $returnid;
 			if ($inline) {
 				$parms[$id.$config['query_var']] = $returnid;
@@ -181,7 +182,7 @@ function CreateJobUrl(
 	string $action,
 	array $params = [],
 	bool $onetime = false,
-    bool $relative = false,
+	bool $relative = false,
 	int $format = 2
 	) : string
 {
@@ -192,7 +193,9 @@ function CreateJobUrl(
 	}
 
 	$base_url = ($relative) ? '' : CMS_ROOT_URL.'/';
-	$text = $base_url.'lib/moduleinterface.php?';
+	$text = $base_url.'lib/moduleinterface.php?'; // OR .../admin/...?
+//  $config = Lone::get('Config');
+//	$text = $base_url.$config['admin_dir'].'/moduleinterface.php?';
 	$text .= RequestParameters::create_job_params($params, $onetime, $format);
 
 	if ($format == 3) {
@@ -209,9 +212,8 @@ function CreateJobUrl(
  *   (e.g. 'cntnt01' indicates that the default content block of the destination
  *   frontend-page is to be targeted), or a falsy value for an admin action
  *   will be translated to 'm1_'.
- * @param mixed $returnid The integer page-id to return to after the action
- *   is done, or ''|null for admin
- * @param array $params	  Optional array of parameters to include in the URL.
+ * @param mixed $pageid The wanted-page identifier Since 3.0, int id or string alias
+ * @param array $params	Optional array of parameters to include in the URL.
  *   Since 3.0, parameter value(s) may be non-scalar: 1-D arrays processed directly,
  *   other things json-encoded if possible.
  * @param bool $relative since 3.0 Optional flag whether to omit the site-root
@@ -226,23 +228,23 @@ function CreateJobUrl(
  */
 function CreatePageUrl(
 	$mod,
- 	$id,
-	$returnid,
+	$id,
+	$pageid,
 	array $params = [],
-    bool $relative = false,
+	bool $relative = false,
 	int $format = 2
 	) : string
 {
 	$text = '';
 	$ptops = cmsms()->GetHierarchyManager();
-	$node = $ptops->get_node_by_id($returnid);
+	$node = $ptops->find_by_identifier($pageid);
 	if ($node) {
 		$contentobj = $node->get_content();
 		if ($contentobj) {
 			$pageurl = $contentobj->GetURL();
 			if ($pageurl) {
 				if ($id) {
-					$id = trim($id);  //sanitize not needed, breaks back-compatibility
+					$id = trim($id);  //sanitize not needed, breaks back-compatibility, might be/include sprintf formatting
 					assert($id != false, __METHOD__.' error : $id parameter is invalid');
 					if (!$id) {
 						return '<!-- '.__METHOD__.' error : "id" parameter is invalid -->';
@@ -250,19 +252,29 @@ function CreatePageUrl(
 				} else {
 					$id = 'm1_';
 				}
-				$params['id'] = $id;
-
+//				$params['id'] = $id;
+//              if ($id) {
+                    foreach ($params as $k => $v) {
+                        if (!startswith($k, $id)) {
+                            //TODO if not CMS_SECURE ....
+                            unset($params[$k]);
+                            $params[$id.$k] = $v;
+                        }
+                    }
+//              }
 				$text = ($relative) ? str_replace(CMS_ROOT_URL.'/', '', $pageurl) : $pageurl;
 				$config = Lone::get('Config');
 				if ($config['url_rewriting'] != 'none') {
-					// attempt to get a pretty url from the module TODO support empty action-name
+					// attempt to get a pretty url from the module
+                    $returnid = $contentobj->id; //TODO func($pageid etc)
+                    // TODO support empty action-name
 					$prettyurl = $mod->get_pretty_url($id, '', $returnid, $params, false);
 					if ($prettyurl && $prettyurl != ':NOPRETTY:') {
 						$text .= '/'.$prettyurl;
 						return $text;
 					}
 				}
-				$text .= '?'.RequestParameters::create_action_params($params, $format);
+				$text .= '&'.RequestParameters::create_action_params($params, $format);
 				if ($format == 3) {
 					$text = entitize($text);
 				}

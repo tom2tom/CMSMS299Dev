@@ -1,7 +1,7 @@
 <?php
 /*
 Template(s) operations performer
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -37,14 +37,14 @@ if (isset($_REQUEST['tpl'])) {
 } elseif (isset($_REQUEST['grp'])) {
 	$tpl_id = -(int)$_REQUEST['grp'];
 } else {
-	$tpl_id = null;
+	$tpl_id = 0;
 }
 
 if (isset($_POST['tpl_select'])) {  //id(s) array for a bulk operation
 	//sanitize
 	$tpl_multi = array_map('intval', $_POST['tpl_select']);
 } else {
-	$tpl_multi = null;
+	$tpl_multi = false;
 }
 
 $op = $_GET['op'] ?? $_POST['bulk_action'] ?? ''; // no sanitizeVal() etc due to specific acceptable values
@@ -52,7 +52,7 @@ switch (trim($op)) {
 	case 'copy':
 		$padd = $pmod || check_permission($userid,'Add Templates');
 		if (!$padd) exit;
-		if ($tpl_id) {
+		if ($tpl_id != 0) {
 			try {
 				// TODO appropriate '_activetab' value
 				$n = TemplateOperations::operation_copy($tpl_id);
@@ -94,7 +94,7 @@ switch (trim($op)) {
 		}
 		break;
 	case 'replace':
-		if ($tpl_id) {
+		if ($tpl_id != 0) {
 			try {
 				// TODO appropriate '_activetab' value
 				$n = TemplateOperations::operation_replace($tpl_id);
@@ -106,7 +106,7 @@ switch (trim($op)) {
 		}
 		break;
 	case 'applyall':
-		if ($tpl_id) {
+		if ($tpl_id != 0) {
 			try {
 				// TODO appropriate '_activetab' value
 				$n = TemplateOperations::operation_applyall($tpl_id);

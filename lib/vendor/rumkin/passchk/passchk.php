@@ -48,7 +48,7 @@ final class passchk
             $this->Frequency_Table[] = $c / 95;
         }
         unset($Frequency_List);
-        $Frequency_List = null;
+        $Frequency_List = null; // help garbage collector
     }
 
     /*

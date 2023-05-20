@@ -57,15 +57,15 @@ try {
     $maxsize = $config['max_upload_size'];
     $helper = new FileTypeHelper();
     $mime = $helper->get_file_type_mime($profile->type); // might be empty
-    $destpath = null;
+    $destpath = '';
 
     // crappy $_FILES[] arrangement forces these funcs
-    $fileval = function($key, $idx = null) use($f)
+    $fileval = function($key, $idx = '') use ($f)
     {
-       return ($idx === null) ? $f[$key] : $f[$key][$idx];
+       return ($idx === '') ? $f[$key] : $f[$key][$idx];
     };
 
-    $do_file = function($idx = null) use($fileval, $topdir, $fullpath, $profile, $maxsize, $helper, $mime, &$destpath)
+    $do_file = function($idx = '') use ($fileval, $topdir, $fullpath, $profile, $maxsize, $helper, $mime, &$destpath)
     {
         // Check filesize
         if ($maxsize > 0 && $fileval('size', $idx) > $maxsize) {

@@ -78,7 +78,7 @@ class Exception extends MainException
                 $prev = $tmp;
             }
             else {
-                $prev = null;
+                $prev = null; // no object
             }
         }
 

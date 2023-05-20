@@ -52,7 +52,7 @@ final class Statement
     protected $_stmt;
 
     /**
-     * SQL command | null
+     * SQL command | empty
      * @ignore
      */
     protected $_sql;
@@ -73,9 +73,9 @@ final class Statement
      * Constructor.
      *
      * @param Connection      $conn The database connection
-     * @param optional string $sql  The SQL query, default null
+     * @param optional string $sql  The SQL query, default ''
      */
-    public function __construct(Connection $conn, string $sql = null)
+    public function __construct(Connection $conn, string $sql = '')
     {
         $this->_conn = $conn;
         $this->_sql = $sql;
@@ -110,7 +110,7 @@ final class Statement
      *
      * @return int
      */
-    public function affected_rows()
+    public function affected_rows() : int
     {
         return $this->_stmt->affected_rows;
     }
@@ -123,13 +123,13 @@ final class Statement
     /**
      * Prepare a command.
      *
-     * @param optional string $sql parameterized SQL command default null
+     * @param optional string $sql parameterized SQL command default ''
      * If $sql is not provided here, $this->_sql must have previously been
      * populated with the relevant command.
      *
      * @return bool indicating success
      */
-    public function prepare($sql = null)
+    public function prepare($sql = '') : bool
     {
         $mysql = $this->_conn->get_inner_mysql();
         if (!$mysql || !$this->_conn->isConnected()) {
@@ -194,7 +194,7 @@ final class Statement
      * Go to the next member (if any) of an array of query-parameters
      * that are being successively executed, and run the query
      */
-    public function moveNext()
+    public function moveNext() : bool
     {
         $this->now_bind = next($this->all_tobind);
         if ($this->now_bind) {
@@ -210,7 +210,7 @@ final class Statement
      * @return bool indicating we're now at the end of an array of
      * parameters that are being successively executed
      */
-    public function EOF()
+    public function EOF() : bool
     {
         return !$this->now_bind;
     }
@@ -220,7 +220,7 @@ final class Statement
      *
      * @return bool indicating success
      */
-    public function bind($bindvars)
+    public function bind($bindvars) : bool
     {
         if (!$this->_stmt) {
             if ($this->_sql) {
@@ -321,7 +321,6 @@ final class Statement
         $error = 'Failed to bind paramers to prepared statement';
         $this->processerror(Connection::ERROR_PARAM, $errno, $error);
         $this->_bound = false;
-
         return false;
     }
 
@@ -333,7 +332,7 @@ final class Statement
      *  | nothing if this is a deprecated multi-bind (2-D values) operation
      * @return mixed object (ResultSet or EmptyResultSet or PrepResultSet) | int > 0 | false | null
      */
-    public function execute(...$bindvars)
+    public function execute(...$bindvars)// : mixed
     {
         if (!$this->_stmt) {
             if ($this->_sql) {
@@ -469,7 +468,7 @@ final class Statement
      * Cleanup/release database resources
      * CHECKME automatic cleanup upon destruction?
      */
-    public function close()
+    public function close() : void
     {
         if ($this->_stmt) {
             if ($this->_bound) {

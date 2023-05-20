@@ -140,6 +140,7 @@ final class session implements ArrayAccess
     {
         $raw = serialize($this->_data);
         // TODO something random(ish), session-constant, not sourced directly or indirectly from $_SESSION: a cookie?
+        // TODO extend $pw as in Crypto::extendpw() ?
         $seed = __DIR__;
         switch ($this->_crypter) {
             case 'sodium':

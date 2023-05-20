@@ -31,6 +31,7 @@ use Ddrv\Mailer\Transport\SendmailTransport;
 use Ddrv\Mailer\Transport\SmtpTransport;
 use Ddrv\Mailer\Transport\SpoolTransport;
 use Exception;
+use OutMailer\IOAuthTokenProvider;
 use OutMailer\PrefCrypter;
 use const CMS_DEPREC;
 use const TMP_CACHE_LOCATION;
@@ -59,18 +60,37 @@ class Mailer implements IMailer
 	private $ishtml;
 	private $single; //enum 0|1|2
 	private $errmsg;
+	private $oauthProvider; // needed here? IOAuthTokenProvider object
+	/**
+	 * 'CRAM-MD5', 'LOGIN', 'PLAIN' or 'XOAUTH2'
+	 * If not specified, the first one of those that the server supports
+	 * will be used.
+	 * @var string
+	 */
+	private $oauthType;
+	private $oauthUserEmail; // same as $from?
+	private $oauthClientId;
+	private $oauthClientSecret;
+	private $oauthRefreshToken; //runtime setting
 
 	/**
 	 * Constructor
 	 *
 	 * @param bool $throw Optionally enable exception when autoloader registration fails.
+     * But spl_autoload_register() always throws for recent PHP
 	 */
 	public function __construct($throw = false)
 	{
-		if (spl_autoload_register([$this, 'MailerAutoload'], $throw)) {
+        if ($throw) {
+            spl_autoload_register([$this, 'MailerAutoload']);
 			$this->reset();
 		} else {
-			$this->message = null;
+            try {
+                spl_autoload_register([$this, 'MailerAutoload']);
+        		$this->reset();
+            } catch (Throwable $t) {
+    			$this->message = null; // no object
+            }
 		}
 	}
 
@@ -85,6 +105,7 @@ class Mailer implements IMailer
 		if (method_exists($this->message, $method)) {
 			return call_user_func([$this->message, $method], ...$args);
 		}
+		return null;
 	}
 
 	public function MailerAutoload($classname)
@@ -97,6 +118,20 @@ class Mailer implements IMailer
 			}
 			unset($parts[$p], $parts[$p+1]);
 			$fp = cms_join_path(__DIR__, 'ddrv-mailer', ...$parts) . '.php';
+			if (is_readable($fp)) {
+				include_once $fp;
+			}
+		}
+		//TODO if OAuth2 is globally provided
+		//TODO if $this->oauthProvider is available
+		$p = strpos($classname, 'League\OAuth2\Client\\');
+		if ($p === 0 || ($p == 1 && $classname[0] == '\\')) {
+			$parts = explode('\\', $classname);
+			if ($p == 1) {
+				unset($parts[0]);
+			}
+			unset($parts[$p], $parts[$p+1]);
+			$fp = cms_join_path(__DIR__, 'LeagueClient', ...$parts) . '.php';
 			if (is_readable($fp)) {
 				include_once $fp;
 			}
@@ -114,6 +149,13 @@ class Mailer implements IMailer
 		$this->from = [];
 		$this->ishtml = false;
 		$this->errmsg = '';
+		$this->oauthProvider = null; // needed ?
+		$this->oauthType = '';
+		$this->oauthUserEmail = '';
+		$this->oauthClientId = '';
+		$this->oauthClientSecret = '';
+		$this->oauthRefreshToken = '';
+
 		$mailprefs = [
 			'mailer' => 1,
 			'from' => 1,
@@ -130,13 +172,21 @@ class Mailer implements IMailer
 			//extras for this mailer-backend
 //			'batchgap' => 1, // unused ?
 //			'batchsize' => 1, // unused ?
+//			'oauthProvider' => null, // aka identifier TODO
+			'oauthType' => 1,
+//			'oauthUserEmail' => 1, //same as from?
+			'oauthClientId' => 1,
+			'oauthClientSecret' => 1, //TODO crypted
+//			'oauthRefreshToken' => 1, runtime value
 			'single' => 1,
 		];
+//TODO consider support e.g. https://github.com/simonrob/email-oauth2-proxy for OAuth connecting
 		foreach ($mailprefs as $key => $val) {
 			$mailprefs[$key] = get_module_param('OutMailer', $key);
 		}
 		$pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY);
 		$mailprefs['password'] = Crypto::decrypt_string(base64_decode($mailprefs['password']), $pw);
+		$mailprefs['oauthClientSecret'] = Crypto::decrypt_string(base64_decode($mailprefs['oauthClientSecret']), $pw);
 
 		$this->single = (int)$mailprefs['single'];
 
@@ -299,7 +349,7 @@ class Mailer implements IMailer
 	 * Set the subject of the message
 	 * @param string $subject
 	 */
-	public function SetSubject($subject)
+	public function SetSubject(string $subject) : void
 	{
 		$this->message->setSubject($subject);
 	}
@@ -320,7 +370,7 @@ class Mailer implements IMailer
 	 * @param string $email email address that the email will be from.
 	 * @param string $name optional sender's name
 	 */
-	public function SetFrom($email, $name = '')
+	public function SetFrom(string $email, string $name = '') : void
 	{
 		$this->message->setSender($email, $name);
 		$this->from[$email] = $name; //local cache enables retrieval
@@ -331,7 +381,7 @@ class Mailer implements IMailer
 	 * @param string $email
 	 * @return string
 	 */
-	public function GetFrom($email = '') : string
+	public function GetFrom(string $email = '') : string
 	{
 		if ($email) {
 			return $this->from[$email] ?? '';
@@ -345,7 +395,7 @@ class Mailer implements IMailer
 	 * @param string $name Optional distinct recipient's name Default empty
 	 * @return bool true on success, false if address already used
 	 */
-	public function AddAddress($email, $name = '') : bool
+	public function AddAddress(string $email, string $name = '') : bool
 	{
 		if (!$name) {
 			list($email, $name) = $this->ParseAddress($email);
@@ -358,7 +408,7 @@ class Mailer implements IMailer
 	 * Remove a "To" address.
 	 * @param string $email
 	 */
-	public function RemoveAddress($email)
+	public function RemoveAddress(string $email)
 	{
 		$this->message->removeRecipient($email);
 	}
@@ -378,7 +428,7 @@ class Mailer implements IMailer
 	 * @param string $name Optional distinct recipient's name Default empty
 	 * @return bool true on success, false if address already used
 	 */
-	public function AddCC($email, $name = '') : bool
+	public function AddCC(string $email, string $name = '') : bool
 	{
 		if (!$name) {
 			list($email, $name) = $this->ParseAddress($email);
@@ -391,7 +441,7 @@ class Mailer implements IMailer
 	 * Remove a "CC" address.
 	 * @param string $email
 	 */
-	public function RemoveCC($email)
+	public function RemoveCC(string $email)
 	{
 		$this->message->removeRecipient($email);
 	}
@@ -411,7 +461,7 @@ class Mailer implements IMailer
 	 * @param string $name Optional distinct recipient's name Default empty
 	 * @return bool true on success, false if address already used
 	 */
-	public function AddBCC($email, $name = '') : bool
+	public function AddBCC(string $email, string $name = '') : bool
 	{
 		if (!$name) {
 			list($email, $name) = $this->ParseAddress($email);
@@ -424,7 +474,7 @@ class Mailer implements IMailer
 	 * Remove a "BCC" address.
 	 * @param string $email
 	 */
-	public function RemoveBCC($email)
+	public function RemoveBCC(string $email)
 	{
 		$this->message->removeRecipient($email);
 	}
@@ -442,7 +492,7 @@ class Mailer implements IMailer
 	 * Set the (initial) "Reply-to" address.
 	 * @param string $email, which may be like "addr <name>
 	 */
-	public function SetReplyTo($email)
+	public function SetReplyTo(string $email) : void
 	{
 		$this->message->setHeader('Reply-To', $email);
 	}
@@ -450,7 +500,7 @@ class Mailer implements IMailer
 	/**
 	 * Remove the/all "Reply-to" address(es).
 	 */
-	public function RemoveReplyTo()
+	public function RemoveReplyTo() : void
 	{
 		$this->message->removeHeader('Reply-To');
 	}
@@ -459,7 +509,7 @@ class Mailer implements IMailer
 	 *
 	 * @return mixed string | null
 	 */
-	public function GetReplyTo() : string
+	public function GetReplyTo() : ?string
 	{
 		return $this->message->getHeader('Reply-To');
 	}
@@ -468,7 +518,7 @@ class Mailer implements IMailer
 	 *
 	 * @param string $email
 	 */
-	public function SetConfirmTo(string $email)
+	public function SetConfirmTo(string $email) : void
 	{
 		$this->message->setHeader('Disposition-Notification-To', $email);
 	}
@@ -476,7 +526,7 @@ class Mailer implements IMailer
 	/**
 	 *
 	 */
-	public function RemoveConfirmTo()
+	public function RemoveConfirmTo() : void
 	{
 		$this->message->removeHeader('Disposition-Notification-To');
 	}
@@ -485,7 +535,7 @@ class Mailer implements IMailer
 	 *
 	 * @return mixed string | null
 	 */
-	public function GetConfirmto() : string
+	public function GetConfirmto() : ?string
 	{
 		return $this->message->getHeader('Disposition-Notification-To');
 	}
@@ -495,9 +545,8 @@ class Mailer implements IMailer
 	 * e.g. $mailerobj->addCustomHeader('X-MYHEADER: some-value');
 	 *
 	 * @param string $header
-	 * @param string $value
 	 */
-	public function AddCustomHeader($header)
+	public function AddCustomHeader(string $header) : void
 	{
 		list($headername, $value) = explode(':', $header);
 		$this->message->setHeader(trim($headername), trim($value));
@@ -507,7 +556,7 @@ class Mailer implements IMailer
 	 *
 	 * @param string $headername
 	 */
-	public function RemoveCustomHeader(string $headername)
+	public function RemoveCustomHeader(string $headername) : void
 	{
 		$this->message->removeHeader($headername);
 	}
@@ -516,7 +565,7 @@ class Mailer implements IMailer
 	 * [Un]set the message content type to HTML.
 	 * @param bool $state Default true
 	 */
-	public function IsHTML($state = true)
+	public function IsHTML(bool $state = true) : void
 	{
 		$this->ishtml = (bool)$state;
 	}
@@ -528,7 +577,7 @@ class Mailer implements IMailer
 	 * Otherwise it should contain only text.
 	 * @param string $content
 	 */
-	public function SetBody($content)
+	public function SetBody(string $content) : void
 	{
 		if ($this->ishtml) {
 			$this->message->setHtml($content);
@@ -545,7 +594,7 @@ class Mailer implements IMailer
 	 * for email clients without HTML support.
 	 * @param string $content
 	 */
-	public function SetAltBody($content)
+	public function SetAltBody(string $content) : void
 	{
 		if ($this->ishtml) {
 			$content = $this->CleanHtmlBody($content);
@@ -561,7 +610,7 @@ class Mailer implements IMailer
 	 * @param string $content
 	 * @param string $path
 	 */
-	public function AddAttach(string $name, string $content = '', string $path = '')
+	public function AddAttach(string $name, string $content = '', string $path = '') : void
 	{
 		if ($content) {
 			$this->message->attachFromString($name, $content);
@@ -571,6 +620,15 @@ class Mailer implements IMailer
 			}
 			$this->message->attachFromFile($name, $path);
 		}
+	}
+
+	/**
+	 *
+	 * @param string $name
+	 */
+	public function RemoveAttach(string $name) : void
+	{
+		$this->message->detach($name);
 	}
 
 	/**
@@ -587,19 +645,112 @@ class Mailer implements IMailer
 	 * Set the mode for sending individual message
 	 * @param int $state enum 0..2 Default 1 (always)
 	 */
-	public function SetSingleSend(int $state = 1)
+	public function SetSingleSend(int $state = 1) : void
 	{
 		$this->single = min(2, max(0, $state));
 	}
 
 	/**
-	 *
-	 * @param string $name
+	 * Set the IOAuthTokenProvider to be used for oAuth credentialling
 	 */
-	public function RemoveAttach(string $name)
+	public function setOAuth(?IOAuthTokenProvider $oauth)
 	{
-		$this->message->detach($name);
+		$this->oauthProvider = $oauth;
 	}
+
+	/**
+	 * Get the IOAuthTokenProvider used for oAuth credentialling
+	 *
+	 * @return OAuthTokenProvider
+	 */
+	public function getOAuth() : ?IOAuthTokenProvider
+	{
+		return $this->oauthProvider;
+	}
+
+	/**
+	 * Set the oAuth2 type to be used for credentialling
+	 * @param mixed $val string | null the type - supported values are
+	 *   CRAM-MD5, LOGIN, PLAIN, XOAUTH2
+	 * @throws Exception if an unsupported type is specified
+	 */
+	public function setOAuthType(?string $val)
+	{
+		if ($val) {
+			$val = strtoupper($val);
+			if (!in_array($val, ['CRAM-MD5', 'LOGIN', 'PLAIN', 'XOAUTH2'])) {
+				throw new Exception('Invalid oAuth2 type: '.$val);
+			}
+		} else {
+			$val = '';
+		}
+		$this->oauthType = $val;
+	}
+
+	/**
+	 * Get the type used for oAuth credentialling
+	 *
+	 * @return string | null
+	 */
+	public function getOAuthType() : ?string
+	{
+		return $this->oauthType;
+	}
+
+	/**
+	 * @param string $email
+	 */
+	public function SetOauthSender(string $email)
+	{
+		//TODO same as ->from ?
+		$this->oauthUserEmail = $email; //TODO cleanup
+	}
+
+	/**
+	 *
+	 * @return string
+	 */
+	public function GetOauthSender() : string
+	{
+		return $this->oauthUserEmail;
+	}
+
+	/**
+	 *
+	 * @param string $val
+	 */
+	public function SetOauthClient(string $val)
+	{
+		$this->oauthClientId = $val; //TODO cleanup
+	}
+
+	/**
+	 *
+	 * @return string
+	 */
+	public function GetOauthClient() : string
+	{
+		return $this->oauthClientId;
+	}
+
+	/**
+	 *
+	 * @param string $val
+	 */
+	public function SetOauthSecret(string $val)
+	{
+		$this->oauthClientSecret = $val; //TODO cleanup
+	}
+
+	/**
+	 *
+	 * @return string
+	 */
+	public function GetOauthSecret() : string
+	{
+		return $this->oauthClientSecret;
+	}
+	//$mail->oauthRefreshToken = $accessToken; dynamic
 
 	/**
 	 * Check whether there was an error on the last message send
@@ -694,6 +845,8 @@ class Mailer implements IMailer
 				break;
 			default: // never
 				try {
+					//TODO support authentication using oAuth parameters when relevant
+					//provider, type etc etc
 					$mailer->send($this->message /*, int priority*/);
 /* OR
 				$mailer->send($this->message, $batchsize);
@@ -712,6 +865,62 @@ OR
 				break;
 		}
 	}
+/*
+Microsoft and get the necessary credentials (client ID and client secret)
+
+use League\OAuth2\Client\Provider\Microsoft;
+
+$provider = new Microsoft([
+    'clientId' => 'your-client-id',
+    'clientSecret' => 'your-client-secret',
+    'redirectUri' => 'http://your-redirect-uri/'
+]);
+
+if (!isset($_GET['code'])) {
+    // If the user has not authorized your app, redirect them to the Microsoft login page
+    $authUrl = $provider->getAuthorizationUrl();
+    header('Location: '.$authUrl);
+    exit;
+
+} else {
+    // If the user has authorized your app, get an access token
+    $accessToken = $provider->getAccessToken('authorization_code', [
+        'code' => $_GET['code']
+    ]);
+}
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+
+$mail = new PHPMailer();
+
+// Set the mailer to use SMTP
+$mail->isSMTP();
+
+// Set the SMTP server
+$mail->Host = 'smtp.office365.com';
+
+// Enable SMTP authentication
+$mail->SMTPAuth = true;
+
+// Set the SMTP authentication type (Microsoft OAuth 2.0)
+$mail->AuthType = 'XOAUTH2';
+
+// Set the OAuth 2.0 access token
+$mail->oauthUserEmail = 'your-email@example.com';
+$mail->oauthClientId = 'your-client-id';
+$mail->oauthClientSecret = 'your-client-secret';
+$mail->oauthRefreshToken = $accessToken;
+
+// Set the email parameters
+$mail->setFrom('your-email@example.com', 'Your Name');
+$mail->addAddress('recipient@example.com', 'Recipient Name');
+$mail->Subject = 'Email subject';
+$mail->Body = 'Email body';
+
+// Send the email
+$mail->send();
+*/
 /*		$spool = new FileSpool($this->transport['object'], sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'mail');
 		//OR
 		$spool = new MemorySpool($this->transport['object']);
@@ -760,7 +969,7 @@ TEXT;
 			 $path                // path to attached file
 		);
 */
-	protected function AdjustBody($mode)
+	protected function AdjustBody(string $mode) : void
 	{
 		switch ($mode) {
 			case 'cc':
@@ -819,7 +1028,7 @@ TEXT;
 	 * @param string $type File extension (MIME) type. UNUSED
 	 * @return bool
 	 */
-	function AddEmbeddedImage($path, $cid, $name = '', $encoding = 'base64', $type = 'application/octet-stream')
+	public function AddEmbeddedImage($path, $cid, $name = '', $encoding = 'base64', $type = 'application/octet-stream')
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'addAttach'));
 		$this->AddAttach($name, '', $path);
@@ -1022,7 +1231,7 @@ TEXT;
 	}
 
 	//deprecated alias
-	public function SetConfirmReadingTo($email)
+	public function SetConfirmReadingTo(?string $email)
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'setConfirmTo'));
 		$this->SetConfirmTo($email);
@@ -1050,17 +1259,17 @@ TEXT;
 		}
 	}
 
-	public function SetFromName($name)
+	public function SetFromName(?string $name)
 	{
 		$this->message[''] = $name;
 	}
 
-	public function SetHelo($helo)
+	public function SetHelo(?string $helo)
 	{
 		$this->transport[''] = $helo;
 	}
 
-	public function SetHostname($hostname)
+	public function SetHostname(?string $hostname)
 	{
 		$this->transport['host'] = $hostname;
 	}
@@ -1070,7 +1279,7 @@ TEXT;
 		$this->transport[''] = $lang_type;
 	}
 
-	public function SetMailer($mailer)
+	public function SetMailer(string $mailer)
 	{
 		switch (strtolower($mailer)) {
 //			$this->transport[''] = $mailer;
@@ -1081,13 +1290,13 @@ TEXT;
 	 * Set the priority of the message
 	 * @param int $priority 1(highest), 2 ....
 	 */
-	public function SetPriority($priority)
+	public function SetPriority(int $priority)
 	{
 		if (!is_numeric($priority) || $priority < 1) { $priority = 1; }
 		$this->transport['priority'] = (int)$priority;
 	}
 
-	public function SetSender($sender)
+	public function SetSender(?string $sender)
 	{
 		$this->message[''] = $sender;
 	}
@@ -1104,7 +1313,7 @@ TEXT;
 	 * @param bool $state
 	 * @see Mailer::SetMailer
 	 */
-	function SetSMTPAuth($state = true)
+	public function SetSMTPAuth($state = true)
 	{
 		$this->transport['smtpauth'] = (bool)$state;
 	}
@@ -1130,7 +1339,7 @@ TEXT;
 	 * @see Mailer::SetMailer
 	 * @see Mailer::SmtpClose
 	 */
-	function SetSMTPKeepAlive($state = true)
+	public function SetSMTPKeepAlive($state = true)
 	{
 // does nothing	$this->transport[''] = $state;
 	}
@@ -1170,7 +1379,7 @@ TEXT;
 	 * Only necessary when using the SMTP mailer with keepalive enabled.
 	 * @see Mailer::SetSMTPKeepAlive
 	 */
-	function SmtpClose()
+	public function SmtpClose()
 	{
 	//does nothing  $this->transport->SmtpClose();
 	}

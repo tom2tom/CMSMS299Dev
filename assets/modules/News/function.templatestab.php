@@ -22,10 +22,10 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 
-$query = 'SELECT T.id,T.name,T.description,T.type_dflt,TY.name AS type
+$query = 'SELECT T.id,T.`name`,T.description,T.type_dflt,TY.`name` AS type
 FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' T JOIN '.
 CMS_DB_PREFIX.TemplateType::TABLENAME. ' TY ON T.type_id=TY.id
-WHERE T.originator=\''.$this->GetName().'\' ORDER BY TY.name,T.name';
+WHERE T.originator=\''.$this->GetName().'\' ORDER BY TY.`name`,T.`name`';
 
 $dbr = $db->getArray($query);
 if( $dbr ) {
@@ -57,7 +57,7 @@ if( $dbr ) {
 		$obj = new stdClass();
 		$obj->id = $tid;
 		$obj->name = $row['name'];
-		$obj->desc = strip_tags($row['description']);
+		$obj->desc = $row['description'] ? strip_tags($row['description']) : '';
 		$obj->type = $row['type'];
 		if( strcasecmp($obj->name,'moduleactions') != 0 ) {
 			if( $row['type_dflt'] ) {

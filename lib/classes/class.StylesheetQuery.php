@@ -78,7 +78,7 @@ class StylesheetQuery extends DbQueryBase
 
 		$query = 'SELECT S.id FROM '.CMS_DB_PREFIX.Stylesheet::TABLENAME.' S';
 		$sortorder = 'ASC';
-		$sortby = 'S.name';
+		$sortby = 'S.`name`';
 		$this->_limit = 1000;
 		$this->_offset = 0;
 		$db = Lone::get('Db');
@@ -101,7 +101,7 @@ class StylesheetQuery extends DbQueryBase
 			case 'name':
 				$val = trim($val);
 				if( strpos($val,'%') === FALSE ) $val .= '%';
-				$wheres[] = 'S.name LIKE '.$db->qStr($val);
+				$wheres[] = 'S.`name` LIKE '.$db->qStr($val);
 				break;
 
 			case 'o':
@@ -175,11 +175,11 @@ class StylesheetQuery extends DbQueryBase
 					if( !$have_design ) {
 						throw new LogicException('Cannot sort by design if design_id is not known');
 					}
-					$sortby = 'D.name';
+					$sortby = 'D.`name`';
 					break;
 				case 'name':
 				default:
-					$sortby = 'S.name';
+					$sortby = 'S.`name`';
 					break;
 				}
 				break;
@@ -209,7 +209,7 @@ class StylesheetQuery extends DbQueryBase
 		if( !$this->_rs || $this->_rs->errno !== 0 ) {
 			throw new SQLException($db->sql.' -- '.$db->errorMsg());
 		}
-		$this->_totalmatchingrows = $db->getOne('SELECT FOUND_ROWS()');
+		$this->_totalmatchingrows = $db->getOne(str_replace(['SELECT S.id'],['SELECT COUNT(S.id) AS num'],$query));
 	}
 
 	/**

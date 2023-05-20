@@ -80,7 +80,10 @@ class Smarty extends SmartyParent
         $this->assignGlobal('app_name','CMSMS');
 
         if( CMS_DEBUG ) {
-            $this->error_reporting = 'E_ALL';
+            $this->error_reporting = E_ALL;
+//TODO private property $this->isMutingUndefinedOrNullWarnings = false;
+        } else {
+            $this->muteUndefinedOrNullWarnings();
         }
 /* NO
 some sort of corruption when retrieving ?
@@ -217,6 +220,7 @@ smarty cache lifetime != global cache ttl, probably
             // force re-compile after template change
             //Events::AddDynamicHandler('Core','EditTemplatePost',$TODOcallback);
             //Events::AddDynamicHandler('Core','AddTemplatePost',$TODOcallback);
+            $this->registerPlugin('modifier','lang','CMSMS\LangOperations::lang',true);
         }
     }
 
@@ -401,15 +405,17 @@ smarty cache lifetime != global cache ttl, probably
     /**
      * Create a template object
      *
-     * @param  string  $template   the resource handle of the template
-     * @param  mixed   $cache_id   optional cache id to be used with this template
-     * @param  mixed   $compile_id optional compile id to be used with this template
-     * @param  object  $parent     optional next-higher level of Smarty variables
-     * @param  bool    $do_clone   optional flag whether to clone the Smarty object
+     * @param string $template   the resource handle of the template file
+     * @param mixed  $cache_id   optional object (deprecated $parent value) | array (deprecated $parent template-vars) | string| falsy
+     *  String value enables different sets of cache files for the same template.
+     * @param mixed  $compile_id optional string | falsy
+     *  String value enables different sets of compiled files for the same template.
+     * @param mixed $parent      optional next higher level of Smarty variables or null
+     * @param bool   $do_clone   optional flag whether to clone Smarty object Default true
      * @return Smarty_Internal_Template template object
-     * @throws LogicException
+     * @throws SmartyException, LogicException
      */
-    public function createTemplate($template,$cache_id = null,$compile_id = null,$parent = null,$do_clone = true)
+    public function createTemplate($template,$cache_id = '',$compile_id = '',$parent = null,$do_clone = true)
     {
         foreach( ['eval:','string:','cms_file:','extends:'] as $type ) {
             if( startswith($template,$type) ) {

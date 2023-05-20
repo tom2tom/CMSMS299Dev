@@ -28,7 +28,7 @@ use CMSMS\Database\Statement;
 use CMSMS\DeprecationNotice;
 use DateTime;
 use DateTimeZone;
-use Exception;
+use ErrorException;
 use mysqli;
 use const CMS_DEBUG;
 use const CMS_DEPREC;
@@ -95,6 +95,12 @@ final class Connection
      * callable Error-processing method
      */
     protected $_errorhandler = null;
+
+    /**
+     * @ignore
+     * bool Whether to throw an Error after (internally) processing an error
+     */
+    protected $_throw = false;
 
     /**
      * @ignore
@@ -207,7 +213,7 @@ final class Connection
     /**
      * Constructor.
      * @param array $config Optional array | array-accessible object of
-     * CMSMS settings including (among others) the ones used here:
+     *  CMSMS settings including (at least) the following ones used here:
      *  'db_hostname'
      *  'db_username'
      *  'db_password'
@@ -216,9 +222,12 @@ final class Connection
      *  'set_names' (opt)
      *  'set_db_timezone' (opt)
      *  'timezone' used only if 'set_db_timezone' is true (normally the case)
+     * @param bool $throw Optional flag whether the default/internal
+     *  error handler should also throw an ErrorException. Default false.
      */
-    public function __construct($config)
+    public function __construct($config, bool $throw = false)
     {
+        $this ->_throw = $throw;
         if (class_exists('mysqli')) {
 //          if (!$config) $config = Lone::get('Config'); //normal API
             if (!empty($config['db_credentials'])) {
@@ -268,7 +277,7 @@ final class Connection
                     if (!empty($config['set_db_timezone'])) {
                         //see also strftzone_adjuster() in misc.functions.php
                         try {
-                            $dt = new DateTime('', new DateTimeZone($config['timezone']));
+                            $dt = new DateTime('@0', new DateTimeZone($config['timezone']));
                         } catch (Throwable $t) {
                             $this->_mysql = null;
                             $this->on_error(self::ERROR_PARAM, $t->getCode(), $t->getMessage());
@@ -321,6 +330,7 @@ final class Connection
                 while ($this->_mysql->rollback()) {}
             }
             $this->_mysql->close();
+            $this->_mysql = null;
         }
     }
 
@@ -339,6 +349,12 @@ final class Connection
             return $this->_query_time_total;
          case 'query_count':
             return $this->_query_count;
+         case 'affected':
+            return $this->_mysql->affected_rows;
+         case 'info':
+            return $this->_mysql->info;
+         case 'server_info':
+            return $this->_mysql->server_info;
          case 'time_offset':
             if (isset($this->$_time_offset)) return $this->$_time_offset;
             //no break here
@@ -360,6 +376,11 @@ final class Connection
             return true;
          case 'time_offset':
             return isset($this->$_time_offset);
+         case 'affected':
+            $key = 'affected_rows';
+         case 'info':
+         case 'server_info':
+            return $this->_mysql->$key != '';
          default:
            return false;
         }
@@ -379,7 +400,7 @@ final class Connection
             $this->$key = $value;
             break;
          default:
-            throw new Exception("Direct setting of db-connection property '$key' is not supported");
+            throw new ErrorException("Direct setting of db-connection property '$key' is not supported");
         }
     }
 
@@ -1022,6 +1043,7 @@ final class Connection
                 }
             } else { //if (is_object($sql) && ($sql instanceof Statement))
                 //TODO handle a statement
+                $here = 1;
             }
             $rs = $this->execute($sql, $bindvars);
         } else {
@@ -1567,6 +1589,9 @@ final class Connection
             if ($this->_debug) {
                 add_debug_message(debug_display($error_msg, '', false, true));
             }
+        }
+        if ($this->_throw) {
+            throw new ErrorException($error_msg, $error_number);
         }
     }
 

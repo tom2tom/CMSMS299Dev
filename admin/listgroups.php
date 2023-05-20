@@ -151,7 +151,7 @@ if ($n > 10) {
     $pagelengths[0] = _la('all');
 } else {
     $tblpages = 1;
-    $pagelengths = null;
+    $pagelengths = [];
 }
 
 $jsm = new ScriptsMerger();

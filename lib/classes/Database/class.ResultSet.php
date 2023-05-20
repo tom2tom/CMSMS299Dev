@@ -120,7 +120,7 @@ class ResultSet
      * @internal
      * @return bool
      */
-    protected function isNative()
+    protected function isNative() : bool
     {
         if ($this->_native === '') {
             $this->_native = function_exists('mysqli_fetch_all');
@@ -135,7 +135,7 @@ class ResultSet
      * @param int $idx
 	 * @return bool
      */
-    protected function move($idx)
+    protected function move(int $idx) : bool
     {
         if ($idx == $this->_pos) {
             return true;
@@ -154,7 +154,7 @@ class ResultSet
      * Move to the first row in the ResultSet data.
 	 * @return bool
      */
-    public function moveFirst()
+    public function moveFirst() : bool
     {
         return $this->move(0);
     }
@@ -163,7 +163,7 @@ class ResultSet
      * Move to the next row of the ResultSet data, if possible.
 	 * @return bool
      */
-    public function moveNext()
+    public function moveNext() : bool
     {
         if (($idx = $this->_pos) < $this->_nrows && $idx >= 0) {
             return $this->move($idx + 1);
@@ -176,7 +176,7 @@ class ResultSet
      *
      * @return array, maybe empty
      */
-    public function getArray()
+    public function getArray() : array
     {
         if ($this->isNative()) {
            $this->_result->data_seek(0);
@@ -204,7 +204,7 @@ class ResultSet
      *
      * @return array
      */
-    public function getRows()
+    public function getRows() : array
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','getArray'));
         return $this->getArray();
@@ -218,7 +218,7 @@ class ResultSet
      *
      * @return array
      */
-    public function getAll()
+    public function getAll() : array
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','getArray'));
         return $this->getArray();
@@ -230,7 +230,7 @@ class ResultSet
      *
      * @return array, maybe empty
      */
-    public function getAssoc($force_array = false, $first2cols = false)
+    public function getAssoc(bool $force_array = false, bool $first2cols = false) : array
     {
         $results = [];
         $n = $this->_result->field_count;
@@ -244,21 +244,31 @@ class ResultSet
                 if ($short) {
                     for ($i = 0; $i < $c; ++$i) {
                         $row = $data[$i];
-                        $results[trim($row[$first])] = next($row);
+                        if ($row[$first] !== null) {
+                            $results[trim($row[$first])] = next($row);
+                        } else {
+                            $TODO = 1;
+                        }
                         unset($data[$i]); //preserve memory footprint
                     }
                 } else {
                     for ($i = 0; $i < $c; ++$i) {
                         $val = $data[$i][$first];
                         unset($data[$i][$first]);
-                        $results[trim($val)] = $data[$i]; //not duplicated
+                        if ($val !== null) {
+                            $results[trim($val)] = $data[$i]; //not duplicated
+                        }
                     }
                 }
             } else {
                 for ($i = 0; $i < $c; ++$i) {
                     if ($this->move($i)) {
                         $row = $this->_row;
-                        $results[trim($row[$first])] = ($short) ? next($row) : array_slice($row, 1);
+                        if ($row[$first] !== null) {
+                            $results[trim($row[$first])] = ($short) ? next($row) : array_slice($row, 1);
+                        } else {
+                            $TODO = 2;
+                        }
                     } else {
                         break; //TODO handle error
                     }
@@ -273,7 +283,7 @@ class ResultSet
      * @param bool $trim Optional flag whether to trim() each value. Default false.
      * @return array, maybe empty
      */
-    public function getCol($trim = false)
+    public function getCol(bool $trim = false) : array
     {
         $results = [];
         if (($c = $this->_nrows) > 0) {
@@ -291,7 +301,9 @@ class ResultSet
                 $key = key($this->_row);
                 for ($i = 0; $i < $c; ++$i) {
                     if ($this->move($i)) {
-                        $results[] = ($trim) ? trim($this->_row[$key]) : $this->_row[$key];
+                        if ($this->_row[$key] !== null) {
+                            $results[] = ($trim) ? trim($this->_row[$key]) : $this->_row[$key];
+                        }
                     } else {
                         break; //TODO handle error
                     }
@@ -306,7 +318,7 @@ class ResultSet
      *
      * @return mixed value | null
      */
-    public function getOne()
+    public function getOne()// : mixed
     {
         if (!$this->EOF()) {
             return reset($this->_row);
@@ -319,7 +331,7 @@ class ResultSet
      *
      * @return bool
      */
-    public function EOF()
+    public function EOF() : bool
     {
         return $this->_nrows == 0 || $this->_pos < 0 || $this->_pos >= $this->_nrows;
     }
@@ -343,7 +355,7 @@ class ResultSet
      *
      * @return int
      */
-    public function recordCount()
+    public function recordCount() : int
     {
         return $this->_nrows;
     }
@@ -355,7 +367,7 @@ class ResultSet
      *
      * @return int
      */
-    public function NumRows()
+    public function NumRows() : int
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','recordCount'));
         return $this->_nrows;
@@ -366,7 +378,7 @@ class ResultSet
      *
      * @return int
      */
-    public function fieldCount()
+    public function fieldCount() : int
     {
         return $this->_result->field_count;
     }
@@ -377,13 +389,13 @@ class ResultSet
      * @param string $key An optional field name, if not specified, the entire row will be returned
      * @return mixed single value | values-array | null
      */
-    public function fields($key = null)
+    public function fields($key = '')// : mixed
     {
         if ($this->_row && !$this->EOF()) {
-            if (empty($key)) {
+            if (!$key) {
                 return $this->_row;
             }
-            $key = (string) $key;
+            $key = (string)$key;
             if (isset($this->_row[$key])) {
                 return $this->_row[$key];
             }
@@ -396,7 +408,7 @@ class ResultSet
      *
      * @return array, maybe empty
      */
-    public function FetchRow()
+    public function FetchRow() : array
     {
         $out = $this->fields();
         if ($out !== null) {

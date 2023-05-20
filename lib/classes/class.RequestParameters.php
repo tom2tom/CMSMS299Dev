@@ -449,11 +449,13 @@ class RequestParameters
 
     /**
      * Return parameters interpreted from parameters in the current request.
+     * Action-parameters' prefix is stripped if $strip is true.
      * Non-action parameters are ignored.
      *
+     * @paran bool $strip flag whether to trim action-params' prefix Default false
      * @return array maybe empty
      */
-    public static function get_action_params()
+    public static function get_action_params(bool $strip = false)
     {
         $parms = [];
         $source = self::get_request_params();
@@ -463,29 +465,50 @@ class RequestParameters
             $parms['id'] = (isset($parts[1])) ? trim($parts[1]) : '';
             $parms['action'] = (isset($parts[2])) ? trim($parts[2]) : 'defaultadmin';
             $parms['inline'] = (!empty($parts[3])) ? 1 : 0;
+        } elseif (!empty($source['id'])) {
+            $parms['module'] = ''; //TODO error if not re-defined in the following
+            $parms['id'] = $source['id'];
+            $parms['action'] = 'defaultadmin';
+            $parms['inline'] = 0;
         }
 
         if (isset($parms['id']) && $parms['id'] !== '') {
-            $tmp = $source['mact'] ?? null;
+            $tmp = $source['mact'] ?? '';
             unset($source['mact']);
 
-            $id = $parms['id'];
-            $len = strlen($id);
-            foreach ($source as $key => $val) {
-                if (strncmp($key, $id, $len) == 0) {
-                    $key2 = substr($key,$len);
-                    if (is_scalar($val)) {
-                        if (($dec = self::get_json($val))) {
-                            $parms[$key2] = $dec;
+            if ($strip) {
+                $id = $parms['id'];
+                $len = strlen($id);
+                foreach ($source as $key => $val) {
+                    if (strncmp($key, $id, $len) == 0) {
+                        $key2 = substr($key,$len);
+                        if (is_scalar($val)) {
+                            if (($dec = self::get_json($val))) {
+                                $parms[$key2] = $dec;
+                            } else {
+                                $parms[$key2] = $val;
+                            }
                         } else {
                             $parms[$key2] = $val;
                         }
+                    }
+                }
+            } else {
+                foreach ($source as $key => $val) {
+                    if (is_scalar($val)) {
+                        if (($dec = self::get_json($val))) {
+                            $parms[$key] = $dec;
+                        } else {
+                            $parms[$key] = $val;
+                        }
                     } else {
-                        $parms[$key2] = $val;
+                        $parms[$key] = $val;
                     }
                 }
             }
             if ($tmp) $source['mact'] = $tmp;
+        } else { // should never happen
+            //TODO handle any non-scalars
         }
 
         if (isset($source[CMS_JOB_KEY])) {

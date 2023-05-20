@@ -121,11 +121,15 @@ use function lang;
 	 */
 	public function validate()
 	{
-		if( !$this->name ) throw new LogicException('No name specified for this group');
+		if( !$this->name ) {
+            throw new LogicException('No name specified for this group');
+        }
 		$db = Lone::get('Db');
 		$sql = 'SELECT group_id FROM `'.CMS_DB_PREFIX.'groups` WHERE group_name = ? AND group_id != ?';
-		$dbresult = $db->getOne($sql,[$this->name,$this->id]);
-		if( $dbresult ) throw new LogicException(lang('errorgroupexists',$this->name));
+		$dbr = $db->getOne($sql,[$this->name,$this->id]);
+		if( $dbr ) {
+            throw new LogicException(lang('errorgroupexists',$this->name));
+        }
 	}
 
 	/**

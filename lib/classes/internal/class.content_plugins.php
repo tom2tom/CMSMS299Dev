@@ -184,7 +184,7 @@ final class content_plugins
         }
         $img = $result;
 
-        $out = null;
+        $out = '';
         if( startswith(realpath($dir), realpath($basename)) ) {
             if( ($img == -1 || empty($img)) && isset($params['default']) && $params['default'] ) {
                 $img = $params['default'];
@@ -294,12 +294,19 @@ final class content_plugins
     {
         if( self::$_primary_content ) return self::$_primary_content;
 
-        $result = $do_mact = $modname = $id = $action = $inline = null;
+        $result = '';
+        $do_mact = false;
+        $modname = '';
+        $id = '';
+        $action = '';
+//        $inline = false;
         $params = RequestParameters::get_action_params();
         if( $params ) {
             $modname = $params['module'] ?? '';
             $id = $params['id'] ?? '';
-            if( $modname && $id == 'cntnt01' && empty($params['inline']) ) $do_mact = true;
+            if( $modname && $id == 'cntnt01' && empty($params['inline']) ) {
+                $do_mact = true;
+            }
         }
 
         if( $do_mact ) {

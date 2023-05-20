@@ -283,36 +283,43 @@ final class AppConfig implements ArrayAccess
             return $str;
 
         case 'root_url':
-            if( !isset($_SERVER['HTTP_HOST']) ) { return ''; }
+            if( !isset($_SERVER['HTTP_HOST']) ) {
+                return '';
+            }
             $parts = parse_url($_SERVER['PHP_SELF']);
             if( !empty($parts['path']) ) {
                 $path = rtrim($parts['path'],' /');
 //              if( ($pos = strrpos($path, '/')) !== false ) { $path = substr($path,0,$pos); }
                 $str = $this->offsetGet('admin_dir');
-                if( ($pos = stripos($path,'/'.$str.'/')) !== false ) { $path = substr($path,0,$pos); }
-                if( ($pos = stripos($path,'/index.php')) !== false ) { $path = substr($path,0,$pos); }
-                elseif( ($pos = stripos($path,'install/')) !== false ) {
-                    if( ($pos2 = strrpos($path, '/', $pos-strlen($path))) !== false ) {
-                        $path = substr($path,0,$pos2);
-                    }
-                    else {
-                        $path = substr($path,0,$pos);
-                    }
+                if( ($pos = stripos($path,'/'.$str.'/')) !== false ) {
+                     $path = substr($path,0,$pos);
                 }
-                elseif( ($pos = stripos($path,'installer/')) !== false ) {
-                    if( ($pos2 = strrpos($path, '/', $pos-strlen($path))) !== false ) {
-                        $path = substr($path,0,$pos2);
-                    }
-                    else {
-                        $path = substr($path,0,$pos);
-                    }
-                }
-                elseif( ($pos = strpos($path,'/lib')) !== false ) {
+                if( ($pos = strpos($path,'/lib')) !== false ) {
                     do {
                         $path = substr($path,0,$pos);
                     } while ( ($pos = strpos($path,'/lib')) !== false );
                 }
-//              else {}
+                if( AppState::test(AppState::INSTALL) ) {
+                    if( ($pos = stripos($path,'installer/')) !== false ) {
+                       if( ($pos2 = strrpos($path, '/', $pos-strlen($path))) !== false ) {
+                           $path = substr($path,0,$pos2);
+                       }
+                       else {
+                           $path = substr($path,0,$pos);
+                       }
+                    }
+                    elseif( ($pos = stripos($path,'install/')) !== false ) {
+                       if( ($pos2 = strrpos($path, '/', $pos-strlen($path))) !== false ) {
+                           $path = substr($path,0,$pos2);
+                       }
+                       else {
+                           $path = substr($path,0,$pos);
+                       }
+                    }
+                }
+                if( ($pos = stripos($path,'/index.php')) !== false ) {
+                    $path = substr($path,0,$pos);
+                }
                 $path = rtrim($path,' /');
             }
             else {

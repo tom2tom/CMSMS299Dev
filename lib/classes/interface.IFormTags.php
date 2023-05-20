@@ -623,7 +623,7 @@ interface IFormTags
 	* @param bool	$onlyhref		Flag to determine if only the URL should be returned
 	* @param bool	$inline			Flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
 	* @param string $addtext		Any additional text to be added into the tag. Deprecated since 3.0 - use $attrs[] instead
-	* @param bool	$targetcontentonly Flag indicating that the output of this link should target the content area of the destination page
+	* @param bool	$targetcontentonly Flag indicating that the output of this link populates the default content area of the destination page
 	* @param string $prettyurl		An optional pretty URL segment (relative to the root of the site) to use when generating the link
 	* @param array  $attrs since 3.0 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
@@ -658,7 +658,7 @@ interface IFormTags
 	* @param bool	$onlyhref	A flag to determine if only the href section should be returned
 	* @param bool	$inline	A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
 	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 3.0 - use $attrs[] instead
-	* @param bool	$targetcontentonly A flag to determine if the link should target the default content are of the destination page
+	* @param bool	$targetcontentonly A flag to determine whether the link result populates the default content area of the destination page
 	* @param string $prettyurl	An optional pretty URL segment (related to the root of the website) for a pretty URL
 	* @param array  $attrs since 3.0 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*

@@ -282,13 +282,15 @@ class LoadedData
      * Remove from the in-memory cache the data of the specified type.
      * Hence reload then-current data when the data-type is next wanted.
      *
-     * @param mixed $type string | null Optional type-name.
+     * @param string $type Optional type-name.
      *  If $type is '*' or falsy or not supplied, all types will be released
      * @param varargs $details since 3.0 Optional extra parameters
      */
-    public function release($type = null, ...$details)
+    public function release(string $type = '', ...$details)
     {
-        if( $details ) { $type .= $this->get_subtype($details); }
+        if( $details ) {
+            $type .= $this->get_subtype($details);
+        }
         if( $type && $type !== '*' ) {
             unset($this->data[$type], $this->dirty[$type]);
         }
@@ -308,7 +310,9 @@ class LoadedData
      */
     public function delete(string $type, ...$details)
     {
-        if( $details ) { $type .= $this->get_subtype($details); }
+        if( $details ) {
+            $type .= $this->get_subtype($details);
+        }
         $this->get_main_cache()->delete($type, self::LOADS_SPACE);
         unset($this->data[$type], $this->dirty[$type]);
     }
@@ -320,9 +324,11 @@ class LoadedData
      *  If $type is '*' or falsy or not supplied, all types will be cleared
      * @param varargs $details since 3.0 Optional extra parameters
      */
-    public function clear($type = null, ...$details)
+    public function clear(string $type = '', ...$details)
     {
-        if( $details ) { $type .= $this->get_subtype($details); }
+        if( $details ) {
+            $type .= $this->get_subtype($details);
+        }
         if( $type && $type !== '*' ) {
             $this->delete($type);
         }

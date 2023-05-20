@@ -208,6 +208,6 @@ class ErrorPage extends ContentBase
 				}
 			}
 		}
-		return ($errors) ? $errors : false;
+		return $errors ?: false;
 	}
 }

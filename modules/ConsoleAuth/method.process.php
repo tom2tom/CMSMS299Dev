@@ -39,8 +39,8 @@ use function CMSMS\sanitizeVal;
 
 $login_ops = Lone::get('AuthOperations');
 $salt = $login_ops->get_salt();
-$usecsrf = true;
 $csrf_key = hash('tiger128,3', $salt); // 32 hexits
+$usecsrf = true;
 $userops = Lone::get('UserOperations');
 $infomessage = $warnmessage = $errmessage = $changepwhash = '';
 
@@ -161,7 +161,7 @@ if (isset($_SESSION[$id.'logout_user_now'])) {
                 if ($num < 1) {
                     $errmessage = $this->Lang('norecoveryaddress');
                 }
-            } elseif ($userops->Send_recovery_email($user)) {
+            } elseif ($userops->SendRecoveryEmail($user)) {
                 log_notice('', 'Sent lost-password email for '.$user->username);
                 if ($num < 1) {
                     $infomessage = $this->Lang('recoveryemailsent');
@@ -324,7 +324,7 @@ if (isset($_POST[$id.'cancel'])) {
                 $url = UserParams::get_for_user($user->id, 'homepage');
                 if (!$url) {
                     $url = $config['admin_url'].'/menu.php';
-                } elseif (startswith($url, 'lib/moduleinterface.php')) {
+                } elseif (startswith($url, $config['admin_dir'].'/moduleinterface.php')) {
                     $url = CMS_ROOT_URL.'/'.$url;
                 } elseif (startswith($url, '/') && !startswith($url, '//')) {
                     $url = CMS_ROOT_URL.$url;

@@ -43,6 +43,7 @@ $urlext = get_secure_param();
 
 require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'test.functions.php');
 
+//TODO non-static plugin handler ok?
 function checksum_lang($params, $smarty)
 {
     if (isset($params['key'])) {
@@ -234,7 +235,7 @@ function generate_checksum_file(&$report)
     for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) {
         ob_end_clean();
     }
-    header('Pragma: public');
+//  header('Pragma: public'); // deprecated 1.1
     header('Expires: 0');
     header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
     header('Cache-Control: private', false);
@@ -249,7 +250,7 @@ function generate_checksum_file(&$report)
 
 $smarty = Lone::get('Smarty');
 // Get ready
-$smarty->registerPlugin('function', 'lang', 'checksum_lang');
+$smarty->registerPlugin('function', 'cs_lang', 'checksum_lang');
 $smarty->force_compile = true;
 
 // Handle output

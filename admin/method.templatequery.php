@@ -181,7 +181,7 @@ SELECT id AS tpl_id FROM '.$tbl1.' WHERE owner_id = ?)
 			$sortby = $val;
 			break;
 		  case 'type':
-			$sortby = 'CONCAT(TT.originator,TT.name)';  //no prefix for this one
+			$sortby = 'CONCAT(TT.originator,TT.`name`)';  //no prefix for this one
 			$typejoin = true;
 			break;
 		  default:

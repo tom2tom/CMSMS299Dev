@@ -51,7 +51,7 @@ class LTETheme extends AdminTheme
     const THEME_NAME = 'LTE';
     const THEME_VERSION = '0.3';
 
-    public function AdminHeaderSetup()
+    public function AdminHeaderSetup() : array
     {
         list($vars, $add_list) = parent::AdminHeaderSetup();
 
@@ -168,7 +168,7 @@ EOS;
           ->display('login.tpl');
     }
 
-    public function fetch_menu_page($section_name)
+    public function fetch_menu_page(string $section_name) : ?string
     {
         if ($section_name) {
             $page_title = _la($section_name);
@@ -217,7 +217,7 @@ EOS;
         return $smarty->fetch('topcontent.tpl');
     }
 
-    public function fetch_page($html)
+    public function fetch_page(string $content) : ?string
     {
         // setup titles etc
 //      $tree =
@@ -388,7 +388,7 @@ $(function() {
 EOS;
         add_page_headtext($js);
 
-        $smarty->assign('content', str_replace('</body></html>', '', $html))
+        $smarty->assign('content', str_replace('</body></html>', '', $content))
          ->assign('headertext', get_page_headtext())
          ->assign('footertext', get_page_foottext());
 
@@ -418,4 +418,4 @@ EOS;
         $smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'layouts', -1);
         return $smarty->fetch('pagetemplate.tpl');
     }
-} // end of class
+} // class

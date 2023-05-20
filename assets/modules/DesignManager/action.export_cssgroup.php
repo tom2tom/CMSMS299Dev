@@ -32,12 +32,12 @@ try {
         throw new Exception($this->Lang('error_missingparam'));
     }
 
-	$sql = 'SELECT D.name,D.description,M.css_id FROM '.
+	$sql = 'SELECT D.`name`,D.description,M.css_id FROM '.
 		CMS_DB_PREFIX.Design::TABLENAME.' D JOIN '.CMS_DB_PREFIX.Design::CSSTABLE.
-		' M ON D.id = M.design_id WHERE D.id=? OR D.name=? ORDER BY D.id,M.css_order';
+		' M ON D.id = M.design_id WHERE D.id=? OR D.`name`=? ORDER BY D.id,M.css_order';
     $data = $db->getArray($sql,[$params['design'],$params['design']]);
     if ($data) {
-		$group = null;
+		$group = [];
         foreach ($data as &$row) {
 			if (!$group) {
 				$group = [$row['name'],$row['description'],[]];

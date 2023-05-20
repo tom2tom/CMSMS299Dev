@@ -65,12 +65,12 @@ class ContentType implements ArrayAccess
 	public $editorfilename;
 
 	/**
-	 * @param mixed $parms Optional parameters assoc. array | null
+	 * @param array $parms Optional parameters assoc. array
 	 * Recognized members are: 'type' 'friendlyname' 'locator' 'editorlocator'
 	 * The latter 2 are filepaths of display- and edit-classes, if needed
 	 * because auto-loading cannot retrieve them
 	 */
-	public function __construct(array $parms = null)
+	public function __construct(array $parms = [])
 	{
 		if ($parms) {
 			extract($parms);
@@ -92,7 +92,7 @@ class ContentType implements ArrayAccess
 				}
 				else {
 					$this->class = $locator;
-					$this->filename = null;
+					$this->filename = '';
 				}
 			}
 
@@ -103,7 +103,7 @@ class ContentType implements ArrayAccess
 				}
 				else {
 					$this->editorclass = $editorlocator;
-					$this->editorfilename = null;
+					$this->editorfilename = '';
 				}
 			}
 		}

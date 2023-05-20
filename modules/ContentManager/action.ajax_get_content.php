@@ -19,13 +19,12 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\FormUtils;
+use CMSMS\UserParams;
+use CMSMS\Utils;
 use ContentManager\BulkOperations;
 use ContentManager\ContentListBuilder;
 use ContentManager\Utils as ManagerUtils;
-use CMSMS\FormUtils;
-use CMSMS\NlsOperations;
-use CMSMS\UserParams;
-use CMSMS\Utils;
 
 if (!empty($firstlist)) {
 	$ajax = false;
@@ -73,13 +72,13 @@ if (!empty($firstlist)) {
 			$a = strpos($reserved, $c) !== false;
 			$b = strpos($reserved2, $c) !== false;
 			if ($a && $b) {
-				return $m . "[^\\$c]*?\\$c";
+				return $m . "[^\\$c]{0,3}\\$c";
 			} elseif ($a) {
-				return $m . "[^\\$c]*?$c";
+				return $m . "[^\\$c]{0,3}$c";
 			} elseif ($b) {
-				return $m . "[^$c]*?\\$c";
+				return $m . "[^$c]{0,3}\\$c";
 			} else {
-				return $m . "[^$c]*?$c";
+				return $m . "[^$c]{0,3}$c";
 			}
 		}, $t);
 		$patn .= $tail;
@@ -91,8 +90,7 @@ $padd = $pmanage || $this->CheckPermission('Add Pages');
 $pdel = $pmanage || $this->CheckPermission('Remove Pages');
 $tpl->assign('can_manage_content', $pmanage)
 	->assign('can_reorder_content', $pmanage)
-	->assign('can_add_content', $padd)
-	->assign('direction', NlsOperations::get_language_direction()); //'ltr' or 'rtl'
+	->assign('can_add_content', $padd);
 
 $themeObject = Utils::get_theme_object();
 $builder = new ContentListBuilder($this);

@@ -74,12 +74,12 @@ final class Permission
 	 * Constructor
 	 * @param mixed $props array | null Optional permission-properties Since 3.0
 	 */
-	public function __construct($props = null)
+	public function __construct($props = [])
 	{
 		$this->_data = [
 			'id' => 0,
 			'name' => '',
-			'desc' => NULL,
+			'desc' => NULL, // aka unset
 			'originator' => NULL,
 			'create_date' => NULL,
 			'modified_date' => NULL,
@@ -141,7 +141,7 @@ final class Permission
 	private function _insert()
 	{
 		if (empty($this->_data['originator'])) { $this->_data['originator'] = self::CORE; }
-		if (empty($this->_data['desc'])) { $this->_data['desc'] = null; }
+		if (empty($this->_data['desc'])) { $this->_data['desc'] = null; } // record null in db
 
 		$this->validate();
 
@@ -149,7 +149,7 @@ final class Permission
 		//setting create_date should be redundant with DT default setting, but timezone ?
 		$longnow = $db->DbTimeStamp(time(), false);
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'permissions
-(name,description,originator,create_date) VALUES (?,?,?,?)';
+(`name`,description,originator,create_date) VALUES (?,?,?,?)';
 		$dbr = $db->execute($query,
 			[$this->_data['name'], $this->_data['desc'], $this->_data['originator'], $longnow]);
 		if( $dbr ) {
@@ -177,7 +177,7 @@ final class Permission
 		if( !isset($this->_data['id']) || $this->_data['id'] < 1 ) {
 			// Name must be unique for its originator
 			$db = Lone::get('Db');
-			$query = 'SELECT id FROM '.CMS_DB_PREFIX.'permissions WHERE name = ? AND originator = ?';
+			$query = 'SELECT id FROM '.CMS_DB_PREFIX.'permissions WHERE `name`=? AND originator=?';
 			$dbr = $db->getOne($query, [$this->_data['name'], $this->_data['originator']]);
 			if( $dbr > 0 ) {
 				throw new LogicException('A permission with name '.$this->_data['name'].' already exists');
@@ -211,11 +211,11 @@ final class Permission
 		}
 
 		$db = Lone::get('Db');
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE permission_id = ?';
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE permission_id=?';
 //		$dbr =
 		$db->execute($query,[$this->_data['id']]);
 
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.'permissions WHERE id = ?';
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'permissions WHERE id=?';
 		$dbr = $db->execute($query,[$this->_data['id']]);
 		if( !$dbr ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
 		if( is_array(self::$_cache) ) {
@@ -268,7 +268,7 @@ final class Permission
 		$db = Lone::get('Db');
 		if( is_numeric($a) ) {
 			if( $a > 0 ) {
-				$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE id = ?';
+				$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE id=?';
 				$row = $db->getRow($query,[(int)$a]);
 			}
 		}
@@ -276,11 +276,11 @@ final class Permission
 			$parts = explode('::',$a,2);
 			$parts = array_map('trim',$parts);
 			if( !$parts[0] || strcasecmp($parts[0],'core') == 0 ) { $parts[0] = self::CORE; }
-			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE originator = ? AND name = ?';
+			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE originator=? AND `name`=?';
 			$row = $db->getRow($query,$parts);
 		}
 		else {
-			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE name = ?';
+			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE `name`=?';
 			$all = $db->getArray($query,[$a]);
 			if( $all ) {
 				if( count($all) == 1 ) {

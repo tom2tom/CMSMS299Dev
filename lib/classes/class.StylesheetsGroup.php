@@ -195,7 +195,7 @@ class StylesheetsGroup
 		$out = [];
 		if( $by_name ) {
 			$db = Lone::get('Db');
-			$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE id IN ('.implode(',',$this->members).')';
+			$query = 'SELECT id,`name` FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE id IN ('.implode(',',$this->members).')';
 			$dbr = $db->getAssoc($query);
 			foreach( $this->members as $id ) {
 				$out[$id] = $dbr[$id] ?? '<Missing Stylesheet>';
@@ -224,7 +224,7 @@ class StylesheetsGroup
 					return $a;
 				}
 				else {
-					$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE name IN ('.str_repeat('?,',count($a)-1).'?)';
+					$query = 'SELECT id,`name` FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE `name` IN ('.str_repeat('?,',count($a)-1).'?)';
 					$db = Lone::get('Db');
 					$dbr = $db->getAssoc($query,[$a]);
 					if( $dbr ) {
@@ -240,7 +240,7 @@ class StylesheetsGroup
 				return [(int)$a];
 			}
 			else {
-				$query = 'SELECT id FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE name = ?';
+				$query = 'SELECT id FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE `name`=?';
 				$db = Lone::get('Db');
 				$id = $db->getOne($query,[$a]);
 				if( $id ) return [$id];
@@ -374,11 +374,11 @@ class StylesheetsGroup
 		$db = Lone::get('Db');
 		$gid = $this->get_id();
 		if( $gid > 0 ) {
-			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
+			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE `name`=? AND id != ?';
 			$dbr = $db->getOne($query,[$name,$gid]);
 		}
 		else {
-			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
+			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE `name`=?';
 			$dbr = $db->getOne($query,[$name]);
 		}
 		if( $dbr ) {
@@ -419,7 +419,7 @@ class StylesheetsGroup
 		$this->validate();
 
 		$db = Lone::get('Db');
-		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description) VALUES (?,?)';
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (`name`,description) VALUES (?,?)';
 		$dbr = $db->execute($query,[
 			$this->get_name(),
 			$this->get_description()
@@ -442,7 +442,7 @@ class StylesheetsGroup
 		$this->validate();
 
 		$db = Lone::get('Db');
-		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ? WHERE id = ?';
+		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET `name`=?, description=? WHERE id=?';
 		$db->execute($query,[
 			$this->get_name(),
 			$this->get_description(),
@@ -479,10 +479,10 @@ class StylesheetsGroup
 		if( !$gid ) return;
 
 		$db = Lone::get('Db');
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id=?';
 		$dbr = $db->execute($query,[$gid]);
 		if( !$dbr ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::MEMBERSTABLE.' WHERE group_id = ?';
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::MEMBERSTABLE.' WHERE group_id=?';
 		$db->execute($query,[$gid]);
 
 		log_info($gid,'CMSMS','Stylesheets group deleted');
@@ -501,11 +501,11 @@ class StylesheetsGroup
 	{
 		$db = Lone::get('Db');
 		if( is_numeric($val) && $val > 0 ) {
-			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
+			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id=?';
 			$row = $db->getRow($query,[(int)$val]);
 		}
 		else {
-			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
+			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE `name`=?';
 			$row = $db->getRow($query,[$val]);
 		}
 		if( $row ) {

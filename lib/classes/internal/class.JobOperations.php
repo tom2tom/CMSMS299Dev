@@ -1,7 +1,7 @@
 <?php
 /*
 Class of async-job methods
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -20,6 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\internal; // might exist in old modules
 
+//use function audit;
 use BadMethodCallException;
 use CMSMS\AppParams;
 use CMSMS\Async\CronJob;
@@ -31,8 +32,8 @@ use CMSMS\DataException;
 use CMSMS\Events;
 use CMSMS\IRegularTask;
 use CMSMS\LoadedDataType;
-use CMSMS\RequestParameters;
 use CMSMS\Lone;
+use CMSMS\RequestParameters;
 use CMSMS\Utils;
 use CmsRegularTask;
 use InvalidArgumentException;
@@ -45,7 +46,6 @@ use const CMS_DB_PREFIX;
 use const CMS_ROOT_PATH;
 use const CMS_SECURE_PARAM_NAME;
 use const TMP_CACHE_LOCATION;
-//use function audit;
 use function cms_join_path;
 use function cms_path_to_url;
 use function CMSMS\log_notice;
@@ -361,12 +361,12 @@ final class JobOperations
     {
         $db = Lone::get('Db');
         if ($job->id == 0) {
-            $sql = 'SELECT id,start FROM '.self::TABLE_NAME.' WHERE name = ? AND module = ?';
+            $sql = 'SELECT id,start FROM '.self::TABLE_NAME.' WHERE `name`=? AND module=?';
             $dbr = $db->getRow($sql, [$job->name, $job->module]);
             if ($dbr) {
                 if ($dbr['start'] > 0) {
                     $job->set_id((int)$dbr['id']);
-                    $sql = 'UPDATE '.self::TABLE_NAME.' SET start = ? WHERE id = ?'; //update next-start
+                    $sql = 'UPDATE '.self::TABLE_NAME.' SET start=? WHERE id=?'; //update next-start
                     $db->execute($sql, [$job->start, $job->id]);
                 }
                 return $job->id; // maybe still 0
@@ -382,7 +382,7 @@ final class JobOperations
                 $recurs = RecurType::RECUR_NONE;
                 $until = 0;
             }
-            $sql = 'INSERT INTO '.self::TABLE_NAME.' (name,created,module,errors,start,recurs,until,data) VALUES (?,?,?,?,?,?,?,?)';
+            $sql = 'INSERT INTO '.self::TABLE_NAME.' (`name`,created,module,errors,start,recurs,until,data) VALUES (?,?,?,?,?,?,?,?)';
             $dbr = $db->execute($sql, [$job->name, $job->created, $job->module, $job->errors, $start, $recurs, $until, serialize($job)]);
             if ($dbr) {
                 $new_id = $db->Insert_ID();
@@ -396,7 +396,7 @@ final class JobOperations
             return 0;
         } else {
             // note... we don't play with the module, the data, or recurs/until stuff for existing jobs.
-            $sql = 'UPDATE '.self::TABLE_NAME.' SET start = ? WHERE id = ?';
+            $sql = 'UPDATE '.self::TABLE_NAME.' SET start=? WHERE id=?';
 //            $dbr = useless for update
             $db->execute($sql, [$job->start, $job->id]);
             return ($db->errorNo() === 0) ? $job->id : 0;
@@ -413,7 +413,7 @@ final class JobOperations
         $job_id = (int) $job_id;
         if ($job_id > 0) {
             $db = Lone::get('Db');
-            $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE id = ?';
+            $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE id=?';
             $row = $db->getRow($sql, [$job_id]);
             if (!$row) {
                 return;
@@ -477,7 +477,7 @@ final class JobOperations
     {
         if ($job->id > 0) {
             $db = Lone::get('Db');
-            $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE id = ?';
+            $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE id=?';
             if ($db->execute($sql, [$job->id])) {
                 return;
             }
@@ -497,7 +497,7 @@ final class JobOperations
         $job_id = (int) $job_id;
         if ($job_id > 0) {
             $db = Lone::get('Db');
-            $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE id = ?';
+            $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE id=?';
             if ($db->execute($sql, [$job_id])) {
                 return;
             }
@@ -516,7 +516,7 @@ final class JobOperations
     {
         if ($module_name) {
             $db = Lone::get('Db');
-            $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE module = ? AND name = ?';
+            $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE module=? AND `name`=?';
             if ($db->execute($sql, [$module_name, $job_name])) {
                 return;
             }
@@ -534,7 +534,7 @@ final class JobOperations
     {
         if ($module_name) {
             $db = Lone::get('Db');
-            $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE module = ?';
+            $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE module=?';
             $db->execute($sql, [$module_name]); // don't care if this fails i.e. no jobs
             return;
         }
@@ -557,7 +557,7 @@ final class JobOperations
      * @param mixed $job optional Job|null Default null
      * @throws InvalidArgumentException
      */
-    public function set_current_job($job = null)
+    public function set_current_job(?Job $job = null)
     {
         if (!(is_null($job) || $job instanceof Job)) {
             throw new InvalidArgumentException('Invalid Job provided to '.__METHOD__);
@@ -591,7 +591,7 @@ final class JobOperations
                 }
             }
             try {
-                $obj = unserialize($row['data']);//, ['allowed_classes' => [no whitelist subclassing, must name each Job-descendent, interface*-implmentor]]
+                $obj = unserialize($row['data']);//, ['allowed_classes' => [no whitelist subclassing, must name each Job-descendant, interface*-implementor]]
             } catch (Throwable $t) {
                 $obj = null;
             }
@@ -651,7 +651,7 @@ final class JobOperations
                 }
             }
             try {
-                $obj = unserialize($row['data']);//, ['allowed_classes' => [no whitelist subclassing, must name each Job-descendent, interface*-implmentor]]
+                $obj = unserialize($row['data']);//, ['allowed_classes' => [no whitelist subclassing, must name each Job-descendant, interface*-implementor]]
             } catch (Throwable $t) {
                 $obj = null;
             }
@@ -702,7 +702,7 @@ final class JobOperations
         } elseif ($when != 0) {
             $when = max((int)$when, time());
         }
-        $sql = 'UPDATE '.self::TABLE_NAME." SET start = ? WHERE $field = ?"; //update next-start
+        $sql = 'UPDATE '.self::TABLE_NAME." SET start=? WHERE {$field}=?"; //update next-start
         $db->execute($sql, [$when, $id]);
     }
 
@@ -725,7 +725,7 @@ final class JobOperations
             $idlist = [];
             foreach ($list as &$row) {
                 try {
-                    $obj = unserialize($row['data']);//, ['allowed_classes' => [no whitelist subclassing, must name each Job-descendent, interface*-implmentor]]
+                    $obj = unserialize($row['data']);//, ['allowed_classes' => [no whitelist subclassing, must name each Job-descendant, interface*-implementor]]
                 } catch (Throwable $t) {
                     $obj = null;
                 }

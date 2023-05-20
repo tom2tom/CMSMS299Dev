@@ -150,7 +150,7 @@ class wizard_step2 extends wizard_step
             'schema_version' => $CMS_SCHEMA_VERSION,
         ];
         $str = (!empty($config['timezone'])) ? $config['timezone'] : 'UTC';
-        $dt = new DateTime(null, new DateTimeZone($str));
+        $dt = new DateTime('@0', new DateTimeZone($str));
         $dt->setTimestamp($t);
         $info['mdate'] = $dt->format('j F Y');
         $info['mtime'] = $t;

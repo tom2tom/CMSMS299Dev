@@ -122,7 +122,7 @@ class PageLink extends ContentBase
 				$result = false;
 			}
 		}
-		return ($errors) ? $errors : false;
+		return $errors ?: false;
 	}
 
 	public function GetTabNames() : array

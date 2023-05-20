@@ -168,6 +168,7 @@ class wizard_step6 extends wizard_step
     }
 
     // lite password check
+    // returns true or array of messages
     private function valid_pass($str)
     {
         $data = $this->get_wizard()->get_data('sessionchoices');
@@ -185,20 +186,13 @@ class wizard_step6 extends wizard_step
           'maxlen-guessable-test' => 16,
           'strength' => 'Strong',
         ];
-        $warn = [];
         $checker = new StupidPass(64, $avoids, '', $messages, $options);
-        if (!$checker->validate($str)) {
-            $warn[] = lang('error_adminacct_password');
-            $errs = $checker->getErrors();
-            foreach ($errs as $msg) {
-                $warn[] = $msg;
-            }
+        if ($checker->validate($str)) {
+            return true;
         }
-
-        if ($warn) {
-            return $warn;
-        }
-        return true;
+        $msgs = [-1 => lang('error_adminacct_password')] +
+            array_values($checker->getErrors());
+        return $msgs;
     }
 
     private function validate($acct)

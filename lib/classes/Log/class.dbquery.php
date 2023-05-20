@@ -1,6 +1,6 @@
 <?php
 /*
-Class ...
+Class dbquery for interfacing with the adminlog table
 Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -28,9 +28,12 @@ use LogicException;
 
 class dbquery extends DbQueryBase
 {
+    private $_filter;
+
     public function __construct(logfilter $filter)
     {
-        $this->_args = $filter;
+        parent::__contruct(); // no argument for parent
+        $this->_filter = $filter;
         $this->_offset = $filter->offset;
         $this->_limit = $filter->limit;
     }
@@ -38,25 +41,24 @@ class dbquery extends DbQueryBase
     public function execute()
     {
         if ($this->_rs) return;
-        $filter = $this->_args;
         $db = Lone::get('Db');
         $sql = 'SELECT * FROM '.dbstorage::TABLENAME;
         $wheres = []; $parms = [];
-        $severity = $filter->severity;
+        $severity = $this->_filter->severity;
 
         if (!is_null($severity) && $severity > -1) {
             $wheres[] = 'severity >= ?';
             $parms[] = $severity;
         }
-        if (($val = $filter->username)) {
+        if (($val = $this->_filter->username)) {
             $wheres[] = 'username = ?';
             $parms[] = $val;
         }
-        if (($val = $filter->message)) {
+        if (($val = $this->_filter->message)) {
             $wheres[] = 'message LIKE ?';
             $parms[] = '%' . $db->escStr($val) . '%';
         }
-        if (($val = $filter->subject)) {
+        if (($val = $this->_filter->subject)) {
             $wheres[] = 'subject LIKE ?';
             $parms[] = '%' . $db->escStr($val) . '%';
         }

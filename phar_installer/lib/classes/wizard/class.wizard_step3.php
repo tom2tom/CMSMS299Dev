@@ -63,28 +63,33 @@ class wizard_step3 extends wizard_step
         $obj->fail_key = 'fail_database_support';
         $tests[] = $obj;
 
-        // required test ... gd extension V.2
-        $obj = new version_range_test('gd_version', $this->_GDVersion());
-        $obj->minimum = 2;
-        $obj->required = 1;
-        $obj->fail_msg = lang('msg_yourvalue', $this->_GDVersion());
-        $tests[] = $obj;
-
         // required test ... multibyte extension
         $obj = new boolean_test('multibyte_support', extension_loaded('mbstring') && function_exists('mb_get_info'));
         $obj->required = 1;
         $obj->fail_key = 'fail_multibyte_support';
         $tests[] = $obj;
 
+        // required test ... intl extension (Collator class required, others recommended)
+        $obj = new boolean_test('intl_extension', extension_loaded('intl'));
+        $obj->fail_key = 'fail_intl_extension';
+        $tests[] = $obj;
+/*
         // recommended test ... IntlDateFormatter class (intl extension)
         $obj = new boolean_test('intl_extension', extension_loaded('intl') && class_exists('IntlDateFormatter'));
         $obj->fail_key = 'fail_intl_extension';
         $tests[] = $obj;
-
+*/
         // required test ... xml extension
         $obj = new boolean_test('xml_functions', extension_loaded('xml'));
         $obj->required = 1;
         $obj->fail_key = 'fail_xml_functions';
+        $tests[] = $obj;
+
+        // required test ... gd extension V.2
+        $obj = new version_range_test('gd_version', $this->_GDVersion());
+        $obj->minimum = 2;
+        $obj->required = 1;
+        $obj->fail_msg = lang('msg_yourvalue', $this->_GDVersion());
         $tests[] = $obj;
 
         // recommended test ... curl extension

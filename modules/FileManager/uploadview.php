@@ -151,8 +151,7 @@ $(function() {
     progressall: function(e, data) {
       // overall progress callback
       var perc = (data.loaded / data.total * 100).toFixed(2);
-      var total = null;
-      total = (data.loaded / data.total * 100).toFixed(0);
+      var total = (data.loaded / data.total * 100).toFixed(0);
       var str = perc + ' %';
       //console.log(total);
       barValue(total, str);

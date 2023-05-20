@@ -158,10 +158,10 @@ class ArrayTree
      * @param mixed $getval  Value to be matched
      * @param bool  $strict  Optional flag for strict comparison, default true
      * @param string $childkey $tree key-identifier default self::CHILDKEY
-     * @return mixed path-array or null if not found
+     * @return array path-segments or empty if not found
      */
     public static function find(array $tree, string $getkey, $getval,
-        bool $strict = true, string $childkey = self::CHILDKEY)
+        bool $strict = true, string $childkey = self::CHILDKEY) : array
     {
         $iter = new RecursiveArrayTreeIterator(
                 new ArrayTreeIterator($tree, 0, $childkey),
@@ -177,6 +177,7 @@ class ArrayTree
                 }
             }
         }
+        return [];
     }
 
     /**

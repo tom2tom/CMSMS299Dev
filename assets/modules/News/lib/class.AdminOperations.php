@@ -70,7 +70,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
             $row['news_id'] = $db->genID(CMS_DB_PREFIX.'module_news_seq');
             $row['news_title'] .= ' : Copy';
             $row['news_url'] .= 'copy';
-            $row['start_time'] = null;
+            $row['start_time'] = null; //recore null in db
             $row['end_time'] = null;
             $row['status'] = 'draft';
             $row['create_date'] = $db->DbTimeStamp(time(),false);

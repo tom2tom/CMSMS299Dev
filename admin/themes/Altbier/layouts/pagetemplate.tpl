@@ -26,7 +26,7 @@
   <link rel="stylesheet" href="themes/Altbier/styles/bootstrap_reboot-grid.min.css">
   {$header_includes|default:''}
  </head>
- <body id="{$pagetitle|md5}" class="ab_{$pagealias}">
+ <body id="{md5($pagetitle)}" class="ab_{$pagealias}">
   <div id="ab_container" class="col sidebar-on">
     <header id="header" class="row no-gutter between align-center" role="banner">
 {*   <div class="cell col-12">

@@ -7,11 +7,11 @@ More info at http://dev.cmsmadesimple.org/projects/outmailer
 */
 namespace OutMailer;
 
-//use OutMailer; module object in global namespace
 //use CMSMS\Utils as AppUtils;
 use CMSMS\Crypto;
 use CMSMS\FormUtils;
 use CMSMS\Lone;
+use OutMailer; //module object in global namespace
 use const CMS_DB_PREFIX;
 use function cms_join_path;
 
@@ -22,7 +22,7 @@ class Utils
      * @param mixed $mod optional OutMailer module instance
      * @return array maybe empty
      */
-    public static function get_platforms_full($mod = null) : array
+    public static function get_platforms_full(?Outmailer $mod = null) : array
     {
         $db = Lone::get('Db');
         $aliases = $db->getCol('SELECT alias FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE enabled>0');
@@ -53,7 +53,7 @@ class Utils
      * @param mixed $mod optional OutMailer module instance
      * @return mixed platform class | null
      */
-    public static function get_platform(bool $title = false, $mod = null)
+    public static function get_platform(bool $title = false, ?OutMailer $mod = null)
     {
         $db = Lone::get('Db');
         $alias = ($title) ?
@@ -118,7 +118,7 @@ class Utils
         }
         $desc = $obj->get_description();
         if (!$desc) {
-            $desc = null;
+            $desc = null; // record null in db
         }
 
         $db = Lone::get('Db');
@@ -235,7 +235,7 @@ EOS;
             unset($row['encrypt'], $row['plainvalue'], $row['encvalue']);
         }
         unset($row, $pw);
-        $pw = null;
+        $pw = null; //assist garbage collector
         return $props;
     }
 
@@ -311,9 +311,9 @@ EOS;
         $db->execute($sql, [$mobile, $ip_address, $msg]);
     }
 
-    public static function clean_log(&$mod = null, $time = 0)
+    public static function clean_log(?Outmailer $mod = null, int $time = 0)
     {
-        if (!$time) {
+        if ($time == 0) {
             $time = time();
         }
         if ($mod === null) {

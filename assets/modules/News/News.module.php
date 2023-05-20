@@ -69,7 +69,9 @@ class News extends CMSModule
 //  public function LazyLoadFrontend() { return true; }
     public function MinimumCMSVersion() { return '2.999'; }
 
-    public function GetHelp() {
+    public function GetHelp()
+    {
+//      $this->CreateParameter for all per init f/e that are usable in tags/templates
         $this->CreateParameter('action', 'default', $this->Lang('helpaction'));
         $this->CreateParameter('articleid', '', $this->Lang('help_articleid'));
         $this->CreateParameter('browsecat', 0, $this->Lang('helpbrowsecat'));
@@ -193,7 +195,7 @@ class News extends CMSModule
     }
 
     /**
-     * Search-module support method - get TBA
+     * Search-module support method - get data to populate a SearchItemData object
      *
      * @param int $returnid page identifier
      * @param int $articleid news article identifier
@@ -324,25 +326,24 @@ class News extends CMSModule
         $str = $this->GetName();
         RouteOperations::del_static('', $str);
 
-        $db = Lone::get('Db');
         $c = strtoupper($str[0]);
         $x = substr($str, 1);
         $x1 = '['.$c.strtolower($c).']'.$x;
 
-        $route = new Route('/'.$x1.'\/(?<articleid>[0-9]+)\/(?<returnid>[0-9]+)\/(?<junk>.*?)\/d,(?<detailtemplate>.*?)$/',
-                              $str);
+        $route = new Route('~'.$x1.'/(?<articleid>[0-9]+)/(?<returnid>[0-9]+)/(?<junk>.*?)/d,(?<detailtemplate>.*?)$~', $str);
         RouteOperations::add_static($route);
-        $route = new Route('/'.$x1.'\/(?<articleid>[0-9]+)\/(?<returnid>[0-9]+)\/(?<junk>.*?)$/', $str);
+        $route = new Route('~'.$x1.'/(?<articleid>[0-9]+)/(?<returnid>[0-9]+)/(?<junk>.*?)$~', $str);
         RouteOperations::add_static($route);
-        $route = new Route('/'.$x1.'\/(?<articleid>[0-9]+)\/(?<returnid>[0-9]+)$/', $str);
+        $route = new Route('~'.$x1.'/(?<articleid>[0-9]+)/(?<returnid>[0-9]+)$~', $str);
         RouteOperations::add_static($route);
-        $route = new Route('/'.$x1.'\/(?<articleid>[0-9]+)$/', $str,
+        $route = new Route('~'.$x1.'/(?<articleid>[0-9]+)$~', $str,
                               ['returnid'=>$this->GetPreference('detail_returnid', -1)]);
         RouteOperations::add_static($route);
 
         $pref = CMS_DB_PREFIX;
+        $db = Lone::get('Db');
         $longnow = $db->DbTimeStamp(time());
-        $nonull = $db->ifNull('start_time', '2000-1-1');
+        $nonull = $db->ifNull('start_time', '2000-01-01');
         $query = <<<EOS
 SELECT news_id,news_url FROM {$pref}module_news
 WHERE status = 'published' AND news_url IS NOT NULL AND news_url != '' AND $nonull <= $longnow AND (end_time IS NULL OR end_time > $longnow)

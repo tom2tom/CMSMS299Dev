@@ -50,7 +50,7 @@ abstract class DbQueryBase
 	 *
 	 * @see DbQueryBase::execute()
 	 */
-	protected $_totalmatchingrows = null;
+	protected $_totalmatchingrows = 0;
 
 	/**
 	 * The current (integer) offset in the list of results
@@ -244,7 +244,7 @@ abstract class DbQueryBase
 	 * The output of this method depends on the derived class.
 	 *
 	 * @see DbQueryBase::GetObject()
-	 * @return array|null
+	 * @return array, maybe empty
 	 */
 	public function GetMatches()
 	{
@@ -254,6 +254,6 @@ abstract class DbQueryBase
 			$out[] = $this->GetObject();
 			$this->MoveNext();
 		}
-		if( $out ) return $out;
+		return $out;
 	}
 } // class

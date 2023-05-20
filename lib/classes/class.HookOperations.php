@@ -136,29 +136,31 @@ OR
      * @param int $priority The priority of the handler.
      * @return bool indicating success since 3.0
      */
-    public static function add_hook($name,$callable,$priority = self::PRIORITY_NORMAL)
+    public static function add_hook(string $name,$callable,int $priority = self::PRIORITY_NORMAL) : bool
     {
         if( !is_callable($callable) ) return false; //TODO warn the user about failure
-        $name = trim($name);
         $hash = self::calc_hash($callable);
+        $name = trim($name);
+        if( empty(self::$_hooks[$name]) ) {
+            self::$_hooks[$name] = new HookDefn($name);
+        }
         try {
             self::$_hooks[$name]->handlers[$hash] = new HookHandler($callable,$priority);
+            self::$_hooks[$name]->sorted = false;
+            return true;
         } catch (InvalidArgumentException $e) {
             return false; //TODO warn the user about failure
         }
-        if( !isset(self::$_hooks[$name]) ) self::$_hooks[$name] = new HookDefn($name);
-        self::$_hooks[$name]->sorted = false;
-        return true;
     }
 
     /**
      * Test whether we are currently handling a hook.
      *
-     * @param null|string $name The hook name to test for | null.
-     *  If null, test for any hook at all.
+     * @param string $name Optional hook name to test for. Default empty
+     *  If empty, test for any hook at all.
      * @return bool
      */
-    public static function in_hook($name = null)
+    public static function in_hook($name = '')
     {
         if( !$name ) return (count(self::$_in_process) > 0);
         return in_array($name,self::$_in_process);

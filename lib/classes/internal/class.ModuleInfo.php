@@ -47,8 +47,9 @@ class ModuleInfo implements ArrayAccess
      'has_custom',
      'has_meta',
      'help',
-//   'lazyloadadmin',
-//   'lazyloadfrontend',
+//   'lazyloadadmin', N/A 3.0+
+//   'lazyloadfrontend', N/A 3.0+
+//   'maxcmsversion', N/A 2.0+
      'mincmsversion',
      'name',
      'notavailable',
@@ -238,14 +239,14 @@ class ModuleInfo implements ArrayAccess
     }
 } // class
 
-/*    private function _remove_module_meta(string  $modname )
+/*  private function _remove_module_meta(string $modname)
     {
-        $fn = $this->_get_module_meta_file( $modname );
+        $fn = $this->_get_module_meta_file($modname);
         if( is_file($fn) && is_writable($fn) ) unlink($fn);
     }
-*/
-    /* return array maybe empty */
-/*    private function _read_from_module_meta(string $modname)
+
+    /* return array maybe empty * /
+    private function _read_from_module_meta(string $modname)
     {
         $dir = Lone::get('ModuleOperations')->get_module_path($modname);
         $fn = $this->_get_module_meta_file($modname);
@@ -262,8 +263,8 @@ class ModuleInfo implements ArrayAccess
         $arr['author'] = trim($data['author'] ?? lang('notspecified'));
         $arr['authoremail'] = trim($data['authoremail'] ?? lang('notspecified'));
         $arr['mincmsversion'] = trim($data['mincmsversion'] ?? CMS_VERSION);
-        $arr['lazyloadadmin'] = cms_to_bool($data['lazyloadadmin'] ?? false);
-        $arr['lazyloadfrontend'] = cms_to_bool($data['lazyloadfrontend'] ?? false);
+        $arr['lazyloadadmin'] = cms_to_bool($data['lazyloadadmin'] ?? false); UNUSED 3.0+
+        $arr['lazyloadfrontend'] = cms_to_bool($data['lazyloadfrontend'] ?? false); UNUSED 3.0+
 
         if( isset($inidata['depends']) ) {
             $arr['depends'] = $inidata['depends'];
@@ -302,12 +303,17 @@ class ModuleInfo implements ArrayAccess
         //TODO $mod = ; $arr['help'] = $mod->GetHelp();
         }
 
+        if( isset($inidata['meta']) ) {
+            $data = $inidata['meta'];
+            $arr['generated'] = (int)$data['generated'];
+		    $arr['cms_ver'] = trim($data['cms_ver']);
+        }
+
         $arr['has_meta'] = true;
         return $arr;
     }
 
     /* return array maybe empty * /
-/*
     private function _read_from_module(string $modname)
     {
         $mod = Lone::get('ModuleOperations')->get_module_instance($modname, '', true);
@@ -330,16 +336,16 @@ class ModuleInfo implements ArrayAccess
             $arr['mincmsversion'] = $mod->MinimumCMSVersion();
             $arr['author'] = $mod->GetAuthor();
             $arr['authoremail'] = $mod->GetAuthorEmail();
-//            $arr['lazyloadadmin'] = $mod->LazyLoadAdmin();
-//            $arr['lazyloadfrontend'] = $mod->LazyLoadFrontend();
+//            $arr['lazyloadadmin'] = $mod->LazyLoadAdmin(); unused CMSMS3
+//            $arr['lazyloadfrontend'] = $mod->LazyLoadFrontend(); unused CMSMS3
             $arr['help'] = $mod->GetHelp();
             $arr['changelog'] = $mod->GetChangelog();
             return $arr;
         }
         return [];
     }
-*/
-/*  private function _get_module_meta_file( string $modname ) : string
+
+    private function _get_module_meta_file( string $modname ) : string
     {
         $path = cms_module_path($modname);
         if( $path ) {

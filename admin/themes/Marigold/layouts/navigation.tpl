@@ -16,7 +16,7 @@
   <i class="nav-mark" aria-hidden="true"></i>{$cn="{$item.name|lower} icon"}
  {else}{$cn=''}
  {/if}
- {if isset($is_sitedown) && substr($item.url,0,6) == 'logout'}{$cn=$cn|cat:' outwarn'|trim}{/if}
+ {if isset($is_sitedown) && substr($item.url,0,6) == 'logout'}{$cn=trim({$cn|cat:' outwarn'})}{/if}
  {$t=$item.title|strip_tags}
   <a href="{$item.url}"{if isset($item.target)} target="_blank"{/if}{if $cn} class="{$cn}"{/if} title="{if !empty($item.description)}{$item.description|strip_tags}{else}{$t}{/if}"
   >

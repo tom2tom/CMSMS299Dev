@@ -57,7 +57,7 @@ class GhostgumTheme extends AdminTheme
 	/**
 	 * @ignore
 	 */
-	private $_havetree = null;
+	private $_havetree = [];
 
 	/**
 	 * Hook accumulator-function to nominate runtime 'resources' to be
@@ -67,7 +67,7 @@ class GhostgumTheme extends AdminTheme
 	 * [0] = array of data for js vars, members like varname=>varvalue
 	 * [1] = array of string(s) for includables
 	 */
-	public function AdminHeaderSetup()
+	public function AdminHeaderSetup() : array
 	{
 		list($vars, $add_list) = parent::AdminHeaderSetup();
 
@@ -197,7 +197,7 @@ EOS;
 	 *  usually null to use the whole menu
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function fetch_menu_page($section_name)
+	public function fetch_menu_page(string $section_name) : ?string
 	{
 		$smarty = Lone::get('Smarty');
 		if ($section_name) {
@@ -220,10 +220,10 @@ EOS;
 	}
 
 	/**
-	 * @param string $html page content to be processed
+	 * @param string $content page content to be processed
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function fetch_page($html)
+	public function fetch_page(string $content) : ?string
 	{
 		$smarty = Lone::get('Smarty');
 		$userid = get_userid(false);
@@ -338,15 +338,15 @@ EOS;
 		  ->assign('bottom_includes', get_page_foottext())
 		// other variables
 		//strip inappropriate closers cuz we're putting it in the middle somewhere
-		  ->assign('content', str_replace('</body></html>', '', $html))
+		  ->assign('content', str_replace('</body></html>', '', $content))
 		  ->assign('admin_url', $config['admin_url'])
 		  ->assign('assets_url', $config['admin_url'] . '/themes/assets')
 		  ->assign('theme', $this);
 		// navigation menu data
-		if (!$this->_havetree) {
-			$smarty->assign('nav', $this->get_navigation_tree());
-		} else {
+		if ($this->_havetree) { // TODO never set
 			$smarty->assign('nav', $this->_havetree);
+		} else {
+			$smarty->assign('nav', $this->get_navigation_tree());
 		}
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
 		$user = Lone::get('UserOperations')->LoadUserByID($userid);
@@ -361,7 +361,7 @@ EOS;
 		return $smarty->fetch('pagetemplate.tpl');
 	}
 
-	public function DisplayImage($image, $alt = '', $width = 0, $height = 0, $class = '', $attrs = [])
+	public function DisplayImage(string $image, string $alt = '', $width = 0, $height = 0, string $class = '', array $attrs = []) : string
 	{
 		//[.../]icons/system/* are processed here, custom handling is needed for in-sprite svg's
 		if (strpos($image, 'system') === false) {

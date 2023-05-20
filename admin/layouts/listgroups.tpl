@@ -7,12 +7,12 @@
 {if $tblpages > 1}
 <div class="browsenav postgap">
   <span id="tblpagelink">
-   <span id="ftpage" class="pagelink">{_ld('layout','pager_first')}</span>&nbsp;|&nbsp;
+   <span id="ftpage" class="pagechange">{_ld('layout','pager_first')}</span>&nbsp;|&nbsp;
   {if $tblpages > 2}
-   <span id="pspage" class="pagelink">{_ld('layout','pager_previous')}</span>&nbsp;&lt;&gt;&nbsp;
-   <span id="ntpage" class="pagelink">{_ld('layout','pager_next')}</span>&nbsp;|&nbsp;
+   <span id="pspage" class="pagechange">{_ld('layout','pager_previous')}</span>&nbsp;&lt;&gt;&nbsp;
+   <span id="ntpage" class="pagechange">{_ld('layout','pager_next')}</span>&nbsp;|&nbsp;
   {/if}
-   <span id="ltpage" class="pagelink">{_ld('layout','pager_last')}</span>&nbsp;
+   <span id="ltpage" class="pagechange">{_ld('layout','pager_last')}</span>&nbsp;
    ({_ld('layout','pageof','<span id="cpage">1</span>',"<span id='tpage'>{$tblpages}</span>")})&nbsp;&nbsp;
   </span>
   <select id="tblpagerows" name="tblpagerows">

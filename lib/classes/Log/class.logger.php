@@ -56,7 +56,7 @@ class logger implements ILogManager
         return $parms;
     }
 
-    public function info(string $msg, string $subject = '', $item_id = null)
+    public function info(string $msg, string $subject = '', /*mixed */$item_id = 0)
     {
         $parms = $this->get_common_parms() +
             ['severity'=>logrecord::TYPE_MSG, 'subject'=>$subject, 'message'=>$msg, 'item_id'=>$item_id];

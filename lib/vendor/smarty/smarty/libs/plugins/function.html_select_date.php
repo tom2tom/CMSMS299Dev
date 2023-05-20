@@ -259,7 +259,7 @@ function smarty_function_html_select_date($params, Smarty_Internal_Template $tem
         if ($year_as_text) {
             $_html_years =
                 '<input type="text" name="' . $_name . '" value="' . $_year . '" size="4" maxlength="4"' . $_extra .
-                $extra_attrs . '>';
+                $extra_attrs . ' />';
         } else {
             $_html_years = '<select name="' . $_name . '"';
             if ($year_id !== null || $all_id !== null) {
@@ -316,8 +316,8 @@ function smarty_function_html_select_date($params, Smarty_Internal_Template $tem
         for ($i = 1; $i <= 12; $i++) {
             $_val = sprintf('%02d', $i);
             $_text = isset($month_names) ? smarty_function_escape_special_chars($month_names[ $i ]) :
-                ($month_format === '%m' ? $_val : strftime($month_format, $_month_timestamps[ $i ]));
-            $_value = $month_value_format === '%m' ? $_val : strftime($month_value_format, $_month_timestamps[ $i ]);
+                ($month_format === '%m' ? $_val : @strftime($month_format, $_month_timestamps[ $i ]));
+            $_value = $month_value_format === '%m' ? $_val : @strftime($month_value_format, $_month_timestamps[ $i ]);
             $_html_months .= '<option value="' . $_value . '"' . ($_val == $_month ? ' selected="selected"' : '') .
                              '>' . $_text . '</option>' . $option_separator;
         }

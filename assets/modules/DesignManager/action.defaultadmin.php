@@ -51,7 +51,7 @@ if( $pmod && isset($params['design_setdflt']) ) {
 }
 */
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('listdesigns.tpl')); //,null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('listdesigns.tpl','','',$smarty));
 
 // build lists of designs and stuff which may be assigned to them.
 $opts = ['' => $this->Lang('prompt_none')];
@@ -87,8 +87,8 @@ if( $pmod ) {
 $tpl->assign('pmod',$pmod);
 
 //$tpl->assign('lock_timeout', $this->GetPreference('lock_timeout', 60));
-//$ajax_templates_url = $this->create_action_url($id,'ajax_get_templates');
-//$ajax_stylesheets_url = $this->create_action_url($id,'ajax_get_stylesheets');
+//$ajax_templates_url = $this->create_action_url('','ajax_get_templates'); ?? CMS_JOB_KEY=1
+//$ajax_stylesheets_url = $this->create_action_url('','ajax_get_stylesheets'); ?? CMS_JOB_KEY=1
 
 //$jsm = new ScriptsMerger();
 //$jsm->queue_matchedfile('jquery.cmsms_autorefresh.js', 1);

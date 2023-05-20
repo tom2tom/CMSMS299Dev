@@ -58,7 +58,7 @@ class Content extends ContentBase
 	/**
 	 * @ignore
 	 */
-	protected $_contentBlocks = null;
+	protected $_contentBlocks = null; // force recreation @ next use
 
 	public function FriendlyName() : string
 	{
@@ -592,7 +592,7 @@ class Content extends ContentBase
 		return $this->_contentBlocks;
 	}
 
-	private function _get_param($in, $key, $dflt = null)
+	private function _get_param(/*mixed */$in, /*mixed */$key, /*mixed */$dflt = null)// : mixed
 	{
 		if (!is_array($in)) {
 			return $dflt;
@@ -707,7 +707,6 @@ class Content extends ContentBase
 		$rp1 = realpath($config['uploads_path']);
 		$rp2 = realpath($dir);
 
-		$dropdown = null;
 		if (!startswith($rp2, $rp1)) {
 			$err = $this->mod->Lang('err_invalidcontentimgpath');
 			return '<div class="error">'.$err.'</div>';

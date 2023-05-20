@@ -333,7 +333,7 @@
         *                       of the $str string. True does not necessarily mean
         *                       that it was replaced.
         */
-        function replace(&$str, $check, $repl, $m = null)
+        function replace(&$str, $check, $repl, $m = 0)
         {
             $len = 0 - strlen($check);
 

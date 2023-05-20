@@ -263,7 +263,7 @@ class DataDictionary
      *  should be quoted. Default false
      * @return string
      */
-    protected function NameQuote($name = null, $allowBrackets = false)
+    protected function NameQuote($name = '', $allowBrackets = false)
     {
         if (!is_string($name)) {
             return '';
@@ -878,7 +878,7 @@ class DataDictionary
      *  <dt>XKEY or INDEX</dt>
      *  <dd>Untyped key field. Compound keys are supported with XKEY.</dd>
      *  <dt>DEFAULT</dt>
-     *  <dd>The default value.  Character strings are auto-quoted unless the string begins with a space.  i.e: ' SYSDATE '.</dd>
+     *  <dd>The default value. Non-numeric character strings are auto-quoted unless the string begins with a space e.g. ' SYSDATE '. Bracket-enclosed expressions may be used e.g. for text and blob fields.</dd>
      *  <dt>DEF</dt>
      *  <dd>Same as DEFAULT</dd>
      *  <dt>CONSTRAINTS</dt>
@@ -1347,19 +1347,19 @@ class DataDictionary
                 case 'BM':
                 case 'TB':
                 case 'BT':
-                    $fchars = false; //BLOBs have no charset or collation
+                    $fchars = false; //BLOB fields are treated as binary hence no specific charset or collation
                     $fcoll = false;
                 // no break here
-                case 'X':
-                case 'X2':
-                case 'LX':
-                case 'XL':
-                case 'MX':
-                case 'XM':
-                case 'TX':
-                case 'XT':
-                    $fdefault = false; //TEXT and BLOB fields have no DEFAULT value
-                    $fnotnull = false;
+//                case 'X':
+//                case 'X2':
+//                case 'LX':
+//                case 'XL':
+//                case 'MX':
+//                case 'XM':
+//                case 'TX':
+//                case 'XT':
+//                  $fdefault = false; //BLOB and TEXT fields support a default value provided that it's an expression
+//                  $fnotnull = false;
             }
 
             if ($fprimary) {
@@ -1378,31 +1378,43 @@ class DataDictionary
             } elseif ($fdefdate) {
                 $fdefault = 'DATE';
             } elseif ($fdefault !== false && !$fnoquote) {
-                if ($ty == 'C' || $ty[0] == 'X' ||
+                if ($ty == 'C' || $ty[0] == 'X' || $ty[0] == 'B' ||
                     ($fdefault !== '' && $fdefault[0] != "'" && !is_numeric($fdefault))) {
                     $len = strlen($fdefault);
                     if ($len > 1 && $fdefault[0] == ' ' && $fdefault[$len - 1] == ' ') {
                         $fdefault = trim($fdefault);
+                        $len = strlen($fdefault);
+                    }
+                    if ($len > 1 && $fdefault[0] == '(' && $fdefault[$len - 1] == ')') {
+                        $fdefault = trim($fdefault, '() ');
+                        $len = strlen($fdefault);
+                        $defexp = true;
                     } else {
-                        switch (strtolower($fdefault)) {
-                            case 'null':
-                            case 'current_timestamp':
-                            case 'local_timestamp':
-                            case 'localtimestamp':
-                            case 'localtime':
-                            case 'now':
-                                $fdefault = strtoupper($fdefault);
-                                break;
-                            case 'true':
-                                $fdefault = 1;
-                                break;
-                            case 'false':
-                                $fdefault = 0;
-                                break;
-                            default:
+                        $defexp = false;
+                    }
+                    switch (strtoupper($fdefault)) {
+                        case 'NULL':
+                        case 'CURRENT_TIMESTAMP':
+                        case 'LOCAL_TIMESTAMP':
+                        case 'LOCALTIMESTAMP':
+                        case 'LOCALTIME':
+                        case 'NOW':
+                            $fdefault = strtoupper($fdefault);
+                            break;
+                        case 'TRUE':
+                            $fdefault = 1;
+                            break;
+                        case 'FALSE':
+                            $fdefault = 0;
+                            break;
+                        default:
+                            if (!($defexp || is_numeric($fdefault))) {
                                 $fdefault = $this->connection->qStr($fdefault);
-                                break;
-                        }
+                            }
+                            break;
+                    }
+                    if ($defexp || $ty[0] == 'X' || $ty[0] == 'B') {
+                        $fdefault = '(' . $fdefault . ')';
                     }
                 }
             }
@@ -1601,7 +1613,7 @@ class DataDictionary
      *
      * @return mixed string | null
      */
-    protected function get_dbtype_options($opts, $suffix = null)
+    protected function get_dbtype_options($opts, $suffix = '')
     {
         $dbtype = $this->dbType();
         $list = [$dbtype.$suffix, strtoupper($dbtype).$suffix, strtolower($dbtype).$suffix];

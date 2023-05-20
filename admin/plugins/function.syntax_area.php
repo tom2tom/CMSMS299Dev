@@ -56,7 +56,7 @@ function smarty_function_syntax_area($params, $template)
 	if( !empty($parms['cols']) ) $s .= 'width:'.(int)$parms['cols'].'em;';
 	elseif( !empty($parms['width']) ) $s .= 'width:'.(int)$parms['width'].'em;';
 	$s = 'style="'.$s.'min-height:2em;"';
-	$parms['addtext'] = ( isset($parms['addtext']) ) ? $parms['addtext'].' '.$s : $s;
+	$parms['addtext'] = ( !empty($parms['addtext']) ) ? $parms['addtext'].' '.$s : $s;
 	$t = $params['typer'] ?? '';
 	if( $t ) {
 		$tt = basename($t);

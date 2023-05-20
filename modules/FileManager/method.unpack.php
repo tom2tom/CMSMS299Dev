@@ -2,7 +2,7 @@
 /*
 FileManager module method: unpack
 Copyright (C) 2006-2008 Morten Poulsen <morten@poulsen.org>
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -27,6 +27,9 @@ use function CMSMS\log_notice;
 //if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) {
     exit;
+}
+if (!Lone::get('Config')['develop_mode']) {
+    exit; // TODO interrgotate contents, process each item if valid
 }
 if (isset($params['cancel'])) {
     $this->Redirect($id, 'defaultadmin', $returnid, $params);
@@ -67,6 +70,8 @@ try {
             if (!endswith($destdir, DIRECTORY_SEPARATOR)) {
                 $destdir = rtrim($destdir, '/\\').DIRECTORY_SEPARATOR; //TODO needed ?
             }
+            //TODO prevent 'zip-slip', invalid destinations etc
+            //i.e. interrogate archive contents, process each item that's valid
             $archive->extractFiles($destdir);
             $res = true; // even if 0 files processed
             //ETC

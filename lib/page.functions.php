@@ -97,7 +97,7 @@ function setup_session(bool $cachable = false)
 
 	//see http://en.wikipedia.org/wiki/Session_hijacking#Prevention
 
-	$_f = $_l = null;
+	$_f = $_l = null; // no file or line feedback
 	if (headers_sent($_f, $_l)) {
 		throw new LogicException("Attempt to set headers, but headers were already sent at: $_f::$_l");
 	}
@@ -360,13 +360,13 @@ function restricted_cms_permissions() : array
  * Members of the admin group have all permissions.
  * @since 0.1
  *
- * @param int $userid The user id
+ * @param int $userid Admin user identifier, maybe 0 if no user has been identified
  * @param varargs $perms Since 3.0 This may be a single permission-name string,
  *  or an array of such string(s), all members of which are to be 'OR'd,
  *  unless there's a following true-valued parameter, in which case those
  *  members are to be 'AND'd
  *  Formerly the second argument was limited to one permission-name string
- * @return boolean
+ * @return bool
  */
 function check_permission(int $userid, ...$perms)
 {
@@ -380,11 +380,11 @@ function check_permission(int $userid, ...$perms)
  * @internal
  * @since 0.2
  *
- * @param  integer The admin user identifier
- * @param  mixed   Optional (valid) integer content id | null. Default null.
- * @return boolean
+ * @param int $userid Admin user identifier
+ * @param mixed $contentid Optional (valid) integer content id | null. Default 0.
+ * @return bool
  */
-function check_authorship(int $userid, $contentid = null)
+function check_authorship(int $userid, $contentid = 0)
 {
 	return Lone::get('ContentOperations')->CheckPageAuthorship($userid, $contentid);
 }
@@ -394,8 +394,8 @@ function check_authorship(int $userid, $contentid = null)
  * @internal
  * @since 0.11
  *
- * @param  integer The user id
- * @return array   The page-id's, or maybe empty
+ * @param int $userid Admin user identifier
+ * @return array The page-id's, or maybe empty
  */
 function author_pages(int $userid)
 {
@@ -824,6 +824,7 @@ function _get_value_with_default($value, $default = '', $session_key = '')
  * There is little point in using this func without a $session_key
  * Note: This function trim()'s string values.
  * @deprecated since 3.0 Do not rely on fallback to $_SESSION values.
+ * @see also set|get_session_value()
  *
  * @param array $parameters
  * @param string $key The wanted member of $parameters
@@ -977,7 +978,7 @@ function cms_path_to_url(string $in, string $relative_to = '') : string
  * @param string $relative_to The optional path to compute relative to.  If not supplied the cmsms root path will be used.
  * @return string The relative portion of the input string.
  */
-function cms_relative_path(string $in, string $relative_to = null) : string
+function cms_relative_path(string $in, string $relative_to = '') : string
 {
 	$in = realpath(trim($in));
 	if (!$relative_to) {
@@ -1097,7 +1098,7 @@ function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
  * @param bool  $is_utc Optional flag whether $datevar is for the UTC timezone. Default false.
  * @return int Default 1 (not false)
  */
-function cms_to_stamp($datevar, bool $is_utc = false) : int
+function cms_to_stamp(/*mixed */$datevar, bool $is_utc = false) : int
 {
 	static $dt = null;
 	static $offs = null;
@@ -1133,7 +1134,7 @@ function cms_to_stamp($datevar, bool $is_utc = false) : int
  * @param mixed $datevar optional timestamp | DateTime object | datetime string parsable by strtotime() | empty
  * @return string
  */
-function locale_ftime(string $format, $datevar = null) : string
+function locale_ftime(string $format, /*mixed */$datevar = null) : string
 {
 	return Utils::dt_format($datevar, $format);
 }
@@ -1976,12 +1977,13 @@ use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\AutoCookieOperations;
 use CMSMS\Events;
+use CMSMS\Lone;
 use CMSMS\PageLoader;
 //use CMSMS\ScriptsMerger;
-use CMSMS\Lone;
 //use CMSMS\StylesMerger;
 use CMSMS\Url;
 use Throwable;
+use const CMS_ROOT_URL;
 use const CMS_SCHEMA_VERSION;
 use function CMSMS\de_specialize;
 use function CMSMS\de_specialize_array;
@@ -2115,9 +2117,28 @@ function sendheaders($media_type = 'text/html', $charset = '')
 }
 
 /**
- * @ignore
- * @since 03.0
+ * Sends 'Host'-related header(s) for a HTTP 1.1 request.
+ * @since 3.0
+ */
+function sendhostheaders()
+{
+	$p = strpos(CMS_ROOT_URL, '://');
+	$q = substr(CMS_ROOT_URL, $p + 3); // TODO [:non-default-port]
+	header('Host: '.$q);
+	if (is_secure_request()) {
+		// support > 1 secured domain per IP address / port-combination
+		header('Server Name Indication: '.$q);
+	}
+}
+
+/**
+ * Record an information message in the log
+ * @since 3.0
  * @see LogOperations::info()
+ *
+ * @param mixed $itemid
+ * @param string $subject
+ * @param string $msg
  */
 function log_info($itemid, string $subject, string $msg = '')
 {
@@ -2125,9 +2146,12 @@ function log_info($itemid, string $subject, string $msg = '')
 }
 
 /**
- * @ignore
+ * Record a notice in the log
  * @since 3.0
  * @see LogOperations::notice()
+ *
+ * @param string $msg
+ * @param string $subject
  */
 function log_notice(string $msg, string $subject = '')
 {
@@ -2135,9 +2159,12 @@ function log_notice(string $msg, string $subject = '')
 }
 
 /**
- * @ignore
+ * Record a warning in the log
  * @since 3.0
  * @see LogOperations::warning()
+ *
+ * @param string $msg
+ * @param string $subject
  */
 function log_warning(string $msg, string $subject = '')
 {
@@ -2145,9 +2172,12 @@ function log_warning(string $msg, string $subject = '')
 }
 
 /**
- * @ignore
+ * Record an error in the log
  * @since 3.0
  * @see LogOperations::error()
+ *
+ * @param string $msg
+ * @param string $subject
  */
 function log_error(string $msg, string $subject = '')
 {
@@ -2181,7 +2211,6 @@ function get_debug_messages() : array
 /**
  * A shutdown function: disconnect from the database
  * @since 3.0
- *
  * @internal
  */
 function dbshutdown()
@@ -2619,10 +2648,10 @@ function schema_is_current() : bool
  *
  * @param string $eventname
  * @param int $pageid Displayed-page identifier
- * @param mixed $content Some of the page's content string | null
- * &return mixed string | null
+ * @param mixed $content Some of the page's content string | empty | null
+ * @return string maybe empty
  */
-function tailorpage(string $eventname, int $pageid, $content = null)
+function tailorpage(string $eventname, int $pageid, $content = '') : string
 {
 	static $pageobj = null; // this will be used many times in each request
 
@@ -2642,6 +2671,7 @@ function tailorpage(string $eventname, int $pageid, $content = null)
 	if ($ret) {
 		return $content;
 	}
+    return '';
 }
 
 } // CMSMS namespace

@@ -343,13 +343,13 @@ abstract class ContentBase implements IContentEditor, Serializable
 	//
 
 	/**
-	 * @param mixed $params Optional array of property names and values, or null
+	 * @param mixed $params Optional array of property names and values, or falsy
 	 */
-	public function __construct(/*array */$params = null)
+	public function __construct(/*array */$params = [])
 	{
 		$this->mod = AppUtils::get_module('ContentManager');
 		$this->domain = $this->mod->GetName();
-		if (is_array($params)) {
+		if ($params && is_array($params)) {
 			$this->LoadFromData($params);
 		} else {
 			//legacy mode
@@ -532,7 +532,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	}
 
 	/**
-	 * Set object propertes from supplied parameters.
+	 * Set object properties from supplied parameters.
 	 * Typically called from an editor form to allow modifying this
 	 * object from form input fields (usually $_POST)
 	 *
@@ -594,7 +594,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 		// alias field can exist if the user has manage all content... OR alias is a basic property
 		// and the user has other edit rights to this page.
 		// empty value on the alias field means we need to generate a new alias
-		$new_alias = null;
+		$new_alias = '';
 		$alias_field_exists = isset($params['alias']);
 		if (isset($params['alias'])) {
 			$new_alias = trim(strip_tags($params['alias']));
@@ -625,19 +625,19 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 		// tab index
 		if (isset($params['tabindex'])) {
-			$this->mTabIndex = (int) $params['tabindex'];
+			$this->mTabIndex = (int)$params['tabindex'];
 		}
 
 		// cachable
 		if (isset($params['cachable'])) {
-			$this->mCachable = (int) $params['cachable'];
+			$this->mCachable = (int)$params['cachable'];
 		} else {
 			$this->_handleRemovedBaseProperty('cachable', 'mCachable');
 		}
 
 		// secure (deprecated since 2.0)
 		if (isset($params['secure'])) {
-			$this->mSecure = (int) $params['secure'];
+			$this->mSecure = (int)$params['secure'];
 		} else {
 			$this->_handleRemovedBaseProperty('secure', 'mSecure');
 		}
@@ -650,7 +650,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 				$this->mStyles = trim($params['styles']);
 			}
 		} else {
-			$this->mStyles = null;
+			$this->mStyles = '';
 //			$this->_handleRemovedBaseProperty('styles','mStyles'); //CHECKME
 		}
 
@@ -1413,9 +1413,9 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * value to use if the property is sought.
 	 *
 	 * @param string $name The property name
-	 * @param mixed $dflt Optional default value.
+	 * @param mixed $dflt Optional default value. Default null.
 	 */
-	public function RemoveProperty(string $name, $dflt = null)
+	public function RemoveProperty(string $name, /*mixed */$dflt = null)// : void
 	{
 		if (!$this->_properties) {
 			return;
@@ -1506,7 +1506,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 			// Delete additional editors.
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'additional_users WHERE content_id = ?';
 			$dbr = $db->execute($query, [$this->mId]);
-			$this->mAdditionalEditors = null;
+			$this->mAdditionalEditors = null; // aka unset
 
 			// Delete route
 			if ($this->mURL) {
@@ -1524,7 +1524,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 	/**
 	 * Test whether this object is valid.
-	 * Specifically, check that no manadatory property has been omitted.
+	 * Specifically, check that no mandatory property has been omitted.
 	 * Not the numeric id because there may be none yet (new content).
 	 * Id is checked during Save().
 	 * @abstract
@@ -2299,7 +2299,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 			return CMS_ROOT_URL . '/';
 		}
 		$config = Lone::get('Config');
-		$alias = ($this->mAlias ? $this->mAlias : $this->mId);
+		$alias = $this->mAlias ?: $this->mId;
 		return CMS_ROOT_URL . '/index.php?' . $config['query_var'] . '=' . $alias;
 	}
 
@@ -2588,7 +2588,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return array user id's and group id's entitled to edit this content, or empty
 	 */
-	public function GetAdditionalEditors()
+	public function GetAdditionalEditors(): array
 	{
 		if (!isset($this->mAdditionalEditors)) {
 			$db = Lone::get('Db');
@@ -2608,9 +2608,9 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * Set the list of additional editors.
 	 * Note: in the provided array, group id's are specified as negative integers.
 	 *
-	 * @param mixed $editorarray Array of user id's and group id's, or null
+	 * @param mixed $editorarray Array of user id(s) and/or group id(s), or empty or null to clear
 	 */
-	public function SetAdditionalEditors($editorarray = null)
+	public function SetAdditionalEditors(/*mixed */$editorarray = [])
 	{
 		$this->mAdditionalEditors = $editorarray;
 	}
@@ -2692,18 +2692,18 @@ WHERE content_id = ?';
 			($this->mShowInMenu ? 1 : 0),
 			($this->mCachable ? 1 : 0),
 			($this->mSecure ? 1 : 0),
-			($this->mURL ? $this->mURL : null),
-			($this->mMenuText ? $this->mMenuText : null),
+			($this->mURL ?: null),
+			($this->mMenuText ?: null),
 			$this->mAlias,
-			($this->mMetadata ? $this->mMetadata : null),
-			($this->mTitleAttribute ? $this->mTitleAttribute : null),
-			($this->mAccessKey ? $this->mAccessKey : null),
-			($this->mStyles ? $this->mStyles : null),
+			($this->mMetadata ?: null),
+			($this->mTitleAttribute ?: null),
+			($this->mAccessKey ?: null),
+			($this->mStyles ?: null),
 			$this->mTabIndex,
 			$this->mModifiedDate,
 			$this->mItemOrder,
 			$this->mLastModifiedBy,
-			(int) $this->mId
+			(int)$this->mId
 		]);
 
 		if (isset($this->mAdditionalEditors)) {
@@ -2724,7 +2724,7 @@ WHERE content_id = ?';
 
 		RouteOperations::del_static('', '__CONTENT__', $this->mId);
 		if ($this->mURL) {
-			$route = new Route($this->mURL, '__CONTENT__', null, true, $this->mId);
+			$route = new Route($this->mURL, '__CONTENT__', [], true, $this->mId);
 			RouteOperations::add_static($route);
 		}
 	}
@@ -2810,13 +2810,13 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 			($this->mShowInMenu ? 1 : 0),
 			($this->mCachable ? 1 : 0),
 			($this->mSecure ? 1 : 0),
-			($this->mURL ? $this->mURL : null),
-			($this->mMenuText ? $this->mMenuText : null),
+			($this->mURL ?: null),
+			($this->mMenuText ?: null),
 			$this->mAlias,
-			($this->mMetadata ? $this->mMetadata : null),
-			($this->mTitleAttribute ? $this->mTitleAttribute : null),
-			($this->mAccessKey ? $this->mAccessKey : null),
-			($this->mStyles ? $this->mStyles : null),
+			($this->mMetadata ?: null),
+			($this->mTitleAttribute ?: null),
+			($this->mAccessKey ?: null),
+			($this->mStyles ?: null),
 			$this->mTabIndex,
 			$this->mLastModifiedBy,
 			$this->mCreationDate
@@ -2840,7 +2840,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		}
 
 		if ($this->mURL) {
-			$route = new Route($this->mURL, '__CONTENT__', null, true, $this->mId);
+			$route = new Route($this->mURL, '__CONTENT__', [], true, $this->mId);
 			RouteOperations::add_static($route);
 		}
 	}

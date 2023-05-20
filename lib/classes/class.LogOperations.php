@@ -96,9 +96,9 @@ final class LogOperations implements ILogManager
 
     // interface methods
 
-    public function info(string $msg, string $subject = '', $itemid = null)
+    public function info(string $msg, string $subject = '', /*mixed */$itemid = 0)
     {
-        if (!$itemid) { $itemid = '0'; }
+        if (!($itemid || is_numeric($itemid))) { $itemid = '0'; }
         $this->get_recorder()->info($msg, $subject, $itemid);
     }
 

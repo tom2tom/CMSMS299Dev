@@ -200,7 +200,7 @@ interface IContentEditor
 	 * @param string $propname The property name
 	 * @param mixed $dflt Optional new default value. Default null.
 	 */
-	public function RemoveProperty(string $propname, $dflt = null);
+	public function RemoveProperty(string $propname, /*mixed */$dflt = null);
 
 	/**
 	 * Callback for pre-loading content or other things if necessary, immediately
@@ -769,7 +769,7 @@ interface IContentEditor
 	 * Set the list of additional editors.
 	 * Note: in the provided array, group id's are specified as negative integers.
 	 *
-	 * @param mixed $editorarray Array of user id's and group id's, or null
+	 * @param mixed $editorarray Array of user id(s) and/or group id(s), or empty or null to clear
 	 */
-	public function SetAdditionalEditors($editorarray = null);
+	public function SetAdditionalEditors(/*mixed */$editorarray = []);
 } // interface

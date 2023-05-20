@@ -1,7 +1,7 @@
 <?php
 /*
 Module Manager action: install module
-Copyright (C) 2008-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of ModuleManager, an addon module for
@@ -32,7 +32,8 @@ use ModuleManager\Utils;
 use ModuleNoDataException;
 use function CMSMS\log_error;
 
-//if (some worthy test fails) exit;
+if( empty($this) || !($this instanceof ModuleManager) ) { exit; }
+if( empty($gCms) ) { exit; }
 if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('modules');
 
@@ -149,7 +150,6 @@ try {
             }
         };
 
-        $deps = null;
         list($res,$deps) = ModuleRepClient::get_module_dependencies($module_name,$module_version);
         if( $deps ) {
             $deps = $array_to_hash($deps,'name');
@@ -203,24 +203,23 @@ try {
         return $deps;
     };
 
-    // algorithm
-    // given a desired module name, module version, and whether we want latest versions
-    // get module dependencies/prerequisites for the target module version
-    // if we want latest versions of those
-    //   get latest version info for all dependencies
-    //   get module dependencies again as they may have changed
-    //   merge results
-    // else
-    //   get module info for all dependencies
-
+    /* algorithm
+    given a desired module name, module version, and whether we want latest deps versions
+    get module dependencies/prerequisites for the desired module version
+    if we want latest versions of those
+      get latest version info for all dependencies
+      get module dependencies again as they may have changed
+      merge results
+    else
+      get module info for all dependencies
+    */
     // recursively (depth first) get the dependencies for the module+version we specified.
-    $alldeps = [];
-    $uselatest = (int) $this->GetPreference('latestdepends',1);
+    $uselatest = (int)$this->GetPreference('latestdepends',1);
     $alldeps = $resolve_deps($module_name,$module_version,$uselatest);
 
     // get information for all dependencies, and make sure that they are all there.
     if( $alldeps ) {
-        $res = null;
+        $res = [];
         try {
             if( $this->GetPreference('latestdepends',1) ) {
                 // get the latest version of dependency (but not necessarily of the module we're installing)
@@ -241,12 +240,10 @@ try {
 
         foreach( $alldeps as $name => $row ) {
             $fnd = FALSE;
-            $tmp = null;
             if( $res ) {
                 foreach( $res as $rec ) {
                     if( $rec['name'] != $name ) continue;
-                    $tmp = version_compare($row['version'],$rec['version']);
-                    if( $tmp <= 0 ) {
+                    if( version_compare($row['version'],$rec['version']) <= 0 ) {
                         $fnd = TRUE;
                         $alldeps[$name] = $rec;
                         break;

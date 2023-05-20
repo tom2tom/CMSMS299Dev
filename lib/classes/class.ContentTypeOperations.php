@@ -283,7 +283,7 @@ class ContentTypeOperations
 		$Y = $TODO;
 		$db = Lone::get('Db');
 		//TODO UPSERT
-		$query = 'INSERT INTO '.CMS_DB_PREFIX.'content_types (originator,name,publicname_key,displayclass,editclass) VALUES (?,?,?,?,?)';
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.'content_types (originator,`name`,publicname_key,displayclass,editclass) VALUES (?,?,?,?,?)';
 		$db->execute($query,[$Y->module,$Y->type,$Y->friendlyname,$Y->class,$Y->editorclass]);
 	}
 
@@ -315,7 +315,7 @@ class ContentTypeOperations
 		$patn = __DIR__.DIRECTORY_SEPARATOR.'contenttypes'.DIRECTORY_SEPARATOR.'class.*.php';
 		$files = glob($patn, GLOB_NOSORT);
 		if( is_array($files) ) {
-			$query = 'INSERT INTO '.CMS_DB_PREFIX.'content_types (originator,name,publicname_key,displayclass,editclass) VALUES (?,?,?,?,?)';
+			$query = 'INSERT INTO '.CMS_DB_PREFIX.'content_types (originator,`name`,publicname_key,displayclass,editclass) VALUES (?,?,?,?,?)';
 			$fp = cms_module_path(self::EDITORMODULE);
 			if( $fp ) {
 				$fp = cms_join_path(dirname($fp), 'lib', 'contenttypes', ''); //trailing separator

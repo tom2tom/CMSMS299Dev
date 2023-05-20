@@ -36,8 +36,8 @@ final class Mailer
         $this->transport = $transport;
         $senderEmail = (string)$senderEmail;
         $senderName = (string)$senderName;
-        $this->senderEmail = $senderEmail ? $senderEmail : null;
-        $this->senderName = $senderName ? $senderName : null;
+        $this->senderEmail = $senderEmail ?: null;
+        $this->senderName = $senderName ?: null;
     }
 
     /**

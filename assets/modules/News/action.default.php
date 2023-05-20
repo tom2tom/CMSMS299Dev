@@ -19,6 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\Lone;
 use CMSMS\TemplateOperations;
 use News\Utils;
 use function CMSMS\de_specialize;
@@ -286,15 +287,17 @@ if( $rst ) {
         $rst->MoveNext();
     }
 */
+    $userops = Lone::get('UserOperations');
+    $salt = $userops->DefaultKey();
     $rst->MoveFirst();
     while( !$rst->EOF() ) {
         $row = $rst->fields;
-        $onerow = new NewsData(); //OR stdClass();
-
+        $onerow = new NewsData();
         $onerow->author_id = $row['author_id'];
         if( $onerow->author_id > 0 ) {
-            $onerow->author = $row['username'];
-            $onerow->authorname = trim($row['first_name'].' '.$row['last_name']);
+            $onerow->author = $userops->Restore($row['username'], $salt);
+            $ln = $userops->Restore($row['last_name'], $salt);
+            $onerow->authorname = trim($row['first_name'].' '.$ln);
         }
         else {
             $onerow->author = $this->Lang('anonymous');
@@ -305,7 +308,9 @@ if( $rst ) {
         $onerow->title = $row['news_title'];
         $onerow->content = $row['news_data'];
         $onerow->summary = (trim($row['summary'])!='<br>'?$row['summary']:'');
-        if( !empty($row['news_extra']) ) { $onerow->extra = $row['news_extra']; }
+        if( !empty($row['news_extra']) ) {
+            $onerow->extra = $row['news_extra'];
+        }
         $onerow->startdate = $this->FormatforDisplay($row['start_time']);
         $onerow->postdate = $onerow->startdate; //deprecated since 3.0
         $onerow->enddate = $this->FormatforDisplay($row['end_time']);
@@ -318,8 +323,8 @@ if( $rst ) {
             $onerow->imagealt = basename($row['image_url']); // TODO lazy crapola
         }
         else {
-            $onerow->image = null;
-            $onerow->imagealt = null;
+            $onerow->image = '';
+            $onerow->imagealt = '';
         }
         $urlparms = ['articleid'=>$row['news_id']];
         if( isset($params['category_id']) ) {
@@ -394,7 +399,7 @@ else {
     $pagecount = 0;
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource($tplname)); //, null, null, $smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($tplname)); //, '', '', $smarty);
 
 // TODO specialize() relevant ->assign()'d values
 // pagination variables for the template

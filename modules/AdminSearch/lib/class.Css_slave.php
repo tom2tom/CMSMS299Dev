@@ -57,7 +57,7 @@ final class Css_slave extends Base_slave
     {
         // get all stylesheets' ids
         $db = Lone::get('Db');
-        $sql = 'SELECT id FROM '.CMS_DB_PREFIX. StylesheetOperations::TABLENAME.' ORDER BY name';
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX. StylesheetOperations::TABLENAME.' ORDER BY `name`';
         $all_ids = $db->getCol($sql);
         $output = [];
 

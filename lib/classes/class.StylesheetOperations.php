@@ -1,7 +1,7 @@
 <?php
 /*
 Methods for administering stylesheet objects
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -84,10 +84,10 @@ class StylesheetOperations
 		$db = Lone::get('Db');
 		// double check the name
 		if ($sht->get_id()) {
-			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
+			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE `name` = ? AND id != ?';
 			$tmp = $db->getOne($sql, [$sht->get_name(), $sht->get_id()]);
 		} else {
-			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
+			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE `name` = ?';
 			$tmp = $db->getOne($sql, [$sht->get_name()]);
 		}
 		if ($tmp) {
@@ -167,13 +167,13 @@ class StylesheetOperations
 	{
 		$db = Lone::get('Db');
 		if (is_numeric($a) && (int)$a > 0) {
-			$sql = 'SELECT id,originator,name,description,media_type,media_query,owner_id,type_id,type_dflt,listable,contentfile,content,create_date,modified_date FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
+			$sql = 'SELECT id,originator,`name`,description,media_type,media_query,owner_id,type_id,type_dflt,listable,contentfile,content,create_date,modified_date FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 			$row = $db->getRow($sql, [(int)$a]);
 		} elseif (is_string($a) && $a !== '') {
-			$sql = 'SELECT id,originator,name,description,media_type,media_query,owner_id,type_id,type_dflt,listable,contentfile,content,create_date,modified_date FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
+			$sql = 'SELECT id,originator,`name`,description,media_type,media_query,owner_id,type_id,type_dflt,listable,contentfile,content,create_date,modified_date FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE `name` = ?';
 			$row = $db->getRow($sql, [$a]);
 		} else {
-			$row = null;
+			$row = [];
 		}
 		if ($row) {
 			return self::create_stylesheet($row);
@@ -212,12 +212,12 @@ class StylesheetOperations
 				$ids[$i] = $db->qStr(trim($ids[$i]));
 			}
 			$ids = array_unique($ids);
-			$where = ' WHERE name IN ('.implode(',', $ids).')';
+			$where = ' WHERE `name` IN ('.implode(',', $ids).')';
 		} else {
 			// what ??
 			throw new LogicException('Invalid identifier provided to '.__METHOD__);
 		}
-		$sql = 'SELECT id,originator,name,description,media_type,media_query,owner_id,type_id,type_dflt,listable,contentfile,content,create_date,modified_date FROM '.CMS_DB_PREFIX.self::TABLENAME.$where;
+		$sql = 'SELECT id,originator,`name`,description,media_type,media_query,owner_id,type_id,type_dflt,listable,contentfile,content,create_date,modified_date FROM '.CMS_DB_PREFIX.self::TABLENAME.$where;
 		$dbr = $db->getArray($sql);
 		$out = [];
 		if ($dbr) {
@@ -230,7 +230,7 @@ class StylesheetOperations
 
 			// this makes sure that the returned array matches the order specified.
 			foreach ($ids as $one) {
-				$found = null;
+				$found = [];
 				if ($is_ints) {
 					// find item in $dbr by id
 					foreach ($dbr as $row) {
@@ -266,15 +266,15 @@ class StylesheetOperations
 	 * @param mixed $ids array of integer sheet id's, or falsy to process all recorded sheets
 	 * @return array Each row has a stylesheet id and name
 	 */
-	public static function get_bulk_sheetsnames($ids = null, $sorted = true) : array
+	public static function get_bulk_sheetsnames($ids = [], $sorted = true) : array
 	{
 		$db = Lone::get('Db');
-		$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.self::TABLENAME;
-		if (!empty($ids)) {
+		$sql = 'SELECT id,`name` FROM '.CMS_DB_PREFIX.self::TABLENAME;
+		if ($ids) {
 			$sql .= ' WHERE id IN ('.implode(',', $ids).')';
 		}
 		if ($sorted) {
-			$sql .= ' ORDER BY name';
+			$sql .= ' ORDER BY `name`';
 		}
 		return $db->getArray($sql);
 	}
@@ -290,7 +290,7 @@ class StylesheetOperations
 	{
 		$db = Lone::get('Db');
 		if ($by_name) {
-			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY IF(modified_date, modified_date, create_date) DESC';
+			$sql = 'SELECT id,`name` FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY IF(modified_date, modified_date, create_date) DESC';
 			return $db->getAssoc($sql);
 		} else {
 			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY IF(modified_date, modified_date, create_date) DESC';
@@ -305,20 +305,20 @@ class StylesheetOperations
 	 * @param mixed $ids array of integer group id's, or falsy to process all recorded groups
 	 * @return array Each row has a group id, name and comma-separated member id's
 	 */
-	public static function get_groups_summary($ids = null, $sorted = true)
+	public static function get_groups_summary($ids = [], bool $sorted = true)
 	{
 		$tbl1 = CMS_DB_PREFIX.StylesheetsGroup::TABLENAME;
 		$tbl2 = CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE;
 		$sql = <<<EOS
-SELECT G.id,G.name,COALESCE(list,'') AS members FROM $tbl1 G
+SELECT G.id,G.`name`,COALESCE(list,'') AS members FROM $tbl1 G
 LEFT JOIN (SELECT group_id, GROUP_CONCAT(css_id ORDER BY item_order) AS list FROM $tbl2 GROUP BY group_id) MS
 ON G.id = MS.group_id
 EOS;
-		if (!empty($ids)) {
+		if ($ids) {
 			$sql .= ' WHERE G.id IN ('.implode(',', $ids).')';
 		}
 		if ($sorted) {
-			$sql .= ' ORDER BY G.name';
+			$sql .= ' ORDER BY G.`name`';
 		}
 		$db = Lone::get('Db');
 		return $db->getArray($sql);
@@ -369,10 +369,10 @@ EOS;
 		$db = Lone::get('Db');
 		if ($prefix) {
 			$wm = $db->escStr($prefix).'%';
-			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE name LIKE ? ORDER BY name';
+			$sql = 'SELECT id,`name` FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE `name` LIKE ? ORDER BY `name`';
 			$dbr = $db->getAssoc($sql, [$wm]);
 		} else {
-			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' ORDER BY name';
+			$sql = 'SELECT id,`name` FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' ORDER BY `name`';
 			$dbr = $db->getAssoc($sql);
 		}
 		if ($dbr) {
@@ -405,7 +405,7 @@ EOS;
 			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE id=?';
 			$dbr = $db->getOne($sql, [(int)$a]);
 		} elseif (is_string($a) && $a !== '') {
-			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE name=?';
+			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE `name`=?';
 			$dbr = $db->getOne($sql, [$a]);
 		} else {
 			$dbr = false;
@@ -430,7 +430,7 @@ EOS;
 		}
 		$db = Lone::get('Db');
 		$wm = $db->escStr($prototype);
-		$sql = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name LIKE ?';
+		$sql = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE `name` LIKE ?';
 		$all = $db->getCol($sql, ['%'.$wm.'%']);
 		if ($all) {
 			$name = $prototype;
@@ -456,11 +456,11 @@ EOS;
 		$db = Lone::get('Db');
 		list($shts, $grps) = self::items_split($ids);
 		if ($shts) {
-			$sql = 'SELECT originator,name,description,media_type,media_query,owner_id,type_id,type_dflt,listable,contentfile,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,', count($shts) - 1).'?)';
+			$sql = 'SELECT originator,`name`,description,media_type,media_query,owner_id,type_id,type_dflt,listable,contentfile,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,', count($shts) - 1).'?)';
 			$from = $db->getArray($sql, $shts);
 			$sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (
 originator,
-name,
+`name`,
 description,
 media_type,
 media_query,
@@ -496,17 +496,17 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 			$n = count($from);
 		}
 		if ($grps) {
-			$sql = 'SELECT id,name,description FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE id IN ('.str_repeat('?,', count($grps) - 1).'?)';
+			$sql = 'SELECT id,`name`,description FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE id IN ('.str_repeat('?,', count($grps) - 1).'?)';
 			$from = $db->getArray($sql, $grps);
 			$sql = 'SELECT group_id,css_id,item_order FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,', count($grps) - 1).'?)';
 			$members = $db->execute($sql, $grps);
-			$sql = 'INSERT INTO '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' (name,description) VALUES (?,?)';
+			$sql = 'INSERT INTO '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' (`name`,description) VALUES (?,?)';
 			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' (group_id,css_id,item_order) VALUES (?,?,?)';
 			foreach ($from as $row) {
 				if ($row['name']) {
 					$name = self::get_unique_name($row['name']);
 				} else {
-					$name = null;
+					$name = '';
 				}
 				$db->execute($sql, [$name, $row['description']]);
 				$to = $db->Insert_ID();
@@ -744,7 +744,7 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 		list($shts, $grps) = self::items_split($ids);
 		if ($shts) {
 			$db = Lone::get('Db');
-			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=0 AND id IN ('.str_repeat('?,', count($shts) - 1).'?)';
+			$sql = 'SELECT id,`name`,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=0 AND id IN ('.str_repeat('?,', count($shts) - 1).'?)';
 			$from = $db->getArray($sql, $shts);
 			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=?,contentfile=1 WHERE id=?';
 			$config = Lone::get('Config');
@@ -778,7 +778,7 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 		list($shts, $grps) = self::items_split($ids);
 		if ($shts) {
 			$db = Lone::get('Db');
-			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=1 AND id IN ('.str_repeat('?,', count($shts) - 1).'?)';
+			$sql = 'SELECT id,`name`,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=1 AND id IN ('.str_repeat('?,', count($shts) - 1).'?)';
 			$from = $db->getArray($sql, $shts);
 			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=?,contentfile=0 WHERE id=?';
 			$config = Lone::get('Config');
@@ -808,18 +808,36 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 	{
 		if (($ops = $sht->fileoperations)) {
 			foreach ($ops as $row) {
-				$fp = cms_join_path(CMS_ASSETS_PATH, 'styles', $row[1]);
-				switch ($row[0]) {
-					case 'store':
-						file_put_contents($fp, $row[2], LOCK_EX);
-						break;
-					case 'delete':
-						unlink($fp);
-						break;
-					case 'rename':
-						$tp = cms_join_path(CMS_ASSETS_PATH, 'styles', $row[2]);
-						rename($fp, $tp);
-						break;
+				if ($row[1]) {
+					$fp = cms_join_path(CMS_ASSETS_PATH, 'styles', $row[1]);
+					switch ($row[0]) {
+						case 'store': // row = ['store',$tobasename,$content] $content may be empty
+							if ($row[2]) {
+								file_put_contents($fp, $row[2], LOCK_EX);
+							} elseif (!is_file($fp)) {
+								//TODO handle error
+							} else {
+								$content = @file_get_contents($fp);
+								if (!$content) {
+									//TODO handle error
+								}
+							}
+							break;
+						case 'delete': // row = ['delete',$thebasename]
+							unlink($fp);
+							break;
+						case 'rename': // row = ['rename',$frombasename, $tobasename]
+							if ($row[2]) {
+								$tp = cms_join_path(CMS_ASSETS_PATH, 'styles', $row[2]);
+								rename($fp, $tp);
+							} else {
+								//TODO handle error
+							}
+							break;
+					}
+				} else {
+					$here = 1;
+					//TODO handle error
 				}
 			}
 			$sht->fileoperations = [];
@@ -853,7 +871,7 @@ contentfile = ?,
 content = ?
 WHERE id = ?';
 		$db = Lone::get('Db');
-		$db->execute($sql, [
+		$args = [
 			($orig) ? $orig : null,
 			$name,
 			($desc) ? $desc : null,
@@ -866,7 +884,12 @@ WHERE id = ?';
 			$sht->contentfile,
 			$sht->content,
 			$sid
-		]);
+		];
+		//ensure file-stored sheet has its name as content
+		if ($args[9] && !$args[10]) {
+			$args[10] = $sht->filecontent;
+		}
+        $db->execute($sql, $args);
 		if ($db->errorNo() > 0) { throw new SQLException($db->sql.' -- '.$db->errorMsg()); }
 
 		self::contentfile_operations($sht);
@@ -909,7 +932,7 @@ WHERE id = ?';
 
 		$sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (
 originator,
-name,
+`name`,
 description,
 media_type,
 media_query,
@@ -920,7 +943,7 @@ listable,
 contentfile,
 content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 		$db = Lone::get('Db');
-		$dbr = $db->execute($sql, [
+		$args = [
 			($orig) ? $orig : null,
 			$name,
 			($desc) ? $desc : null,
@@ -932,7 +955,12 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 			$sht->listable,
 			$sht->contentfile,
 			$sht->content
-		]);
+		];
+		//ensure file-stored sheet has its name as content
+		if ($args[9] && !$args[10]) {
+			$args[10] = $sht->filecontent;
+		}
+		$dbr = $db->execute($sql, $args);
 		if (!$dbr) {
 			throw new SQLException($db->sql.' -- '.$db->errorMsg());
 		}
@@ -1009,7 +1037,7 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 			$sql .= ' WHERE owner_id=?';
 			$args = [$uid];
 		} else {
-			$args = null;
+			$args = [];
 		}
 		$db = Lone::get('Db');
 		$valid = $db->getArray($sql, $args);
@@ -1026,7 +1054,7 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 				$sql = 'SELECT COUNT(1) AS num FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE '.$fillers;
 			} else {
 				$sql = 'SELECT COUNT(1) AS num FROM '.CMS_DB_PREFIX.'content';
-				$args = null;
+				$args = [];
 			}
 			$all = $db->getOne($sql, $args);
 			$other = $all - count($valid);

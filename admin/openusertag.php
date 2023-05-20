@@ -61,7 +61,7 @@ $themeObject = Lone::get('Theme');
 if (isset($_POST['submit']) || isset($_POST['apply']) ) {
     //these $_POST variables are further-sanitized downstream,
     // before storage and before use
-    $code = $_POST['code'] ?? null; // preserve 'code' verbatim
+    $code = $_POST['code'] ?? ''; // preserve 'code' verbatim
     // i.e. as cleaned/delivered from backend then maybe altered by the user
     unset($_POST['code']);
     de_specialize_array($_POST);
@@ -142,7 +142,7 @@ if ($desc) { $desc = $munge($desc); }
 $parms = (!empty($props['parameters'])) ? specialize($props['parameters']) : '';
 if ($parms) { $parms = $munge($parms); }
 if ($props['id'] > 0) {
-    $lic = null; //hence not displayed for new | dB-stored plugin
+    $lic = ''; //hence not displayed for new | dB-stored plugin
 } else {
     $lic = (!empty($props['license'])) ? specialize($props['license']) : '';
     if ($lic) { $lic = $munge($lic); }

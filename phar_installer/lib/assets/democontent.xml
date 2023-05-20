@@ -108,7 +108,7 @@
 			<type_id></type_id>
 			<type_dflt>0</type_dflt>
 			<listable>1</listable>
-			<contentfile>0</contentfile>
+			<contentfile></contentfile>
 			<content><![CDATA[/*! Blueprint v.3.1.1 2019 | https://blueprintcss.dev | MIT license */
 html {
   box-sizing: border-box; }
@@ -865,7 +865,7 @@ html {
 			<type_id></type_id>
 			<type_dflt>0</type_dflt>
 			<listable>1</listable>
-			<contentfile>0</contentfile>
+			<contentfile></contentfile>
 			<content><![CDATA[/*! Flex Grid Lite v.2.0 | Copyright (C) 2017-2021 Elliot Dahl | MIT license */
 .cell {
 	box-sizing: border-box;
@@ -1418,7 +1418,7 @@ html {
 			<type_id></type_id>
 			<type_dflt>0</type_dflt>
 			<listable>1</listable>
-			<contentfile>0</contentfile>
+			<contentfile></contentfile>
 			<content><![CDATA[/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
 
 /* Document
@@ -2345,7 +2345,7 @@ table {
 			<type_id></type_id>
 			<type_dflt>0</type_dflt>
 			<listable>1</listable>
-			<contentfile>0</contentfile>
+			<contentfile></contentfile>
 			<content><![CDATA[/*! Steppo theme general-page styles */
 /* Smarty-variable assignments */
 [[$theme_root = $_site_themes_url|cat:&apos;/Steppo&apos;]]
@@ -3845,7 +3845,7 @@ code {
 			<type_id></type_id>
 			<type_dflt>0</type_dflt>
 			<listable>1</listable>
-			<contentfile>0</contentfile>
+			<contentfile></contentfile>
 			<content><![CDATA[/*! Steppo theme homepage styles */
 /* Smarty-variable assignments */
 [[$theme_root=$_site_themes_url|cat:&apos;/Steppo&apos;]] [[$orange=&apos;#ffa041&apos;]] [[$white=&apos;#fff&apos;]] [[$lightgrey=&apos;#b2b3b4&apos;]] [[$midgrey=&apos;#7d7f82&apos;]] [[$darkgrey=&apos;#595a5c&apos;]] @font-face {
@@ -5334,7 +5334,7 @@ code {
 			<type_id></type_id>
 			<type_dflt>0</type_dflt>
 			<listable>1</listable>
-			<contentfile>0</contentfile>
+			<contentfile></contentfile>
 			<content><![CDATA[body {
     font-family: &apos;Noto Serif&apos;, &apos;Times New Roman&apos;, serif;
     /* reset body background and color, just in case */
@@ -5467,7 +5467,7 @@ a {
 			<type_id>1</type_id>
 			<type_dflt>1</type_dflt>
 			<listable>1</listable>
-			<contentfile>0</contentfile>
+			<contentfile></contentfile>
 			<content><![CDATA[{strip} {*process_pagedata*}
 {/strip}&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;{cms_get_language}&quot;&gt;
@@ -5503,8 +5503,17 @@ a {
 			<type_id>1</type_id>
 			<type_dflt>0</type_dflt>
 			<listable>1</listable>
-			<contentfile>1</contentfile>
-			<content><![CDATA[TemplateFileDemo.tpl]]></content>
+			<contentfile><![CDATA[TemplateFileDemo.tpl]]></contentfile>
+			<content><![CDATA[{*
+&lt;metadata&gt;
+&lt;description&gt;A demonstration file-template&lt;/description&gt;
+&lt;parameters&gt;None&lt;/parameters&gt;
+&lt;created&gt;Jan 2022&lt;/created&gt;
+&lt;license&gt;GPL3+&lt;/license&gt;
+&lt;/metadata&gt;
+*}
+{* template content goes here *}
+]]></content>
 		</template>
 		<template>
 			<id>6</id>
@@ -5516,7 +5525,7 @@ a {
 			<type_id>1</type_id>
 			<type_dflt>0</type_dflt>
 			<listable>1</listable>
-			<contentfile>0</contentfile>
+			<contentfile></contentfile>
 			<content><![CDATA[&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;en&quot;&gt;{* Change lang=&quot;en&quot; to the language of your site *}
 {* Note: anything inside these is a Smarty comment, it will not show up in the page source *}
@@ -5579,7 +5588,7 @@ a {
 			<type_id>1</type_id>
 			<type_dflt>0</type_dflt>
 			<listable>1</listable>
-			<contentfile>0</contentfile>
+			<contentfile></contentfile>
 			<content><![CDATA[&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;en&quot;&gt;{* Change lang=&quot;en&quot; to the language of your site *}
 {* Note: anything inside these is a Smarty comment, it will not show up in the page source *}
@@ -5649,7 +5658,7 @@ a {
 			<type_id>2</type_id>
 			<type_dflt>1</type_dflt>
 			<listable>1</listable>
-			<contentfile>0</contentfile>
+			<contentfile></contentfile>
 			<content><![CDATA[&lt;span class=&quot;back-top&quot;&gt;&lt;a href=&quot;#&quot;&gt;Skip to top&lt;/a&gt;&lt;/span&gt;
 &lt;p class=&quot;copyright-info&quot;&gt;Copyright &amp;copy; {custom_copyright} &lt;a href=&quot;https://www.cmsmadesimple.org&quot;&gt;CMS&amp;nbsp;Made&amp;nbsp;Simple&amp;nbsp;Foundation&lt;/a&gt;&lt;/p&gt;
 &lt;ul class=&quot;social&quot;&gt;
@@ -5669,7 +5678,7 @@ a {
 			<type_id>1</type_id>
 			<type_dflt>1</type_dflt>
 			<listable>1</listable>
-			<contentfile>0</contentfile>
+			<contentfile></contentfile>
 			<content><![CDATA[&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;en&quot;&gt;{* Change lang=&quot;en&quot; to the language of your site *}
 {* Note: anything inside these is a Smarty comment, it will not show up in the page source *}
@@ -5742,7 +5751,7 @@ a {
 			<type_id>1</type_id>
 			<type_dflt>0</type_dflt>
 			<listable>1</listable>
-			<contentfile>0</contentfile>
+			<contentfile></contentfile>
 			<content><![CDATA[&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;en&quot;&gt;{* Change lang=&quot;en&quot; to the language of your site *}
 {* Note: anything inside these is a Smarty comment, it will not show up in the page source *}
@@ -5793,7 +5802,7 @@ a {
 
     &lt;main&gt;
       &lt;!-- Start News Display --&gt;
-      {cms_module module=News number=1 summarytemplate=&apos;SteppoTheme::News Summary&apos; try=1}
+      {cms_module module=News number=1 summarytemplate=&apos;SteppoTheme::News Summary&apos;}
       &lt;!-- End News Display --&gt;
       &lt;br /&gt;
       &lt;!-- Start Content --&gt;
@@ -5817,7 +5826,7 @@ a {
 			<type_id>2</type_id>
 			<type_dflt>0</type_dflt>
 			<listable>1</listable>
-			<contentfile>0</contentfile>
+			<contentfile></contentfile>
 			<content><![CDATA[&lt;!-- Start News Summary Template --&gt;
 {* this section shows a clickable list of News categories. *}
 {*&lt;ul class=&quot;list1&quot;&gt;

@@ -103,7 +103,7 @@ class Smarty_Resource_cms_stylesheet extends Smarty_Resource_Custom
             }
 
             $db = Lone::get('Db');
-            $sql = 'SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_stylesheets WHERE'.$so.' (id=? OR name=?)';
+            $sql = 'SELECT id,`name`,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_stylesheets WHERE'.$so.' (id=? OR `name`=?)';
             $rst = $db->execute($sql, $args);
             if( !$rst || $rst->EOF() ) {
                 if( $rst ) $rst->Close();

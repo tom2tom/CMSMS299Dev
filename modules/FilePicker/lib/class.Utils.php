@@ -147,7 +147,7 @@ class Utils
         }
 
         $types = imagetypes(); //IMG_BMP | IMG_GIF | IMG_JPG | IMG_PNG | IMG_WBMP | IMG_XPM | IMG_WEBP (7.0.10)
-        $ores = null;
+        $ores = null; // object undefined
         switch ($info[2]) {
             case IMAGETYPE_GIF:
                 if ($types & IMG_GIF) {
@@ -292,7 +292,7 @@ class Utils
      *  filesystem-path of folder to be reported. Default '' (hence use relevant root)
      * @return array (maybe empty)
      */
-    public static function get_file_list(FilePicker $mod, $profile = null, string $dirpath = '') : array
+    public static function get_file_list(FilePicker $mod, /*mixed*/$profile = null, string $dirpath = '') : array
     {
         $dirpath = self::processpath($dirpath);
         if (!$dirpath) return [];
@@ -385,9 +385,10 @@ class Utils
 
         $sortby = $profile->sort;
         if ($sortby !== FSControlValue::NONE) {
+            //TODO CMSMS3+ requires Intl extension hence Collator
             if (class_exists('Collator')) {
-                $lang = NlsOperations::get_default_language();
-                $col = new Collator($lang); // e.g. new Collator('pl_PL') TODO if.UTF-8 ?? ini 'output_encoding' ??
+                //$lang = NlsOperations::get_default_language(); // e.g. 'pl_PL' TODO if .UTF-8 ? ini 'output_encoding' ? if files N/A on host system?
+                $col = new Collator('root'); // TODO relevant locale for filename comparisons
             } else {
                 $col = false;
                 // fallback ?? e.g. setlocale() then strcoll()

@@ -35,21 +35,21 @@ if (isset($_REQUEST['css'])) {
 } elseif (isset($_REQUEST['grp'])) {
 	$css_id = -(int)$_REQUEST['grp'];
 } else {
-	$css_id = null;
+	$css_id = 0;
 }
 
 if (isset($_POST['css_select'])) {  //id(s) array for a bulk operation
 	//sanitize
 	$css_multi = array_map('intval', $_POST['css_select']);
 } else {
-	$css_multi = null;
+	$css_multi = false;
 }
 
 $op = $_GET['op'] ?? $_POST['bulk_action'] ?? ''; // no sanitizeVal() etc, only exact matches accepted
 switch (trim($op)) {
 	case 'copy':
 		if (!$pmod) exit;
-		if ($css_id) {
+		if ($css_id != 0) {
 			try {
 				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_copy($css_id);
@@ -91,7 +91,7 @@ switch (trim($op)) {
 		}
 		break;
 	case 'replace':
-		if ($css_id) {
+		if ($css_id != 0) {
 			try {
 				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_replace($css_id);
@@ -104,7 +104,7 @@ switch (trim($op)) {
 		// multi for this one?
 		break;
 	case 'append':
-		if ($css_id) {
+		if ($css_id != 0) {
 			try {
 				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_append($css_id);
@@ -116,7 +116,7 @@ switch (trim($op)) {
 		}
 		break;
 	case 'prepend':
-		if ($css_id) {
+		if ($css_id != 0) {
 			try {
 				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_prepend($css_id);
@@ -128,8 +128,8 @@ switch (trim($op)) {
 		}
 		break;
 	case 'remove':
-		//multi for this one ?
-		if ($css_id) {
+		//TODO support multi for this one ?
+		if ($css_id != 0) {
 			try {
 				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_remove($css_id);

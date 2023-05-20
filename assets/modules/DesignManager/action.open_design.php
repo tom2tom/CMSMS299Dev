@@ -82,7 +82,7 @@ try {
         $this->ShowErrors($t->GetMessage());
     }
 
-    $tpl = $smarty->createTemplate($this->GetTemplateResource('open_design.tpl')); //,null,null,$smarty);
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('open_design.tpl','','',$smarty));
 
     $qry = new TemplateQuery(['o:'=>'core']);
     $templates = $qry->GetMatches();

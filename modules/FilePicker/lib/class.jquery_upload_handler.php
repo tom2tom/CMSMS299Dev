@@ -19,7 +19,7 @@ abstract class jquery_upload_handler
 {
     private $options;
 
-    public function __construct(/*array */$options = null)
+    public function __construct(/*array */$options = [])
     {
         $this->options = [
             'script_url' => $this->getFullUrl().'/'.basename(__FILE__),
@@ -130,17 +130,20 @@ abstract class jquery_upload_handler
                 $write_image = 'imagepng';
                 break;
             default:
-                $src_img = $image_method = null;
+                $src_img = null; // no object
+                $write_image = 'noop';
         }
-        $success = $src_img && @imagecopyresampled(
-            $new_img,
-            $src_img,
-            0, 0, 0, 0,
-            $new_width,
-            $new_height,
-            $img_width,
-            $img_height
-        ) && $write_image($new_img, $new_file_path);
+        $success = $src_img &&
+            @imagecopyresampled(
+                $new_img,
+                $src_img,
+                0, 0, 0, 0,
+                $new_width,
+                $new_height,
+                $img_width,
+                $img_height
+            ) &&
+            $write_image($new_img, $new_file_path);
         // Free up memory (imagedestroy does not delete files):
         @imagedestroy($src_img);
         @imagedestroy($new_img);

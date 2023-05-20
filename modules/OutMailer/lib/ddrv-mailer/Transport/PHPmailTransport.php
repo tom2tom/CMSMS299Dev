@@ -80,6 +80,8 @@ final class PHPmailTransport implements Transport
         if (is_callable($this->requestLogger)) {
             call_user_func($this->requestLogger, 'send (PHP mail) to: '.$to);
         }
+//TODO support authentication using oAuth parameters from upstream
+// when relevant - provider, type etc etc
         if (mail($to, $subject, $body, $headers, trim($parms))) {
             return true;
         }

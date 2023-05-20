@@ -37,6 +37,7 @@ OR
 $modname      optional string module name
 $returnaction optional string (default 'defaultadmin')
 $returntab    optional string (default '')
+$smarty
 
 $title        optional string
 $infomessage  optional string If not provided, the template-type help message (if any) will be used

@@ -81,12 +81,12 @@ function smarty_function_page_attr($params, $template)
 
 		case 'create_date':
 			$result = $contentobj->GetCreationDate();
-			if( $result < 0 ) $result = null;
+			if( $result < 0 ) $result = '';
 			break;
 
 		case 'modified_date':
 			$result = $contentobj->GetModifiedDate();
-			if( $result < 0 ) $result = null;
+			if( $result < 0 ) $result = '';
 			break;
 
 		case 'last_modified_by':

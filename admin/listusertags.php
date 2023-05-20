@@ -38,7 +38,7 @@ foreach ($items as $id=>$name) {
     $tags[] = [
         'id' => $id, //fake id <= $ops::MAXFID for UDTFiles
         'name' => $name,
-        'description' => $data['description'] ?? null,
+        'description' => $data['description'] ?? '',
     ];
 }
 

@@ -42,7 +42,7 @@ $names = $db->getArray($sql);
 if ($names) {
     // alter collation for each table-column (200+)
     foreach ($names as $tbl) {
-        //TODO $sqlarray = $dict->AlterColumnSQL() - prob need respective full-column-def'n
+        //TODO $sqlarray = $dict->AlterColumnSQL() - for which, need respective full-column-def'n
         $s = $tbl['TABLE_NAME'];
         $r = $tbl['COLUMN_NAME'];
         $res = $db->execute("ALTER TABLE '$s' MODIFY COLUMN $r CHARACTER SET utf8mb4");
@@ -156,7 +156,7 @@ if ($data) {
 $corename = TemplateType::CORE;
 $page_type = TemplateType::load($corename.'::page');
 if ($page_type) {
-    $sql = 'UPDATE '.$tbl.' SET lang_cb=?,dflt_content_cb=?,help_content_cb=? WHERE originator=\''.$corename.'\' AND name=\'page\'';
+    $sql = 'UPDATE '.$tbl.' SET lang_cb=?,dflt_content_cb=?,help_content_cb=? WHERE originator=\''.$corename.'\' AND `name`=\'page\'';
     $dbr = $db->execute($sql, [
         'CMSMS\internal\std_layout_template_callbacks::tpltype_lang_callback',
         'CMSMS\internal\std_layout_template_callbacks::reset_tpltype_default',
@@ -168,7 +168,7 @@ if (!$page_type || empty($dbr)) {
 }
 $generic_type = TemplateType::load($corename.'::generic');
 if ($generic_type) {
-    $sql = 'UPDATE '.$tbl.' SET lang_cb=?,help_content_cb=? WHERE originator=\''.$corename.'\' AND name=\'generic\'';
+    $sql = 'UPDATE '.$tbl.' SET lang_cb=?,help_content_cb=? WHERE originator=\''.$corename.'\' AND `name`=\'generic\'';
     $dbr = $db->execute($sql, [
         'CMSMS\internal\std_layout_template_callbacks::generic_type_lang_callback',
         'CMSMS\internal\std_layout_template_callbacks::tpltype_help_callback',
@@ -188,7 +188,7 @@ $db->execute($sql);
 // 2.3 remove module-plugin duplicates (now we have caseless tagname-matching)
 $tbl = CMS_DB_PREFIX.'module_smarty_plugins';
 $db->execute("DELETE T1 FROM $tbl T1 INNER JOIN $tbl T2
-WHERE T1.id > T2.id AND UPPER(T1.name) = UPPER(T2.name) AND UPPER(T1.module) = UPPER(T2.module)");
+WHERE T1.id > T2.id AND UPPER(T1.`name`) = UPPER(T2.`name`) AND UPPER(T1.module) = UPPER(T2.module)");
 
 // 2.4 convert plugin-handler-callables from serialize'd to plain string
 $data = $db->getArray('SELECT id,module,callable FROM '.$tbl);
@@ -442,16 +442,16 @@ $sql = 'UPDATE '.CMS_DB_PREFIX."siteprefs SET sitepref_name = REPLACE(sitepref_n
 $db->execute($sql, [$longnow]);
 
 // 4. Extra/revised permissions
-$sql = 'UPDATE '.CMS_DB_PREFIX.'permissions SET name=?,description=?,modified_date=? WHERE name=?';
+$sql = 'UPDATE '.CMS_DB_PREFIX.'permissions SET `name`=?,description=?,modified_date=? WHERE `name`=?';
 $db->execute($sql, ['Manage User Plugins', 'Modify User-Defined Tags', $longnow, 'Modify User-defined Tags']);
 // BEFORE $sql = 'UPDATE '.CMS_DB_PREFIX.'permissions SET originator = \'__CORE__\' WHERE originator IS NULL';
 //$db->execute($sql);
 $sql = 'UPDATE '.CMS_DB_PREFIX.'permissions SET originator = \'__CORE__\' WHERE originator = \'Core\'';
 $db->execute($sql);
-$sql = 'UPDATE '.CMS_DB_PREFIX.'permissions SET description = NULL WHERE description = name OR description =\'\'';
+$sql = 'UPDATE '.CMS_DB_PREFIX.'permissions SET description = NULL WHERE description = `name` OR description =\'\'';
 $db->execute($sql);
 
-//$sql = 'INSERT INTO '.CMS_DB_PREFIX.'permissions SET name=?,description=?';
+//$sql = 'INSERT INTO '.CMS_DB_PREFIX.'permissions SET `name`=?,description=?';
 //$db->execute($sql,['Manage Jobs','Manage asynchronous jobs']);
 
 // non-ultra extras
@@ -766,7 +766,7 @@ $db->execute($sql);
 
 // 13. file-changes which must be after the do_files() (main) update
 
-// 13.1 create siteuuid-file
+// 13.1 create siteuuid file
 //$assetsdir = $config['assets_path'] ?? 'assets'; // TODO CMS_ASSETS_PATH known here ?
 //$fp = joinpath($destdir,$assetsdir,'configs','siteuuid.dat');
 $fp = joinpath(CMS_ASSETS_PATH, 'configs', 'siteuuid.dat');
@@ -779,6 +779,32 @@ while (($p = strpos($s, '\0', $p + 1)) !== false) {
 file_put_contents($fp, $s);
 //$modes = get_server_permissions();
 chmod($fp, $modes[0]); // read-only
+// create masterpass file
+$fp = joinpath(CMS_ASSETS_PATH, 'configs', 'master.dat');
+$s = Crypto::random_string(40, true);
+$val = strtr($s, ['"'=>'=', '\''=>'-']);
+file_put_contents($fp, $val);
+chmod($fp, $modes[0]);
+
+// 13.1A
+// migrate users' username, last_name, email to hash and/or crypted form
+// requires master.dat to be available
+$sql = 'SELECT user_id,username,last_name,email FROM '.CMS_DB_PREFIX.'users';
+$data = $db->getArray($sql);
+if ($data) {
+    status_msg('Securing users\' account and email records');
+    $userops = Lone::get('UserOperations');
+    $salt = $userops->DefaultKey();
+    $sql = 'UPDATE '.CMS_DB_PREFIX.'users SET account=?,username=?,last_name=?,email=? WHERE user_id=?';
+    foreach ($data as $row) {
+        $tval = trim($row['username']);
+        $acct = $userops->PrepareUserhash($tval);
+        $cname = $userops->Distort($tval, $salt); //TODO $db->addQ() then revert where needed?
+        $clast = ($row['last_name']) ? $userops->Distort($row['last_name'], $salt) : (string)$row['last_name']; // ditto
+        $cmail = ($row['email']) ? $userops->Distort($row['email'], $salt) : ''; // ditto
+        $db->execute($sql, [$acct, $cname, $clast, $cmail, $row['user_id']]);
+    }
+}
 
 // 13.2 maybe some classes were missed by the manifest processing
 $list = glob($destdir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'class.Cms*.php'); // filesystem path

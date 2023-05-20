@@ -106,17 +106,17 @@ $js = <<<EOS
 $(function() {
   $('a.mod_upgrade').on('click', function(ev) {
     ev.preventDefault();
-    cms_confirm_linkclick(this,'$s1');
+    cms_confirm_linkclick(this, '$s1');
     return false;
   });
   $('a.mod_remove').on('click', function(ev) {
     ev.preventDefault();
-    cms_confirm_linkclick(this,'$s2');
+    cms_confirm_linkclick(this, '$s2');
     return false;
   });
   $('a.mod_chmod').on('click', function(ev) {
     ev.preventDefault();
-    cms_confirm_linkclick(this,'$s3');
+    cms_confirm_linkclick(this, '$s3');
     return false;
   });
   $('#importbtn').on('click', function() {

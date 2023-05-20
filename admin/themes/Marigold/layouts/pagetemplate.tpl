@@ -25,7 +25,7 @@
   {$font_includes}
   {$header_includes|default:''}
  </head>
- <body id="{$pagetitle|md5}" class="mg_{$pagealias}">
+ <body id="{md5($pagetitle)}" class="mg_{$pagealias}">
   <!-- start container -->
   <div id="mg_container" class="sidebar-on">
    <!-- start header -->

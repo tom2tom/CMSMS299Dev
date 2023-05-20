@@ -32,6 +32,12 @@ if( !$name ) {
     $this->RedirectToAdminTab();
 }
 
+$xmlfile = $params['filename'] ?? '';
+if( !$xmlfile ) {
+    $this->SetError($this->Lang('error_nofilename'));
+    $this->RedirectToAdminTab();
+}
+
 $version = $params['version'] ?? '';
 if( !$version ) {
     $this->SetError($this->Lang('error_insufficientparams'));
@@ -44,12 +50,6 @@ if( !$url ) {
     $this->RedirectToAdminTab();
 }
 $url .= '/modulehelp';
-
-$xmlfile = $params['filename'] ?? '';
-if( !$xmlfile ) {
-    $this->SetError($this->Lang('error_nofilename'));
-    $this->RedirectToAdminTab();
-}
 
 $req = new CachedRequest();
 $req->execute($url,['name'=>$xmlfile]);

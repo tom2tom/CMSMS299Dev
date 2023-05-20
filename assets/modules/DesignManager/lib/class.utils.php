@@ -41,14 +41,14 @@ final class utils
         static $_locks = null;
         static $_locks_loaded = FALSE;
         if( !$_locks_loaded ) {
-            $_locks_loaded = TRUE;
+            $_locks = [];
             $tmp = LockOperations::get_locks('template');
             if( $tmp ) {
-                $_locks = [];
                 foreach( $tmp as $lock_obj ) {
                     $_locks[$lock_obj['oid']] = $lock_obj;
                 }
             }
+            $_locks_loaded = TRUE;
         }
         return $_locks;
     }

@@ -8,9 +8,7 @@
 {$formstart}
 <div class="pageoverflow">
   <p class="pagetext">{_ld($_module,'deleteselected')}:</p>
-  <p class="pageinput">
-    {'<br>'|implode:$sel}
-  </p>
+  <p class="pageinput">{implode("<br>\n",$sel)}</p>
 </div>
 <br>
 <div class="pageoverflow">

@@ -206,7 +206,7 @@ try {
         $data['fullurl'] = $starturl.'/'.$name;
         $info = @stat($fullname);
         if( $info && $info['size'] > 0 ) {
-            $data['size'] = round($info['size']/pow(1024, ($i = floor(log($info['size'], 1024)))), 2) . $filesizename[$i];
+            $data['size'] = round($info['size']/(1024 ** ($i = floor(log($info['size'], 1024)))), 2) . $filesizename[$i];
         }
         else {
             $data['size'] = '';

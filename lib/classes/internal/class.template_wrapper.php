@@ -1,7 +1,7 @@
 <?php
 /*
 Default Smarty template class for CMSMS
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -31,7 +31,18 @@ use function CMSMS\is_frontend_request;
  */
 class template_wrapper extends Smarty_Internal_Template
 {
-    public function createTemplate($template, $cache_id = null, $compile_id = null, $parent = null, $do_clone = true)
+    /**
+     * create a template object
+     *
+     * @param string  $template   the resource handle of the template file
+     * @param mixed   $cache_id   optional object | array | string | falsy cache id to be used with this template
+     * @param mixed   $compile_id optional string compile id to be used with this template
+     * @param mixed   $parent     optional next higher level of Smarty variables Default null
+     * @param boolean $do_clone   optional flag whether to clone Smarty object Default true
+     * @return \Smarty_Internal_Template template object
+     * @throws \SmartyException
+     */
+    public function createTemplate($template, $cache_id = '', $compile_id = '', $parent = null, $do_clone = true)
     {
         if( $parent == null ) {
             $parent = $this;

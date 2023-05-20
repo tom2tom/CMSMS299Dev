@@ -31,7 +31,14 @@ $installer_working = AppState::test(AppState::INSTALL);
 if (!($installer_working || $this->CheckPermission('Modify Modules'))) exit;
 
 $dict = $db->NewDataDictionary(); //old NewDataDictionary($db);
-$taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
+//prefer MariaDB Aria engine if available
+$str = $db->server_info;
+if (stripos($str, 'Maria') === false) {
+    $tblengn = 'MyISAM';
+} else {
+    $tblengn = 'Aria';
+}
+$taboptarray = ['mysqli' => "ENGINE=$tblengn CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci"];
 
 $flds = '
 id I UNSIGNED AUTO KEY,
@@ -100,18 +107,32 @@ $mailprefs = [
     'secure' => '',
     'timeout' => 60,
     'charset' => 'utf-8',
+    'oauthProvider' => '',
+    'oauthClientId' => '',
+    'oauthSecret' => '',
+    'oauthUserEmail' => 'donotreply@'.$host, //always same as from?
     'single'=> 0,
 ];
+//identity providers (per https://auth0.com/docs/authenticate/identity-providers
+// and supported League OAuth2 Clients
+//e.g. "core" Facebook Github Google Instagram LinkedIn and per https://oauth2-client.thephpleague.com/providers/thirdparty
 $val = AppParams::get('mailprefs');
 if ($val) {
     $parms = unserialize($val, ['allowed_classes' => false]);
     if ($parms['password'] !== '') {
         $parms['password'] = Crypto::decrypt_string(base64_decode($parms['password']));
     }
+    if (isset($parms['oauthSecret']) && $parms['oauthSecret'] !== '') {
+        $parms['oauthSecret'] = Crypto::decrypt_string(base64_decode($parms['oauthSecret']));
+    }
     $mailprefs = array_merge($mailprefs, $parms);
 }
+// secure these ones
 $mailprefs['password'] = base64_encode(Crypto::encrypt_string($mailprefs['password'], $pw));
-unset($pw); $pw = null;
+$val = $mailprefs['oauthsecret'] ?? '';
+$mailprefs['oauthClientSecret'] = base64_encode(Crypto::encrypt_string($val, $pw));
+unset($pw);
+$pw = null; // assist garbage collector
 foreach ($mailprefs as $key => $val) {
     $this->SetPreference($key, $val);
 }

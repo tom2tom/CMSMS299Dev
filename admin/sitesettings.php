@@ -507,7 +507,7 @@ if (isset($_POST['submit'])) {
 $adminlog_timeout = AppParams::get('adminlog_timeout', 30);
 $allow_browser_cache = AppParams::get('allow_browser_cache', 0);
 $auto_clear_cache_age = AppParams::get('auto_clear_cache_age', 0);
-$basic_attributes = AppParams::get('basic_attributes', null);
+$basic_attributes = AppParams::get('basic_attributes', '');
 $browser_cache_expiry = AppParams::get('browser_cache_expiry', 60);
 $checkversion = AppParams::get('checkversion', 1);
 //CHECKME content manager module for these ?
@@ -526,8 +526,8 @@ if (Events::ListEventHandlers('Core', 'CheckUserData')) {
     $password_level = AppParams::get('password_level', 0);
     $username_level = AppParams::get('username_level', 0);
 } else {
-    $password_level = null;
-    $username_level = null;
+    $password_level = -1; //select nothing in UI
+    $username_level = -1;
 }
 
 $frontendlang = AppParams::get('frontendlang');
@@ -623,9 +623,8 @@ if ($modnames) {
         if ($modnames[$i]) { $modnames[$i]->InitializeAdmin(); }
     }
     $list = HookOperations::do_hook_accumulate('ExtraSiteSettings');
-    // assist the garbage-collector
     for ($i = 0; $i < $n; ++$i) {
-        $modnames[$i] = null;
+        $modnames[$i] = null; // assist the garbage-collector
     }
     $externals = [];
     if ($list) {
@@ -636,9 +635,10 @@ if ($modnames) {
             }
             $externals[] = $info;
         }
-        //$col = new Collator(TODO);
-        uasort($externals, function($a, $b) { // use($col)
-            return strnatcmp($a['title'], $b['title']); //TODO return $col->compare($a['title'],$b['title']);
+        //$col = new Collator('root'); TODO relevant locale for titles
+        //$col->setStrength(Collator::SECONDARY); // caseless
+        uasort($externals, function($a, $b) { // use ($col)
+            return strnatcmp($a['title'], $b['title']); //TODO return $col->compare($a['title'], $b['title']);
         });
     }
     $smarty->assign('externals', $externals);
@@ -840,6 +840,7 @@ if ($devmode) {
 
 $modnames = Lone::get('LoadedMetadata')->get('capable_modules', false, CapabilityType::LOGIN_MODULE);
 if ($modnames && count($modnames) > 1) {
+    $tmp = [];
     for ($i = 0, $n = count($modnames); $i < $n; $i++) {
         if ($modnames[$i] == $modops::STD_LOGIN_MODULE) {
             $tmp[$modnames[$i]] = _la('default');
@@ -849,6 +850,9 @@ if ($modnames && count($modnames) > 1) {
     }
     $smarty->assign('login_module', $login_module)
      ->assign('login_modules', $tmp);
+} else {
+    $smarty->assign('login_module', '')
+     ->assign('login_modules', []);
 }
 
 $tmp = ['' => _la('theme'), 'module' => _la('default')];
@@ -907,14 +911,14 @@ if ($modnames) {
           if (!$realm) { $realm = $modname; }
           $one->mainkey = $realm.'__'.$key;
         } else {
-          $one->mainkey = null;
+          $one->mainkey = '';
         }
         list($realm, $key) = $mod->GetThemeHelpKey($edname);
         if ($key) {
           if (!$realm) { $realm = $modname; }
             $one->themekey = $realm.'__'.$key;
           } else {
-            $one->themekey = null;
+            $one->themekey = '';
         }
         if ($modname == $wysiwygmodule && $edname == $wysiwygtype) { $one->checked = true; }
         $editors[] = $one;
@@ -928,18 +932,18 @@ if ($modnames) {
         $one->label = $mod->GetFriendlyName(); // admin menu label, may be useless here
       }
       $one->value = $modnames[$i];
-      $one->mainkey = null;
-      $one->themekey = null;
+      $one->mainkey = '';
+      $one->themekey = '';
       if ($modnames[$i] == $wysiwyg) { $one->checked = true; }
       $editors[] = $one;
       $fronts[$one->value] = $one->label;
     }
   }
-  usort($editors, function ($a,$b) { return strcmp($a->label, $b->label); });
-  uasort($fronts, function ($a,$b) { return strcmp($a, $b); });
+  usort($editors, function ($a,$b) { return ($a->label <=> $b->label); }); //OR collator->compare() ?
+  uasort($fronts, function ($a,$b) { return ($a <=> $b); });
 } else {
-  $editors = null;
-  $fronts = null;
+  $editors = [];
+  $fronts = [];
 }
 $smarty->assign('wysiwyg_opts', $editors);
 
@@ -966,14 +970,14 @@ if ($modnames) {
         if (!$realm) { $realm = $modname; }
           $one->mainkey = $realm.'__'.$key;
         } else {
-          $one->mainkey = null;
+          $one->mainkey = '';
         }
         list($realm, $key) = $mod->GetThemeHelpKey($edname);
         if ($key) {
           if (!$realm) { $realm = $modname; }
           $one->themekey = $realm.'__'.$key;
         } else {
-          $one->themekey = null;
+          $one->themekey = '';
         }
         if ($modname == $syntaxmodule && $edname == $syntaxtype) { $one->checked = true; }
         $editors[] = $one;
@@ -986,23 +990,23 @@ if ($modnames) {
         $one->label = $mod->GetFriendlyName(); // admin menu label, may be useless here
       }
       $one->value = $modnames[$i];
-      $one->mainkey = null;
-      $one->themekey = null;
+      $one->mainkey = '';
+      $one->themekey = '';
       if ($modnames[$i] == $syntaxer) { $one->checked = true; }
       $editors[] = $one;
     }
   }
-  usort($editors, function ($a,$b) { return strcmp($a->label, $b->label); });
+  usort($editors, function ($a,$b) { return ($a->label <=> $b->label); }); // OR collator->compare() ?
 
   $one = new stdClass();
   $one->value = '';
   $one->label = _la('none');
-  $one->mainkey = null;
-  $one->themekey = null;
+  $one->mainkey = '';
+  $one->themekey = '';
   if (!$syntaxer) { $one->checked = true; }
   array_unshift($editors, $one);
 } else {
-  $editors = null;
+  $editors = [];
 }
 $smarty->assign('syntax_opts', $editors);
 
@@ -1033,7 +1037,7 @@ $smarty->assign([
 //  'joburl' => $joburl,
   'lock_refresh' => $lock_refresh,
   'lock_timeout' => $lock_timeout,
-  'login_module' => $login_module,
+//  'login_module' => $login_module,
   'logintimeout' => $logintimeout,
   'logoselect' => $logoselector,
 //  'metadata' => $metadata, // TODO consider syntax editor for html
@@ -1052,7 +1056,7 @@ $smarty->assign([
   'thumbnail_height' => $thumbnail_height,
   'thumbnail_width' => $thumbnail_width,
   'usernamelevel' => $username_level,
-  'wysiwyg_theme' => specialize($wysiwygtheme),
+  'wysiwygtheme' => specialize($wysiwygtheme),
   ])
   ->assign('textarea_metadata', FormUtils::create_textarea([
     'wantedsyntax' => 'html',
@@ -1071,7 +1075,7 @@ $smarty->assign([
     'value' => $sitedownmessage, // verbatim value
   ]));
 
-if ($password_level !== null) {
+if ($password_level !== -1) {
     $pass_levels = [
         0 => _la('unrestricted'),
         1 => _la('guess_medium'),
@@ -1113,12 +1117,11 @@ $tmp = [
 ];
 $smarty->assign('adminlog_options', $tmp);
 
-$all_attributes = null;
-//$txt = null;
+$all_attributes = [];
+//$txt = '';
 $content_obj = new Content(); // i.e. the default content-type
 $list = $content_obj->GetPropertiesArray();
 if ($list) {
-    $all_attributes = [];
     for ($i = 0, $n = count($list); $i < $n; ++$i) {
         $arr = $list[$i];
         $tmp = $arr['tab'];

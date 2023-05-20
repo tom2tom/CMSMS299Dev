@@ -140,7 +140,7 @@ var SSsopts = {
 EOS;
 add_page_foottext($js);
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,'','',$smarty);
 $tpl->assign('can_add',$pmod || $pprop)
  ->assign('can_mod',$pmod)
  ->assign('can_del',$pmod && $pdel)

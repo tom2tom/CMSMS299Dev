@@ -36,7 +36,7 @@ class HookHandler
     /**
      * @var callable hook-processor function
      */
-    public $handler;
+    public $callable;
 
     /**
      * @var int HookOperations::PRIORITY_*

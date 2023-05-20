@@ -546,7 +546,7 @@ class TemplateType
 			// check for item with the same name
 			$db = Lone::get('Db');
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.
-			' WHERE originator = ? AND name = ? AND id != ?';
+			' WHERE originator=? AND `name`=? AND id != ?';
 			$dbr = $db->getOne($query,[$this->get_originator(),$this->get_name(),$this->get_id()]);
 			if( $dbr ) throw new LogicException('A template-type named \''.$this->get_name().'\' already exists.');
 		}
@@ -554,7 +554,7 @@ class TemplateType
 			// check for item with the same name
 			$db = Lone::get('Db');
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.
-			' WHERE originator = ? AND name = ?';
+			' WHERE originator=? AND `name`=?';
 			$dbr = $db->getOne($query,[$this->get_originator(),$this->get_name()]);
 			if( $dbr ) throw new LogicException('A template-type named \''.$this->get_name().'\' already exists.');
 		}
@@ -607,7 +607,7 @@ class TemplateType
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.
 ' (
 originator,
-name,
+`name`,
 has_dflt,
 one_only,
 description,
@@ -702,19 +702,19 @@ create_date
 		];
 
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET
-originator = ?,
-name = ?,
-has_dflt = ?,
-one_only = ?,
-description = ?,
-lang_cb = ?,
-help_content_cb = ?,
-dflt_content_cb = ?,
-requires_contentblocks = ?,
-owner_id = ?
-dflt_content = ?,
-modified_date = ?
-WHERE id = ?';
+originator=?,
+`name`=?,
+has_dflt=?,
+one_only=?,
+description=?,
+lang_cb=?,
+help_content_cb=?,
+dflt_content_cb=?,
+requires_contentblocks=?,
+owner_id=?
+dflt_content=?,
+modified_date=?
+WHERE id=?';
 		$db->execute($query,$args);
 		if( $db->errorNo() === 0 ) {
 			$this->dirty = FALSE;
@@ -763,7 +763,7 @@ WHERE id = ?';
 		$tmp = TemplateOperations::template_query(['t:'.$this->get_id()]);
 		if( $tmp ) throw new LogicException('Cannot delete a template-type with existing templates');
 		$db = Lone::get('Db');
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id=?';
 		$dbr = $db->execute($query,[$this->props['id']]);
 		if( !$dbr ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
 
@@ -948,7 +948,7 @@ WHERE id = ?';
 			$a = (int)$a;
 			if( isset(self::$cache[$a]) ) return self::$cache[$a];
 			// just in case: check the database
-			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
+			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id=?';
 			$row = $db->getRow($query,[$a]);
 			if( $row ) {
 				$id = (int)$row['id'];
@@ -964,7 +964,7 @@ WHERE id = ?';
 
 			$parts = explode('::',$a,2);
 			if( count($parts) == 1 ) {
-				$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
+				$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE `name`=?';
 				$all = $db->getArray($query,[$a]);
 				if( $all ) {
 					if( count($all) == 1 ) {
@@ -979,7 +979,7 @@ WHERE id = ?';
 				}
 			}
 			else {
-				$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE originator = ? AND name = ?';
+				$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE originator=? AND `name`=?';
 				if( !$parts[0] || strcasecmp($parts[0],'core') == 0 )  { $parts[0] = self::CORE; }
 				$row = $db->getRow($query,[trim($parts[0]),trim($parts[1])]);
 				if( $row ) {
@@ -1004,7 +1004,7 @@ WHERE id = ?';
 		if( !$originator ) throw new LogicException('Orignator is empty');
 
 		$db = Lone::get('Db');
-		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE originator = ?';
+		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE originator=?';
 		if( self::$cache ) $query .= ' AND id NOT IN ('.implode(',',array_keys(self::$cache)).')';
 		$query .= ' ORDER BY IF(modified_date, modified_date, create_date) DESC';
 		$list = $db->getArray($query,[$originator]);

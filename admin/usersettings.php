@@ -97,12 +97,12 @@ if (isset($_POST['submit'])) {
         '';
     $indent = (isset($_POST['indent'])) ? 1 : 0;
     $paging = (isset($_POST['paging'])) ? 1 : 0;
-    $syntaxer = isset($_POST['syntaxtype']) ? sanitizeVal($_POST['syntaxtype'], CMSSAN_PUNCTX, ':') : null; // allow '::'
+    $syntaxer = isset($_POST['syntaxtype']) ? sanitizeVal($_POST['syntaxtype'], CMSSAN_PUNCTX, ':') : ''; // allow '::'
     //TODO in/UI by relevant module
-    $syntaxtheme = isset($_POST['syntaxtheme']) ? sanitizeVal($_POST['syntaxtheme'], CMSSAN_PUNCT) : null; // OR , CMSSAN_PURESPC?
-    $wysiwyg = isset($_POST['wysiwygtype']) ? sanitizeVal($_POST['wysiwygtype'], CMSSAN_PUNCTX, ':') : null; // allow '::'
+    $syntaxtheme = isset($_POST['syntaxtheme']) ? sanitizeVal($_POST['syntaxtheme'], CMSSAN_PUNCT) : ''; // OR , CMSSAN_PURESPC?
+    $wysiwyg = isset($_POST['wysiwygtype']) ? sanitizeVal($_POST['wysiwygtype'], CMSSAN_PUNCTX, ':') : ''; // allow '::'
     //TODO in/UI by relevant module
-    $wysiwygtheme = isset($_POST['wysiwygtheme']) ? sanitizeVal($_POST['wysiwygtheme'], CMSSAN_PUNCT) : null; // OR , CMSSAN_PURESPC?
+    $wysiwygtheme = isset($_POST['wysiwygtheme']) ? sanitizeVal($_POST['wysiwygtheme'], CMSSAN_PUNCT) : ''; // OR , CMSSAN_PURESPC?
 
     // Set prefs
     $themenow = UserParams::get_for_user($userid, 'admintheme');
@@ -119,7 +119,7 @@ if (isset($_POST['submit'])) {
     UserParams::set_for_user($userid, 'homepage', $homepage);
     UserParams::set_for_user($userid, 'indent', $indent);
     UserParams::set_for_user($userid, 'paging', $paging);
-    if ($syntaxer !== null) {
+    if ($syntaxer) {
         if (strpos($syntaxer, '::') !== false) {
             $parts = explode('::', $syntaxer, 2);
             UserParams::set_for_user($userid, 'syntaxhighlighter', $parts[0]); //module
@@ -134,7 +134,7 @@ if (isset($_POST['submit'])) {
     }
     //TODO in/UI by relevant module
     UserParams::set_for_user($userid, 'syntax_theme', $syntaxtheme);
-    if ($wysiwyg !== null) {
+    if ($wysiwyg) {
         if (strpos($wysiwyg, '::') !== false) {
             $parts = explode('::', $wysiwyg, 2);
             UserParams::set_for_user($userid, 'wysiwyg', $parts[0]);    //module
@@ -197,9 +197,8 @@ if ($modnames) {
         if ($modnames[$i]) { $modnames[$i]->InitializeAdmin(); }
     }
     $list = HookOperations::do_hook_accumulate('ExtraUserSettings');
-    // assist the garbage-collector
     for ($i = 0; $i < $n; ++$i) {
-        $modnames[$i] = null;
+        $modnames[$i] = null; // assist the garbage-collector
     }
     if ($list) {
         foreach ($list as $bundle) {
@@ -239,14 +238,14 @@ if ($modnames) {
                     if (!$realm) { $realm = $modname; }
                     $one->mainkey = $realm.'__'.$key;
                 } else {
-                    $one->mainkey = null;
+                    $one->mainkey = '';
                 }
                 list($realm, $key) = $mod->GetThemeHelpKey($edname);
                 if ($key) {
                     if (!$realm) { $realm = $modname; }
                         $one->themekey = $realm.'__'.$key;
                     } else {
-                        $one->themekey = null;
+                        $one->themekey = '';
                 }
                 if ($modname == $wysiwygmodule && $edname == $wysiwygtype) { $one->checked = true; }
                 $editors[] = $one;
@@ -259,19 +258,19 @@ if ($modnames) {
                 $one->label = $mod->GetFriendlyName(); // admin menu label, may be useless here
             }
             $one->value = $modnames[$i];
-            $one->mainkey = null; //TODO ibid if any
-            $one->themekey = null; //TODO ditto
+            $one->mainkey = ''; //TODO ibid if any
+            $one->themekey = ''; //TODO ditto
             if ($modnames[$i] == $wysiwyg) { $one->checked = true; }
             $editors[] = $one;
         }
     }
-    usort($editors, function ($a, $b) { return strcmp($a->label, $b->label); });
+    usort($editors, function ($a, $b) { return ($a->label <=> $b->label); }); // OR collator->compare() ?
 
     $one = new stdClass();
     $one->value = '';
     $one->label = _la('default');
-    $one->mainkey = null;
-    $one->themekey = null;
+    $one->mainkey = '';
+    $one->themekey = '';
     if (!$wysiwyg) { $one->checked = true; }
     array_unshift($editors, $one);
 }
@@ -295,14 +294,14 @@ if ($modnames) {
                     if (!$realm) { $realm = $modname; }
                     $one->mainkey = $realm.'__'.$key;
                 } else {
-                    $one->mainkey = null;
+                    $one->mainkey = '';
                 }
                 list($realm, $key) = $mod->GetThemeHelpKey($edname);
                 if ($key) {
                     if (!$realm) { $realm = $modname; }
                     $one->themekey = $realm.'__'.$key;
                 } else {
-                    $one->themekey = null;
+                    $one->themekey = '';
                 }
                 if ($modname == $syntaxmodule && $edname == $syntaxtype) { $one->checked = true; }
                 $editors[] = $one;
@@ -315,19 +314,19 @@ if ($modnames) {
                 $one->label = $mod->GetFriendlyName(); // admin menu label, may be useless here
             }
             $one->value = $modnames[$i].'::'.$modnames[$i];
-            $one->mainkey = null; //TODO
-            $one->themekey = null; //TODO
+            $one->mainkey = ''; //TODO
+            $one->themekey = ''; //TODO
             if ($modnames[$i] == $syntaxer || $one->value == $syntaxer) { $one->checked = true; }
             $editors[] = $one;
         }
     }
-    usort($editors, function ($a, $b) { return strcmp($a->label, $b->label); });
+    usort($editors, function ($a, $b) { return ($a->label <=> $b->label); }); // OR collator->compare()
 
     $one = new stdClass();
     $one->value = '';
     $one->label = _la('default');
-    $one->mainkey = null;
-    $one->themekey = null;
+    $one->mainkey = '';
+    $one->themekey = '';
     if (!$syntaxer) { $one->checked = true; }
     array_unshift($editors, $one);
 }
@@ -338,7 +337,7 @@ $smarty->assign('helpicon', $themeObject->DisplayImage('icons/system/info.png', 
 // Admin themes
 $tmp = AdminTheme::GetAvailableThemes();
 if (count($tmp) < 2) {
-    $tmp = null;
+    $tmp = [];
 }
 $smarty->assign('themes_opts', $tmp);
 
@@ -364,7 +363,7 @@ $ce_navopts = [
 
 // Home Pages
 // array with members like
-// lib/moduleinterface.php?mact=ContentMultiEditor,m1_,defaultadmin,0 => &nbsp;&nbsp;Rich&nbsp;Text&nbsp;Editing
+// admin/moduleinterface.php?mact=ContentMultiEditor,m1_,defaultadmin,0 => &nbsp;&nbsp;Rich&nbsp;Text&nbsp;Editing
 $adminpages = $themeObject->GetAdminPages(); //GetAdminPageDropdown(name 'homepage', sel $homepage, id 'homepage');
 specialize_array($adminpages);
 

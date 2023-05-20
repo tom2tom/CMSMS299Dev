@@ -140,12 +140,13 @@ const CMS_DEFAULT_VERSIONCHECK_URL = 'https://www.cmsmadesimple.org/latest_versi
 /*
  * Something short, URL-compatible and never used as a 'real' URL-parameter
  * From CMSMS 1.5 (or before) to 3.0, this const has been '_s_','sp_','_sx_','_sk_','__c','_k_'
- * but changing its value is minimally useful
+ * but changing its value is minimally useful, if at all
 */
 const CMS_SECURE_PARAM_NAME = '_sk_';
-const CMS_JOB_KEY = '_sk_jobtype'; // i.e. CMS_SECURE_PARAM_NAME.'jobtype'
 
-const CMS_USER_KEY = '_userkey_';
+const CMS_JOB_KEY = '_sk_jobtype'; //i.e. CMS_SECURE_PARAM_NAME.'jobtype'
+
+const CMS_USER_KEY = '_userkey_'; //used only in $_SESSION
 
 /**
  * Preview-page identifiers.

@@ -89,10 +89,10 @@ if(typeof cms_data === 'undefined') {
 Object.keys(ex).forEach(function(key) { cms_data[key] = ex[key]; });
 EOS;
 
-header('Pragma: public');
+//header('Pragma: public'); // deprecated 1.1
 header('Expires: 0');
 header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-header('Cache-Control: private',false);
+header('Cache-Control: private', false);
 header('Content-type: text/javascript');
 echo $out;
 exit;

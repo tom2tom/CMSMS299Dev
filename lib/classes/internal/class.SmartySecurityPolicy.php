@@ -47,7 +47,10 @@ final class SmartySecurityPolicy extends Smarty_Security
 //      $this->allow_super_globals = false;
         if( is_frontend_request() ) {
             $this->allow_constants = false;
-            if( !Lone::get('Config')['permissive_smarty'] ) {
+            if( Lone::get('Config')['permissive_smarty'] ) {
+                $this->php_functions = []; // allow any php method
+            }
+            else {
                 $this->static_classes = null;
                 // allow most methods that do data interpretation,
                 // modification or formatting ahead of or during display
@@ -56,7 +59,8 @@ final class SmartySecurityPolicy extends Smarty_Security
                 '_la', //since 3.0
                 '_ld', //since 3.0
                 '_lm', //since 3.0
-//              'addcslashes', //since 3.0 escaper for vars in js strings BUT otherwise dangerous?
+                'addslashes', //since 3.0 TODO CHECK usage needed? cms_escape?
+//                'addcslashes', //since 3.0 escaper for e.g. vars in js strings TODO BUT otherwise dangerous?
                 'array_flip',
                 'array_rand',
                 'array_reverse',
@@ -94,9 +98,11 @@ final class SmartySecurityPolicy extends Smarty_Security
                 'mt_jsbool', //Microtiny-module method
                 'nl2br',
                 'print_r',
+                'rawurlencode', //since 3.0
                 'shuffle',
                 'sizeof',
                 'sort',
+                'sprintf', //since 3.0
                 'startswith',
                 'str_contains', //since 3.0 PHP8+
                 'str_ends_with', //since 3.0 PHP8+
@@ -115,12 +121,10 @@ final class SmartySecurityPolicy extends Smarty_Security
                 'substr',
                 'time',
                 'trim',
+                'ucfirst', //since 3.0
                 'urlencode',
                 'var_dump',
                 ];
-            }
-            else {
-                $this->php_functions = []; // allow any php method
             }
         }
         else {

@@ -46,7 +46,7 @@ $menucontent = [
 //======== TREE ROOT NODE ========
 [
 'name'=>'root',
-'parent'=>null,
+'parent'=>null, // not ''
 ],
 //============ SECTION ===========
 [

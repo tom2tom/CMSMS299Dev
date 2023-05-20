@@ -354,7 +354,7 @@ final class UserTagOperations
 				if (!$this->ArrayHas($name, $this->cache)) {
 					$db = Lone::get('Db');
 					//TODO case-insensitive name-match if table|field definition is not *_ci
-					$query = 'SELECT id,contentfile FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
+					$query = 'SELECT id,contentfile FROM '.CMS_DB_PREFIX.'userplugins WHERE `name`=?';
 					$dbr = $db->getRow($query, [$name]);
 					if (!$dbr) {
 						log_error("Userplugin doesn't exist", $name);
@@ -442,7 +442,7 @@ final class UserTagOperations
 		if (!$this->ArrayHas($name, $this->cache)) {
 			$db = Lone::get('Db');
 			//TODO case-sensitive name-match if table|field definition is *_ci ?
-			$query = 'SELECT id,contentfile FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
+			$query = 'SELECT id,contentfile FROM '.CMS_DB_PREFIX.'userplugins WHERE `name`=?';
 			$dbr = $db->getRow($query, [$name]);
 			if (!$dbr) {
 				log_error("Userplugin doesn't exist", $name);
@@ -493,7 +493,7 @@ final class UserTagOperations
 			}
 			// TODO FilterforUse if relevant
 			$db = Lone::get('Db');
-			$query = 'SELECT '.$fields.' FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
+			$query = 'SELECT '.$fields.' FROM '.CMS_DB_PREFIX.'userplugins WHERE `name`=?';
 			//TODO case-sensitive name-match if table|field definition is *_ci ?
 			$dbr = $db->getRow($query, [$name]);
 			if ($dbr) {
@@ -702,7 +702,7 @@ EOS;
 			// TODO attend to stored newlines? e.g. strip <br>
 			// OR nl2br( ,true) for newlines without a preceeding br '~(?<!(<br(\s*)?/?  >))[\n\r]{1,2}~i'
 		} else {
-			$description = null;
+			$description = '';
 		}
 		$val = $params['parameters'] ?? '';
 		if ($val && !is_numeric($val)) {
@@ -710,7 +710,7 @@ EOS;
 			// TODO attend to stored newlines? e.g. strip <br>
 			// OR nl2br( ,true) for newlines without a preceeding br '~(?<!(<br(\s*)?/?  >))[\n\r]{1,2}~i'
 		} else {
-			$parameters = null;
+			$parameters = '';
 		}
 
 		$id = (int)$params['id'];
@@ -725,7 +725,7 @@ EOS;
 				$license);
 				$license = trim(strip_tags($license, '<a>'));
 			} else {
-				$license = null;
+				$license = '';
 			}
 			//pass the sanitized $params[]
 			foreach ($params as $key => &$val) {
@@ -739,7 +739,7 @@ EOS;
 			$db = Lone::get('Db');
 			$tbl = CMS_DB_PREFIX.'userplugins';
 			if ($id == -1) {
-				$query = "INSERT INTO $tbl (name,description,parameters,contentfile,code) VALUES (?,?,?,0,?)";
+				$query = "INSERT INTO $tbl (`name`,description,parameters,contentfile,code) VALUES (?,?,?,0,?)";
 				$dbr = $db->execute($query, [$name, $description, $parameters, $code]);
 				if ($dbr) {
 					$id = (int)$dbr; // CHECKME last-insert works now?
@@ -750,9 +750,9 @@ EOS;
 			} else {
 				//prevent duplicate names
 				$query = <<<EOS
-UPDATE $tbl SET name=?,description=?,parameters=?,contentfile=0,code=?
+UPDATE $tbl SET `name`=?,description=?,parameters=?,contentfile=0,code=?
 WHERE id=?
-AND id NOT IN (SELECT id FROM $tbl WHERE name=? AND id!=?)
+AND id NOT IN (SELECT id FROM $tbl WHERE `name`=? AND id!=?)
 EOS;
 				$dbr = $db->execute($query, [$name, $description, $parameters, $code, $id, $name, $id]);
 				$res = $db->affected_rows() > 0;
@@ -787,7 +787,7 @@ EOS;
 		if ($this->ArrayHas($name, $this->cache)) {
 			// TODO if case-sensitive name in _ci field
 			$db = Lone::get('Db');
-			$query = 'DELETE FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
+			$query = 'DELETE FROM '.CMS_DB_PREFIX.'userplugins WHERE `name`=?';
 			$dbr = $db->execute($query, [$name]);
 			$res = ($dbr != false);
 			if ($res) {
@@ -815,7 +815,7 @@ EOS;
 	{
 		if (!$this->cache_full) {
 			$db = Lone::get('Db');
-			$query = 'SELECT id,name,contentfile FROM '.CMS_DB_PREFIX.'userplugins ORDER BY name';
+			$query = 'SELECT id,`name`,contentfile FROM '.CMS_DB_PREFIX.'userplugins ORDER BY `name`';
 			$dbr = $db->getAssoc($query);
 			foreach ($dbr as $id=>$row) {
 				$name = $row['name'];

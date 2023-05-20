@@ -22,8 +22,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Module-directories lister. Checks for directories existence, including $modname if provided.
- *
  * @since 3.0
+ *
  * @param string $modname Optional name of a module
  * @param bool $all Optional flag whether to list all module-places even
  *  if a corresponding directory doesn't exist. Ignored if $modname is
@@ -40,8 +40,8 @@ function cms_module_places(string $modname = '', bool $all = false) : array
     }
     if (is_dir($path)) {
         $dirlist[] = $path;
-    } elseif ($all && !$modname) {
-        $dirlist[] = null; // deep trouble coming !!
+//    } elseif ($all && !$modname) {
+//        $dirlist[] = ''; // deep trouble coming !!
     }
 /*  $path = cms_join_path(CMS_ROOT_PATH, 'lib', 'modules');
     if ($modname) {
@@ -49,8 +49,8 @@ function cms_module_places(string $modname = '', bool $all = false) : array
     }
     if (is_dir($path)) {
         $dirlist[] = $path;
-    } elseif ($all && !$modname) {
-        $dirlist[] = null; // indicate this place N/A
+//    } elseif ($all && !$modname) {
+//        $dirlist[] = ''; // indicate this place N/A
     }
 */
     $path = cms_join_path(CMS_ASSETS_PATH, 'modules');
@@ -59,8 +59,8 @@ function cms_module_places(string $modname = '', bool $all = false) : array
     }
     if (is_dir($path)) {
         $dirlist[] = $path;
-    } elseif ($all && !$modname) {
-        $dirlist[] = null; // indicate this place N/A
+//    } elseif ($all && !$modname) {
+//        $dirlist[] = ''; // indicate this place N/A
     }
     return $dirlist;
 }

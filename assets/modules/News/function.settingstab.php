@@ -38,9 +38,9 @@ $tpl->assign('blockslist',[
 $t = -1;
 $current = $this->GetPreference('email_template');
 $list = [];
-$data = $db->getArray('SELECT TP.id,TP.originator,TP.name FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME
+$data = $db->getArray('SELECT TP.id,TP.originator,TP.`name` FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME
  .' TP JOIN '.CMS_DB_PREFIX.TemplateType::TABLENAME.' TT ON TP.type_id = TT.id
-WHERE TT.originator = \'News\' AND TT.name= \'approvalmessage\' ORDER BY TP.name');
+WHERE TT.originator = \'News\' AND TT.`name`= \'approvalmessage\' ORDER BY TP.`name`');
 foreach( $data as $row ) {
     $s = $row['originator'].'::'.$row['name'];
     if( $current == $s ) {

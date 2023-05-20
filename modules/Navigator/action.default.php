@@ -1,7 +1,7 @@
 <?php
 /*
 Navigator module action: default
-Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -67,15 +67,15 @@ if( !is_object($tpl) ) {
 // Possible conflicts among these variables, by reason of the
 // order of $params[] processing here, must be prevented by
 // judicious choice of parameters in the initiating tag
-$childrenof = null; // id or alias
+$childrenof = ''; // node id or alias
 $collapse = false;
-$items = null; // comma-separated series of ...
-$nlevels = -1;
+$items = ''; // comma-separated series of ...
+$nlevels = -1; // OR 1?
 $show_all = false;
 $show_root_siblings = false;
-$start_element = null; // pages-hierarchy identifier like 00x.00y ...
-$start_level = null;
-$start_page = null; // id or alias
+$start_element = ''; // pages-hierarchy identifier like 00x.00y ...
+$start_level = 0; // hierarchy-level 0 = none
+$start_page = ''; // node id or alias
 $ptops = $gCms->GetHierarchyManager();
 
 foreach( $params as $key => $value ) {
@@ -88,12 +88,12 @@ foreach( $params as $key => $value ) {
     case 'items':
         // comma-separated series of node aliases and/or ids
         Utils::clear_excludes();
-        $childrenof = null;
+        $childrenof = '';
         $items = trim($value);
         $nlevels = 1;
-        $start_element = null;
-        $start_level = null;
-        $start_page = null;
+        $start_element = '';
+        $start_level = 0;
+        $start_page = '';
         break;
 
     case 'includeprefix':
@@ -123,20 +123,21 @@ foreach( $params as $key => $value ) {
                 }
             }
         }
-        $childrenof = null;
+        $childrenof = '';
         $nlevels = 1;
-        $start_element = null;
-        $start_level = null;
-        $start_page = null;
+        $start_element = '';
+        $start_level = 0;
+        $start_page = '';
         break;
 
     case 'excludeprefix':
         // comma-separated series of node-alias prefixes
         Utils::set_excludes(trim($value));
-        $items = null;
+        $items = '';
         break;
 
     case 'nlevels':
+    case 'no_of_levels':
     case 'number_of_levels':
         // maximum number of levels
         if( (int)$value > 0 ) $nlevels = (int)$value;
@@ -154,39 +155,39 @@ foreach( $params as $key => $value ) {
 
     case 'start_element':
         // pages-hierarchy identifier like 00x.00y ...
-        $childrenof = null;
-        $items = null;
+        $childrenof = '';
+        $items = '';
         $start_element = trim($value);
-        $start_level = null;
-        $start_page = null;
+        $start_level = 0;
+        $start_page = '';
         break;
 
     case 'start_page':
         // page id or alias
-        $childrenof = null;
-        $items = null;
-        $start_element = null;
-        $start_level = null;
+        $childrenof = '';
+        $items = '';
+        $start_element = '';
+        $start_level = 0;
         $start_page = trim($value);
         break;
 
     case 'start_level':
         $value = (int)$value;
         if( $value > 1 ) {
-            $items = null;
-            $start_element = null;
+            $items = '';
+            $start_element = '';
             $start_level = $value;
-            $start_page = null;
+            $start_page = '';
         }
         break;
 
     case 'childrenof':
         // page id or alias
         $childrenof = trim($value);
-        $items = null;
-        $start_element = null;
-        $start_level = null;
-        $start_page = null;
+        $items = '';
+        $start_element = '';
+        $start_level = 0;
+        $start_page = '';
         break;
 
     case 'collapse':
@@ -272,9 +273,9 @@ elseif( $items ) {
     if( $nlevels < 1 ) {
         $nlevels = 1;
     }
-    $items = explode(',',$items);
-    $items = array_unique($items);
-    foreach( $items as $item ) {
+    $arr = explode(',',$items);
+    $arr = array_unique($arr);
+    foreach( $arr as $item ) {
         $obj = $ptops->find_by_identifier(trim($item));
         if( $obj ) {
             $rootnodes[] = $obj;

@@ -1,7 +1,7 @@
 <?php
 /*
 Class for dealing with a Stylesheet object
-Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -58,7 +58,10 @@ class Stylesheet
 
 	/**
 	 * @var array stylesheet-file on-save operations, populated on demand
-	 * Each member like [optype,param,...] optype = 'delete' etc
+	 * Each member like [optype,param,...] as below:
+	 *  ['store',$tobasename,$content] $content might be empty if file is already saved
+	 *  ['delete',$thebasename]
+	 *  ['rename',$frombasename, $tobasename]
 	 * @ignore
 	 */
 	public $fileoperations = [];
@@ -94,7 +97,7 @@ class Stylesheet
 	 * @var string stylesheet-file content, populated on demand
 	 * @ignore
 	 */
-	private $filecontent;
+	public $filecontent;
 
 	// static properties here >> Lone properties ?
 	/**
@@ -369,6 +372,7 @@ class Stylesheet
 		if( !empty($this->props['contentfile']) ) {
 			$fn = sanitizeVal($str, CMSSAN_FILE); // TODO advise user if $fn != $str
 			$this->props['name'] = $fn;
+   			// want ['rename',$frombasename,$tobasename]
 			$this->fileoperations[] = ['rename', $this->props['content'], $fn.'.css'];
 			$this->props['content'] = $fn.'.css';
 		}
@@ -639,7 +643,7 @@ class Stylesheet
 	public function set_owner($a)
 	{
 		if (is_null($a)) {
-			$this->props['owner_id'] = NULL;
+			$this->props['owner_id'] = 0;
 		}
 		elseif (is_numeric($a)) {
 			$this->props['owner_id'] = (int)$a;
@@ -846,7 +850,7 @@ class Stylesheet
 	 * Set the content of this stylesheet
 	 * No sanitization
 	 *
-	 * @param string $str not empty
+	 * @param string $str not empty, might be a stylesfile name like X.css
 	 * @throws LogicException
 	 */
 	public function set_content($str)
@@ -855,9 +859,12 @@ class Stylesheet
 		if( !$str ) throw new LogicException('Stylesheet cannot be empty');
 //		if( !$str ) $str = '/* empty stylesheet */';
 		if( !empty($this->props['contentfile']) ) {
-			$this->filecontent = $str;
+			$this->filecontent = $str; //TODO processing race here ?
 			// park new content for transfer to file when this object is saved
-			$fn = basename($this->get_content_filename());
+//			$fn = basename($this->get_content_filename()); // might be empty
+			$fn = $str;
+			$str = ''; // TODO only if already saved @ CMS_ASSETS_PATH / styles / $fn
+			// want ['store',$tobasename,$content];
 			$this->fileoperations[] = ['store', $fn, $str];
 		}
 		else {
@@ -930,11 +937,13 @@ class Stylesheet
 				if( $fn ) return; // already set up
 				$fn = sanitizeVal($this->props['name'], CMSSAN_FILE);
 				// park current content for save-in-file when this object is saved
+    			// want ['store',$tobasename,$content];
 				$this->fileoperations[] = ['store', $fn.'.css', ($this->props['content'] ?? '')];
 				$this->props['content'] = $fn.'.css';
 			}
 			elseif( $fn ) {
 				// park current filename for deletion when this object is saved
+                // want ['delete',$thebasename];
 				$this->fileoperations[] = ['delete', basename($fn)];
 				$this->props['content'] = file_get_contents($fn);
 			}
@@ -1077,7 +1086,7 @@ class Stylesheet
 	 * @return string
 	 * @throws UnexpectedValueException or LogicException
 	 */
-	public static function generate_unique_name($prototype, $prefix = NULL)
+	public static function generate_unique_name($prototype, $prefix = '')
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'StylesheetOperations::get_unique_name()'));
 		return $this->get_operations()::get_unique_name($prototype, $prefix);

@@ -378,7 +378,7 @@ $lang = [
 ",
 'help_loginfailed' => "<h4>Parameters</h4>
 <ul>
-  <li>'user' - (string) The username of the failed login attempt.</li>
+  <li>'user' - (string) The username entered in the failed login attempt.</li>
 </ul>",
 'help_loginpost' => "<h4>Parameters</h4>
 <ul>

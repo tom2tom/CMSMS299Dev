@@ -155,7 +155,7 @@ class FolderControlOperations
             throw new DataException('No set-name provided to '.__METHOD__);
         }
         $db = Lone::get('Db');
-        $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name=?';
+        $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE `name`=?';
         $row = $db->getRow($sql,[$name]);
         if( $row ) {
             return self::object_from_row($row);
@@ -169,7 +169,7 @@ class FolderControlOperations
     public static function load_all(bool $objects = true)
     {
         $db = Lone::get('Db');
-        $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY name';
+        $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY `name`';
         $list = $db->getArray($sql);
         if( !$list ) {
             return [];
@@ -228,12 +228,12 @@ class FolderControlOperations
     protected static function insert(FolderControls $cset)
     {
         $db = Lone::get('Db');
-        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE `name` = ?';
         $tmp = $db->getOne($sql,[$cset->name]);
         if( $tmp ) {
             throw new LogicException('err_profilename_exists');
         }
-        $sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,data,create_date) VALUES (?,?,?)';
+        $sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (`name`,data,create_date) VALUES (?,?,?)';
         $data = json_encode($cset->getRawData(),JSON_NUMERIC_CHECK|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
         $longnow = $db->DbTimeStamp(time());
         $dbr = $db->execute($sql,[$cset->name,$data,$longnow]);
@@ -247,12 +247,12 @@ class FolderControlOperations
     protected static function update(FolderControls $cset)
     {
         $db = Lone::get('Db');
-        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE `name` = ? AND id != ?';
         $tmp = $db->getOne($sql,[$cset->name,$cset->id]);
         if( $tmp ) {
             throw new LogicException('err_profilename_exists');
         }
-        $sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name=?,data=?,modified_date=? WHERE id=?';
+        $sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET `name`=?,data=?,modified_date=? WHERE id=?';
         $data = json_encode($cset->getRawData(),JSON_NUMERIC_CHECK|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
         $longnow = $db->DbTimeStamp(time());
 //      $dbr = useless for update
@@ -332,7 +332,8 @@ class FolderControlOperations
         if( $userid < 1 ) {
             $userid = get_userid(false);
         }
-        $cset = null; // GET_THEONE_IFANY_FOR($dirpath, $userid);
+        //find/retrieve the control-set, if any, for ($dirpath, $userid);
+        $cset = self::get_for_folder($dirpath, $userid);
         if( $cset ) {
             return $cset;
         }
@@ -350,7 +351,7 @@ class FolderControlOperations
      */
     public static function get_profile($cset_name, string $dirpath = '', int $userid = 0) : FolderControls
     {
-        $cset_name = trim($cset_name);
+        $cset_name = trim((string)$cset_name);
         if( $cset_name ) {
             $cset = self::load_by_name($cset_name);
         }
@@ -601,7 +602,7 @@ class FolderControlOperations
      *   Default -1 hence return the module-defaults
      * @return mixed FolderControls object | null if none relevant | false upon error
      */
-    public static function get_for_folder(string $dirpath, int $userid = 0, int $default = -1)
+    public static function get_for_folder(string $dirpath, int $userid = 0, int $default = -1)// : mixed
     {
         if (startswith($dirpath, CMS_ROOT_PATH)) {
             $dirpath = substr($dirpath, strlen(CMS_ROOT_PATH));
@@ -610,8 +611,6 @@ class FolderControlOperations
         if ($userid < 1) {
             $userid = get_userid(false);
         }
-        $cset = new FolderControls();
-        return $cset; //DEBUG
 /* TODO
         $path = trim($path, ' \/');
         if ($cset->_cache && key($cset->_cache) == $path) {
@@ -627,12 +626,12 @@ class FolderControlOperations
         if ($cset->_allcache) {
             $lt = strlen($path);
             $lb = -1;
-            $params = null;
+            $params = [];
             foreach ($cset->_allcache as $tp=>&$row) {
                 $ls = strlen($tp);
                 if ($ls >= $lb && $ls <= $lt && ($ls == 0 || startswith($path, $tp))) {
                     $arr = json_decode($row['data'], true);
-                    if ($arr !== null) {
+                    if ($arr) {
                         if ($ls > $lb) {
                             $lb = $ls;
                             $params = [(int)$row['id'] => $arr];
@@ -653,7 +652,7 @@ class FolderControlOperations
                 foreach ($cset->_allcache as &$row) {
                     if ($row['id'] == $default) {
                         $arr = json_decode($row['data'], true);
-                        if ($arr !== null) {
+                        if ($arr) {
                             return $arr;
                         }
                         break;
@@ -664,8 +663,9 @@ class FolderControlOperations
                 return $cset->defaults();
             }
         }
-*/
         return null;
+*/
+        return new FolderControls(); //DEBUG
     }
 
     /**

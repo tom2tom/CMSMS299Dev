@@ -57,7 +57,7 @@ final class Utils
             return $val;
         }
         $val = preg_replace(['~\b[a-z]{1,2}\b~i','~\bthe\b~i','~[\s[:punct:]aeiouAEIOU]~'],['','',''],$val);
-        $val = preg_replace_callback('~[\x80-\xff]+~',function($matches) use(&$maxlen) {
+        $val = preg_replace_callback('~[\x80-\xff]+~',function($matches) use (&$maxlen) {
             $maxlen += (int)(strlen($matches[0]) / 2);
             $t = bin2hex($matches[0]);
             return '-'.base_convert($t,16,36).'-';
@@ -158,7 +158,7 @@ final class Utils
             unset($parms['category']);
             $parms['category_id'] = $row['news_category_id'];
 
-            $pageid = ( isset($params['detailpage']) && $params['detailpage'] != '' ) ? $params['detailpage'] : $returnid;
+            $pageid = ( !empty($params['detailpage']) ) ? $params['detailpage'] : $returnid;
             $mod = AppUtils::get_module('News');
             $row['url'] = $mod->CreateLink($id,'default',$pageid,$row['news_category_name'],$parms,'',true);
             $items[] = $row;
@@ -238,7 +238,7 @@ final class Utils
     {
         $cz = Lone::get('Config')['timezone'];
         $tz = new DateTimeZone($cz);
-        $dt = new DateTime(null,$tz);
+        $dt = new DateTime('@0',$tz);
         $toffs = $tz->getOffset($dt);
 
         foreach( $params as $key => $value ) {

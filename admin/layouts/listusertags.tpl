@@ -34,7 +34,7 @@
        {else}
         {$n}
        {/if}
-       {if ($tag.help)}&nbsp;<a href="javascript:getParms('{$n}')">{$iconinfo}</a>{/if}
+       {if !empty($tag.help)}&nbsp;<a href="javascript:getParms('{$n}')">{$iconinfo}</a>{/if}
       </td>
       <td>{$tag.description}</td>
       {if $pmod}

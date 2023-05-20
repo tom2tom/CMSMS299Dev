@@ -62,10 +62,10 @@ final class NlsOperations
 	 */
 	private static $_encoding;
 
-	/**
+	/* *
 	 * @ignore
 	 */
-	private static $_locale;
+//	private static $_locale;
 
 	/**
 	 * @ignore
@@ -276,7 +276,8 @@ final class NlsOperations
 	 */
 	protected static function get_admin_language() : string
 	{
-		$uid = $lang = null;
+		$uid = 0;
+        $lang = '';
 		if( !AppState::test(AppState::LOGIN_PAGE) ) {
 			$uid = get_userid(false);
 			if( $uid ) {
@@ -284,7 +285,7 @@ final class NlsOperations
 				if( $lang ) {
 					self::_load_nls();
 					if( !isset(self::$_nls[$lang]) ) {
-						$lang = null;
+						$lang = '';
 					}
 				}
 			}
@@ -408,17 +409,18 @@ final class NlsOperations
 	}
 
 	/**
-	 * Set the current encoding
+	 * Set the current encoding(s)
 	 *
-	 * @param mixed $str The encoding (or comma-separated encodings), or false
+	 * @param mixed $str The encoding (or comma-separated encodings), or falsy
 	 */
 	public static function set_encoding($str)
 	{
-		if( !$str ) {
-			self::$_encoding = null;
-			return;
+		if( $str ) {
+    		self::$_encoding = strtoupper($str);
 		}
-		self::$_encoding = strtoupper($str);
+        else {
+    		self::$_encoding = ''; // aka undefined
+        }
 	}
 
 	/**

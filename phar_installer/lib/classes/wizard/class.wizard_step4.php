@@ -123,8 +123,8 @@ class wizard_step4 extends wizard_step
         }
         $this->_params['timezone'] = sanitizeVal($_POST['timezone'], ICMSSAN_PUNCT);
         if (isset($_POST['query_var'])) {
-            $this->_params['query_var'] = sanitizeVal(de_specialize($_POST['query_var']), ICMSSAN_PURE);
-        } // ?? ICMSSAN_NONPRINT
+            $this->_params['query_var'] = sanitizeVal(de_specialize($_POST['query_var']), ICMSSAN_PURE); // ? OR ICMSSAN_NONPRINT
+        }
 
         foreach (['admin_path', 'assets_path', 'userplugins_path'] as $key) {
             if (isset($_POST[$key])) {
@@ -367,11 +367,21 @@ class wizard_step4 extends wizard_step
         if ($action == 'install') {
             // check whether some typical core tables exist
             $sql = 'SELECT content_id FROM '.$config['db_prefix'].'content LIMIT 1';
-            if (($res = $mysqli->query($sql)) && $res->num_rows > 0) {
+            try {
+                $res = $mysqli->query($sql);
+            } catch (Throwable $t) {
+                $res = null;
+            }
+            if ($res && $res->num_rows > 0) {
                 throw new Exception(lang('error_cmstablesexist'));
             }
             $sql = 'SELECT module_name FROM '.$config['db_prefix'].'modules LIMIT 1';
-            if (($res = $mysqli->query($sql)) && $res->num_rows > 0) {
+            try {
+                $res = $mysqli->query($sql);
+            } catch (Throwable $t) {
+                $res = null;
+            }
+            if ($res && $res->num_rows > 0) {
                 throw new Exception(lang('error_cmstablesexist'));
             }
         }

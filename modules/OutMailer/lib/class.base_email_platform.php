@@ -342,9 +342,9 @@ abstract class base_email_platform
             $data['encrypt'] = $enc;
             if ($enc) {
                 $data['encvalue'] = Crypto::encrypt_string(''.$data['plainvalue'], $pw);
-                $data['plainvalue'] = null;
+                $data['plainvalue'] = null; //record null in db
             } else {
-                $data['encvalue'] = null;
+                $data['encvalue'] = null; //record null in db
             }
             if ($pmod) {
                 $data['enabled'] = (isset($data['enabled'])) ? 1 : 0;
@@ -359,7 +359,7 @@ abstract class base_email_platform
             ++$o;
         }
         unset($data, $pw);
-        $pw = null;
+        $pw = null; // assist garbage collector
     }
 
     // these for single|array

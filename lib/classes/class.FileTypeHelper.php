@@ -92,22 +92,34 @@ class FileTypeHelper
      */
     private $_archive_extensions = [
         '7z',
-        'bzip2',
-        'bz2',
+        'arj',
+        'bz2',//tar.
+        'bzip2',//tar.
         'cab',
-        'gz',
-        'gzip',
+        'deb',
+        'dmg',
+        'efi',
+        'gpt',
+        'gz',//tar.
+        'gzip',//tar.
         'iso',
+        'jar',
         'lzma',
         'lzw',
+        'mbr',
+        'msi',
         'phar',
         'rar',
+        'rpm',
         's7z',
         'tar',
         'tbz',
+        'tbz2',
         'tgz',
-        'xz',
-        'z',
+        'txz',
+        'udf',
+        'xz',//tar.
+        'z',//tar.
         'zip',
     ];
     /**
@@ -211,7 +223,7 @@ class FileTypeHelper
      *
      * @param array $custom Optional since 3.0 custom definitions of some|all filetype extensions
      */
-    public function __construct(/*array*/$custom = NULL)
+    public function __construct(array $custom = [])
     {
         if( $custom ) {
             $this->update_helper_extensions('_image_extensions', $custom['FileTypeHelper_image_extensions'] ?? '');

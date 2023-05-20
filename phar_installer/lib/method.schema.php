@@ -25,10 +25,16 @@ status_msg(lang('install_createtablesindexes'));
 // NOTE site-content-related changes here must be replicated in the data 'skeleton' and DTD in file lib/iosite.functions.php
 
 $dbdict = $db->NewDataDictionary();
-$taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii'];
+//prefer MariaDB Aria engine if available
+$s = $db->server_info;
+if (stripos($s, 'Maria') === false) {
+    $tblengn = 'MyISAM';
+} else {
+    $tblengn = 'Aria';
+}
+$taboptarray = ['mysqli' => "ENGINE=$tblengn CHARACTER SET ascii"];
 //$innotaboptarray = ['mysqli' => 'ENGINE=InnoDB CHARACTER SET utf8mb4'];
-$casedtaboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii COLLATE ascii_bin'];
-//TODO how to also support MariaDB 'Aria' MyISAM-replacement engine if so wanted ?
+$casedtaboptarray = ['mysqli' => "ENGINE=$tblengn CHARACTER SET ascii COLLATE ascii_bin"];
 
 $good = lang('done');
 $bad = lang('failed');
@@ -135,7 +141,7 @@ tabindex I1 UNSIGNED DEFAULT 0,
 accesskey C(8),
 styles C(50),
 last_modified_by I UNSIGNED DEFAULT 0,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP INDEX
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray); //content
@@ -159,7 +165,7 @@ param1 C(255) CHARACTER SET utf8mb4,
 param2 C(255) CHARACTER SET utf8mb4,
 param3 C(255) CHARACTER SET utf8mb4,
 content X(65535) CHARACTER SET utf8mb4,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray); //content_props
@@ -187,7 +193,7 @@ id I UNSIGNED AUTO KEY,
 name C(80) CHARACTER SET utf8mb4 NOTNULL UNIQUE,
 reltoppath C(255),
 data X(16383) NOTNULL,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $casedtaboptarray); //controlsets
@@ -229,7 +235,7 @@ group_id I UNSIGNED AUTO KEY,
 group_name C(50) CHARACTER SET utf8mb4 NOTNULL UKEY,
 group_desc C(255) CHARACTER SET utf8mb4,
 active I1 UNSIGNED DEFAULT 1,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray); //groups
@@ -242,7 +248,7 @@ $flds = '
 group_perm_id I UNSIGNED AUTO KEY,
 group_id I UNSIGNED XKEY,
 permission_id I UNSIGNED XKEY,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $casedtaboptarray); //group_perms
@@ -253,7 +259,7 @@ verbose_msg(lang('install_created_table', 'group_perms', $msg_ret));
 $flds = '
 token C(16) KEY,
 hash C(32) NOTNULL,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'job_records', $flds, $casedtaboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -267,10 +273,10 @@ $flds = '
 id I UNSIGNED AUTO KEY,
 name C(60) NOTNULL UKEY,
 description C(1500),
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
-$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, ['mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8mb4']); //layout_css_groups
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, ['mysqli' => "ENGINE=$tblengn CHARACTER SET utf8mb4"]); //layout_css_groups
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'layout_css_groups', $msg_ret));
@@ -300,7 +306,7 @@ help_content_cb C(255),
 owner_id I UNSIGNED DEFAULT 1,
 has_dflt I1 UNSIGNED DEFAULT 0,
 dflt_content X(65535),
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $casedtaboptarray); //layout_css_types
@@ -322,7 +328,7 @@ type_dflt I1 UNSIGNED DEFAULT 0 XKEY,
 listable I1 UNSIGNED DEFAULT 1,
 contentfile I1 UNSIGNED DEFAULT 0,
 content X(65535),
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray); //layout_stylesheets
@@ -343,7 +349,7 @@ type_dflt I1 UNSIGNED DEFAULT 0 XKEY,
 listable I1 UNSIGNED DEFAULT 1,
 contentfile I1 UNSIGNED DEFAULT 0,
 content X(65535) CHARACTER SET utf8mb4,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray); //layout_templates
@@ -370,10 +376,10 @@ $flds = '
 id I UNSIGNED AUTO KEY,
 name C(60) NOTNULL UKEY,
 description C(1500),
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
-$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, ['mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8mb4']); //layout_tpl_groups
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, ['mysqli' => "ENGINE=$tblengn CHARACTER SET utf8mb4"]); //layout_tpl_groups
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'layout_tpl_groups', $msg_ret));
@@ -407,7 +413,7 @@ requires_contentblocks I1 UNSIGNED DEFAULT 0,
 one_only I1 UNSIGNED DEFAULT 0,
 owner_id I UNSIGNED DEFAULT 1,
 dflt_content X(65535) CHARACTER SET utf8mb4,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray); //layout_tpl_types
@@ -424,7 +430,7 @@ oid I UNSIGNED NOTNULL UKEY,
 uid I UNSIGNED NOTNULL XKEY,
 lifetime I2 UNSIGNED,
 expires I UNSIGNED DEFAULT 0 INDEX,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $casedtaboptarray); //locks
@@ -448,7 +454,7 @@ $flds = '
 parent_module C(50),
 child_module C(50),
 minimum_version C(16),
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'module_deps', $flds, $casedtaboptarray);
@@ -479,7 +485,7 @@ id I UNSIGNED AUTO KEY,
 name C(50) NOTNULL UKEY,
 description C(255) CHARACTER SET utf8mb4,
 originator C(50) NOTNULL UKEY,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray); // permissions
@@ -495,7 +501,7 @@ dest1 C(50) COLLATE ascii_general_ci NOTNULL,
 page C(10),
 delmatch C(100) COLLATE ascii_general_ci,
 data C(600) NOTNULL,
-create_date DT DEFAULT CURRENT_TIMESTAMP
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $casedtaboptarray); // routes
 $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -513,7 +519,7 @@ $tbl = CMS_DB_PREFIX.'siteprefs';
 $flds = '
 sitepref_name C(255) NOTNULL UKEY,
 sitepref_value X(65535) CHARACTER SET utf8mb4,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray); //siteprefs
@@ -524,20 +530,24 @@ verbose_msg(lang('install_created_table', 'siteprefs', $msg_ret));
 $tbl = CMS_DB_PREFIX.'users';
 $flds = '
 user_id I UNSIGNED KEY,
-username C(80) CHARACTER SET utf8mb4 NOTNULL UKEY,
-password C(128),
+account C(48) NOTNULL UKEY,
+password C(128) NOTNULL,
+username B(256) NOTNULL,
 first_name C(64) CHARACTER SET utf8mb4,
-last_name C(64) CHARACTER SET utf8mb4,
-email C(255) CHARACTER SET utf8mb4,
+last_name B(256),
+email B(256),
 active I1 UNSIGNED DEFAULT 1,
 pwreset I1 UNSIGNED DEFAULT 0,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP,
 tailor B(16384)
 ';
-$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray); // users
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $casedtaboptarray); // users
+$tmp = $dbdict->ExecuteSQLArray($sqlarray);
+$iname = $dbdict->IndexName('username');
+$sqlarray = $dbdict->CreateIndexSQL($iname, $tbl, 'username(100)', ['UNIQUE']);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
-$msg_ret = ($return == 2) ? $good : $bad;
+$msg_ret = ($tmp == 2 && $return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'users', $msg_ret));
 
 $tbl = CMS_DB_PREFIX.'userplugins';
@@ -550,7 +560,7 @@ description C(1500) CHARACTER SET utf8mb4,
 parameters C(1000) CHARACTER SET utf8mb4,
 contentfile I1 UNSIGNED DEFAULT 0,
 code C(15000),
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray); //userplugins
@@ -573,7 +583,7 @@ $tbl = CMS_DB_PREFIX.'user_groups';
 $flds = '
 group_id I UNSIGNED NOTNULL UKEY,
 user_id I UNSIGNED NOTNULL UKEY,
-create_date DT DEFAULT CURRENT_TIMESTAMP,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $casedtaboptarray); // user_groups

@@ -3,12 +3,16 @@ namespace wapmorgan\UnifiedArchive\Drivers;
 
 use wapmorgan\UnifiedArchive\ArchiveEntry;
 use wapmorgan\UnifiedArchive\ArchiveInformation;
-use wapmorgan\UnifiedArchive\Drivers\BasicDriver;
+use wapmorgan\UnifiedArchive\Drivers\Basic\BasicDriver;
+use wapmorgan\UnifiedArchive\Drivers\Basic\BasicPureDriver;
 use wapmorgan\UnifiedArchive\Exceptions\UnsupportedOperationException;
 use wapmorgan\UnifiedArchive\Formats;
 
-class Iso extends BasicDriver
+class Iso extends BasicPureDriver
 {
+    const PACKAGE_NAME = 'phpclasses/php-iso-file';
+    const MAIN_CLASS = '\CISOFile';
+
     /** @var \CISOFile */
     protected $iso;
 
@@ -25,6 +29,14 @@ class Iso extends BasicDriver
     protected $blockSize;
 
     /**
+     * @inheritDoc
+     */
+    public static function getDescription()
+    {
+        return 'iso archives reader';
+    }
+
+    /**
      * @return array
      */
     public static function getSupportedFormats()
@@ -36,39 +48,30 @@ class Iso extends BasicDriver
 
     /**
      * @param $format
-     * @return bool
+     * @return array
      */
     public static function checkFormatSupport($format)
     {
+        if (!static::isInstalled()) {
+            return [];
+        }
+
         switch ($format) {
             case Formats::ISO:
-                return class_exists('\CISOFile');
+                return [
+                    BasicDriver::OPEN,
+                    BasicDriver::EXTRACT_CONTENT,
+                ];
         }
     }
 
     /**
      * @inheritDoc
-     */
-    public static function getDescription()
-    {
-        return 'php-library';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getInstallationInstruction()
-    {
-        return !class_exists('\CISOFile')
-            ? 'install library `phpclasses/php-iso-file`'
-            : null;
-    }
-
-    /**
-     * @inheritDoc
+     * @throws UnsupportedOperationException
      */
     public function __construct($archiveFileName, $format, $password = null)
     {
+        parent::__construct($archiveFileName, $format);
         $this->open($archiveFileName);
         if ($password !== null)
             throw new UnsupportedOperationException('Iso archive does not support password!');
@@ -102,7 +105,8 @@ class Iso extends BasicDriver
         /** @var \CPathTableRecord $Directory */
         foreach ($directories as $Directory) {
             $directory = $Directory->GetFullPath($directories);
-            $directory = trim($directory, '/');
+            // ? here is for some unexpected problem with ? appearing
+            $directory = trim($directory, '/?');
             if ($directory != '') {
                 $directory .= '/';
 //                $this->files[$Directory->Location] = $directory;
@@ -172,8 +176,13 @@ class Iso extends BasicDriver
         if (!isset($this->filesData[$fileName]))
             return false;
 
-        return new ArchiveEntry($fileName, $this->filesData[$fileName]['size'],
-            $this->filesData[$fileName]['size'], $this->filesData[$fileName]['mtime'],false);
+        return new ArchiveEntry(
+            $fileName,
+            $this->filesData[$fileName]['size'],
+            $this->filesData[$fileName]['size'],
+            $this->filesData[$fileName]['mtime'],
+            false
+        );
     }
 
     /**
@@ -216,34 +225,38 @@ class Iso extends BasicDriver
     /**
      * @param string $outputFolder
      * @param array $files
-     * @return void
+     * @return int
      * @throws UnsupportedOperationException
-     * @todo Implement extracting with reading & writing to FS
      */
     public function extractFiles($outputFolder, array $files)
     {
-        throw new UnsupportedOperationException();
+        foreach ($files as $file) {
+            $destination_file = rtrim($outputFolder, '/'). '/' . ltrim($file, '/');
+            $destination_dir = dirname($destination_file);
+
+            if (!empty($destination_dir)) {
+                if (!is_dir($destination_dir)) {
+                    mkdir($destination_dir, 0777, true);
+                } else {
+                    if (!is_writable($destination_dir)) {
+                        chmod($destination_dir, 0777);
+                    }
+                }
+            }
+
+            file_put_contents($destination_file, $this->getFileContent($file));
+        }
+        return count($files);
     }
 
     /**
      * @param string $outputFolder
-     * @return void
+     * @return int
      * @throws UnsupportedOperationException
      * @todo Implement extracting with reading & writing to FS
      */
     public function extractArchive($outputFolder)
     {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * @param $inArchiveName
-     * @param $content
-     * @return void
-     * @throws UnsupportedOperationException
-     */
-    public function addFileFromString($inArchiveName, $content)
-    {
-        throw new UnsupportedOperationException();
+        return $this->extractFiles($outputFolder, $this->files);
     }
 }

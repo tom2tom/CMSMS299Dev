@@ -244,7 +244,7 @@ final class RouteOperations
 						$props['term'] = '~^'.str_replace('~','\\~',$props['term']).'$~'; // TODO preg_quote() term ??
 					}
 				}
-				$matches = NULL;
+				$matches = [];
 				$r = preg_match($props['term'],$needle,$matches);
 				if( $r == 1 && $matches ) {
 					$props['results'] = array_filter($matches,function ($k) {
@@ -287,7 +287,7 @@ final class RouteOperations
 			return strcasecmp($a,$b);
 		}
 
-		$matches = NULL;
+		$matches = [];
 		$res = preg_match($pattern,$str,$matches);
 		if( $a instanceof Route ) {
 			if( $matches ) {
@@ -496,7 +496,7 @@ EOS;
 	 *  both $dest1 and $page were non-NULL)
 	 * @return bool indicating success
 	 */
-	public static function del_static($pattern,$dest1 = NULL,$page = NULL,$delmatch = NULL) : bool
+	public static function del_static($pattern,$dest1 = '',$page = '',$delmatch = '') : bool
 	{
 		$wheres = [];
 		$parms = [];
@@ -573,7 +573,7 @@ EOS;
 		$data = $db->getArray($query);
 		if( $data ) {
 			for( $i = 0,$n = count($data); $i < $n; $i++ ) {
-				$route = new Route($data[$i]['page_url'],'__CONTENT__',NULL,TRUE,$data[$i]['content_id']);
+				$route = new Route($data[$i]['page_url'],'__CONTENT__',[],TRUE,$data[$i]['content_id']);
 				self::add_static($route);
 			}
 		}

@@ -1,7 +1,7 @@
 <?php
 /*
 ModuleManager module action: moduledepends
-Copyright (C) 2011-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2011-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -22,13 +22,20 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use ModuleManager\ModuleRepClient;
 
-//if (some worthy test fails) exit;
+if( empty($this) || !($this instanceof ModuleManager) ) { exit; }
+if( empty($gCms) ) { exit; }
 
 $this->SetCurrentTab('modules');
 
 $name = $params['name'] ?? '';
 if( !$name ) {
   $this->SetError($this->Lang('error_insufficientparams'));
+  $this->RedirectToAdminTab();
+}
+
+$xmlfile = $params['filename'] ?? '';
+if( !$xmlfile ) {
+  $this->SetError($this->Lang('error_nofilename'));
   $this->RedirectToAdminTab();
 }
 
@@ -43,13 +50,7 @@ if( !$url ) {
   $this->SetError($this->Lang('error_norepositoryurl'));
   $this->RedirectToAdminTab();
 }
-$url .= '/modulehelp';
-
-$xmlfile = $params['filename'] ?? '';
-if( !$xmlfile ) {
-  $this->SetError($this->Lang('error_nofilename'));
-  $this->RedirectToAdminTab();
-}
+//$url .= '/modulehelp'; unused
 
 $depends = ModuleRepClient::get_module_depends($xmlfile);
 if( !is_array($depends) || count($depends) != 2 || $depends[0] == false ) {

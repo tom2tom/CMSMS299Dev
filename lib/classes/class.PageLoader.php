@@ -103,7 +103,7 @@ class PageLoader
             $pref = CMS_DB_PREFIX;
             $sql = <<<EOS
 SELECT C.*,T.displayclass FROM {$pref}content C
-LEFT JOIN {$pref}content_types T on C.type=T.name
+LEFT JOIN {$pref}content_types T on C.type=T.`name`
 WHERE (content_id=? OR content_alias=?) AND active!=0
 EOS;
             $row = $db->getRow($sql, [$a, $a]);

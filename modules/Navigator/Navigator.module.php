@@ -57,6 +57,7 @@ final class Navigator extends CMSModule
         $this->CreateParameter('items','contact,home',$this->Lang('help_items'));
         $this->CreateParameter('loadprops','',$this->Lang('help_loadprops'));
         $this->CreateParameter('nlevels','1',$this->Lang('help_nlevels'));
+        $this->CreateParameter('no_of_levels','1',$this->Lang('help_number_of_levels'));
         $this->CreateParameter('number_of_levels','1',$this->Lang('help_number_of_levels'));
         $this->CreateParameter('root','',$this->Lang('help_root2'));
         $this->CreateParameter('show_all','0',$this->Lang('help_show_all'));
@@ -83,6 +84,7 @@ final class Navigator extends CMSModule
         'items' => CLEAN_STRING,
         'loadprops' => CLEAN_BOOL, //deprecated since 2.0 effectively true always
         'nlevels' => CLEAN_INT,
+        'no_of_levels' => CLEAN_INT,
         'number_of_levels' => CLEAN_INT,
         'root' => CLEAN_STRING,
         'show_all' => CLEAN_BOOL,

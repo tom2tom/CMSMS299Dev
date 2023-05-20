@@ -1071,23 +1071,25 @@ class Smarty_Internal_Templatelexer
     {
 
         $this->token = Smarty_Internal_Templateparser::TP_DOLLARID;
-    }
+         }
     public function yy_r5_16()
     {
 
         $this->token = Smarty_Internal_Templateparser::TP_TEXT;
-    }
+         }
     public function yy_r5_17()
     {
 
         $this->token = Smarty_Internal_Templateparser::TP_TEXT;
-    }
+         }
     public function yy_r5_22()
     {
 
         $to = $this->dataLength;
         $this->value = substr($this->data,$this->counter,$to-$this->counter);
         $this->token = Smarty_Internal_Templateparser::TP_TEXT;
-    }
+         }
 
-}
+  }
+
+     

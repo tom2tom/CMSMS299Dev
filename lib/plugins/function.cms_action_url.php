@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to get an action-URL
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -39,22 +39,22 @@ function smarty_function_cms_action_url($params, $template)
 	foreach( $params as $key => $value ) {
 		switch( $key ) {
 		case 'module':
-			$module = trim($value);
+			$module = trim((string)$value);
 			break;
 		case 'action':
-			$action = trim($value);
+			$action = trim((string)$value);
 			break;
 		case 'returnid':
-			$returnid = (int)trim($value);
+			$returnid = (int)trim((string)$value); // TODO '' != 0
 			break;
 		case 'mid':
-			$mid = trim($value);
+			$mid = trim((string)$value);
 			break;
 		case 'jobtype':
 			$urlparms[CMS_JOB_KEY] = max(0, min(2, (int)$value));
 			break;
 		case 'assign':
-			$assign = trim($value);
+			$assign = trim((string)$value);
 			break;
 /*		case 'forjs': processed downstream
 			$forjs = 1;

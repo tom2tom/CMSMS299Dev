@@ -83,7 +83,7 @@ class Smarty_Resource_theme_stylesheet extends Smarty_Resource_Custom
            //TODO support inherited/extended styling
 
             $db = Lone::get('Db');
-            $sql = 'SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_stylesheets WHERE id=? OR name=?';
+            $sql = 'SELECT id,`name`,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_stylesheets WHERE id=? OR `name`=?';
             $rst = $db->execute(self::$stmt, [$name, $name]);
             if( !$rst || $rst->EOF() ) {
                 if( $rst ) $rst->Close();

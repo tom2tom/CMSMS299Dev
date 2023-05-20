@@ -31,7 +31,7 @@ use function CMSMS\log_info;
 
 class UploadHandler extends jquery_upload_handler
 {
-    public function __construct(/*array */$options = null)
+    public function __construct(/*array */$options = [])
     {
         if (!is_array($options)) {
             $options = [];
@@ -93,7 +93,7 @@ class UploadHandler extends jquery_upload_handler
                 $file = $parms['file']; // file name could have changed
             }
 
-            $thumb = null;
+            $thumb = false;
             $helper = new FileTypeHelper();
             if ($helper->is_image($fileobject->name)) {
                //TODO check content of image files c.f. cms_move_uploaded_file()

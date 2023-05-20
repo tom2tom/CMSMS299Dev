@@ -1,7 +1,7 @@
 <?php
 /*
 Class for administering a layout template.
-Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -78,7 +78,10 @@ class Template
 
 	/**
 	 * @var array template-file on-save operations, populated on demand
-	 * Each member like [optype,param,...] optype = 'delete' etc
+	 * Each member like [optype,param,...] as below:
+	 *  ['store',$tobasename,$content] $content might be empty if file is already saved
+	 *  ['delete',$thebasename]
+	 *  ['rename',$frombasename, $tobasename]
 	 * @ignore
 	 */
 	public $fileoperations = [];
@@ -114,7 +117,7 @@ class Template
 	 * @var string template-file content, populated on demand
 	 * @ignore
 	 */
-	private $filecontent;
+	public $filecontent;
 
 	// static properties here >> Lone properties ?
 	/**
@@ -394,6 +397,7 @@ class Template
 		if( !empty($this->props['contentfile']) ) {
 			$fn = sanitizeVal($str, CMSSAN_FILE); // TODO advise user if $fn != $str
 			$this->props['name'] = $fn;
+			// want ['rename',$frombasename,$tobasename]
 			$this->fileoperations[] = ['rename', $this->props['content'], $fn.'.tpl'];
 			$this->props['content'] = $fn.'.tpl';
 		}
@@ -716,8 +720,8 @@ class Template
 	/**
 	 * Set the owner id of this template
 	 *
-	 * @param mixed $a An integer admin user id, a string admin username,
-	 *  or an instance of a User object
+	 * @param mixed $a a username (string) or an integer user id, or a
+	 *  User object
 	 * @see User
 	 * @throws UnexpectedValueException
 	 */
@@ -993,7 +997,7 @@ class Template
 	 * Set the content of this template
 	 * No sanitization
 	 *
-	 * @param string $str not empty
+	 * @param string $str not empty, might be a templatefile name like X.tpl
 	 */
 	public function set_content($str)
 	{
@@ -1003,7 +1007,10 @@ class Template
 		if( !empty($this->props['contentfile']) ) {
 			$this->filecontent = $str;
 			// park new content for transfer to file when this object is saved
-			$fn = basename($this->get_content_filename());
+//			$fn = basename($this->get_content_filename()); // might be empty
+			$fn = $str;
+			$str = ''; // TODO only if already saved @ CMS_ASSETS_PATH / layouts / $fn
+			// want ['store',$tobasename,$content];
 			$this->fileoperations[] = ['store', $fn, $str];
 		}
 		else {
@@ -1050,14 +1057,16 @@ class Template
 	 */
 	public function has_content_file()
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method','TEmplate::get_content_file()'));
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','Template::get_content_file()'));
 		return $this->props['contentfile'] ?? false;
 	}
 
 	/**
 	 * Set the value of the flag indicating the content of this template
 	 *  resides in a filesystem file
-	 * @since 3.0
+     * The template's content-filename must be set before this method is used
+     * with $flag = true
+     * @since 3.0
 	 *
 	 * @param mixed $flag recognized by cms_to_bool(). Default true.
 	 */
@@ -1074,15 +1083,19 @@ class Template
 		if( !empty($this->props['content']) ) {
 			$fn = $this->get_content_filename();
 			if( $state ) {
-				if( $fn ) return; // already set up
-				$fn = sanitizeVal($this->props['name'], CMSSAN_FILE);
-				// park current content for save-in-file when this object is saved
-				$this->fileoperations[] = ['store', $fn.'.tpl', ($this->props['content'] ?? '')];
-				$this->props['content'] = $fn.'.tpl';
+				if( !$fn ) {
+					// not yet set up
+					$fn = sanitizeVal($this->props['name'], CMSSAN_FILE);
+					// park current content for save-in-file when this object is saved
+                    // want ['store',$tobasename,$content];
+					$this->fileoperations[] = ['store', $fn.'.tpl', ($this->props['content'] ?? '')];
+					$this->props['content'] = $fn.'.tpl';
+				}
 			}
 			elseif( $fn ) {
 				$this->props['content'] = file_get_contents($fn);
 				// park current filename for deletion when this object is saved
+                // want ['delete',$thebasename];
 				$this->fileoperations[] = ['delete', basename($fn)];
 			}
 			else {
@@ -1200,14 +1213,12 @@ class Template
 	}
 
 	/**
-	 * Test if the user specified can edit the specified template
-	 * This is a convenience method that loads the template, and tests
-	 * whether the specified user has authority to  edit it.
+	 * Test whether the specified user may edit the specified template
 	 * @deprecated since 3.0 use corresponding TemplateOperations method
 	 *
 	 * @param mixed $tpl An integer template id, or a string template name
-	 * @param mixed $userid An integer user id, or a string user name, or null.
-	 *   If no userid is specified the currently logged in userid is used
+	 * @param mixed $userid Optional int user id, or string user name, or null.
+	 *   If no userid is specified the currently logged in user is assumed
 	 * @return bool
 	 */
 	public static function user_can_edit($tpl,$userid = null)

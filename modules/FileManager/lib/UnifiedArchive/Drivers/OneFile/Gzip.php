@@ -3,33 +3,11 @@ namespace wapmorgan\UnifiedArchive\Drivers\OneFile;
 
 use Exception;
 use wapmorgan\UnifiedArchive\Formats;
-use wapmorgan\UnifiedArchive\Drivers\OneFile\OneFileDriver;
 
 class Gzip extends OneFileDriver
 {
-    const FORMAT_SUFFIX = 'gz';
-
-    /**
-     * @return array
-     */
-    public static function getSupportedFormats()
-    {
-        return [
-            Formats::GZIP,
-        ];
-    }
-
-    /**
-     * @param $format
-     * @return bool
-     */
-    public static function checkFormatSupport($format)
-    {
-        switch ($format) {
-            case Formats::GZIP:
-                return extension_loaded('zlib');
-        }
-    }
+    const EXTENSION_NAME = 'zlib';
+    const FORMAT = Formats::GZIP;
 
     /**
      * @inheritDoc
@@ -37,16 +15,6 @@ class Gzip extends OneFileDriver
     public static function getDescription()
     {
         return 'adapter for ext-zlib'.(defined('ZLIB_VERSION') ? ' ('.ZLIB_VERSION.')' : null);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getInstallationInstruction()
-    {
-        return !extension_loaded('zlib')
-            ? 'install `zlib` extension'
-            : null;
     }
 
     /**
@@ -74,7 +42,7 @@ class Gzip extends OneFileDriver
      */
     public function __construct($archiveFileName, $format, $password = null)
     {
-        parent::__construct($archiveFileName, $password);
+        parent::__construct($archiveFileName, $format, $password);
         $stat = static::gzipStat($archiveFileName);
         if ($stat === false) {
             throw new Exception('Could not open Gzip file');
@@ -117,7 +85,6 @@ class Gzip extends OneFileDriver
             self::COMPRESSION_STRONG => 7,
             self::COMPRESSION_MAXIMUM => 9,
         ];
-        var_dump($compressionLevelMap[$compressionLevel]);
         return gzencode($data, $compressionLevelMap[$compressionLevel]);
     }
 }

@@ -43,13 +43,13 @@ $this->SetPreference('date_format',trim($params['date_format']));
 $this->SetPreference('default_category',(int)$params['default_category']);
 
 $t = (int)$params['detail_returnid'];
-if( $t == 0 ) { $t = null; }
+if( $t == 0 ) { $t = null; } // record null in db
 $this->SetPreference('detail_returnid',$t);
 
 $this->SetPreference('email_subject',trim($params['email_subject']));
 
 $t = (int)$params['email_template'];
-$row = $db->getRow('SELECT originator,name FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE id=?',[$t]);
+$row = $db->getRow('SELECT originator,`name` FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE id=?',[$t]);
 $this->SetPreference('email_template',$row['originator'].'::'.$row['name']);
 
 $this->SetPreference('email_to',trim($params['email_to']));
@@ -63,6 +63,6 @@ $this->SetPreference('expired_viewable',isset($params['expired_viewable']) && cm
 
 $this->SetPreference('timeblock',(int)$params['timeblock']);
 
-$this->CreateStaticRoutes(); // ??
+$this->CreateStaticRoutes(); // in any routish thing changed now? (should be onetime during install/upgrade)
 $this->SetMessage($this->Lang('optionsupdated'));
 $this->RedirectToAdminTab('settings');

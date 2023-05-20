@@ -147,28 +147,37 @@ VALUES (?,?,NOW())');
 //    Lone::get('LoadedData')->refresh('IF ANY');
 }
 
-$query = 'SELECT u.user_id, u.username, ug.group_id FROM '.
-    CMS_DB_PREFIX.'users u LEFT JOIN '.CMS_DB_PREFIX.
-    'user_groups ug ON u.user_id = ug.user_id ORDER BY u.username';
+$query = 'SELECT U.user_id, U.username, UG.group_id FROM '.
+    CMS_DB_PREFIX.'users U LEFT JOIN '.CMS_DB_PREFIX.
+    'user_groups UG ON U.user_id = UG.user_id';
 $rst = $db->execute($query);
 
 $user_struct = [];
-while ($rst && ($row = $rst->FetchRow())) {
-    if (isset($user_struct[$row['user_id']])) {
-        $str = &$user_struct[$row['user_id']];
-        $str->group[$row['group_id']] = 1;
-    } else {
-        $thisUser = new stdClass();
-        $thisUser->group = [];
-        if (!empty($row['group_id'])) {
-            $thisUser->group[$row['group_id']] = 1;
+if ($rst) {
+    $userops = Lone::get('UserOperations');
+    $salt = $userops->DefaultKey();
+    while (($row = $rst->FetchRow())) {
+        if (isset($user_struct[$row['user_id']])) {
+            $str = &$user_struct[$row['user_id']];
+            $str->group[$row['group_id']] = 1;
+        } else {
+            $thisUser = new stdClass();
+            $thisUser->group = [];
+            if (!empty($row['group_id'])) {
+                $thisUser->group[$row['group_id']] = 1;
+            }
+            $thisUser->id = $row['user_id'];
+            $thisUser->name = $userops->Restore($row['username'], $salt);
+            $user_struct[$row['user_id']] = $thisUser;
         }
-        $thisUser->id = $row['user_id'];
-        $thisUser->name = $row['username'];
-        $user_struct[$row['user_id']] = $thisUser;
     }
+    $rst->Close();
+    $coll = new Collator('root'); // TODO relevant locale for usernames
+    $coll->setStrength(Collator::SECONDARY); // caseless
+    uasort($user_struct, function($a, $b) use ($coll)  {
+        return $coll->compare($a->name, $b->name); // CMSSAN_ACCOUNT allows >0x80 i.e. multi-byte chars in name(s)
+    });
 }
-if ($rst) $rst->Close();
 
 if (!empty($message)) {
     $themeObject->RecordNotice('success', $message);

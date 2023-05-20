@@ -69,7 +69,7 @@ WHERE news_category_id = ?';
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
 $allcats = $db->getArray($query);
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('reorder_cats.tpl')); //,null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('reorder_cats.tpl')); //,'','',$smarty);
 $tpl->assign('allcats',$allcats);
 
 $out = cms_get_script('jquery.mjs.nestedSortable.js');

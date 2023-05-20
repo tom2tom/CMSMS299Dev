@@ -213,6 +213,8 @@ EX_OK ....
      */
     public function send(Message $message)
     {
+//TODO support authentication using oAuth parameters from upstream
+// when relevant - provider, type etc etc
         $subject = $message->getSubject();
         if (!$subject) {
             throw new RunTimeException("No subject was provided");

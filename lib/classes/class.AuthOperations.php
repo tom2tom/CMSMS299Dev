@@ -29,7 +29,6 @@ use CMSMS\Events;
 use CMSMS\Lone;
 use CMSMS\SignedCookieOperations;
 use CMSMS\User;
-use LogicException;
 use RuntimeException;
 use const CMS_DEPREC;
 use const CMS_ROOT_URL;
@@ -85,10 +84,10 @@ final class AuthOperations
 
 	/**
 	 * Check whether credentials are sufficient to log in or redirect
-	 * @param mixed $param value(s) to use for checking. Default null
+	 * @param mixed $check value(s) to use for checking. Default null
 	 * @return mixed bool indicating acceptance, or not at all (redirection)
 	 */
-	public function authenticate($param = null)
+	public function authenticate($check = null)
 	{
 		$v = $_SESSION[CMS_USER_KEY] ?? ''; // preserve maybe-overwritten value
 		$k = $_SESSION[$this->loginkey] ?? '';
@@ -106,11 +105,15 @@ final class AuthOperations
 		if ($private_data) {
 			$uid = $private_data['eff_uid'] ?? $private_data['uid'] ?? 0;
 			if ($uid > 0) {
-				if ($param) {
-					//TODO check stuff
-					return $_SESSION[CMS_USER_KEY] == $param;
+// NOT NEEDED	if ($uid != $this->get_effective_uid()) {
+				if ($check) {
+					//TODO more flexible/rigorous checks
+					return $_SESSION[CMS_USER_KEY] == $check;
 				}
 				$this->login_finish($uid);
+//				} else {
+// handle same-user parallel login
+//				}
 			}
 		}
 		return false;
@@ -124,7 +127,7 @@ final class AuthOperations
 	 * @return boolean true always
 	 * @throws RuntimeException
 	 */
-	public function save_authentication(User $userobj, $effective_user = null)
+	public function save_authentication(User $userobj, ?User $effective_user = null)
 	{
 		if ($userobj->id < 1 || empty($userobj->password)) {
 			throw new RuntimeException('Invalid user-information in '.__METHOD__);
@@ -144,6 +147,8 @@ final class AuthOperations
 		if ($effective_user && $effective_user->id != $userobj->id && $effective_user->id > 1) {
 			$private_data['eff_username'] = $effective_user->username;
 		}
+		//TODO consider other hash-key e.g.
+		//trim(file_get_contents(CMS_ASSETS_DIR.DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'master.dat'))
 		$config = Lone::get('Config');
 		$k = $config['db_credentials'];
 		if ($k) {
@@ -228,7 +233,7 @@ final class AuthOperations
 	 */
 	public function validate_requestkey() : bool
 	{
-		// asume we are authenticated
+		// assume we are authenticated
 		// now we validate that the request has the user key in it somewhere.
 		if (!isset($_SESSION[CMS_USER_KEY])) {
 			throw new RuntimeException('Internal: User key not found in session.');
@@ -292,9 +297,9 @@ final class AuthOperations
 	/**
 	 * Get id/enumerator for the recorded 'effective' user (if any) or else for the primary user
 	 *
-	 * @return mixed int | null
+	 * @return int 0 if unknown
 	 */
-	public function get_effective_uid()
+	public function get_effective_uid() : int
 	{
 		$data = $this->get_data();
 		if ($data) {
@@ -303,13 +308,14 @@ final class AuthOperations
 			}
 			return (int)$data['uid'];
 		}
+        return 0;
 	}
 
 	/**
 	 * Get recorded login/account for the session 'effective' user (if any)
 	 *  or else for the primary user
 	 *
-	 * @return mixed string | null
+	 * @return string empty if unknown
 	 */
 	public function get_effective_username()
 	{
@@ -320,6 +326,7 @@ final class AuthOperations
 			}
 			return trim($data['username']);
 		}
+        return '';
 	}
 
 	/**
@@ -354,10 +361,10 @@ final class AuthOperations
 		Events::SendEvent('Core', 'LoginPost', ['user'=>&$userobj]);
 		// find the user's start-page, if any
 		$url = UserParams::get_for_user($uid, 'homepage');
+		$config = Lone::get('Config');
 		if (!$url) {
-			$config = Lone::get('Config');
 			$url = $config['admin_url'].'/menu.php';
-		} elseif (startswith($url, 'lib/moduleinterface.php')) {
+		} elseif (startswith($url, $config['admin_dir'].'/moduleinterface.php')) {
 			$url = CMS_ROOT_URL.'/'.$url;
 		} elseif (startswith($url, '/') && !startswith($url, '//')) {
 			$url = CMS_ROOT_URL.$url;
@@ -446,8 +453,8 @@ final class AuthOperations
 		//TODO consider server-side data (db|cache) as well as or instead of cookie
 		//see also $find_recovery_user() which uses same algo and similar hash
 		$n = -1;
-		$ops = Lone::get('UserOperations');
-		$usernames = $ops->GetUsers(true); // public name not used here
+		$userops = Lone::get('UserOperations');
+		$usernames = $userops->GetUsers(true); // public name not used here
 		foreach ($usernames as $uid => $name) {
 			if ($private_data['hash'] == hash_hmac('tiger128,3', $salt.$uid, $salt ^ $name)) { // no compare-timing risk
 				$private_data['uid'] = $n = $uid;
@@ -471,12 +478,12 @@ final class AuthOperations
 				$private_data['eff_uid'] = $n;
 				$private_data['eff_username'] = $k;
 			} else {
-				$private_data['eff_uid'] = null;
-				$private_data['eff_username'] = null;
+				$private_data['eff_uid'] = 0;
+				$private_data['eff_username'] = 0;
 			}
 		} else {
-			$private_data['eff_uid'] = null;
-			$private_data['eff_username'] = null;
+			$private_data['eff_uid'] = 0;
+			$private_data['eff_username'] = 0;
 		}
 		unset($usernames); //garbage-collector assistance
 

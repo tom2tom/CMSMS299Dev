@@ -64,7 +64,7 @@ $db = Lone::get('Db');
 
 $ultras = json_decode(AppParams::get('ultraroles'));
 if ($ultras) {
-    $query = 'SELECT id FROM '.CMS_DB_PREFIX.'permissions WHERE name IN (\''.implode("','", $ultras).'\')';
+    $query = 'SELECT id FROM '.CMS_DB_PREFIX.'permissions WHERE `name` IN (\''.implode("','", $ultras).'\')';
     $specials = $db->getCol($query); //data for perm's not automatically in group 1
 } else {
     $specials = [];
@@ -163,7 +163,7 @@ $perm_struct = [];
 
 $pref = CMS_DB_PREFIX;
 $query = <<<EOS
-SELECT P.id, P.name, P.description, P.originator, GP.group_id
+SELECT P.id, P.`name`, P.description, P.originator, GP.group_id
 FROM {$pref}permissions P LEFT JOIN {$pref}group_perms GP
 ON P.id = GP.permission_id
 ORDER BY P.description

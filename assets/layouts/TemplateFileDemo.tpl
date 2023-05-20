@@ -6,3 +6,4 @@
 <license>GPL3+</license>
 </metadata>
 *}
+{* template content goes here *}

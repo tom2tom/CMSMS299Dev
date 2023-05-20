@@ -60,7 +60,7 @@ https://portswigger.net/web-security/cross-site-scripting/cheat-sheet
 https://owasp.org/www-community/xss-filter-evasion-cheatsheet
 http://www.bioinformatics.org/phplabware/internal_utilities/htmLawed/index.php
 */
-$descript = function(/*string*/&$value) use(&$descript)
+$descript = function(/*string*/&$value) use (&$descript)
 {
     if (!is_array($value)) {
         $tmp = preg_replace([

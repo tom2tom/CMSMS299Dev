@@ -1,0 +1,1 @@
+https://www.lonelypx.com/how-to-send-an-e-mail-with-php-mailer-and-microsoft-oauth-2-0/

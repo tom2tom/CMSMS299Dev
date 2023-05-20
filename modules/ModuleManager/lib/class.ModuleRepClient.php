@@ -1,7 +1,7 @@
 <?php
 /*
 ModuleManager class: engagement with CMSMS modules repository/forge
-Copyright (C) 2011-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2011-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 CMS Made Simple is free software; you can redistribute it and/or modify
@@ -28,6 +28,7 @@ use CMSMS\Utils;
 use Exception;
 use ModuleManager\CachedRequest;
 use ModuleManager\ModuleInfo;
+use RuntimeException;
 use const CMS_VERSION;
 use const TMP_CACHE_LOCATION;
 
@@ -43,12 +44,13 @@ final class ModuleRepClient
     private function __construct() {}
 
     /**
+     * Report Forge version
      *
      * @return array 2 members
      * [0] = bool indicating success
      * [1] = mixed result | error message string
      */
-    public static function get_repository_version()
+    public static function get_repository_version() : array
     {
         $mod = Utils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
@@ -62,39 +64,42 @@ final class ModuleRepClient
         if( $status != 200 || $result == '' ) return [FALSE,$mod->Lang('error_request_problem')];
 
         $data = json_decode($result,TRUE);
-        if( $data ) {
+        if( $data !== null ) {
             return [TRUE,$data];
         }
         return [FALSE,json_last_error_msg()];
     }
 
     /**
-     * Given an array of hashes with name/version members return module info for all matches.
+     * Report information about specified module(s)
+     *
+     * @param array $input hashes each member having module name & version
+     * or having '' (i.e. no name) and version
      * maximum of 25 rows, and no guarantee that there will be results for each request.
      */
-    public static function get_multiple_moduleinfo($input)
+    public static function get_multiple_moduleinfo(array $input)
     {
         $mod = Utils::get_module('ModuleManager');
         if( !$input || !is_array($input) ) throw new RuntimeException($mod->Lang('error_missingparam'));
+        $url = $mod->GetPreference('module_repository');
+        if( !$url ) return [FALSE,$mod->Lang('error_norepositoryurl')];
+        $url .= '/multimoduleinfo';
 
-        $out = [];
+        $qparms = [];
         foreach( $input as $key => $data ) {
-            if( is_array($data) && isset($data['name']) && isset($data['version']) && $data['name'] && $data['version'] ) {
-                $out[] = ['name'=>$data['name'],'version'=>$data['version']];
+            if( is_array($data) && !empty($data['name']) && !empty($data['version']) ) {
+                $qparms[] = ['name'=>$data['name'],'version'=>$data['version']];
             }
             elseif( is_string($key) && (int)$key == 0 ) {
-                $out[] = ['name'=>$key,'version'=>$data];
+                $qparms[] = ['name'=>$key,'version'=>$data];
             }
             else {
                 throw new DataException($mod->Lang('error_missingparam'));
             }
         }
-        if( !$out ) throw new DataException($mod->Lang('error_missingparam'));
+        if( !$qparms ) throw new DataException($mod->Lang('error_missingparam'));
 
-        $url = $mod->GetPreference('module_repository');
-        if( !$url ) return [FALSE,$mod->Lang('error_norepositoryurl')];
-        $url .= '/multimoduleinfo';
-        $data = ['data'=>json_encode($out)];
+        $data = ['data'=>json_encode($qparms)];
 
         $req = new CachedRequest();
         $req->execute($url,$data);
@@ -106,10 +111,15 @@ final class ModuleRepClient
         elseif( $status != 200 || $result == '' ) {
             throw new CommunicationException($mod->Lang('error_request_problem'));
         }
-        return json_decode($result,TRUE); // TODO json_last_error_msg() if relevant
+        $data = json_decode($result,TRUE);
+        if( $data !== null ) {
+            return $data;
+        }
+        throw new RuntimeException(json_last_error_msg());
     }
 
     /**
+     * Report information about matching module(s)
      *
      * @param string $prefix optional module-name prefix to match, default ''
      * @param bool $latest optional flag, default true
@@ -118,7 +128,7 @@ final class ModuleRepClient
      * [0] = bool indicating success
      * [1] = mixed retrieved data | error message string
      */
-    public static function get_repository_modules($prefix = '',$latest = TRUE,$exact = FALSE)
+    public static function get_repository_modules(string $prefix = '', bool $latest = TRUE, bool $exact = FALSE)
     {
         $mod = Utils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
@@ -126,13 +136,13 @@ final class ModuleRepClient
         $url .= '/moduledetailsgetall';
 
         $val = ($latest) ? 1 : 0;
-        $data = ['newest'=>$val];
-        if( $prefix ) $data['prefix'] = ltrim($prefix);
-        if( $exact ) $data['exact'] = 1;
-        $data['clientcmsversion'] = CMS_VERSION;
+        $qparms = ['newest'=>$val];
+        if( $prefix ) $qparms['prefix'] = ltrim($prefix);
+        if( $exact ) $qparms['exact'] = 1;
+        $qparms['clientcmsversion'] = CMS_VERSION;
 
         $req = new CachedRequest();
-        $req->execute($url,$data);
+        $req->execute($url,$qparms);
         $status = $req->getStatus();
         $result = $req->getResult();
         if( $status == 400 ) {
@@ -143,20 +153,22 @@ final class ModuleRepClient
         }
 
         $data = json_decode($result,TRUE);
-        if( $data ) {
+        if( $data !== null ) {
             return [TRUE,$data];
         }
         return [FALSE,json_last_error_msg()];
     }
 
     /**
+     * Report information about module dependencies
+     * TODO c.f. get_module_depends() which does not consider version
      *
      * @param string $modname
-     * @param string $module_version
+     * @param string $module_version Default ''
      * @return array maybe empty
-     * @throws DataException or CommunicationException
+     * @throws DataException or CommunicationException or RuntimeException
      */
-    public static function get_module_dependencies($modname,$module_version = '')
+    public static function get_module_dependencies(string $modname, string $module_version = '')
     {
         $mod = Utils::get_module('ModuleManager');
         if( !$modname ) throw new DataException($mod->Lang('error_missingparams'));
@@ -164,10 +176,10 @@ final class ModuleRepClient
         if( $url == '' ) throw new DataException($mod->Lang('error_norepositoryurl'));
         $url .= '/moduledependencies';
 
-        $parms = ['name'=>$modname];
-        if( $module_version ) $parms['version'] = $module_version;
+        $qparms = ['name'=>$modname];
+        if( $module_version ) $qparms['version'] = $module_version;
         $req = new CachedRequest();
-        $req->execute($url,$parms);
+        $req->execute($url,$qparms);
         $status = $req->getStatus();
         $result = $req->getResult();
         if( $status == 400 ) {
@@ -177,16 +189,22 @@ final class ModuleRepClient
         elseif( $status != 200 || $result == '' ) {
             throw new CommunicationException($mod->Lang('error_request_problem'));
         }
-        return json_decode($result,TRUE); // TODO json_last_error_msg() if relevant
+        $data = json_decode($result,TRUE);
+        if( $data !== null ) {
+            return $data;
+        }
+        throw new RuntimeException(json_last_error_msg());
     }
 
     /**
+     * Report information about module dependencies
+     * TODO c.f. get_module_dependencies() which may consider version
      *
      * @param string $xmlfile name of module XML-source
      * @return array maybe empty
      * @throws DataException or CommunicationException
      */
-    public static function get_module_depends($xmlfile)
+    public static function get_module_depends(string $xmlfile)
     {
         $mod = Utils::get_module('ModuleManager');
         if( !$xmlfile ) throw new DataException($mod->Lang('error_nofilename'));
@@ -202,16 +220,21 @@ final class ModuleRepClient
         if( $status != 200 || $result == '' ) {
             throw new CommunicationException($mod->Lang('error_request_problem'));
         }
-        return json_decode($result,TRUE); // TODO json_last_error_msg() if relevant
+        $data = json_decode($result,TRUE);
+        if( $data !== null ) {
+            return $data;
+        }
+        throw new RuntimeException(json_last_error_msg());
     }
 
     /**
+     * Download xml file, chunkwize if necessary, to local tmp cache
      *
      * @param string $xmlfile name of TBA
-     * @param int $size Optional custom byte-size of download-chunks
-     * @return false | string
+     * @param int $size Optional custom byte-size of download-chunks Default -1
+     * @return mixed filepath string | false
      */
-    public static function get_repository_xml($xmlfile, $size = -1)
+    public static function get_repository_xml(string $xmlfile, int $size = -1)
     {
         if( !$xmlfile ) return FALSE;
 
@@ -265,18 +288,18 @@ final class ModuleRepClient
                 $req->clear();
             }
         }
-
         return $tmpname;
     }
 
     /**
+     * Return md5 of specified xml file
      *
-     * @param string $xmlfile name of TBA
-     * @return type
+     * @param string $xmlfile name of module TBA
+     * @return string
      * @throws DataException
      * @throws CommunicationException
      */
-    public static function get_module_md5($xmlfile)
+    public static function get_module_md5(string $xmlfile) : string
     {
         $mod = Utils::get_module('ModuleManager');
         if( !$xmlfile ) {
@@ -295,18 +318,24 @@ final class ModuleRepClient
         if( $status != 200 || $result == '' ) {
             throw new CommunicationException($mod->Lang('error_request_problem'));
         }
-        return json_decode($result,TRUE); // TODO json_last_error_msg() if relevant
+        $data = json_decode($result,TRUE);
+        if( $data !== null ) {
+            return $data;
+        }
+        throw new RuntimeException(json_last_error_msg());
     }
 
     /**
+     * Return information about module(s) matching the supplied parameters
      *
-     * @param type $term
-     * @param int $advanced
+     * @param string $term search term, verbatim or formatted like
+     *  +red -apple +"some text" if $advanced is true
+     * @param int $advanced (0 or 1 i.e. bool)
      * @return array 2 members
      * [0] = bool indicating success
-     * [1] = mixed data | error message string
+     * [1] = mixed data array | scalar (if none found) | error message string
      */
-    public static function search($term,$advanced)
+    public static function search(string $term,$advanced) : array
     {
         $mod = Utils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
@@ -321,33 +350,44 @@ final class ModuleRepClient
         ];
         $qparms = [
          'filter' => $filter,
-         'clientcmsversion' => CMS_VERSION,
+         'clientcmsversion' => CMS_VERSION
         ];
 
         $req = new CachedRequest();
         $req->execute($url,['json'=>json_encode($qparms)]);
         $status = $req->getStatus();
         $result = $req->getResult();
-        if( $status == 200 && $result == ''  ) return [TRUE,NULL]; // no results.
+        if( $status == 200 && $result == ''  ) return [TRUE,NULL]; // no results
         if( $status != 200 || $result == '' ) return [FALSE,$mod->Lang('error_request_problem')];
 
         $data = json_decode($result,TRUE);
-        if( !$data || !is_array($data) ) {
-            return [FALSE,json_last_error_msg()];
+        if( $data !== null ) {
+/* data array each member an array like
+[name]	"CGCalendar"	string
+[filename]	"CGCalendar-2.6.2.xml"	string
+[md5sum]	"eeec1217b77a4c27c95576619729633c"	string
+[version]	"2.6.2"	string
+[mincmsversion]	"2.2.8"	string
+[description]	"A full featured, and flexible module to allow displaying information about events in numerous formats."	string
+[date]	"2019-07-27 15:50:04"	string
+[size]	"3438664"	string
+[downloads]	0	integer
+*/
+            return [TRUE,$data]; //$data = array of matches or scalar if none
         }
-        return [TRUE,$data];
+        return [FALSE,json_last_error_msg()];
     }
 
     /**
      * Return information about the latest in-forge and running-CMSMS-compatible
-     * version (if any) of the specified module(s)
+     * version (if any) of the named module(s)
      *
      * @param array $modnames name(s) of module(s) whose info is wanted
-     * @return array
+     * @return mixed array of matches | scalar if no match
      * @throws DataException or CommunicationException
      *  or ModuleNoDataException or Exception
      */
-    public static function get_modulelatest($modnames)
+    public static function get_modulelatest(array $modnames)// : mixed
     {
         $mod = Utils::get_module('ModuleManager');
         if( !$modnames || !is_array($modnames) ) {
@@ -361,7 +401,7 @@ final class ModuleRepClient
 
         $qparms = [];
         $qparms['names'] = implode(',',$modnames);
-        $qparms['newest'] = '1';
+        $qparms['newest'] = 1;
         $qparms['clientcmsversion'] = CMS_VERSION;
         $req = new CachedRequest();
         $req->execute($url,$qparms);
@@ -375,22 +415,34 @@ final class ModuleRepClient
         }
 
         $data = json_decode($result,TRUE);
-        if( !$data || !is_array($data) ) {
-            // TODO json_last_error_msg() if relevant
-            //TODO throw new Exception($mod->Lang('error_nomatchingmodules')); might validly be no non-bundled modules
+        if( $data !== null ) {
+// TODO check this
+// if( !$data ) throw new Exception($mod->Lang('error_nomatchingmodules')); // TODO might validly be no non-bundled modules
+/* expect array, each value an array like
+[name]	"News"	string
+[filename]	"News-2.51.10.xml"	string
+[md5sum]	"790205fea438254e49fc80eaa74d74d5"	string
+[version]	"2.51.10"	string
+[mincmsversion]	"2.1.6"	string
+[description]	"Add, edit and remove News entries"	string
+[date]	"2020-04-30 04:29:12"	string
+[downloads]	"0"	string
+[size]	"1421318"	string
+*/
+              return $data;
         }
-        return $data;
+        throw new RuntimeException(json_last_error_msg());
     }
 
     /**
      * Return information about the latest in-forge and running-CMSMS-compatible
-     * version (if any) of currently-installed modules
+     * version (if any) of all currently-installed modules
      *
      * @return array
      * @throws DataException or CommunicationException
      *  or ModuleNoDataException or Exception
      */
-    public static function get_installed_latest()
+    public static function get_installed_latest() : array
     {
         if( self::$_latest_installed_modules === NULL ) {
             $availmodules = Lone::get('ModuleOperations')->GetInstalledModules();
@@ -404,7 +456,7 @@ final class ModuleRepClient
      *
      * @return mixed false | array, maybe empty
      */
-    public static function get_installed_newversion()
+    public static function get_installed_newversion()// : mixed
     {
         $latest = self::get_installed_latest();
         if( !is_array($latest) ) return FALSE;
@@ -421,12 +473,12 @@ final class ModuleRepClient
     }
 
     /**
-     * Return information about the latest in-forge version of the named module.
+     * Return information about the latest in-forge version of the named module
      *
      * @param string $modname
      * @return mixed false | array, maybe empty
      */
-    public static function get_upgrade_module_info($modname)
+    public static function get_upgrade_module_info(string $modname)// : mixed
     {
         $latest = self::get_installed_latest();
         if( !is_array($latest) ) return FALSE;

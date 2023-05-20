@@ -2,8 +2,15 @@
 
 $gCms = cmsms();
 $dbdict = $db->NewDataDictionary();
-$taboptarray = ['mysql' => 'TYPE=MyISAM'];
-
+/*
+$str = $db->server_info;
+if (stripos($str, 'Maria') === false) {
+    $tblengn = 'MyISAM';
+} else {
+    $tblengn = 'Aria';
+}
+$taboptarray = ['mysqli' => "ENGINE=$tblengn"];
+*/
 status_msg('performing database changes for CMSMS 2.1.2');
 verbose_msg('database schema has not changed');
 

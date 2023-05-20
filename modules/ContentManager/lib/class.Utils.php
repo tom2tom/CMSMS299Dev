@@ -112,7 +112,7 @@ final class Utils
 	 * @param mixed $selected int[] | int | comma-separated string
 	 * @return array
 	 */
-	public static function get_sheets_data($selected = null) : array
+	public static function get_sheets_data(/*mixed */$selected = '') : array
 	{
 		$sheets = StylesheetOperations::get_displaylist();
 		if ($sheets) {
@@ -168,7 +168,7 @@ final class Utils
 					if ($a->id > 0 && $b->id < 0) {
 						return 1;
 					}
-					return strcmp($a->name, $b->name);
+					return ($a->name <=> $b->name); // OR collator->compare() ?
 				});
 			}
 			$rows = array_merge($selrows, $unselrows);

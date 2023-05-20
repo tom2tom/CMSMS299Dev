@@ -49,9 +49,10 @@ abstract class Job
      'id' => 0,
      'created' => 0,
      'start' => 0, //next-start timestamp, or 0 for never
+     'until' => 0, //last-start timestamp, or 0 for never
      'errors' => 0,
      'name' => '',
-     'module' => null,
+     'module' => null
     ];
 
     /**
@@ -82,12 +83,13 @@ abstract class Job
         case 'id':
         case 'created':
         case 'start':
+        case 'until':
         case 'errors':
             return (int) $this->_data[$key];
 
         case 'name':
         case 'module':
-            return trim($this->_data[$key]);
+            return trim((string)$this->_data[$key]);
 
         case 'manager_module':
             return ''; // not used now cmsms()->GetJobManager();
@@ -112,12 +114,13 @@ abstract class Job
             break;
 
         case 'start':
+        case 'until':
            if ($val != 0) {
-               $val = min(time(), $val);
+               $val = min(time(), (int)$val);
            }
           // no break here
         case 'errors':
-            $this->_data[$key] = (int) $val;
+            $this->_data[$key] = (int)$val;
             break;
 
         case 'name':

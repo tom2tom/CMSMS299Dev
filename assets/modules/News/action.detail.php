@@ -27,11 +27,9 @@ use function CMSMS\log_error;
 
 //if( some worthy test fails ) exit;
 
-//
 // initialization
-//
-$query = null;
-$article = null;
+
+$article = null; // no object yet
 $preview = false;
 $articleid = $params['articleid'] ?? -1;
 
@@ -96,7 +94,7 @@ else {
     $catName = '';
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,'','',$smarty);
 
 $tpl->assign('entry', $article)
  ->assign('return_url', $return_url)

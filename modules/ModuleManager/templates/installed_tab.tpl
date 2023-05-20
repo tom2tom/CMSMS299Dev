@@ -31,9 +31,9 @@
     {foreach $item.dependents as $one}
       {capture append=deps}<strong>{$one}</strong>{/capture}
     {/foreach}
-    {capture append=stats}<span title="{_ld($_module,'title_depends_upon')}">{_ld($_module,'depends_upon')}</span>: {', '|implode:$deps}{/capture}
+    {capture append=stats}<span title="{_ld($_module,'title_depends_upon')}">{_ld($_module,'depends_upon')}</span>: {implode(', ',$deps)}{/capture}
   {/if}
-{"<br>\n"|implode:$stats}
+{implode("<br>\n",$stats)}
 {/function}
 
 {function actions}
@@ -57,7 +57,7 @@
       {capture append=acts}<a href="{cms_action_url action='local_chmod' mod=$item.name}" class="modop mod_chmod" title="{_ld($_module,'title_chmod')}">{_ld($_module,'changeperms')}</a>{/capture}
     {/if}{/if}
   {/if}
-{"<br>\n"|implode:$acts}
+{implode("<br>\n",$acts)}
 {/function}
 
 {if !empty($module_info)}

@@ -1,7 +1,7 @@
 <?php
 /*
 Module Manager action: display module changelog
-Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of ModuleManager, an addon module for
@@ -25,8 +25,9 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\Lone;
 use function CMSMS\sanitizeVal;
 
-//if( some worthy test fails ) exit;
-if( !$this->CheckPermission('Modify Modules') ) exit;
+if( empty($this) || !($this instanceof ModuleManager) ) { exit; }
+if( empty($gCms) ) { exit; }
+//if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 if( !isset($params['mod']) ) {
     $this->SetError($this->Lang('error_missingparam'));
@@ -39,7 +40,7 @@ if( $modname ) {
 }
 else {
     $modname = lang('notspecified');
-    $mod = null;
+    $mod = null; // no object
 }
 if( !is_object($mod) ) {
     $this->SetError($this->Lang('error_getmodule', $modname));

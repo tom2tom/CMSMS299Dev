@@ -171,7 +171,7 @@ class FormUtils
                 switch ($detail) {
                     case 'start':
                         $withmod = true;
-                        //no braek here
+                        //no break here
                     case 'end':
                         $myfunc = 'create_form_'.$detail;
                 }
@@ -480,13 +480,13 @@ class FormUtils
      * ];
      *
      * @param array $data The option data
-     * @param string[]|string $selected  The selected elements
+     * @param mixed string[]|string $selected  The selected element(s)
      * @return string The generated <option> element(s).
      * @see FormUtils::create_options()
      */
-    public static function create_option($data, $selected = null) : string
+    public static function create_option(/*array */$data, /*mixed */$selected = '') : string
     {
-        if (!is_array($data)) {
+        if (!is_array($data) || !$data) {
             return '';
         }
 
@@ -507,13 +507,13 @@ class FormUtils
             } else {
                 $out .= '<optgroup label="'.$data['label'].'">';
                 foreach ($data['value'] as $one) {
-                    $out .= self::create_option($one, $selected);
+                    $out .= self::create_option($one, $selected); //recurse
                 }
                 $out .= '</optgroup>';
             }
         } else {
             foreach ($data as $rec) {
-                $out .= self::create_option($rec, $selected);
+                $out .= self::create_option($rec, $selected); //recurse
             }
         }
         return $out;
@@ -1034,7 +1034,8 @@ class FormUtils
                 $goto = str_replace('http:', 'https:', $goto);
             }
         } else {
-            $goto = CMS_ROOT_URL.'/lib/moduleinterface.php';
+            $config = Lone::get('Config');
+            $goto = CMS_ROOT_URL.'/'.$config['admin_dir'].'/moduleinterface.php'; // NOT /lib/...
         }
 
         if (empty($enctype)) unset($parms['enctype']);
@@ -1273,7 +1274,7 @@ EOS;
      *  htmlid   string The id-attribute to be applied to the created element
      *  getid    string Submitted-variable name-prefix
      *  id       string An alternate for either of the above id's
-     *  returnid mixed The page-id (if any) to eventually return to, '' or int > 0
+     *  returnid mixed The page-id (if any) to eventually return to, '' or alias or int > 0
      *  contents string The activatable text for the displayed link
      *  params   array of paramters to be included in the URL of the link. Each member like $key=>$value.
      *  onlyhref bool Flag to determine if only the href section should be returned
@@ -1293,17 +1294,21 @@ EOS;
 
         extract($parms);
 
-        if (!empty($returnid) || $returnid === 0) {
-            $returnid = (int)$returnid; //'' or int > 0
+        if (isset($returnid)) {
+            if (is_numeric($returnid)) {
+                $returnid = (int)$returnid;
+            } else {
+                $returnid = trim((string)$returnid);
+            }
         } else {
             $returnid = '';
         }
 
-        if (empty($params) || !is_array($params)) {
+        if (!isset($params) || !is_array($params)) {
             $params = [];
         }
         // create the url
-        $out = $mod->create_pageurl($getid, $returnid, $params, false); //i.e. not $for_display
+        $out = $mod->create_pageurl($getid, $returnid, $params); //i.e. not $for_display
 
         if ($out) {
             if (!$onlyhref) {

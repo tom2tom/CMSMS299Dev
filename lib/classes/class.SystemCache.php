@@ -445,6 +445,6 @@ final class SystemCache
 	public function generate_space(string $salt = '') : string
 	{
 		if ($salt === '') { $salt = __CLASS__; }
-		return hash('adler32', $salt.__CLASS__).hash('adler32', $salt);
+		return hash('adler32', $salt.__FILE__).hash('adler32', $salt);
 	}
 }

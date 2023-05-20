@@ -59,7 +59,7 @@ $smarty = Lone::get('Smarty');
 
 // individual templates
 // $_REQUEST members all cleaned individually, as needed
-$tmp = $_REQUEST['filter'] ?? null;
+$tmp = $_REQUEST['filter'] ?? false;
 if( $tmp ) {
     if( is_array($tmp) ) {
         $filter = array_map(function ($v) {
@@ -177,7 +177,7 @@ try {
         }
         else {
             $navpages = 1;
-            $pagelengths = null;
+            $pagelengths = [];
         }
         $sellength = 10; //OR some $_REQUEST[]
     }
@@ -235,8 +235,8 @@ try {
     }
     else {
         $smarty->assign([
-            'list_all_types' => null,
-            'list_types' => null,
+            'list_all_types' => [],
+            'list_types' => [],
             'typepages' => 1,
         ]);
     }
@@ -403,7 +403,7 @@ $(function() {
         }
         //from https://codereview.stackexchange.com/questions/23899/faster-javascript-fuzzy-string-matching-function
         //TODO handle '/' and regex-reserved chars and caseless unichars in s
-        var patn = s.split('').reduce(function(a,b) { return a + '[^' + b + ']*?' + b; });
+        var patn = s.split('').reduce(function(a,b) { return a + '[^' + b + ']{0,3}' + b; });
         var re = new RegExp(patn, 'i');
         $('#tpllist > tbody > tr > td:nth-child(2) > a').each(function() {
           var nm = $(this).text();

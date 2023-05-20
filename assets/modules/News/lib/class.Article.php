@@ -54,11 +54,9 @@ class Article
     private $_inparams = [];
     private $_inid = 'm1_';
 
-    private function _getdata(string $key)
+    private function _getdata(string $key)// : mixed
     {
-        $res = null;
-        if( isset($this->_rawdata[$key]) ) $res = $this->_rawdata[$key];
-        return $res;
+        return $this->_rawdata[$key] ?? null;
     }
 
     private function _getauthorinfo(int $author_id, bool $authorname = FALSE)

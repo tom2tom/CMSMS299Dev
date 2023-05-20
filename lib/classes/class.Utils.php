@@ -193,10 +193,10 @@ final class Utils
 	 * WYSIWYG module, or null.
 	 * @since 1.10
 	 *
-	 * @param mixed $module_name Optional module name | null Default null
+	 * @param mixed $module_name Optional module name Default ''
 	 * @return mixed CMSModule | null
 	 */
-	public static function get_wysiwyg_module($module_name = null)
+	public static function get_wysiwyg_module($module_name = '')
 	{
 		return Lone::get('ModuleOperations')->GetWYSIWYGModule($module_name);
 	}
@@ -432,7 +432,7 @@ final class Utils
 	{
 		if (extension_loaded('Intl')) {
 			$zone = Lone::get('Config')['timezone'];
-			$dt = new DateTime(null, new DateTimeZone($zone));
+			$dt = new DateTime('@0', new DateTimeZone($zone));
 			$dt->setTimestamp($st);
 			$locale = NlsOperations::get_current_language();
 			switch ($mode) {
@@ -577,22 +577,22 @@ final class Utils
 		$outfmt = self::swap($format);
 		$tmp = date($outfmt, $st);
 		$text = preg_replace_callback_array([
-			'~[\x01-\x08\x0e\x0f]~' => function($m) use($st) {
+			'~[\x01-\x08\x0e\x0f]~' => function($m) use ($st) {
 				return self::custom($st, $m[0]);
 			},
-			'~\x11~' => function($m) use($st) { // two-digit century
+			'~\x11~' => function($m) use ($st) { // two-digit century
 				return floor(date('Y', $st) / 100);
 			},
-			'~\x12~' => function($m) use($st) { // week of year, per ISO8601
+			'~\x12~' => function($m) use ($st) { // week of year, per ISO8601
 				return substr(date('o', $st), -2);
 			},
-			'~\x10~' => function($m) use($st) { // week of year, assuming the first Monday is day 0
+			'~\x10~' => function($m) use ($st) { // week of year, assuming the first Monday is day 0
 				 $n1 = date('Y', $st);
 				 $n2 = date('z', strtotime('first monday of january '.$n1));
 				 $n1 = date('z', $st);
 				 return floor(($n2-$n1) / 7) + 1;
 			 },
-			'~\x13~' => function($m) use($st) { // week of year, assuming the first Sunday is day 0
+			'~\x13~' => function($m) use ($st) { // week of year, assuming the first Sunday is day 0
 				$n1 = date('Y', $st);
 				$n2 = date('z', strtotime('first sunday of january '.$n1));
 				$n1 = date('z', $st);

@@ -39,7 +39,7 @@ if (isset($params['masterpass'])) {
                 $notfield = 'encvalue';
                 $encval = 0;
             }
-            $sql = 'UPDATE '.CMS_DB_PREFIX.'module_outmailer_props SET '.$tofield.'=?,'.$notfield.'=NULL,encrypt=? WHERE id=?';
+            $sql = 'UPDATE '.CMS_DB_PREFIX."module_outmailer_props SET {$tofield}=?,{$notfield}=NULL,encrypt=? WHERE id=?";
             foreach ($rows as &$onerow) {
                 if ($oldpw) {
                     $raw = ($onerow['encvalue']) ?
@@ -56,7 +56,7 @@ if (isset($params['masterpass'])) {
                     $revised = $raw;
                 }
                 if (!$revised) {
-                    $revised = null;
+                    $revised = null; //record null in db
                 }
                 $db->execute($sql, [$revised, $encval, $onerow['id']]);
             }
@@ -65,5 +65,5 @@ if (isset($params['masterpass'])) {
         PrefCrypter::encrypt_preference(PrefCrypter::MKEY, $newpw);
     }
     unset($newpw, $pw); // faster garbage cleanup
-    $newpw = $pw = null;
+    $newpw = $pw = null; // assist garbage collector
 }
