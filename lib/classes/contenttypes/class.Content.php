@@ -1,7 +1,7 @@
 <?php
 /*
 The main Content class
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -48,13 +48,13 @@ class Content extends ContentBase
 		}
 	}
 
-	public function IsDefaultPossible() : bool { return true; }
+	public function IsDefaultPossible(): bool { return true; }
 
 	/**
 	 * @since 3.0
 	 * @return string
 	 */
-	public function TemplateResource() : string
+	public function TemplateResource(): string
 	{
 /*		$tmp = $this->GetPropertyValue('template_rsrc');
 		if( !$tmp ) $tmp = $this->template_id;

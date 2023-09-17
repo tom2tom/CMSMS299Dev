@@ -51,9 +51,11 @@ class LTETheme extends AdminTheme
     const THEME_NAME = 'LTE';
     const THEME_VERSION = '0.3';
 
-    public function AdminHeaderSetup() : array
+    private $iconsmap;
+
+    public function AdminHeaderSetup(): array
     {
-        list($vars, $add_list) = parent::AdminHeaderSetup();
+        [$vars, $add_list] = parent::AdminHeaderSetup();
 
         $incs = cms_installed_jquery(true, true, true, true);
 
@@ -103,6 +105,33 @@ EOS;
         return [$vars, $add_list];
     }
 
+    public function get_navigation_tree($parent = '', int $maxdepth = 3, bool $usepath = true, int $alldepth = 2, bool $striproot = true): array
+    {
+        if (!isset($this->iconsmap)) {
+            // get page-icons map
+            require __DIR__.DIRECTORY_SEPARATOR.'function.pageicons.php';
+            $this->iconsmap = $iconsmap;
+        }
+
+        $nodes = parent::get_navigation_tree($parent, $maxdepth, $usepath, $alldepth, $striproot);
+        foreach ($nodes as &$one) {
+            if (isset($this->iconsmap[$one['name']])) {
+                $one['iconclass'] = $this->iconsmap[$one['name']];
+            } elseif (!empty($one['module'])) {
+                $modname = $one['module'];
+                if (!empty($one['description'])) {
+                    $desc = strip_tags($one['description']);
+                } else {
+                    $desc = $modname;
+                }
+                //TODO prefer a fonticon TODO distinguish default from settings
+                $one['img'] = $this->get_module_icon($modname, ['class'=>'module-icon nav-icon', 'alt'=>$modname, 'title'=>$desc, 'aria-hidden'=>'true']); //html string
+            }
+        }
+        unset($one);
+        return $nodes;
+    }
+
     public function display_login_page()
     {
         $auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
@@ -137,6 +166,7 @@ EOS;
                 $fn .= '-rtl';
             }
         }
+        $smarty->assign('encoding', NlsOperations::get_encoding());
         // css: jquery-ui and scripts: jquery, jquery-ui
         $incs = cms_installed_jquery();
         $url = cms_path_to_url($incs['jquicss']);
@@ -147,8 +177,8 @@ EOS;
 <link rel="stylesheet" href="themes/LTE/styles/{$fn}.css">
 
 EOS;
-//        get_csp_token(); //setup CSP header (result not used)
-        $tpl = '<script type="text/javascript" src="%s"></script>'.PHP_EOL;
+//      $nonce = get_csp_token(); //setup CSP header (result not used)
+        $tpl = '<script src="%s"></script>'.PHP_EOL;
         $url = cms_path_to_url($incs['jqcore']);
         $out .= sprintf($tpl, $url)."\n";
         $url = cms_path_to_url($incs['jqui']);
@@ -168,31 +198,50 @@ EOS;
           ->display('login.tpl');
     }
 
-    public function fetch_menu_page(string $section_name) : ?string
+    public function fetch_menu_page(string $section_name): ?string
     {
+        if (!isset($this->iconsmap)) {
+            // get page-icons map
+            require __DIR__.DIRECTORY_SEPARATOR.'function.pageicons.php';
+            $this->iconsmap = $iconsmap;
+        }
+
         if ($section_name) {
             $page_title = _la($section_name);
-            $nodes = $this->get_navigation_tree($section_name, -1, FALSE);
+            $nodes = parent::get_navigation_tree($section_name, -1, FALSE);
         } else {
             $page_title = '';
             $section_name = '';
-            $nodes = $this->get_navigation_tree(-1, 2, FALSE);
+            $nodes = parent::get_navigation_tree('', 2, FALSE);
         }
+        foreach ($nodes as &$one) {
+            if (isset($this->iconsmap[$one['name']])) {
+                $one['iconclass'] = $this->iconsmap[$one['name']];
+            } elseif (!empty($one['module'])) {
+                $modname = $one['module'];
+                if (!empty($one['description'])) {
+                    $desc = strip_tags($one['description']);
+                } else {
+                    $desc = $modname;
+                }
+                //TODO prefer a fonticon TODO distinguish default from settings
+                $one['img'] = $this->get_module_icon($modname, ['class'=>'nav-item module-icon', 'alt'=>$modname, 'title'=>$desc, 'aria-hidden'=>'true']); //html string
+            }
+        }
+        unset($one);
 
         $config = Lone::get('Config');
         $smarty = Lone::get('Smarty');
 
         // custom js
         $js = <<<'EOS'
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
   // admin home page
   $('#topcontent_wrap').addClass('row');
   $('.dashboard-box').addClass('col-lg-3 col-6 card');
   $('.dashboard-inner').addClass('card-body');
 });
-//]]>
 </script>
 EOS;
         add_page_headtext($js);
@@ -217,7 +266,7 @@ EOS;
         return $smarty->fetch('topcontent.tpl');
     }
 
-    public function fetch_page(string $content) : ?string
+    public function fetch_page(string $content): ?string
     {
         // setup titles etc
 //      $tree =
@@ -325,9 +374,9 @@ EOS;
 
         // bookmarks UI
         if (UserParams::get_for_user($userid, 'bookmarks') && check_permission($userid, 'Manage My Bookmarks')) {
-            $all_marks = $this->get_bookmarks();
             $marks = [];
             $marks_cntrls = [];
+            $all_marks = $this->get_bookmarks();
 
             foreach ($all_marks as $one) {
                 if ($one->bookmark_id > -1) {
@@ -345,9 +394,8 @@ EOS;
 
         // custom js
         $js = <<<'EOS'
-<script type="text/javascript" src="themes/LTE/includes/jquery.overlayScrollbars.min.js"></script>
-<script type="text/javascript">
-//<![CDATA[
+<script src="themes/LTE/includes/jquery.overlayScrollbars.min.js"></script>
+<script>
 $(function() {
   // resolve conflict between jQueryUI tooltip and Bootstrap tooltip
   $.widget.bridge('uibutton', $.ui.button);
@@ -383,7 +431,6 @@ $(function() {
   // scrollbar for shortcuts bar
   $('#shorcuts-crol-sidebar').overlayScrollbars({className:'os-theme-light'});
 });
-//]]>
 </script>
 EOS;
         add_page_headtext($js);
@@ -404,12 +451,22 @@ EOS;
 
         $userops = Lone::get('UserOperations');
         $smarty->assign('user', $userops->LoadUserByID($userid));
-        // get user selected language
-        $smarty->assign('lang', UserParams::get_for_user($userid, 'default_cms_language'));
+        // language attribute : prefer user-selected
+        $lang = UserParams::get_for_user($userid, 'default_cms_language');
+        if (!$lang) {
+            $lang = NlsOperations::get_current_language();
+        }
+        if ($lang) {
+            $lang = NlsOperations::get_lang_attribute($lang);
+        } else {
+            $lang = '';
+        }
+        $smarty->assign('lang_code', $lang);
         // get language direction
         $lang = NlsOperations::get_current_language();
         $info = NlsOperations::get_language_info($lang);
         $smarty->assign('lang_dir', $info->direction());
+        $smarty->assign('encoding', NlsOperations::get_encoding());
 
         // is the website set down for maintenance?
         if (AppParams::get('enablesitedownmessage') == '1') {

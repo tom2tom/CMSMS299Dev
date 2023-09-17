@@ -1,7 +1,7 @@
 <?php
 /*
 Class definition and methods for Page Link content type
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -40,22 +40,22 @@ use function get_userid;
  */
 class PageLink extends ContentBase
 {
-	public function FriendlyName() : string
+	public function FriendlyName(): string
 	{
 		return $this->mod->Lang('contenttype_pagelink');
 	}
 
-	public function HasSearchableContent() : bool
+	public function HasSearchableContent(): bool
 	{
 		return false;
 	}
 
-	public function IsCopyable() : bool
+	public function IsCopyable(): bool
 	{
 		return true;
 	}
 
-	public function IsViewable() : bool
+	public function IsViewable(): bool
 	{
 		return false;
 	}
@@ -91,7 +91,7 @@ class PageLink extends ContentBase
 		}
 	}
 
-	public function TemplateResource() : string
+	public function TemplateResource(): string
 	{
 		return ''; //TODO
 	}
@@ -99,33 +99,26 @@ class PageLink extends ContentBase
 	public function ValidateData()
 	{
 		$errors = parent::ValidateData();
-		if ($errors === false) {
-			$errors = [];
-		}
 
 		$page = $this->GetPropertyValue('page');
 		if ($page == '-1') {
 			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('page'));
-			$result = false;
 		} else {
 			// get the content type of page. TODO load using module-methods only
 			$contentops = Lone::get('ContentOperations');
 			$destcontent = $contentops->LoadEditableContentFromId($page);
 			if (!is_object($destcontent)) {
 				$errors[] = $this->mod->Lang('destinationnotfound');
-				$result = false;
 			} elseif ($destcontent->Type() == 'pagelink') {
 				$errors[] = $this->mod->Lang('pagelink_circular');
-				$result = false;
 			} elseif ($destcontent->Alias() == $this->mAlias) {
 				$errors[] = $this->mod->Lang('pagelink_circular');
-				$result = false;
 			}
 		}
-		return $errors ?: false;
+		return $errors;
 	}
 
-	public function GetTabNames() : array
+	public function GetTabNames(): array
 	{
 		$res = [$this->mod->Lang('main')];
 		if (check_permission(get_userid(), 'Manage All Content')) {
@@ -175,18 +168,8 @@ class PageLink extends ContentBase
 		}
 	}
 
-	public function EditAsArray($adding = false, $tab = 0, $showadmin = false)
-	{
-		switch ($tab) {
-		case 0:
-			return $this->display_attributes($adding);
-		case 1:
-			return $this->display_attributes($adding, 1);
-		}
-	}
-
 	// Return an actionable URL which can be used to preview this content
-	public function GetURL() : string
+	public function GetURL(): string
 	{
 		$pid = $this->GetPropertyValue('page');
 		$contentops = Lone::get('ContentOperations');

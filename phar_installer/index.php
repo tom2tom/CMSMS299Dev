@@ -8,7 +8,7 @@ use cms_installer\gui_install;
     if( extension_loaded('ionCube Loader') ) {
         if( function_exists('ioncube_loader_version') ) {
             $ver = ioncube_loader_version();
-            if( version_compare($ver,'4.1') < 0 ) throw new Exception('An old version of ioncube loader was detected.  Older versions are known to have problems with PHAR files. Sorry, but we cannot continue.');
+            if( version_compare($ver, '4.1') < 0 ) throw new Exception('An old version of ioncube loader was detected.  Older versions are known to have problems with PHAR files. Sorry, but we cannot continue.');
         }
     }
 }

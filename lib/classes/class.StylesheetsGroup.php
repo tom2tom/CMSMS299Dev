@@ -1,7 +1,7 @@
 <?php
 /*
 Class for managing a stylesheets group.
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -103,7 +103,7 @@ class StylesheetsGroup
 	 *
 	 * @return string
 	 */
-	public function get_name() : string
+	public function get_name(): string
 	{
 		return $this->props['name'] ?? '';
 	}
@@ -132,7 +132,7 @@ class StylesheetsGroup
 	 *
 	 * @return string
 	 */
-	public function get_description() : string
+	public function get_description(): string
 	{
 		return $this->props['description'] ?? '';
 	}
@@ -154,7 +154,7 @@ class StylesheetsGroup
 	 *
 	 * @return int UNIX UTC timestamp. Default 1 (i.e. not falsy)
 	 */
-	public function get_created() : int
+	public function get_created(): int
 	{
 		$str = $this->props['create_date'] ?? '';
 		return ($str) ? cms_to_stamp($str) : 1;
@@ -165,7 +165,7 @@ class StylesheetsGroup
 	 *
 	 * @return int UNIX UTC timestamp. Default 1.
 	 */
-	public function get_modified() : int
+	public function get_modified(): int
 	{
 		$str = $this->props['modified_date'] ?? $this->props['create_date'] ?? '';
 		return ($str) ? cms_to_stamp($str) : 1;
@@ -176,7 +176,7 @@ class StylesheetsGroup
 	 *
 	 * @return string, maybe empty
 	 */
-	public function get_members_summary() : string
+	public function get_members_summary(): string
 	{
 		return implode(',',$this->members);
 	}
@@ -188,7 +188,7 @@ class StylesheetsGroup
 	 * @return assoc. array of Stylesheet objects or name strings. May be empty.
 	 * Keys (if any) are respective numeric id's.
 	 */
-	public function get_members(bool $by_name = false) : array
+	public function get_members(bool $by_name = false): array
 	{
 		if( !$this->members ) return [];
 
@@ -215,7 +215,7 @@ class StylesheetsGroup
 	 * @param mixed $a scalar or array, integer id(s) or string name(s), or null
 	 * @return array
 	 */
-	protected function interpret_members($a) : array
+	protected function interpret_members($a): array
 	{
 		if( $a ) {
 			if( is_array($a) ) {
@@ -306,7 +306,7 @@ class StylesheetsGroup
 	/**
 	 * @ignore
 	 */
-	private static function get_locks() : array
+	private static function get_locks(): array
 	{
 		if( !self::$lock_cache_loaded ) {
 			self::$lock_cache = [];
@@ -338,7 +338,7 @@ class StylesheetsGroup
 	*
 	* @return bool
 	*/
-	public function locked() : bool
+	public function locked(): bool
 	{
 		$lock = $this->get_lock();
 		return is_object($lock);
@@ -349,7 +349,7 @@ class StylesheetsGroup
 	 *
 	 * @return bool
 	 */
-	public function lock_expired() : bool
+	public function lock_expired(): bool
 	{
 		$lock = $this->get_lock();
 		if( is_object($lock) ) return $lock->expired();
@@ -497,7 +497,7 @@ class StylesheetsGroup
 	 * @return self
 	 * @throws LogicException
 	 */
-	public static function load($val) : self
+	public static function load($val): self
 	{
 		$db = Lone::get('Db');
 		if( is_numeric($val) && $val > 0 ) {

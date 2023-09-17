@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton class of authentication methods
-Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -62,15 +62,14 @@ final class AuthOperations
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * Get the singleton instance of this class.
 	 * @deprecated since 3.0 instead use CMSMS\Lone::get('AuthOperations')
 	 * @return self i.e. AuthOperations
 	 */
-	public static function get_instance() : self
+	public static function get_instance(): self
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'AuthOperations\')'));
 		return Lone::get('AuthOperations');
@@ -189,7 +188,7 @@ final class AuthOperations
 	 * 8-12 bytes, all from the 64-char subset of ASCII immune to [raw]urlencoding
 	 * @return string
 	 */
-	public function create_csrf_token() : string
+	public function create_csrf_token(): string
 	{
 		$l = mt_rand(8, 12);
 		$str = str_repeat(' ', $l);
@@ -211,7 +210,7 @@ final class AuthOperations
 	 * @since 3.0 access public
 	 * @return string
 	 */
-	public function get_salt() : string
+	public function get_salt(): string
 	{
 		if (!AppState::test(AppState::INSTALL)) {
 			$salt = AppParams::get('loginsalt');
@@ -231,7 +230,7 @@ final class AuthOperations
 	 * @return boolean
 	 * @throws RuntimeException
 	 */
-	public function validate_requestkey() : bool
+	public function validate_requestkey(): bool
 	{
 		// assume we are authenticated
 		// now we validate that the request has the user key in it somewhere.
@@ -251,7 +250,7 @@ final class AuthOperations
 
 	/**
 	 * Get logged-in user's id/enumerator, if possible
-	 * @return mixed int | null
+	 * @return int maybe 0
 	 */
 	public function get_loggedin_uid()
 	{
@@ -259,18 +258,20 @@ final class AuthOperations
 		if ($data) {
 			return (int)$data['uid'];
 		}
+		return 0;
 	}
 
 	/**
 	 * Get logged-in user's login/account, if possible
-	 * @return mixed string | null
+	 * @return string maybe empty
 	 */
 	public function get_loggedin_username()
 	{
 		$data = $this->get_data();
 		if ($data) {
-			return trim($data['username']);
+			return trim($data['username']??'');
 		}
+		return '';
 	}
 
 	/**
@@ -284,6 +285,7 @@ final class AuthOperations
 		if ($uid > 0) {
 			return Lone::get('UserOperations')->LoadUserByID($uid);
 		}
+		return null;
 	}
 
 	/*
@@ -299,7 +301,7 @@ final class AuthOperations
 	 *
 	 * @return int 0 if unknown
 	 */
-	public function get_effective_uid() : int
+	public function get_effective_uid(): int
 	{
 		$data = $this->get_data();
 		if ($data) {
@@ -308,7 +310,7 @@ final class AuthOperations
 			}
 			return (int)$data['uid'];
 		}
-        return 0;
+		return 0;
 	}
 
 	/**
@@ -326,7 +328,7 @@ final class AuthOperations
 			}
 			return trim($data['username']);
 		}
-        return '';
+		return '';
 	}
 
 	/**
@@ -381,7 +383,7 @@ final class AuthOperations
 	 * @param string $hash
 	 * @return boolean
 	 */
-/*	private function check_passhash(int $uid, string $hash) : bool
+/*	private function check_passhash(int $uid, string $hash): bool
 	{
 		// we already confirmed that the payload is not corrupt
 		$userobj = Lone::get('UserOperations')->LoadUserByID($uid);
@@ -397,7 +399,7 @@ final class AuthOperations
 	 * Sets $_SESSION[CMS_USER_KEY] if newly authenticated.
 	 * @internal
 	 *
-	 * @return mixed array | null
+	 * @return array maybe empty
 	 */
 	private function get_data()
 	{
@@ -414,7 +416,7 @@ final class AuthOperations
 			$cooked = true;
 		}
 		if (empty($private_data)) {
-			return;
+			return [];
 		}
 
 		$config = Lone::get('Config');
@@ -434,10 +436,10 @@ final class AuthOperations
 		} else {
 			$parts = explode('::', $private_data, 2);
 			if (count($parts) != 2) {
-				return;
+				return [];
 			}
 			if ($parts[0] != Crypto::hash_string($salt . $parts[1])) {
-				return; // payload corrupted
+				return []; // payload corrupted
 			}
 			$private_data = json_decode(Crypto::decrypt_string($parts[1], $pw),
 				JSON_OBJECT_AS_ARRAY | JSON_INVALID_UTF8_IGNORE);
@@ -447,7 +449,7 @@ final class AuthOperations
 			empty($private_data['eff_username']) ||
 			empty($private_data['hash'])) {
 			sleep(1); // in case some brute-forcing is underway
-			return;
+			return [];
 		}
 		// authenticate
 		//TODO consider server-side data (db|cache) as well as or instead of cookie
@@ -464,7 +466,7 @@ final class AuthOperations
 		}
 		if ($n == -1) {
 			unset($usernames); //garbage-collector assistance
-			return;
+			return [];
 		}
 
 		$k = key($private_data); // remove padder

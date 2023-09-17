@@ -1,7 +1,7 @@
 <?php
 /*
 Make relevant css available for a login page
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -33,7 +33,7 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 $theme = Lone::get('Theme')->themeName;
 $defaulttheme = 'Marigold'; //TODO some sensible default
 
-$cms_readfile = function($filename) {
+$cms_readfile = function(string $filename): bool {
     ob_start();
     echo file_get_contents($filename);
     $result = ob_get_contents();
@@ -45,7 +45,7 @@ $cms_readfile = function($filename) {
     return FALSE;
 };
 
-header('Content-type: text/css; charset=' . NlsOperations::get_encoding());
+header('Content-Type: text/css; charset=' . NlsOperations::get_encoding());
 if (is_file(__DIR__."/themes/$theme/styles/style.css")) {
     echo file_get_contents(__DIR__.'/themes/'.$theme.'/styles/style.css');
 }

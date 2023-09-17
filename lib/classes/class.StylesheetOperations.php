@@ -191,7 +191,7 @@ class StylesheetOperations
 	 * @return array Stylesheet object(s) | empty
 	 * @throws LogicException
 	 */
-	public static function get_bulk_stylesheets(array $ids, bool $deep = true) : array
+	public static function get_bulk_stylesheets(array $ids, bool $deep = true): array
 	{
 		if (!$ids) {
 			return [];
@@ -266,7 +266,7 @@ class StylesheetOperations
 	 * @param mixed $ids array of integer sheet id's, or falsy to process all recorded sheets
 	 * @return array Each row has a stylesheet id and name
 	 */
-	public static function get_bulk_sheetsnames($ids = [], $sorted = true) : array
+	public static function get_bulk_sheetsnames($ids = [], $sorted = true): array
 	{
 		$db = Lone::get('Db');
 		$sql = 'SELECT id,`name` FROM '.CMS_DB_PREFIX.self::TABLENAME;
@@ -286,7 +286,7 @@ class StylesheetOperations
 	 * @return array If $by_name is true then each member is an array like
 	 *  id => 'name'. Otherwise, each member is a Stylesheet object. Or empty
 	 */
-	public static function get_all_stylesheets(bool $by_name = false) : array
+	public static function get_all_stylesheets(bool $by_name = false): array
 	{
 		$db = Lone::get('Db');
 		if ($by_name) {
@@ -423,7 +423,7 @@ EOS;
 	 * @return string
 	 * @throws LogicException
 	 */
-	public static function get_unique_name(string $prototype, string $prefix = '') : string
+	public static function get_unique_name(string $prototype, string $prefix = ''): string
 	{
 		if (!$prototype) {
 			throw new LogicException('Prototype name cannot be empty');
@@ -450,11 +450,11 @@ EOS;
 	 * @param mixed $ids int | int[] stylesheet identifier(s), any id < 0 means a group
 	 * @return int No of stylesheets cloned
 	 */
-	public static function operation_copy($ids) : int
+	public static function operation_copy($ids): int
 	{
 		$n = 0;
 		$db = Lone::get('Db');
-		list($shts, $grps) = self::items_split($ids);
+		[$shts, $grps] = self::items_split($ids);
 		if ($shts) {
 			$sql = 'SELECT originator,`name`,description,media_type,media_query,owner_id,type_id,type_dflt,listable,contentfile,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,', count($shts) - 1).'?)';
 			$from = $db->getArray($sql, $shts);
@@ -527,11 +527,11 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param mixed $ids int | int[] stylesheet identifier(s), any id < 0 means a group
 	 * @return int No of items affected e.g. pages modified | groups deleted
 	 */
-	public static function operation_delete($ids) : int
+	public static function operation_delete($ids): int
 	{
 		$db = Lone::get('Db');
 		$c = 0;
-		list($shts, $grps) = self::items_split($ids);
+		[$shts, $grps] = self::items_split($ids);
 		if ($grps) {
 			$sql = 'DELETE FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,', count($grps) - 1).'?)';
 			$db->execute($sql, $grps);
@@ -539,7 +539,7 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 			$c = (int)$db->execute($sql, $grps);
 		}
 		if ($shts) {
-			list($pages, $skips) = self::affected_pages($shts);
+			[$pages, $skips] = self::affected_pages($shts);
 			if ($pages) {
 				$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
 				foreach ($pages as &$row) {
@@ -583,10 +583,10 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param mixed $ids int | int[] stylesheet identifier(s), any id < 0 means a group
 	 * @return int No of pages modified
 	 */
-	public static function operation_deleteall($ids) : int
+	public static function operation_deleteall($ids): int
 	{
 		$db = Lone::get('Db');
-		list($shts, $grps) = self::items_split($ids);
+		[$shts, $grps] = self::items_split($ids);
 		if ($grps) {
 			$sql = 'SELECT DISTINCT tpl_id FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,', count($grps) - 1).'?)';
 			$members = $db->getCol($sql, $grps);
@@ -597,7 +597,7 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 			$db->execute($sql, $grps);
 		}
 		if ($shts) {
-			list($pages, $skips) = self::affected_pages($shts);
+			[$pages, $skips] = self::affected_pages($shts);
 			if ($pages) {
 				$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
 				foreach ($pages as &$row) {
@@ -642,9 +642,9 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param mixed $to int|int[] stylesheet identifier(s), < 0 for a group
 	 * @return int No of pages modified
 	 */
-	public static function operation_replace($from, $to) : int
+	public static function operation_replace($from, $to): int
 	{
-		list($pages, $skips) = self::affected_pages($from);
+		[$pages, $skips] = self::affected_pages($from);
 		if ($pages) {
 			$db = Lone::get('Db');
 			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
@@ -663,9 +663,9 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param mixed $ids int|int[] stylesheet identifier(s), < 0 for a group
 	 * @return int No of pages modified
 	 */
-	public static function operation_append($ids) : int
+	public static function operation_append($ids): int
 	{
-		list($pages, $skips) = self::affected_pages('*');
+		[$pages, $skips] = self::affected_pages('*');
 		if ($pages) {
 			$db = Lone::get('Db');
 			if (is_array($ids)) {
@@ -690,9 +690,9 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 for a group
 	 * @return int No of pages modified
 	 */
-	public static function operation_prepend($ids) : int
+	public static function operation_prepend($ids): int
 	{
-		list($pages, $skips) = self::affected_pages('*');
+		[$pages, $skips] = self::affected_pages('*');
 		if ($pages) {
 			$db = Lone::get('Db');
 			if (is_array($ids)) {
@@ -717,9 +717,9 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 for a group
 	 * @return int No of pages modified
 	 */
-	public static function operation_remove($ids) : int
+	public static function operation_remove($ids): int
 	{
-		list($pages, $skips) = self::affected_pages('*');
+		[$pages, $skips] = self::affected_pages('*');
 		if ($pages) {
 			$db = Lone::get('Db');
 			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
@@ -738,10 +738,10 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param mixed $ids int | int[] stylesheet identifier(s)
 	 * @return int No. of files processed
 	 */
-	public static function operation_export($ids) : int
+	public static function operation_export($ids): int
 	{
 		$n = 0;
-		list($shts, $grps) = self::items_split($ids);
+		[$shts, $grps] = self::items_split($ids);
 		if ($shts) {
 			$db = Lone::get('Db');
 			$sql = 'SELECT id,`name`,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=0 AND id IN ('.str_repeat('?,', count($shts) - 1).'?)';
@@ -772,10 +772,10 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param mixed $ids int | int[] stylesheet identifier(s)
 	 * @return int No. of files processed
 	 */
-	public static function operation_import($ids) : int
+	public static function operation_import($ids): int
 	{
 		$n = 0;
-		list($shts, $grps) = self::items_split($ids);
+		[$shts, $grps] = self::items_split($ids);
 		if ($shts) {
 			$db = Lone::get('Db');
 			$sql = 'SELECT id,`name`,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=1 AND id IN ('.str_repeat('?,', count($shts) - 1).'?)';
@@ -996,7 +996,7 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param array $row
 	 * @return Stylesheet
 	 */
-	protected static function create_stylesheet(array $row) : Stylesheet
+	protected static function create_stylesheet(array $row): Stylesheet
 	{
 		$db = Lone::get('Db');
 		$query = 'SELECT group_id FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE css_id = ?';
@@ -1097,7 +1097,7 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param mixed $ids int | int[]
 	 * @return string (possibly comma-separated)
 	 */
-	protected static function filter(string $s, $ids) : string
+	protected static function filter(string $s, $ids): string
 	{
 		$tmp = explode(',', $s);
 		if (!is_array($ids)) {
@@ -1115,7 +1115,7 @@ content) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param mixed $to int | int[]
 	 * @return string (possibly comma-separated)
 	 */
-	protected static function filter2(string $s, $from, $to) : string
+	protected static function filter2(string $s, $from, $to): string
 	{
 		if (!is_array($from)) {
 			$from = [$from];

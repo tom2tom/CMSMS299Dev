@@ -12,6 +12,6 @@ final class ru_RU_nls extends nls
         $this->_isocode = 'ru';
         $this->_locale = 'ru_RU';
         $this->_encoding = 'UTF-8';
-        $this->_aliases = 'russian,ru,rus,ru_RU,ru_RU.ISO3166-2'; // main ru nls has more
+        $this->_aliases = 'ru_RU.cp1251,ru_RU.CP1251,ru_RU.CP866,ru_RU.koi8r,ru_RU.utf8,ru_RU.iso88595,russian,Russian_Russia.1251';
     }
 }

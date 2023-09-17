@@ -1,7 +1,7 @@
 <?php
 /*
 Default admin-console-menu definition
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -50,16 +50,17 @@ $menucontent = [
 ],
 //============ SECTION ===========
 [
-'name'=>'main',
+'name'=>'first',
 'parent'=>'root',
 'url'=>'menu.php',
+'urlparm'=>'&section=first', // this item's name
 'labelkey'=>'home',
 'description'=>'', //'descriptionkey'=>'viewdescription',
 'priority'=>$sp++,
 ],
 	[
 	'name'=>'site',
-	'parent'=>'main',
+	'parent'=>'first',
 	'url'=>CMS_ROOT_URL.'/index.php',
 	'type'=>'external',
 	'target'=>'_blank',
@@ -70,7 +71,7 @@ $menucontent = [
 	],
 	[
 	'name'=>'logout',
-	'parent'=>'main',
+	'parent'=>'first',
 	'url'=>'logout.php',
 	'labelkey'=>'logout',
 	'description'=>'',

@@ -1,2 +1,2 @@
-<label for="myel">input descriptor</label><br />
-<input type="text" id="myel"  name="discoverme" size="15" maxlength="30"  value="" placeholder="Enter something here"  />
+<label for="myel">input descriptor</label><br>
+<input type="text" id="myel"  name="discoverme" size="15" maxlength="30"  value="" placeholder="Enter something here">

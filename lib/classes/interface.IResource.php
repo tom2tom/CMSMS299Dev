@@ -1,7 +1,7 @@
 <?php
 /*
 An interface to define methods in light modules.
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -44,7 +44,8 @@ namespace CMSMS;
  */
 interface IResource
 {
-    public function __call(string $name, array $args);
+    #[\ReturnTypeWillChange]
+    public function __call(string $name, array $args);//: mixed;
     public function GetAdminDescription(); // subject to HasAdmin(), admin menu-item tooltip etc
     public function GetAdminSection(); // subject to HasAdmin(), admin menu-item section name, or '' if no menu-items
     public function GetChangeLog(); // module-manager: display changelog NOTE GetAbout() in long-module

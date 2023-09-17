@@ -1,7 +1,7 @@
 <?php
 /*
 Class: admin console utilities
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -34,8 +34,7 @@ use function get_userid;
 final class AdminOperations
 {
 //    private function __construct() {}
-//    #[\ReturnTypeWillChange]
-//    private function __clone() : void {}
+//    private function __clone(): void {}
 
     /**
      *
@@ -304,7 +303,7 @@ WHERE news_id = ?';
                 $tmp2_k = $tmp2_v = $tmp2;
             }
             else {
-                list($tmp2_k,$tmp2_v) = explode('=',$tmp2,2);
+                [$tmp2_k,$tmp2_v] = explode('=',$tmp2,2);
                 if( $tmp2_k === '' || $tmp2_v === '' ) continue;
             }
             $arr_options[$tmp2_k] = $tmp2_v;

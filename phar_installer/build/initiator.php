@@ -9,7 +9,7 @@ $todir = strtr($todir, '\/', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR); // TODO f
 $to = $todir.DIRECTORY_SEPARATOR.$archname;
 $installer_top = $todir.DIRECTORY_SEPARATOR.'installer';
 
-$rrmdir = function(string $path, bool $keepdirs = false)
+$rrmdir = function(string $path, bool $keepdirs = false): bool
 {
  if (is_dir($path)) {
   $res = true;

@@ -1,6 +1,6 @@
 <?php
 #Indonesian translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -33,9 +33,9 @@ $nls['englishlang']['id_ID'] = 'Indonesian';
 
 #Possible aliases for language
 $nls['alias']['id'] = 'id_ID';
-$nls['alias']['ind'] = 'id_ID' ;
-$nls['alias']['id_ID'] = 'id_ID' ;
-$nls['alias']['id_ID.ISO8859-15'] = 'id_ID' ;
+$nls['alias']['ind'] = 'id_ID';
+$nls['alias']['id_ID'] = 'id_ID';
+$nls['alias']['id_ID.ISO8859-15'] = 'id_ID';
 
 #Possible locale for language
 $nls['locale']['id_ID'] = 'id_ID.utf8,id_ID.utf-8,id_ID.UTF-8,id_ID,indonesian,Indonesian_indonesia.1252';
@@ -44,11 +44,10 @@ $nls['locale']['id_ID'] = 'id_ID.utf8,id_ID.utf-8,id_ID.UTF-8,id_ID,indonesian,I
 $nls['encoding']['id_ID'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['id_ID'] = array(__DIR__.'/id_ID/admin.inc.php');
+$nls['file']['id_ID'] = [__DIR__.'/id_ID/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['id_ID'] = 'en';
-?>

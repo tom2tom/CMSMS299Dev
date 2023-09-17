@@ -53,7 +53,7 @@ abstract class BasicEnum
      * @param bool $strict optional flag whether to require exact case-match, default false
      * @return bool
      */
-    public static function isValidName($name, $strict = false) : bool
+    public static function isValidName($name, $strict = false): bool
     {
         $constants = self::getConstants();
         if ($strict) {
@@ -67,7 +67,7 @@ abstract class BasicEnum
      * Get the enum-name for the provided $value
      * @param mixed const|int|string $value
      * @param bool $strict optional parameter for array_search(), default false
-     * @return mixed enum-name | null
+     * @return string enum-name | empty
      */
     public static function getName($value, $strict = false)
     {
@@ -75,6 +75,7 @@ abstract class BasicEnum
         if ($key !== false) {
             return $key;
         }
+        return '';
     }
 
     /**
@@ -83,7 +84,7 @@ abstract class BasicEnum
      * @param bool $strict optional parameter for in_array(), default false
      * @return bool
      */
-    public static function isValidValue($value, $strict = false) : bool
+    public static function isValidValue($value, $strict = false): bool
     {
         $values = array_values(self::getConstants());
         return in_array($value, $values, $strict);
@@ -106,5 +107,6 @@ abstract class BasicEnum
         if ($idx !== false) {
             return $constants[$keys[$idx]];
         }
+        return null;
     }
 } // class

@@ -5,8 +5,7 @@
   <meta charset="UTF-8">
   <title>CMS Made Simple - Error console</title>
   <meta name="robots" content="noindex, nofollow">
-  <style type="text/css">
-{literal}
+  <style>
 body {
  min-width: 900px;
  font-family: sans-serif;
@@ -102,11 +101,9 @@ a {
 .clear {
  clear: both;
 }
-{/literal}
   </style>
 
-  <script type="text/javascript">
-//<![CDATA[{literal}
+  <script>
 function toggle() {
   var el = document.getElementById("show");
   var trace = document.getElementById("open");
@@ -118,7 +115,6 @@ function toggle() {
     trace.innerHTML = "Close Full Trace &uarr;";
   }
 }
-{/literal}//]]>
   </script>
 </head>
 
@@ -134,15 +130,15 @@ function toggle() {
       {$e_message}{/if}
     </p>
     {if !empty($loggedin)}
-    <div class="pageerror"> TODO
-      <h2 class="error-message"><span class="important">Error:</span> at line {$e_line} in file {$e_file}:</h2> TODO
-      <p class="information" style="font-weight:bold;">Message:</p> TODO
+    <div class="pageerror">{*TODO if not admin*}
+      <h2 class="error-message"><span class="important">Error:</span> at line {$e_line} in file {$e_file}:</h2>{*TODO classes, langify*}
+      <p class="information" style="font-weight:bold">Message:</p>{*TODO langify*}
       {if !empty($e_message)}<pre>{$e_message}</pre>{/if}
       {if !empty($e_trace)}
       <p class="messagecontainer btn">
-        <a id="open" href="javascript:toggle();">View Full Trace &darr;</a>
+        <a id="open" href="javascript:toggle();">View Full Trace &darr;</a>{*TODO langify*}
       </p>
-      <pre id="show" style="display:none;">{$e_trace}</pre>
+      <pre id="show" style="display:none">{$e_trace}</pre>
       {/if}
     </div>
     {/if}

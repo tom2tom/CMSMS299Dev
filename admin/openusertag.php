@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to add or edit a user-defined-tag / user-plugin
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -38,7 +38,7 @@ if (isset($_POST['cancel'])) {
 
 // specialize any malicious <[/]textarea> tags in the supplied string
 // so that it may be safely parked in a textarea for the user to see/edit
-$munge = function($text) {
+$munge = function(string $text): string {
     $matches = [];
     $clean = preg_replace_callback('~<\s*(/?)\s*(textarea)\s*>~i', function($matches) {
         $pre = ($matches[1]) ? '&sol;' : ''; // OR &#47;
@@ -47,7 +47,7 @@ $munge = function($text) {
     return $clean;
 };
 // and the reverse ... (tho' never actually useful as such!)
-$unmunge = function($text) {
+$unmunge = function(string $text): string {
     $matches = [];
     $clean = preg_replace_callback('~&lt;(&sol;|&#47;)?(textarea)>~i', function($matches) {
         $pre = ($matches[1]) ? '/' : '';
@@ -164,8 +164,7 @@ if ($edit) {
     $s1 = addcslashes(_la('error_usrplg_name'), "'\n\r");
     $s2 = addcslashes(_la('error_usrplg_nocode'), "'\n\r");
     $js .= <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
  $('#userplugin button[name="submit"], #userplugin button[name="apply"]').on('click', function(ev) {
   var v = $('#name').val();
@@ -183,7 +182,6 @@ $(function() {
   setpagecontent(v);
  });
 });
-//]]>
 </script>
 
 EOS;

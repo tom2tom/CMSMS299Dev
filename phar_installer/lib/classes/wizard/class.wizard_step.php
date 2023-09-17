@@ -54,7 +54,7 @@ class wizard_step
      */
     public function get_description()
     {
-        return null;
+        return '';
     }
 
     public function get_wizard()
@@ -90,7 +90,7 @@ class wizard_step
         // escape for javascipt and html
         $html = addslashes($html);
         // append script to page content
-        echo '<script type="text/javascript">set_block_html(\''.$id.'\', \''.$html.'\');</script>'.PHP_EOL;
+        echo '<script>set_block_html(\''.$id.'\', \''.$html.'\');</script>'.PHP_EOL;
         flush();
     }
 
@@ -98,7 +98,7 @@ class wizard_step
     public function message($msg)
     {
         $msg = addslashes($msg);
-        echo '<script type="text/javascript">add_message(\''.$msg.'\');</script>'.PHP_EOL;
+        echo '<script>add_message(\''.$msg.'\');</script>'.PHP_EOL;
         flush();
     }
 
@@ -106,7 +106,7 @@ class wizard_step
     public function error($msg)
     {
         $msg = addslashes($msg);
-        echo '<script type="text/javascript">add_error(\''.$msg.'\');</script>'.PHP_EOL;
+        echo '<script>add_error(\''.$msg.'\');</script>'.PHP_EOL;
         flush();
     }
 
@@ -117,7 +117,7 @@ class wizard_step
         $verbose = $config['verbose'] ?? false;
         if ($verbose) {
             $msg = addslashes($msg);
-            echo '<script type="text/javascript">add_verbose(\''.$msg.'\');</script>'.PHP_EOL;
+            echo '<script>add_verbose(\''.$msg.'\');</script>'.PHP_EOL;
             flush();
         }
     }
@@ -136,6 +136,13 @@ class wizard_step
      */
     protected function display()
     {
+        header('Content-Type:text/html; charset=utf-8');
+        //block browser cacheing
+        header('Expires: Thu, 1 Jan 1970 00:00:00 GMT');
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Cache-Control: post-check=0, pre-check=0', false);
+        header('Pragma: no-cache'); // deprecated HTTP version
+
         $smarty = smarty();
         $smarty->assign('wizard_steps', $this->get_wizard()->get_nav());
         $smarty->assign('title', $this->get_primary_title());
@@ -172,14 +179,14 @@ class wizard_step
     protected function alldone($html)
     {
         $html = json_encode($html);
-        echo '<script type="text/javascript">alldone('.$html.');</script>'.PHP_EOL;
+        echo '<script>alldone('.$html.');</script>'.PHP_EOL;
         flush();
     }
 
     // Display the (<div/>) element whose id is 'bottom_nav'
     protected function finish()
     {
-        echo '<script type="text/javascript">finish();</script>'.PHP_EOL;
+        echo '<script>finish();</script>'.PHP_EOL;
         flush();
     }
 }

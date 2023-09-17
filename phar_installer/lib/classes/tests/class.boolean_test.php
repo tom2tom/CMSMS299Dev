@@ -11,7 +11,7 @@ class boolean_test extends test_base
         parent::__construct(...$args);
     }
 
-    public function execute() : string
+    public function execute(): string
     {
         $val = to_bool($this->value);
         return ($val) ? parent::TEST_PASS : parent::TEST_FAIL;

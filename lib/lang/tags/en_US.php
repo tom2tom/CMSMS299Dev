@@ -59,6 +59,7 @@ and/or any of Smarty\'s generic parameters (nocache, assign etc)',
  {cms_html_options options=$opts selected='md'}
 &lt;/select&gt;</code></pre>
 <h4>What parameters does it take?</h4>
+<p>Unlike the comparable Smarty <code>{html_options}</code> plugin, this supports parameters &apos;label&apos;, &apos;title&apos; and &apos;value&apos;</p>
 <ul>
  <li>options - <em>(array)</em> - An array of option definitions</li>
  <li>selected - <em>(string)</em> - The value to automatically select in the dropdown. must correspond to the value of one of the options.</li>
@@ -73,6 +74,24 @@ and/or any of Smarty\'s generic parameters (nocache, assign etc)',
  <li>title - <em>(string)</em> A title attribute for the option</li>
  <li>class - <em>(string)</em> A class name for the option</li>
 </ul>
+EOS
+,
+
+'help_modifier_adjust' => <<<'EOS'
+<h3>What does this do?</h3>
+<p>This modifier allows use of PHP callables as variable-value modifiers in templates. It may be used instead of directly applying such callables/functions, which is deprecated as from Smarty 4.3.</p>
+<h3>Usage:</h3>
+<pre><code>{$arg1|adjust:'callable'[:optional arg2[:optional arg3 ...]]}</code></pre>
+<p>The callable need not be a simple method name.</p>
+<p>In accord with current Smarty security-policy in CMSMS, there is no restriction on the callables which may be used. This may change in future. Best not to rely on &apos;non-standard&apos; modifiers.</p>
+<h3>Examples:</h3>
+<p>The following example would calculate the md5 hash of a string-variable.</p>
+<pre><code>{$somestring|adust:'md5'}</code></pre>
+<p>The order of things expressed in the template must match the argument(s) expected by the callable. So, unlike most modifiers, the variable to be modified is not necesarily before the '|adjust'.</p>
+<p>The following example would replace any matched content in template variable $somevar.</p>
+<pre><code>{'regexpattern'|adust:'preg_replace':'newvalue':$somevar}</code></pre>
+<p>A 3-character string '&amp;#;' may be used as a special-case place-holder in the template. So the following is a valid alternative to the previous example, in this case with template layout mimicing the function-call.</p>
+<pre><code>{'&amp;#;'|adust:'preg_replace':'regexpattern':'newvalue':$somevar}</code></pre>
 EOS
 ,
 
@@ -158,11 +177,11 @@ and/or any of Smarty\'s generic parameters (nocache, assign etc)
  <li>uid - <strong>required</strong> - An integer user id representing a valid admin account</li>
  <li>mode - <em>(optional)</em> - The operating mode. Possible values are:
  <ul>
- <li>username <strong>default</strong> - output the username for the specified uid</li>
- <li>email - output the email address for the specified uid</li>
- <li>firstname - output the first name for the specified uid</li>
- <li>lastname - output the surname name for the specified uid</li>
- <li>fullname - output the full name for the specified uid</li>
+  <li>username <strong>default</strong> - output the username for the specified uid</li>
+  <li>email - output the email address for the specified uid</li>
+  <li>firstname - output the first name for the specified uid</li>
+  <li>lastname - output the surname name for the specified uid</li>
+  <li>fullname - output the full name for the specified uid</li>
  </ul>
  </li>
 </ul>
@@ -613,7 +632,6 @@ and/or any of Smarty\'s generic parameters (nocache, assign etc)',
 and/or any of Smarty\'s generic parameters (nocache, assign etc)
 EOS
 ,
-
 /*
 'help_function_print' => '<h3>What does this do?</h3>
 <p>This is a wrapper tag for the CMSPrinting module, an alternative to <code>{cms_module module='CMSPrinting'}</code>.</p>

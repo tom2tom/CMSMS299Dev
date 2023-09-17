@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to list all plugins (a.k.a. tags)
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -47,12 +47,13 @@ $dirs[] = $bp.'lib'.DIRECTORY_SEPARATOR.'plugins';
 $dirs[] = $bp.'plugins';
 $dirs[] = CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'plugins';
 
-$find_file = function($filename) use ($dirs) {
+$find_file = function(string $filename) use ($dirs): string {
     $filename = basename($filename); // no sneaky paths
     foreach ($dirs as $dir) {
         $fn = $dir.DIRECTORY_SEPARATOR.$filename;
-		if (is_file($fn)) { return $fn; }
+        if (is_file($fn)) { return $fn; }
     }
+    return '';
 };
 
 de_specialize_array($_GET);

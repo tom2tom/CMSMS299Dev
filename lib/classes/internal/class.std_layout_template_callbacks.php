@@ -9,8 +9,7 @@ use function lang;
 final class std_layout_template_callbacks
 {
 //	private function __construct() {}
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	public static function tpltype_lang_callback($key)
 	{

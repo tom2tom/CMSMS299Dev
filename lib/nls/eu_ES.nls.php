@@ -1,6 +1,6 @@
 <?php
 #Basque translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -34,11 +34,11 @@ $nls['englishlang']['eu_ES'] = 'Basque';
 
 #Possible aliases for language
 $nls['alias']['eu'] = 'eu_ES';
-$nls['alias']['basque'] = 'eu_ES' ;
-$nls['alias']['baq'] = 'eu_ES' ;
-$nls['alias']['eus'] = 'eu_ES' ;
-$nls['alias']['eu_ES'] = 'eu_ES' ;
-$nls['alias']['eu_ES.ISO8859-1'] = 'eu_ES' ;
+$nls['alias']['basque'] = 'eu_ES';
+$nls['alias']['baq'] = 'eu_ES';
+$nls['alias']['eus'] = 'eu_ES';
+$nls['alias']['eu_ES'] = 'eu_ES';
+$nls['alias']['eu_ES.ISO8859-1'] = 'eu_ES';
 
 #Possible locale for language
 $nls['locale']['eu_ES'] = 'eu_ES.utf8,eu_ES.utf-8,eu_ES.UTF-8,eu_ES@euro,basque,Basque_Spain.1252';
@@ -47,9 +47,7 @@ $nls['locale']['eu_ES'] = 'eu_ES.utf8,eu_ES.utf-8,eu_ES.UTF-8,eu_ES@euro,basque,
 $nls['encoding']['eu_ES'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['eu_ES'] = array(__DIR__.'/eu_ES/admin.inc.php');
+$nls['file']['eu_ES'] = [__DIR__.'/eu_ES/admin.inc.php'];
 
 #Language setting for HTML area
 $nls['htmlarea']['eu_ES'] = 'en';
-
-?>

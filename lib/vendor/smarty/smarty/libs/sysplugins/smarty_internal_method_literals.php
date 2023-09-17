@@ -87,7 +87,7 @@ class Smarty_Internal_Method_Literals
     private function set(Smarty $smarty, $literals)
     {
         $literals = array_combine($literals, $literals);
-        $error = isset($literals[ $smarty->left_delimiter ]) ? array($smarty->left_delimiter) : array();
+        $error = isset($literals[ $smarty->left_delimiter ]) ? array($smarty->left_delimiter): array();
         $error = isset($literals[ $smarty->right_delimiter ]) ? $error[] = $smarty->right_delimiter : $error;
         if (!empty($error)) {
             throw new SmartyException(

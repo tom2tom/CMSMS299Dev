@@ -29,7 +29,7 @@ class gui_install extends installer_base
         parent::__construct($configfile);
 
         // make sure we are in UTF-8
-        header('Content-Type:text/html; charset=UTF-8');
+        header('Content-Type:text/html; charset=utf-8');
 
         $config = $this->get_config(); // generic config data
 
@@ -53,7 +53,7 @@ class gui_install extends installer_base
         }
     }
 
-    public function get_root_url() : string
+    public function get_root_url(): string
     {
         if (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off') {
             $prefix = 'https';
@@ -95,7 +95,7 @@ class gui_install extends installer_base
         return $prefix.$b;
     }
 
-    public function run()
+    public function run(): void
     {
         $ops = translator();
         // set the supported languages
@@ -107,21 +107,17 @@ class gui_install extends installer_base
 
         // get the language preferred by the user (in the request, a cookie, the session, or custom config)
         $lang = $ops->get_selected_language();
-
         if (!$lang) {
-            $lang = $ops->get_default_language(); // get a preferred language (presumably still en_US)
-            // set it for use
-            $ops->set_selected_language($lang);
+            $lang = $ops->get_default_language(); // fallback to default (presumably still en_US)
         }
+        // cache it for this session
+        $ops->set_selected_language($lang);
 
         // and do our stuff
 //        try {
-        // security measure : a session-specific step-variable.
-        $wizard = wizard::get_instance(__DIR__.DIRECTORY_SEPARATOR.'wizard', __NAMESPACE__.'\\wizard');
         // __DIR__ might be phar://abspath/to/pharfile/relpath/to/thisfolder
         // cwd might be relative to pharfile i.e. relpath/to/thisfolder
-        $tmp = 'm'.substr(md5(getcwd().session_id()), 0, 8);
-        $wizard->set_step_var($tmp);
+        $wizard = wizard::get_instance(__DIR__.DIRECTORY_SEPARATOR.'wizard', __NAMESPACE__.'\\wizard');
         $res = $wizard->process();
         if ($res === null) {
             throw new Exception('Something went wrong!?');
@@ -130,7 +126,7 @@ class gui_install extends installer_base
         catch( Throwable $t ) {
             echo $t->GetMessage(); // DEBUG
             $smarty = smarty();
-            $smarty->assign('error',$t->GetMessage());
+            $smarty->assign('error', $t->GetMessage());
             $smarty->display('error.tpl');
         }
 */

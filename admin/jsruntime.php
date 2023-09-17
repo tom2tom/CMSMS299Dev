@@ -1,7 +1,7 @@
 <?php
 /*
 Populate runtime variables for admin js to use
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -72,14 +72,12 @@ $enc = json_encode($vars);
 $enc2 = rawurlencode(Crypto::scramble_string($enc));
 //we also define cms_data, in case something wants to use that object prematurely
 $core = <<<EOS
-//<![CDATA[
  var cms_data = {},
   cms_runtime = '$enc2';
-//]]>
 EOS;
 //$hash = hash('sha256', $core); // perhaps for CSP use ?
 $js = <<<EOS
-<script type="text/javascript">
+<script>
 $core
 </script>
 

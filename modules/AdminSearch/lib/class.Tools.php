@@ -1,7 +1,7 @@
 <?php
 /*
 AdminSearch module static utility-methods class.
-Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 See license details at the top of file AdminSearch.module.php
 */
@@ -91,7 +91,7 @@ class Tools
      * @param int $len
      * @return string
      */
-    public static function summarize($text, $len = 255) : string
+    public static function summarize($text, $len = 255): string
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminSearch\Base_slave::summarize'));
         return Base_slave::summarize($text, $len);

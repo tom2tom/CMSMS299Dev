@@ -8,7 +8,7 @@ final class uk_UA_nls extends nls
     public function __construct()
     {
         $this->_fullname = 'Ukrainian';
-        $this->_display = 'украї́нська мо́ва';
+        $this->_display = 'Українська мо́ва';
         $this->_isocode = 'uk';
         $this->_locale = 'uk_UA';
         $this->_encoding = 'UTF-8';

@@ -1,7 +1,7 @@
 <?php
 /*
 Search module action: defaultadmin
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -135,8 +135,7 @@ $s1 = addcslashes($this->Lang('confirm_clearstats'), "'\n\r");
 $s2 = addcslashes($this->Lang('confirm_reindex'), "'\n\r");
 
 $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
  $('button[name="{$id}clearsearch"]').on('click', function() {
   cms_confirm_btnclick(this, '$s1');
@@ -147,7 +146,6 @@ $(function() {
   return false;
  });
 });
-//]]>
 </script>
 EOS;
 add_page_foottext($js);

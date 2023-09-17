@@ -1,7 +1,7 @@
 <?php
 namespace cms_installer;
 
-use cms_installer\langtools;
+//use cms_installer\langtools;
 use Exception;
 use Smarty;
 use function cms_installer\get_app;
@@ -18,12 +18,12 @@ final class cms_smarty extends Smarty
         $assdir = dirname(__DIR__).DIRECTORY_SEPARATOR; // 'lib'-relative
         $this->setTemplateDir($assdir.'layouts');
         $this->setConfigDir($assdir.'configs');
+        $this->addPluginsDir($assdir.'plugins');
+//        $this->registerPlugin('modifier', 'tr', [$this, 'modifier_tr']); migrated to standard function-call
         $app = get_app();
         $tmpdir = $app->get_tmpdir().DIRECTORY_SEPARATOR.'m'.md5(__FILE__).DIRECTORY_SEPARATOR;
         $this->setCompileDir($tmpdir.'templates_c');
         $this->setCacheDir($tmpdir.'cache');
-
-        $this->registerPlugin('modifier', 'tr', [$this, 'modifier_tr']);
         $dirs = [$this->compile_dir, $this->cache_dir];
         $dirmode = get_server_permissions()[3]; // read+write+access
 
@@ -37,16 +37,17 @@ final class cms_smarty extends Smarty
         }
     }
 
-    public static function get_instance() : self
+    public static function get_instance(): self
     {
         if (!is_object(self::$_instance)) {
             self::$_instance = new self();
         }
         return self::$_instance;
     }
-
+/* exported to misc_functions :: tr()
     public function modifier_tr(...$args)
     {
         return langtools::get_instance()->translate(...$args);
     }
+*/
 }

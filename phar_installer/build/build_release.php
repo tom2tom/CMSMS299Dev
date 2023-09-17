@@ -5,10 +5,11 @@ use cms_installer\installer_base;
 use CMSMS\Lone;
 
 const SVNROOT = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
-const INSTALLERTOP = 'installer'; // extended-intaller top folder name, no trailing separator
+const INSTALLERTOP = 'installer'; // extended-installer top folder name, no trailing separator
 
 /* NOTE
-This REQUIRES PHP's phar extension, and usually one of the archivers zip, zlib, bzip2
+This REQUIRES PHP's phar extension, and usually one of the archive
+extensions zip, zlib, bzip2
 This benefits from PHP extension fileinfo - probably built by default
 */
 if (!extension_loaded('phar')) {
@@ -22,6 +23,7 @@ if (ini_get('phar.readonly')) {
 $cli = php_sapi_name() == 'cli';
 $owd = getcwd();
 $script_file = basename(__FILE__);
+$when = date('Y-m-d H:i:s');
 
 if ($cli) {
     // ensure we are in the correct directory
@@ -39,14 +41,16 @@ $outdir = joinpath($installerdir, 'out'); //place for this script's results/outp
 // after converting any windoze path-sep's to *NIX form
 // NOTE: otherwise empty folders retain, or are given, respective index.html's
 // so that they are not ignored by PharData when processing
+// TODO some of '~\.md$~i' might be redundant/excludable
 $all_excludes = [
 '~\.git.*~',
-'~\.md$~i',
 '~\.svn~',
 '~svn\-~',
 '~index\.html?$~',
 '~[\\/]config\.php$~',
 '~siteuuid\.dat$~',
+'~master\.dat$~',
+'~master\.ini$~',
 '~[\\/]\.htaccess$~',
 '~web\.config$~',
 '~\.bak$~',
@@ -70,9 +74,13 @@ $src_excludes = [
 
 // root-relative sub-paths of source dirs whose actual contents are NOT for installation with sources in general.
 // instead their real contents will be handled by the site-importer, and pending that, just an empty 'index.html'
+// includes folder-symlinks - assets/{css,images,templates}
 $folder_excludes = [
-'assets/templates',
+'assets/css',
+'assets/images',
 'assets/styles',
+'assets/layouts',
+'assets/templates',
 'assets/themes',
 'assets/user_plugins',
 ];
@@ -125,7 +133,7 @@ options:
 EOS;
 }
 
-function current_root(string $dir = '') : string
+function current_root(string $dir = ''): string
 {
     if (!$dir) {
         $dir = __DIR__;
@@ -136,13 +144,13 @@ function current_root(string $dir = '') : string
     return $dir;
 }
 
-function joinpath(...$segments) : string
+function joinpath(...$segments): string
 {
     $fp = implode(DIRECTORY_SEPARATOR, $segments);
     return str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $fp);
 }
 
-function rrmdir(string $topdir, bool $keepdirs = false, bool $keeptop = false) : bool
+function rrmdir(string $topdir, bool $keepdirs = false, bool $keeptop = false): bool
 {
     if (is_dir($topdir)) {
         $res = true;
@@ -180,7 +188,7 @@ function rrmdir(string $topdir, bool $keepdirs = false, bool $keeptop = false) :
     return false;
 }
 
-function rchmod(string $topdir) : bool
+function rchmod(string $topdir): bool
 {
     if (is_dir($topdir)) {
         //TODO to prevent massive duplication, use recursive readdir()'s instead
@@ -222,7 +230,7 @@ function valid_link($fp)
     return false;
 }
 
-function get_alternate_files() : bool
+function get_alternate_files(): bool
 {
     global $sourceuri, $sourcedir;
 
@@ -362,8 +370,8 @@ function copy_local_files()
                     }
                 }
                 if ($verbose >= 2) {
-                    $relpath = substr($fp, $len);
-                    verbose(2, "EXCLUDED: $relpath (matched pattern $excl)");
+//                    $relpath = substr($fp, $len);
+                    verbose(2, "EXCLUDED: $fp (matched pattern $excl)");
                 }
                 continue 2;
             }
@@ -489,14 +497,16 @@ function copy_local_files()
     }
 */
     foreach ($folder_excludes as $s) {
-		$relpath = strtr($s, '\\/', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR);
+        $relpath = strtr($s, '\\/', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR);
         $fp2 = $sourcedir.DIRECTORY_SEPARATOR.$relpath;
-        if (is_dir($fp2)) {
-            @rrmdir($fp2, false, true);
-        } else {
-			@mkdir($fp2, 0771);
-		}
-		touch($fp2.DIRECTORY_SEPARATOR.'index.html');
+        if (!is_link($fp2)) {
+            if (is_dir($fp2)) {
+                @rrmdir($fp2, false, true);
+            } else {
+                @mkdir($fp2, 0771);
+            }
+            touch($fp2.DIRECTORY_SEPARATOR.'index.html');
+        }
     }
 
     $dh = opendir($sourcedir);
@@ -579,11 +589,13 @@ function copy_installer_files()
             copy($fp, $tp);
             chmod($tp, 0666); // generic perms here
             verbose(2, "COPIED $fn to $tp");
+        } else {
+            $here = 1; //debugging
         }
     }
 }
 
-function get_version_php(string $startdir) : string
+function get_version_php(string $startdir): string
 {
     $fp = joinpath($startdir, 'lib', 'version.php');
     if (is_file($fp)) {
@@ -593,7 +605,7 @@ function get_version_php(string $startdir) : string
 }
 
 // recursive method
-function create_checksums(string $dir, string $salt) : array
+function create_checksums(string $dir, string $salt): array
 {
     global $sourcedir;
 
@@ -727,7 +739,7 @@ function create_source_archive()
 
 function create_phar_installer()
 {
-    global $installerdir, $outdir, $version_num, $packext, $rename;
+    global $installerdir, $outdir, $version_num, $packext, $rename, $when;
 
     $archname = 'cmsms-'.$version_num.'-install'.$packext;
     $destname = 'cmsms-'.$version_num.'-install.phar';
@@ -761,13 +773,16 @@ require __DIR__.DIRECTORY_SEPARATOR.'initiator.php';
 
 EOS
     );
-
+    // TODO svn has .TXT for README's, maybe .txt would be better
     $fp = $outdir.DIRECTORY_SEPARATOR.$archname;
     chmod($fp, 0664);
     $phar->addFile($fp, $archname);
     $fp = $installerdir.DIRECTORY_SEPARATOR.'README-PHAR.TXT';
     chmod($fp, 0664);
     $phar->addFile($fp, 'README-PHAR.TXT');
+    $fp = $installerdir.DIRECTORY_SEPARATOR.'README-PHARDEBUG.TXT';
+    chmod($fp, 0664);
+    $phar->addFile($fp, 'README-PHARDEBUG.TXT');
 
     $phar->setDefaultStub('cliinitiator.php', 'initiator.php');
 
@@ -783,11 +798,16 @@ EOS
         $tp = $outdir.DIRECTORY_SEPARATOR.$destname2;
         rename($fp, $tp);
     }
+    verbose(1, 'INFO: generating phar installer SHA1 signature');
+    $outfile = ($rename) ? $tp : $fp;
+    $sig = sha1_file($outfile);
+    $outfile .= '.sig';
+    file_put_contents($outfile, $sig . "\r\n" . $when);
 }
 
 function create_extended_installer()
 {
-    global $installerdir, $outdir, $version_num, $arch, $nfiles, $ndirs, $pack, $packext;
+    global $installerdir, $outdir, $version_num, $arch, $nfiles, $ndirs, $pack, $packext, $when;
 
     $nfiles = 0;
     $ndirs = 0;
@@ -812,6 +832,7 @@ function create_extended_installer()
     $outfile = joinpath($outdir, 'cmsms-'.$version_num.'-install'.$packext);
     verbose(1, "INFO: compressing installation and system files into $outfile");
 
+    // TODO svn has .TXT for README's, maybe .txt would be better
     switch ($pack) {
         case 'zip':
             // we use an actual zip, not phardata-converted-to-zip, to avoid a symlink-related bug
@@ -879,6 +900,11 @@ function create_extended_installer()
                 break;
         }
         verbose(1, "INFO: added $nfiles files and $ndirs empty directories to the output archive");
+
+        verbose(1, 'INFO: generating installer SHA1 signature');
+        $sig = sha1_file($outfile);
+        $outfile = str_replace($packext, '.sig', $outfile);
+        file_put_contents($outfile, $sig . "\r\n" . $when);
     } catch (Throwable $t) {
         verbose(0, 'ERROR: creating extended installer failed: '.$t->getMessage());
     }
@@ -935,14 +961,19 @@ function populatetree($dirpath, $baselen)
                     ++$nfiles;
                 }
             } elseif (($target = valid_link($fp))) {
-                if ($pack == 'zip') {
+/*              if ($pack == 'zip') {
                     // a zip archive cannot include (valid) links to folders, so we add a proxy
-                    $arch->addFromString($relpath.' FOLDER ', strtr($target, '\/', '||').' SYMLINK PROXY', "TODO: convert this to a link to $target");
+                    $arch->addFromString($relpath.'FOLDER '.strtr($target, '\/', '||').' SYMLINK PROXY', "TODO: convert this to a link to $target");
                     $s = substr($fp, $baselen); //hide the INSTALLERTOP.'/' prefix
-                    verbose(0, "NOTE: folder-link $s (target: $target) will need to be re-created after the extended intaller is unpacked");
+                    verbose(0, "NOTE: folder-link $s (target: $target) will need to be re-created after the extended installer is unpacked");
                 } else {
                     $arch->addFile($fp, $relpath);
                 }
+*/
+//                $arch->addFromString($relpath.'FOLDER '.strtr($target, '\/', '||').' SYMLINK PROXY', "TODO: convert this to a link to $target");
+                $s = substr($fp, $baselen + 8); //hide the INSTALLERTOP.'/'sources/ prefix
+                $t = substr($target, $baselen - 15);
+                verbose(0, "NOTE: folder-link <path to>$s (target: <path to>$t) will need to be re-created during or after the installer operation");
                 ++$nfiles;
             } else {
                 verbose(0, "WARNING: ignored invalid link $fp");
@@ -961,6 +992,8 @@ function populatetree($dirpath, $baselen)
         } elseif (@is_file($fp)) {
             $arch->addFile($fp, $relpath);
             ++$nfiles;
+        } else {
+            $here = 1; // debug
         }
     } // $name != false
     closedir($dh);

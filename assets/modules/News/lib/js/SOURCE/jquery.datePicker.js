@@ -78,7 +78,7 @@ License: MIT
 						if ( year >= num && year <= (num + 9)) {
 							type += ' selected';
 						}
-						var item = $('<a href="#" data-year="'+num+'" class="cell large double decade'+type+'"><span>'+num+'- '+(num + 9)+'</span></a>');
+						var item = $('<a href="javascript:void(0)" data-year="'+num+'" class="cell large double decade'+type+'"><span>'+num+'- '+(num + 9)+'</span></a>');
 						row.append(item);
 					};
 					decades.append(row);
@@ -108,14 +108,14 @@ License: MIT
 						type = n == 0 ? ' grayed prev' : (n == 11 ? ' grayed next' : '');
 						num = firstYear + n;
 						if ( limit && (num < 1900 || num > 2099) ) {
-							var item = $('<a href="" class="cell large year blank">&nbsp;</a>');
+							var item = $('<a href="javascript:void(0)" class="cell large year blank">&nbsp;</a>');
 							row.append(item);
 							continue;
 						}
 						if ( num == year ) {
 							type += ' selected';
 						}
-						var item = $('<a href="#" data-year="'+num+'" class="cell large year'+type+'">'+num+'</a>');
+						var item = $('<a href="javascript:void(0)" data-year="'+num+'" class="cell large year'+type+'">'+num+'</a>');
 						row.append(item);
 					};
 					years.append(row);
@@ -128,9 +128,9 @@ License: MIT
 					limit = $.datePicker.defaults.limitCenturies;
 				// Year header
 				var header = '<div class="row header">'+
-								'<a href="#" class="prev'+(limit && year == 1900 ? ' disabled' : '')+'"><span class="arrow"></span></a>'+
-								'<a href="#" class="year" data-year="'+year+'">'+year+'</a>'+
-								'<a href="#" class="next'+(limit && year == 2099 ? ' disabled' : '')+'"><span class="arrow"></span></a>'+
+								'<a href="javascript:void(0)" class="prev'+(limit && year == 1900 ? ' disabled' : '')+'"><span class="arrow"></span></a>'+
+								'<a href="javascript:void(0)" class="year" data-year="'+year+'">'+year+'</a>'+
+								'<a href="javascript:void(0)" class="next'+(limit && year == 2099 ? ' disabled' : '')+'"><span class="arrow"></span></a>'+
 							 '</div>';
 				months.append(header);
 				//

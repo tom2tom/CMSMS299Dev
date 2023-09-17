@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to generate the contents of a 2-item selector element.
-Copyright (C) 2018-2021 CMS Made Simnple Foundation <foundatio@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simnple Foundation <foundatio@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

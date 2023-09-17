@@ -1,7 +1,7 @@
 <?php
 /*
 Defaultadmin action templates tab populator.
-Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -124,8 +124,7 @@ if( $dbr ) {
 	$s2 = addcslashes($this->Lang('confirm_tpldefault'), "'\n\r");
 
 	$js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 var tpltable;
 $(function() {
   tpltable = document.getElementById('tpltable');
@@ -165,7 +164,6 @@ $(function() {
     return false;
   });
 });
-//]]>
 </script>
 EOS;
 	add_page_foottext($js);

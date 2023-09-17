@@ -76,7 +76,7 @@
       <th></th>
       <th title="{_ld($_module,'title_modulestatus')}">{_ld($_module,'status')}</th>
       <th title="{_ld($_module,'title_moduleaction')}">{_ld($_module,'action')}</th>
-      <th class="pageicon" title="{_ld($_module,'title_moduleactive')}" style="text-align:center;">{_ld($_module,'active')}</th>
+      <th class="pageicon" title="{_ld($_module,'title_moduleactive')}" style="text-align:center">{_ld($_module,'active')}</th>
       <th class="pageicon" title="{_ld($_module,'title_modulehelp')}"></th>
       <th class="pageicon" title="{_ld($_module,'title_moduleabout')}"></th>
       {if $allow_export}<th class="pageicon" title="{_ld($_module,'title_moduleexport')}">{_ld($_module,'export')}</th>{/if}
@@ -119,7 +119,7 @@
         <td>
 {strip}{actions}{/strip}
         </td>
-        <td style="text-align:center;">{strip}{* active column *}
+        <td style="text-align:center">{strip}{* active column *}
           {if ($item.installed && $item.active)}
             {if $item.can_deactivate}
               <a href="{cms_action_url action='local_active' mod=$item.name state=0}" class="modop mod_inactive">{$it}</a>
@@ -136,7 +136,7 @@
         <td>
           <a href="{cms_action_url action='local_about' mod=$item.name}" class="modop mod_about">{$ia}</a>
         </td>
-        {if $allow_export}<td style="text-align:center;">{strip}
+        {if $allow_export}<td style="text-align:center">{strip}
           <a href="{cms_action_url action='local_export' mod=$item.name}" class="modop mod_export">{$exporticon}</a>
 {/strip}</td>{/if}
       </tr>
@@ -146,11 +146,11 @@
 {else}
   <div class="pageerror">{_ld($_module,'error_nomodules')}</div>
 {/if}
-<div id="importdlg" title="{_ld($_module,'importxml')}" style="display:none;">
+<div id="importdlg" title="{_ld($_module,'importxml')}" style="display:none">
  {form_start id='local_import' action='local_import'}
   <div class="pageoverflow">
     <label class="pagetext" for="xml_upload">{_ld($_module,'uploadfile')}:</label>
-    {cms_help 0=$_module key='help_mm_importxml' title=_ld($_module,'title_mm_importxml')}
+    {cms_help realm=$_module key='help_mm_importxml' title=_ld($_module,'title_mm_importxml')}
     <div class="pageinput">
       <input id="xml_upload" type="file" name="{$actionid}upload" accept="text/xml">
     </div>

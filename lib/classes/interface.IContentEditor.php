@@ -1,7 +1,7 @@
 <?php
 /*
 Interface for page-content-editor classes
-Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -37,7 +37,7 @@ interface IContentEditor
 	 *
 	 * @return array
 	 */
-	public function ToData() : array;
+	public function ToData(): array;
 
 	/**
 	* Set the properties of this object from a database row or equivalent array.
@@ -81,7 +81,7 @@ interface IContentEditor
 	 *
 	 * @return int
 	 */
-	public function TabIndex() : int;
+	public function TabIndex(): int;
 
 	/**
 	 * Set this object's tabindex value
@@ -97,7 +97,7 @@ interface IContentEditor
 	 *
 	 * @return array Associative array of tab keys and labels.
 	 */
-	public function GetTabNames() : array;
+	public function GetTabNames(): array;
 
 	/**
 	 * Get an optional message for each tab.
@@ -126,7 +126,7 @@ interface IContentEditor
 	 *
 	 * @return array
 	 */
-	public function Properties() : array;
+	public function Properties(): array;
 
 	/**
 	 * Set all the ('non-core') properties of this object. Subclasses should set
@@ -140,7 +140,7 @@ interface IContentEditor
 	 *
 	 * @return array of assoc. arrays
 	 */
-	public function GetPropertiesArray() : array;
+	public function GetPropertiesArray(): array;
 
 	/**
 	 * Return the editor-UI properties that may be edited by the
@@ -154,7 +154,7 @@ interface IContentEditor
 	 *  'name' (string), 'tab' (string), 'priority' (int), maybe 'required' (bool), maybe 'basic' (bool)
 	 *  Other(s) may be added by a subclass
 	 */
-	public function GetEditableProperties() : array;
+	public function GetEditableProperties(): array;
 
 	/**
 	 * Return a sorted list of all properties that may be edited by the
@@ -162,7 +162,7 @@ interface IContentEditor
 	 *
 	 * @return array
 	 */
-	public function GetSortedEditableProperties() : array;
+	public function GetSortedEditableProperties(): array;
 
 	/**
 	 * Test whether this object has the named property.
@@ -171,7 +171,7 @@ interface IContentEditor
 	 * @param string $propname
 	 * @return bool
 	 */
-	public function HasProperty(string $propname) : bool;
+	public function HasProperty(string $propname): bool;
 
 	/**
 	 * Get the value for the named non-core property|ies.
@@ -229,7 +229,7 @@ interface IContentEditor
 	 * We do not check the Id because there might not be one yet (new content)
 	 * The Save() method needs to validate Id.
 	 *
-	 * @return mixed array of error-message string(s), or false indicates success
+	 * @return array error-message string(s) or empty array indicates success
 	 */
 	public function ValidateData();
 
@@ -238,7 +238,7 @@ interface IContentEditor
 	 *
 	 * @return int
 	 */
-	public function Id() : int;
+	public function Id(): int;
 
 	/**
 	 * Set this object's numeric id
@@ -252,7 +252,7 @@ interface IContentEditor
 	 *
 	 * @return string
 	 */
-	public function Name() : string;
+	public function Name(): string;
 
 	/**
 	 * Set this object's name
@@ -269,14 +269,14 @@ interface IContentEditor
 	 *
 	 * @return string
 	 */
-	public function FriendlyName() : string;
+	public function FriendlyName(): string;
 
 	/**
 	 * Return this object alias
 	 *
 	 * @return string
 	 */
-	public function Alias() : string;
+	public function Alias(): string;
 
 	/**
 	 * Set this object alias for this object.
@@ -294,7 +294,7 @@ interface IContentEditor
 	 *
 	 * @return bool Default false..
 	 */
-	public function HandlesAlias() : bool;
+	public function HandlesAlias(): bool;
 
 	/**
 	 * Return whether this object requires an alias.
@@ -302,21 +302,21 @@ interface IContentEditor
 	 *
 	 * @return bool
 	 */
-	public function RequiresAlias() : bool;
+	public function RequiresAlias(): bool;
 
 	/**
 	 * Return this object's type
 	 *
 	 * @return string
 	 */
-	public function Type() : string;
+	public function Type(): string;
 
 	/**
 	 * Return the owner's user id
 	 *
 	 * @return int
 	 */
-	public function Owner() : int;
+	public function Owner(): int;
 
 	/**
 	 * Set this object's owner.
@@ -363,7 +363,7 @@ interface IContentEditor
 	 *
 	 * @return int UNIX UTC timestamp
 	 */
-	public function GetCreationDate() : int;
+	public function GetCreationDate(): int;
 
 	/**
 	 * Set the creation date/time of this object
@@ -377,7 +377,7 @@ interface IContentEditor
 	 *
 	 * @return int UNIX UTC timestamp
 	 */
-	public function GetModifiedDate() : int;
+	public function GetModifiedDate(): int;
 
 	/**
 	 * Set the last-modified date/time of this object
@@ -410,7 +410,7 @@ interface IContentEditor
 	 *
 	 * @return int
 	 */
-	public function ParentId() : int;
+	public function ParentId(): int;
 
 	/**
 	 * Set the parent of this object
@@ -425,7 +425,7 @@ interface IContentEditor
 	 *
 	 * @return int
 	 */
-	public function TemplateId() : int;
+	public function TemplateId(): int;
 
 	/**
 	 * Set the id of the template associated with this object.
@@ -440,7 +440,7 @@ interface IContentEditor
 	 *
 	 * @return bool default false
 	 */
-	public function HasTemplate() : bool;
+	public function HasTemplate(): bool;
 
 	/**
 	 * Return a resource identifier for Smarty to retrieve the template assigned to this object.
@@ -455,7 +455,7 @@ interface IContentEditor
 	 *
 	 * @return int
 	 */
-	public function ItemOrder() : int;
+	public function ItemOrder(): int;
 
 	/**
 	 * Set this object's item-order.
@@ -484,7 +484,7 @@ interface IContentEditor
 	 *
 	 * @return string
 	 */
-	public function Hierarchy() : string;
+	public function Hierarchy(): string;
 
 	/**
 	 * Set the hierarchy
@@ -502,7 +502,7 @@ interface IContentEditor
 	 *
 	 * @return string
 	 */
-	public function IdHierarchy() : string;
+	public function IdHierarchy(): string;
 
 	/**
 	 * Return the hierarchy path.
@@ -511,14 +511,14 @@ interface IContentEditor
 	 *
 	 * @return string
 	 */
-	public function HierarchyPath() : string;
+	public function HierarchyPath(): string;
 
 	/**
 	 * Return this object-active state
 	 *
 	 * @return bool
 	 */
-	public function Active() : bool;
+	public function Active(): bool;
 
 	/**
 	 * Set this object as active
@@ -532,7 +532,7 @@ interface IContentEditor
 	 *
 	 * @return bool
 	 */
-	public function ShowInMenu() : bool;
+	public function ShowInMenu(): bool;
 
 	/**
 	 * Set whether this object should be (by default) shown in menus
@@ -548,7 +548,7 @@ interface IContentEditor
 	 *
 	 * @return bool
 	 */
-	public function DefaultContent() : bool;
+	public function DefaultContent(): bool;
 
 	/**
 	 * Set whether this object should be considered the default.
@@ -564,7 +564,7 @@ interface IContentEditor
 	 *
 	 * @return bool Default true
 	 */
-	public function IsDefaultPossible() : bool;
+	public function IsDefaultPossible(): bool;
 
 	/**
 	 * Return whether this object is cachable.
@@ -573,7 +573,7 @@ interface IContentEditor
 	 *
 	 * @return bool
 	 */
-	public function Cachable() : bool;
+	public function Cachable(): bool;
 
 	/**
 	 * Set whether this object is cachable
@@ -589,7 +589,7 @@ interface IContentEditor
 	 *
 	 * @return bool
 	 */
-	public function Secure() : bool;
+	public function Secure(): bool;
 
 	/**
 	 * Set whether this object should be accessed via a secure protocol.
@@ -611,7 +611,7 @@ interface IContentEditor
 	 *
 	 * @return string
 	 */
-	public function URL() : string;
+	public function URL(): string;
 
 	/**
 	 * Set the custom URL-path associated with this object.
@@ -631,14 +631,14 @@ interface IContentEditor
 	 *
 	 * @return string
 	 */
-	public function GetURL() : string;
+	public function GetURL(): string;
 
 	/**
 	 * Return the integer id of the admin user that last modified this object.
 	 *
 	 * @return int
 	 */
-	public function LastModifiedBy() : int;
+	public function LastModifiedBy(): int;
 
 	/**
 	 * Set the last modified date for this item
@@ -652,7 +652,7 @@ interface IContentEditor
 	 *
 	 * @return bool
 	 */
-	public function HasPreview() : bool;
+	public function HasPreview(): bool;
 
 	/**
 	 * Return whether this object is viewable (i.e: can be rendered).
@@ -660,7 +660,7 @@ interface IContentEditor
 	 *
 	 * @return bool Default true
 	 */
-	public function IsViewable() : bool;
+	public function IsViewable(): bool;
 
 	/**
 	 * Check the current user's edit-authority
@@ -669,28 +669,28 @@ interface IContentEditor
 	 * @param $extra optional flag whether to check for membership of additional-editors. Default true
 	 * @return bool
 	 */
-	public function IsEditable(bool $main = true, bool $extra = true) : bool;
+	public function IsEditable(bool $main = true, bool $extra = true): bool;
 
 	/**
 	 * Return whether this user is permitted to view this object.
 	 *
 	 * @return boolean
 	 */
-	public function IsPermitted() : bool;
+	public function IsPermitted(): bool;
 
 	/**
 	 * Return whether this object has a usable link.
 	 *
 	 * @return bool default true
 	 */
-	public function HasUsableLink() : bool;
+	public function HasUsableLink(): bool;
 
 	/**
 	 * Return whether this object is copyable.
 	 *
 	 * @return bool default false
 	 */
-	public function IsCopyable() : bool;
+	public function IsCopyable(): bool;
 
 	/**
 	 * Return whether this object is a system object.
@@ -698,7 +698,7 @@ interface IContentEditor
 	 *
 	 * @return bool default false
 	 */
-	public function IsSystemPage() : bool;
+	public function IsSystemPage(): bool;
 
 	/**
 	 * Return whether this object is searchable.
@@ -710,14 +710,14 @@ interface IContentEditor
 	 *
 	 * @return bool
 	 */
-	public function IsSearchable() : bool;
+	public function IsSearchable(): bool;
 
 	/**
 	 * Return whether this object may have content that can be used by a search module.
 	 *
 	 * @return bool Default true
 	 */
-	public function HasSearchableContent() : bool;
+	public function HasSearchableContent(): bool;
 
 	/**
 	 * Return the menu text for this object.
@@ -725,7 +725,7 @@ interface IContentEditor
 	 *
 	 * @return string
 	 */
-	public function MenuText() : string;
+	public function MenuText(): string;
 
 	/**
 	 * Set the menu text for this object
@@ -739,7 +739,7 @@ interface IContentEditor
 	 *
 	 * @return int
 	 */
-	public function ChildCount() : int;
+	public function ChildCount(): int;
 
 	/**
 	 * Return whether this object has children.
@@ -747,7 +747,7 @@ interface IContentEditor
 	 * @param bool $activeonly Optional flag whether to test only for active children. Default false.
 	 * @return bool
 	 */
-	public function HasChildren(bool $activeonly = false) : bool;
+	public function HasChildren(bool $activeonly = false): bool;
 
 	/**
 	 * Return whether this object may have child objects.
@@ -755,7 +755,7 @@ interface IContentEditor
 	 *
 	 * @return bool Default true
 	 */
-	public function WantsChildren() : bool;
+	public function WantsChildren(): bool;
 
 	/**
 	 * Return a list of additional editors of this object.

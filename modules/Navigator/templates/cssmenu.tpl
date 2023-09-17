@@ -54,7 +54,7 @@ CSS:
       {/if}
     </li>
   {elseif $type == 'separator'}
-    <li style="list-style-type: none;"><hr class="menu_separator"></li>
+    <li style="list-style-type:none"><hr class="menu_separator"></li>
   {else}{* regular item *}
     <li{if $liclass} class="{implode(' ',$liclass)}"{/if}>
       {$t=$node->target}

@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to operate on a secure cookie
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -44,7 +44,7 @@ function smarty_function_cms_cookie($params, $template)
 
 	switch ($params['action']) {
 		case 'set':
-			if (!empty($params['value']) || (isset($params['value']) && is_numeric($params['value']))) {
+			if (isset($params['value']) && ($params['value'] || is_numeric($params['value']))) {
 				$value = $ops->set($params['name'], $params['value'], ($params['expires'] ?? 0));
 			} else {
 				$value = false;

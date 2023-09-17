@@ -2,6 +2,8 @@
 
 use function cms_installer\get_app;
 use function cms_installer\rrmdir;
+use function cms_installer\error_msg;
+use function cms_installer\status_msg;
 
 status_msg('Performing directory changes for CMSMS 2.2.1');
 
@@ -32,7 +34,7 @@ foreach ($files as $filespec) {
     }
 }
 
-$remove = function($in) {
+$remove = function(string $in): void {
     if (is_file($in)) {
         @unlink($in);
     } elseif (is_dir($in)) {

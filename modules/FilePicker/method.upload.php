@@ -1,7 +1,7 @@
 <?php
 /*
 FilePicker module method - process a file-upload
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -24,7 +24,7 @@ use CMSMS\FileTypeHelper;
 use CMSMS\FolderControlOperations;
 use FilePicker\Utils;
 
-header('Content-type:application/json;charset=utf-8');
+header('Content-Type:application/json;charset=utf-8');
 
 try {
     $key = $params['filefield'] ?? ''; // might be string 'null'
@@ -60,12 +60,12 @@ try {
     $destpath = '';
 
     // crappy $_FILES[] arrangement forces these funcs
-    $fileval = function($key, $idx = '') use ($f)
+    $fileval = function($key, $idx = '') use ($f)//: mixed
     {
        return ($idx === '') ? $f[$key] : $f[$key][$idx];
     };
 
-    $do_file = function($idx = '') use ($fileval, $topdir, $fullpath, $profile, $maxsize, $helper, $mime, &$destpath)
+    $do_file = function($idx = '') use ($fileval, $topdir, $fullpath, $profile, $maxsize, $helper, $mime, &$destpath): void
     {
         // Check filesize
         if ($maxsize > 0 && $fileval('size', $idx) > $maxsize) {

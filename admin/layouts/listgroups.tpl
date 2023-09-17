@@ -4,6 +4,7 @@
   <a href="{$addurl}{$urlext}" class="pageoptions">{_la('addgroup')}</a>
 </div>
 {/if}
+{if !empty($grouplist)}
 {if $tblpages > 1}
 <div class="browsenav postgap">
   <span id="tblpagelink">
@@ -36,9 +37,9 @@
       {strip}
       <td>
         {if $pmod}
-        <a href="{$editurl}{$urlext}&group_id={$one.id}" title="{$one.description}">{$one.name}</a>
+        <a href="{$editurl}{$urlext}&group_id={$one.id}" title="{$one.desc}">{$one.name}</a>
         {else}
-        <span title="{$one.description}">{$one.name}</span>
+        <span title="{$one.desc}">{$one.name}</span>
         {/if}
       </td>
       <td class="pagepos" data-sss="{if $one.active}1{else}0{/if}">
@@ -59,6 +60,7 @@
   <a href="{$addurl}{$urlext}">{$iconadd}</a>
   <a href="{$addurl}{$urlext}" class="pageoptions">{_la('addgroup')}</a>
 </div>
+{/if}
 {/if}
 {if !empty($groupmenus)}
 <div id="groupmenus">

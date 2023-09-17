@@ -1,7 +1,7 @@
 <?php
 /*
 Class which supports searching in content-pages.
-Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 See license details at the top of file AdminSearch.module.php
 */
@@ -15,6 +15,7 @@ use function get_userid;
 
 final class Content_slave extends Base_slave
 {
+//TODO UI for processing inactive pages or not
     public function get_name()
     {
         $mod = Utils::get_module('AdminSearch');
@@ -27,7 +28,7 @@ final class Content_slave extends Base_slave
         return $mod->Lang('desc_content_search');
     }
 
-//  public function use_slave(int $userid = 0) : bool {}
+//  public function use_slave(int $userid = 0): bool {}
 
     protected function check_permission(int $userid = 0)
     {
@@ -37,6 +38,7 @@ final class Content_slave extends Base_slave
     // returns array, containing arrays or empty
     public function get_matches()
     {
+        $all = $this->include_inactive_items();
         $fz = $this->search_fuzzy();
         $output = [];
         $db = Lone::get('Db');
@@ -54,6 +56,7 @@ LEFT JOIN {$pref}content_props P
 ON C.content_id = P.content_id
 
 EOS;
+        $query .= ($all) ? 'WHERE (' : 'WHERE C.active=1 AND (';
         if ($fz) {
             if ($this->search_casesensitive()) {
                 $wheres = [
@@ -98,7 +101,7 @@ C.metadata,
 C.titleattribute,
 C.page_url) LIKE ?'];
         }
-        $query .= 'WHERE ('. implode(' OR ', $wheres) . ') GROUP BY C.content_id ORDER BY C.content_name'; // TODO if needed, work around ONLY_FULL_GROUP_BY effect on reported fields other than content_id
+        $query .= implode(' OR ', $wheres) . ') GROUP BY C.content_id ORDER BY C.content_name'; // TODO if needed, work around ONLY_FULL_GROUP_BY effect on reported fields other than content_id
         $needle = $this->get_text();
         if ($fz) {
             $needle = $this->get_regex_pattern($needle, false);

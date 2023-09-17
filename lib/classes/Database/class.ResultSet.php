@@ -1,7 +1,7 @@
 <?php
 /*
 Class ResultSet: methods for interacting with MySQL or compatible selection-command result
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -70,7 +70,7 @@ class ResultSet
     /**
      * @ignore
      */
-    public function __set(string $key, $val) : void
+    public function __set(string $key, $val): void
     {
         switch ($key) {
          case 'errno':
@@ -87,7 +87,7 @@ class ResultSet
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         switch ($key) {
          case 'errno':
@@ -120,7 +120,7 @@ class ResultSet
      * @internal
      * @return bool
      */
-    protected function isNative() : bool
+    protected function isNative(): bool
     {
         if ($this->_native === '') {
             $this->_native = function_exists('mysqli_fetch_all');
@@ -135,7 +135,7 @@ class ResultSet
      * @param int $idx
 	 * @return bool
      */
-    protected function move(int $idx) : bool
+    protected function move(int $idx): bool
     {
         if ($idx == $this->_pos) {
             return true;
@@ -154,7 +154,7 @@ class ResultSet
      * Move to the first row in the ResultSet data.
 	 * @return bool
      */
-    public function moveFirst() : bool
+    public function moveFirst(): bool
     {
         return $this->move(0);
     }
@@ -163,7 +163,7 @@ class ResultSet
      * Move to the next row of the ResultSet data, if possible.
 	 * @return bool
      */
-    public function moveNext() : bool
+    public function moveNext(): bool
     {
         if (($idx = $this->_pos) < $this->_nrows && $idx >= 0) {
             return $this->move($idx + 1);
@@ -176,7 +176,7 @@ class ResultSet
      *
      * @return array, maybe empty
      */
-    public function getArray() : array
+    public function getArray(): array
     {
         if ($this->isNative()) {
            $this->_result->data_seek(0);
@@ -204,7 +204,7 @@ class ResultSet
      *
      * @return array
      */
-    public function getRows() : array
+    public function getRows(): array
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','getArray'));
         return $this->getArray();
@@ -218,7 +218,7 @@ class ResultSet
      *
      * @return array
      */
-    public function getAll() : array
+    public function getAll(): array
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','getArray'));
         return $this->getArray();
@@ -230,7 +230,7 @@ class ResultSet
      *
      * @return array, maybe empty
      */
-    public function getAssoc(bool $force_array = false, bool $first2cols = false) : array
+    public function getAssoc(bool $force_array = false, bool $first2cols = false): array
     {
         $results = [];
         $n = $this->_result->field_count;
@@ -265,7 +265,7 @@ class ResultSet
                     if ($this->move($i)) {
                         $row = $this->_row;
                         if ($row[$first] !== null) {
-                            $results[trim($row[$first])] = ($short) ? next($row) : array_slice($row, 1);
+                            $results[trim($row[$first])] = ($short) ? next($row): array_slice($row, 1);
                         } else {
                             $TODO = 2;
                         }
@@ -283,7 +283,7 @@ class ResultSet
      * @param bool $trim Optional flag whether to trim() each value. Default false.
      * @return array, maybe empty
      */
-    public function getCol(bool $trim = false) : array
+    public function getCol(bool $trim = false): array
     {
         $results = [];
         if (($c = $this->_nrows) > 0) {
@@ -318,7 +318,7 @@ class ResultSet
      *
      * @return mixed value | null
      */
-    public function getOne()// : mixed
+    public function getOne()//: mixed
     {
         if (!$this->EOF()) {
             return reset($this->_row);
@@ -331,7 +331,7 @@ class ResultSet
      *
      * @return bool
      */
-    public function EOF() : bool
+    public function EOF(): bool
     {
         return $this->_nrows == 0 || $this->_pos < 0 || $this->_pos >= $this->_nrows;
     }
@@ -355,7 +355,7 @@ class ResultSet
      *
      * @return int
      */
-    public function recordCount() : int
+    public function recordCount(): int
     {
         return $this->_nrows;
     }
@@ -367,7 +367,7 @@ class ResultSet
      *
      * @return int
      */
-    public function NumRows() : int
+    public function NumRows(): int
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','recordCount'));
         return $this->_nrows;
@@ -378,7 +378,7 @@ class ResultSet
      *
      * @return int
      */
-    public function fieldCount() : int
+    public function fieldCount(): int
     {
         return $this->_result->field_count;
     }
@@ -389,7 +389,7 @@ class ResultSet
      * @param string $key An optional field name, if not specified, the entire row will be returned
      * @return mixed single value | values-array | null
      */
-    public function fields($key = '')// : mixed
+    public function fields($key = '')//: mixed
     {
         if ($this->_row && !$this->EOF()) {
             if (!$key) {
@@ -408,7 +408,7 @@ class ResultSet
      *
      * @return array, maybe empty
      */
-    public function FetchRow() : array
+    public function FetchRow(): array
     {
         $out = $this->fields();
         if ($out !== null) {

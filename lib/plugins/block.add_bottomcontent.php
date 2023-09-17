@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to add to accumulated content for later insertion into the bottom of the page
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -34,7 +34,7 @@ Put this in a template<br>
 <code>
 {add_bottomcontent}
 e.g.
-<script defer type="text/javascript"> .. </script>
+<script defer> .. </script>
 etc
 {/add_bottomcontent}
 </code>';

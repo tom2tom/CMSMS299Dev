@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
+<html{if $lang_code} lang="{$lang_code|truncate:5:''}"{/if} dir="{$lang_dir|default:'ltr'}">
 	<head>
 		<title>{$page_title} - {$page_subtitle|default:"{sitename}"}</title>
 		<base href="{$admin_url}/">
@@ -38,46 +38,41 @@
 		<link rel="stylesheet" href="style.php?{$secureparam}"> {* backwards compatibility * }
 *}
 		<link rel="stylesheet" href="themes/LTE/styles/style{if $lang_dir == 'rtl'}-rtl{/if}.min.css">
-		<link rel="stylesheet" href="themes/LTE/styles/topfiles.css">
 {*
+		<link rel="stylesheet" href="themes/LTE/styles/topfiles.css">
 		<link rel="stylesheet" href="themes/LTE/styles/default-cmsms/jquery-ui-1.10.4.custom.min.css">
 		<script src="themes/LTE/UNUSED-plugins/jquery/jquery.min.js"></script>{* jQuery * }
 		<script src="themes/LTE/UNUSED-plugins/jquery-ui/jquery-ui.min.js"></script>{* jQuery UI 1.11.4 * }
-		<script type="text/javascript" src="themes/LTE/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>{* Bootstrap 4 * }
-		<script type="text/javascript" src="themes/LTE/UNUSED-plugins/chart.js/Chart.min.js"></script>{* ChartJS * }
-		<script type="text/javascript" src="themes/LTE/UNUSED-plugins/sparklines/sparkline.js"></script>{* Sparkline * }
-		<script type="text/javascript" src="themes/LTE/UNUSED-plugins/jqvmap/jquery.vmap.min.js"></script>{* JQVMap * }
-		<script type="text/javascript" src="themes/LTE/UNUSED-plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
-		<script type="text/javascript" src="themes/LTE/UNUSED-plugins/jquery-knob/jquery.knob.min.js"></script>{* jQuery Knob Chart * }
-		<script type="text/javascript" src="themes/LTE/UNUSED-plugins/moment/moment.min.js"></script>
-		<script type="text/javascript" src="themes/LTE/UNUSED-plugins/daterangepicker/daterangepicker.js"></script>{* daterangepicker * }
-		<script type="text/javascript" src="themes/LTE/UNUSED-plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>{* Tempusdominus Bootstrap 4 * }
-		<script type="text/javascript" src="themes/LTE/UNUSED-plugins/summernote/summernote-bs4.min.js"></script>{* Summernote * }
+		<script src="themes/LTE/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>{* Bootstrap 4 * }
+		<script src="themes/LTE/UNUSED-plugins/chart.js/Chart.min.js"></script>{* ChartJS * }
+		<script src="themes/LTE/UNUSED-plugins/sparklines/sparkline.js"></script>{* Sparkline * }
+		<script src="themes/LTE/UNUSED-plugins/jqvmap/jquery.vmap.min.js"></script>{* JQVMap * }
+		<script src="themes/LTE/UNUSED-plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
+		<script src="themes/LTE/UNUSED-plugins/jquery-knob/jquery.knob.min.js"></script>{* jQuery Knob Chart * }
+		<script src="themes/LTE/UNUSED-plugins/moment/moment.min.js"></script>
+		<script src="themes/LTE/UNUSED-plugins/daterangepicker/daterangepicker.js"></script>{* daterangepicker * }
+		<script src="themes/LTE/UNUSED-plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>{* Tempusdominus Bootstrap 4 * }
+		<script src="themes/LTE/UNUSED-plugins/summernote/summernote-bs4.min.js"></script>{* Summernote * }
 *}
 		{$headertext|default:''}
-		<script type="text/javascript" src="themes/LTE/includes/adminlte.min.js"></script>{* AdminLTE App *}
+		<script src="themes/LTE/includes/adminlte.min.js"></script>{* AdminLTE App *}
 {*
-moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conflict between jQueryUI tooltip and Bootstrap tooltip * }
-		<script type="text/javascript" src="../lib/jquery/js/jquery.mjs.nestedSortable.js"></script>
-		<script type="text/javascript" src="../lib/jquery/js/jquery.json-2.4.min.js"></script>
-		<script type="text/javascript" src="../lib/jquery/js/jquery-migrate-1.2.1.min.js"></script>
-		<script type="text/javascript" src="../lib/jquery/js/jquery.cms_admin.js"></script>{* TODO deprecated location * }
-		<script type="text/javascript" src="../lib/jquery/js/jquery.cmsms_dirtyform.js"></script>
-		<script type="text/javascript" src="../lib/jquery/js/jquery.cmsms_lock.js"></script>
-		<script type="text/javascript" src="../lib/jquery/js/jquery.cmsms_hierselector.js"></script>
-		<script type="text/javascript" src="../lib/jquery/js/jquery.cmsms_autorefresh.js"></script>
-		<script type="text/javascript" src="../lib/jquery/js/jquery.cmsms_filepicker.js"></script>
-		<script type="text/javascript" src="../lib/jquery/js/jquery.ui.touch-punch.min.js"></script>{* TODO deprecated location * }
-		<script type="text/javascript" src="cms_js_setup.php?{$secureparam}"></script>{* TODO deprecated location, if needed * }
-*}
-		{* backwards and CMSMS compatibility *}
-		<script type="text/javascript" src="themes/LTE/includes/standard.min.js"></script>
-{*
+moved		<script>$.widget.bridge('uibutton', $.ui.button)</script>* }{* Resolve conflict between jQueryUI tooltip and Bootstrap tooltip * }
+		<script src="../lib/jquery/js/jquery.mjs.nestedSortable.js"></script>
+		<script src="../lib/jquery/js/jquery.json-2.4.min.js"></script>
+		<script src="../lib/jquery/js/jquery-migrate-1.2.1.min.js"></script>
+		<script src="../lib/jquery/js/jquery.cms_admin.js"></script>{* TODO deprecated location * }
+		<script src="../lib/jquery/js/jquery.cmsms_dirtyform.js"></script>
+		<script src="../lib/jquery/js/jquery.cmsms_lock.js"></script>
+		<script src="../lib/jquery/js/jquery.cmsms_hierselector.js"></script>
+		<script src="../lib/jquery/js/jquery.cmsms_autorefresh.js"></script>
+		<script src="../lib/jquery/js/jquery.cmsms_filepicker.js"></script>
+		<script src="../lib/jquery/js/jquery.ui.touch-punch.min.js"></script>{* TODO deprecated location * }
+		<script src="cms_js_setup.php?{$secureparam}"></script>{* TODO deprecated location, if needed * }
 		<script type="module" src="https://unpkg.com/ionicons@6.0.0/dist/ionicons/ionicons.esm.js"></script>
 		<script nomodule src="https://unpkg.com/ionicons@6.0.0/dist/ionicons/ionicons.js"></script>
-*}
-{* moved inline js to display_login_page() header setup
-		<script>{literal}
+moved inline js to display_login_page() header setup
+		<script>
 			$(function() {
 				// text blocks
 				$(".pagewarning").addClass("callout callout-danger");
@@ -110,28 +105,28 @@ moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conf
 				// scrollbar for shortcuts bar
 				$("#shorcuts-crol-sidebar").overlayScrollbars({className: "os-theme-light"});
 			});
-		{/literal}</script>
+		</script>
 *}
 	</head>
 
 	<body class="hold-transition sidebar-mini {* layout-footer-fixed *} layout-fixed layout-navbar-fixed {*control-sidebar-push*}">
 
-{*		<div class="wrapper"> *}
+{*see below		<div class="wrapper"> *}
 
 			<nav class="main-header navbar navbar-dark">
-				<ul class="navbar-nav">
-					<li class="nav-item">
+{*				<ul class="navbar-nav">
+					<li class="nav-item">*}
 						<a class="nav-link" data-widget="pushmenu" href="javascript:void()"><i class="fas fa-bars"></i></a>
-					</li>
 {*					<li class="nav-item d-none d-sm-inline-block">
-						<a href="index.php?{$secureparam}" title="{'home'|lang}" class="nav-link"><i class="fas fa-home"></i></a>
+					</li>
+						<a href="index.php?{$secureparam}" title="{lang('home')}" class="nav-link"><i class="fas fa-home"></i></a>
 					</li>
 					redundant maybe? (JM)
 					<li class="nav-item d-none d-sm-inline-block">
 						<a href="useraccount.php?{$secureparam}" class="nav-link">Account</a>
 					</li>
-*}
 				</ul>
+*}
 				<a id="headerlogo" href="https://www.cmsmadesimple.org" rel="external" title="CMSMS Home" target="_blank"></a>
 				{include file='shortcuts.tpl'}
 			</nav>
@@ -140,7 +135,7 @@ moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conf
 
 			<aside class="main-sidebar sidebar-dark-primary elevation-4">
 {* page layout doesn't work {if isset($sitelogo)}
-				<a href="menu.php?{$secureparam}" title="{'home'|lang}"<img src="{$sitelogo}" class="brand-image elevation-3"></a>
+				<a href="menu.php?{$secureparam}" title="{lang('home')}"<img src="{$sitelogo}" class="brand-image elevation-3"></a>
 				{/if}
 				<span class="brand-text font-weight-light">{sitename}</span>
 *}
@@ -153,7 +148,7 @@ moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conf
 			<div class="content-wrapper">
 				<div class="content-header">
 					<div class="container-fluid">
-						<div class="row mb-2">
+						<div class="row mb-0">
 							{if isset($module_icon_url) || isset($page_title)}
 								<div class="col-12 col-sm-6 col-lg-6">
 									<h1 class="m-0 text-dark">
@@ -181,7 +176,7 @@ moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conf
 				</div>
 
 				<section class="content">
-					<div class="container-fluid">{$content}</div>
+					<div class="container-fluid">{$content}</div>{*TODO some conventional identifier(s)*}
 				</section>
 
 			</div>
@@ -196,7 +191,7 @@ moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conf
 </html>
 {* +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	<div id="oe_container" class="sidebar-on">
+	<div id="lte_container" class="sidebar-on">
 
 		<header role="banner" class="header cf">
 			<div class="header-top cf">
@@ -205,32 +200,31 @@ moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conf
 						<img src="themes/LTE/images/layout/cmsms-logo.jpg" width="205" height="69" alt="CMS Made Simple" title="CMS Made Simple">
 					</a>
 				</div>
-				<span class="admin-title"> {'adminpaneltitle'|lang} - {sitename}</span>
+				<span class="admin-title"> {lang('adminpaneltitle')} - {sitename}</span>
 			</div>
 
 			<div class="header-bottom cf">
 				<div class="welcome" data-username="{$user->username}">
 					{if isset($myaccount)}
-						<span><a class="welcome-user" href="useraccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa fa-user"></i></a> {'welcome_user'|lang}: <a href="useraccount.php?{$secureparam}">{$user->firstname|default:$user->username}</a></span>
+						<span><a class="welcome-user" href="useraccount.php?{$secureparam}" title="{lang('myaccount')}"><i class="fa fa-user"></i></a> {lang('welcome_user')}: <a href="useraccount.php?{$secureparam}">{$user->firstname|default:$user->username}</a></span>
 					{else}
-						<span><a class="welcome-user"><i class="fa fa-user"></i></a> {'welcome_user'|lang}: <span data-username="{$user->username}">{$user->username}</span></span>
+						<span><a class="welcome-user"><i class="fa fa-user"></i></a> {lang('welcome_user')}: <span data-username="{$user->username}">{$user->username}</span></span>
 					{/if}
 				</div>
 				{include file='shortcuts.tpl'}
 			</div>
 		</header>
 
-		<div id="oe_admin-content">
+		<div id="lte_admin-content">
 			<div class="shadow">&nbsp;</div>
 
-			<div id="oe_sidebar">
+			<div id="lte_sidebar">
 				<aside>
-					<span title="{'open'|lang}/{'close'|lang}" class="toggle-button close"></span>
 					{include file='navigation.tpl' nav=$theme->get_navigation_tree()}
 				</aside>
 			</div>
 
-			<div id="oe_mainarea" class="cf">
+			<div id="lte_mainarea" class="cf">
 				{include file='messages.tpl'}
 
 				<article role="main" class="content-inner">
@@ -240,7 +234,7 @@ moved	<script>$.widget.bridge('uibutton', $.ui.button)</script>*}{* Resolve conf
 								{$page_title|default:''}
 							</h1>
 						{/if}
-						{if isset($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{'module_help'|lang}</a></span>{/if}
+						{if isset($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{lang('module_help')}</a></span>{/if}
 					</header>
 
 					{if $page_title && $page_subtitle}<header class="subheader"><h3 class="subtitle">{$page_subtitle}</h3></header>{/if}

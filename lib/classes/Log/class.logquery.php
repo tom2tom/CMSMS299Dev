@@ -1,7 +1,7 @@
 <?php
 /*
 Class ...
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -32,13 +32,13 @@ class logquery
         $this->_realquery = new dbquery($filter); // TODO relevant store c.f. logger->_store
     }
 
-    public function __set(string $key, $value) : void
+    public function __set(string $key, $value): void
     {
         $this->_realquery->$key = $value;
     }
 
     #[\ReturnTypeWillChange]
-    public function __get(string $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         return $this->_realquery->$key;
     }

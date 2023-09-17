@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManager module action: bulk delete
-Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -41,7 +41,7 @@ $mod = $this;
 $userid = get_userid(false);
 $contentops = Lone::get('ContentOperations');
 
-$can_bulk_delete = function($node) use ($mod,$userid,$contentops) : bool {
+$can_bulk_delete = function($node) use ($mod,$userid,$contentops): bool {
 	// test whether the user may delete specified node (not its children)
 	if ($mod->CheckPermission('Manage All Content')) {
 		return true;
@@ -63,7 +63,7 @@ $can_bulk_delete = function($node) use ($mod,$userid,$contentops) : bool {
 	return $contentops->CheckPageAuthorship($userid, $id);
 };
 
-$get_deletable_pages = function($node) use ($can_bulk_delete, &$get_deletable_pages) : array {
+$get_deletable_pages = function($node) use ($can_bulk_delete, &$get_deletable_pages): array {
 	$out = [];
 	if ($can_bulk_delete($node)) {
 		// we can delete the parent node

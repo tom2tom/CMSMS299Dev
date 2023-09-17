@@ -1,7 +1,7 @@
 <?php
 /*
 Class and utilities for working with user preferences.
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -57,8 +57,7 @@ final class UserParams
 	 * @ignore
 	 */
 	private function __construct() {}
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * @ignore

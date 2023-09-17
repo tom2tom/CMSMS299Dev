@@ -8,7 +8,7 @@
 </div>
 {/if}
 
-{if isset($list_designs)}
+{if !empty($list_designs)}
 <table class="pagetable">
   <thead>
     <tr>
@@ -34,7 +34,7 @@
        {$design->get_name()}
       {/if}
       </td>
-{*      <td style="text-align:center;">
+{*      <td style="text-align:center">
        {if $design->get_default()}
         {admin_icon icon='true.gif' title=_ld($_module,'prompt_dflt')}
        {else}

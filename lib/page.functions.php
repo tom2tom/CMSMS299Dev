@@ -1,7 +1,7 @@
 <?php
 /*
 Miscellaneous CMSMS-dependent support functions (not only 'page'-related).
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -77,7 +77,7 @@ function cmsms() : App
  * @param mixed $uuid identifier to be checked
  * @return bool indicating success
  */
-function checkuuid($uuid) : bool
+function checkuuid($uuid): bool
 {
 	return hash_equals(get_site_UUID(), $uuid.'');
 }
@@ -187,7 +187,7 @@ function setup_session(bool $cachable = false)
  *
  * @return boolean
  */
-function is_sitedown() : bool
+function is_sitedown(): bool
 {
 	if (AppState::test(AppState::INSTALL)) {
 		return true;
@@ -336,7 +336,7 @@ function check_login(bool $no_redirect = false)
  *
  * @return array
  */
-function restricted_cms_permissions() : array
+function restricted_cms_permissions(): array
 {
 	$val = AppParams::get('ultraroles');
 	if ($val) {
@@ -477,7 +477,7 @@ function redirect(string $to)
 
 	if (!$debug && headers_sent()) {
 		// use javascript instead
-		echo '<script type="text/javascript">
+		echo '<script>
 <!-- location.replace("'.$to.'"); // -->
 </script>
 <noscript>
@@ -736,7 +736,7 @@ function set_module_param($modname, $parmname, $value)
  *  string URL to which the returned string will be appended
  * @return string
  */
-function get_secure_param($first = true) : string
+function get_secure_param($first = true): string
 {
 	if (isset($_SESSION[CMS_USER_KEY])) {
 		if (is_string($first) && $first) {
@@ -763,7 +763,7 @@ function get_secure_param($first = true) : string
  *
  * @return array
  */
-function get_secure_param_array() : array
+function get_secure_param_array(): array
 {
 	$out = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
 	if (!ini_get_boolean('session.use_cookies')) {
@@ -882,7 +882,7 @@ function get_parameter_value(array $parameters, string $key, $default = '', stri
  *
  * @return string
  */
-/*function get_csp_token() : string
+/*function get_csp_token(): string
 {
 	static $nonce = null; // limit to once-per-request
 
@@ -906,7 +906,7 @@ EOS;
  * @param object $template A Smarty_Internal_Template object
  * @return string The module output string or an error message string or ''
  */
-function cms_module_plugin(array $params, $template) : string
+function cms_module_plugin(array $params, $template): string
 {
 	return ModulePluginOperations::call_plugin_module($params, $template);
 }
@@ -919,7 +919,7 @@ function cms_module_plugin(array $params, $template) : string
  * @param string $relative_to Optional absolute path which (relative) $in is relative to
  * @return string
  */
-function cms_url_to_path(string $in, string $relative_to = '') : string
+function cms_url_to_path(string $in, string $relative_to = ''): string
 {
 	if (startswith($in, CMS_ROOT_URL)) {
 		$s = substr($in, strlen(CMS_ROOT_URL));
@@ -942,7 +942,7 @@ function cms_url_to_path(string $in, string $relative_to = '') : string
  * @param string $relative_to Optional absolute path which (relative) $in is relative to
  * @return string, empty if $in and $relative_to do not amount to a valid site filepath
  */
-function cms_path_to_url(string $in, string $relative_to = '') : string
+function cms_path_to_url(string $in, string $relative_to = ''): string
 {
 	$in = trim($in);
 	if ($relative_to) {
@@ -978,7 +978,7 @@ function cms_path_to_url(string $in, string $relative_to = '') : string
  * @param string $relative_to The optional path to compute relative to.  If not supplied the cmsms root path will be used.
  * @return string The relative portion of the input string.
  */
-function cms_relative_path(string $in, string $relative_to = '') : string
+function cms_relative_path(string $in, string $relative_to = ''): string
 {
 	$in = realpath(trim($in));
 	if (!$relative_to) {
@@ -1010,7 +1010,7 @@ function cms_relative_path(string $in, string $relative_to = '') : string
  *  single quotes should be converted to entities. Default false.
  * @return the converted string
  */
-function cms_htmlentities($val, int $flags = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
+function cms_htmlentities($val, int $flags = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false): string
 {
 	assert(!CMS_DEPREC, new DeprecationNotice('function', 'CMSMS\entitize'));
 	return entitize($val, $flags, $charset, $convert_single_quotes);
@@ -1033,7 +1033,7 @@ function cms_htmlentities($val, int $flags = 0, string $charset = 'UTF-8', bool 
  *  Default 'UTF-8'. If empty, the system setting will be used.
  * @return the converted string
  */
-function cms_html_entity_decode($val, int $flags = 0, string $charset = 'UTF-8') : string
+function cms_html_entity_decode($val, int $flags = 0, string $charset = 'UTF-8'): string
 {
 	assert(!CMS_DEPREC, new DeprecationNotice('function', 'CMSMS\de_entitize'));
 	return de_entitize($val, $flags, $charset);
@@ -1047,7 +1047,7 @@ function cms_html_entity_decode($val, int $flags = 0, string $charset = 'UTF-8')
  * @param string $destination The destination file specification
  * @return bool indicating success
  */
-function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
+function cms_move_uploaded_file(string $tmpfile, string $destination): bool
 {
 	$helper = new FileTypeHelper();
 	$cleaned = $helper->clean_filepath($destination, true);
@@ -1098,7 +1098,7 @@ function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
  * @param bool  $is_utc Optional flag whether $datevar is for the UTC timezone. Default false.
  * @return int Default 1 (not false)
  */
-function cms_to_stamp(/*mixed */$datevar, bool $is_utc = false) : int
+function cms_to_stamp(/*mixed */$datevar, bool $is_utc = false): int
 {
 	static $dt = null;
 	static $offs = null;
@@ -1132,11 +1132,12 @@ function cms_to_stamp(/*mixed */$datevar, bool $is_utc = false) : int
  *
  * @param string $format strftime()- and/or date()-compatible format definition
  * @param mixed $datevar optional timestamp | DateTime object | datetime string parsable by strtotime() | empty
+ * @param string $locale added to 2.2.17 version of this function Default ''
  * @return string
  */
-function locale_ftime(string $format, /*mixed */$datevar = null) : string
+function locale_ftime(string $format, /*mixed */$datevar = null, ?string $locale = ''): string
 {
-	return Utils::dt_format($datevar, $format);
+	return Utils::dt_format($datevar, $format, '', $locale);
 }
 
 /**
@@ -1145,7 +1146,7 @@ function locale_ftime(string $format, /*mixed */$datevar = null) : string
  *
  * @return array of filepaths, keys per params: 'jqcore','jqmigrate','jqui','jquicss'
  */
-function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui = true, bool $uicss = true) : array
+function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui = true, bool $uicss = true): array
 {
 	$found = [];
 	$allfiles = false;
@@ -1266,8 +1267,8 @@ EOS;
 	$url3 = cms_path_to_url($incs['jqui']);
 	$out = <<<EOS
 <!-- default page inclusions -->{$s1}
-<script type="text/javascript" src="{$url2}"></script>
-<script type="text/javascript" src="{$url3}"></script>
+<script src="{$url2}"></script>
+<script src="{$url3}"></script>
 
 EOS;
 	return $out;
@@ -1297,6 +1298,7 @@ function get_best_file($places, $target, $ext, $as_url)
 	}
 	$patn = '~^'.addcslashes($base, '.-').'([.-](\d[\d\.]*))?([.-]min)?\.'.$ext.'$~i';
 	foreach ($places as $base_path) {
+		if (!is_dir($base_path)) { continue; }
 		$allfiles = scandir($base_path);
 		if ($allfiles) {
 			$files = preg_grep($patn, $allfiles);
@@ -1516,10 +1518,10 @@ function create_file_dropdown(
 	string $extratext = '',
 	string $fileprefix = '',
 	bool $excludefiles = true,
-	bool $sortresults = false) : string
+	bool $sortresults = false): string
 {
 	$files = get_matching_files($dir, $allowed_extensions, true, true, $fileprefix, $excludefiles);
-	if ($files === false) {
+	if (!$files) {
 		return '';
 	}
 	if ($sortresults) {
@@ -1586,7 +1588,7 @@ function create_file_dropdown(
  *	the content of the htmlid-element. (As always, avoid conflict with tab-name divs). Default 'edit_work'
  * @return array up to 2 members, those being 'head' and/or 'foot', or perhaps [1] or []
  */
-function get_richeditor_setup(array $params) : array
+function get_richeditor_setup(array $params): array
 {
 	if (is_frontend_request()) {
 		$val = AppParams::get('frontendwysiwyg'); //module name
@@ -1648,7 +1650,7 @@ function get_richeditor_setup(array $params) : array
  *  string 'theme' name to override the recorded theme/style for the editor. Default ''
  * @return array up to 2 members, those being 'head' and/or 'foot', or perhaps [1] or []
  */
-function get_syntaxeditor_setup(array $params) : array
+function get_syntaxeditor_setup(array $params): array
 {
 	if (is_frontend_request()) {
 		return [];
@@ -1794,7 +1796,7 @@ function debug_bt()
 * @param bool $showtitle (optional) flag indicating whether the title field should be displayed in the output.
 * @return string
 */
-function debug_display($var, string $title = '', bool $echo_to_screen = true, bool $use_html = true, bool $showtitle = true) : string
+function debug_display($var, string $title = '', bool $echo_to_screen = true, bool $use_html = true, bool $showtitle = true): string
 {
 	global $starttime, $orig_memory;
 
@@ -1943,7 +1945,7 @@ function audit($itemid, string $subject, string $msg = '')
  * @deprecated since 3.0 instead use recursive_chmod()
  * @see recursive_chmod()
  */
-function chmod_r(string $path, int $mode) : bool
+function chmod_r(string $path, int $mode): bool
 {
 	assert(!CMS_DEPREC, new DeprecationNotice('function', 'recursive_chmod()'));
 	return recursive_chmod($path, $mode, 0);
@@ -2081,7 +2083,7 @@ function remove_page_header($name, $value = null)
  * @global array $HEADERS
  * @return array each member like "name: value". Includes a dummy 'Content-Type' header
  */
-function get_page_headers() : array
+function get_page_headers(): array
 {
 	global $HEADERS;
 	$ret = ["Content-Type: TBA; charset=TBA"];
@@ -2203,7 +2205,7 @@ function add_debug_message(string $str)
  *
  * @return array, maybe empty
  */
-function get_debug_messages() : array
+function get_debug_messages(): array
 {
 	return Lone::fastget('app.DumpMessages') ?? [];
 }
@@ -2225,19 +2227,19 @@ function dbshutdown()
  * (console content should conform to admin theme templates' doctype)
  * @since 3.0
  *
- * @return int PHP ENT* enum value
+ * @return int PHP ENT* enum value Default ENT_HTML5
  */
-function preferred_lang() : int
+function preferred_lang(): int
 {
 	$val = strtoupper(Lone::get('Config')['content_language']);
 	switch ($val) {
-		case 'HTML5':
-			return ENT_HTML5;
 		case 'HTML':
 		case 'NONE':
 			return ENT_HTML401; //a.k.a. 0
-		default:
+		case 'XHTML':
 			return ENT_XHTML;
+		default:
+			return ENT_HTML5;
 	}
 }
 
@@ -2253,7 +2255,7 @@ function preferred_lang() : int
  *  should also be converted to/from entities
  * @return 2-member array [0] = ENT* bitflags, [1] = characters' encoding
  */
-function get_entparms(int $flags, string $charset, bool $convert_single_quotes) : array
+function get_entparms(int $flags, string $charset, bool $convert_single_quotes): array
 {
 	global $deflang, $defenc;
 
@@ -2297,7 +2299,7 @@ function get_entparms(int $flags, string $charset, bool $convert_single_quotes) 
  *  single quotes should be converted to entities. Default false.
  * @return the converted string
  */
-function entitize($val, int $flags = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
+function entitize($val, int $flags = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false): string
 {
 	if ($val === '' || $val === null) {
 		return '';
@@ -2309,7 +2311,7 @@ function entitize($val, int $flags = 0, string $charset = 'UTF-8', bool $convert
 		$flags &= ~ENT_EXEC;
 	}
 
-	list($flags, $charset) = get_entparms($flags, $charset, $convert_single_quotes);
+	[$flags, $charset] = get_entparms($flags, $charset, $convert_single_quotes);
 	return \htmlentities($val, $flags, $charset, false);
 }
 
@@ -2330,7 +2332,7 @@ function entitize($val, int $flags = 0, string $charset = 'UTF-8', bool $convert
  *  If empty, the system setting will be used.
  * @return the converted string
  */
-function de_entitize($val, int $flags = 0, string $charset = 'UTF-8') : string
+function de_entitize($val, int $flags = 0, string $charset = 'UTF-8'): string
 {
 	if ($val === '' || $val === null) {
 		return '';
@@ -2351,7 +2353,7 @@ function de_entitize($val, int $flags = 0, string $charset = 'UTF-8') : string
 			return $matches[0];
 		}
 	], $val);
-	list($flags, $charset) = get_entparms($flags, $charset, true);
+	[$flags, $charset] = get_entparms($flags, $charset, true);
 	return \html_entity_decode($val, $flags, $charset);
 }
 
@@ -2386,7 +2388,7 @@ function specialize($val, int $flags = 0, string $charset = 'UTF-8', bool $conve
 			$flags &= ~ENT_EXEC;
 		}
 
-		list($flags, $charset) = get_entparms($flags, $charset, $convert_single_quotes);
+		[$flags, $charset] = get_entparms($flags, $charset, $convert_single_quotes);
 		return \htmlspecialchars($val, $flags, $charset, false);
 	}
 
@@ -2452,7 +2454,7 @@ function de_specialize($val, int $flags = 0)
 
 		global $defenc;
 
-		list($flags,) = get_entparms($flags, $defenc, true);
+		[$flags, $charset] = get_entparms($flags, $defenc, true);
 		return \htmlspecialchars_decode($val, $flags);
 	}
 
@@ -2491,7 +2493,7 @@ function de_specialize_array(array &$arr, int $flags = 0)
  * @param string $url
  * @return string
  */
-function urlSpecialize(string $url) : string
+function urlSpecialize(string $url): string
 {
 	$url_ob = new Url(de_entitize($url));
 	$p = $url_ob->get_path();
@@ -2564,7 +2566,7 @@ function do_template_processing(bool $state = true)
  * @return bool
  * @since 3.0
  */
-function template_processing_allowed() : bool
+function template_processing_allowed(): bool
 {
 	//TODO reconcile: ($gCms->JOBTYPE < 2) = no template-processing, no $smarty
 	return (bool)Lone::fastget('app.showtemplate');
@@ -2587,7 +2589,7 @@ function get_cookie_manager() : AutoCookieOperations
  *
  * @return 32-byte english-alphanum string
  */
-function get_site_UUID() : string
+function get_site_UUID(): string
 {
 	return Lone::fastget('app.site_uuid');
 }
@@ -2599,7 +2601,7 @@ function get_site_UUID() : string
  *
  * @return int, maybe 0
  */
-function get_installed_schema_version() : int
+function get_installed_schema_version(): int
 {
 	$val = AppParams::get('cms_schema_version');
 	if( AppState::test(AppState::INSTALL) ) {
@@ -2621,7 +2623,7 @@ function get_installed_schema_version() : int
  *
  * @return bool
  */
-function is_frontend_request() : bool
+function is_frontend_request(): bool
 {
 	return AppState::test(AppState::FRONT_PAGE);
 }
@@ -2632,7 +2634,7 @@ function is_frontend_request() : bool
  *
  * @return bool
  */
-function schema_is_current() : bool
+function schema_is_current(): bool
 {
 	global $CMS_SCHEMA_VERSION; // what we're supposed to have
 	if (!isset($CMS_SCHEMA_VERSION)) {
@@ -2651,7 +2653,7 @@ function schema_is_current() : bool
  * @param mixed $content Some of the page's content string | empty | null
  * @return string maybe empty
  */
-function tailorpage(string $eventname, int $pageid, $content = '') : string
+function tailorpage(string $eventname, int $pageid, $content = ''): string
 {
 	static $pageobj = null; // this will be used many times in each request
 

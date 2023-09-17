@@ -1,7 +1,7 @@
 <?php
 /*
 ModuleManager module function: populate preferences tab
-Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -26,8 +26,7 @@ $s1 = addcslashes($this->Lang('confirm_reseturl'), "'\n\r");
 $s2 = addcslashes($this->Lang('confirm_settings'), "'\n\r");
 
 $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
   $('#reseturl').on('click', function(ev) {
     ev.preventDefault();
@@ -47,7 +46,6 @@ $(function() {
     return false;
   });
 });
-//]]>
 </script>
 
 EOS;

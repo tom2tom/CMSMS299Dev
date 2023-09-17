@@ -1,7 +1,7 @@
 <?php
 /*
 Mechanism for automatic in-memory and in-global-cache caching of 'slow' system-data.
-Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -103,8 +103,7 @@ class LoadedData
      * @private to prevent direct creation (even by Lone class)
      */
 //  public function __construct() {} //TODO public iff wanted by Lone ?
-    #[\ReturnTypeWillChange]
-    private function __clone() {}// : void {}
+    private function __clone(): void {}
 
     /**
      * @ignore
@@ -120,7 +119,7 @@ class LoadedData
      * @param array $args enumerated method argument(s)
      */
     #[\ReturnTypeWillChange]
-    public static function __callStatic(string $name, array $args)
+    public static function __callStatic(string $name, array $args)//: mixed
     {
         $obj = Lone::get('LoadedData');
         return $obj->$name(...$args);
@@ -171,7 +170,7 @@ class LoadedData
      * @param varargs $details since 3.0 Optional extra parameters UNUSED
      * @return bool
      */
-    public function has(string $type, ...$details) : bool
+    public function has(string $type, ...$details): bool
     {
         if( isset($this->types[$type]) ) {
             return true;
@@ -388,7 +387,7 @@ class LoadedData
      * @internal
      * @ignore
      */
-    public function save()
+    public function save(): void
     {
         if( AppState::test(AppState::INSTALL) ) { return; }
         $cache = $this->get_main_cache();
@@ -407,7 +406,7 @@ class LoadedData
      * @param array $details
      * @return string
      */
-    protected function get_subtype(array $details) : string
+    protected function get_subtype(array $details): string
     {
         switch( count($details) ) {
             case 1: // most-likely
@@ -426,7 +425,7 @@ class LoadedData
      * @param array $details
      * @return string 10 alphanum bytes
      */
-    protected function hash_subtype(array $details) : string
+    protected function hash_subtype(array $details): string
     {
         $value = hash('fnv1a64', json_encode($details,
             JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR
@@ -439,7 +438,7 @@ class LoadedData
      * @ignore
      * @return SystemCache object
      */
-    protected function get_main_cache() : SystemCache
+    protected function get_main_cache(): SystemCache
     {
         if( empty($this->maincache) ) {
             $this->maincache = Lone::get('SystemCache');

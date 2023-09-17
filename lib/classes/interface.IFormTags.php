@@ -1,7 +1,7 @@
 <?php
 /*
 Reflectable method-definitions for form-tag creation
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -683,7 +683,7 @@ interface IFormTags
 	* Returns a form element representing a link to a site page.
 	*
 	* @param int	$pageid	The page id of the page we want to direct to
-	* @param string $contents	The optional text or XHTML contents of the generated link
+	* @param string $contents	The optional text or html contents of the generated link
 	* @param array  $attrs since 3.0 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters, and/or anything else relevant to the created tag.
 	*
 	* @return string

@@ -1,4 +1,4 @@
-/*! CMSMS admin theme styling: Marigold 2018-2022 */
+/*! CMSMS admin theme styling: Marigold 2018-2023 */
 /*
 Pallette
 $white: #fff;
@@ -64,9 +64,9 @@ $color_curious_blue_15_approx: rgba(20,127,219,0.15);
 
 @font-face {
     font-family: mgtheme;
-    src: url(../font/mgtheme.woff2?99813075) format('woff2'),
-      url(../font/mgtheme.woff?99813075) format('woff'),
-      url(../font/mgtheme.ttf?99813075) format('truetype');
+    src: url(../font/mgtheme.woff2?29286174) format('woff2'),
+      url(../font/mgtheme.woff?29286174) format('woff'),
+      url(../font/mgtheme.ttf?29286174) format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -76,7 +76,7 @@ $color_curious_blue_15_approx: rgba(20,127,219,0.15);
 @media screen and (-webkit-min-device-pixel-ratio:0) {
     @font-face {
         font-family: mgtheme;
-        src: url('../font/mgtheme.svg?99813075#mgtheme') format('svg');
+        src: url('../font/mgtheme.svg?29286174#mgtheme') format('svg');
     }
 }
 */
@@ -131,6 +131,9 @@ $color_curious_blue_15_approx: rgba(20,127,219,0.15);
 .cfi-content::before { content: '\e809'; } /* '' */
 .cfi-delete-deep::before { content: '\e80a'; } /* '' */
 .cfi-close::before { content: '\e80b'; } /* '' */
+.cfi-stack::before { content: '\e80c'; } /* '' */
+.cfi-hardhat::before { content: '\e80d'; } /* '' */
+.cfi-userscog::before { content: '\e80e'; } /* '' */
 
 html, body {
     height: 100%;
@@ -1036,7 +1039,7 @@ aside .no-slide, .no-slide {
 
 .headericon img {
     max-height: 2em;
-    max-width: 2em;
+    width: 2em;
 }
 
 /* total header height 3.2em + 2.5em + 1px */
@@ -1192,7 +1195,7 @@ header .shortcuts li.notifications span.bubble {
 #mg_sidebar {
 /*    overflow: hidden;*/
     position: absolute;
-    top: calc(5rem + 6px); /* TODO func(header [r]em height) */
+    top: calc(5rem + 10px); /* TODO func(header [r]em height) */
     left: 0;
     width: 14em;
     height: calc(100vh - 5rem + 9px); /*TODO adjust for actual header height, h-scroller if any*/
@@ -1282,7 +1285,7 @@ header .shortcuts li.notifications span.bubble {
     position: absolute;
     display: block;
     height: 2.25em;
-    left: 2.5em;
+    left: 2.25em;
     right: 0.3em;
     top: 0.125em;
     z-index: 50;
@@ -1291,8 +1294,8 @@ header .shortcuts li.notifications span.bubble {
 #mg_pagemenu li li > span/*.open-nav*/,
 #mg_pagemenu li li a.no-nav {
     height: 1.5em;
-    left: 4.25em;
-    top: 0.4em;
+/*  left: 4.25em;*/
+    top: 0.25em;
 }
 /*
 #mg_pagemenu li > span/*.open-nav.open-sub* /,
@@ -1379,9 +1382,6 @@ header .shortcuts li.notifications span.bubble {
     padding: 0;
     background: #f0f0f0 url(../images/layout/sidebar-shadow.png) repeat-y right;
 }
-#mg_pagemenu ul ul {
-    padding-left: 1em
-}
 
 #mg_pagemenu li li {
     background: none;
@@ -1393,11 +1393,11 @@ header .shortcuts li.notifications span.bubble {
     border-bottom: 1px dotted #f0f0f0
 }
 #mg_pagemenu li li a {
-    height: auto;
-    line-height: 1.3;
+    height: 1.6em;
+    line-height: 1.5;
     white-space: pre-line;
     word-break: normal;
-    padding: 1px 0 1px 2.5em;
+    padding: 1px 0 1px 2.25em;
     color: #232323;
     font-weight: normal;
 }
@@ -1426,10 +1426,10 @@ header .shortcuts li.notifications span.bubble {
 }
 */
 #mg_pagemenu li li li a {
-    padding: 1px 0 1px 3.5em;
+    padding: 1px 0 1px 3em;
 }
 
-/* navigation topfiles icons */
+/* navigation topfiles icons * /
 
 #mg_pagemenu li a::before {
     margin-right: 0.2em;
@@ -1438,7 +1438,7 @@ header .shortcuts li.notifications span.bubble {
     font-weight: normal;
     font-size: 1.3em;
 }
-/* dashboard box icons */
+/* dashboard box icons * /
 nav h3::before {
     margin-right: 0.5em;
     font-family: FontAwesome;
@@ -1446,7 +1446,7 @@ nav h3::before {
     font-weight: normal;
     font-size: 1.5em;
 }
-/* non-fa overrides */
+/* non-fa overrides * /
 #mg_pagemenu li a.content::before,
 #mg_pagemenu li a.usersgroups::before,
 nav h3.content::before,
@@ -1459,13 +1459,13 @@ a.ecommerce::before, h3.ecommerce::before {content: '\f085'}
 a.extensions::before, h3.extensions::before {content: '\f12e'}
 a.files::before, h3.files::before {content: '\f0c5'}
 a.layout::before, h3.layout::before {content: '\f1a5'}
-/*a.logout::before, h3.logout::before {content:'\e800';font-family:mgtheme}/ *{content: '\f08b'}*/
+/*a.logout::before, h3.logout::before {content:'\e800';font-family:mgtheme}/ *{content: '\f08b'}* /
 a.main::before, h3.main::before {content: '\f015'}
 a.myprefs::before, h3.myprefs::before {content: '\f007'}
 a.services::before, h3.services::before {content: '\f085'}
 a.siteadmin::before, h3.siteadmin::before {content: '\f0ad'}
 a.usersgroups::before, h3.usersgroups::before {content: '\e801'}
-
+*/
 /* Page Content */
 
 #mg_mainarea {
@@ -1722,8 +1722,8 @@ a.usersgroups::before, h3.usersgroups::before {content: '\e801'}
 }
 
 .pageheader img {
-    max-height: 2em;
-    max-width: 1.5em
+    max-height: 1.5em;
+    width: 1.5em
 }
 
 div.pageoverflow {
@@ -1752,12 +1752,11 @@ a.pageoptions {
 }
 
 .systemicon {
-    border: none;
-    vertical-align: top
+    border: none
 }
 svg.systemicon {
     max-height: 1.2rem;
-    max-width: 1.2rem
+    width: 1.2rem
 }
 
 #copy_paste_in_forum {
@@ -2097,7 +2096,7 @@ th i.fa, td i.fa {
 /* File Manager module */
 
 #filesarea img {
-    max-width: 32px
+    max-width: 2em
 }
 
 /* Iframe */
@@ -2242,7 +2241,7 @@ a.pageback:hover {
 }
 
 .pageinput img {
-    line-height: 28px;
+    line-height: 2em;
     vertical-align: middle
 }
 
@@ -2378,14 +2377,10 @@ input.pagecheckbox {
     padding: 10px
 }
 .dashboard-box img {
-    max-height: 3em;
-    padding: 20px;
-    box-shadow: inset 0 1px 15px 1px #ddd;
-    -webkit-box-shadow: inset 0 1px 15px 1px #ddd;
-    margin-right: 10px;
+    max-height: 1.25em;
+    width: 1.25em;
+    margin-right: 0.3em;
     float: left;
-    border: 1px solid #ddd;
-    background: #fff
 }
 .dashboard-box:hover img {
     -webkit-box-shadow: inset 0 1px 15px 1px #ffd8b0;

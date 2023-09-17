@@ -1,7 +1,7 @@
 <?php
 /*
 A simple alert class.
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -97,7 +97,7 @@ class TranslatableAlert extends Alert
      * @throws InvalidArgumentException
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         switch( $key ) {
         case 'perms':
@@ -124,7 +124,7 @@ class TranslatableAlert extends Alert
      * @param mixed $val
      * @throws InvalidArgumentException
      */
-    public function __set(string $key,$val) : void
+    public function __set(string $key,$val): void
     {
         switch( $key ) {
         case 'icon':

@@ -7,7 +7,7 @@
 {tab_start name='templates'}
 <div id="template_area"></div>
 
-<div id="filterdialog" style="display:none;" title="{_ld($_module,'tpl_filter')|escape:'javascript'}">
+<div id="filterdialog" style="display:none" title="{_ld($_module,'tpl_filter')|escape:'javascript'}">
   {form_start action='defaultadmin' id='filterdialog_form' __activetab='templates'}
   <input type="hidden" id="submit_filter_tpl" name="{$actionid}submit_filter_tpl" value="1">
   <div class="colbox">
@@ -48,7 +48,7 @@
 
 {if $has_add_right}
  {if $list_types}
-  <div id="addtemplatedialog" style="display: none;" title="{_ld($_module,'create_template')}">
+  <div id="addtemplatedialog" style="display:none" title="{_ld($_module,'create_template')}">
     {form_start id="addtemplate_form"}
     <input type="hidden" name="{$actionid}submit_create" value="1">
     <div class="pageoverflow">
@@ -77,7 +77,7 @@
     <a href="{$url}">{_ld($_module,'create_group')}</a>
   </div>
 
-  {if isset($list_categories)}
+  {if !empty($list_categories)}
   <table class="pagetable" id="categorylist">
     <thead>
     <tr>
@@ -106,7 +106,7 @@
   {/if}
 
   {tab_start name='types'}
-  {if $list_all_types}
+  {if !empty($list_all_types)}
   <table class="pagetable">
     <thead>
     <tr>

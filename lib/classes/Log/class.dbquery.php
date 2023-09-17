@@ -1,7 +1,7 @@
 <?php
 /*
 Class dbquery for interfacing with the adminlog table
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -32,7 +32,7 @@ class dbquery extends DbQueryBase
 
     public function __construct(logfilter $filter)
     {
-        parent::__contruct(); // no argument for parent
+        parent::__construct(); // no argument for parent
         $this->_filter = $filter;
         $this->_offset = $filter->offset;
         $this->_limit = $filter->limit;

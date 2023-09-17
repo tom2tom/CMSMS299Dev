@@ -12,7 +12,7 @@ abstract class filehandler
     private $_languages = [];
     private $_output_fn = null;
 
-    public function set_destdir(string $destdir)
+    public function set_destdir(string $destdir): void
     {
         if (!is_dir($destdir)) {
             throw new Exception(lang('error_dirnotvalid', $destdir));
@@ -23,7 +23,7 @@ abstract class filehandler
         $this->_destdir = $destdir;
     }
 
-    public function get_destdir() : string
+    public function get_destdir(): string
     {
         if (!$this->_destdir) {
             throw new Exception(lang('error_nodestdir'));
@@ -31,28 +31,32 @@ abstract class filehandler
         return $this->_destdir;
     }
 
-    public function set_languages($lang)
+    public function set_languages(/*mixed */$lang): void
     {
-        if (!is_array($lang)) {
-            return;
+        if (is_array($lang)) {
+            $this->_languages = $lang;
+        } elseif ($lang) {
+            $this->_languages = [$lang];
+        } else {
+            $this->_languages = [];
         }
-        $this->_languages = $lang;
     }
 
-    public function get_languages() : array
+    public function get_languages(): array
     {
         return $this->_languages;
     }
 
-    public function set_output_fn($fn)
+    public function set_output_fn($fn): void
     {
-        if (!is_callable($fn)) {
-            throw new Exception(lang('error_internal', f102));
+        if (is_callable($fn)) {
+            $this->_output_fn = $fn;
+        } else {
+            throw new Exception(lang('error_internal', 'fh102'));
         }
-        $this->_output_fn = $fn;
     }
 
-    public function output_string($txt)
+    public function output_string(string $txt): void
     {
         if ($this->_output_fn) {
             call_user_func($this->_output_fn, $txt);
@@ -65,7 +69,7 @@ abstract class filehandler
      */
     abstract public function handle_file(string $filespec, string $srcspec);
 
-    protected function get_config()
+    protected function get_config(): array
     {
         return get_app()->get_config();
     }
@@ -75,10 +79,10 @@ abstract class filehandler
      * @return boolean
      * @throws Exception
      */
-    protected function is_excluded(string $filespec) : bool
+    protected function is_excluded(string $filespec): bool
     {
         $filespec = trim($filespec);
-//        if( !$filespec ) throw new Exception(lang('error_internal',f104));
+//        if (!$filespec) throw new Exception(lang('error_internal', 'fh104'));
         if ($this->_excludes === null) {
             $config = $this->get_config();
             if (empty($config['install_excludes'])) {
@@ -102,7 +106,7 @@ abstract class filehandler
      * @return boolean
      * @throws Exception
      */
-    protected function dir_exists(string $filespec) : bool
+    protected function dir_exists(string $filespec): bool
     {
         $filespec = trim($filespec);
         if (!$filespec) {
@@ -118,7 +122,7 @@ abstract class filehandler
      * @return boolean
      * @throws Exception
      */
-    protected function create_directory(string $filespec) : bool
+    protected function create_directory(string $filespec): bool
     {
         $filespec = trim($filespec);
         if (!$filespec) {
@@ -134,9 +138,10 @@ abstract class filehandler
      * @param string $filespec site-root-relative filepath, but with leading separator
      * @return boolean
      */
-    protected function is_imagefile(string $filespec) : bool
+    protected function is_imagefile(string $filespec): bool
     {
         // this method uses (ugly) extensions because we cannot rely on finfo_open being available.
+        // see also FileTypeHelper _image_extensions property which has more extensions
         $image_exts = ['bmp', 'jpg', 'jpeg', 'gif', 'png', 'svg', 'webp', 'ico'];
         $ext = strtolower(substr(strrchr($filespec, '.'), 1));
         return in_array($ext, $image_exts);
@@ -144,56 +149,101 @@ abstract class filehandler
 
     /**
      * @param string $filespec site-root-relative filepath, but with leading separator
-     * @return boolean
+     * @return string maybe empty
      * @throws Exception
      */
-    protected function is_langfile(string $filespec) : bool
+    protected function is_langfile(string $filespec): string
     {
         $filespec = trim($filespec);
         if (!$filespec) {
-            throw new Exception(lang('error_invalidparam', 'filespec'));
+            throw new Exception(lang('error_invalidparam','filespec'));
         }
-//        if( $this->is_imagefile($filespec) ) return false;
+        $pchk = substr_compare($filespec,'.php', -4, 4) === 0;
+        if (!($pchk || substr_compare($filespec, '.js', -3, 3) === 0)) {
+            return '';
+        }
         $bn = basename($filespec);
-        // support language-codes per ISO 639-1, 639-2, 639-3
-        // and country codes per ISO ISO 3166-1, 3166-2, 3166-3 (the latter 2 unlikely to be found here)
-        $fnmatch = preg_match('/^[a-z]{2,}_[0-9A-Z]{2,4}(\.nls)?\.php$/', $bn);
-        if ($fnmatch) {
-            return true;
-        }
-
-        $nls = get_app()->get_nls();
-        if (!is_array($nls)) {
-            return false; // problem
-        }
-
-        $bn = substr($bn, 0, strpos($bn, '.'));
-        foreach ($nls['alias'] as $alias => $code) {
-            if ($bn == $alias) {
-                return (bool)$code;
+        if ($pchk) {
+            //CMSMS-used locale identifiers have all been like ab_CD
+            //valid identifiers are not confined to that pattern
+            //e.g. {2,} is valid, but currently unused and in some tests catches too many files
+            //see https://www.unicode.org/reports/tr35
+            //To constrain the classes to language-codes per ISO 639-1, 639-2, 639-3
+            //and country codes per ISO ISO 3166-1, 3166-2, 3166-3
+            //(tho' the latter 2 are unlikely to be found here)
+            //regex pattern = '/^[a-z]{2,}_[0-9A-Z]{2,4}(\.nls)?\.php$/'
+            if (preg_match('/^[a-zA-Z]{2}_[a-zA-Z]{2}\.nls\.php$/',$bn)) {
+                return substr($bn, 0, -8);
+            }
+            if (preg_match('/^[a-zA-Z]{2}_[a-zA-Z]{2}\.php$/', $bn)) { // ditto
+                //(lazily) confirm it's a CMSMS translation
+                if (preg_match('~[\\/]lang[\\/]en_US.php$~',$filespec)) {
+                    return 'en_US';
+                }
+                if (preg_match('~[\\/]lib[\\/]lang[\\/]\w+[\\/]en_US.php$~',$filespec)) {
+                    return 'en_US';
+                }
+                if (preg_match('~[\\/]lang[\\/]ext[\\/]'.$bn.'$~',$filespec)) {
+                    return substr($bn, 0, -4);
+                }
+                if (preg_match('~[\\/]lib[\\/]lang[\\/]\w+[\\/]ext[\\/]'.$bn.'$~',$filespec)) {
+                    return substr($bn, 0, -4);
+                }
             }
         }
-        foreach ($nls['htmlarea'] as $code => $short) {
-            if ($bn == $short) {
-                return (bool)$code;
+
+        $nls = get_app()->get_nls(); // all possible translations
+        if (!is_array($nls)) { return ''; } // problem, treat file as non-lang
+
+        //PHPMailer translations are named like .../phpmailer.lang-pt.php
+        if (strncmp($bn, 'phpmailer.lang-', 15) != 0) {
+            $p = strpos($bn, '.');
+            if ($p > 0) {
+                $bn = substr($bn, 0, $p);
+                $xchk = true;
+            } else {
+                return '';
             }
         }
-
-        return false;
+        else {
+          $p = strpos($bn, '.', 15);
+          if ($p > 15) {
+              $bn = substr($bn, 15, $p-15);
+              $xchk = false;
+          } else {
+              return '';
+          }
+        }
+        // TODO [a-zA-Z]{2,} is valid, but catches most files
+        if( !preg_match('/^[a-zA-Z]{2}(_[a-zA-Z]{2})?$/', $bn)) {
+            return '';
+        }
+        foreach( $nls['alias'] as $alias => $code ) {
+            if( strcasecmp($bn, $alias) == 0 ) {
+                return $code;
+            }
+        }
+        foreach( $nls['htmlarea'] as $code => $short ) {
+            if( strcasecmp($bn, $short) == 0 ) {
+                return $code;
+            }
+        }
+        if( $xchk && stripos($filespec, 'lang') === FALSE ) {
+            return '';
+        }
+        return $bn; //maybe keep this one
     }
 
     /**
-     * @param string $filespec site-root-relative filepath, but with leading separator
+     * @param string $res value returned by is_langfile()
      * @return boolean
      * @throws Exception
      */
-    protected function is_accepted_lang($filespec) : bool
+    protected function is_accepted_lang(string $res): bool
     {
-        $res = $this->is_langfile($filespec);
         if (!$res) {
             return false;
         }
-
         $langs = $this->get_languages();
         if (!$langs || !is_array($langs)) {
             return true;

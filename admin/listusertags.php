@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to list all user-plugins (a.k.a. UDT's)
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -71,8 +71,7 @@ $smarty->assign([
 if ($access || $pmod) {
 //    $nonce = get_csp_token();
     $out = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 
 EOS;
     if ($access) {
@@ -113,7 +112,6 @@ function doDelete(tagname) {
 EOS;
     }
     $out .= <<<EOS
-//]]>
 </script>
 EOS;
 }

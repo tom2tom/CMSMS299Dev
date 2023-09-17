@@ -1,7 +1,7 @@
 <?php
 /*
-Plugin to retrieve xhtml representing an uploaded image
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Plugin to retrieve html representing an uploaded image
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -94,7 +94,7 @@ function smarty_cms_about_function_image()
 D function smarty_cms_help_function_image()
 {
 	TODO parameter details
-	echo _ld('tags', 'help_generic', 'This plugin retrieves xhtml representing an uploaded image', 'image ...',
+	echo _ld('tags', 'help_generic', 'This plugin retrieves html representing an uploaded image', 'image ...',
 <li>addtext: </li>
 <li>alt: </li>
 <li>class: </li>

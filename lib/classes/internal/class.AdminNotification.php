@@ -1,7 +1,7 @@
 <?php
 /*
 Class for admin notifications
-Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -58,7 +58,7 @@ class AdminNotification
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)
+    public function __get(string $key)//: mixed
     {
         switch( $key ) {
         case 'module':
@@ -73,7 +73,7 @@ class AdminNotification
     /**
      * @ignore
      */
-    public function __set(string $key,$value) : void
+    public function __set(string $key,$value): void
     {
         switch( $key ) {
         case 'module':

@@ -1,7 +1,7 @@
 <?php
 /*
 Class of methods to populate and retrieve request parameters
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -55,7 +55,7 @@ class RequestParameters
      *  [0] = separator string
      *  [1] = encoding-enum: 0 none 1 entitize 2 urlencode
      */
-    protected static function modes(int $format) : array
+    protected static function modes(int $format): array
     {
         switch ($format) {
             case 0:
@@ -76,7 +76,7 @@ class RequestParameters
      * @param string $patn Optional regex for selecting chars in $str to be rawurlencoded
      * @return string
      */
-    protected static function clean1(string $str, string $patn = self::ENC_PATTERN) : string
+    protected static function clean1(string $str, string $patn = self::ENC_PATTERN): string
     {
         if (!$patn) { $patn = self::ENC_PATTERN; }
         return preg_replace_callback_array([
@@ -111,7 +111,7 @@ class RequestParameters
      *  See RequestParameters::create_action_params()
      * @return string
      */
-    protected static function create_jobtype(int $type, bool $first = false, int $format = 2) : string
+    protected static function create_jobtype(int $type, bool $first = false, int $format = 2): string
     {
         [$sep, $enc] = self::modes($format);
         $text = ($first) ? '' : $sep;
@@ -135,7 +135,7 @@ class RequestParameters
      *  See RequestParameters::create_action_params()
      * @return string
      */
-    public static function create_job_params(array $parms, bool $onetime = false, int $format = 2) : string
+    public static function create_job_params(array $parms, bool $onetime = false, int $format = 2): string
     {
         if (isset($parms['action'])) {
             $str = $parms['action'];
@@ -191,7 +191,7 @@ class RequestParameters
      * @see create_action_params()
      * @return string (No leading $sep for arrays)
      */
-    public static function build_query(string $key, $val, int $format = 0) : string
+    public static function build_query(string $key, $val, int $format = 0): string
     {
         [$sep, $enc] = self::modes($format);
         switch ($enc) {
@@ -275,7 +275,7 @@ class RequestParameters
      *   BUT the output must be entitized upstream, it's not done here
      * @return string
      */
-    public static function create_action_params(array $parms, int $format = 0) : string
+    public static function create_action_params(array $parms, int $format = 0): string
     {
         [$sep, $enc] = self::modes($format); // TODO just entitizing for format 0
 /*        if (isset($parms[CMS_JOB_KEY])) {
@@ -392,7 +392,7 @@ class RequestParameters
      *
      * @return array
      */
-    protected static function get_request_params() : array
+    protected static function get_request_params(): array
     {
         if (!empty($_REQUEST)) {
             return $_REQUEST;
@@ -412,7 +412,7 @@ class RequestParameters
 	 *  or comma-separated series of, wanted parameter key(s)
 	 * @return array, maybe empty
 	 */
-	public static function get_identified_params(string $id, bool $clean = false, $names = '') : array
+	public static function get_identified_params(string $id, bool $clean = false, $names = ''): array
 	{
 		$params = [];
 
@@ -527,7 +527,7 @@ class RequestParameters
      *  key begins with this
      * @return array
      */
-    public static function get_general_params($pref = '') : array
+    public static function get_general_params($pref = ''): array
     {
         $source = self::get_request_params();
         $l = strlen(''.$pref);

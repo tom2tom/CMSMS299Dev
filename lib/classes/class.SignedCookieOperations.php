@@ -1,7 +1,7 @@
 <?php
 /*
 Secure cookie operations class
-Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -80,11 +80,11 @@ final class SignedCookieOperations implements ICookieManager
      * @param string $okey The cookie name
      * @return string
      */
-    public function get(string $okey) : string
+    public function get(string $okey): string
     {
         $key = $this->get_key($okey);
         if (!empty($_COOKIE[$key])) {
-            list($sig, $val) = explode(':::', $_COOKIE[$key], 2);
+            [$sig, $val] = explode(':::', $_COOKIE[$key], 2);
             if (hash('sha3-224', $val.$this->_uuid.$okey) == $sig) { // no compare-timing risk
                 return $val;
             }
@@ -105,7 +105,7 @@ final class SignedCookieOperations implements ICookieManager
      *  hence None | Lax.
      * @return bool indicating success
      */
-    public function set(string $okey, $value, int $expires = 0, string $samesite = '') : bool
+    public function set(string $okey, $value, int $expires = 0, string $samesite = ''): bool
     {
         $val = is_scalar($value) ? ''.$value : json_encode($value,
             JSON_NUMERIC_CHECK |
@@ -123,7 +123,7 @@ final class SignedCookieOperations implements ICookieManager
      *
      * @param string $key The input cookie name.
      */
-    public function exists(string $key) : bool
+    public function exists(string $key): bool
     {
         $key = $this->get_key($key);
         return isset($_COOKIE[$key]);
@@ -149,7 +149,7 @@ final class SignedCookieOperations implements ICookieManager
      * @param string $key The cookie name
      * @return string
      */
-    private function get_key(string $key) : string
+    private function get_key(string $key): string
     {
         //any algo >= 36 bytes will do, this one is fastest
         $s = hash('sha1', CMS_VERSION.$this->_uuid.$key);
@@ -165,7 +165,7 @@ final class SignedCookieOperations implements ICookieManager
      *
      * @return string
      */
-    private function cookie_path() : string
+    private function cookie_path(): string
     {
         return $this->_parts['path'];
     }
@@ -176,7 +176,7 @@ final class SignedCookieOperations implements ICookieManager
      *
      * @return string
      */
-    private function cookie_domain() : string
+    private function cookie_domain(): string
     {
         return $this->_parts['host'];
     }
@@ -187,7 +187,7 @@ final class SignedCookieOperations implements ICookieManager
      *
      * @return bool
      */
-    private function cookie_secure() : bool
+    private function cookie_secure(): bool
     {
         return $this->_secure;
     }
@@ -205,7 +205,7 @@ final class SignedCookieOperations implements ICookieManager
      *  Strict | Lax | None Default '', hence Lax | None (if secure).
      * @return bool indicating success
      */
-    private function set_cookie(string $key, string $value, int $expires, string $samesite = '') : bool
+    private function set_cookie(string $key, string $value, int $expires, string $samesite = ''): bool
     {
         if (!$samesite) {
             $samesite = ($this->_secure) ? 'None' : 'Lax';

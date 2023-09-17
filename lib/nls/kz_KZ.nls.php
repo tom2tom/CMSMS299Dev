@@ -1,6 +1,6 @@
 <?php
 #Kazakh translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -30,8 +30,8 @@ $nls['englishlang']['kz_KZ'] = 'Kazakh';
 
 #Possible aliases for language
 $nls['alias']['kz'] = 'kz_KZ';
-$nls['alias']['kazak'] = 'kz_KZ' ;
-$nls['alias']['kazakh'] = 'kz_KZ' ;
+$nls['alias']['kazak'] = 'kz_KZ';
+$nls['alias']['kazakh'] = 'kz_KZ';
 
 #Possible locale for language
 $nls['locale']['kz_KZ'] = 'kk_KZ.utf-8,kk_KZ.UTF-8,kk_KZ,kk_KZ.PT154,kazakh';
@@ -40,9 +40,7 @@ $nls['locale']['kz_KZ'] = 'kk_KZ.utf-8,kk_KZ.UTF-8,kk_KZ,kk_KZ.PT154,kazakh';
 $nls['encoding']['kz_KZ'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['kz_KZ'] = array(__DIR__.'/kz_KZ/admin.inc.php');
+$nls['file']['kz_KZ'] = [__DIR__.'/kz_KZ/admin.inc.php'];
 
 #Language setting for HTML area
 $nls['htmlarea']['kz_KZ'] = 'en';
-
-?>

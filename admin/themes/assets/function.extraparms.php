@@ -9,8 +9,10 @@ $tplvars['admin_url'] = $config['admin_url'];
 
 $tplvars['encoding'] = NlsOperations::get_encoding();
 $lang = NlsOperations::get_current_language();
-if (($p = strpos($lang,'_')) !== false) {
-    $lang = substr($lang,0,$p);
+if ($lang) {
+    $lang = NlsOperations::get_lang_attribute($lang);
+} else {
+    $lang = '';
 }
 $tplvars['lang_code'] = $lang;
 $tplvars['lang_dir'] = NlsOperations::get_language_direction();

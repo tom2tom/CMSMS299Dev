@@ -1,6 +1,6 @@
 <?php
 #Icelandic translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 #The basic idea and values was taken from then Horde Framework (http://horde.org)
 #The original filename was horde/config/nls.php.
 #The modifications to fit it for Gallery were made by Jens Tkotz
-#(http://gallery.meanalto.com) 
+#(http://gallery.meanalto.com)
 
 #Ideas from Gallery's implementation made to CMS by Ted Kulp
 
@@ -34,12 +34,12 @@ $nls['englishlang']['is_IS'] = 'Icelandic';
 
 #Possible aliases for language
 $nls['alias']['is'] = 'is_IS';
-$nls['alias']['icelandic'] = 'is_IS' ;
-$nls['alias']['ice'] = 'is_IS' ;
-$nls['alias']['isl'] = 'is_IS' ;
-$nls['alias']['is_IS'] = 'is_IS' ;
-$nls['alias']['is_IS.ISO8859-1'] = 'is_IS' ;
-$nls['alias']['is_IS.ISO8859-15'] = 'is_IS' ;
+$nls['alias']['icelandic'] = 'is_IS';
+$nls['alias']['ice'] = 'is_IS';
+$nls['alias']['isl'] = 'is_IS';
+$nls['alias']['is_IS'] = 'is_IS';
+$nls['alias']['is_IS.ISO8859-1'] = 'is_IS';
+$nls['alias']['is_IS.ISO8859-15'] = 'is_IS';
 
 #Possible locale for language
 $nls['locale']['is_IS'] = 'is_IS.utf8,is_IS.utf-8,is_IS.UTF-8,is_IS,icelandic,Icelandic_Iceland.1252';
@@ -48,12 +48,10 @@ $nls['locale']['is_IS'] = 'is_IS.utf8,is_IS.utf-8,is_IS.UTF-8,is_IS,icelandic,Ic
 $nls['encoding']['is_IS'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['is_IS'] = array(__DIR__.'/is_IS/admin.inc.php');
+$nls['file']['is_IS'] = [__DIR__.'/is_IS/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['is_IS'] = 'en';
-
-?>

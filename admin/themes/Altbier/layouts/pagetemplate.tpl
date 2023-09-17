@@ -1,5 +1,5 @@
-﻿<!DOCTYPE html>
-<html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
+<!DOCTYPE html>
+<htmll{if $lang_code} lang="{$lang_code|truncate:5:''}"{/if} dir="{$lang_dir|default:'ltr'}">
  <head>
  {$thetitle=$pagetitle}
  {if $thetitle && $subtitle}{$thetitle="{$thetitle} - {$subtitle}"}{/if}
@@ -26,30 +26,30 @@
   <link rel="stylesheet" href="themes/Altbier/styles/bootstrap_reboot-grid.min.css">
   {$header_includes|default:''}
  </head>
- <body id="{md5($pagetitle)}" class="ab_{$pagealias}">
+ <body id="{$pagetitle|adjust:'md5'}"{if $pagealias} class="ab_{$pagealias}"{/if}>
   <div id="ab_container" class="col sidebar-on">
     <header id="header" class="row no-gutter between align-center" role="banner">
 {*   <div class="cell col-12">
       <div class="row align-center header-top">*}
-       <div class="cell col-auto admin-title">{$t='home'|lang}
+       <div class="cell col-auto admin-title">{$t=lang('home')}
         {if empty($sitelogo)}
          {sitename}
-         <span id="site-text">-&nbsp;<a href="menu.php?{$secureparam}" title="{$t}">{'adminpaneltitle'|lang}</a></span>
+         <span id="site-text">-&nbsp;<a href="menu.php?{$secureparam}" title="{$t}">{lang('adminpaneltitle')}</a></span>
         {else}
          <a href="menu.php?{$secureparam}" title="{$t}">
           <img src="{$sitelogo}" alt="{$t}">
          </a>
-         <span id="site-text">{'adminpaneltitle'|lang}</span>
+         <span id="site-text">{lang('adminpaneltitle')}</span>
         {/if}
        </div>
-       <a id="headerlogo" href="https://www.cmsmadesimple.org" rel="external" title="{'cms_home'|lang}"></a>
+       <a id="headerlogo" href="https://www.cmsmadesimple.org" rel="external" title="{lang('cms_home')}"></a>
 {*      </div>
        <div class="row between align-center header-bottom">
        <div class="col-auto welcome">
         {if isset($myaccount)}{* TODO show this message only when user != effective user * }
-        <span><a class="welcome-user" href="useraccount.php?{$secureparam}" title="{'myaccount'|lang}">{*<i aria-title="username and account" class="fas fa-user-edit"></i>* }</a> {'welcome_user'|lang}: <a href="useraccount.php?{$secureparam}">{$username}</a></span>
+        <span><a class="welcome-user" href="useraccount.php?{$secureparam}" title="{lang('myaccount')}">{*<i aria-title="username and account" class="fas fa-user-edit"></i>* }</a> {lang('welcome_user')}: <a href="useraccount.php?{$secureparam}">{$username}</a></span>
         {else}
-        <span class="welcome-user"><i class="fas fa-user" aria-hidden="true"></i> {'welcome_user'|lang}: {$username}</span>
+        <span class="welcome-user"><i class="fas fa-user" aria-hidden="true"></i> {lang('welcome_user')}: {$username}</span>
         {/if}
        </div>
 *}
@@ -63,7 +63,7 @@
     <div id="ab_admin-content" class="row nowrap">
      <div id="ab_sidebar" class="col flex-grow-2 p-0">{* TODO flex-grow etc ??*}
       <aside>
-       <span id="toggle-button" class="close" title="{'open'|lang}/{'close'|lang}" role="button" tabindex="0" aria-title="{'open'|lang}/{'close'|lang}"></span>
+       <span id="toggle-button" class="close" title="{lang('open')}/{lang('close')}" role="button" tabindex="0" aria-title="{lang('open')}/{lang('close')}"></span>
        {include file='navigation.tpl' nav=$theme->get_navigation_tree()}
       </aside>
      </div>
@@ -77,7 +77,7 @@
          {if !empty($pageicon)}<span class="headericon">{$pageicon}</span> {/if}{$pagetitle|default:''}
         </h1>
         {/if}
-        {if isset($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{'module_help'|lang}</a></span>{/if}
+        {if isset($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{lang('module_help')}</a></span>{/if}
 {*       </header> *}
        {if $pagetitle && $subtitle}<header class="subheader"><h3 class="subtitle">{$subtitle}</h3></header>{/if}
        <section class="cf">

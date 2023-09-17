@@ -1,7 +1,7 @@
 <?php
 /*
 Class for lock functionality plus related exceptions
-Copyright (C) 2014-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -106,7 +106,7 @@ final class Lock implements ArrayAccess
      * @throws LogicException
      */
     #[\ReturnTypeWillChange]
-    public function offsetGet($key)// : mixed
+    public function offsetGet(/*mixed */$key)//: mixed
     {
         switch ($key) {
         case 'type':
@@ -134,7 +134,7 @@ final class Lock implements ArrayAccess
      * @param mixed $value
      * @throws LogicException
      */
-    public function offsetSet($key, $value) : void
+    public function offsetSet(/*mixed */$key, $value): void
     {
         switch ($key) {
         case 'modified_date': // deprecated since 3.0
@@ -174,7 +174,7 @@ final class Lock implements ArrayAccess
      * @param string $key
      * @return mixed
      */
-    public function offsetExists($key) : bool
+    public function offsetExists(/*mixed */$key): bool
     {
         if ($key != 'created') {
             return isset($this->_data[$key]);
@@ -186,7 +186,7 @@ final class Lock implements ArrayAccess
      * @ignore
      * @param string $key
      */
-    public function offsetUnset($key) : void
+    public function offsetUnset(/*mixed */$key): void
     {
         // do nothing
     }

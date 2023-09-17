@@ -1,7 +1,7 @@
 <?php
 /*
 Class for CMS Made Simple ErrorPage content type
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -72,11 +72,11 @@ class ErrorPage extends Content
 		$this->doAutoAliasIfEnabled = false; //CHECKME
 	}
 
-	public function HasUsableLink() : bool { return false; }
-	public function IsDefaultPossible() : bool { return false; }
-	public function IsSystemPage() : bool { return true; }
-	public function IsViewable() : bool { return true; }
-	public function WantsChildren() : bool { return false; }
+	public function HasUsableLink(): bool { return false; }
+	public function IsDefaultPossible(): bool { return false; }
+	public function IsSystemPage(): bool { return true; }
+	public function IsViewable(): bool { return true; }
+	public function WantsChildren(): bool { return false; }
 }
 
 //backward-compatibility shiv

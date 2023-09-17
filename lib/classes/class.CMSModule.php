@@ -1,7 +1,7 @@
 <?php
 /*
 Base class for all CMSMS modules
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -194,7 +194,7 @@ abstract class CMSModule
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)
+    public function __get(string $key)//: mixed
     {
         switch( $key ) {
         case 'cms':
@@ -213,7 +213,7 @@ abstract class CMSModule
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __call(string $name, array $args)// : mixed
+    public function __call(string $name, array $args)//: mixed
     {
         if (strncmp($name, 'Create', 6) == 0) {
             //maybe it's a now-removed form-element call
@@ -431,7 +431,7 @@ abstract class CMSModule
      * @deprecated since 3.0 (Make it always be cachable, with override in page|template)
      * @return bool
      */
-    final public function RegisterModulePlugin(bool $static = false, bool $cachable = false) : bool
+    final public function RegisterModulePlugin(bool $static = false, bool $cachable = false): bool
     {
         $name = $this->GetName();
         if( $this->modinstall ) {
@@ -455,7 +455,7 @@ abstract class CMSModule
      *
      * @return bool
      */
-    final public function can_cache_output() : bool
+    final public function can_cache_output(): bool
     {
         if( AppState::test_any(AppState::ADMIN_PAGE | AppState::ASYNC_JOB | AppState::INSTALL | AppState::STYLESHEET) ) {
             return false;
@@ -500,7 +500,7 @@ abstract class CMSModule
      * @final
      * @return string The help page HTML text.
      */
-    final public function GetHelpPage() : string
+    final public function GetHelpPage(): string
     {
         $this->_loadMiscMethods();
         return call_user_func('CMSMS\module_support\\'.__FUNCTION__, $this);
@@ -524,7 +524,7 @@ abstract class CMSModule
      * @final
      * @return string The full path to the module directory.
      */
-    final public function GetModulePath() : string
+    final public function GetModulePath(): string
     {
         return Lone::get('ModuleOperations')->get_module_path($this->GetName());
     }
@@ -536,7 +536,7 @@ abstract class CMSModule
      * @param bool $use_ssl Optional generate an URL using HTTPS path Unused since 3.0
      * @return string The full path to the module directory.
      */
-    final public function GetModuleURLPath(bool $use_ssl = false) : string
+    final public function GetModuleURLPath(bool $use_ssl = false): string
     {
         return cms_path_to_url($this->GetModulePath());
     }
@@ -584,11 +584,11 @@ abstract class CMSModule
     }
 
     /**
-     * Returns XHTML that needs to go between the <head> tags when this module is called from an admin side action.
+     * Returns html that needs to go between the <head> tags when this module is called from an admin side action.
      *
      * This method is called by the admin theme when executing an action for a specific module.
      *
-     * @return string XHTML text
+     * @return string
      */
     public function GetHeaderHTML()
     {
@@ -676,7 +676,7 @@ abstract class CMSModule
      * @internal
      * @return array
      */
-    final public function GetParameters() : array
+    final public function GetParameters(): array
     {
         if( !$this->params ) $this->InitializeAdmin(); // quick hack to load parameters if they are not already loaded.
         return $this->params;
@@ -702,7 +702,7 @@ abstract class CMSModule
      *  treated as strings and cleaned. Default true.
      * @return array
      */
-    private function _cleanParamHash(string $modulename, string $id, array $data, array $map, bool $allow_unknown = false, bool $clean_keys = true) : array
+    private function _cleanParamHash(string $modulename, string $id, array $data, array $map, bool $allow_unknown = false, bool $clean_keys = true): array
     {
         $mappedcount = 0;
         $result = [];
@@ -720,18 +720,20 @@ abstract class CMSModule
         ], $map);
         // deprecated FILTER_SANITIZE_STRING-replacement with some extras e.g. verbatim \t \r \n < >
         // OR use sanitizeVal() after de_specialize()
-        $clean_str = function(string $value) : string
+        $clean_str = function(string $value): string
         {
             $ss = preg_replace([
              '/[\x00-\x08\x0b\x0c\x0e-\x1f]/',
-             '/<\?php/i',
-             '/<\?=/',
-             '/<\?(\s|\n)/',
+             '/<[^>]*>/', // all closed tags
+             '/<\s*\?\s*php.*$/i', // unclosed php tag
+             '/<\s*\?\s*=.*$/', // ditto
+             '/<\s*\?(\s|\n)/',
              '/<+\s*script.*script\s*>/is',
              '/<+\s*script[^<>]*>?/is',
              '/<+\s*script[^<>]*</is',
              '/jav.+?script\s*:\s*(.+?)(\n|;|$)/i'
             ],[
+             '',
              '',
              '',
              '',
@@ -1084,10 +1086,10 @@ abstract class CMSModule
      * @param bool   $adding    Flag indicating whether the content-editor is in create mode (adding). Otherwise edit mode.
      * @param mixed $content_obj The (possibly-unsaved) content object being edited.
      *  A core ContentBase object, or equivalent module-specific object.
-     * @return mixed Array with two elements (prompt and xhtml element) or
-     *  string containing only the xhtml input element.
+     * @return mixed Array with two elements (prompt and html element) or
+     *  string containing only the html input element.
      */
-    public function GetContentBlockFieldInput(/*string */$blockName, /*mixed */$value, /*array */$params, /*bool*/$adding, /*object*/$content_obj)// : mixed
+    public function GetContentBlockFieldInput(/*string */$blockName, /*mixed */$value, /*array */$params, /*bool*/$adding, /*object*/$content_obj)//: mixed
     {
         return '';
     }
@@ -1113,7 +1115,7 @@ abstract class CMSModule
      * @return mixed The content block value to be used | (since 3.0) null (formerly false)
      *  A falsy return value will be ignored.
      */
-    public function GetContentBlockFieldValue(/*string */$blockName, /*array */$blockParams, /*array */$inputParams, /*object */$content_obj)// : mixed
+    public function GetContentBlockFieldValue(/*string */$blockName, /*array */$blockParams, /*array */$inputParams, /*object */$content_obj)//: mixed
     {
         return null;
     }
@@ -1135,7 +1137,7 @@ abstract class CMSModule
      *  A core ContentBase object, or equivalent module-specific object.
      * @return string An error message if the value is invalid, empty otherwise.
      */
-    public function ValidateContentBlockFieldValue(/*string */$blockName, /*mixed */$value, /*array */$blockparams, /*object */$content_obj)// : string
+    public function ValidateContentBlockFieldValue(/*string */$blockName, /*mixed */$value, /*array */$blockparams, /*object */$content_obj)//: string
     {
         return '';
     }
@@ -1153,7 +1155,7 @@ abstract class CMSModule
      *  A core ContentBase object, or equivalent module-specific object.
      * @return string
      */
-    public function RenderContentBlockField(/*string */$blockName, /*string */$value, /*array */$blockparams, /*object */$content_obj)// : string
+    public function RenderContentBlockField(/*string */$blockName, /*string */$value, /*array */$blockparams, /*object */$content_obj)//: string
     {
         return $value;
     }
@@ -1165,7 +1167,7 @@ abstract class CMSModule
      * @param string $label A label for the action
      * @param string $action A module action name.
      */
-    final public function RegisterBulkContentFunction(string $label, string $action) : void
+    final public function RegisterBulkContentFunction(string $label, string $action): void
     {
         try {
             BulkOperations::register_function($label,$action,$this->GetName());
@@ -1262,7 +1264,7 @@ abstract class CMSModule
      * Display a message after a successful installation of the module.
      *
      * @abstract
-     * @return XHTML Text
+     * @return string html text
      */
     public function InstallPostMessage()
     {
@@ -1318,11 +1320,11 @@ abstract class CMSModule
     }
 
     /**
-     * Display a message and a Yes/No dialog before doing an uninstall.  Returning noting
-     * (false) will go right to the uninstall.
+     * Display a message and a Yes/No dialog before doing an uninstall.
+     * Returning nothing (false) will go right to the uninstall.
      *
      * @abstract
-     * @return XHTML Text, or false.
+     * @return mixed html text | false
      */
     public function UninstallPreMessage()
     {
@@ -1333,7 +1335,7 @@ abstract class CMSModule
      * Display a message after a successful uninstall of the module.
      *
      * @abstract
-     * @return XHTML Text, or false
+     * @return mixed html text | false
      */
     public function UninstallPostMessage()
     {
@@ -1395,7 +1397,7 @@ abstract class CMSModule
      * @final
      * @return bool
      */
-    final public function CheckForDependents() : bool
+    final public function CheckForDependents(): bool
     {
         $db = Lone::get('Db');
 
@@ -1405,12 +1407,12 @@ abstract class CMSModule
     }
 
     /**
-     * Creates an xml data package from the module directory.
+     * Creates an xml data package representing the current module.
      *
      * @final
-     * @return string XML Text
      * @param string $message reference to returned message.
      * @param int $filecount reference to returned file count.
+     * @return string XML text
      */
     final public function CreateXMLPackage(&$message, &$filecount)
     {
@@ -1418,7 +1420,7 @@ abstract class CMSModule
     }
 
     /**
-     * Return true if there is an admin for the module.  Returns false by
+     * Returns true if there is an admin for the module.  Returns false by
      * default.
      *
      * @abstract
@@ -1559,7 +1561,7 @@ abstract class CMSModule
      * @param CMSMS\CLI\App $app (this class may not exist) TODO better namespace
      * @return mixed array of CMSMS\CLI\GetOptExt\Command objects, or one such object, or NULL if not handled.
      * /
-    public function get_cli_commands($app)// : mixed
+    public function get_cli_commands($app)//: mixed
     {
         $config = Lone::get('Config');
         //TODO a better approach for this stuff
@@ -1651,7 +1653,7 @@ abstract class CMSModule
      * @return mixed callable | null
      */
 /* action-spoofing : NOT YET, IF EVER
-    protected function get_controller(string $name, $id, array $params, $returnid = '')// : mixed
+    protected function get_controller(string $name, $id, array $params, $returnid = '')//: mixed
     {
         if( isset( $params['controller']) ) {
             $ctrl = $params['controller'];
@@ -1705,7 +1707,7 @@ abstract class CMSModule
      * @param array  $params The parameters specified for the action
      * @param mixed  $returnid Optional id of the page being displayed,
      *  numeric(int) for frontend, '' for admin. Default ''.
-     * @return string output XHTML
+     * @return string output html
      * @throws Error404Exception if action not named or not found
      */
 // or from 'controller' if relevant IGNORED
@@ -1782,7 +1784,7 @@ abstract class CMSModule
      * @return mixed '' if output is assigned to a smarty variable
      */
 //output from action 'controller' if relevant, or null, or N/A
-    public function DoActionBase($action, $id, $params, $returnid, $smartob)// : mixed
+    public function DoActionBase($action, $id, $params, $returnid, $smartob)//: mixed
     {
         $action = preg_replace('/[^\w\-+]/', '', $action); //simple sanitize
         $id = preg_replace('/\W/', '', $id); //ignore non-word chars
@@ -1869,13 +1871,13 @@ abstract class CMSModule
 
     /**
      * ------------------------------------------------------------------
-     * Form and XHTML Related Methods - relegated to __call()
+     * Form and HTML Related Methods - relegated to __call()
      * ------------------------------------------------------------------
      */
 
     /**
      * function CreateFrontendFormStart
-     * Returns xhtml representing the start of a module form, optimized for frontend use
+     * Returns html representing the start of a module form, optimized for frontend use
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_form_start() with $inline = true
      *
      * @param mixed $id string|null GET|POST-submitted-parameters name-prefix
@@ -1894,7 +1896,7 @@ abstract class CMSModule
 
     /**
      * function CreateFormStart
-     * Returns xhtml representing the start of a module form
+     * Returns html representing the start of a module form
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_form_start()
      *
      * @param mixed $id string|null GET|POST-submitted-parameters name-prefix
@@ -1913,7 +1915,7 @@ abstract class CMSModule
 
     /**
      * function CreateFormEnd
-     * Returns xhtml representing the end of a module form.  This is basically just a wrapper around </form>, but
+     * Returns html representing the end of a module form.  This is basically just a wrapper around </form>, but
      * could be extended later on down the road.  It's here mainly for consistency.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_form_end()
      *
@@ -1922,7 +1924,7 @@ abstract class CMSModule
 
     /**
      * function CreateInputText
-     * Returns xhtml representing an input textbox.  This is basically a wrapper
+     * Returns html representing an input textbox.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_input()
      *
@@ -1939,7 +1941,7 @@ abstract class CMSModule
 
     /**
      * function CreateLabelForInput
-     * Returns xhtml representing a label for an input field. This is basically a wrapper
+     * Returns html representing a label for an input field. This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_label()
      *
@@ -1954,7 +1956,7 @@ abstract class CMSModule
 
     /**
      * function CreateInputFile
-     * Returns xhtml representing a file-selector field.  This is basically a wrapper
+     * Returns html representing a file-selector field.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_input()
      *
@@ -1970,7 +1972,7 @@ abstract class CMSModule
 
     /**
      * function CreateInputPassword
-     * Returns xhtml representing an input password-box.  This is basically a wrapper
+     * Returns html representing an input password-box.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_input()
      *
@@ -1987,7 +1989,7 @@ abstract class CMSModule
 
     /**
      * function CreateInputHidden
-     * Returns xhtml representing a hidden field.  This is basically a wrapper
+     * Returns html representing a hidden field.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_input()
      *
@@ -2002,7 +2004,7 @@ abstract class CMSModule
 
     /**
      * function CreateInputCheckbox
-     * Returns xhtml representing a checkbox.  This is basically a wrapper
+     * Returns html representing a checkbox.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_select()
      *
@@ -2018,7 +2020,7 @@ abstract class CMSModule
 
     /**
      * function CreateInputSubmit
-     * Returns xhtml representing a submit button.  This is basically a wrapper
+     * Returns html representing a submit button.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_input()
      *
@@ -2035,7 +2037,7 @@ abstract class CMSModule
 
     /**
      * function CreateInputReset
-     * Returns xhtml representing a reset button.  This is basically a wrapper
+     * Returns html representing a reset button.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_input()
      *
@@ -2050,7 +2052,7 @@ abstract class CMSModule
 
     /**
      * function CreateInputDropdown
-     * Returns xhtml representing a dropdown list.  This is basically a wrapper
+     * Returns html representing a dropdown list.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it is syntax-compliant.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_select()
      *
@@ -2067,7 +2069,7 @@ abstract class CMSModule
 
     /**
      * function CreateInputSelectList
-     * Returns xhtml representing a multi-select list.  This is basically a wrapper
+     * Returns html representing a multi-select list.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it is syntax-compliant.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_select()
      *
@@ -2085,7 +2087,7 @@ abstract class CMSModule
 
     /**
      * function CreateInputRadioGroup
-     * Returns xhtml representing a set of radio buttons.  This is basically a wrapper
+     * Returns html representing a set of radio buttons.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it is syntax-compliant.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_select()
      *
@@ -2102,7 +2104,7 @@ abstract class CMSModule
 
     /**
      * function CreateTextArea
-     * Returns xhtml representing a textarea.  Also takes WYSIWYG preference into consideration if it's called from the admin side.
+     * Returns html representing a textarea.  Also takes WYSIWYG preference into consideration if it's called from the admin side.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_input()
      *
      * @param bool   $enablewysiwyg Should we try to create a WYSIWYG for this textarea?
@@ -2125,7 +2127,7 @@ abstract class CMSModule
 
     /**
      * function CreateSyntaxArea
-     * Returns xhtml representing a textarea with syntax hilighting applied.
+     * Returns html representing a textarea with syntax hilighting applied.
      * Takes the user's hilighter-preference into consideration, if called from the
      * admin side.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_input()
@@ -2147,7 +2149,7 @@ abstract class CMSModule
 
     /**
      * function CreateLink
-     * Returns xhtml representing an href link to a module action.  This is
+     * Returns html representing an href link to a module action.  This is
      * basically a wrapper to make sure that id's are placed in names
      * and also that it's syntax-compliant.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_action_link()
@@ -2170,7 +2172,7 @@ abstract class CMSModule
 
     /**
      * function CreateFrontendLink
-     * Returns xhtml representing an href link  This is basically a wrapper
+     * Returns html representing an href link  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_action_link() with adjusted params
      *
@@ -2192,7 +2194,7 @@ abstract class CMSModule
 
     /**
      * function CreateContentLink
-     * Returns xhtml representing a link to a site page having the specified id.
+     * Returns html representing a link to a site page having the specified id.
      * This is basically a wrapper to make sure that the link gets to
      * where intended and it's syntax-compliant
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_content_link()
@@ -2206,7 +2208,7 @@ abstract class CMSModule
 
     /**
      * function CreateReturnLink
-     * Returns xhtml representing a link to a site page having the specified returnid.
+     * Returns html representing a link to a site page having the specified returnid.
      * This is basically a wrapper to make sure that we go back
      * to where we want to and that it's syntax-compliant.
      * @deprecated since 3.0. Instead use CMSMS\FormUtils::create_return_link()
@@ -2322,7 +2324,7 @@ abstract class CMSModule
      *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
      * @return string
      */
-    public function create_pageurl($id, $pageid, array $params = [], bool $relative = false, int $format = 0) : string
+    public function create_pageurl($id, $pageid, array $params = [], bool $relative = false, int $format = 0): string
     {
         $this->_loadUrlMethods();
         return call_user_func('CMSMS\module_support\CreatePageUrl',
@@ -2458,7 +2460,7 @@ abstract class CMSModule
      * @param array  $params further params to get more detailed info about the capabilities. Should be syncronized with other modules of same type
      * @return array
      */
-    final public function GetModulesWithCapability(string $capability, array $params = []) : array
+    final public function GetModulesWithCapability(string $capability, array $params = []): array
     {
         return Lone::get('LoadedMetadata')->get('capable_modules', false, $capability, $params);
     }
@@ -2503,7 +2505,7 @@ abstract class CMSModule
      * @since 2.0.1
      * @return mixed Smarty_Internal_Template | null
      */
-    final public function GetActionTemplateObject() : ?Smarty_Internal_Template
+    final public function GetActionTemplateObject(): ?Smarty_Internal_Template
     {
         if( $this->_action_tpl ) return $this->_action_tpl;
         return null;
@@ -2518,7 +2520,7 @@ abstract class CMSModule
      * @param string $tpl_name The template name.
      * @return string
      */
-    final public function GetDatabaseResource(string $tpl_name) : string
+    final public function GetDatabaseResource(string $tpl_name): string
     {
         if( endswith($tpl_name,'.tpl') ) return 'module_file_tpl:'.$this->GetName().';'.$tpl_name;
         return 'module_db_tpl:'.$this->GetName().';'.$tpl_name;
@@ -2536,7 +2538,7 @@ abstract class CMSModule
      * @throws LogicException if a 'string:', 'eval:' or 'extends:' resource is supplied.
      * @throws UnexpectedValueException if format is wrong.
      */
-    final public function GetTemplateResource(string $tpl_name) : string
+    final public function GetTemplateResource(string $tpl_name): string
     {
         if( ($p = strpos($tpl_name,':')) !== false ) {
             if( startswith($tpl_name,'string:') || startswith($tpl_name,'eval:') || startswith($tpl_name,'extends:') ) {
@@ -2574,7 +2576,7 @@ abstract class CMSModule
      * @param string $tpl_name The template name.
      * @return string
      */
-    final public function GetFileResource(string $tpl_name) : string
+    final public function GetFileResource(string $tpl_name): string
     {
         return 'module_file_tpl:'.$this->GetName().';'.$tpl_name;
     }
@@ -2586,7 +2588,7 @@ abstract class CMSModule
      * @param string $modulename Optional name. Default current-module's name.
      * @return array
      */
-    final public function ListTemplates(string $modulename = '') : array
+    final public function ListTemplates(string $modulename = ''): array
     {
         $this->_loadTemplateMethods();
         return call_user_func('CMSMS\module_support\\'.__FUNCTION__,
@@ -2603,7 +2605,7 @@ abstract class CMSModule
      * @param string $modulename  Optional name. Default current-module's name.
      * @return mixed string | null
      */
-    final public function GetTemplate(string $tpl_name, string $modulename = '') : ?string
+    final public function GetTemplate(string $tpl_name, string $modulename = ''): ?string
     {
         $this->_loadTemplateMethods();
         return call_user_func('CMSMS\module_support\\'.__FUNCTION__,
@@ -2619,7 +2621,7 @@ abstract class CMSModule
      * @return array
      * @return mixed string | null
      */
-    final public function GetTemplateFromFile(string $tpl_name, string $modulename = '') : ?string
+    final public function GetTemplateFromFile(string $tpl_name, string $modulename = ''): ?string
     {
         $this->_loadTemplateMethods();
         return call_user_func('CMSMS\module_support\\'.__FUNCTION__,
@@ -2635,7 +2637,7 @@ abstract class CMSModule
      * @param string $modulename Optional module name. Default current-module's name.
      * @return bool (OR null ?)
      */
-    final public function SetTemplate(string $tpl_name, string $content, string $modulename = '')// : bool? mixed? TBA
+    final public function SetTemplate(string $tpl_name, string $content, string $modulename = '')//: bool ? mixed ? TBA
     {
         $this->_loadTemplateMethods();
         return call_user_func('CMSMS\module_support\\'.__FUNCTION__,
@@ -2650,7 +2652,7 @@ abstract class CMSModule
      * @param string $modulename Optional module name. Default current-module's name.
      * @return bool
      */
-    final public function DeleteTemplate(string $tpl_name = '', string $modulename = '') : bool
+    final public function DeleteTemplate(string $tpl_name = '', string $modulename = ''): bool
     {
         $this->_loadTemplateMethods();
         return call_user_func('CMSMS\module_support\\'.__FUNCTION__,
@@ -2670,7 +2672,7 @@ abstract class CMSModule
      * @param string  $cacheid     Optional unique cache flag (ignored)
      * @return mixed  string | null
      */
-    final public function ProcessTemplate(string $tpl_name, string $designation = '', bool $cache = false, string $cacheid = '') : ?string
+    final public function ProcessTemplate(string $tpl_name, string $designation = '', bool $cache = false, string $cacheid = ''): ?string
     {
         if( strpos($tpl_name, '..') !== false ) return '';
         $tpl = $this->_action_tpl;
@@ -2688,7 +2690,7 @@ abstract class CMSModule
      * @param string $data Input template
      * @return string
      */
-    final public function ProcessTemplateFromData(string $data) : string
+    final public function ProcessTemplateFromData(string $data): string
     {
         return $this->_action_tpl->fetch('string:'.$data);
     }
@@ -2721,7 +2723,7 @@ abstract class CMSModule
      *
      * @return array
      */
-    final public function ListUserTags() : array
+    final public function ListUserTags(): array
     {
         assert(!CMS_DEPREC, new DeprecationNotice('method','CMSMS\UserTagOperations-instance->ListUserTags()'));
         $ops = Lone::get('UserTagOperations');
@@ -2780,7 +2782,7 @@ abstract class CMSModule
      *  Default true, or false for pre-2.0 behavior.
      * @return string
      */
-    final public function StartTabHeaders(bool $auto = true) : string
+    final public function StartTabHeaders(bool $auto = true): string
     {
         return AdminTabs::start_tab_headers($auto);
     }
@@ -2810,13 +2812,13 @@ abstract class CMSModule
      *  Default true, or false for pre-2.0 behavior.
      * @return string
      */
-    final public function EndTabHeaders(bool $auto = true) : string
+    final public function EndTabHeaders(bool $auto = true): string
     {
         return AdminTabs::end_tab_headers($auto);
     }
 
     /**
-     * Return page content representing the start of XHTML areas for tabs.
+     * Return page content representing the start of html areas for tabs.
      *
      * @final
      * @deprecated since 3.0 Use CMSMS\AdminTabs::start_tab_content()
@@ -2825,13 +2827,13 @@ abstract class CMSModule
      *  Default true, or false for pre-2.0 behavior.
      * @return string
      */
-    final public function StartTabContent(bool $auto = true) : string
+    final public function StartTabContent(bool $auto = true): string
     {
         return AdminTabs::start_tab_content($auto);
     }
 
     /**
-     * Return page content representing the end of XHTML areas for tabs.
+     * Return page content representing the end of html areas for tabs.
      *
      * @final
      * @deprecated since 3.0 Use CMSMS\AdminTabs::end_tab_content()
@@ -2840,7 +2842,7 @@ abstract class CMSModule
      *  Default true, or false for pre-2.0 behavior.
      * @return string
      */
-    final public function EndTabContent(bool $auto = true) : string
+    final public function EndTabContent(bool $auto = true): string
     {
         return AdminTabs::end_tab_content($auto);
     }
@@ -2858,7 +2860,7 @@ abstract class CMSModule
      * @see CMSModule::SetTabHeader()
      * @return string
      */
-    final public function StartTab(string $tabid, array $params = [], bool $auto = true) : string
+    final public function StartTab(string $tabid, array $params = [], bool $auto = true): string
     {
         return AdminTabs::start_tab($tabid,$params,$auto);
     }
@@ -2873,7 +2875,7 @@ abstract class CMSModule
      *  Default true, or false for pre-2.0 behavior.
      * @return string
      */
-    final public function EndTab(bool $auto = true) : string
+    final public function EndTab(bool $auto = true): string
     {
         return AdminTabs::end_tab($auto);
     }
@@ -3138,7 +3140,7 @@ abstract class CMSModule
      *   to be AND'd instead of OR'd
      * @return bool
      */
-    final public function CheckPermission(...$perms) : bool
+    final public function CheckPermission(...$perms): bool
     {
         $userid = get_userid(false);
         if ($userid) {
@@ -3186,7 +3188,7 @@ abstract class CMSModule
      *
      * @return bool indicating running moduleinterface script
      */
-    public function CheckContext() : bool
+    public function CheckContext(): bool
     {
         $str = $_SERVER['PHP_SELF'] ?? '';
         if (!$str) {

@@ -1,7 +1,7 @@
 <?php
 /*
 Class to perform advanced queries on layout stylesheets
-Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -86,7 +86,7 @@ class StylesheetQuery extends DbQueryBase
 		foreach( $this->_args as $key => $val ) {
 			if( empty($val) ) continue;
 			if( is_numeric($key) && $val[1] == ':' ) {
-				list($key,$val) = explode(':',$val,2);
+				[$key, $val] = explode(':', $val, 2);
 			} else {
  				$key = trim($key, ' :');
 			}

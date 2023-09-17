@@ -94,11 +94,11 @@ class Collection implements ArrayAccess, IteratorAggregate, Countable {
     /**
      * Determine if an item exists at an offset.
      *
-     * @param  mixed $key
+     * @param  string $key
      *
      * @return bool
      */
-    public function offsetExists($key)
+    public function offsetExists(/*mixed */$key): bool
     {
         return array_key_exists($key, $this->items);
     }
@@ -106,11 +106,12 @@ class Collection implements ArrayAccess, IteratorAggregate, Countable {
     /**
      * Get an item at a given offset.
      *
-     * @param  mixed $key
+     * @param  string $key
      *
      * @return mixed
      */
-    public function offsetGet($key)
+    #[\ReturnTypeWillChange]
+    public function offsetGet(/*mixed */$key)//: mixed
     {
         return $this->items[$key];
     }
@@ -118,12 +119,12 @@ class Collection implements ArrayAccess, IteratorAggregate, Countable {
     /**
      * Set the item at a given offset.
      *
-     * @param  mixed $key
+     * @param  string $key
      * @param  mixed $value
      *
      * @return void
      */
-    public function offsetSet($key, $value)
+    public function offsetSet(/*mixed */$key, $value): void
     {
         if (is_null($key)) {
             $this->items[] = $value;
@@ -139,7 +140,7 @@ class Collection implements ArrayAccess, IteratorAggregate, Countable {
      *
      * @return void
      */
-    public function offsetUnset($key)
+    public function offsetUnset(/*mixed */$key): void
     {
         unset($this->items[$key]);
     }

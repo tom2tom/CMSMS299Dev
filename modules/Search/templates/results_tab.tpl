@@ -4,7 +4,7 @@
   <table class="pagetable">
     <thead>
       <tr>
-        <th style="width:75%;">{_ld($_module,'statitem')}</th>
+        <th style="width:75%">{_ld($_module,'statitem')}</th>
         <th>{_ld($_module,'count')}</th>
       </tr>
     </thead>

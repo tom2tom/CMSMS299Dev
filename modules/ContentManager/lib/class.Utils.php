@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManager module utility methods class
-Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -44,7 +44,7 @@ final class Utils
 {
 	private function __construct() {}
 
-	public static function get_pagedefaults() : array
+	public static function get_pagedefaults(): array
 	{
 		$mod = AppUtils::get_module('ContentManager');
 		$tmp = $mod->GetPreference('page_prefs');
@@ -89,14 +89,14 @@ final class Utils
 		return $page_prefs;
 	}
 
-	public static function locking_enabled() : bool
+	public static function locking_enabled(): bool
 	{
 		$mod = AppUtils::get_module('ContentManager');
 		$timeout = (int)$mod->GetPreference('locktimeout');
 		return $timeout > 0;
 	}
 
-	public static function get_pagenav_display() : string
+	public static function get_pagenav_display(): string
 	{
 		$userid = get_userid(false);
 		$pref = UserParams::get($userid, 'ce_navdisplay');
@@ -112,7 +112,7 @@ final class Utils
 	 * @param mixed $selected int[] | int | comma-separated string
 	 * @return array
 	 */
-	public static function get_sheets_data(/*mixed */$selected = '') : array
+	public static function get_sheets_data(/*mixed */$selected = ''): array
 	{
 		$sheets = StylesheetOperations::get_displaylist();
 		if ($sheets) {
@@ -175,8 +175,7 @@ final class Utils
 
 			if (count($rows) > 1) {
 				$js = <<<'EOS'
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
  var tbl = $('#allsheets');
  tbl.find('tbody.rsortable').sortable({
@@ -194,7 +193,6 @@ $(function() {
   }
  });
 });
-//]]>
 </script>
 EOS;
 			} else {

@@ -1,7 +1,7 @@
 <?php
 /*
 Module Manager action: delete all the contents of a module
-Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of ModuleManager, an addon module for
@@ -33,7 +33,7 @@ if( !isset($params['mod']) ) {
 }
 $module = $params['mod'];
 if( $module ) {
-    $dir = cms_module_path($module);
+    $dir = cms_module_path($module, true);
 }
 else {
     $dir = '';

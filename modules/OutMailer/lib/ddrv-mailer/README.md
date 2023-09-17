@@ -109,7 +109,7 @@ $mailer->send($message);
 $message->setSubject('Welcome to Fight Club!');
 $message->setText('Welcome to Fight Club!' . PHP_EOL . 'Please, read our rules in attachments.');
 $html = '<h1>Welcome to Fight Club!</h1><p>Please, read our rules in attachments.</p>';
-$html .= '<img src="cid:poster" alt="Poster"/><img src="cid:ticket" alt="Your ticket"/>';
+$html .= '<img src="cid:poster" alt="Poster"><img src="cid:ticket" alt="Your ticket">';
 $message->setHtml($html);
 
 $message->setSender('support@fight.club', 'Support od Fight Club'); // The SMTP transport will set its value.
@@ -198,7 +198,7 @@ $message->getBodyRaw(); // Returns string of mail body.
 
 ```
 
-You can implement Ddrv\Mailer\Contract\Message interface for work with custom messages. 
+You can implement Ddrv\Mailer\Contract\Message interface for work with custom messages.
 
 ## Spool
 

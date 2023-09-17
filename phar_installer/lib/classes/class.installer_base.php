@@ -34,7 +34,7 @@ class FilePatternFilter extends FilterIterator
         $this->pattern = $pattern;
     }
 
-    public function accept()
+    public function accept(): bool
     {
         $file = $this->getInnerIterator()->current();
         return preg_match($this->pattern, $file);
@@ -94,7 +94,7 @@ abstract class installer_base
      * @return installer_base
      * @throws LogicException
      */
-    public static function get_instance() : self
+    public static function get_instance(): self
     {
         if (!is_object(self::$_instance)) {
             throw new LogicException('No instance of '.__CLASS__.' is registered');
@@ -161,7 +161,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         }
     }
 
-    abstract public function run();
+    abstract public function run(): void;
 
     /*
      * Retrieve config parameters
@@ -169,7 +169,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
      * @return array
      * @throws RuntimeException
      */
-    public function get_config() : array
+    public function get_config(): array
     {
         $sess = session::get_instance();
         if (isset($sess['config'])) {
@@ -196,7 +196,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         return $config;
     }
 
-    public function set_config_val(string $key, $val)
+    public function set_config_val(string $key, $val): void
     {
         $config = $this->get_config();
         $config[trim($key)] = $val;
@@ -204,7 +204,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         session::get_instance()['config'] = $config;
     }
 
-    public function merge_config_vals(array $config)
+    public function merge_config_vals(array $config): void
     {
         if ($config) {
             $current = $this->get_config();
@@ -214,7 +214,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         }
     }
 
-    public function remove_config_val(string $key)
+    public function remove_config_val(string $key): void
     {
         $config = $this->get_config();
         unset($config[trim($key)]);
@@ -222,44 +222,44 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         session::get_instance()['config'] = $config;
     }
 
-    public function get_orig_error_level() : int
+    public function get_orig_error_level(): int
     {
         return $this->_orig_error_level ?? 0;
     }
 
-    public function get_orig_tz() : string
+    public function get_orig_tz(): string
     {
         return $this->_orig_tz ?? '';
     }
 
-    public function get_name() : string
+    public function get_name(): string
     {
         return __CLASS__;
     }
 
-    public function get_tmpdir() : string
+    public function get_tmpdir(): string
     {
         $config = $this->get_config();
         return $config['tmpdir'];
     }
 
-    public function get_destdir() : string
+    public function get_destdir(): string
     {
         $config = $this->get_config();
         return $config['dest'] ?? 'MISSING_FOLDERPATH';
     }
 
-    public function get_assetsdir() : string
+    public function get_assetsdir(): string
     {
         return $this->_assetdir;
     }
 
-    public function get_rootdir() : string
+    public function get_rootdir(): string
     {
         return dirname(__DIR__, 2);
     }
 
-    public function get_rooturl() : string
+    public function get_rooturl(): string
     {
         $config = $this->get_config();
         if ($config && isset($config[self::CONFIG_ROOT_URL])) {
@@ -271,29 +271,32 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         return $dir;
     }
 
-    public function set_destdir(string $destdir)
+    public function set_destdir(string $destdir): void
     {
         $this->set_config_val('dest', $destdir);
     }
 
-    public function has_custom_destdir() : bool
+    public function has_custom_destdir(): bool
     {
-        $p1 = realpath(getcwd());
-        $p2 = realpath($this->_custom_destdir);
-        return ($p1 != $p2);
+        if (!empty($this->_custom_destdir)) {
+            $p1 = realpath($this->_custom_destdir);
+            $p2 = realpath(getcwd());
+            return ($p1 != $p2) && $p2;
+        }
+        return false;
     }
 
-    public function get_dest_version() : string
+    public function get_dest_version(): string
     {
         return $this->_dest_version ?? '';
     }
 
-    public function get_dest_name() : string
+    public function get_dest_name(): string
     {
         return $this->_dest_name ?? '';
     }
 
-    public function get_dest_schema() : int
+    public function get_dest_schema(): int
     {
         return (int)($this->_dest_schema ?? 0);
     }
@@ -303,12 +306,12 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
        __DIR__ is phar:///path/to/my.phar/relpath/to
        Phar::running() is phar:///path/to/my.phar
     */
-    public function get_phar($asurl = false) : string
+    public function get_phar($asurl = false): string
     {
         return ($this->_have_phar) ? Phar::running($asurl) : '';
     }
 
-    public function in_phar() : bool
+    public function in_phar(): bool
     {
         return $this->_have_phar && Phar::running() != '';
     }
@@ -320,7 +323,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
      *  [0] = files iterator
      *  [1] = root|base path of each file that the iterator will report
      */
-    public function setup_sources_scan(string $pattern = '') : array
+    public function setup_sources_scan(string $pattern = ''): array
     {
         // __DIR__ might be phar://abspath/to/pharfile/relpath/to/thisfolder
         $path = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'sources';
@@ -348,13 +351,13 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
      * @return array
      * @throws Exception
      */
-    public function get_nls() : array
+    public function get_nls(): array
     {
         if (is_array($this->_nls)) {
             return $this->_nls;
         }
 
-        list($iter, $topdir) = $this->setup_sources_scan('~[\\/]lib[\\/]nls[\\/].+\.nls\.php$~');
+        [$iter, $topdir] = $this->setup_sources_scan('~[\\/]lib[\\/]nls[\\/].+\.nls\.php$~');
 
         $nls = [];
         foreach ($iter as $fp) {
@@ -365,7 +368,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
             throw new Exception(lang('error_nlsnotfound'));
         }
         if (!asort($nls['language'], SORT_LOCALE_STRING)) {
-            throw new Exception(lang('error_internal'));
+            throw new Exception(lang('error_internal', 'base1'));
         }
         $this->_nls = $nls;
         return $nls;
@@ -376,13 +379,13 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
      *
      * @return array
      */
-    public function get_language_list() : array
+    public function get_language_list(): array
     {
         $this->get_nls();
         return $this->_nls['language'];
     }
 
-    public function get_noncore_modules() : array
+    public function get_noncore_modules(): array
     {
         $config = $this->get_config();
         $names = $config['extramodules'] ?? [];
@@ -393,7 +396,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         return $names;
     }
 
-    public function clear_cache(bool $do_index_html = true)
+    public function clear_cache(bool $do_index_html = true): void
     {
         $dir = $this->get_tmpdir();
         $iter = new RecursiveIteratorIterator(
@@ -417,7 +420,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         }
     }
 
-    public function cleanup()
+    public function cleanup(): void
     {
         $fp = $this->get_tmpdir();
         if (is_dir($fp)) {
@@ -462,7 +465,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
      * @return array
      * @throws Exception
      */
-    protected function load_config() : array
+    protected function load_config(): array
     {
         // get default params
         $config = $this->get_config_defaults();
@@ -536,7 +539,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
      * @param string $configfile Optional filepath
      * @throws Exception
      */
-    private function init(string $configfile = '')
+    private function init(string $configfile = ''): void
     {
         // __DIR__ might be phar://abspath/to/pharfile/relpath/to/thisfolder
         // ini_set('allow_url_fopen', true); N/A
@@ -624,7 +627,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
      * @param array $config2 Merge from this (if not empty)
      * @return array
      */
-    private function merge_config(array $config1, array $config2) : array
+    private function merge_config(array $config1, array $config2): array
     {
         if ($config2) {
             foreach ($config2 as $k => $v) {
@@ -651,7 +654,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
      * Populate default config parameters
      * @return array
      */
-    private function get_config_defaults() : array
+    private function get_config_defaults(): array
     {
         $config = $this->merge_config([
             'config_file' => null, // filepath of system config.php during upgrade|refresh
@@ -689,7 +692,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
      * @return array
      * @throws RuntimeException
      */
-    private function check_config(array $config) : array
+    private function check_config(array $config): array
     {
         $dirty = false;
         foreach ($config as $key => $val) {

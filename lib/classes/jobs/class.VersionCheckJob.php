@@ -1,7 +1,7 @@
 <?php
 /*
 Class VersionCheckJob: for periodic checks for and warnings about a newer version of CMSMS
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -73,7 +73,7 @@ class VersionCheckJob extends CronJob
         if( $req->getStatus() == 200 ) {
             $remote_ver = trim($req->getResult());
             if( strpos($remote_ver,':') !== false ) {
-                list($tmp,$remote_ver) = explode(':',$remote_ver,2);
+                [$tmp,$remote_ver] = explode(':',$remote_ver,2);
                 $remote_ver = trim($remote_ver);
             }
             return $remote_ver;

@@ -2,7 +2,7 @@
 /*
 FileManager module utilities class
 Copyright (C) 2006-2018 Morten Poulsen <morten@poulsen.org>
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -45,10 +45,9 @@ final class Utils
 
     private function __construct() {}
 
-    #[\ReturnTypeWillChange]
-    private function __clone() {}// : void {}
+    private function __clone(): void {}
 
-    public static function is_valid_dirname(string $filename) : bool
+    public static function is_valid_dirname(string $filename): bool
     {
         $tmp = sanitizeVal($filename, CMSSAN_PATH);
         if( $tmp !== $filename ) return FALSE;
@@ -62,7 +61,7 @@ final class Utils
      * @param string $filename filesystem path
      * @return bool
      */
-    public static function is_valid_filename(string $filename) : bool
+    public static function is_valid_filename(string $filename): bool
     {
         $tmp = sanitizeVal($filename, CMSSAN_PATH);
         if( $tmp !== $filename ) return FALSE;
@@ -79,7 +78,7 @@ final class Utils
         return !$helper->is_executable($name);
     }
 
-    public static function can_do_advanced() : bool
+    public static function can_do_advanced(): bool
     {
         if (self::$_can_do_advanced < 0) {
             $filemod = AppUtils::get_module('FileManager');
@@ -93,7 +92,7 @@ final class Utils
         return self::$_can_do_advanced;
     }
 
-    public static function check_advanced_mode() : bool
+    public static function check_advanced_mode(): bool
     {
         $filemod = AppUtils::get_module('FileManager');
         $a = self::can_do_advanced();
@@ -101,7 +100,7 @@ final class Utils
         return ($a && $b);
     }
 
-    public static function get_default_cwd() : string
+    public static function get_default_cwd(): string
     {
         $advancedmode = self::check_advanced_mode();
         if ($advancedmode) {
@@ -117,7 +116,7 @@ final class Utils
         return $dir;
     }
 
-    public static function test_valid_path(string $path) : bool
+    public static function test_valid_path(string $path): bool
     {
         // returns false if invalid.
         $config = Lone::get('Config');
@@ -152,7 +151,7 @@ final class Utils
     /**
      * @return string A relative path BUT with leading DIRECTORY_SEPARATOR!
      */
-    public static function get_cwd() : string
+    public static function get_cwd(): string
     {
         // check the path
         $path = UserParams::get('filemanager_cwd', self::get_default_cwd());
@@ -166,7 +165,7 @@ final class Utils
     }
 
     //$path may be ''
-    public static function set_cwd(string $path) : void
+    public static function set_cwd(string $path): void
     {
         if (startswith($path, CMS_ROOT_PATH)) {
             $path = cms_relative_path($path, CMS_ROOT_PATH);
@@ -190,12 +189,12 @@ final class Utils
     /**
      * @deprecated since 1.7 use cms_join_path();
      */
-    public static function join_path(...$args) : string
+    public static function join_path(...$args): string
     {
         return cms_join_path($args);
     }
 
-    public static function get_full_cwd() : string
+    public static function get_full_cwd(): string
     {
         $path = self::get_cwd();
         if (!self::test_valid_path($path)) {
@@ -204,7 +203,7 @@ final class Utils
         return cms_join_path(CMS_ROOT_PATH, $path);
     }
 
-    public static function get_cwd_url() : string
+    public static function get_cwd_url(): string
     {
         $path = self::get_cwd();
         if (!self::test_valid_path($path)) {
@@ -214,7 +213,7 @@ final class Utils
         return $url;
     }
 
-    public static function is_image_file(string $file) : bool
+    public static function is_image_file(string $file): bool
     {
         $helper = new FileTypeHelper();
         return $helper->is_image($file);
@@ -232,7 +231,7 @@ final class Utils
 */
     }
 
-    public static function is_archive_file(string $file) : bool
+    public static function is_archive_file(string $file): bool
     {
         $helper = new FileTypeHelper();
         return $helper->is_archive($file);
@@ -258,7 +257,7 @@ final class Utils
     /**
      * @since 1.7
      */
-    public static function get_file_details(array $data) : string
+    public static function get_file_details(array $data): string
     {
         if (!empty($data['image'])) {
             $imginfo = @getimagesize($data['fullpath']);
@@ -273,7 +272,7 @@ final class Utils
         return '';
     }
 
-    public static function mime_content_type(string $filename) : string
+    public static function mime_content_type(string $filename): string
     {
         if (class_exists('finfo')) {
             $finfo = new finfo(FILEINFO_MIME);
@@ -368,7 +367,7 @@ final class Utils
     }
 
     // get post max size and give a portion of it to smarty for max chunk size.
-    public static function str_to_bytes($val) : int
+    public static function str_to_bytes($val): int
     {
         if (is_string($val) && $val) {
             $val = trim($val);
@@ -392,7 +391,7 @@ final class Utils
         return (int) $val;
     }
 
-    public static function get_dirlist() : array
+    public static function get_dirlist(): array
     {
         $config = Lone::get('Config');
         $mod = AppUtils::get_module('FileManager');
@@ -419,7 +418,7 @@ final class Utils
         return $output;
     }
 
-    public static function create_thumbnail(string $src, string $dest = '') : bool
+    public static function create_thumbnail(string $src, string $dest = ''): bool
     {
         if (!file_exists($src) || is_dir($src)) {
             return false;
@@ -476,7 +475,7 @@ final class Utils
         return false;
     }
 
-    public static function format_filesize(/*mixed */$_size) : array
+    public static function format_filesize(/*mixed */$_size): array
     {
         $mod = AppUtils::get_module('FileManager');
         $unit = $mod->Lang('bytes');
@@ -611,7 +610,7 @@ final class Utils
         }
     }
 
-    private static function get_dirs(string $startdir, string $prefix = DIRECTORY_SEPARATOR) : array
+    private static function get_dirs(string $startdir, string $prefix = DIRECTORY_SEPARATOR): array
     {
         if (!is_dir($startdir)) {
             return [];

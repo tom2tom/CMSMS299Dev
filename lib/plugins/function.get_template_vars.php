@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to display all template variables in a pretty format
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -32,7 +32,7 @@ use ReflectionObject;
 	 * @return string
 	 * @throws LogicException
 	 */
-	function _cms_output_accessor(string $ptype, $key, int $depth) : string
+	function _cms_output_accessor(string $ptype, $key, int $depth): string
 	{
 		if( $depth == 0 ) return "\${$key}";
 		switch( strtolower($ptype) ) {
@@ -58,7 +58,7 @@ use ReflectionObject;
 	 * @param int $depth Default 0
 	 * @return string
 	 */
-	function _cms_output_var(string $key, $val, $ptype = '', int $depth = 0) : string
+	function _cms_output_var(string $key, $val, $ptype = '', int $depth = 0): string
 	{
 		$type = gettype($val);
 		$out = '';

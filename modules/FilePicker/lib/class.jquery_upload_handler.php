@@ -97,7 +97,7 @@ abstract class jquery_upload_handler
     {
         $file_path = $this->options['upload_dir'].$file_name;
         $new_file_path = $options['upload_dir'].$file_name;
-        list($img_width, $img_height) = @getimagesize($file_path);
+        [$img_width, $img_height] = @getimagesize($file_path);
         if (!$img_width || !$img_height) {
             return false;
         }

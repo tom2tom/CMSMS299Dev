@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton class of functions to manage modules' smarty plugins
-Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -77,8 +77,7 @@ final class ModulePluginOperations
 	private static $_instance = null;
 
 //	private function __construct() {} TODO public iff wanted by Lone ?
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * Call a class-method from a static context
@@ -87,7 +86,7 @@ final class ModulePluginOperations
 	 * @return mixed
 	 */
     #[\ReturnTypeWillChange]
-	public static function __callStatic(string $name, array $args)
+	public static function __callStatic(string $name, array $args)//: mixed
 	{
 		$obj = self::get_instance();
 		if( $name == 'addStatic' ) {
@@ -109,7 +108,7 @@ final class ModulePluginOperations
 	 * Get an instance of this class, for use by class static-methods
 	 * @return self
 	 */
-	public static function get_instance() : self
+	public static function get_instance(): self
 	{
 		if( !self::$_instance ) { self::$_instance = new self(); }
 		return self::$_instance;
@@ -185,7 +184,7 @@ final class ModulePluginOperations
 	 * @param object $template A Smarty_Internal_Template object
 	 * @return string The module output string or an error message string or ''
 	 */
-	public function _call_plugin_module($params, $template) : string
+	public function _call_plugin_module($params, $template): string
 	{
 		if( !empty($params['module']) ) {
 			$modname = $params['module'];
@@ -429,7 +428,7 @@ final class ModulePluginOperations
 	 *   See AVAIL_ADMIN and AVAIL_FRONTEND
 	 * @return bool indicating success
 	 */
-	public function _add_dynamic(string $module_name, string $name, string $type, callable $callable, bool $cachable = TRUE, int $available = 1) : bool
+	public function _add_dynamic(string $module_name, string $name, string $type, callable $callable, bool $cachable = TRUE, int $available = 1): bool
 	{
 		$callable = $this->validate_callable($module_name, $callable);
 		if( !$callable ) return FALSE;

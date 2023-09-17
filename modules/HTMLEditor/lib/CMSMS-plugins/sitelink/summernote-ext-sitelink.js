@@ -66,18 +66,18 @@
         '  <div id="tab_slgen">\n' +
         '   <div class="form-group oneline button">\n' +
         '    <label class="control-label note-form-label" for="sitelink_title">' + cms_data.pgtitle + '</label>\n' +
-        '    <input type="text" id="sitelink_title" class="form-control note-form-control note-input" size="38" />\n' +
+        '    <input type="text" id="sitelink_title" class="form-control note-form-control note-input" size="38">\n' +
         '    <span id="sitelink_browse" class="form-control note-form-control note-input action-button" title="' + cms_data.browse + '">\n' +
         '     <i class="note-iconc-search"></i>\n' +
         '    </span>\n' +
         '   </div>\n' +
         '   <div class="form-group oneline">\n' +
         '    <label class="control-label note-form-label" for="sitelink_alias">' + cms_data.alias + '</label>\n' +
-        '    <input type="text" id="sitelink_alias" class="form-control note-form-control note-input" size="38" readonly />\n' +
+        '    <input type="text" id="sitelink_alias" class="form-control note-form-control note-input" size="38" readonly>\n' +
         '   </div>\n' +
         '   <div class="form-group oneline">\n' +
         '    <label class="control-label note-form-label" for="sitelink_text">' + cms_data.texttodisplay + '</label>\n' +
-        '    <input type="text" id="sitelink_text" class="form-control note-form-control note-input" size="38" />\n' +
+        '    <input type="text" id="sitelink_text" class="form-control note-form-control note-input" size="38">\n' +
         '   </div>\n' +
         '  </div>\n' +
         '  <div id="tab_sladv">\n' +
@@ -94,7 +94,7 @@
         '   </div>\n' +
         '   <div class="form-group oneline">\n' +
         '    <label class="control-label note-form-label" for="sitelink_class">' + cms_data.attrclass + '</label>\n' +
-        '    <input type="text" id="sitelink_class" class="form-control note-form-control note-input" size="38" />\n' +
+        '    <input type="text" id="sitelink_class" class="form-control note-form-control note-input" size="38">\n' +
         '   </div>\n' +
         '  </div>\n' +
         ' </div>\n' +

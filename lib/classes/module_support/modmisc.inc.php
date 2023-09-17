@@ -1,7 +1,7 @@
 <?php
 /*
 Methods for modules to do miscellaneous functions
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -33,7 +33,7 @@ namespace CMSMS\module_support;
  * @param $mod the module-object
  * @return string
  */
-function GetAbout($mod) : string
+function GetAbout($mod): string
 {
 	$str = '';
 	if (($val = $mod->GetAuthor())) {
@@ -54,7 +54,7 @@ function GetAbout($mod) : string
  * @param $mod the module-object
  * @return string
  */
-function GetHelpPage($mod) : string
+function GetHelpPage($mod): string
 {
 	ob_start();
 	echo $mod->GetHelp();

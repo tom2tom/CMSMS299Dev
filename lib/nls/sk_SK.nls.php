@@ -1,6 +1,6 @@
 <?php
 #Slovak translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -35,11 +35,11 @@ $nls['englishlang']['sk_SK'] = 'Slovak';
 
 #Possible aliases for language
 $nls['alias']['sk'] = 'sk_SK';
-$nls['alias']['slovak'] = 'sk_SK' ;
-$nls['alias']['svk'] = 'sk_SK' ;
-$nls['alias']['sk_SK'] = 'sk_SK' ;
-$nls['alias']['sk_SK.WINDOWS-1250'] = 'sk_SK' ;
-$nls['alias']['sk_SK.ISO8859-2'] = 'sk_SK' ;
+$nls['alias']['slovak'] = 'sk_SK';
+$nls['alias']['svk'] = 'sk_SK';
+$nls['alias']['sk_SK'] = 'sk_SK';
+$nls['alias']['sk_SK.WINDOWS-1250'] = 'sk_SK';
+$nls['alias']['sk_SK.ISO8859-2'] = 'sk_SK';
 
 #Possible locale for language
 $nls['locale']['sk_SK'] = 'sk_SK.utf8,sk_SK.UTF-8,sk_SK.utf-8,sk_SK,slovak,Slovak_Slovakia.1250';
@@ -48,11 +48,10 @@ $nls['locale']['sk_SK'] = 'sk_SK.utf8,sk_SK.UTF-8,sk_SK.utf-8,sk_SK,slovak,Slova
 $nls['encoding']['sk_SK'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['sk_SK'] = array(__DIR__.'/sk_SK/admin.inc.php');
+$nls['file']['sk_SK'] = [__DIR__.'/sk_SK/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['sk_SK'] = 'sk';
-?>

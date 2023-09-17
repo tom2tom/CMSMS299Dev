@@ -1,6 +1,6 @@
 <?php
 #Bulgarian translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -35,8 +35,8 @@ $nls['englishlang']['bg_BG'] = 'Bulgarian';
 
 #Possible aliases for language
 $nls['alias']['bg'] = 'bg_BG';
-$nls['alias']['bulgarian'] = 'bg_BG' ;
-$nls['alias']['bul'] = 'bg_BG' ;
+$nls['alias']['bulgarian'] = 'bg_BG';
+$nls['alias']['bul'] = 'bg_BG';
 
 #Possible locale for language
 $nls['locale']['bg_BG'] = 'bg_BG.utf8,bg_BG.utf-8,bg_BG.UTF-8,bg_BG,bulgarian,Bulgarian_Bulgaria.1251';
@@ -45,11 +45,10 @@ $nls['locale']['bg_BG'] = 'bg_BG.utf8,bg_BG.utf-8,bg_BG.UTF-8,bg_BG,bulgarian,Bu
 $nls['encoding']['bg_BG'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['bg_BG'] = array(__DIR__.'/bg_BG/admin.inc.php');
+$nls['file']['bg_BG'] = [__DIR__.'/bg_BG/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['bg_BG'] = 'bg';
-?>

@@ -75,7 +75,7 @@ License: GPL3+
       var $container = $viewport.parent();
 
       // Add a waiting on load input image
-      var $loading = $('<div class="jrac_loading" />');
+      var $loading = $('<div class="jrac_loading"></div>');
       $viewport.append($loading);
 
       // The following procedure hold business intend to be run once the image
@@ -313,7 +313,7 @@ License: GPL3+
       }
       else {
         src = src + (src.search(/\?/)<0?'?':'&') + 'jracrandom=' + (new Date()).getTime();
-        $('<img>').attr('src', src).load(image_load_handler);
+        $('<img/>').attr('src', src).load(image_load_handler);
       }
     });
   };

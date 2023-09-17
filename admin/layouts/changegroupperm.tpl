@@ -1,6 +1,6 @@
 <div class="pageinfo pregap">
   {_la('info_changegroupperms')}
-  {cms_help 0='help' key='help_group_permissions' title=_la('info_changegroupperms')}
+  {cms_help realm='help' key='help_group_permissions' title=_la('info_changegroupperms')}
 </div>
 
 <div class="pageoverflow">
@@ -21,7 +21,6 @@
   <div class="hidden">
     {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
-    {$hidden}
   </div>
 
   <div class="pageinput postgap">
@@ -48,10 +47,10 @@
       {foreach $list as $perm}
       <tr class="{cycle values='row1,row2'}">
         <td>
-          <span style="margin-left:3em;font-weight:bold;">{$perm->label}</span>
+          <span style="margin-left:3em;font-weight:bold">{$perm->label}</span>
           {if !empty($perm->description)}
           <div class="description">
-          <span style="margin-left:3em;">{$perm->description}</span>
+          <span style="margin-left:3em">{$perm->description}</span>
           </div>
           {/if}
         </td>

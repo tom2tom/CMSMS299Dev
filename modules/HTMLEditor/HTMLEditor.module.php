@@ -1,7 +1,7 @@
 <?php
 /*
 HTMLEditor: a module for CMS Made Simple to allow WYSIWYG editing using Summernote.
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -97,7 +97,7 @@ class HTMLEditor extends CMSModule
    * Return the 'public' name of the backend editor
    * @since 2.3 / CMSMS 3.0
    */
-  public function GetEditorName() : string
+  public function GetEditorName(): string
   {
     return $this->Lang('editor_publicname');
   }

@@ -93,10 +93,10 @@
        * @return {jQuery}
        */
       function makeSpecialCharSetTable() {
-        var $table = $('<table>');
+        var $table = $('<table></table');
         $.each(specialCharDataSet, function(idx, text) {
-          var $td = $('<td>').addClass('note-specialchar-node');
-          var $tr = (idx % COLUMN_LENGTH === 0) ? $('<tr>') : $table.find('tr').last();
+          var $td = $('<td></td>',{'class':'note-specialchar-node'});
+          var $tr = (idx % COLUMN_LENGTH === 0) ? $('<tr></tr>') : $table.find('tr').last();
 
           var $button = ui.button({
             className: 'note-codeview-keep',

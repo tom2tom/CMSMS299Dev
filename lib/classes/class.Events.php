@@ -1,7 +1,7 @@
 <?php
 /*
 Class for handling and dispatching events
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -61,8 +61,7 @@ final class Events
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * Cache initiator called on demand
@@ -91,7 +90,7 @@ EOS;
 	 * @param string $eventname The name of the event
 	 * @return bool
 	 */
-	public static function CreateEvent(string $originator, string $eventname) : bool
+	public static function CreateEvent(string $originator, string $eventname): bool
 	{
 		$db = Lone::get('Db');
 		$originator = trim($originator);
@@ -119,7 +118,7 @@ EOS;
 	 *  to remove all of $originator's events (unless $originator is 'Core')
 	 * @return bool
 	 */
-	public static function RemoveEvent(string $originator, string $eventname) : bool
+	public static function RemoveEvent(string $originator, string $eventname): bool
 	{
 		$db = Lone::get('Db');
 
@@ -163,7 +162,7 @@ EOS;
 	 * @param string $eventname The name of the event
 	 * @param mixed  $params Optional scalar | array parameter(s) associated with the event. Default []
 	 */
-	public static function SendEvent(string $originator, string $eventname, $params = [])
+	public static function SendEvent(string $originator, string $eventname, $params = []): void
 	{
 		if (AppState::test(AppState::INSTALL)) {
 			return;
@@ -272,7 +271,7 @@ EOS;
 	 * @param string $eventname The name of the event
 	 * @return string Help for the event.
 	 */
-	public static function GetEventHelp(string $eventname) : string
+	public static function GetEventHelp(string $eventname): string
 	{
 		return _ld('events', 'help_'.strtolower($eventname));
 	}
@@ -283,7 +282,7 @@ EOS;
 	 * @param string $eventname The name of the event
 	 * @return string Description of the event
 	 */
-	public static function GetEventDescription(string $eventname) : string
+	public static function GetEventDescription(string $eventname): string
 	{
 		return _ld('events', 'desc_'.strtolower($eventname));
 	}
@@ -297,7 +296,7 @@ EOS;
 	 *  at least 'originator' 'event_name' 'class' 'method' 'type', plus others for static events
 	 *  If nothing is found, an empty array is returned.
 	 */
-	public static function ListEventHandlers(string $originator, string $eventname) : array
+	public static function ListEventHandlers(string $originator, string $eventname): array
 	{
 		$handlers = [];
 		if (self::$_handlercache === null) {
@@ -365,7 +364,7 @@ EOS;
 	 * @param bool   $removable Optional flag whether this event may be removed from the list. Default true.
 	 * @return bool indicating success
 	 */
-	public static function AddStaticHandler(string $originator, string $eventname, $handler, string $type = 'C', bool $removable = true) : bool
+	public static function AddStaticHandler(string $originator, string $eventname, $handler, string $type = 'C', bool $removable = true): bool
 	{
 		$params = self::InterpretHandler($handler, $type);
 		if (!$params || (!$params[0] && !$params[1])) {
@@ -380,7 +379,7 @@ EOS;
 			return false;
 		}
 
-		list($class, $method, $type) = $params;
+		[$class, $method, $type] = $params;
 		// check nothing is already recorded for the event and handler
 		$sql = 'SELECT 1 FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id=? AND ';
 		$params = [$id];
@@ -435,7 +434,7 @@ EOS;
 	 * @param bool $removable Optional flag whether this event may be removed from the list. Default true.
 	 * @return bool indicating success
 	 */
-	public static function AddEventHandler(string $originator, string $eventname, $tag_name = '', $module_handler = '', bool $removable = true) : bool
+	public static function AddEventHandler(string $originator, string $eventname, $tag_name = '', $module_handler = '', bool $removable = true): bool
 	{
 		if (!($tag_name || $module_handler)) {
 			return false;
@@ -464,13 +463,13 @@ EOS;
 	 *  ('M' module 'U' UDT 'P' regular plugin 'C' callable). Default 'C'.
 	 * @return bool indicating success
 	 */
-	public static function AddDynamicHandler(string $originator, string $eventname, $handler, string $type = 'C') : bool
+	public static function AddDynamicHandler(string $originator, string $eventname, $handler, string $type = 'C'): bool
 	{
 		$params = self::InterpretHandler($handler, $type);
 		if (!$params || (empty($params[0]) && empty($params[1]))) {
 			return false;
 		}
-		list($class, $method, $type) = $params;
+		[$class, $method, $type] = $params;
 
 		if (!is_array(self::$_dynamic)) {
 			self::$_dynamic = [];
@@ -527,7 +526,7 @@ EOS;
 			return false;
 		}
 
-		list($class, $method, $type) = $params;
+		[$class, $method, $type] = $params;
 		// find the handler
 		$sql = 'SELECT * FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id=? AND ';
 		$params = [$id];
@@ -663,13 +662,13 @@ EOS;
      * [1] = handler method maybe empty
      * [2] = handler-type indicator 'M'|'U'|'P'|'C'
 	 */
-	private static function InterpretHandler($handler, string $type = 'auto') : array
+	private static function InterpretHandler($handler, string $type = 'auto'): array
 	{
 		$parsed = ''; // result-receiver
 		if (is_callable($handler, true, $parsed)) {
-			list($class, $method) = explode('::', $parsed, 2);
+			[$class, $method] = explode('::', $parsed, 2);
 		} elseif ($handler && is_string($handler)) {
-			list($class, $method) = explode('::', $handler, 2);
+			[$class, $method] = explode('::', $handler, 2);
 		} else {
 			return [];
 		}

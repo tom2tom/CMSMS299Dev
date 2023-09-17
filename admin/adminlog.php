@@ -1,7 +1,7 @@
 <?php
 /*
 Display or process the admin log
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -58,7 +58,7 @@ if ($pclear && isset($_GET['clear'])) {
         $format = trim(UserParams::get_for_user($userid, 'datetime_format'));
         if (!$format) $format = trim(AppParams::get('datetime_format'));
         if (!$format) $format = 'Y-m-d H:i';
-        header('Content-type: text/plain'); // TODO reconcile with sendheaders()
+        header('Content-Type: text/plain', false); // TODO reconcile with sendheaders()
         header('Content-Disposition: attachment; filename="adminlog.txt"');
         do {
             $row = $query->GetObject(); // timestamp severity user_id username item_id subject message ip_addr
@@ -147,8 +147,7 @@ $pageurl = $selfurl.get_secure_param().'&page=xxx';
 $prompt = addcslashes(_la('sysmain_confirmclearlog'), "'\n\r");
 
 $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
   $('#pagenum').on('change', function() {
     var v = $(this).val();
@@ -171,7 +170,6 @@ $(function() {
     });
   });
 });
-//]]>
 </script>
 EOS;
 add_page_foottext($js);

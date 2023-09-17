@@ -19,7 +19,7 @@ final class CmsApp
   private $_db;
   private static $_instance;
 
-  public static function get_instance() : self
+  public static function get_instance(): self
   {
     if( !self::$_instance ) {
       self::$_instance = new self();

@@ -1,7 +1,7 @@
 <?php
 /*
 Class to interact with a page-content type.
-Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -24,7 +24,7 @@ use ArrayAccess;
 
 /**
  * Convenience class to hold and interact with page-content type parameters
- * @since 3.0 this replaces the former ContentTypePlaceHolder class
+ * @since 3.0 this replaces the former CmsContentTypePlaceHolder class
  *
  * @package CMS
  */
@@ -110,7 +110,7 @@ class ContentType implements ArrayAccess
 	}
 
 	#[\ReturnTypeWillChange]
-	public function __call(string $name, array $args)// : mixed
+	public function __call(string $name, array $args)//: mixed
 	{
 		$chk = strtolower($name);
 		$pre = substr($chk, 0, 3);
@@ -127,26 +127,26 @@ class ContentType implements ArrayAccess
 		}
 	}
 
-	public function offsetExists($key) : bool
+	public function offsetExists(/*mixed */$key): bool
 	{
 		return !empty($this->$key);
 	}
 
 	#[\ReturnTypeWillChange]
-	public function offsetGet($key)// : mixed
+	public function offsetGet(/*mixed */$key)//: mixed
 	{
 		if( isset($this->$key) ) return $this->$key;
 		return null;
 	}
 
-	public function offsetSet($key,$value) : void
+	public function offsetSet(/*mixed */$key,$value): void
 	{
 		$this->$key = $value;
 	}
 
-	public function offsetUnset($key) : void
+	public function offsetUnset(/*mixed */$key): void
 	{
 		unset($this->$key);
 	}
 }
-//if (!\class_exists('', false)) \class_alias(ContentType::class, '', false);
+//if (!\class_exists('CmsContentTypePlaceHolder', false)) \class_alias(ContentType::class, 'CmsContentTypePlaceHolder', false);

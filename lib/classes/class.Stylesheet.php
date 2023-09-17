@@ -121,8 +121,7 @@ class Stylesheet
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	public function __clone()
+	public function __clone(): void
 	{
 		unset($this->props['id']);
 		$this->props['type_dflt'] = FALSE;
@@ -132,7 +131,7 @@ class Stylesheet
 	/**
 	 * @ignore
 	 */
-	public function __set(string $key, $value) : void
+	public function __set(string $key, $value): void
 	{
 		switch( $key ) {
 			case 'id':
@@ -203,7 +202,7 @@ class Stylesheet
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	public function __get(string $key)
+	public function __get(string $key)//: mixed
 	{
 		switch( $key ) {
 			case 'id':
@@ -242,7 +241,7 @@ class Stylesheet
 	 *
 	 * @return array
 	 */
-	public function get_properties() : array
+	public function get_properties(): array
 	{
 		$props = $this->props;
 		$props['groups'] = $this->groups ?? [];
@@ -289,7 +288,7 @@ class Stylesheet
 	 * @return int, 0 if this stylesheet has not yet
 	 *  been saved to the database
 	 */
-	public function get_id() : int
+	public function get_id(): int
 	{
 		return $this->props['id'] ?? 0;
 	}
@@ -318,7 +317,7 @@ class Stylesheet
 	 *
 	 * @return string, '' if the originator has not yet been nominated.
 	 */
-	public function get_originator() : string
+	public function get_originator(): string
 	{
 		return $this->props['originator'] ?? '';
 	}
@@ -388,7 +387,7 @@ class Stylesheet
 	 *
 	 * @return string  Default ''
 	 */
-	public function get_description() : string
+	public function get_description(): string
 	{
 		return $this->props['description'] ?? '';
 	}
@@ -411,7 +410,7 @@ class Stylesheet
 	 *
 	 * @return int, 0 if un-typed
 	 */
-	public function get_type() : int
+	public function get_type(): int
 	{
 		return $this->props['type_id'] ?? 0;
 		//return StylesheetType::load($id);
@@ -447,7 +446,7 @@ class Stylesheet
 	 *
 	 * @return bool
 	 */
-	public function get_type_default() : bool
+	public function get_type_default(): bool
 	{
 		return $this->props['type_dflt'] ?? FALSE;
 	}
@@ -562,7 +561,7 @@ class Stylesheet
 	 *
 	 * @return array Array of integer group id's
 	 */
-	public function get_groups() : array
+	public function get_groups(): array
 	{
 		return $this->groups ?? [];
 	}
@@ -752,7 +751,7 @@ class Stylesheet
 	 *
 	 * @return bool
 	 */
-	public function get_listable() : bool
+	public function get_listable(): bool
 	{
 		return $this->props['listable'] ?? FALSE;
 	}
@@ -773,7 +772,7 @@ class Stylesheet
 	/**
 	 * @ignore
 	 */
-	private static function get_locks() : array
+	private static function get_locks(): array
 	{
 		if( !self::$lock_cache_loaded ) {
 			self::$lock_cache = [];
@@ -806,7 +805,7 @@ class Stylesheet
 	 *
 	 * @return bool
 	 */
-	public function locked() : bool
+	public function locked(): bool
 	{
 		$lock = $this->get_lock();
 		return is_object($lock);
@@ -818,7 +817,7 @@ class Stylesheet
 	 *
 	 * @return bool
 	 */
-	public function lock_expired() : bool
+	public function lock_expired(): bool
 	{
 		$lock = $this->get_lock();
 		if( !is_object($lock) ) return FALSE;
@@ -830,7 +829,7 @@ class Stylesheet
 	 *
 	 * @return string
 	 */
-	public function get_content() : string
+	public function get_content(): string
 	{
 		if( !empty($this->props['contentfile']) ) {
 			if( !isset($this->filecontent) ) {
@@ -880,7 +879,7 @@ class Stylesheet
 	 *
 	 * @return string
 	 */
-	public function get_content_filename() : string
+	public function get_content_filename(): string
 	{
 		$fn = $this->props['content'] ?? '';
 		if( $fn && strpos($fn, ' ') === FALSE && endswith($fn, '.css') ) {
@@ -896,7 +895,7 @@ class Stylesheet
 	 *
 	 * @return bool
 	 */
-	public function get_content_file() : bool
+	public function get_content_file(): bool
 	{
 		return $this->props['contentfile'] ?? FALSE;
 	}

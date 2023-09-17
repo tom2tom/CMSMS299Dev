@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to display system-maintenance actions
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -195,7 +195,7 @@ if (isset($_POST['addaliases'])) {
                 $alias_num_add = 2;
                 // If a '-2' version of the alias already exists
                 // Check the '-3' version etc.
-                while ($contentops->CheckAliasError($alias . '-' . $alias_num_add) !== false) {
+                while ($contentops->CheckAliasError($alias . '-' . $alias_num_add)) {
                     $alias_num_add++;
                 }
                 $alias .= '-' . $alias_num_add;
@@ -347,14 +347,12 @@ if (is_readable($ch_filename)) {
  */
 //$nonce = get_csp_token();
 $out = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 function confirmsubmit(form,msg) {
  cms_confirm(msg,'',cms_lang('yes')).done(function() {
   $(form).off('submit').trigger('submit');
  });
 }
-//]]>
 </script>
 EOS;
 add_page_foottext($out);

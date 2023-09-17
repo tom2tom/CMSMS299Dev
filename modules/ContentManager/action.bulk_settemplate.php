@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManager module action: bulk_settemplate
-Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -136,14 +136,12 @@ if ($showmore) {
 }
 
 $js = <<<'EOS'
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
   $('#showmore_ctl').on('click', function() {
     $(this).closest('form').submit();
   });
 });
-//]]>
 </script>
 EOS;
 add_page_foottext($js);

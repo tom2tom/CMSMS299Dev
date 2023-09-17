@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton class of methods for managing module metadata
-Copyright (C) 2011-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2011-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -76,8 +76,7 @@ final class LoadedMetadata extends LoadedData
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * Get the singleton instance of this class
@@ -125,7 +124,7 @@ final class LoadedMetadata extends LoadedData
 	 * @param bool   $match  Optional capability-status to match. Default true.
 	 * @return array of matching module names, possibly empty
 	 */
-	public static function CapableModules(bool $force, string $capability, $params = [], bool $match = true) : array
+	public static function CapableModules(bool $force, string $capability, $params = [], bool $match = true): array
 	{
 		if( !$capability ) return [];
 
@@ -175,7 +174,7 @@ final class LoadedMetadata extends LoadedData
 	 *  LoadedMetadata::ANY_RESULT for any value. Default true.
 	 * @return array of matching module names i.e. possibly empty
 	 */
-	public static function MethodicModules(bool $force, string $method, $returnvalue = true) : array
+	public static function MethodicModules(bool $force, string $method, $returnvalue = true): array
 	{
 		if( !$method ) return [];
 
@@ -211,7 +210,7 @@ final class LoadedMetadata extends LoadedData
 	 * @param varargs $details Optional extra parameters
 	 * @return bool
 	 */
-	public function has(string $type, ...$details) : bool
+	public function has(string $type, ...$details): bool
 	{
 		if( isset($this->customs[$type]) ) {
 			if( !$details || $details[0] === '*' ) {
@@ -468,7 +467,7 @@ final class LoadedMetadata extends LoadedData
 	 * @internal
 	 * @ignore
 	 */
-	public function save()
+	public function save(): void
 	{
 		$cache = $this->get_main_cache();
 		foreach( $this->data as $type => $val ) {
@@ -490,7 +489,7 @@ final class LoadedMetadata extends LoadedData
 	 * @param bool   $match  Optional capability-status to match. Default true.
 	 * @return array of matching module names, possibly empty
 	 */
-	public function module_list_by_capability(string $capability, $params = [], bool $match = true) : array
+	public function module_list_by_capability(string $capability, $params = [], bool $match = true): array
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'LoadedMetadata\')->get(\'capable_modules\', $forced, parms ...)'));
 		return Lone::get('LoadedMetadata')->get('capable_modules', false, $capability, $params, $match);
@@ -509,7 +508,7 @@ final class LoadedMetadata extends LoadedData
 	 *  LoadedMetadata::ANY_RESULT for any value. Default true.
 	 * @return array of matching module names i.e. possibly empty
 	 */
-	public function module_list_by_method(string $method, $returnvalue = true) : array
+	public function module_list_by_method(string $method, $returnvalue = true): array
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'LoadedMetadata\')->get(\'methodic_modules\', parms ...)'));
 		return Lone::get('LoadedMetadata')->get('methodic_modules', false, $method, $returnvalue);
@@ -522,7 +521,7 @@ final class LoadedMetadata extends LoadedData
 	 * @param array $details
 	 * @return string
 	 */
-	protected function get_subtype(array $details) : string
+	protected function get_subtype(array $details): string
 	{
 		switch( count($details) ) {
 			case 1:

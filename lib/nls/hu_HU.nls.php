@@ -1,6 +1,6 @@
 <?php
 #Hungarian translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 #The basic idea and values was taken from then Horde Framework (http://horde.org)
 #The original filename was horde/config/nls.php.
 #The modifications to fit it for Gallery were made by Jens Tkotz
-#(http://gallery.meanalto.com) 
+#(http://gallery.meanalto.com)
 
 #Ideas from Gallery's implementation made to CMS by Ted Kulp
 
@@ -34,11 +34,11 @@ $nls['englishlang']['hu_HU'] = 'Hungarian';
 
 #Possible aliases for language
 $nls['alias']['hu'] = 'hu_HU';
-$nls['alias']['hungarian'] = 'hu_HU' ;
-$nls['alias']['magyar'] = 'hu_HU' ;
-$nls['alias']['hu_HU'] = 'hu_HU' ;
-$nls['alias']['hu_HU.WINDOWS-1250'] = 'hu_HU' ;
-$nls['alias']['hu_HU.ISO8859-2'] = 'hu_HU' ;
+$nls['alias']['hungarian'] = 'hu_HU';
+$nls['alias']['magyar'] = 'hu_HU';
+$nls['alias']['hu_HU'] = 'hu_HU';
+$nls['alias']['hu_HU.WINDOWS-1250'] = 'hu_HU';
+$nls['alias']['hu_HU.ISO8859-2'] = 'hu_HU';
 
 #Possible locale for language
 $nls['locale']['hu_HU'] = 'hu_HU.utf8,hu_HU.utf-8,hu_HU.UTF-8,hu_HU,hungarian,Hungarian_Hungary.1250';
@@ -47,11 +47,10 @@ $nls['locale']['hu_HU'] = 'hu_HU.utf8,hu_HU.utf-8,hu_HU.UTF-8,hu_HU,hungarian,Hu
 $nls['encoding']['hu_HU'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['hu_HU'] = array(__DIR__.'/hu_HU/admin.inc.php');
+$nls['file']['hu_HU'] = [__DIR__.'/hu_HU/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['hu_HU'] = 'hu';
-?>

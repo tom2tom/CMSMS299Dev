@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin which records a stylesheet file to be accumulated for inclusion in a page or template
-Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

@@ -1,6 +1,6 @@
 <?php
 #Polish translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -34,8 +34,8 @@ $nls['englishlang']['pl_PL'] = 'Polish';
 
 #Possible aliases for language
 $nls['alias']['pl'] = 'pl_PL';
-$nls['alias']['polish'] = 'pl_PL' ;
-$nls['alias']['pl_PL.ISO8859-2'] = 'pl_PL' ;
+$nls['alias']['polish'] = 'pl_PL';
+$nls['alias']['pl_PL.ISO8859-2'] = 'pl_PL';
 
 #Possible locale for language
 $nls['locale']['pl_PL'] = 'pl_PL.utf8,pl_PL.UTF-8,pl_PL.utf.8,pl_PL,polish,Polish_Poland.1250';
@@ -44,11 +44,10 @@ $nls['locale']['pl_PL'] = 'pl_PL.utf8,pl_PL.UTF-8,pl_PL.utf.8,pl_PL,polish,Polis
 $nls['encoding']['pl_PL'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['pl_PL'] = array(__DIR__.'/pl_PL/admin.inc.php');
+$nls['file']['pl_PL'] = [__DIR__.'/pl_PL/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this whpl translations exist in HTMLarea and plugin dirs
 # (please spld language files to HTMLarea developmplt)
 
 $nls['htmlarea']['pl_PL'] = 'pl';
-?>

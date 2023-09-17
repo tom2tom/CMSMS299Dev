@@ -1,7 +1,7 @@
 <?php
 /*
 File identification class
-Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -479,7 +479,7 @@ class FileTypeHelper
      * @param string $filename Filesystem absolute path or include-path-resolvable path
      * @return bool
      */
-    public function is_text(string $filename) : bool
+    public function is_text(string $filename): bool
     {
         if( ($filename = $this->is_readable($filename)) ) {
             $type = $this->get_mime_type($filename);
@@ -512,7 +512,7 @@ class FileTypeHelper
      * @param string $filename At least the basename of a file
      * @return bool
      */
-    public function is_executable(string $filename) : bool
+    public function is_executable(string $filename): bool
     {
         // extensions only
         $ext = $this->get_extension($filename);
@@ -543,7 +543,7 @@ class FileTypeHelper
      * @param mixed int|FileType|string identifier
      * @return strings array, maybe empty
      */
-    public function get_file_type_extensions($id) : array
+    public function get_file_type_extensions($id): array
     {
         switch($id) {
             case FileType::IMAGE:
@@ -571,7 +571,7 @@ class FileTypeHelper
      * @param mixed int|FileType|string identifier
      * @return string, maybe ''
      */
-    public function get_file_type_mime($id) : string
+    public function get_file_type_mime($id): string
     {
         switch($id) {
             case FileType::IMAGE:
@@ -600,7 +600,7 @@ class FileTypeHelper
      * @param string $haystack mediatype maybe multiple, maybe wildcarded
      * @return bool
      */
-    public function match_mime(string $filemime, string $haystack) : bool
+    public function match_mime(string $filemime, string $haystack): bool
     {
         if( strpos($haystack, ',') !== FALSE ) {
             $parts = explode(',', $haystack);
@@ -623,7 +623,7 @@ class FileTypeHelper
      * @param bool $matchcase optional flag, whether to do a case-sensitive check. Default FALSE.
      * @return bool
      */
-    public function match_extension(string $fileext, $haystack, bool $matchcase = FALSE) : bool
+    public function match_extension(string $fileext, $haystack, bool $matchcase = FALSE): bool
     {
         if( is_string($haystack) ) {
             if( strpos($haystack, ',') !== FALSE ) {
@@ -671,7 +671,7 @@ class FileTypeHelper
      * @param bool $image optional Flag whether to repair only image-types Default false
      * @return string with cleaned base and lowercase cleaned extension
      */
-    public function clean_filepath(string $filename, bool $image = FALSE) : string
+    public function clean_filepath(string $filename, bool $image = FALSE): string
     {
         $ext = $this->get_extension($filename);
         if( $ext ) {

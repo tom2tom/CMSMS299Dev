@@ -1,7 +1,7 @@
 <?php
 /*
 A class of convenience functions for admin console requests
-Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -81,8 +81,7 @@ final class AdminUtils
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * Test if a string is suitable for use as a name of an item in CMSMS.
@@ -114,7 +113,7 @@ final class AdminUtils
 	 * @param string $in_url The input URL that has the session key in it.
 	 * @return string A relative URL that is converted to a generic form.
 	 */
-	public static function get_generic_url(string $in_url) : string
+	public static function get_generic_url(string $in_url): string
 	{
 		static $rem1 = null; // avoid umpteen calc's of the same value
 
@@ -140,7 +139,7 @@ final class AdminUtils
 	 * @param string $in_url The generic url. Usually retrieved from a preference or from the database
 	 * @return string A URL that has a session key in it.
 	 */
-	public static function get_session_url(string $in_url) : string
+	public static function get_session_url(string $in_url): string
 	{
 		if (!defined('CMS_USER_KEY') || !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY]) {
 			throw new LogicException('This method can only be called for admin requests');
@@ -154,7 +153,7 @@ final class AdminUtils
 	 *
 	 * @return string
 	 */
-	public static function fetch_latest_cmsms_ver() : string
+	public static function fetch_latest_cmsms_ver(): string
 	{
 		$last_fetch = (int) AppParams::get('last_remotever_check');
 		$remote_ver = AppParams::get('last_remotever');
@@ -165,7 +164,7 @@ final class AdminUtils
 			if ($req->getStatus() == 200) {
 				$remote_ver = trim($req->getResult());
 				if (strpos($remote_ver, ':') !== false) {
-					list($tmp, $remote_ver) = explode(':', $remote_ver, 2);
+					[$tmp, $remote_ver] = explode(':', $remote_ver, 2);
 					$remote_ver = trim($remote_ver);
 				}
 				AppParams::set('last_remotever', $remote_ver);
@@ -180,7 +179,7 @@ final class AdminUtils
 	 *
 	 * @return bool
 	 */
-	public static function site_needs_updating() : bool
+	public static function site_needs_updating(): bool
 	{
 		$remote_ver = self::fetch_latest_cmsms_ver();
 		return version_compare(CMS_VERSION, $remote_ver) < 0;
@@ -195,7 +194,7 @@ final class AdminUtils
 	 * @param array $attrs Since 3.0 Optional assoc array of attributes for the created img tag
 	 * @return string
 	 */
-	public static function get_icon(string $icon, array $attrs = []) : string
+	public static function get_icon(string $icon, array $attrs = []): string
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AdminTheme::get_icon'));
 		$themeObject = Lone::get('Theme');
@@ -212,17 +211,17 @@ final class AdminUtils
 	 * If neither 'title'|'titlekey' is provided, the fallback will be 'key'|'key2'
 	 *
 	 * @param $args string(s) varargs
-	 * @return mixed string HTML content of the help tag, or null
+	 * @return string HTML content of the help tag, or empty
 	 */
-	public static function get_help_tag(...$args)
+	public static function get_help_tag(...$args): string
 	{
-		if (!AppState::test(AppState::ADMIN_PAGE)) return;
+		if (!AppState::test(AppState::ADMIN_PAGE)) return '';
 
 		$themeObject = Lone::get('Theme');
-		if (!is_object($themeObject)) return;
+		if (!is_object($themeObject)) return '';
 
 		$icon = $themeObject->get_icon('info', ['class'=>'cms_helpicon']);
-		if (!$icon) return;
+		if (!$icon) return '';
 
 		$params = [];
 		if (count($args) >= 2 && is_string($args[0]) && is_string($args[1])) {
@@ -264,7 +263,7 @@ final class AdminUtils
 			}
 		}
 
-		if (!$key1) return;
+		if (!$key1) return '';
 
 		if ($key2 !== '') { $key1 .= '__'.$key2; }
 		if ($title === '') {
@@ -348,7 +347,7 @@ final class AdminUtils
 		bool $allow_current = false,
 		bool $use_perms = false,
 		bool $allow_all = false,
-		bool $for_child = false) : string
+		bool $for_child = false): string
 	{
 		// static properties here >> Lone property|ies ?
 		static $count = 1;
@@ -383,7 +382,7 @@ final class AdminUtils
 		if ($first) {
 			$out = <<<EOS
 
-<script type="text/javascript" src="$script_url"></script>
+<script src="$script_url"></script>
 EOS;
 		} else {
 			$out = <<<EOS
@@ -392,8 +391,7 @@ EOS;
 		}
 		$out .= <<<EOS
 
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
 EOS;
 		if ($first) {
@@ -407,7 +405,6 @@ EOS;
 
  $('#{$elemid}').hierselector($str);
 });
-//]]>
 </script>
 EOS;
 add_page_foottext($out);

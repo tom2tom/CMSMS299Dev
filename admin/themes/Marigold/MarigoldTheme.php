@@ -1,7 +1,7 @@
 <?php
 /*
 Marigold - an admin-console theme for CMS Made Simple
-Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -67,6 +67,10 @@ class MarigoldTheme extends AdminTheme
 	 * @ignore
 	 */
 	private $_havetree = [];
+	/**
+	 * @ignore
+	 */
+	private $iconsmap;
 
 	/**
 	 * Hook accumulator-function to nominate runtime resources, which will be
@@ -76,9 +80,9 @@ class MarigoldTheme extends AdminTheme
 	 * [0] = array of data for js vars, members like varname=>varvalue
 	 * [1] = array of string(s) for includables
 	 */
-	public function AdminHeaderSetup() : array
+	public function AdminHeaderSetup(): array
 	{
-		list($vars, $add_list) = parent::AdminHeaderSetup();
+		[$vars, $add_list] = parent::AdminHeaderSetup();
 
 		$incs = cms_installed_jquery(true, true, true, true);
 
@@ -90,7 +94,7 @@ class MarigoldTheme extends AdminTheme
 		// jQUI css does, and theme-specific css files might, include relative URLs, so cannot be merged
 		$url = cms_path_to_url($incs['jquicss']);
 		$out .= <<<EOS
-<link rel="stylesheet" href="$url">
+<link rel="stylesheet" href="{$url}">
 
 EOS;
 		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
@@ -128,7 +132,29 @@ EOS;
 		return [$vars, $add_list];
 	}
 
-	public function display_login_page()// : void
+	public function get_navigation_tree($parent = '', int $maxdepth = 3, bool $usepath = true, int $alldepth = 2, bool $striproot = true): array
+	{
+		if (!isset($this->iconsmap)) {
+			// get page-icons map
+			require __DIR__.DIRECTORY_SEPARATOR.'function.pageicons.php';
+			$this->iconsmap = $iconsmap;
+		}
+
+		$nodes = parent::get_navigation_tree($parent, $maxdepth, $usepath, $alldepth, $striproot);
+		foreach ($nodes as &$one) {
+			if (isset($this->iconsmap[$one['name']])) {
+				$one['iconclass'] = $this->iconsmap[$one['name']];
+			} elseif (!empty($one['module'])) { // TODO distinguish default from settings
+				$modname = $one['module'];
+				//TODO prefer a fonticon
+				$one['img'] = $this->get_module_icon($modname, ['class'=>'module-icon', 'alt'=>$modname]); //html string
+			}
+		}
+		unset($one);
+		return $nodes;
+	}
+
+	public function display_login_page(): void
 	{
 		$auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
 		$mod = Lone::get('ModuleOperations')->get_module_instance($auth_module, '', true);
@@ -178,8 +204,8 @@ EOS;
  <link rel="stylesheet" href="themes/Marigold/styles/{$fn}.css">
 
 EOS;
-//		get_csp_token(); //setup CSP header (result not used)
-		$tpl = ' <script type="text/javascript" src="%s"></script>'.PHP_EOL;
+//		$nonce = get_csp_token(); //setup CSP header (result not used)
+		$tpl = ' <script src="%s"></script>'.PHP_EOL;
 		$url = cms_path_to_url($incs['jqcore']);
 		$out .= sprintf($tpl, $url);
 		$url = cms_path_to_url($incs['jqui']);
@@ -206,15 +232,31 @@ EOS;
 	 *  usually null to use the whole menu
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function fetch_menu_page(string $section_name) : ?string
+	public function fetch_menu_page(string $section_name): ?string
 	{
+		if (!isset($this->iconsmap)) {
+			// get page-icons map
+			require __DIR__.DIRECTORY_SEPARATOR.'function.pageicons.php';
+			$this->iconsmap = $iconsmap;
+		}
+
 		$smarty = Lone::get('Smarty');
 		if ($section_name) {
 //			$smarty->assign('section_name', $section_name);
-			$nodes = $this->get_navigation_tree($section_name, 0);
+			$nodes = parent::get_navigation_tree($section_name, 0);
 		} else {
-			$nodes = $this->get_navigation_tree(null, 3, 'root:view:dashboard');
+			$nodes = parent::get_navigation_tree('', 3, 'root:view:dashboard');
 		}
+		foreach ($nodes as &$one) {
+			if (isset($iconsmap[$one['name']])) {
+				$one['iconclass'] = $this->iconsmap[$one['name']];
+			} elseif (!empty($one['module'])) { // TODO default != settings
+				$modname = $one['module'];
+				$one['img'] = $this->get_module_icon($modname, ['alt'=>$modname, 'class'=>'module-icon']); //html string
+			}
+		}
+		unset($one);
+
 //		$this->_havetree = $nodes; //block further tree-data changes
 		$smarty->assign('nodes', $nodes)
 		  ->assign('pagetitle', $this->title) //not used in current template
@@ -223,7 +265,7 @@ EOS;
 		$config = Lone::get('Config');
 		$smarty->assign('admin_url', $config['admin_url'])
 		  ->assign('theme', $this)
-		  ->assign('theme_path',__DIR__)
+		  ->assign('theme_path', __DIR__)
 		  ->assign('theme_root', $config['admin_url'].'/themes/Marigold');
 
 		// is the website set down for maintenance?
@@ -239,7 +281,7 @@ EOS;
 	 * @param string $content page content to be processed
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function fetch_page(string $content) : ?string
+	public function fetch_page(string $content): ?string
 	{
 		$smarty = Lone::get('Smarty');
 		$userid = get_userid(false);

@@ -1,7 +1,7 @@
 <?php
 /*
 Enum class: identifies types/frequencies of cron-job recurrence.
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -84,6 +84,6 @@ final class RecurType extends BasicEnum
     const RECUR_NONE = 1000;
 
     private function __construct() {}
-    #[\ReturnTypeWillChange]
-    private function __clone() {}// : void {}
+
+    private function __clone(): void {}
 } // class

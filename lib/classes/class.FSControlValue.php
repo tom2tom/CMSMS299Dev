@@ -1,7 +1,7 @@
 <?php
 /*
 Class defining folder-specific property values
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -15,7 +15,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -36,6 +36,5 @@ class FSControlValue extends BasicEnum
     const FLAG_BYGROUP = 2;
 
     private function __construct() {}
-    #[\ReturnTypeWillChange]
-    private function __clone() {}// : void {}
+    private function __clone(): void {}
 }

@@ -55,6 +55,7 @@
     {/strip}</div>{* fp-navbar-inner *}
   </div>{* fp-navbar *}
   <div id="fp-wrap">
+   {if !empty($files)}
    <table id="fp-list">
     <thead>
      <tr class="fpitem header">{* title-row *}
@@ -125,9 +126,10 @@
 {/strip}{/foreach}
     </tbody>
    </table>{* fp-list *}
+   {/if}
   </div>{* fp-wrap *}
   {if $profile->can_mkdir}{* popup dialog for mkdir *}
-  <div id="mkdir_dlg" title="{_ld($_module,'mkdir')}" style="display:none;">
+  <div id="mkdir_dlg" title="{_ld($_module,'mkdir')}" style="display:none">
    <div class="dlg-options">
     <label for="fld_mkdir">{_ld($_module,'name')}:</label> <input type="text" id="fld_mkdir">
    </div>

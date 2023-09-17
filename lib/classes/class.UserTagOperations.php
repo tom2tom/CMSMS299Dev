@@ -1,7 +1,7 @@
 <?php
 /*
 Class to process user-plugins (a.k.a. user-defined-tags)
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Culp and all other contributors from the CMSMS Development Team.
 
 This file is part of CMS Made Simple <http://cmsmadesimple.org>
@@ -101,8 +101,7 @@ final class UserTagOperations
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * Support for pre-3.0 method-names, and simplified explicit tag-running
@@ -112,7 +111,7 @@ final class UserTagOperations
 	 *  $args OR $args[0] should include: [0]=$params[], [1]=$template/smarty object
 	 */
 	#[\ReturnTypeWillChange]
-	public function __call(string $name, array $args)// : mixed
+	public function __call(string $name, array $args)//: mixed
 	{
 		if (strpos($name, 'User') !== false) {
 			$sn = str_replace('User', 'Simple', $name);
@@ -142,7 +141,7 @@ final class UserTagOperations
 	 *  [1] if present = template object (Smarty_Internal_Template or wrapper)
 	 */
 	#[\ReturnTypeWillChange]
-	public static function __callStatic(string $name, array $args)// : mixed
+	public static function __callStatic(string $name, array $args)//: mixed
 	{
 		$handler = Lone::get('UserTagOperations')->GetHandler($name); // what is self:: here
 		try {
@@ -157,7 +156,7 @@ final class UserTagOperations
 	 * @deprecated since 3.0 instead use CMSMS\Lone::get('UserTagOperations')
 	 * @return self i.e. UserTagOperations
 	 */
-	public static function get_instance() : self
+	public static function get_instance(): self
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'UserTagOperations\')'));
 		return Lone::get('UserTagOperations');
@@ -169,7 +168,7 @@ final class UserTagOperations
 	 * @param string $name plugin name or name(s)-pattern, suitable for file-system usage verbatim
 	 * @return string absolute path
 	 */
-	public function FilePath(string $name) : string
+	public function FilePath(string $name): string
 	{
 		return CMS_FILETAGS_PATH.DIRECTORY_SEPARATOR.$name.self::PLUGEXT;
 	}
@@ -186,7 +185,7 @@ final class UserTagOperations
 	 * @param string $name plugin identifier (as used in tags). A reference, so it can be trim()'d
 	 * @return bool indicating success
 	 */
-	private function IsValidName(string &$name) : bool
+	private function IsValidName(string &$name): bool
 	{
 		$name = trim($name);
 		if ($name) {
@@ -221,7 +220,7 @@ final class UserTagOperations
 	 * @param array $haystack
 	 * @return bool indicating presence
 	 */
-	private function ArrayHas(string $key, array $haystack) : bool
+	private function ArrayHas(string $key, array $haystack): bool
 	{
 		$lkey = strtolower($key); // TODO support non-ASCII
 		return isset($this->map[$lkey]) && isset($haystack[$this->map[$lkey]]);
@@ -283,7 +282,7 @@ final class UserTagOperations
 	 * @param string $name Plugin name
 	 * @return bool indicating success
 	 */
-//	public function ExportFile(string $name) : bool {}
+//	public function ExportFile(string $name): bool {}
 // see e.g. Template 'contentfile' property change
 
 	/* *
@@ -294,7 +293,7 @@ final class UserTagOperations
 	 * @param string $name Plugin name
 	 * @return bool indicating success
 	 */
-//	public function ImportFile(string $name) : bool {}
+//	public function ImportFile(string $name): bool {}
 // see e.g. Template 'contentfile' property change
 
 	/**
@@ -310,7 +309,7 @@ final class UserTagOperations
 	 * @param bool $fromfile optional flag whether the tag is file-stored. Default false.
 	 * @return string
 	 */
-	private function FilterforUse(string $code) : string
+	private function FilterforUse(string $code): string
 	{
 		// remove inappropriate php tags, if any
 //		$val =
@@ -529,7 +528,7 @@ final class UserTagOperations
 	 * @param $name plugin identifier
 	 * @return bool since 3.0, formerly $name|false
 	*/
-	public function UserTagExists(string $name) : bool
+	public function UserTagExists(string $name): bool
 	{
 		if (!$this->IsValidName($name)) {
 			$this->ArraySet($name, 0, $this->misses);
@@ -550,7 +549,7 @@ final class UserTagOperations
 	 * @param bool   $check_functions Optional flag. Default true. First, test if a plugin with such name is
 	 *  already registered with smarty
 	 */
-	public function SmartyTagExists(string $name, bool $check_functions = true) : bool
+	public function SmartyTagExists(string $name, bool $check_functions = true): bool
 	{
 		if ($check_functions) {
 			// might be registered by something else... a module perhaps
@@ -778,7 +777,7 @@ EOS;
 	 * @param string $name plugin name
 	 * @return bool indicating success
 	 */
-	public function RemoveUserTag(string $name) : bool
+	public function RemoveUserTag(string $name): bool
 	{
 		if ($this->ArrayHas($name, $this->misses)) return false;
 		if (!$this->ArrayHas($name, $this->cache)) {
@@ -811,7 +810,7 @@ EOS;
 	 *
 	 * @return array each member like id => tagname
 	 */
-	public function ListUserTags() : array
+	public function ListUserTags(): array
 	{
 		if (!$this->cache_full) {
 			$db = Lone::get('Db');
@@ -862,7 +861,7 @@ EOS;
 				$strfunc = $this->GetUserTag($name);
 			}
 			// subject to TODO above, we (naively?) assume no code-change between latest save and now
-			$handler = function (&$params = [], $template = null) use ($strfunc)
+			$handler = function(&$params = [], $template = null) use ($strfunc): string
 			{
 				// API doc says plugin code can also expect individual variables
 				if ($params) {
@@ -905,7 +904,7 @@ EOS;
 				return $ret;
 			};
 		} else { //bad call
-			$handler = function() {
+			$handler = function(): string {
 				return '<span style="font-weight:bold;color:red;">Missing plugin: '.$name.'</span>';
 			};
 		}

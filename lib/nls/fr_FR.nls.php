@@ -1,6 +1,6 @@
 <?php
 #French translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -30,13 +30,13 @@ $nls['englishlang']['fr_FR'] = 'French';
 
 #Possible aliases for language
 $nls['alias']['fr'] = 'fr_FR';
-$nls['alias']['french'] = 'fr_FR' ;
-$nls['alias']['fra'] = 'fr_FR' ;
-$nls['alias']['fr_BE'] = 'fr_FR' ;
-$nls['alias']['fr_CA'] = 'fr_FR' ;
-$nls['alias']['fr_LU'] = 'fr_FR' ;
-$nls['alias']['fr_CH'] = 'fr_FR' ;
-$nls['alias']['fr_FR.ISO8859-1'] = 'fr_FR' ;
+$nls['alias']['french'] = 'fr_FR';
+$nls['alias']['fra'] = 'fr_FR';
+$nls['alias']['fr_BE'] = 'fr_FR';
+$nls['alias']['fr_CA'] = 'fr_FR';
+$nls['alias']['fr_LU'] = 'fr_FR';
+$nls['alias']['fr_CH'] = 'fr_FR';
+$nls['alias']['fr_FR.ISO8859-1'] = 'fr_FR';
 
 #Possible locale for language
 $nls['locale']['fr_FR'] = 'fr_FR.UTF-8,fr_FR.utf8,fr_FR.utf-8,fr_FR,fr_FR@euro,french,French_France.1252';
@@ -45,9 +45,7 @@ $nls['locale']['fr_FR'] = 'fr_FR.UTF-8,fr_FR.utf8,fr_FR.utf-8,fr_FR,fr_FR@euro,f
 $nls['encoding']['fr_FR'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['fr_FR'] = array(__DIR__.'/fr_FR/admin.inc.php');
+$nls['file']['fr_FR'] = [__DIR__.'/fr_FR/admin.inc.php'];
 
 #Language setting for HTML area
 $nls['htmlarea']['fr_FR'] = 'fr';
-
-?>

@@ -1,7 +1,7 @@
 <?php
 /*
 Runtime help-string getter
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -34,7 +34,7 @@ if( !$key ) {
     $key = 'help';
 }
 if( strpos($key,'__') !== FALSE ) {
-    list($domain,$key) = explode('__',$key,2);
+    [$domain,$key] = explode('__',$key,2);
     if( strcasecmp($domain,'core') == 0 ) {
         $domain = LangOperations::CMSMS_ADMIN_REALM;
     }

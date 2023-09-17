@@ -63,7 +63,7 @@ class Smarty_Internal_Runtime_TplFunction
     public function registerTplFunctions(Smarty_Internal_TemplateBase $obj, $tplFunctions, $override = true)
     {
         $obj->tplFunctions =
-            $override ? array_merge($obj->tplFunctions, $tplFunctions) : array_merge($tplFunctions, $obj->tplFunctions);
+            $override ? array_merge($obj->tplFunctions, $tplFunctions): array_merge($tplFunctions, $obj->tplFunctions);
         // make sure that the template functions are known in parent templates
         if ($obj->_isSubTpl()) {
             $obj->smarty->ext->_tplFunction->registerTplFunctions($obj->parent, $tplFunctions, false);

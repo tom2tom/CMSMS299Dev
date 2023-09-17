@@ -906,7 +906,7 @@ class HttpRequest
             $this->addRequestHeader('User-Agent: ' . $this->userAgent);
             if (!$this->requestHeaderExists('Content-Type')) {
                 if (!$this->requestHeaderExists('Transfer-Encoding')) {
-                    $this->addRequestHeader('Content-Type: application/x-www-form-urlencoded; charset=UTF-8'); // TODO for POST only ?
+                    $this->addRequestHeader('Content-Type: application/x-www-form-urlencoded; charset=utf-8'); // TODO for POST only ?
                 } else {
                     $this->addRequestHeader('Content-Type: application/x-www-form-urlencoded');
                 }

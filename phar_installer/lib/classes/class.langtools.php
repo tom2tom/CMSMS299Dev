@@ -26,7 +26,7 @@ final class langtools
     {
     }
 
-    public static function get_instance() : self
+    public static function get_instance(): self
     {
         if (!is_object(self::$_instance)) {
             self::$_instance = new self();
@@ -40,7 +40,7 @@ final class langtools
      * @return array of hashes. Each element of the array will have
      *  members lang and priority, where priority is between 0 and 1
      */
-    public function get_browser_langs() : array
+    public function get_browser_langs(): array
     {
         $request = request::get_instance();
         $langs = $request->accept_language();
@@ -68,7 +68,7 @@ final class langtools
      * @param string The language identifier/locale
      * @return boolean
      */
-    public function language_available(string $str) : bool
+    public function language_available(string $str): bool
     {
         $obj = (new nlstools())->find($str);
         return is_object($obj);
@@ -79,7 +79,7 @@ final class langtools
      *
      * @return array of available language-locales c.f. en_US
      */
-    public function get_available_languages() : array
+    public function get_available_languages(): array
     {
         return (new nlstools())->get_list();
     }
@@ -114,7 +114,7 @@ final class langtools
      *
      * @return array of language strings
      */
-    public function get_allowed_languages() : array
+    public function get_allowed_languages(): array
     {
         return $this->_allowed_languages;
     }
@@ -128,7 +128,7 @@ final class langtools
      *  true if the specified language is allowed,
      *  false if not in the allowed list.
      */
-    public function language_allowed(string $str) : bool
+    public function language_allowed(string $str): bool
     {
         if ($this->_allowed_languages) {
             return in_array($str, $this->_allowed_languages);
@@ -180,7 +180,7 @@ final class langtools
      *
      * @return string
      */
-    public function get_default_language() : string
+    public function get_default_language(): string
     {
         if ($this->_dflt_language) {
             return $this->_dflt_language;
@@ -207,9 +207,8 @@ final class langtools
             $lang = $session['current_language'];
         } // it's stored in the session
         if (!$lang) {
-            $lang = $this->match_browser_lang();
-        } // get it from the browser
-
+            $lang = $this->match_browser_lang(); // get it from the browser
+        }
         return $lang;
     }
 
@@ -285,6 +284,7 @@ final class langtools
      * This method may store the selected language in the session, or a cookie etc.
      *
      * @param string The user selected language
+     * @throws langtools_Exception
      */
     public function set_selected_language($str)
     {
@@ -302,12 +302,12 @@ final class langtools
     /**
      * Set the language realm
      *
-     * @param string the realm name, if empty the default realm will be used.
+     * @param string the realm name. If empty the default realm will be used.
      */
-    public function set_realm($str = '')
+    public function set_realm($realm = '')
     {
-        if (!$str) {
-            $str = self::DFLT_REALM;
+        if (!$realm) {
+            $realm = self::DFLT_REALM;
         }
         $this->_realm = $realm;
     }
@@ -328,6 +328,7 @@ final class langtools
      *
      * @param string The realm name. If empty, the default realm is assumed.
      * @return string
+     * @throws langtools_Exception if the realm directory doesn't exist
      */
     public function get_lang_dir($realm = '')
     {
@@ -386,7 +387,7 @@ final class langtools
      * @param mixed - uses sprintf formatting,
      * @return string
      */
-    public function translate(...$args) : string
+    public function translate(...$args): string
     {
         if (count($args) == 1 && is_array($args[0])) {
             $args = $args[0];

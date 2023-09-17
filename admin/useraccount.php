@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure for the current admin user to modify her/his own account data
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -24,7 +24,7 @@ use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\ScriptsMerger;
 use CMSMS\Lone;
-use CMSMS\UserOperations;
+//use CMSMS\UserOperations;
 use function CMSMS\de_specialize_array;
 use function CMSMS\log_info;
 use function CMSMS\sanitizeVal;
@@ -52,7 +52,7 @@ if (!check_permission($userid, 'Manage My Account')) {
 $userobj = Lone::get('UserOperations')->LoadUserByID($userid);
 
 /* DEBUG
-$tester = function($user, $pw)
+$tester = function(?User $user, string $pw): array
 {
 	$lvl = 2; //AppParams::get('password_level', 0);
 	switch ($lvl) {

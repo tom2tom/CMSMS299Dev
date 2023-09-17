@@ -1,7 +1,7 @@
 <?php
 /*
 Class of methods for dealing with language/encoding/locale
-Copyright (C) 2015-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2015-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -81,8 +81,7 @@ final class NlsOperations
 	 * @ignore
 	 */
 	private function __construct() {}
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * @ignore
@@ -149,7 +148,7 @@ final class NlsOperations
 	 * @since 3.0
 	 * @return string 'ltr' or 'rtl'
 	 */
-	public static function get_language_direction() : string
+	public static function get_language_direction(): string
 	{
 		$lang = self::get_language_info(self::get_current_language());
 		if( is_object($lang) && $lang->direction() == 'rtl' ) { return 'rtl'; }
@@ -172,7 +171,7 @@ final class NlsOperations
 	 * @param string The desired language, a string like.
 	 * @return bool
 	 */
-	public static function set_language(string $lang = '') : bool
+	public static function set_language(string $lang = ''): bool
 	{
 		$curlang = ( self::$_cur_lang != '' ) ? self::$_cur_lang : '';
 
@@ -206,7 +205,7 @@ final class NlsOperations
 	 *
 	 * @return string Language descriptor (like 'en' or 'en_US')
 	 */
-	public static function get_current_language() : string
+	public static function get_current_language(): string
 	{
 		if( isset(self::$_cur_lang) ) {
 			return self::$_cur_lang;
@@ -233,7 +232,7 @@ final class NlsOperations
 	 * @see set_language_detector
 	 * @return string language name (like 'en' or 'en_US')
 	 */
-	public static function get_default_language() : string
+	public static function get_default_language(): string
 	{
 		if( self::$_stored_dflt_language ) {
 			return self::$_stored_dflt_language;
@@ -260,7 +259,7 @@ final class NlsOperations
 	 *
 	 * @return string language name (like 'en' or 'en_US')
 	 */
-	protected static function get_frontend_language() : string
+	public static function get_frontend_language(): string
 	{
 		$lang = trim(AppParams::get('frontendlang'));
 		if( !$lang ) $lang = 'en_US';
@@ -274,10 +273,10 @@ final class NlsOperations
 	 *
 	 * @return string language name (like 'en' or 'en_US')
 	 */
-	protected static function get_admin_language() : string
+	protected static function get_admin_language(): string
 	{
 		$uid = 0;
-        $lang = '';
+		$lang = '';
 		if( !AppState::test(AppState::LOGIN_PAGE) ) {
 			$uid = get_userid(false);
 			if( $uid ) {
@@ -317,13 +316,13 @@ final class NlsOperations
 	 * Find the first available language which matches the browser preferred
 	 * language.
 	 *
-	 * @return mixed string (first suitable lang identifier) | null
+	 * @return mixed string (first suitable lang identifier) | empty
 	 */
-	public static function detect_browser_language()
+	public static function detect_browser_language(): string
 	{
 		$langs = self::get_browser_languages();
 		if( !$langs || !is_array($langs) ) {
-			return;
+			return '';
 		}
 		self::_load_nls();
 		// check for exact match
@@ -340,6 +339,7 @@ final class NlsOperations
 				}
 			}
 		}
+		return '';
 	}
 
 	/**
@@ -347,9 +347,9 @@ final class NlsOperations
 	 *
 	 * @return array string(s) representing the languages the browser supports | empty
 	 */
-	public static function get_browser_languages()
+	public static function get_browser_languages(): array
 	{
-		if( !isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ) return;
+		if( !isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ) return [];
 
 		$in = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 		preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})*)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i', $in, $matches);
@@ -381,6 +381,30 @@ final class NlsOperations
 	}
 
 	/**
+	 * Return a string derived from locale identifier $lang and suitable
+	 * for use as a html-element lang attribute.
+	 * This is not NLS-specific ATM, but might be amended to interrogate
+	 * identifier aliases
+	 * @since 2.2.19
+	 *
+	 * @param string $lang any length, but normally like 'de[_DE]'
+	 * @return string 2 bytes (like 'en') or 5 bytes (like 'en-GB')
+	 */
+	public static function get_lang_attribute(string $lang): string
+	{
+		$a = substr($lang, 0, 2);
+		if (strlen($lang) < 5) {
+			return $a;
+		}
+		else {
+			if (!($lang[2] == '_' || $lang[2] == '-')) { return $a; }
+			$b = substr($lang, 3, 2);
+			if (strcasecmp($a, $b) == 0) { return $a; }
+			return "$a-$b";
+		}
+	}
+
+	/**
 	 * Return the currently active encoding.
 	 * If an encoding has not been explicitly set, the default_encoding value
 	 * from the config file will be used. If that value is empty, the encoding
@@ -389,7 +413,7 @@ final class NlsOperations
 	 *
 	 * @return string.
 	 */
-	public static function get_encoding() : string
+	public static function get_encoding(): string
 	{
 		// has it been explicity set somewhere?
 		if( self::$_encoding ) {
@@ -416,11 +440,11 @@ final class NlsOperations
 	public static function set_encoding($str)
 	{
 		if( $str ) {
-    		self::$_encoding = strtoupper($str);
+			self::$_encoding = strtoupper($str);
 		}
-        else {
-    		self::$_encoding = ''; // aka undefined
-        }
+		else {
+			self::$_encoding = ''; // aka undefined
+		}
 	}
 
 	/**

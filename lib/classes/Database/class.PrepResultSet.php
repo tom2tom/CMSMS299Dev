@@ -2,7 +2,7 @@
 /*
 Class PrepResultSet: methods for interacting with MySQL or compatible
  prepared selection-command result
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -86,7 +86,7 @@ class PrepResultSet extends ResultSet
         $this->_stmt->free_result();
     }
 
-    protected function move(int $idx) : bool
+    protected function move(int $idx): bool
     {
         if ($idx == $this->_pos) {
             return true;
@@ -105,7 +105,7 @@ class PrepResultSet extends ResultSet
         return false;
     }
 
-    public function getArray() : array
+    public function getArray(): array
     {
         $results = [];
         if (($c = $this->_nrows) > 0) {
@@ -127,7 +127,7 @@ class PrepResultSet extends ResultSet
         return $results;
     }
 
-    public function getAssoc(bool $force_array = false, bool $first2cols = false) : array
+    public function getAssoc(bool $force_array = false, bool $first2cols = false): array
     {
         $results = [];
         $c = $this->_nrows;
@@ -166,7 +166,7 @@ class PrepResultSet extends ResultSet
         return $results;
     }
 
-    public function getCol(bool $trim = false) : array
+    public function getCol(bool $trim = false): array
     {
         $results = [];
         if (($c = $this->_nrows) > 0) {
@@ -188,7 +188,7 @@ class PrepResultSet extends ResultSet
         return $results;
     }
 
-    public function getOne()// : mixed
+    public function getOne()//: mixed
     {
         if (!$this->EOF()) {
             //avoid returning a reference
@@ -199,12 +199,12 @@ class PrepResultSet extends ResultSet
         return null;
     }
 
-    public function fieldCount() : int
+    public function fieldCount(): int
     {
         return $this->_stmt->field_count;
     }
 
-    public function fields($key = '')// : mixed
+    public function fields($key = '')//: mixed
     {
         if ($this->_row) {
             if (!$key) {

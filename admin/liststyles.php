@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to list stylesheets and groups
-Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -477,13 +477,13 @@ if( $groups ) {
         if( $grppages > 2 ) {
             $elid1 = '"pspage2"';
             $elid2 = '"ntpage2"' ;
-            if( !isset($pagelengths) ) {
-                $pagelengths = [10=>10];
-                if( $n > 20 ) $pagelengths[20] = 20;
-                if( $n > 40 ) $pagelengths[40] = 40;
-                $pagelengths[0] = _la('all');
-                $smarty->assign('pagelengths', $pagelengths)
-                 ->assign('currentlength', $sellength);
+            if( !isset($pagelengths2) ) {
+                $pagelengths2 = [10=>10];
+                if( $n > 20 ) $pagelengths2[20] = 20;
+                if( $n > 40 ) $pagelengths2[40] = 40;
+                $pagelengths2[0] = _la('all');
+                $smarty->assign('pagelengths2', $pagelengths2)
+                 ->assign('currentlength2', $sellength);
             }
         }
         else {

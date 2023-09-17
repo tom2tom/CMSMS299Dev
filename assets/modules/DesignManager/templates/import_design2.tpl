@@ -8,7 +8,7 @@
   <div class="boxchild">
     <div class="pageoverflow">
       {$lbltxt=_ld($_module,'prompt_name')}<label class="pagetext" for="import_newname">{$lbltxt}:</label>
-      {cms_help 0=$_module key='help_import_newname' title=$lbltxt}
+      {cms_help realm=$_module key='help_import_newname' title=$lbltxt}
       <div class="pageinput">
         <input id="import_newname" type="text" name="{$actionid}newname" value="{$new_name}" size="50" maxlength="50">
         <br>
@@ -19,7 +19,7 @@
     <div class="pageoverflow">
       <p class="pagetext">
       {$lbltxt=_ld($_module,'prompt_created')}{$lbltext}:
-      {cms_help 0=$_module key='help_import_created' title=$lbltext}
+      {cms_help realm=$_module key='help_import_created' title=$lbltext}
       </p>
       <p class="pageinput">
         {$tmp=$design_info.generated|cms_date_format:'timed'}{if $tmp == ''}{$tmp=_ld($_module,'unknown')}{/if}
@@ -32,7 +32,7 @@
     <div class="pageoverflow">
       <p class="pagetext">
       {$lbltxt=_ld($_module,'prompt_cmsversion')}{$lbltext}:
-      {cms_help 0=$_module key='help_import_cmsversion' title=$lbltext}
+      {cms_help realm=$_module key='help_import_cmsversion' title=$lbltext}
       </p>
       <p class="pageinput">
         {if version_compare($design_info.cmsversion,$cms_version) < 0}
@@ -58,6 +58,7 @@
 {* tab_start name='copyright' *}
 
 {tab_start name='templates'}
+{if !empty($templates)}
 <table class="pagetable">
   <thead>
     <tr>
@@ -79,7 +80,7 @@
     <td><h3>{$one.newname}</h3></td>
     <td>{$type_obj->get_langified_display_value()}</td>
     <td>{$one.desc|default:_ld($_module,'info_nodescription')|summarize:80}
-      <div id="tpl_{$one@index}" class="template_content" title="{$one.name}" style="display:none;"><textarea rows="10" cols="80">{$one.data}</textarea></div>
+      <div id="tpl_{$one@index}" class="template_content" title="{$one.name}" style="display:none"><textarea rows="10" cols="80">{$one.data}</textarea></div>
     </td>
     <td>
       {admin_icon class="template_view pointer" icon='view.gif' alt=_la('view')}
@@ -88,8 +89,10 @@
   {/foreach}
   </tbody>
 </table>
+{/if}
 
 {tab_start name='stylesheets'}
+{if !empty($stylesheets)}
 <div id="stylesheet_list">
   <table class="pagetable">
     <thead>
@@ -108,7 +111,7 @@
         <td><h3>{$one.newname}</h3></td>
         <td>{$one.mediatype}</td>
         <td>{$one.desc|default:_ld($_module,'info_nodescription')}
-           <div class="stylesheet_content" title="{$one.name}" style="display: none;">
+           <div class="stylesheet_content" title="{$one.name}" style="display:none">
 	       <textarea rows="10" cols="80">{$one.data}</textarea>
 	      </div>
 	    </td>
@@ -120,6 +123,7 @@
     </tbody>
   </table>
 </div>
+{/if}
 {tab_end}
 
 <div class="pageoverflow">

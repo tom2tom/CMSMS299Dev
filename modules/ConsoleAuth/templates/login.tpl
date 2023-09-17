@@ -54,7 +54,7 @@
         <input type="hidden" name="{$actionid}changepwhash" value="{$changepwhash}">
       </div>
       {/if}
-      {strip}<div class="boxchild" style="margin-top:10px;">
+      {strip}<div class="boxchild" style="margin-top:10px">
       {if $lost}<div class="message info">{_ld($_module,'info_recover')}</div>
       {elseif isset($renewpw)}<div class="message warning">{_ld($_module,'info_replace')}</div>
 {*    {elseif !empty($changepwhash)}<div class="message info">{_ld($_module,'info_TODOpasswordchangedlogin')}</div>*}{/if}
@@ -62,7 +62,7 @@
       {if !empty($warnmessage)}<div class="message warning">{$warnmessage}</div>{/if}
       {if !empty($infomessage)}<div class="message info">{$infomessage}</div>{/if}
       </div>{/strip}
-      <div class="boxchild" style="margin-top:10px;">
+      <div class="boxchild" style="margin-top:10px">
         <button type="submit" class="loginsubmit" name="{$actionid}submit">{_ld($_module,'submit')}</button>
         {if ($lost || isset($renewpw))}
         <button type="submit" class="loginsubmit" name="{$actionid}cancel">{_ld($_module,'cancel')}</button>

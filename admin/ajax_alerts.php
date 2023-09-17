@@ -1,7 +1,7 @@
 <?php
 /*
 Ajax alerts processing
-Copyright (C) 2011-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2011-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -55,7 +55,7 @@ catch( Throwable $t ) {
     header($protocol.' 500 Internal Server Error');
     sendhostheaders();
     header('Status: 500 Server Error');
-    header('Content-type: text/plain');
+    header('Content-Type: text/plain');
     echo $t->GetMessage()."\n";
 }
 exit;

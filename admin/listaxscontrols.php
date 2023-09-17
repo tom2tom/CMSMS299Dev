@@ -55,8 +55,7 @@ if ($allsets) {
 
     $msg = _ld('controlsets', 'confirm_delete');
     $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
  $('.delete').on('click', function(e) {
   e.preventDefault();
@@ -64,7 +63,6 @@ $(function() {
   return false;
  });
 });
-//]]>
 </script>
 EOS;
     add_page_foottext($js);

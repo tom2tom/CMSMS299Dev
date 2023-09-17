@@ -27,6 +27,7 @@ namespace CMSMS; // TODO PHP5.4+ OK if pre-3.0?
 //use Throwable; //3.0+
 //use function CMSMS\sanitizeVal; //3.0+
 use CMSMS\AdminAlerts\Alert;
+use CMSMS\AdminTheme;
 use CMSMS\AppParams;
 use CMSMS\LangOperations;
 use CMSMS\Lone;
@@ -79,10 +80,12 @@ class AltbierTheme extends AdminTheme
 	protected $_errors = [];
 	protected $_messages = [];
 
+	private $iconsmap;
+
 	/**
 	 * Determine whether this is running on CMSMS 3.0+
 	 */
-	protected function currentversion() : bool
+	protected function currentversion(): bool
 	{
 		static $cvflag = null;
 		if ($cvflag === null) {
@@ -100,7 +103,7 @@ class AltbierTheme extends AdminTheme
 	 * [0] = array of data for js vars, members like varname=>varvalue
 	 * [1] = array of string(s) for includables
 	 */
-	public function AdminHeaderSetup() : array
+	public function AdminHeaderSetup(): array
 	{
 		list($vars, $add_list) = parent::AdminHeaderSetup();
 
@@ -273,7 +276,29 @@ EOS;
 		return [$jqcss, $jqui, $jqcore];
 	}
 
-	public function display_login_page()// : void
+	public function get_navigation_tree($parent = '', int $maxdepth = 3, bool $usepath = true, int $alldepth = 2, bool $striproot = true): array
+	{
+		if (!isset($this->iconsmap)) {
+			// get page-icons map
+			require __DIR__.DIRECTORY_SEPARATOR.'function.pageicons.php';
+			$this->iconsmap = $iconsmap;
+		}
+
+		$nodes = parent::get_navigation_tree($parent, $maxdepth, $usepath, $alldepth, $striproot);
+		foreach ($nodes as &$one) {
+			if (isset($this->iconsmap[$one['name']])) {
+				$one['iconclass'] = $this->iconsmap[$one['name']];
+			} elseif (!empty($one['module'])) { // TODO default != settings
+				$modname = $one['module'];
+				//TODO prefer a fonticon
+				$one['img'] = $this->get_module_icon($modname, ['class'=>'module-icon', 'alt'=>$modname]); //html string
+			}
+		}
+		unset($one);
+		return $nodes;
+	}
+
+	public function display_login_page(): void
 	{
 		$gCms = cmsms();
 		$smarty = $gCms->GetSmarty();
@@ -353,9 +378,8 @@ EOS;
 EOS;
 			}
 
-
-//			get_csp_token(); //setup CSP header (result not used)
-			$tpl = '<script type="text/javascript" src="%s"></script>'.PHP_EOL;
+//			$nonce = get_csp_token(); //setup CSP header (result not used)
+			$tpl = '<script src="%s"></script>'.PHP_EOL;
 			$url = cms_path_to_url($incs['jqcore']);
 			$out .= sprintf($tpl,$url);
 			$url = cms_path_to_url($incs['jqui']);
@@ -388,9 +412,9 @@ EOS;
 <link rel="stylesheet" href="$jqcss">
 <link rel="stylesheet" href="themes/Altbier/styles/style{$dir}.css">
 <link rel="stylesheet" href="loginstyle.php">
-<script type="text/javascript" src="$jqcore"></script>
-<script type="text/javascript" src="$jqui"></script>
-<script type="text/javascript" src="themes/Altbier/includes/login.min.js"></script>
+<script src="$jqcore"></script>
+<script src="$jqui"></script>
+<script src="themes/Altbier/includes/login.min.js"></script>
 
 EOS;
 		} // pre 3.0
@@ -414,25 +438,39 @@ EOS;
 	 *  but usually null to use the whole menu
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function fetch_menu_page(string $section_name) : ?string
+	public function fetch_menu_page(string $section_name): ?string
 	{
 		$flag = $this->currentversion();
-
+		if (!isset($this->iconsmap)) {
+			// get page-icons map
+			require __DIR__.DIRECTORY_SEPARATOR.'function.pageicons.php';
+			$this->iconsmap = $iconsmap;
+		}
 		$smarty = cmsms()->GetSmarty();
 		if ($section_name) {
 			$smarty->assign('section_name', $section_name);
 			if ($flag) {
-				$nodes = $this->get_navigation_tree($section_name, 0);
+				$nodes = parent::get_navigation_tree($section_name, 0);
 				$smarty->assign('pagetitle', $this->title);
 			} else { // old CMSMS
-				$nodes = $this->get_navigation_tree($section_name, -1, false);
+				$nodes = parent::get_navigation_tree($section_name, -1, false);
 				$smarty->assign('pagetitle', _la($section_name)); //CHECKME
 			}
 		} elseif ($flag) {
-			$nodes = $this->get_navigation_tree(null, 3, 'root:view:dashboard');
+			$nodes = parent::get_navigation_tree('', 3, 'root:view:dashboard');
 		} else {
-			$nodes = $this->get_navigation_tree(-1, 2, false);
+			$nodes = parent::get_navigation_tree(-1, 2, false);
 		}
+		foreach ($nodes as &$one) {
+			if (isset($this->iconsmap[$one['name']])) {
+				$one['iconclass'] = $this->iconsmap[$one['name']];
+			} elseif (!empty($one['module'])) {
+				$modname = $one['module'];
+				//TODO prefer a fonticon TODO distinguish default from settings
+				$one['img'] = $this->get_module_icon($modname, ['class'=>'module-icon', 'alt'=>$modname]); //html string
+			}
+		}
+		unset($one);
 //		$this->_havetree = $nodes; //block further tree-data changes
 		$smarty->assign('nodes', $nodes);
 
@@ -453,7 +491,7 @@ EOS;
 	 * @param string $content page content to be processed
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function fetch_page(string $content) : ?string
+	public function fetch_page(string $content): ?string
 	{
 		$flag = $this->currentversion();
 
@@ -578,9 +616,16 @@ EOS;
 		  ->assign('secureparam', $secureparam);
 		$user = Lone::get('UserOperations')->LoadUserByID($userid);
 		$smarty->assign('username', $user->username); //TODO only if user != effective user
-		// user-selected language
+		// language attribute : prefer user-selected
 		$lang = UserParams::get_for_user($userid, 'default_cms_language');
-		if (!$lang) $lang = AppParams::get('frontendlang');
+		if (!$lang) {
+			$lang = NlsOperations::get_current_language();
+		}
+		if ($lang) {
+			$lang = NlsOperations::get_lang_attribute($lang);
+		} else {
+			$lang = '';
+		}
 		$smarty->assign('lang_code', $lang);
 		// language direction
 		$lang = NlsOperations::get_current_language();
@@ -614,10 +659,10 @@ EOS;
 <link rel="stylesheet" href="$jqcss">
 <link rel="stylesheet" href="style.php?{$secureparam}">
 <link rel="stylesheet" href="themes/Altbier/styles/style{$dir}.css">
-<script type="text/javascript" src="$jqcore"></script>
-<script type="text/javascript" src="$jqui"></script>
+<script src="$jqcore"></script>
+<script src="$jqui"></script>
 //TODO jquery ancillaries
-<script type="text/javascript" src="themes/Altbier/includes/standard.min.js"></script>
+<script src="themes/Altbier/includes/standard.min.js"></script>
 
 EOS
 );
@@ -638,7 +683,7 @@ EOS
 
 	// for pre-3.0 compatibility
 
-	public function ShowErrors($errors, $get_var = '')// : string
+	public function ShowErrors(/*mixed */$errors, string $get_var = ''): string
 	{
 /*		if ($this->currentversion()) {
 			$this->RecordNotice('error', $errors, '', false, $get_var);
@@ -664,14 +709,14 @@ EOS
 //		} //pre 3.0
 	}
 
-	public function ShowMessage($message, $get_var = '')
+	public function ShowMessage(/*mixed */$message, string $get_var = ''): string
 	{
 /*		if ($this->currentversion()) {
 			$this->RecordNotice('success', $message, '', false, $get_var);
 		} else {
 */
 		// cache message for use in the template.
-		if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
+		if ($get_var != '' && !empty($_GET[$get_var])) {
 			if (is_array($_GET[$get_var])) {
 				foreach ($_GET[$get_var] as $one) {
 					$this->_messages[] = lang(cleanValue($one));
@@ -686,7 +731,7 @@ EOS
 		} elseif (is_string($message)) {
 			$this->_messages[] = $message;
 		}
-        return '';
+		return '';
 //		} // pre 3.0
 	}
 
@@ -705,7 +750,7 @@ EOS
 		return $this->fetch_page($content);
 	}
 
-	public function get_my_alerts() : array
+	public function get_my_alerts(): array
 	{
 		return Alert::load_my_alerts();
 	}

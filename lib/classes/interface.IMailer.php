@@ -1,7 +1,7 @@
 <?php
 /*
 Email sender interface
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -28,8 +28,8 @@ interface IMailer
 {
 	public function reset();
 	// this method replicates PHP's mail() function
-	public function send_simple(string $to, string $subject, string $message, $additional_headers = [], string $additional_params = '') : bool;
-	public function IsSingleAddressor() : bool; // 3.0+
+	public function send_simple(string $to, string $subject, string $message, $additional_headers = [], string $additional_params = ''): bool;
+	public function IsSingleAddressor(): bool; // 3.0+
 	public function SetSingleSend(int $state = 1); // 3.0+
 
 	// PHPMailer class methods (some to be deprecated?)
@@ -47,7 +47,7 @@ interface IMailer
 	public function GetFrom();
 	public function SetFrom(string $email);
 	public function GetFromName();
-	public function SetFromName(string $name);
+	public function SetFromName(?string $name);
 	public function GetHelo();
 	public function SetHelo(?string $helo);
 	public function GetHostname();
@@ -82,10 +82,10 @@ interface IMailer
 	public function GetSMTPSecure();
 	public function SetSMTPSecure($value);
 
-	public function AddAddress(string $address, string $name = '') : bool;
+	public function AddAddress(string $address, string $name = ''): bool;
 	public function AddAttachment($path, $name = '', $encoding = 'base64', $type = 'application/octet-stream');
-	public function AddBCC(string $addr, string $name = '') : bool;
-	public function AddCC(string $addr, string $name = '') : bool;
+	public function AddBCC(string $addr, string $name = ''): bool;
+	public function AddCC(string $addr, string $name = ''): bool;
 	public function AddCustomHeader(string $header);
 	public function AddEmbeddedImage($path, $cid, $name = '', $encoding = 'base64', $type = 'application/octet-stream');
 	public function AddReplyTo($addr, $name = '');
@@ -101,7 +101,7 @@ interface IMailer
 	public function ClearReplyTos();
 
 	public function IsError();
-	public function IsHTML(bool $state = true) : void;
+	public function IsHTML(bool $state = true): void;
 	public function IsMail();
 	public function IsSendmail();
 	public function IsSMTP();
@@ -109,14 +109,14 @@ interface IMailer
 	public function SetLanguage($lang_type);
 	public function SmtpClose();
 	// OutMailer (at least) Oauth2 methods TODO to be refined
-	public function getOAuth() : ?\OutMailer\IOAuthTokenProvider;
+	public function getOAuth(): ?\OutMailer\IOAuthTokenProvider;
 	public function setOAuth(?\OutMailer\IOAuthTokenProvider $oauth);
-	public function getOAuthType() : ?string;
+	public function getOAuthType(): ?string;
 	public function setOAuthType(?string $val);
-	public function GetOauthSender() : string;
+	public function GetOauthSender(): string;
 	public function SetOauthSender(string $email);
-	public function GetOauthClient() : string;
+	public function GetOauthClient(): string;
 	public function SetOauthClient(string $val);
-	public function GetOauthSecret() : string;
+	public function GetOauthSecret(): string;
 	public function SetOauthSecret(string $val);
 }

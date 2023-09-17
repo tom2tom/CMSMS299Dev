@@ -1,7 +1,7 @@
 <?php
 /*
 Reorder categories action for CMSMS News module.
-Copyright (C) 2005-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -74,9 +74,8 @@ $tpl->assign('allcats',$allcats);
 
 $out = cms_get_script('jquery.mjs.nestedSortable.js');
 $js = <<<EOS
-<script type="text/javascript" src="$out"></script>
-<script type="text/javascript">
-//<![CDATA[
+<script src="$out"></script>
+<script>
 function parseTree(ul) {
   var tags = [];
   ul.children('li').each(function() {
@@ -109,7 +108,6 @@ $(function() {
     toleranceElement: '> div'
   });
 });
-//]]>
 </script>
 EOS;
 add_page_foottext($js);

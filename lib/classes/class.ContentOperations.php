@@ -1,7 +1,7 @@
 <?php
 /*
 Class of methods for processing the pages-tree, and content objects generally
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -79,8 +79,7 @@ final class ContentOperations
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * Get the singleton instance of this class.
@@ -89,7 +88,7 @@ final class ContentOperations
 	 * @deprecated since 3.0 instead use CMSMS\Lone::get('ContentOperations')
 	 * @return ContentOperations
 	 */
-	public static function get_instance() : self
+	public static function get_instance(): self
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'ContentOperations\')'));
 		return Lone::get('ContentOperations');
@@ -103,7 +102,7 @@ final class ContentOperations
 	 * @param ContentTypePlaceHolder Reference to placeholder object
 	 * @return bool
 	 */
-	public function register_content_type($obj) : bool
+	public function register_content_type($obj): bool
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'ContentTypeOperations::AddContentType'));
 		return Lone::get('ContentTypeOperations')->AddContentType($obj);
@@ -151,7 +150,7 @@ final class ContentOperations
 	 * @return array each member like id => name
 	 * Note: group id's are expressed as negative integers in the keys.
 	 */
-	public function ListAdditionalEditors() : array
+	public function ListAdditionalEditors(): array
 	{
 		$opts = Lone::get('UserOperations')->GetUsers(true, true);
 		$allgroups = Lone::get('GroupOperations')->LoadGroups(true);
@@ -189,7 +188,7 @@ final class ContentOperations
 	 */
 	public function LoadContentFromSerializedData(array &$data)
 	{
-		if( !isset($data['serialized_content']) ) return;
+		if( !isset($data['serialized_content']) ) return null;
 
 		$contenttype = $data['content_type'] ?? 'content';
 		$this->CreateNewContent($contenttype);
@@ -387,8 +386,8 @@ EOS;
 		// if we actually did something, return the changed row.
 		$row = $hash[$content_id];
 		if( $hier != $row['hierarchy'] ||
-		    $idhier != $row['id_hierarchy'] ||
-		    $pathhier != $row['hierarchy_path'] ) {
+			$idhier != $row['id_hierarchy'] ||
+			$pathhier != $row['hierarchy_path'] ) {
 			$row['hierarchy'] = $hier;
 			$row['id_hierarchy'] = $idhier;
 			$row['hierarchy_path'] = $pathhier;
@@ -403,7 +402,7 @@ EOS;
 	 * time one or more content pages are updated if positions have changed in
 	 * the page structure.
 	 */
-	public function SetAllHierarchyPositions()
+	public function SetAllHierarchyPositions(): void
 	{
 		// load some data about all pages into memory... and convert into a hash.
 		$db = Lone::get('Db');
@@ -480,7 +479,7 @@ EOS;
 	 * @param bool $inactive  Load inactive pages as well
 	 * @param bool $showinmenu Load pages marked as show in menu
 	 */
-	public function LoadAllContent(bool $extended = FALSE, bool $inactive = FALSE, bool $showinmenu = FALSE)
+	public function LoadAllContent(bool $extended = FALSE, bool $inactive = FALSE, bool $showinmenu = FALSE): void
 	{
 		static $_loaded = 0;
 		if( $_loaded == 1 ) {
@@ -581,7 +580,7 @@ EOS;
 	 * @param bool $all If true, load all content objects, even inactive ones.
 	 * @param array   $explicit_ids (optional) array of explicit content ids to load
 	 */
-	public function LoadChildren($pid = 0, bool $extended = FALSE, bool $all = FALSE, array $explicit_ids = [])
+	public function LoadChildren($pid = 0, bool $extended = FALSE, bool $all = FALSE, array $explicit_ids = []): void
 	{
 		$db = Lone::get('Db');
 		$cache = Lone::get('SystemCache');
@@ -708,7 +707,7 @@ EOS;
 	 *
 	 * @return int The id of the default content page, or 0 if none is recorded
 	 */
-	public function GetDefaultContent() : int
+	public function GetDefaultContent(): int
 	{
 		return (int)Lone::get('LoadedData')->get('default_content');
 	}
@@ -719,7 +718,7 @@ EOS;
 	 *
 	 * @return int The id of the default page, 0 if not found.
 	 */
-	public function GetDefaultPageID() : int
+	public function GetDefaultPageID(): int
 	{
 		return $this->GetDefaultContent();
 	}
@@ -733,7 +732,7 @@ EOS;
 	 * @param bool $extended optional parameter for LoadAllContent(). Default true
 	 * @return array The array of content objects
 	 */
-	public function GetAllContent(bool $extended = TRUE) : array
+	public function GetAllContent(bool $extended = TRUE): array
 	{
 		debug_buffer('get all content...');
 		$ptops = Lone::get('PageTreeOperations');
@@ -783,8 +782,8 @@ EOS;
 	{
 		$ptops = Lone::get('PageTreeOperations');
 		$node = $ptops->find_by_tag('alias', $alias);
-        if( $node ) { return $node->getId(); }
-        return 0;
+		if( $node ) { return $node->getId(); }
+		return 0;
 	}
 
 	/**
@@ -865,13 +864,13 @@ EOS;
 	 *
 	 * @param string $alias The content alias to check
 	 * @param int $content_id The id of the current page, for used alias checks on existing pages
-	 * @return mixed Error string, if any | false if there is no error.
+	 * @return string Error message, if any | empty if there is no error.
 	 */
 	public function CheckAliasError(string $alias, int $content_id = -1)
 	{
 		if( !$this->CheckAliasValid($alias) ) return lang('invalidalias2');
 		if( $this->CheckAliasUsed($alias, $content_id) ) return lang('aliasalreadyused');
-		return FALSE;
+		return '';
 	}
 
 	/**

@@ -5,8 +5,8 @@
 {if isset($letters)}
 <p class="pagerows">{$letters}</p>
 {/if}
-<div style="clear:both;"></div>
-
+<div style="clear:both"></div>
+{if !empty($items)}
 {function get_module_status_icon}
 {strip}
 {if $status == 'stale'}
@@ -19,7 +19,6 @@
 {/strip}
 {/function}
 
-{if $itemcount > 0}
 <table class="pagetable scrollable">
   <thead>
     <tr>
@@ -37,7 +36,7 @@
   </thead>
   <tbody>
 {foreach $items as $entry}
-   <tr class="{cycle values='row1,row2'}"{if $entry->age=='new'} style="font-weight:bold;"{/if}>
+   <tr class="{cycle values='row1,row2'}"{if $entry->age=='new'} style="font-weight:bold"{/if}>
      <td>{get_module_status_icon status=$entry->age}</td>
      <td>{if $entry->description}<span title="{$entry->description|cms_escape}">{/if}{$entry->name}{if $entry->description}</span>{/if}</td>
      <td>{$entry->version}</td>

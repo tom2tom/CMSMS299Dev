@@ -22,7 +22,7 @@
        {$t=_ld('layout','prompt_locked')}
        <span class="locked" data-grp-id="{$gid}" title="{$t}"{if $ul} style="display:none"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
        {$t=_ld('layout','prompt_steal_lock')}
-       <a class="steal_lock" href="{$url}&steal=1" data-grp-id="{$gid}" title="{$t}" accesskey="e"{if $ul} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
+       <a class="steal_lock" href="{$url}&steal=1" data-grp-id="{$gid}" title="{$t}" accesskey="e"{if $ul} style="display:none"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
        <span class="action" context-menu="Sheetsgroup{$gid}"{if !$ul} style="display:none"{/if}>{$micon}</span>
       </td>
       {/if}{/strip}

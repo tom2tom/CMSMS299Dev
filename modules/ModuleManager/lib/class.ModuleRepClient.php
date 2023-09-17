@@ -50,7 +50,7 @@ final class ModuleRepClient
      * [0] = bool indicating success
      * [1] = mixed result | error message string
      */
-    public static function get_repository_version() : array
+    public static function get_repository_version(): array
     {
         $mod = Utils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
@@ -299,7 +299,7 @@ final class ModuleRepClient
      * @throws DataException
      * @throws CommunicationException
      */
-    public static function get_module_md5(string $xmlfile) : string
+    public static function get_module_md5(string $xmlfile): string
     {
         $mod = Utils::get_module('ModuleManager');
         if( !$xmlfile ) {
@@ -335,7 +335,7 @@ final class ModuleRepClient
      * [0] = bool indicating success
      * [1] = mixed data array | scalar (if none found) | error message string
      */
-    public static function search(string $term,$advanced) : array
+    public static function search(string $term,$advanced): array
     {
         $mod = Utils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
@@ -387,7 +387,7 @@ final class ModuleRepClient
      * @throws DataException or CommunicationException
      *  or ModuleNoDataException or Exception
      */
-    public static function get_modulelatest(array $modnames)// : mixed
+    public static function get_modulelatest(array $modnames)//: mixed
     {
         $mod = Utils::get_module('ModuleManager');
         if( !$modnames || !is_array($modnames) ) {
@@ -442,7 +442,7 @@ final class ModuleRepClient
      * @throws DataException or CommunicationException
      *  or ModuleNoDataException or Exception
      */
-    public static function get_installed_latest() : array
+    public static function get_installed_latest(): array
     {
         if( self::$_latest_installed_modules === NULL ) {
             $availmodules = Lone::get('ModuleOperations')->GetInstalledModules();
@@ -456,7 +456,7 @@ final class ModuleRepClient
      *
      * @return mixed false | array, maybe empty
      */
-    public static function get_installed_newversion()// : mixed
+    public static function get_installed_newversion()//: mixed
     {
         $latest = self::get_installed_latest();
         if( !is_array($latest) ) return FALSE;
@@ -465,6 +465,7 @@ final class ModuleRepClient
         $out = [];
         foreach( $latest as $row ) {
             $info = ModuleInfo::get_module_info($row['name']);
+            //TODO if 'version' N/A in $info
             if( version_compare($row['version'],$info['version']) > 0 ) {
                 $out[$row['name']] = $row;
             }
@@ -478,7 +479,7 @@ final class ModuleRepClient
      * @param string $modname
      * @return mixed false | array, maybe empty
      */
-    public static function get_upgrade_module_info(string $modname)// : mixed
+    public static function get_upgrade_module_info(string $modname)//: mixed
     {
         $latest = self::get_installed_latest();
         if( !is_array($latest) ) return FALSE;

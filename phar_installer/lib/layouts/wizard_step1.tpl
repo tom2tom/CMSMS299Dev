@@ -2,64 +2,64 @@
 {extends file='wizard_step.tpl'}
 
 {block name='logic'}
-  {capture assign='browser_title'}CMS Made Simple&trade; {$version|default:''} ({$version_name|default:''}) {'apptitle'|tr}{/capture}
-  {capture assign='title'}{'title_welcome'|tr} {'to'|tr} CMS Made Simple&trade; {$version|default:''} <span class="emphatic">({$version_name|default:''})</span><br>{'apptitle'|tr}{/capture}
+  {capture assign='browser_title'}CMS Made Simple&trade; {$version|default:''} ({$version_name|default:''}) {tr('apptitle')}{/capture}
+  {capture assign='title'}{tr('title_welcome')} {tr('to')} CMS Made Simple&trade; {$version|default:''} <span class="emphatic">({$version_name|default:''})</span><br>{tr('apptitle2')}{/capture}
   {$current_step = '1'}
 {/block}
 
 {block name='javascript' append}
-<script type="text/javascript">
-{literal}function redirect_langchange() {
+<script>
+function redirect_langchange() {
  var e = document.getElementById('lang_selector');
  var v = e.options[e.selectedIndex].value;
  var url = window.location.origin + window.location.pathname + '?curlang='+v;
- window.location = url;
+ window.location.href = url;
  return false;
 }
 $(function() {
  $('#lang_selector').on('change', redirect_langchange);
-});{/literal}
+});
 </script>
 {/block}
 
 {block name='contents'}
-<p>{'welcome_message'|tr}</p>
+<p>{tr('welcome_message')}</p>
 
 <div class="installer-form">
  {wizard_form_start}
   {if empty($custom_destdir) && !empty($dirlist)}
-    <h3>{'step1_destdir'|tr}</h3>
+    <h3>{tr('step1_destdir')}</h3>
 
-    <p class="message yellow">{'step1_info_destdir'|tr}</p>
+    <p class="message yellow">{tr('step1_info_destdir')}</p>
 
     <div class="page-row">
-    <label>{'destination_directory'|tr}:</label>
+    <label>{tr('destination_directory')}:</label>
     <select class="form-field" name="destdir">
       {html_options options=$dirlist selected=$destdir|default:''}
     </select>
     </div>
   {/if}
 
-  <h3>{'step1_language'|tr}</h3>
-  <p>{'select_language'|tr}</p>
+  <h3>{tr('step1_language')}</h3>
+  <p>{tr('select_language')}</p>
   <div class="page-row">
-    <label>{'installer_language'|tr}:</label>
+    <label>{tr('installer_language')}:</label>
     <select id="lang_selector" class="form-field" name="lang">
       {html_options options=$languages selected=$curlang}
     </select>
   </div>
 
-  <h3>{'step1_advanced'|tr}</h3>
-  <p>{'info_advanced'|tr}</p>
+  <h3>{tr('step1_advanced')}</h3>
+  <p>{tr('info_advanced')}</p>
   <div class="page-row">
-    <label>{'advanced_mode'|tr}:</label>
+    <label>{tr('advanced_mode')}:</label>
     <select class="form-field" name="verbose">
       {html_options options=$yesno selected=$verbose}
     </select>
   </div>
 {if empty($error)}
- <div id="bottom_nav">
-    <button type="submit" class="action-button positive" name="next">{if empty($lang_rtl)}<i class="icon-next-right"></i> {'next'|tr}{else}{'next'|tr} <i class="icon-next-left"></i>{/if}</button>{*TODO lang(direction) selected on this page *}
+  <div id="bottom_nav">
+    <button type="submit" class="action-button positive" name="next">{if empty($lang_rtl)}<i class="icon-next-right"></i> {tr('next')}{else}{tr('next')} <i class="icon-next-left"></i>{/if}</button>{*TODO lang direction selected on this page *}
   </div>
 {/if}
  </form>

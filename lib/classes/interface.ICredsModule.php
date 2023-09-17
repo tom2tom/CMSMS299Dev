@@ -1,7 +1,7 @@
 <?php
 /*
 An interface to define the minimum API for admin-user credentials-check modules.
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -38,7 +38,7 @@ interface ICredsModule
 	 * [0] = boolean indicating compliance
 	 * [1] = if [0] is false, a html string for feedback into the console
 	 */
-	public function check_username(User $user, string $name, bool $update = false) : array;
+	public function check_username(User $user, string $name, bool $update = false): array;
 
 	/**
 	 * Report whether the supplied password conforms to the current password
@@ -50,5 +50,5 @@ interface ICredsModule
 	 * [0] = boolean indicating compliance
 	 * [1] = if [0] is false, a html string for feedback into the console
 	 */
-	public function check_password (User $user, string $pw, bool $update = false) : array;
+	public function check_password (User $user, string $pw, bool $update = false): array;
 } // interface

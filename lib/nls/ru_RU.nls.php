@@ -1,6 +1,6 @@
 <?php
 #Russian translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -35,8 +35,8 @@ $nls['englishlang']['ru_RU'] = 'Russian';
 
 #Possible aliases for language
 $nls['alias']['ru'] = 'ru_RU';
-$nls['alias']['russian'] = 'ru_RU' ;
-$nls['alias']['rus'] = 'ru_RU' ;
+$nls['alias']['russian'] = 'ru_RU';
+$nls['alias']['rus'] = 'ru_RU';
 
 #Possible locale for language
 $nls['locale']['ru_RU'] = 'ru_RU,ru_RU.cp1251,ru_RU.CP1251,ru_RU.CP866,ru_RU.koi8r,ru_RU.utf8,ru_RU.iso88595,russian,Russian_Russia.1251';
@@ -45,11 +45,10 @@ $nls['locale']['ru_RU'] = 'ru_RU,ru_RU.cp1251,ru_RU.CP1251,ru_RU.CP866,ru_RU.koi
 $nls['encoding']['ru_RU'] = 'utf-8';
 
 #Location of the file(s)
-$nls['file']['ru_RU'] = array(__DIR__.'/ru_RU/admin.inc.php');
+$nls['file']['ru_RU'] = [__DIR__.'/ru_RU/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['ru_RU'] = 'ru';
-?>

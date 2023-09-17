@@ -13,7 +13,7 @@ class matchall_test extends test_base
         parent::__construct(...$args);
     }
 
-    public function __set(string $key, $value) : void
+    public function __set(string $key, $value): void
     {
         switch ($key) {
           case 'recommended': // useless in this context ?
@@ -24,7 +24,7 @@ class matchall_test extends test_base
         }
     }
 
-    public function execute() : string
+    public function execute(): string
     {
         $out = parent::TEST_PASS;
         if ($this->_children) {

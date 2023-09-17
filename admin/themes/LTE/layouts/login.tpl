@@ -29,15 +29,15 @@
 		<div class="card">
 			<div class="card-body">
 				<noscript>
-					<div class="alert alert-danger">{'login_info_needjs'|lang}</div>
+					<div class="alert alert-danger">{lang('login_info_needjs')}</div>
 				</noscript>
 				{if !empty($sitelogo)}
 					<img id="sitelogo" src="{$sitelogo}" alt="{sitename}">
 				{/if}
 				<p class="login-box-msg">{$lost=isset($smarty.get.forgotpw)}
-				{if $lost}{['forgotpwtitle',{sitename}]|lang}
-				{elseif isset($renewpw)}{['renewpwtitle',{sitename}]|lang}
-				{else}{['login_sitetitle',{sitename}]|lang}{/if}</p>
+				{if $lost}{lang('forgotpwtitle',{sitename})}
+				{elseif isset($renewpw)}{lang('renewpwtitle',{sitename})}
+				{else}{lang('login_sitetitle',{sitename})}{/if}</p>
 				<form method="post" action="login.php">
 					{if isset($csrf)}<input type="hidden" name="csrf" value="{$csrf}">{/if}
 					<div class="input-icon mb-3">
@@ -52,31 +52,31 @@
 						{else}
 						{$usernamefld='username'}
 						{/if}
-						<input id="lbusername" type="text"{if !isset($smarty.post.lbusername)} class="form-control"{/if} placeholder="{'username'|lang}" name="{$usernamefld}" size="25" maxlength="64" value="" autofocus>
+						<input id="lbusername" type="text"{if !isset($smarty.post.lbusername)} class="form-control"{/if} placeholder="{lang('username')}" name="{$usernamefld}" size="25" maxlength="64" value="" autofocus>
 						{/if}
 						<i class="fas fa-user-secret" aria-hidden="true"></i>
 					</div>
 					{if !$lost}
 						<div class="input-icon mb-3">
-							<input id="lbpassword" name="password" type="password" class="form-control{if !isset($smarty.post.lbpassword) or isset($error)} focus{/if}" placeholder="{'password'|lang}" size="25" maxlength="64">
+							<input id="lbpassword" name="password" type="password" class="form-control{if !isset($smarty.post.lbpassword) or isset($error)} focus{/if}" placeholder="{lang('password')}" size="25" maxlength="64">
 							<i class="fas fa-key" aria-hidden="true"></i>
 						</div>
 					{/if}
 					{if !empty($changepwhash)}
 						<div class="input-icon mb-3">
-							<input id="lbpasswordagain" name="passwordagain" type="password" class="form-control" placeholder="{'passwordagain'|lang}" size="25" maxlength="64">
+							<input id="lbpasswordagain" name="passwordagain" type="password" class="form-control" placeholder="{lang('passwordagain')}" size="25" maxlength="64">
 							<i class="fas fa-key" aria-hidden="true"></i>
 							<input type="hidden" name="changepwhash" value="{$changepwhash}">
 						</div>
 					{/if}
 					<div class="row mb-3">
 						<div class="col-4">
-							 <button class="btn btn-default w-100" name="submit" type="submit">{'submit'|lang}</button>
+							 <button class="btn btn-default w-100" name="submit" type="submit">{lang('submit')}</button>
 						</div>
 						<!-- /.col -->
 						<div class="col-4">
 							{if ($lost || isset($renewpw))}
-							<button class="btn btn-default w-100" name="cancel" type="submit">{'cancel'|lang}</button>
+							<button class="btn btn-default w-100" name="cancel" type="submit">{lang('cancel')}</button>
 							{/if}
 						</div>
 						<!-- /.col -->
@@ -86,25 +86,25 @@
 					</div>
 				</form>
 
-				{if $lost}<div class="alert alert-info">{'forgotpwprompt'|lang}</div>
-				{elseif isset($renewpw)}<div class="alert alert-warning">{'renewpwprompt'|lang}</div>
-{*				{elseif !empty($changepwhash)}<div class="alert alert-info">{'passwordchange'|lang}</div>*}{/if}
+				{if $lost}<div class="alert alert-info">{lang('forgotpwprompt')}</div>
+				{elseif isset($renewpw)}<div class="alert alert-warning">{lang('renewpwprompt')}</div>
+{*				{elseif !empty($changepwhash)}<div class="alert alert-info">{lang('passwordchange')}</div>*}{/if}
 				{if !empty($errmessage)}<div class="alert alert-danger">{$errmessage}</div>{/if}
 				{if !empty($warnmessage)}<div class="alert alert-warning">{$warnmessage}</div>{/if}
 				{if !empty($infomessage)}<div class="alert alert-info">{$infomessage}</div>{/if}
 
 				{if !($lost || isset($renewpw))}
 				<div class="mb-2">
-					<a href="javascript:void()" id="toggle-info" class="text-primary" title="{'open'|lang}/{'close'|lang}"><span class="fas fa-info-circle fa-fw" aria-hidden="true"></span>&nbsp;&nbsp;{'login_info_title'|lang}</a>
+					<a href="javascript:void()" id="toggle-info" class="text-primary" title="{lang('open')}/{lang('close')}"><span class="fas fa-info-circle fa-fw" aria-hidden="true"></span>&nbsp;&nbsp;{lang('login_info_title')}</a>
 				</div>
 				<div class="mb-2">
-					<a href="login.php?forgotpw=1" class="text-primary"><span class="fas fa-user-lock fa-fw" aria-hidden="true"></span>&nbsp;&nbsp;{'lostpw'|lang}</a>
+					<a href="login.php?forgotpw=1" class="text-primary"><span class="fas fa-user-lock fa-fw" aria-hidden="true"></span>&nbsp;&nbsp;{lang('lostpw')}</a>
 				</div>
-				<a href="{root_url}" class="text-primary"><span class="fas fa-arrow-circle-left fa-fw" aria-hidden="true"></span>&nbsp;&nbsp;{['goto',{sitename}]|lang}</a>
+				<a href="{root_url}" class="text-primary"><span class="fas fa-arrow-circle-left fa-fw" aria-hidden="true"></span>&nbsp;&nbsp;{lang('goto',{sitename})}</a>
 				<div id="info-wrapper" class="alert alert-info">
-{*					<p>{['login_info_params',"<strong>{$smarty.server.HTTP_HOST}</strong>"]|lang}</p>*}
-					<p>{'login_info_params'|lang}</p>
-					<p>{'info_cookies'|lang}</p>
+{*					<p>{lang('login_info_params',"<strong>{$smarty.server.HTTP_HOST}</strong>")}</p>*}
+					<p>{lang('login_info_params')}</p>
+					<p>{lang('info_cookies')}</p>
 				</div>
 				{/if}
 
@@ -124,8 +124,8 @@
 	<!-- /.login-box -->
 
 	{get_jquery migrate=true ui=true uicss=false}
-{*	<script type="text/javascript" src="themes/LTE/includes/adminlte.min.js"></script>*}{* AdminLTE App *}
-	<script type="text/javascript" src="themes/LTE/includes/login.min.js"></script>
+{*	<script src="themes/LTE/includes/adminlte.min.js"></script>*}{* AdminLTE App *}
+	<script src="themes/LTE/includes/login.min.js"></script>
 
 </body>
 

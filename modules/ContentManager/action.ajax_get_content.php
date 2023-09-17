@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManger module action: ajax_get_content
-Copyright (C) 2014-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -68,7 +68,7 @@ if (!empty($firstlist)) {
 		}
 		$t = "/$c";
 		unset($chars[0]);
-		$patn = array_reduce($chars, function($m, $c) use ($reserved, $reserved2) {
+		$patn = array_reduce($chars, function(/*mixed */$m, /*mixed */$c) use ($reserved, $reserved2): string {
 			$a = strpos($reserved, $c) !== false;
 			$b = strpos($reserved2, $c) !== false;
 			if ($a && $b) {

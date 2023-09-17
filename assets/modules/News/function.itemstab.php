@@ -1,7 +1,7 @@
 <?php
 /*
 CMSMS News module defaultadmin action items-tab populator
-Copyright (C) 2005-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -275,8 +275,7 @@ class NewsItemData
     $cancel = lang('cancel');
 
     $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 var itemstbl;
 $(function() {
  $.fn.SSsort.addParser({
@@ -395,7 +394,6 @@ $(function() {
   });
  });
 });
-//]]>
 </script>
 EOS;
     add_page_foottext($js);

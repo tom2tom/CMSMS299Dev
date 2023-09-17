@@ -1,7 +1,7 @@
 <?php
 /*
 Admin functions: site-content export/import
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -49,10 +49,10 @@ use function cms_installer\get_server_permissions;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\rrmdir;
-use function error_msg;
+use function cms_installer\error_msg;
+use function cms_installer\verbose_msg;
 use function file_put_contents;
 use function get_userid;
-use function verbose_msg;
 
 /*
 This file is used during site installation (among other uses).
@@ -226,7 +226,7 @@ function fill_filessection(XMLWriter $xw, string $section, string $frombase, str
  * @param string $tobase
  * @return string always having *NIX separators
  */
-function file_relpath(string $toroot, string $tobase) : string
+function file_relpath(string $toroot, string $tobase): string
 {
 	$toroot = rtrim($toroot, ' \/');
 	$len = strlen($toroot);
@@ -696,7 +696,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 		if ($copyfiles) {
 			rrmdir($uploadspath, false); //clear it
 			$tobase = $uploadspath;
-			$install_relative = file_relpath($uploadspath, $tobase); //stored in intaller-top-sub-folder
+			$install_relative = file_relpath($uploadspath, $tobase); //stored in installer-top-sub-folder
 		} else {
 			$copyfiles = @mkdir($uploadspath, 0771, true); // generic perms pending actual server value
 			$tobase = ($copyfiles) ? $uploadspath : '';
@@ -721,7 +721,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 			$tobase = $workerspath.DIRECTORY_SEPARATOR.'user_plugins'; // 'definite' basename for importing
 			if (is_dir($tobase)) {
 				//done before rrmdir($tobase, false);
-				$install_relative = file_relpath($workerspath, $tobase); //stored in intaller-top-sub-folder
+				$install_relative = file_relpath($workerspath, $tobase); //stored in installer-top-sub-folder
 			} elseif (@mkdir($tobase, 0771, true)) {
 				$install_relative = file_relpath($workerspath, $tobase);
 			} else {
@@ -744,7 +744,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 			$tobase = $workerspath.DIRECTORY_SEPARATOR.'layouts';
 			if (is_dir($tobase)) {
 				//done before rrmdir($tobase, false);
-				$install_relative = file_relpath($workerspath, $tobase); //stored in intaller-top-sub-folder
+				$install_relative = file_relpath($workerspath, $tobase); //stored in installer-top-sub-folder
 			} elseif (@mkdir($tobase, 0771, true)) {
 				$install_relative = file_relpath($workerspath, $tobase);
 			} else {
@@ -767,7 +767,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 			$tobase = $workerspath.DIRECTORY_SEPARATOR.'styles';
 			if (is_dir($tobase)) {
 				//done before rrmdir($tobase, false);
-				$install_relative = file_relpath($workerspath, $tobase); //stored in intaller-top-sub-folder
+				$install_relative = file_relpath($workerspath, $tobase); //stored in installer-top-sub-folder
 			} elseif (@mkdir($tobase, 0771, true)) {
 				$install_relative = file_relpath($workerspath, $tobase);
 			} else {
@@ -790,7 +790,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 			$tobase = $workerspath.DIRECTORY_SEPARATOR.'themes';
 			if (is_dir($tobase)) {
 				//done before rrmdir($tobase, false);
-				$install_relative = file_relpath($workerspath, $tobase); //stored in intaller-top-sub-folder
+				$install_relative = file_relpath($workerspath, $tobase); //stored in installer-top-sub-folder
 			} elseif (@mkdir($tobase, 0771, true)) {
 				$install_relative = file_relpath($workerspath, $tobase);
 			} else {
@@ -820,7 +820,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
  *  folder containing non-db-stored operation files e.g. templates, css, user-plugins
  * @return string status/error message or ''
  */
-function import_content(string $xmlfile, string $uploadspath = '', string $workerspath = '') : string
+function import_content(string $xmlfile, string $uploadspath = '', string $workerspath = ''): string
 {
 	// security checks right here, to supplement upstream/external
 	if (AppState::test(AppState::INSTALL)) {

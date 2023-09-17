@@ -64,14 +64,14 @@
 
 {if !empty($my_alerts)}
 <!-- alerts go here -->
-<div id="alert-dialog" class="alert-dialog" role="dialog" title="{lang('alerts')}" style="display: none;">
+<div id="alert-dialog" class="alert-dialog" role="dialog" title="{lang('alerts')}" style="display:none">
 	<ul>
 	{foreach $my_alerts as $one}
 	<li class="alert-box" data-alert-name="{$one->get_prefname()}">
 	<div class="alert-head ui-corner-all {if $one->priority == '_high'}ui-state-error red{elseif $one->priority == '_normal'}ui-state-highlight orange{else}ui-state-highlightblue{/if}">
 		{$icon=$one->get_icon()}
 		{if $icon}
-			<img class="alert-icon ui-icon" alt="" src="{$icon}" title="{lang('remove_alert')}" />
+			<img class="alert-icon ui-icon" alt="" src="{$icon}" title="{lang('remove_alert')}">
 		{else}
 			<span class="alert-icon ui-icon {if $one->priority != '_low'}ui-icon-alert{else}ui-icon-info{/if}" title="{lang('remove_alert')}"></span>
 		{/if}
@@ -82,7 +82,7 @@
 	</li>
 	{/foreach}
 	</ul>
-	<div id="alert-noalerts" class="information" style="display: none;">{lang('info_noalerts')}</div>
+	<div id="alert-noalerts" class="information" style="display:none">{lang('info_noalerts')}</div>
 </div>
 {/if}
 <!-- alerts-end -->

@@ -28,7 +28,7 @@
 {/if}
 {if isset($content)}
   {$content}
-{elseif isset($plugins)}
+{elseif !empty($plugins)}
   <table class="pagetable">
     <thead>
      <tr>
@@ -50,18 +50,18 @@
        <td>
           <span title="{_ld('tags',$one.type)}">{$one.type}</span>
        </td>
-{*       <td style="text-align:center;">
+{*       <td style="text-align:center">
          {if empty($one.cachable)}{$iconcno}{else}{$iconcyes}{/if}
        </td> *}
-       <td style="text-align:center;">
+       <td style="text-align:center">
          {if empty($one.admin)}{$iconno}{else}{$iconyes}{/if}
        </td>
-       <td style="text-align:center;">
+       <td style="text-align:center">
          {if isset($one.help_url)}
            <a href="{$one.help_url}" title="{_ld('tags','viewhelp')}">{$iconhelp}</a>
          {/if}
        </td>
-       <td style="text-align:center;">
+       <td style="text-align:center">
          {if isset($one.about_url)}
            <a href="{$one.about_url}" title="{_ld('tags','viewabout')}">{$iconabout}</a>
          {/if}

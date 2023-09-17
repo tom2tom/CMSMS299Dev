@@ -1,7 +1,7 @@
 <?php
 /*
 OutMailer module defaultadmin action
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple module OutMailer.
 
@@ -235,7 +235,7 @@ if ($pgates) {
 $baseurl = CMS_ASSETS_URL.'/js';
 $baseurl2 = $this->GetModuleURLPath();
 $js = <<<EOS
- <script type="text/javascript" src="{$baseurl}/jquery-inputCloak.min.js"></script>
+ <script src="{$baseurl}/jquery-inputCloak.min.js"></script>
 EOS;
 add_page_headtext($js);
 
@@ -244,8 +244,7 @@ $s2 = addcslashes($this->Lang('confirm_settings'), "'\n\r");
 $s3 = addcslashes($this->Lang('confirm_property'), "'\n\r");
 //TODO some js is permission-specific
 $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 function on_mailer() {
  switch ($('#mailer').val()) {
   case 'mail':
@@ -309,7 +308,6 @@ $(function() {
     $(this).attr('class', now.substring(0,to));
  });
 });
-//]]>
 </script>
 
 EOS;

@@ -1,7 +1,7 @@
 <?php
 /*
 HTMLEditor module action: get content to populate a site-page selector, via ajax
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -88,7 +88,7 @@ $alias = 'selpagealias';
  * @param int  $depth current recursion level, 0-based
  * @return array
  */
-$fill_node = function($node, int $depth = 0) use (&$fill_node, &$page, &$title, &$alias) : array
+$fill_node = function($node, int $depth = 0) use (&$fill_node, &$page, &$title, &$alias): array
 {
 	if (!is_object($node)) { return []; }
 	$content = $node->get_content(false);

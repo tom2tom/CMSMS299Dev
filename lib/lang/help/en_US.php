@@ -1,6 +1,24 @@
 <?php
 
 $lang = [
+// C
+'controls_can_delete' => 'If enabled, all users or the specified authorised users will be permitted to delete files and sub-directories in each directory to which this set applies.',
+'controls_can_mkdir' => 'If enabled, all users or the specified authorised users will be permitted to create new sub-directories in each directory to which this set applies.',
+'controls_can_mkfile' => 'If enabled, all users or the specified authorised users will be permitted to create new files in each directory to which this set applies.',
+'controls_can_upload' => 'If enabled, all users or the specified authorised users will be permitted to upload files to each directory to which this set applies.',
+'controls_exclude_groups' => 'Optionally specify user group(s) who will be denied the permissions specified in this set. Enter a group name, or a comma-separated series of then. Or leave blank for no excluded groups.',
+'controls_exclude_patterns' => 'Optionally specify type(s) of items to which the permissions specified in this set will not apply. Enter a [TBA], or a comma-separated series of then. Or leave blank for no probitied types.',
+'controls_exclude_users' => 'Optionally specify user(s) who will be denied the permissions specified in this set. Enter a userid, or a comma-separated series of then. Or leave blank for no excluded users.',
+'controls_file_types' => 'Optionally specify filetype(s) to which the permissions specified in this set will apply. Enter a [TBA], or a comma-separated series of then. Or leave blank for all types.',
+'controls_match_groups' => 'Optionally specify user group(s) who will be granted the permissions specified in this set. Enter a group name, or a comma-separated series of then. Or leave blank for all groups.',
+'controls_match_patterns' => 'Optionally specify type(s) of items to which the permissions specified in this set will apply. Enter a [TBA], or a comma-separated series of then. Or leave blank for all types.',
+'controls_match_users' => 'Optionally specify user(s) who will be granted the permissions specified in this set. Enter a userid, or a comma-separated series of then. Or leave blank for all users.',
+'controls_set_name' => 'Each controls-set must have a unique name. Such names may contain only alphanumeric characters and/or underscore(s).',
+'controls_set_reltop' => 'Optionally enter the filepath of a directory (relative to TBA) to be the topmost directory to which this set will apply. All its descendents will also be covered, unless and to the extent that some other set also applies.',
+'controls_show_hidden' => 'If enabled, any hidden items will be shown in each displayed directory to which this set applies.',
+'controls_show_thumbs' => 'If enabled, thumbnails will be shown for image files for which thumbnails are generated.',
+'controls_sort_field' => 'Select the file property to be used to sort the items displayed in in each displayed directory to which this set applies.',
+
 // H
 'help_group_permissions' => <<<'EOS'
 <h4>CMSMS Admin Permission Model</h4>
@@ -12,7 +30,6 @@ $lang = [
 </ul>
 EOS
 ,
-
 // U
 'user_active' => 'If disabled, the user will be ignored, but the user\'s data will be preserved',
 'user_admincallout' => 'If enabled, administrative bookmarks <em>(bookmarks)</em> will be enabled allowing you to manage a list of frequently used actions in the admin console.',
@@ -111,7 +128,7 @@ EOS
 'settings_thumbfield_path' => 'This setting is used when editing content. The directory specified here is used to provide a list of images from which to associate a thumbnail with the content page.<br><br>Relative to the image uploads path, specify a directory name that contains the paths containing files for the image field. Usually this will be the same as the path above.',
 'settings_thumbheight' => 'Enter a height <em>(in pixels)</em> to be used by default when generating thumbnails from uploaded image files. Thumbnails are typically displayed in the Admin panel in the FileManager module or when selecting an image to insert into page content. However, some modules might use the thumbnails on the website frontend.<br><br><strong>Note:</strong> Some modules might have additional preferences for how to generate thumbnails, and ignore this setting.',
 'settings_thumbwidth' => 'Enter a width <em>(in pixels)</em> to be used by default when generating thumbnails from uploaded image files. Thumbnails are typically displayed in the Admin panel in the FileManager module or when selecting an image to insert into page content. However, some modules might use the thumbnails on the website frontend.<br><br><strong>Note:</strong> Some modules might have additional preferences for how to generate thumbnails, and ignore this setting.',
-'settings_umask' => 'The &quot;umask&quot; is an integer (often octal) value that specifies which permissions are to be revoked from the system defaults when a file or directory is created on a *NIX filesystem. Usually, the default umask is 022, which means that &quot;group&quot; and &quot;other&quot; processes are not able to modify the item. For more information see <a href="http://en.wikipedia.org/wiki/Umask" class="external" target="_blank"><u>this Wikipedia article</u></a>.',
+'settings_umask' => 'The &quot;umask&quot; is an integer (often octal) value that specifies which permissions are to be revoked from the system defaults when a file or directory is created on a *NIX filesystem. Usually, the default umask is 022, which means that &quot;group&quot; and &quot;other&quot; processes are not able to modify the item. For more information see <a href="https://en.wikipedia.org/wiki/Umask" class="external" target="_blank"><u>this Wikipedia article</u></a>.',
 'settings_wysiwyg' => 'Select one of these, to use for editing HTML.<br><br>Some such editors may require a substantial download at runtime, and if that is a problem, select another option.',
 'settings_wysiwygtheme' => 'If the default WYSIWYG editor supports theming, enter here the name of the default theme. Admin users will be able to select a different theme as one of their own preferences.',
 

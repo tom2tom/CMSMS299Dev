@@ -4,32 +4,37 @@
  * https://github.com/ilikenwf/nestedSortable
  *
  * Depends on:
- *	 jquery.ui.sortable.js 1.10+
+ *   jquery.ui.sortable.js 1.10+
  *
  * Copyright (c) 2010-2022 Manuele J Sarfatti and contributors
  * Licensed under the MIT License
  * http://www.opensource.org/licenses/mit-license.php
  */
-(function( factory ) {
+/*!
+jQuery UI Nested Sortable v 2.2 <https://github.com/ilikenwf/nestedSortable>
+(C) 2010-2022 Manuele J Sarfatti and contributors
+License MIT
+*/ 
+(function(factory) {
 	"use strict";
 
-	if ( typeof define === "function" && define.amd ) {
+	if (typeof define === "function" && define.amd) {
 
 		// AMD. Register as an anonymous module.
 		define([
 			"jquery",
 			"jquery-ui/ui/sortable"
-		], factory );
+		], factory);
 	} else {
 
 		// Browser globals
-		factory( window.jQuery );
+		factory(window.jQuery);
 	}
 }(function($) {
 	"use strict";
 
-	function isOverAxis( x, reference, size ) {
-		return ( x > reference ) && ( x < ( reference + size ) );
+	function isOverAxis(x, reference, size) {
+		return (x > reference) && (x < (reference + size));
 	}
 
 	$.widget("mjs.nestedSortable", $.ui.sortable, {
@@ -38,7 +43,9 @@
 			disableParentChange: false,
 			doNotClear: false,
 			expandOnHover: 700,
-			isAllowed: function() { return true; },
+			isAllowed: function() {
+				return true;
+			},
 			isTree: false,
 			listType: "ol",
 			maxLevels: 0,
@@ -92,7 +99,7 @@
 						$li.addClass(self.options.branchClass);
 						// expand/collapse class only if they have children
 
-						if ( !hasCollapsedClass && !hasExpandedClass ) {
+						if (!hasCollapsedClass && !hasExpandedClass) {
 							if (self.options.startCollapsed) {
 								$li.addClass(self.options.collapsedClass);
 							} else {
@@ -262,7 +269,7 @@
 			childLevels = this._getChildLevels(this.helper);
 			newList = document.createElement(o.listType);
 
-			// object required by $.ui.sortable 1.13+
+			// object required by jquery.ui.sortable 1.13+
 			this.dragDirection = {
 				vertical: this._getDragVerticalDirection(),
 				horizontal: this._getDragHorizontalDirection()
@@ -321,8 +328,8 @@
 					!$.contains(this.placeholder[0], itemElement) &&
 					(
 						this.options.type === "semi-dynamic" ?
-							!$.contains(this.element[0], itemElement) :
-							true
+						!$.contains(this.element[0], itemElement) :
+						true
 					)
 				) {
 
@@ -376,7 +383,7 @@
 								itemElement.parentNode === this.element[0]
 							) {
 
-								if ( !$(itemElement).children(o.listType).length) {
+								if (!$(itemElement).children(o.listType).length) {
 									itemElement.appendChild(newList);
 									if (o.isTree) {
 										$(itemElement)
@@ -487,16 +494,16 @@
 
 				parentItem.after(this.placeholder[0]);
 				helperIsNotSibling = !parentItem
-											.children(o.listItem)
-											.children("li:visible:not(.ui-sortable-helper)")
-											.length;
+					.children(o.listItem)
+					.children("li:visible:not(.ui-sortable-helper)")
+					.length;
 				if (o.isTree && helperIsNotSibling) {
 					parentItem
 						.removeClass(this.options.branchClass + " " + this.options.expandedClass)
 						.addClass(this.options.leafClass);
 				}
-                if(typeof parentItem !== 'undefined')
-				    this._clearEmpty(parentItem[0]);
+				if (typeof parentItem !== 'undefined')
+					this._clearEmpty(parentItem[0]);
 				this._trigger("change", event, this._uiHash());
 				// mjs - if the item is below a sibling and is moved to the right,
 				// make it a child of that sibling
@@ -636,7 +643,7 @@
 
 		_contactContainers: function() {
 
-			if (this.options.protectRoot && this.currentItem[0].parentNode === this.element[0] ) {
+			if (this.options.protectRoot && this.currentItem[0].parentNode === this.element[0]) {
 				return;
 			}
 
@@ -652,7 +659,7 @@
 
 			//relocate event
 			if (!(this._pid_current === this._uiHash().item.parent().parent().attr("id") &&
-				this._sort_current === this._uiHash().item.index())) {
+					this._sort_current === this._uiHash().item.index())) {
 				this._trigger("relocate", this._relocate_event, this._uiHash());
 			}
 
@@ -672,11 +679,11 @@
 
 			$(items).each(function() {
 				var res = ($(o.item || this).attr(o.attribute || "id") || "")
-						.match(o.expression || (/(.+)[-=_](.+)/)),
+					.match(o.expression || (/(.+)[-=_](.+)/)),
 					pid = ($(o.item || this).parent(o.listType)
 						.parent(o.items)
 						.attr(o.attribute || "id") || "")
-						.match(o.expression || (/(.+)[-=_](.+)/));
+					.match(o.expression || (/(.+)[-=_](.+)/));
 
 				if (res) {
 					str.push(
@@ -760,7 +767,9 @@
 				left = _recursiveArray(this, sDepth, left);
 			});
 
-			ret = ret.sort(function(a, b) { return (a.left - b.left); });
+			ret = ret.sort(function(a, b) {
+				return (a.left - b.left);
+			});
 
 			return ret;
 
@@ -785,22 +794,22 @@
 					pid = o.rootID;
 				} else {
 					parentItem = ($(item).parent(o.listType)
-											.parent(o.items)
-											.attr(o.attribute || "id"))
-											.match(o.expression || (/(.+)[-=_](.+)/));
+							.parent(o.items)
+							.attr(o.attribute || "id"))
+						.match(o.expression || (/(.+)[-=_](.+)/));
 					pid = parentItem[2];
 				}
 
 				if (id) {
 					var data = $(item).children('div').data();
-					var itemObj = $.extend( data, {
-						"id":id[2],
-						"parent_id":pid,
-						"depth":depth,
-						"left":_left,
-						"right":right
-						} );
-					ret.push( itemObj );
+					var itemObj = $.extend(data, {
+						"id": id[2],
+						"parent_id": pid,
+						"depth": depth,
+						"left": _left,
+						"right": right
+					});
+					ret.push(itemObj);
 				}
 
 				_left = right + 1;
@@ -809,7 +818,7 @@
 
 		},
 
-		_clearEmpty: function (item) {
+		_clearEmpty: function(item) {
 			function replaceClass(elem, search, replace, swap) {
 				if (swap) {
 					search = [replace, replace = search][0];
@@ -870,16 +879,16 @@
 			var o = this.options,
 				// this takes into account the maxLevels set to the recipient list
 				maxLevels = this
-					.placeholder
-					.closest(".ui-sortable")
-					.nestedSortable("option", "maxLevels"),
+				.placeholder
+				.closest(".ui-sortable")
+				.nestedSortable("option", "maxLevels"),
 
 				// Check if the parent has changed to prevent it, when o.disableParentChange is true
 				oldParent = this.currentItem.parent().parent(),
 				disabledByParentchange = o.disableParentChange && (
 					//From somewhere to somewhere else, except the root
 					typeof parentItem !== 'undefined' && !oldParent.is(parentItem) ||
-					typeof parentItem === 'undefined' && oldParent.is("li")	//From somewhere to the root
+					typeof parentItem === 'undefined' && oldParent.is("li") //From somewhere to the root
 				);
 			// mjs - is the root protected?
 			// mjs - are we nesting too deep?

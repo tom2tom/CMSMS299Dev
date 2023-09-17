@@ -19,7 +19,7 @@
       <th title="{_la('title_event_name')}">{_la('event')}</th>
       <th title="{_la('title_event_originator')}">{_la('originator')}</th>
       <th title="{_la('title_event_handlers')}">{_la('handlers')}</th>
-      <th title="{_la('title_event_description')}" style="width:50%;">{_la('description')}</th>
+      <th title="{_la('title_event_description')}" style="width:50%">{_la('description')}</th>
       <th class="pageicon"></th>
       {if $access}
       <th class="pageicon"></th>

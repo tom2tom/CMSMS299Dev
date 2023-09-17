@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManger module action: defaultadmin
-Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -144,7 +144,7 @@ if (isset($params['delete'])) {
 	}
 }
 
-function urlsplit(string $u) : array
+function urlsplit(string $u): array
 {
 //  $u = str_replace('&amp;', '&', $u);
 	$parts = parse_url($u);
@@ -154,7 +154,7 @@ function urlsplit(string $u) : array
 		$parts = explode('&', $parts['query']);
 		foreach ($parts as $one) {
 			if (strpos($one, '=') !== false) {
-				list($k, $v) = explode('=', $one);
+				[$k, $v] = explode('=', $one);
 				if (is_numeric($v)) {
 					$ob->$k = $v;
 				} else {
@@ -188,10 +188,10 @@ if (isset($curpage)) {
 $find_url = $this->create_action_url($id, 'ajax_pagelookup', ['forjs' => 1, CMS_JOB_KEY => 1]);
 
 $url = $this->create_action_url($id, 'ajax_get_content', ['forjs' => 1, CMS_JOB_KEY => 1]);
-list($page_url, $page_data) = urlsplit($url);
+[$page_url, $page_data] = urlsplit($url);
 
 $url = $this->create_action_url($id, 'ajax_check_locks', ['forjs' => 1, CMS_JOB_KEY => 1]);
-list($watch_url, $watch_data) = urlsplit($url);
+[$watch_url, $watch_data] = urlsplit($url);
 
 $securekey = CMS_SECURE_PARAM_NAME;
 $jobkey = CMS_JOB_KEY;
@@ -255,8 +255,7 @@ if ($out) {
 */
 
 $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 var pageurl = '$page_url',
  pagedata = $page_data,
  refresher,watcher;
@@ -625,7 +624,6 @@ $(function() {
   }
  });
 });
-//]]>
 </script>
 EOS;
 add_page_foottext($js); //NOT for ScriptsMerger
@@ -652,7 +650,7 @@ if ($pmanage) {
 /* TODO
 		$eds = utf8_sort($eds, true); after Collator setup fixed ...
 OR		$in = 'UTF-8'; $out = 'ASCII//TRANSLIT//IGNORE';
-		uasort($eds, function ($a, $b) use ($in, $out) {
+		uasort($eds, function (/*mixed * /$a, /*mixed * /$b) use ($in, $out): int {
 			$a = @iconv($in, $out, $a);
 			$b = @iconv($in, $out, $b);
 			return strnatcasecmp($a, $b);

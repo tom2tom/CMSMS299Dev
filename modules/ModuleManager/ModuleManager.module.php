@@ -3,7 +3,7 @@
 ModuleManager: a CMS Made Simple module for managing installed modules,
 including browsing remotely-stored modules, viewing information about them,
 and downloading or upgrading
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -113,7 +113,7 @@ abandoned            case CapabilityType::CORE_MODULE:
      * @param CMSMS\CLI\App $app (exists only in App mode) TODO better namespace
      * @return array
      * /
-    public function get_cli_commands( $app ) : array
+    public function get_cli_commands( $app ): array
     {
         if( parent::get_cli_commands($app) === null ) return [];
 

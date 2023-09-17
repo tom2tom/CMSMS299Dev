@@ -20,7 +20,7 @@ class wizard_step1 extends wizard_step
     protected function process()
     {
         if (isset($_POST['lang'])) {
-            // see http://www.unicode.org/reports/tr35/#Identifiers
+            // see format info at https://www.unicode.org/reports/tr35
             $lang = sanitizeVal($_POST['lang'], ICMSSAN_NONPRINT);
             if ($lang) {
                 translator()->set_selected_language($lang);
@@ -34,15 +34,20 @@ class wizard_step1 extends wizard_step
 
         $app = get_app();
         if (isset($_POST['destdir'])) {
+            //this is not a new installation
             $dir = sanitizeVal($_POST['destdir'], ICMSSAN_PATH);
-            if ($dir) { //TODO && is_dir() ?
-                $app->set_destdir($dir);
+            if ($dir) {
+                if (is_dir($dir)) {
+                    $app->set_destdir($dir);
+                } else {
+                    throw new Exception('Invalidid sources directory');
+                }
             }
         }
 
         $verbose = (int)(!empty($_POST['verbose']));
         $app->set_config_val('verbose', $verbose);
-//      $this->get_wizard()->set_data('verbose',$verbose);
+//      $this->get_wizard()->set_data('verbose', $verbose);
 
         if (isset($_POST['next'])) {
             // redirect to the next step.
@@ -78,24 +83,23 @@ class wizard_step1 extends wizard_step
             }
         }
         $raw = $config['verbose'] ?? 0;
-//      $v = ($raw === NULL) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
+//      $v = ($raw === NULL) ? $this->get_wizard()->get_data('verbose', 0) : (int)$raw;
         $smarty->assign('verbose', (int)$raw);
-//      $smarty->assign('checksum',$this->generate_checksum(); TODO
+//      $smarty->assign('checksum', $this->generate_checksum(); TODO
         $tr = translator();
         $arr = $tr->get_language_list($tr->get_allowed_languages());
         asort($arr, SORT_LOCALE_STRING);
-        $smarty->assign('languages', $arr);
-        $raw = $config['lang'] ?? null;
-        $v = ($raw) ? trim($raw) : $tr->get_current_language();
-        $smarty->assign('curlang', $v);
-        $smarty->assign('yesno', [0 => lang('no'), 1 => lang('yes')]);
-        $smarty->display('wizard_step1.tpl');
+        $v = $tr->get_current_language();
+        $smarty->assign('languages', $arr)
+         ->assign('curlang', $v)
+         ->assign('yesno', [0 => lang('no'), 1 => lang('yes')])
+         ->display('wizard_step1.tpl');
 
         $this->finish();
     }
 
     // Exclude most CMSMS directories from the dropdown for directory-choosing
-    private function _is_valid_dir(string $dir) : bool
+    private function _is_valid_dir(string $dir): bool
     {
         $bn = basename($dir);
         switch ($bn) {
@@ -171,7 +175,7 @@ class wizard_step1 extends wizard_step
      * @param string $filepath of a version.php file
      * @return string discovered version or ''
      */
-    private function _read_version(string $filepath) : string
+    private function _read_version(string $filepath): string
     {
         $text = @file_get_contents($filepath);
         if (!$text) {
@@ -198,7 +202,7 @@ class wizard_step1 extends wizard_step
      * @param string $dir filepath of folder
      * @return string, maybe empty
      */
-    private function _get_annotation(string $dir) : string
+    private function _get_annotation(string $dir): string
     {
         if (!is_dir($dir) || !is_readable($dir)) {
             return '';
@@ -281,7 +285,7 @@ class wizard_step1 extends wizard_step
         return $out;
     }
 
-    private function get_valid_install_dirs() : array
+    private function get_valid_install_dirs(): array
     {
         $start = get_app()->get_rootdir();
         $parent = realpath(dirname($start)); //we're working in a subdir of the main site

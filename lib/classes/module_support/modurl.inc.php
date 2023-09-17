@@ -1,7 +1,7 @@
 <?php
 /*
 URL-creation methods for CMS Made Simple <http://cmsmadesimple.org>
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -82,7 +82,7 @@ function CreateActionUrl(
 	string $prettyurl = '',
 	bool $relative = false,
 	int $format = 2
-	) : string
+	): string
 {
 	if ($id) {
 		$id = trim($id); //sanitize not needed, breaks back-compatibility
@@ -184,7 +184,7 @@ function CreateJobUrl(
 	bool $onetime = false,
 	bool $relative = false,
 	int $format = 2
-	) : string
+	): string
 {
 	$action = trim($action); //sanitize not needed, breaks back-compatibility
 	assert($action != false, __METHOD__.' error : $action parameter is missing');
@@ -233,7 +233,7 @@ function CreatePageUrl(
 	array $params = [],
 	bool $relative = false,
 	int $format = 2
-	) : string
+	): string
 {
 	$text = '';
 	$ptops = cmsms()->GetHierarchyManager();

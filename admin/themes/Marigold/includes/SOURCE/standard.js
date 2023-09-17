@@ -104,7 +104,7 @@ License GPL2+
                 callback = arg2 || callback;
             }
             //check all existing script tags in the page for the url
-            $('script[type="text/javascript"]').each(function () {
+            $('script').each(function () {
                 var load = (url !== $(this).attr('src'));
                 return load;
             });
@@ -441,7 +441,7 @@ License GPL2+
                 var button = $(this),
                     icon = button.data('uiIcon') || 'ui-icon-circle-check',
                     label = button.val(),
-                    $btn = $('<button>');
+                    $btn = $('<button></button>');
                 if (!button.hasClass('noautobtn') || !button.hasClass('no-ui-btn')) {
                     if (button.is('[name*=apply]')) {
                         icon = button.data('uiIcon') || 'ui-icon-disk';

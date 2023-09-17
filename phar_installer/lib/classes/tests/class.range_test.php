@@ -3,7 +3,7 @@ namespace cms_installer\tests;
 
 class range_test extends test_base
 {
-    public function __set(string $key, $value) : void
+    public function __set(string $key, $value): void
     {
         switch ($key) {
       case 'success_key':
@@ -14,7 +14,7 @@ class range_test extends test_base
     }
     }
 
-    public function execute() : string
+    public function execute(): string
     {
         $val = $this->returnBytes($this->value);
         if ($this->minimum) {

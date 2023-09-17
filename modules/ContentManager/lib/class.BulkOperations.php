@@ -1,7 +1,7 @@
 <?php
 /*
 Class for operations dealing with bulk content methods
-Copyright (C) 2008-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -37,8 +37,8 @@ final class BulkOperations
 	private static $_list = [];
 
 	private function __construct() {}
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+
+	private function __clone(): void {}
 
 	/**
 	 * Register a function to show in the bulk content operations list used in
@@ -66,7 +66,7 @@ final class BulkOperations
 	 *  from various modules with a horizontal line. Default true.
 	 * @return array The list of operations
 	 */
-	public static function get_operation_list(bool $separate_modules = true) : array
+	public static function get_operation_list(bool $separate_modules = true): array
 	{
 		$tmpc = [];
 		$tmpm = [];

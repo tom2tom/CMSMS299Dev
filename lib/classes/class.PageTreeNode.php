@@ -1,7 +1,7 @@
 <?php
 /*
 Simple pages-tree node class
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -63,7 +63,7 @@ class PageTreeNode
 	 * @return mixed
 	 */
 	#[\ReturnTypeWillChange]
-	public function __call($name, $args)
+	public function __call($name, $args)//: mixed
 	{
 		$args[] = $this->id;
 		return $this->operations->$name(...$args);
@@ -138,7 +138,7 @@ class PageTreeNode
 	 * @since 3.0
 	 * @see also PageTreeOperations::load_children()
 	 */
-	public function load_children(bool $deep = false, bool $all = false, bool $loadcontent = true, bool $as_node = true) : array
+	public function load_children(bool $deep = false, bool $all = false, bool $loadcontent = true, bool $as_node = true): array
 	{
 		return $this->operations->load_children($deep, $all, $loadcontent, $as_node, $this->id);
 	}
@@ -149,7 +149,7 @@ class PageTreeNode
 	 * @deprecated since 3.0 instead use PageTreeNode::load_children()
 	 * @see also PageTreeOperations::load_children()
 	 */
-	public function getChildren(bool $deep = false, bool $all = false, bool $loadcontent = true, bool $as_node = true) : array
+	public function getChildren(bool $deep = false, bool $all = false, bool $loadcontent = true, bool $as_node = true): array
 	{
 		return $this->operations->load_children($deep, $all, $loadcontent, $as_node, $this->id);
 	}

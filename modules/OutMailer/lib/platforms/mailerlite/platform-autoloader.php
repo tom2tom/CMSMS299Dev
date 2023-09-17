@@ -1,7 +1,7 @@
 <?php
 /*
 This file is part of CMS Made Simple module: OutMailer
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Refer to licence and other details at the top of file OutMailer.module.php
 More info at http://dev.cmsmadesimple.org/projects/outmailer
 */

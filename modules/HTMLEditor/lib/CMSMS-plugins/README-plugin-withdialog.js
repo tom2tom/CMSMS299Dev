@@ -87,7 +87,7 @@ $.extend($.summernote.plugins, {
           context.invoke('restoreRange');
         })
         .done(function(params) {
-          const $inserter = $('<div>'),
+          const $inserter = $('<div></div>'),
             $collector = $('whatever');
           //interrogate params and $dialog element values
           // to populate and style $inserter and/or $collector

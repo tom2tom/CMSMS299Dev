@@ -2,6 +2,8 @@
 
 // access to CMSMS 3.0+ API is needed
 use CMSMS\Template;
+use function cms_installer\status_msg;
+use function cms_installer\verbose_msg;
 
 status_msg('Upgrading schema for CMSMS 2.1');
 

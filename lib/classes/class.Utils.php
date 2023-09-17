@@ -1,7 +1,7 @@
 <?php
 /*
 System utilities class.
-Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -87,7 +87,7 @@ final class Utils
 	 *
 	 * @return mixed CMSMS\Database\Connection object | null
 	 */
-	public static function get_db() : Connection
+	public static function get_db(): Connection
 	{
 		return Lone::get('Db');
 	}
@@ -99,7 +99,7 @@ final class Utils
 	 *
 	 * @return AppConfig The global configuration object.
 	 */
-	public static function get_config() : AppConfig
+	public static function get_config(): AppConfig
 	{
 		return Lone::get('Config');
 	}
@@ -111,7 +111,7 @@ final class Utils
 	 *
 	 * @return Smarty handle to the Smarty object
 	 */
-	public static function get_smarty() : Smarty
+	public static function get_smarty(): Smarty
 	{
 		return Lone::get('Smarty');
 	}
@@ -161,7 +161,7 @@ final class Utils
 	 * @param string $name The module name
 	 * @return bool
 	 */
-	public static function module_available(string $name) : bool
+	public static function module_available(string $name): bool
 	{
 		return Lone::get('ModuleOperations')->IsModuleActive($name);
 	}
@@ -265,7 +265,7 @@ final class Utils
 	 * @return bool indicating message was accepted for delivery
 	 */
 	public static function send_email(string $to, string $subject, string $message,
-	   $additional_headers = [], string $additional_params = '') : bool
+	   $additional_headers = [], string $additional_params = ''): bool
 	{
 		$mod = self::get_email_module();
 		if ($mod) {
@@ -322,7 +322,7 @@ final class Utils
 	/**
 	 *@ignore
 	 */
-	private static function swap($fmt) : string
+	private static function swap($fmt): string
 	{
 		if (!$fmt) {
 			return ''.$fmt;
@@ -428,34 +428,34 @@ final class Utils
 	/**
 	 *@ignore
 	 */
-	private static function custom(int $st, string $mode) : string
+	private static function custom(int $st, string $mode): string
 	{
-		if (extension_loaded('Intl')) {
+		if (class_exists('IntlDateFormatter')) {
 			$zone = Lone::get('Config')['timezone'];
 			$dt = new DateTime('@0', new DateTimeZone($zone));
 			$dt->setTimestamp($st);
 			$locale = NlsOperations::get_current_language();
 			switch ($mode) {
 			case "\1": // short day name
-				return datefmt_format_object($dt, 'EEE', $locale);
+				return IntlDateFormatter::formatObject($dt, 'EEE', $locale);
 			case "\2": // normal day name
-				return datefmt_format_object($dt, 'EEEE', $locale);
+				return IntlDateFormatter::formatObject($dt, 'EEEE', $locale);
 			case "\3": // short month name
-				return datefmt_format_object($dt, 'MMM', $locale);
+				return IntlDateFormatter::formatObject($dt, 'MMM', $locale);
 			case "\4": // normal month name
-				return datefmt_format_object($dt, 'MMMM', $locale);
+				return IntlDateFormatter::formatObject($dt, 'MMMM', $locale);
 			case "\6": // date only
-				return datefmt_format_object($dt,
+				return IntlDateFormatter::formatObject($dt,
 					[IntlDateFormatter::FULL, IntlDateFormatter::NONE], $locale);
 			case "\7": // time only
-				return datefmt_format_object($dt,
+				return IntlDateFormatter::formatObject($dt,
 					[IntlDateFormatter::NONE, IntlDateFormatter::MEDIUM], $locale);
 			case "\x8": // date and time
-				return datefmt_format_object($dt,
+				return IntlDateFormatter::formatObject($dt,
 					[IntlDateFormatter::FULL, IntlDateFormatter::MEDIUM], $locale);
 			case "\x0e": // am/pm, upper-case
 			case "\x0f": // am/pm, lower-case
-				$s = datefmt_format_object($dt, 'a', $locale);
+				$s = IntlDateFormatter::formatObject($dt, 'a', $locale);
 				if ($mode == "\x0e") {
 					// force upper-case, any charset
 					if (!preg_match('/[\x80-\xff]/',$s)) { return strtoupper($s); }
@@ -552,9 +552,10 @@ final class Utils
 	 * @param mixed $datevar timestamp | DateTime object | datetime string parsable by strtotime()
 	 * @param string $format strftime()- and/or date()-compatible format definition
 	 * @param mixed $default_date fallback to use if $datevar is empty. Same types as $datevar
+	 * @param string $locale to use instead of the default Since 2.2.17
 	 * @return string
 	 */
-	public static function dt_format($datevar, string $format = '%b %e, %Y', $default_date = '') : string
+	public static function dt_format($datevar, string $format = '%b %e, %Y', $default_date = '', ?string $locale=''): string
 	{
 		if (empty($datevar) && $default_date) {
 			$datevar = $default_date;
@@ -573,7 +574,7 @@ final class Utils
 				$st = time();
 			}
 		}
-
+//TODO use $locale if provided
 		$outfmt = self::swap($format);
 		$tmp = date($outfmt, $st);
 		$text = preg_replace_callback_array([
@@ -581,7 +582,7 @@ final class Utils
 				return self::custom($st, $m[0]);
 			},
 			'~\x11~' => function($m) use ($st) { // two-digit century
-				return floor(date('Y', $st) / 100);
+				return floor(date('Y', $st) / 100 + 0.001);
 			},
 			'~\x12~' => function($m) use ($st) { // week of year, per ISO8601
 				return substr(date('o', $st), -2);
@@ -590,13 +591,13 @@ final class Utils
 				 $n1 = date('Y', $st);
 				 $n2 = date('z', strtotime('first monday of january '.$n1));
 				 $n1 = date('z', $st);
-				 return floor(($n2-$n1) / 7) + 1;
+				 return floor(($n1-$n2) / 7 + 0.001) + 1;
 			 },
 			'~\x13~' => function($m) use ($st) { // week of year, assuming the first Sunday is day 0
 				$n1 = date('Y', $st);
 				$n2 = date('z', strtotime('first sunday of january '.$n1));
 				$n1 = date('z', $st);
-				return floor(($n2-$n1) / 7) + 1;
+				return floor(($n1-$n2) / 7 + 0.001) + 1;
 			}
 		], $tmp);
 

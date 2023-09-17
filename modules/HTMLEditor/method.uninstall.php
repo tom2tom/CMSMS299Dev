@@ -1,7 +1,7 @@
 <?php
 /*
 HTMLEditor module uninstallation process
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of the Microtiny module for CMS Made Simple
 <http://dev.cmsmadesimple.org/projects/microtiny>

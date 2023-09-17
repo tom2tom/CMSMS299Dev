@@ -1,7 +1,7 @@
 <?php
 /*
 DesignManager module class: handles design exports.
-Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -138,7 +138,7 @@ EOT;
 
     private function _parse_tpl_urls($content)
     {
-        $temp_fix_cmsselflink = function($matches)
+        $temp_fix_cmsselflink = function(array $matches): string
         {
             // GCB (required name param)
             $out = preg_replace_callback("/href\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
@@ -149,7 +149,7 @@ EOT;
             return $out;
         };
 
-        $undo_fix_cmsselflink = function($matches)
+        $undo_fix_cmsselflink = function(array $matches): string
         {
             // GCB (required name param)
             $out = preg_replace_callback("/href\s*=[\\\"']{0,1}(ignore\:\:[a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
@@ -168,15 +168,14 @@ EOT;
         // compares root url to another url
         // handle relative paths
         // and no schema
-        $is_same_host = function(Url $url1,Url $url2)
+        $is_same_host = function(Url $url1,Url $url2): bool
         {
             if( $url1->get_host() != $url2->get_host() && $url2->get_host() != '') return false;
             if( $url1->get_port() != $url2->get_port() ) return false;
             if( $url1->get_scheme() != $url2->get_scheme() && $url2->get_scheme() != '') return false;
             $p1 = $url1->get_path();
             $p2 = $url2->get_path();
-            if( $p1 != $p2 && !startswith($p2,$p1) ) return false;
-            return true;
+            return ( $p1 == $p2 || startswith($p2,$p1) );
         };
 
         $ob = $this; // prob. redundant - $this is bound to closures
@@ -298,10 +297,10 @@ EOT;
     {
         $ob = $this; // prob. redundant - $this is bound to closures
 
-        $replace_mm = function($matches) use ($ob)
+        $replace_mm = function(array $matches) use ($ob): string
         {
-            // Menu Manager (optional template param)
-            $mod = Utils::get_module('MenuManager'); //TODO deprecated use Navigator
+            // deprecated MenuManager (optional template param)
+            $mod = Utils::get_module('MenuManager');
             if( !$mod ) throw new Exception('MenuManager tag specified, but MenuManager could not be loaded.');
 
             $have_template = false;
@@ -327,7 +326,7 @@ EOT;
             return $out;
         };
 
-        $replace_navigator = function($matches) use ($ob)
+        $replace_navigator = function(array $matches) use ($ob): string
         {
             // Navigator (optional template param)
             $mod = Utils::get_module('Navigator');
@@ -350,9 +349,9 @@ EOT;
             return $out;
         };
 
-        $replace_gcb = function($matches) use ($ob)
+        $replace_gcb = function(array $matches) use ($ob): string
         {
-            // GCB (required name param)
+            // deprecated GCB (required name param)
             $out = preg_replace_callback("/name\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
                 function($matches) use ($ob)
                 {
@@ -362,7 +361,7 @@ EOT;
             return $out;
         };
 
-        $replace_include = function($matches) use ($ob)
+        $replace_include = function(array $matches) use ($ob): string
         {
             // include (required file param)
             $out = preg_replace_callback("/file\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
@@ -381,13 +380,13 @@ EOT;
         $regex='/\{menu.*\}/';
         $template = preg_replace_callback( $regex, $replace_mm, $template );
 
-        $regex='/\{.*MenuManager.*\}/';
+        $regex='/\{.*MenuManager.*\}/'; // deprecated
         $template = preg_replace_callback( $regex, $replace_mm, $template );
 
         $regex='/\{.*Navigator.*\}/';
         $template = preg_replace_callback( $regex, $replace_navigator, $template );
 
-        $regex='/\{global_content.*\}/';
+        $regex='/\{global_content.*\}/'; // deprecated
         $template = preg_replace_callback( $regex, $replace_gcb, $template );
 
         $regex='/\{include.*\}/';
@@ -486,7 +485,7 @@ EOT;
 
     private function _xml_output_file($key,$value,$lvl = 0)
     {
-        if( !startswith($key,'__') || !endswith($key,'__') ) return; // invalid
+        if( !startswith($key,'__') || !endswith($key,'__') ) return ''; // invalid
         $p = strpos($key,',,');
         $nkey = substr($key,0,$p);
         $nkey = substr($nkey,2);

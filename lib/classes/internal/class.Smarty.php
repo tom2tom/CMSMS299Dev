@@ -1,7 +1,7 @@
 <?php
 /*
 Class to tailor Smarty for CMSMS.
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -76,7 +76,7 @@ class Smarty extends SmartyParent
     {
         parent::__construct();
 
-        $this->direct_access_security = true;
+//      $this->direct_access_security = true; deprecated, unused by ancestors
         $this->assignGlobal('app_name','CMSMS');
 
         if( CMS_DEBUG ) {
@@ -186,11 +186,6 @@ smarty cache lifetime != global cache ttl, probably
 
             // Autoload filters
             $this->autoloadFilters();
-
-            if( !$config['permissive_smarty'] ) {
-                // Apply our security object
-                $this->enableSecurity('CMSMS\internal\SmartySecurityPolicy');
-            }
         }
         elseif( AppState::test(AppState::ADMIN_PAGE) ) {
 /*/DEBUG admin caching
@@ -220,8 +215,10 @@ smarty cache lifetime != global cache ttl, probably
             // force re-compile after template change
             //Events::AddDynamicHandler('Core','EditTemplatePost',$TODOcallback);
             //Events::AddDynamicHandler('Core','AddTemplatePost',$TODOcallback);
-            $this->registerPlugin('modifier','lang','CMSMS\LangOperations::lang',true);
         }
+        $this->registerPlugin('modifier','lang','CMSMS\LangOperations::lang'); //lang use for admin and may be enabled for frontent
+        // Apply our security object, possibly 'permissive'
+        $this->enableSecurity('CMSMS\internal\SmartySecurityPolicy');
     }
 
     /**
@@ -363,7 +360,7 @@ smarty cache lifetime != global cache ttl, probably
      * @param string Optional plugin-type, default 'function' TODO support '*'/'any'
      * @return bool
      */
-    public function is_plugin(string $name,string $type = 'function') : bool
+    public function is_plugin(string $name,string $type = 'function'): bool
     {
         if( isset($this->registered_plugins[$type][$name]) ) {
             return true;
@@ -397,7 +394,7 @@ smarty cache lifetime != global cache ttl, probably
      * @param string the plugin name
      * @return bool
      */
-    public function is_registered(string $name) : bool
+    public function is_registered(string $name): bool
     {
         return isset($this->registered_plugins['function'][$name]);
     }
@@ -436,7 +433,7 @@ smarty cache lifetime != global cache ttl, probably
      * @param bool $show_trace Optional flag whether to include a backtrace in the displayed report. Default true
      * @return string
      */
-    public function errorConsole(Exception $e,bool $show_trace = true) : string
+    public function errorConsole(Exception $e,bool $show_trace = true): string
     {
         $this->force_compile = true;
 

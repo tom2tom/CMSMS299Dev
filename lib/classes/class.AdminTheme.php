@@ -256,14 +256,13 @@ abstract class AdminTheme
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    private function __clone() {}// : void {}
+    private function __clone(): void {}
 
     /**
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         switch ($key) {
         case 'themeName':
@@ -275,12 +274,15 @@ abstract class AdminTheme
         case 'userid':
             return get_userid();
         case 'title':
-            return $this->_title;
+            if (!empty($this->_title)) return $this->_title;
+            break;
         case 'subtitle':
-            return $this->_subtitle;
+            if (!empty($this->_subtitle)) return $this->_subtitle;
+            break;
         case 'root_url':
             return Lone::get('Config')['admin_url'].'/themes/'.$this->themeName;
         }
+        return null;
     }
 
     /**
@@ -295,7 +297,7 @@ abstract class AdminTheme
      * @param string $name Optional theme name.
      * @return mixed AdminTheme admin theme object | null
      */
-    public static function get_instance(string $name = '') : ?self
+    public static function get_instance(string $name = ''): ?self
     {
         if (is_object(self::$_instance)) {
             if (!$name || $name == self::$_instance->themeName) {
@@ -347,7 +349,7 @@ abstract class AdminTheme
      * @param mixed string|null $name Optional theme name.
      * @return mixed AdminTheme sub-class object | null
      */
-    public static function GetThemeObject($name = '') : ?self
+    public static function GetThemeObject($name = ''): ?self
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTheme::get_instance'));
         return self::get_instance($name);
@@ -357,7 +359,7 @@ abstract class AdminTheme
      * Setup menu-content cache-engagement
      * @ignore
      */
-    protected function load_setup() : void
+    protected function load_setup(): void
     {
         $obj = new LoadedDataType('menu_modules', function(bool $force = false, $userid = 0) {
             if (!$userid) { // $userid N/A during a cache-refresh
@@ -419,7 +421,7 @@ abstract class AdminTheme
      * @param array $strings
      * @return mixed string | false
      */
-    private function merger(array $strings)// : mixed
+    private function merger(array $strings)//: mixed
     {
         if ($strings) {
             if (count($strings) > 1) {
@@ -444,7 +446,7 @@ abstract class AdminTheme
      * [1] = array of [x]html string(s) which the browser will interpret
      *  as files to fetch and process - css and/or js, mainly
      */
-    public function AdminHeaderSetup() : array
+    public function AdminHeaderSetup(): array
     {
         $msgs = [
             'errornotices' => $this->merger($this->_errors),
@@ -463,7 +465,7 @@ abstract class AdminTheme
      *
      * @return array
      */
-    public function AdminBottomSetup() : array
+    public function AdminBottomSetup(): array
     {
         return [];
     }
@@ -475,7 +477,7 @@ abstract class AdminTheme
      *
      * @return string, default value 'ContextMenu'
      */
-    public function MenuCssClassname() : string
+    public function MenuCssClassname(): string
     {
         return 'ContextMenu';
     }
@@ -488,7 +490,7 @@ abstract class AdminTheme
      *
      * @return array absolute filepath(s) or empty (hence disaster)
      */
-    protected function get_styles() : array
+    protected function get_styles(): array
     {
         $res = [];
         $base = cms_join_path(CMS_ADMIN_PATH, 'themes', $this->themeName, '');
@@ -531,7 +533,7 @@ abstract class AdminTheme
      * @param str string to have its spaces converted
      * @ignore
      */
-    private function _FixSpaces(string $str) : string
+    private function _FixSpaces(string $str): string
     {
 /* RUBBISH - UTF-8 whitespace is ASCII-compatible
         $tmp = preg_replace('/\s+/u','&nbsp;',$str); // PREG UTF8
@@ -546,7 +548,7 @@ abstract class AdminTheme
      * @param string $url
      * @return string
      */
-    private function _fix_url_userkey(string $url) : string
+    private function _fix_url_userkey(string $url): string
     {
         if (strpos($url,CMS_SECURE_PARAM_NAME) !== false) {
             // conform to AuthOperations::create_csrf_token() e.g. 8+ non-[raw]urlencode()'d
@@ -571,7 +573,7 @@ abstract class AdminTheme
      * @ignore
      * @return array
      */
-    private function _get_user_module_info() : array
+    private function _get_user_module_info(): array
     {
         $cache = Lone::get('LoadedData');
         // ensure we have data to work from
@@ -589,7 +591,7 @@ abstract class AdminTheme
      * @access private
      * @ignore
      */
-    private function _SetModuleAdminInterfaces() : void
+    private function _SetModuleAdminInterfaces(): void
     {
         if ($this->_modules) {
             return; //once is enough
@@ -670,7 +672,7 @@ abstract class AdminTheme
      * @access private
      * @ignore
      */
-    private function _SetAggregatePermissions(bool $force = false) : void
+    private function _SetAggregatePermissions(bool $force = false): void
     {
         if (is_array($this->_perms) && !$force) return;
 
@@ -741,7 +743,7 @@ abstract class AdminTheme
      *  [0] = admin-root-relative URL including get-parameters derived from request parameters
      *  [1] = assoc. array of request parameters
      */
-    private function _parse_request() : array
+    private function _parse_request(): array
     {
         $parms = RequestParameters::get_action_params();
         if ($parms) {
@@ -776,30 +778,30 @@ abstract class AdminTheme
     }
 
     /**
-     * Set the page title.
+     * [Un]set the page title.
      * This is used in the admin to set the title for the page, and for the visible page header.
      * Note: if no title is specified, the theme will try to calculate one automatically.
      * @since 2.0
      *
-     * @param string $str The page title.
+     * @param mixed $str string page title, or falsy value to unset.
      */
-    public function SetTitle($str) : void
+    public function SetTitle($str): void
     {
-//        if ($str == '') $str = null; TODO why
+        if (!$str) { $str = null; } // aka unset
         $this->_title = $str;
     }
 
     /**
-     * Set the page subtitle.
+     * [Un]set the page subtitle.
      * This is used in the admin to set the title for the page, and for the visible page header.
      * Note: if no title is specified, the theme will try to calculate one automatically.
      * @since 2.0
      *
-     * @param string $str The page subtitle.
+     * @param mixed $str string page subtitle, or falsy value to unset.
      */
-    public function SetSubTitle($str) : void
+    public function SetSubTitle($str): void
     {
-//        if ($str == '') $str = null; TODO why
+        if (!$str) { $str = null; } // aka unset
         $this->_subtitle = $str;
     }
 
@@ -810,7 +812,7 @@ abstract class AdminTheme
      * @param string $permission the permission to check.
      * @return bool
      */
-    protected function HasPerm(string $permission) : bool
+    protected function HasPerm(string $permission): bool
     {
         $this->_SetAggregatePermissions();
         return !empty($this->_perms[$permission]);
@@ -821,7 +823,7 @@ abstract class AdminTheme
      * @ignore
      * @since 3.0
      */
-    protected function populate_tree() : void
+    protected function populate_tree(): void
     {
         $urlext = get_secure_param();
         $items = [];
@@ -921,8 +923,8 @@ abstract class AdminTheme
      * @since 1.11
      *
      * @param mixed $parent    Optional name of the wanted root section/node,
-     *  or null for actual root node. The formerly-used -1 is also
-     *  recognized as an indicator of the root node. Default null
+     *  or falsy for the actual root node. The formerly-used -1 is also
+     *  recognized as an indicator of the root node. Default ''
      * @param int   $maxdepth  Optional no. of sub-root levels to be
      *  displayed for $parent. < 1 indicates no maximum depth. Default 3
      * $param mixed $usepath   Since 3.0 Optional treepath for the selected item.
@@ -935,7 +937,7 @@ abstract class AdminTheme
      *  tree root-node from the returned array. Default true (backward compatible)
      * @return array  Nested menu nodes.  Each node's 'children' member represents the nesting
      */
-    public function get_navigation_tree($parent = null, int $maxdepth = 3, bool $usepath = true, int $alldepth = 2, bool $striproot = true) : array
+    public function get_navigation_tree($parent = '', int $maxdepth = 3, bool $usepath = true, int $alldepth = 2, bool $striproot = true): array
     {
         if (!$this->_menuTree) {
             $this->populate_tree();
@@ -943,7 +945,7 @@ abstract class AdminTheme
         $tree = $this->_menuTree;
 
         if ($parent == -1) {
-            $parent = null;
+            $parent = '';
         }
         if ($parent) {
             $path = ArrayTree::find($tree, 'name', $parent);
@@ -1001,7 +1003,7 @@ abstract class AdminTheme
             if (is_string($usepath)) {
                 $this->_activePath = ArrayTree::process_path($usepath);
             } else {
-                list($req_url, $req_vars) = $this->_parse_request();
+                [$req_url, $req_vars] = $this->_parse_request();
                 $this->_activePath = ArrayTree::find($tree, 'url', $req_url);
             }
 
@@ -1029,7 +1031,7 @@ abstract class AdminTheme
      *
      * @param string $module_name the module name.
      */
-    public function set_action_module(string $module_name) : void
+    public function set_action_module(string $module_name): void
     {
         if (!$module_name) return;
         $this->_action_module = $module_name;
@@ -1042,7 +1044,7 @@ abstract class AdminTheme
      * @access protected
      * @return string the module name for the current request, if any.
      */
-    protected function get_action_module() : string
+    protected function get_action_module(): string
     {
         if ($this->_action_module) return $this->_action_module;
         // TODO if this is empty, get it from the mact in the request
@@ -1055,12 +1057,12 @@ abstract class AdminTheme
      *
      * @access protected
      * @param string $modname module name
-     * @return mixed url-string | null
+     * @return mixed url-string | empty
      */
-    protected function get_module_help_url(string $modname = '')
+    protected function get_module_help_url(string $modname = ''): string
     {
         if (!$modname) $modname = $this->get_action_module();
-        if (!$modname) return;
+        if (!$modname) return '';
         //TODO some core method c.f. \CMSMS\AdminUtils::get_generic_url()
         $mod = Utils::get_module('ModuleManager');
         if (is_object($mod)) {
@@ -1092,7 +1094,7 @@ abstract class AdminTheme
      * @param bool $pure if false, the shortcuts for adding and managing bookmarks are added to the list.
      * @return array Array of Bookmark objects
      */
-    public function get_bookmarks(bool $pure = false) : array
+    public function get_bookmarks(bool $pure = false): array
     {
         $bookops = new BookmarkOperations();
         $marks = array_reverse($bookops->LoadBookmarks($this->userid));
@@ -1101,7 +1103,8 @@ abstract class AdminTheme
             $urlext = get_secure_param();
             $mark= new Bookmark();
             $mark->title = lang('addbookmark');
-            $mark->url = 'makebookmark.php'.$urlext.'&title='.urlencode($this->_title);
+            $mark->url = 'makebookmark.php'.$urlext;
+            if (!empty($this->_title)) $mark->url = '&title='.rawurlencode($this->_title);
             $marks[] = $mark;
 
             $mark = new Bookmark();
@@ -1117,7 +1120,7 @@ abstract class AdminTheme
      *
      * @return array Array of menu nodes representing the breadcrumb trail.
      */
-    public function get_breadcrumbs() : array
+    public function get_breadcrumbs(): array
     {
         if (!$this->_breadcrumbs) {
             $this->_breadcrumbs = [];
@@ -1139,7 +1142,7 @@ abstract class AdminTheme
      * @param string $key identifier
      * @return string
      */
-    public function get_active(string $key) : string
+    public function get_active(string $key): string
     {
         if ($this->_menuTree && $this->_activePath) {
             return ArrayTree::node_get_data($this->_menuTree, $this->_activePath, $key);
@@ -1153,7 +1156,7 @@ abstract class AdminTheme
      *
      * @return string
      */
-    public function get_active_title() : string
+    public function get_active_title(): string
     {
         return $this->get_active('title');
     }
@@ -1163,7 +1166,7 @@ abstract class AdminTheme
      *
      * @return string
      */
-/*    public function get_active_icon() : string
+/*    public function get_active_icon(): string
     {
         return $this->get_active('icon');
     }
@@ -1175,7 +1178,7 @@ abstract class AdminTheme
      * @param mixed $value value to be stored | null to remove
      * @return void
      */
-    public function set_value(string $key, $value) : void
+    public function set_value(string $key, $value): void
     {
         if (is_null($value) && is_array($this->_data) && isset($this->_data[$key])) {
             unset($this->_data[$key]);
@@ -1237,7 +1240,7 @@ abstract class AdminTheme
      * @param string $section menu-section to test
      * @return bool
      */
-    public function HasDisplayableChildren(string $section) : bool
+    public function HasDisplayableChildren(string $section): bool
     {
 /* TODO array-tree interrogation
         $displayableChildren=false;
@@ -1263,7 +1266,7 @@ abstract class AdminTheme
      * @param array $attrs Optional assoc array of attributes for the created img tag
      * @return string
      */
-    public function get_icon(string $icon, array $attrs = []) : string
+    public function get_icon(string $icon, array $attrs = []): string
     {
         $smarty = Lone::get('Smarty');
         $module = $smarty->getTemplateVars('_module');
@@ -1286,7 +1289,7 @@ abstract class AdminTheme
      * @param array $attrs Optional assoc array of attributes for the created img tag
      * @return string
      */
-    public function get_module_icon(string $module, array $attrs = []) : string
+    public function get_module_icon(string $module, array $attrs = []): string
     {
         $dirlist = cms_module_places($module);
         if ($dirlist) {
@@ -1360,7 +1363,7 @@ EOS;
 
     /**
      * DisplayImage
-     * Generate xhtml tag to display the themed version of $image (if it exists),
+     * Generate html tag to display the themed version of $image (if it exists),
      *  preferring image-file extension/type (in order):
      *  .i(if used in this theme), .svg, .png, .gif, .jpg, .jpeg
      *  As a convenience, this can also process specific images that are not
@@ -1375,7 +1378,7 @@ EOS;
      * @param array $attrs Since 3.0 Optional array with any or all attributes for the image/span tag
      * @return string
      */
-    public function DisplayImage(string $image, string $alt = '', $width = 0, $height = 0, string $class = '', array $attrs = []) : string
+    public function DisplayImage(string $image, string $alt = '', $width = 0, $height = 0, string $class = '', array $attrs = []): string
     {
         if (!is_array($this->_imageLink)) {
             $this->_imageLink = [];
@@ -1551,7 +1554,7 @@ EOS;
      *  If specified, $errors is ignored.
      * @return empty string (in case something thinks it's worth echoing)
      */
-    public function ShowErrors($errors, /*string*/$get_var = '')// : string
+    public function ShowErrors(/*mixed */$errors, string $get_var = ''): string
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTheme::PrepareStrings'));
         $this->PrepareStrings($this->_errors, $errors, '', $get_var);
@@ -1569,7 +1572,7 @@ EOS;
      *  If specified, $message is ignored.
      * @return empty string (in case something thinks it's worth echoing)
      */
-    public function ShowMessage($message, /*string */$get_var = '')// : string
+    public function ShowMessage(/*mixed */$message, string $get_var = ''): string
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTheme::PrepareStrings'));
         $this->PrepareStrings($this->_successes, $message, '', $get_var);
@@ -1588,7 +1591,7 @@ EOS;
      *  such variable is expected to contain a lang key for an error string,
      *  or an array of such keys. If non-null, $message is ignored.
      */
-    protected function PrepareStrings(array &$store, $message, string $title, string $get_var = '') : void
+    protected function PrepareStrings(array &$store, $message, string $title, string $get_var = ''): void
     {
         if ($get_var && !empty($_GET[$get_var])) {
             if (is_array($_GET[$get_var])) {
@@ -1627,7 +1630,7 @@ EOS;
      *  is expected to contain a lang key for an error string, or an
      *  array of such keys. If specified, $message is ignored.
      */
-    public function ParkNotice(string $type, $message, string $title = '', string $get_var = '') : void
+    public function ParkNotice(string $type, $message, string $title = '', string $get_var = ''): void
     {
         $from = 'cmsmsg_'.$type;
         if (isset($_SESSION[$from])) {
@@ -1652,7 +1655,7 @@ EOS;
      * @param string $type Message-type indicator 'error','warn','success' or 'info'
      * @param array $into
      */
-    protected function retrieve_message(string $type, array &$into) : void
+    protected function retrieve_message(string $type, array &$into): void
     {
         $from = 'cmsmsg_'.$type;
         if (isset($_SESSION[$from])) {
@@ -1670,7 +1673,7 @@ EOS;
      * @since 3.0
      * @param string $type Message-type indicator 'error','warn','success','info' or empty to process all types
      */
-    protected function UnParkNotices(string $type = '')// : mixed
+    protected function UnParkNotices(string $type = ''): void
     {
 /* TOAST DEBUGGING
         $this->_infos = ['dummy 1st line','This is some cool stuff that you\'ll want to remember'];
@@ -1681,16 +1684,16 @@ EOS;
         switch ($type) {
             case 'error':
                 $this->retrieve_message($type, $this->_errors);
-                return;
+                break;
             case 'warn':
                 $this->retrieve_message($type, $this->_warnings);
-                return;
+                break;
             case 'success':
                 $this->retrieve_message($type, $this->_successes);
-                return;
+                break;
             case 'info':
                 $this->retrieve_message($type, $this->_infos);
-                return;
+                break;
             default:
                 // otherwise, everything
                 $this->retrieve_message('error', $this->_errors);
@@ -1712,7 +1715,7 @@ EOS;
      *  is expected to contain a lang key for an error string, or an
      *  array of such keys. If specified, $message is ignored.
      */
-    public function RecordNotice(string $type, $message, string $title = '', bool $defer = false, string $get_var = '') : void
+    public function RecordNotice(string $type, $message, string $title = '', bool $defer = false, string $get_var = ''): void
     {
         if (!$defer) {
             switch ($type) {
@@ -1820,7 +1823,7 @@ EOS;
      *
      * @return string, maybe empty
      */
-    public static function GetDefaultTheme() : string
+    public static function GetDefaultTheme(): string
     {
         $tmp = self::GetAvailableThemes();
         if ($tmp) {
@@ -1838,7 +1841,7 @@ EOS;
      *  If true, array values are theme-class filepaths. Otherwise theme names.
      * @return array A theme-name-sorted hash of theme names or theme filepath strings
      */
-    public static function GetAvailableThemes(bool $fullpath = false) : array
+    public static function GetAvailableThemes(bool $fullpath = false): array
     {
         $res = [];
         $files = glob(cms_join_path(CMS_ADMIN_PATH,'themes','*','*Theme.php'),GLOB_NOESCAPE);
@@ -1859,7 +1862,7 @@ EOS;
      *
      * @param AdminNotification $notification A reference to the new notification
      */
-    public function add_notification(AdminNotification &$notification) : void
+    public function add_notification(AdminNotification &$notification): void
     {
 /*      if (!is_array($this->_notifications)) $this->_notifications = [];
         $this->_notifications[] = $notification;
@@ -1876,7 +1879,7 @@ EOS;
      * @param string $module The module name.
      * @param string $html The contents of the notification
      */
-    public function AddNotification(int $priority, string $module, string $html) : void
+    public function AddNotification(int $priority, string $module, string $html): void
     {
 /*    $notification = new AdminNotification();
       $notification->priority = max(1,min(3,$priority));
@@ -1893,7 +1896,7 @@ EOS;
      *
      * @return array of AdminNotification objects
      */
-    public function get_notifications() : array
+    public function get_notifications(): array
     {
 //        return $this->_notifications;
         assert(empty(CMS_DEPREC), new DeprecationNotice('Does nothing',''));
@@ -1905,7 +1908,7 @@ EOS;
      *
      * @return array, maybe empty
      */
-    public function get_my_alerts() : array
+    public function get_my_alerts(): array
     {
         return Alert::load_my_alerts();
     }
@@ -1919,7 +1922,7 @@ EOS;
      *  be the first option. Default true
      * @return array Keys are langified page-titles, values are respective URLs.
      */
-    public function GetAdminPages(bool $none = true) : array
+    public function GetAdminPages(bool $none = true): array
     {
         $opts = [];
         if ($none) {
@@ -2006,7 +2009,7 @@ EOS;
      *  for the back button.
      * @return string
      */
-    public function BackUrl() : string
+    public function BackUrl(): string
     {
         $this->get_breadcrumbs(); //ensure data are populated
         $count = $this->_breadcrumbs ? count($this->_breadcrumbs) - 2 : -1;
@@ -2028,7 +2031,7 @@ EOS;
      * @param bool   $after Since 3.0 Optional flag whether to append (instead of prepend) default true
      * @deprecated since 3.0 instead use add_page_headtext()
      */
-    public function add_headtext(string $txt, bool $after = true) : void
+    public function add_headtext(string $txt, bool $after = true): void
     {
 /*        $txt = trim($txt);
         if ($txt) {
@@ -2062,7 +2065,7 @@ EOS;
      * @param string $txt The text to add to the end of the output.
      * @param bool   $after Since 3.0 Optional flag whether to append (instead of prepend) default true
      */
-    public function add_footertext(string $txt, bool $after = true) : void
+    public function add_footertext(string $txt, bool $after = true): void
     {
 /*        $txt = trim($txt);
         if ($txt) {
@@ -2113,7 +2116,7 @@ EOS;
      * @param string $content the entire displayable content
      * @see AdminTheme::get_content(), AdminTheme::fetch_minimal_page()
      */
-    public function set_content(string $content) : void
+    public function set_content(string $content): void
     {
         $this->_primary_content = $content;
     }
@@ -2124,14 +2127,14 @@ EOS;
      *
      * @see AdminTheme::set_content(), AdminTheme::fetch_minimal_page()
      */
-    public function get_content() : string
+    public function get_content(): string
     {
         return $this->_primary_content;
     }
 
     /**
      * Optional method to display a customized theme-specific login page.
-     *   public function display_login_page() : void {}
+     *   public function display_login_page(): void {}
      * @since 3.0. Formerly the mandatory method do_login, which took
      *   parameters and displayed content directly.
      *
@@ -2150,7 +2153,7 @@ EOS;
      * work with the whole menu
      * @return html string | null if smarty->fetch() fails
      */
-    public function fetch_menu_page(string $section_name) : ?string
+    public function fetch_menu_page(string $section_name): ?string
     {
         $smarty = Lone::get('Smarty');
         $nodes = ($section_name) ?
@@ -2162,8 +2165,7 @@ EOS;
             $smarty->assign('sitedown', 1);
             $msg = addcslashes(lang('maintenance_warning'), "'\n\r");
             add_page_foottext(<<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
  $('#logoutitem').on('click', function(e) {
   e.preventDefault();
@@ -2171,7 +2173,6 @@ $(function() {
   return false;
  });
 });
-//]]>
 </script>
 EOS
             );
@@ -2188,7 +2189,7 @@ EOS
      * @param string $content The specific page content generated by a module action or admin operation
      * @return html string | null if smarty->fetch() fails
      */
-    abstract public function fetch_page(string $content) : ?string;
+    abstract public function fetch_page(string $content): ?string;
 
     /* *
      * @deprecated since 3.0 use fetch_page() instead
@@ -2236,7 +2237,7 @@ EOS
      *
      * @return string
      */
-    final public function StartTabHeaders() : string
+    final public function StartTabHeaders(): string
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTabs::start_tab_headers'));
         return AdminTabs::start_tab_headers();
@@ -2254,7 +2255,7 @@ EOS
      * @param bool $active Optional flag indicating whether this tab is active. Default false
      * @return string
      */
-    final public function SetTabHeader(string $tabid, string $title, bool $active = false) : string
+    final public function SetTabHeader(string $tabid, string $title, bool $active = false): string
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTabs::set_tab_header'));
         return AdminTabs::set_tab_header($tabid,$title,$active);
@@ -2268,35 +2269,35 @@ EOS
      *
      * @return string
      */
-    final public function EndTabHeaders() : string
+    final public function EndTabHeaders(): string
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTabs::end_tab_headers'));
         return AdminTabs::end_tab_headers();
     }
 
     /**
-     * Return page content representing the start of XHTML areas for tabs.
+     * Return page content representing the start of HTML areas for tabs.
      * This infills related page-elements which are not explicitly created.
      * @final
      * @deprecated since 3.0 Use CMSMS\AdminTabs::start_tab_content()
      *
      * @return string
      */
-    final public function StartTabContent() : string
+    final public function StartTabContent(): string
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTabs::start_tab_content'));
         return AdminTabs::start_tab_content();
     }
 
     /**
-     * Return page content representing the end of XHTML areas for tabs.
+     * Return page content representing the end of HTML areas for tabs.
      * This infills related page-elements which are not explicitly created.
      * @final
      * @deprecated since 3.0 Use CMSMS\AdminTabs::end_tab_content()
      *
      * @return string
      */
-    final public function EndTabContent() : string
+    final public function EndTabContent(): string
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTabs::end_tab_content'));
         return AdminTabs::end_tab_content();
@@ -2311,7 +2312,7 @@ EOS
      * @param string $tabid The tabid (see SetTabHeader)
      * @return string
      */
-    final public function StartTab(string $tabid) : string
+    final public function StartTab(string $tabid): string
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTabs::start_tab'));
         return AdminTabs::start_tab($tabid);
@@ -2325,7 +2326,7 @@ EOS
      *
      * @return string
      */
-    final public function EndTab() : string
+    final public function EndTab(): string
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTabs::end_tab'));
         return AdminTabs::end_tab();

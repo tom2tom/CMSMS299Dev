@@ -1,7 +1,7 @@
 <?php
 /*
 FileManager module action: rotate
-Copyright (C) 2006-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2006-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Morten Poulsen, Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -182,8 +182,7 @@ EOS;
 add_page_headtext($css, false);
 */
 $js = <<<'EOS'
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
   $('#rotangle').slider({
     min: -180,
@@ -212,7 +211,6 @@ $(function() {
     return false;
   });
 });
-//]]>
 </script>
 EOS;
 add_page_foottext($js);

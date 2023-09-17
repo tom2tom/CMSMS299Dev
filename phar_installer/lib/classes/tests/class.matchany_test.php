@@ -14,7 +14,7 @@ class matchany_test extends test_base
         $this->pass_key = false;
     }
 
-    public function __set(string $key, $value) : void
+    public function __set(string $key, $value): void
     {
         switch ($key) {
           case 'recommended': //unused
@@ -28,7 +28,7 @@ class matchany_test extends test_base
         }
     }
 
-    public function execute() : string
+    public function execute(): string
     {
         if ($this->_children) {
             for ($i = 0, $n = count($this->_children); $i < $n; ++$i) {

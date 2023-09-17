@@ -1,7 +1,7 @@
 <?php
 /*
 Class of group-related functions
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -63,8 +63,7 @@ final class GroupOperations
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * Get the singleton instance of this class
@@ -72,7 +71,7 @@ final class GroupOperations
 	 *
 	 * @return GroupOperations
 	 */
-	public static function get_instance() : self
+	public static function get_instance(): self
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\Lone::get(\'GroupOperations\')'));
 		return Lone::get('GroupOperations');
@@ -85,7 +84,7 @@ final class GroupOperations
 	 * @param mixed $from optional group(s) identifier, [ints] | comma-sep-ints string | scalar int Default ''(hence all groups)
 	 * @return array
 	 */
-	public function GetGroupMembers($from = '') : array
+	public function GetGroupMembers($from = ''): array
 	{
 		$db = Lone::get('Db');
 		$query = 'SELECT group_id,user_id FROM '.CMS_DB_PREFIX.'user_groups';
@@ -220,7 +219,7 @@ VALUES (?,?,?,NOW())';
 	 * @param Group $group The group object to save to the database
 	 * @return int The id of the newly created group. If none is created, -1
 	 */
-	public function InsertGroup(Group $group) : int
+	public function InsertGroup(Group $group): int
 	{
 		$id = $group->id;
 		if( $id < 1 ) {
@@ -236,7 +235,7 @@ VALUES (?,?,?,NOW())';
 	 * @param mixed $group The group to update
 	 * @return bool indication whether the update was successful
 	 */
-	public function UpdateGroup(Group $group) : bool
+	public function UpdateGroup(Group $group): bool
 	{
 		$id = $group->id;
 		if( $id > 0 ) {
@@ -254,7 +253,7 @@ VALUES (?,?,?,NOW())';
 	 * @return bool
 	 * @throws DataException or LogicException
 	 */
-	public function DeleteGroupByID(int $id) : bool
+	public function DeleteGroupByID(int $id): bool
 	{
 		if( $id < 1 ) throw new DataException(lang('missingparams'));
 		if( $id == 1 ) throw new LogicException(lang('error_deletespecialgroup'));
@@ -279,7 +278,7 @@ VALUES (?,?,?,NOW())';
 	 * @return bool
 	 * @throws DataException or LogicException
      */
-	public function DeleteGroupByName(string $name) : bool
+	public function DeleteGroupByName(string $name): bool
 	{
 		if( !$name ) throw new DataException(lang('missingparams'));
 		$db = Lone::get('Db');
@@ -297,7 +296,7 @@ VALUES (?,?,?,NOW())';
 	 * the named permission(s) in the array will be AND'd instead of OR'd
 	 * @return bool
 	 */
-	public function CheckPermission(int $groupid, ...$perm) : bool
+	public function CheckPermission(int $groupid, ...$perm): bool
 	{
 		if( $groupid == 1 ) {
 			$checks = restricted_cms_permissions();
@@ -369,7 +368,7 @@ VALUES (?,?,?,NOW())';
 	 * @param int $groupid The group id
 	 * @param string $perm The permission name
 	 */
-	public function GrantPermission(int $groupid,string $perm)
+	public function GrantPermission(int $groupid,string $perm): void
 	{
 		$permid = (int)Permission::get_perm_id($perm);
 		if( $permid < 1 ) return;

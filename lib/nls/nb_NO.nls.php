@@ -1,6 +1,6 @@
 <?php
 #Norwegian bokmål translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -34,12 +34,12 @@ $nls['englishlang']['nb_NO'] = 'Norwegian bokmål';
 
 #Possible aliases for language
 $nls['alias']['no'] = 'nb_NO';
-$nls['alias']['norwegian'] = 'nb_NO' ;
-$nls['alias']['nor'] = 'nb_NO' ;
-$nls['alias']['nb_NO'] = 'nb_NO' ;
-$nls['alias']['no_NO'] = 'nb_NO' ;
-$nls['alias']['nb_NO.ISO8859-1'] = 'nb_NO' ;
-$nls['alias']['nb_NO.ISO8859-15'] = 'nb_NO' ;
+$nls['alias']['norwegian'] = 'nb_NO';
+$nls['alias']['nor'] = 'nb_NO';
+$nls['alias']['nb_NO'] = 'nb_NO';
+$nls['alias']['no_NO'] = 'nb_NO';
+$nls['alias']['nb_NO.ISO8859-1'] = 'nb_NO';
+$nls['alias']['nb_NO.ISO8859-15'] = 'nb_NO';
 
 #Possible locale for language
 $nls['locale']['nb_NO'] = 'nb_NO.utf8,nb_NO.utf-8,nb_NO.UTF-8,nb_NO,nb_NO.ISO8859-1,nb_NO.ISO8859-15,norwegian,Norwegian_Norway.1252';
@@ -48,12 +48,10 @@ $nls['locale']['nb_NO'] = 'nb_NO.utf8,nb_NO.utf-8,nb_NO.UTF-8,nb_NO,nb_NO.ISO885
 $nls['encoding']['nb_NO'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['nb_NO'] = array(__DIR__.'/nb_NO/admin.inc.php');
+$nls['file']['nb_NO'] = [__DIR__.'/nb_NO/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['nb_NO'] = 'en';
-
-?>

@@ -1,6 +1,6 @@
 <?php
 #Czech translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -35,13 +35,13 @@ $nls['englishlang']['cs_CZ'] = 'Czech';
 
 #Possible aliases for language
 $nls['alias']['cs'] = 'cs_CZ';
-$nls['alias']['czech'] = 'cs_CZ' ;
-$nls['alias']['cze'] = 'cs_CZ' ;
-$nls['alias']['cs-CS'] = 'cs_CZ' ; // IE SUX
-$nls['alias']['cs-CZ'] = 'cs_CZ' ; // IE SUX
-$nls['alias']['cs_CS'] = 'cs_CZ' ;
-$nls['alias']['cs_CZ.WINDOWS-1250'] = 'cs_CZ' ;
-$nls['alias']['cs_CZ.ISO8859-2'] = 'cs_CZ' ;
+$nls['alias']['czech'] = 'cs_CZ';
+$nls['alias']['cze'] = 'cs_CZ';
+$nls['alias']['cs-CS'] = 'cs_CZ'; // IE SUX
+$nls['alias']['cs-CZ'] = 'cs_CZ'; // IE SUX
+$nls['alias']['cs_CS'] = 'cs_CZ';
+$nls['alias']['cs_CZ.WINDOWS-1250'] = 'cs_CZ';
+$nls['alias']['cs_CZ.ISO8859-2'] = 'cs_CZ';
 
 #Possible locale for language
 $nls['locale']['cs_CZ'] = 'cs_CZ.utf8,cs_CZ.utf-8,cs_CZ.UTF-8,cs_CZ,czech,Czech_Czech Republic.1250';
@@ -50,11 +50,10 @@ $nls['locale']['cs_CZ'] = 'cs_CZ.utf8,cs_CZ.utf-8,cs_CZ.UTF-8,cs_CZ,czech,Czech_
 $nls['encoding']['cs_CZ'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['cs_CZ'] = array(__DIR__.'/cs_CZ/admin.inc.php');
+$nls['file']['cs_CZ'] = [__DIR__.'/cs_CZ/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['cs_CZ'] = 'cz';
-?>

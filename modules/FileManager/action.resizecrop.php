@@ -2,7 +2,7 @@
 /*
 FileManager module action: resizecrop
 Copyright (C) 2006-2008 Morten Poulsen <morten@poulsen.org>
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -117,8 +117,7 @@ $image_width = $imageinfo[0];
 $image = Utils::get_cwd_url()."/$filename";
 
 $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
   // Apply jrac on some image
   $('#img').jrac({
@@ -164,7 +163,6 @@ $(function() {
       $('#submit').prop('disabled', (\$viewport.observator.crop_consistent()) ? false : true);
   });
 });
-//]]>
 </script>
 EOS;
 add_page_foottext($js);

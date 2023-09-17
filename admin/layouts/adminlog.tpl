@@ -5,8 +5,8 @@
     <a id="clearlink" href="{$selfurl}{$urlext}&clear=1">{admin_icon icon='delete.gif'} {_la('clear')}</a>
   {/if}
   <a id="filterlink" href="javascript:void()">{admin_icon icon='icons/extra/filter.gif'} {_la('filter')} ...</a>
-  {if count($pagelist) > 1}
-    <div style="text-align: right; float: right;">
+  {if !empty($pagelist) && count($pagelist) > 1}
+    <div style="text-align:right;float:right">
       {_la('page')}:
       <select id="pagenum">
         {html_options options=$pagelist selected=$page}     </select>
@@ -54,7 +54,7 @@
 </table>
 {/if}{* results *}
 {if !empty($results) || $filter_applied}
-<div id="filter_dlg" title="{_la('filter')}" style="display:none;min-width:35em;">
+<div id="filter_dlg" title="{_la('filter')}" style="display:none;min-width:35em">
   {form_start action=$selfurl extraparms=$extras}
   <div class="colbox">
     <div class="rowbox flow">

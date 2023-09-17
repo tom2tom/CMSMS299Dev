@@ -33,7 +33,7 @@
 {/strip}
 {/function}
 
-{if isset($itemcount) && $itemcount > 0}
+{if !empty($items)}
 {$ih={admin_icon icon='info.gif' alt='help' title="{_ld($_module,'title_modulehelp')}"}}
 {$ia={admin_icon icon='icons/extra/info.gif' alt='about' title="{_ld($_module,'title_moduleabout')}"}}
 <table class="pagetable scrollable">
@@ -52,7 +52,7 @@
   </thead>
   <tbody>
   {foreach $items as $entry}
-      <tr class="{cycle values='row1,row2'}"{if $entry->age=='new'} style="font-weight:bold;"{/if}>
+      <tr class="{cycle values='row1,row2'}"{if $entry->age=='new'} style="font-weight:bold"{/if}>
       <td>{get_module_status_icon status=$entry->age}</td>
       <td>{if $entry->description}<span title="{$entry->description|cms_escape}">{/if}{$entry->name}{if $entry->description}</span>{/if}</td>
       <td>{$entry->version}</td>

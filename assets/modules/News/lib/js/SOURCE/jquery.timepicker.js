@@ -499,16 +499,16 @@ License: MIT
     }
 
     if (settings.useSelect) {
-      list = $("<select />", { class: "ui-timepicker-select" });
+      list = $("<select></select>", { 'class': 'ui-timepicker-select' });
       if (self.attr('name')) {
         list.attr('name', 'ui-timepicker-' + self.attr('name'));
       }
       wrapped_list = list;
     } else {
-      list = $("<ul />", { class: "ui-timepicker-list" });
+      list = $("<ul></ul>", { 'class': 'ui-timepicker-list' });
 
-      wrapped_list = $("<div />", {
-        class: "ui-timepicker-wrapper",
+      wrapped_list = $("<div></div>", {
+        'class': 'ui-timepicker-wrapper',
         tabindex: -1
       });
       wrapped_list.css({ display: "none", position: "absolute" }).append(list);
@@ -582,7 +582,7 @@ License: MIT
     var drLen = dr.length;
 
     var stepFunc = settings.step;
-    if (typeof stepFunc != "function") {
+    if (typeof stepFunc !== "function") {
       stepFunc = function() {
         return settings.step;
       };
@@ -594,10 +594,10 @@ License: MIT
       var row;
 
       if (settings.useSelect) {
-        row = $("<option />", { value: timeString });
+        row = $("<option></option>", { value: timeString });
         row.text(timeString);
       } else {
-        row = $("<li />");
+        row = $("<li></li>");
         row.addClass(
           timeInt % _ONE_DAY < _ONE_DAY / 2
             ? "ui-timepicker-am"
@@ -615,7 +615,7 @@ License: MIT
         if (settings.useSelect) {
           row.text(row.text() + " (" + durationString + ")");
         } else {
-          var duration = $("<span />", { class: "ui-timepicker-duration" });
+          var duration = $("<span></span>", { 'class': 'ui-timepicker-duration' });
           duration.text(" (" + durationString + ")");
           row.append(duration);
         }
@@ -717,14 +717,14 @@ License: MIT
     }
 
     if (useSelect) {
-      return $("<option />", {
+      return $("<option></option>", {
         value: value,
-        class: className,
+        'class': className,
         text: label
       });
     } else {
-      return $("<li />", {
-        class: className,
+      return $("<li></li>", {
+        'class': className,
         text: label
       }).data("time", String(value));
     }

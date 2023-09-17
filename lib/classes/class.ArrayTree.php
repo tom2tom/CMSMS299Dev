@@ -1,7 +1,7 @@
 <?php
 /*
 Classes for creating, interrogating, modifying tree-structured arrays
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -52,7 +52,7 @@ class ArrayTree
      * @return array
      */
     public static function load_array(array $data,
-        string $selfkey = self::SELFKEY, string $parentkey = self::PARENTKEY, string $childkey = self::CHILDKEY) : array
+        string $selfkey = self::SELFKEY, string $parentkey = self::PARENTKEY, string $childkey = self::CHILDKEY): array
     {
         $tree = [];
         $references = [];
@@ -161,7 +161,7 @@ class ArrayTree
      * @return array path-segments or empty if not found
      */
     public static function find(array $tree, string $getkey, $getval,
-        bool $strict = true, string $childkey = self::CHILDKEY) : array
+        bool $strict = true, string $childkey = self::CHILDKEY): array
     {
         $iter = new RecursiveArrayTreeIterator(
                 new ArrayTreeIterator($tree, 0, $childkey),
@@ -222,7 +222,7 @@ class ArrayTree
      * @return array of values, missing values null'd
      */
     public static function path_get_data(array $tree, $path, string $getkey,
-        $default = null, string $childkey = self::CHILDKEY) : array
+        $default = null, string $childkey = self::CHILDKEY): array
     {
         $pathkeys = self::process_path($path);
         if (!$pathkeys) {
@@ -257,7 +257,7 @@ class ArrayTree
      * @return boolean indicating success
      */
     public static function path_set_data(array &$tree, $path, string $setkey, $setval,
-        string $childkey = self::CHILDKEY) : bool
+        string $childkey = self::CHILDKEY): bool
     {
         $pathkeys = self::process_path($path);
         if (!$pathkeys) {
@@ -374,7 +374,7 @@ class ArrayTree
      * @return boolean indicating success
      */
     public static function node_set_data(array &$tree, $path, string $setkey, $setval,
-        string $childkey = self::CHILDKEY) : bool
+        string $childkey = self::CHILDKEY): bool
     {
         $pathkeys = self::process_path($path);
         if (!$pathkeys) {
@@ -409,7 +409,7 @@ class ArrayTree
      * @return array
      */
     public static function get_descend_data(array $node, string $getkey,
-        int $moredepth = -1, string $childkey = self::CHILDKEY) : array
+        int $moredepth = -1, string $childkey = self::CHILDKEY): array
     {
         $ret = [];
         $tree = reset($node);
@@ -452,12 +452,12 @@ class ArrayTreeIterator extends RecursiveArrayIterator implements RecursiveItera
         $this->childkey = $childkey;
     }
 
-    public function getChildren() : self
+    public function getChildren(): self
     {
         return new static($this->current()[$this->childkey], $this->flags, $this->childkey);
     }
 
-    public function hasChildren() : bool
+    public function hasChildren(): bool
     {
         return !empty($this->current()[$this->childkey]);
     }
@@ -483,7 +483,7 @@ class RecursiveArrayTreeIterator extends RecursiveIteratorIterator implements Ou
         parent::__construct($iterator, $mode, $flags);
     }
 
-    public function rewind() : void
+    public function rewind(): void
     {
         parent::rewind();
         if ($this->noleaves) {
@@ -491,7 +491,7 @@ class RecursiveArrayTreeIterator extends RecursiveIteratorIterator implements Ou
         }
     }
 
-    public function next() : void
+    public function next(): void
     {
         parent::next();
         if ($this->noleaves) {

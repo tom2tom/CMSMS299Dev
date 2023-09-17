@@ -1,6 +1,8 @@
 <?php
 
 use function cms_installer\lang;
+use function cms_installer\status_msg;
+use function cms_installer\verbose_msg;
 
 status_msg(lang('install_setsequence'));
 

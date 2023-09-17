@@ -37,8 +37,8 @@ final class Utils
      * @ignore
      */
     private function __construct() {}
-    #[\ReturnTypeWillChange]
-    private function __clone() {}// : void {}
+
+    private function __clone(): void {}
 
     /**
      * Return information about installed modules
@@ -83,7 +83,7 @@ final class Utils
      * @param mixed $e2 object | array
      * @return int
      */
-    private static function uasort_cmp_details($e1,$e2) : int
+    private static function uasort_cmp_details($e1,$e2): int
     {
         if( is_object($e1) ) {
             $n1 = $e1->name;
@@ -216,7 +216,7 @@ final class Utils
      * @return string downloaded xmlfile name if test is passed
      * @throws CommunicationException or RuntimeException
      */
-    public static function get_module_xml(string $filename,int $size,string $md5sum = '') : string
+    public static function get_module_xml(string $filename,int $size,string $md5sum = ''): string
     {
         $mod = AppUtils::get_module('ModuleManager');
         $xml_filename = ModuleRepClient::get_repository_xml($filename,$size);
@@ -238,13 +238,13 @@ final class Utils
      * @staticvar bool $ok
      * @return boolean
      */
-    public static function is_connection_ok() : bool
+    public static function is_connection_ok(): bool
     {
         // static properties here >> Lone property|ies ?
         static $ok = -1;
         if( $ok != -1 ) { return $ok; }
 
-        list($res,$data) = ModuleRepClient::get_repository_version(); //TODO
+        [$res,$data] = ModuleRepClient::get_repository_version(); //TODO
         if( $res ) {
             $mod = AppUtils::get_module('ModuleManager');
             $ok = (version_compare($data,$mod::MIN_FORGE_VERSION) >= 0);
@@ -289,7 +289,7 @@ final class Utils
      * @param string $date supplied by Forge, formatted like Y-m-d G:i:s
      * @return string maybe empty
      */
-    public static function get_status(string $date) : string
+    public static function get_status(string $date): string
     {
         $ts = strtotime($date);
         $limit = strtotime('-2 years');

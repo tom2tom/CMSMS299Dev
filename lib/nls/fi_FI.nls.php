@@ -1,6 +1,6 @@
 <?php
 #Finnish translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -34,10 +34,10 @@ $nls['englishlang']['fi_FI'] = 'Finnish';
 
 #Possible aliases for language
 $nls['alias']['fi'] = 'fi_FI';
-$nls['alias']['finnish'] = 'fi_FI' ;
-$nls['alias']['fin'] = 'fi_FI' ;
-$nls['alias']['fi_FI.ISO8859-1'] = 'fi_FI' ;
-$nls['alias']['fi_FI.ISO8859-15'] = 'fi_FI' ;
+$nls['alias']['finnish'] = 'fi_FI';
+$nls['alias']['fin'] = 'fi_FI';
+$nls['alias']['fi_FI.ISO8859-1'] = 'fi_FI';
+$nls['alias']['fi_FI.ISO8859-15'] = 'fi_FI';
 
 #Possible locale for language
 $nls['locale']['fi_FI'] = 'fi_FI.utf8,fi_FI.utf-8,fi_FI.UTF-8,fi_FI,fi_FI@euro,finnish,Finnish_Finland.1252';
@@ -46,12 +46,10 @@ $nls['locale']['fi_FI'] = 'fi_FI.utf8,fi_FI.utf-8,fi_FI.UTF-8,fi_FI,fi_FI@euro,f
 $nls['encoding']['fi_FI'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['fi_FI'] = array(__DIR__.'/fi_FI/admin.inc.php');
+$nls['file']['fi_FI'] = [__DIR__.'/fi_FI/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['fi_FI'] = 'en';
-
-?>

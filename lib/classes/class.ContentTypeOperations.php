@@ -1,7 +1,7 @@
 <?php
 /*
 Class of methods for processing page-content types.
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -60,14 +60,13 @@ class ContentTypeOperations
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	public function __get(string $key)
+	public function __get(string $key)//: mixed
 	{
 		if( $key == 'content_types' ) {
 			return $this->_content_types ?? null; //for PageLoader class to access
@@ -82,7 +81,7 @@ class ContentTypeOperations
 	 * @deprecated since 3.0 instead use CMSMS\Lone::get('ContentTypeOperations')
 	 * @return ContentTypeOperations
 	 */
-	public static function get_instance() : self
+	public static function get_instance(): self
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\Lone::get(\'ContentTypeOperations\')'));
 		return Lone::get('ContentTypeOperations');
@@ -96,7 +95,7 @@ class ContentTypeOperations
 	 * @access private
 	 * @return array of ContentType objects
 	 */
-	private function _get_static_content_types() : array
+	private function _get_static_content_types(): array
 	{
 		$result = [];
 		$db = Lone::get('Db');
@@ -132,7 +131,7 @@ class ContentTypeOperations
 	 * @param bool $force since 3.0 whether to force-reload cache data. Default false.
 	 * @return array of ContentType objects, or maybe empty
 	 */
-	public function get_content_types(bool $force = false) : array
+	public function get_content_types(bool $force = false): array
 	{
 		if( !is_array($this->_content_types) ) {
 			// get the standard types
@@ -263,7 +262,7 @@ class ContentTypeOperations
 	 * @param ContentType Reference to placeholder object
 	 * @return bool
 	 */
-	public function AddContentType(ContentType $obj) : bool
+	public function AddContentType(ContentType $obj): bool
 	{
 		$this->get_content_types();
 		if( isset($this->_content_types[$obj->type]) ) return FALSE;

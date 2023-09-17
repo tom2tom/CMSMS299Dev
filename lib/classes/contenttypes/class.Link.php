@@ -1,7 +1,7 @@
 <?php
 /*
 CMS Made Simple link content type
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -51,14 +51,14 @@ class Link extends ContentBase
 		}
 	}
 
-	public function HasSearchableContent() : bool { return false; }
+	public function HasSearchableContent(): bool { return false; }
 
     /**
      * Return an actionable URL for opening this page.
      * @param bool $rewrite
      * @return string
      */
-	public function GetURL(bool $rewrite = true) : string
+	public function GetURL(bool $rewrite = true): string
 	{
 		return (string)$this->GetPropertyValue('url');
 	}

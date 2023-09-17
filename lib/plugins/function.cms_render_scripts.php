@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin which aggregates accumulated javascript for use in a page or template
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -35,7 +35,7 @@ function smarty_function_cms_render_scripts($params, $template)
 		$val = cms_to_bool($params['defer'] ?? true);
 		$val2 = cms_to_bool($params['async'] ?? false);
 		$defer = ( $val2 ) ? ' async' : (($val) ? ' defer' : '');
-		$out = "<script type=\"text/javascript\" src=\"$url\"$defer></script>";
+		$out = "<script src=\"$url\"$defer></script>";
 	}
 	else {
 		trigger_error('Failed to merge recorded javascripts');

@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to revert tabs-class data back to vanilla
-Copyright (C) 2020-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2020-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

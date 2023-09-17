@@ -1,7 +1,7 @@
 <?php
 /*
 Class to process module information
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -78,7 +78,7 @@ class ModuleInfo implements ArrayAccess
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetGet($key)// : mixed
+    public function offsetGet(/*mixed */$key)//: mixed
     {
         switch( $key ) {
 //      case 'about':
@@ -106,7 +106,7 @@ class ModuleInfo implements ArrayAccess
         }
     }
 
-    public function offsetSet($key,$value) : void
+    public function offsetSet(/*mixed */$key,$value): void
     {
         switch( $key ) {
             case 'about':
@@ -124,7 +124,7 @@ class ModuleInfo implements ArrayAccess
         }
     }
 
-    public function offsetExists($key) : bool
+    public function offsetExists(/*mixed */$key): bool
     {
         if( !in_array($key,self::MIPROPS) ) {
             throw new LogicException('CMSEX_INVALIDMEMBER',null,$key);
@@ -138,7 +138,7 @@ class ModuleInfo implements ArrayAccess
         ]);
     }
 
-    public function offsetUnset($key) : void
+    public function offsetUnset(/*mixed */$key): void
     {
     }
 
@@ -147,7 +147,7 @@ class ModuleInfo implements ArrayAccess
      * @param string $modname name of module whose props are wanted
      * @returns string
      */
-    private function _get_module_file(string $modname) : string
+    private function _get_module_file(string $modname): string
     {
         return cms_module_path($modname);
     }
@@ -168,7 +168,7 @@ class ModuleInfo implements ArrayAccess
      * @ignore
      * @returns array ['has_custom'=>bool]
      */
-    private function _check_modulecustom(string $modname) : array
+    private function _check_modulecustom(string $modname): array
     {
         $fn = cms_module_path($modname,true); //don't care about installation status
         if( $fn ) {
@@ -345,7 +345,7 @@ class ModuleInfo implements ArrayAccess
         return [];
     }
 
-    private function _get_module_meta_file( string $modname ) : string
+    private function _get_module_meta_file( string $modname ): string
     {
         $path = cms_module_path($modname);
         if( $path ) {

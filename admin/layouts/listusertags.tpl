@@ -5,6 +5,7 @@
  {_ld('tags','udt__scope')}
  </p>
 </div>
+{if !empty($tags)}
 <br>
 {if $pmod && count($tags) > 20}
 <div class="pageoptions">
@@ -57,9 +58,9 @@
   <a href="{$addurl}{$urlext}&tagname=-1">{_la('add_usrplg')}</a>
 </div>
 {/if}
-
-<div id="params_dlg" title="{_ld('tags','user_tag')}" style="display:none;">
-<h4 id="namer" style="text-align:center;"></h4>
+{/if}
+<div id="params_dlg" title="{_ld('tags','user_tag')}" style="display:none">
+<h4 id="namer" style="text-align:center"></h4>
 <h4>{_la('parameters')}:</h4>
 <p id="params"></p>
 </div>

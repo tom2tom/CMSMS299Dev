@@ -1,7 +1,7 @@
 <?php
 /*
 Search module utilities class
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -39,7 +39,7 @@ class Utils
      * @param string $phrase
      * @return array
      */
-    public static function StemPhrase(Search $module, string $phrase) : array
+    public static function StemPhrase(Search $module, string $phrase): array
     {
         // strip out smarty tags
         $phrase = preg_replace(['/{.*?}/', '/[\{\}]/'], [' ', ''], $phrase);
@@ -350,7 +350,7 @@ $until,
      * @param string $text
      * @return string
      */
-    public static function CleanupText(string $text) : string
+    public static function CleanupText(string $text): string
     {
         return strip_tags($text);
     }
@@ -362,7 +362,7 @@ $until,
      * @param string $text ','-separated search-words
      * @return string
      */
-    public static function CleanWords(string $text) : string
+    public static function CleanWords(string $text): string
     {
         $flat = strtr($text, [",\r\n"=>',', "\r\n"=>',', ",\r"=>',', ",\n"=>',', ', '=>',', ' ,'=>',', "\n"=>',', "\r"=>',']);
         return trim(strtr($flat, [',,'=>',']), ' ,');

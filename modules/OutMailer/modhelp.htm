@@ -14,232 +14,232 @@ $mailer->Send();
 </pre></code>
 <h4>API</h4>
 <ul>
-<li><strong>void reset()</strong><br />
+<li><strong>void reset()</strong><br>
 Reset the mailer-object back to the values specified in the admin panel
 </li>
-<li><strong>string GetAltBody()</strong><br />
+<li><strong>string GetAltBody()</strong><br>
 Return the alternate body of the email
 </li>
-<li><strong>void SetAltBody($string)</strong><br />
+<li><strong>void SetAltBody($string)</strong><br>
 Set the alternate body of the email
 </li>
-<li><strong>string GetBody()</strong><br />
+<li><strong>string GetBody()</strong><br>
 Return the primary body of the email
 </li>
-<li><strong>void SetBody($string)</strong><br />
+<li><strong>void SetBody($string)</strong><br>
 Set the primary body of the email
 </li>
-<li><strong>string GetCharSet()</strong><br />
-Return the mailer character set<br />
+<li><strong>string GetCharSet()</strong><br>
+Return the mailer character set<br>
 Default: iso-8859-1
 </li>
-<li><strong>void SetCharSet($string)</strong><br />
+<li><strong>void SetCharSet($string)</strong><br>
 Set the mailer character set
 </li>
-<li><strong>string GetConfirmReadingTo()</strong><br />
+<li><strong>string GetConfirmReadingTo()</strong><br>
 Return the address confirmed reading email flag
 </li>
-<li><strong>void SetConfirmReadingTo($address)</strong><br />
+<li><strong>void SetConfirmReadingTo($address)</strong><br>
 Set or unset the confirm reading address
 </li>
-<li><strong>string GetContentType()</strong><br />
-Return the content type<br />
+<li><strong>string GetContentType()</strong><br>
+Return the content type<br>
 Default: text/plain
 </li>
-<li><strong>void SetContentType()</strong><br />
+<li><strong>void SetContentType()</strong><br>
 Set the content type
 </li>
-<li><strong>string GetEncoding()</strong><br />
+<li><strong>string GetEncoding()</strong><br>
 Return the encoding
 </li>
-<li><strong>void SetEncoding($encoding)</strong><br />
-Set the encoding<br />
+<li><strong>void SetEncoding($encoding)</strong><br>
+Set the encoding<br>
 Options are: 8bit, 7bit, binary, base64, quoted-printable
 </li>
-<li><strong>string GetErrorInfo()</strong><br />
+<li><strong>string GetErrorInfo()</strong><br>
 Return any error information
 </li>
-<li><strong>string GetFrom()</strong><br />
+<li><strong>string GetFrom()</strong><br>
 Return the current originating address
 </li>
-<li><strong>void SetFrom($address)</strong><br />
+<li><strong>void SetFrom($address)</strong><br>
 Set the originating address
 </li>
-<li><strong>string GetFromName()</strong><br />
+<li><strong>string GetFromName()</strong><br>
 Return the current originating name
 </li>
-<li><strong>SetFromName($name)</strong><br />
+<li><strong>SetFromName($name)</strong><br>
 Set the originating name
 </li>
-<li><strong>string GetHelo()</strong><br />
+<li><strong>string GetHelo()</strong><br>
 Return the HELO string
 </li>
-<li><strong>SetHelo($string)</strong><br />
-Set the HELO string<br />
+<li><strong>SetHelo($string)</strong><br>
+Set the HELO string<br>
 Default value: $hostname
 </li>
-<li><strong>string GetHost()</strong><br />
+<li><strong>string GetHost()</strong><br>
 Return the SMTPs host separated by semicolon
 </li>
-<li><strong>void SetHost($string)</strong><br />
+<li><strong>void SetHost($string)</strong><br>
 Set the hosts
 </li>
-<li><strong>string GetHostName()</strong><br />
+<li><strong>string GetHostName()</strong><br>
 Return the hostname used for SMTP Helo
 </li>
-<li><strong>void SetHostName($hostname)</strong><br />
+<li><strong>void SetHostName($hostname)</strong><br>
 Set the hostname used for SMTP Helo
 </li>
-<li><strong>string GetMailer()</strong><br />
+<li><strong>string GetMailer()</strong><br>
 Return the mailer
 </li>
-<li><strong>void SetMailer($mailer)</strong><br />
+<li><strong>void SetMailer($mailer)</strong><br>
 Set the mailer, either sendmail,mail, or smtp
 </li>
-<li><strong>string GetPassword()</strong><br />
+<li><strong>string GetPassword()</strong><br>
 Return the password for smtp auth
 </li>
-<li><strong>void SetPassword($string)</strong><br />
+<li><strong>void SetPassword($string)</strong><br>
 Set the password for smtp auth
 </li>
-<li><strong>int GetPort()</strong><br />
+<li><strong>int GetPort()</strong><br>
 Return the port number for smtp connections
 </li>
-<li><strong>void SetPort($int)</strong><br />
+<li><strong>void SetPort($int)</strong><br>
 Set the port for smtp connections
 </li>
-<li><strong>int GetPriority()</strong><br />
+<li><strong>int GetPriority()</strong><br>
 Return the message priority
 </li>
-<li><strong>void SetPriority(int)</strong><br />
-Set the message priority<br />
+<li><strong>void SetPriority(int)</strong><br>
+Set the message priority<br>
 Values are 1=High, 3 = Normal, 5 = Low
 </li>
-<li><strong>string GetSender()</strong><br />
+<li><strong>string GetSender()</strong><br>
 Return the sender email (return path) string
 </li>
-<li><strong>void SetSender($address)</strong><br />
+<li><strong>void SetSender($address)</strong><br>
 Set the sender string
 </li>
-<li><strong>string GetSendmail()</strong><br />
+<li><strong>string GetSendmail()</strong><br>
 Return the sendmail path
 </li>
-<li><strong>void SetSendmail($path)</strong><br />
+<li><strong>void SetSendmail($path)</strong><br>
 Set the sendmail path
 </li>
-<li><strong>bool GetSMTPAuth()</strong><br />
+<li><strong>bool GetSMTPAuth()</strong><br>
 Return the current value of the smtp auth flag
 </li>
-<li><strong>SetSMTPAuth($bool)</strong><br />
+<li><strong>SetSMTPAuth($bool)</strong><br>
 Set the smtp auth flag
 </li>
-<li><strong>bool GetSMTPDebug()</strong><br />
+<li><strong>bool GetSMTPDebug()</strong><br>
 Return the value of the SMTP debug flag
 </li>
-<li><strong>void SetSMTPDebug($bool)</strong><br />
+<li><strong>void SetSMTPDebug($bool)</strong><br>
 Set the SMTP debug flag
 </li>
-<li><strong>bool GetSMTPKeepAlive()</strong><br />
+<li><strong>bool GetSMTPKeepAlive()</strong><br>
 Return the value of the SMTP keep alive flag
 </li>
-<li><strong>SetSMTPKeepAlive($bool)</strong><br />
+<li><strong>SetSMTPKeepAlive($bool)</strong><br>
 Set the SMTP keep alive flag
 </li>
-<li><strong>string GetSubject()</strong><br />
+<li><strong>string GetSubject()</strong><br>
 Return the current subject string
 </li>
-<li><strong>void SetSubject($string)</strong><br />
+<li><strong>void SetSubject($string)</strong><br>
 Set the subject string
 </li>
-<li><strong>int GetTimeout()</strong><br />
+<li><strong>int GetTimeout()</strong><br>
 Return the timeout value
 </li>
-<li><strong>void SetTimeout($seconds)</strong><br />
+<li><strong>void SetTimeout($seconds)</strong><br>
 Set the timeout value
 </li>
-<li><strong>string GetUsername()</strong><br />
+<li><strong>string GetUsername()</strong><br>
 Return the smtp auth username
 </li>
-<li><strong>void SetUsername($string)</strong><br />
+<li><strong>void SetUsername($string)</strong><br>
 Set the smtp auth username
 </li>
-<li><strong>int GetWordWrap()</strong><br />
+<li><strong>int GetWordWrap()</strong><br>
 Return the wordwrap value
 </li>
-<li><strong>void SetWordWrap($int)</strong><br />
+<li><strong>void SetWordWrap($int)</strong><br>
 Return the wordwrap value
 </li>
-<li><strong>AddAddress($address, $name = &quot;&quot;)</strong><br />
+<li><strong>AddAddress($address, $name = &quot;&quot;)</strong><br>
 Add a destination address
 </li>
-<li><strong>AddAttachment($path, $name = &quot;&quot;, $encoding = &quot;base64&quot;, $type = &quot;application/octent-stream&quot;)</strong><br />
+<li><strong>AddAttachment($path, $name = &quot;&quot;, $encoding = &quot;base64&quot;, $type = &quot;application/octent-stream&quot;)</strong><br>
 Add a file attachment
 </li>
-<li><strong>AddBCC($address, $name = &quot;&quot;)</strong><br />
+<li><strong>AddBCC($address, $name = &quot;&quot;)</strong><br>
 Add a BCC&quot;d destination address
 </li>
-<li><strong>AddCC($address, $name = &quot;&quot;)</strong><br />
+<li><strong>AddCC($address, $name = &quot;&quot;)</strong><br>
 Add a CC&quot;d destination address
 </li>
-<li><strong>AddCustomHeader($txt)</strong><br />
+<li><strong>AddCustomHeader($txt)</strong><br>
 Add a custom header to the email
 </li>
-<li><strong>AddEmbeddedImage($path, $cid, $name = &quot;&quot;, $encoding = &quot;base64&quot;, $type = &quot;application/octent-stream&quot;)</strong><br />
+<li><strong>AddEmbeddedImage($path, $cid, $name = &quot;&quot;, $encoding = &quot;base64&quot;, $type = &quot;application/octent-stream&quot;)</strong><br>
 Add an embedded image
 </li>
-<li><strong>AddReplyTo($address, $name = &quot;&quot;)</strong><br />
+<li><strong>AddReplyTo($address, $name = &quot;&quot;)</strong><br>
 Add a reply to address
 </li>
-<li><strong>AddStringAttachment($string, $filename, $encoding = &quot;base64&quot;, $type = &quot;application/octent-stream&quot;)</strong><br />
+<li><strong>AddStringAttachment($string, $filename, $encoding = &quot;base64&quot;, $type = &quot;application/octent-stream&quot;)</strong><br>
 Add a file attachment
 </li>
-<li><strong>ClearAddresses()</strong><br />
+<li><strong>ClearAddresses()</strong><br>
 Clear all addresses
 </li>
-<li><strong>ClearAllRecipients()</strong><br />
+<li><strong>ClearAllRecipients()</strong><br>
 Clear all recipients
 </li>
-<li><strong>ClearAttachments()</strong><br />
+<li><strong>ClearAttachments()</strong><br>
 Clear all attachments
 </li>
-<li><strong>ClearBCCs()</strong><br />
+<li><strong>ClearBCCs()</strong><br>
 Clear all BCC addresses
 </li>
-<li><strong>ClearCCs()</strong><br />
+<li><strong>ClearCCs()</strong><br>
 Clear all CC addresses
 </li>
-<li><strong>ClearCustomHeaders()</strong><br />
+<li><strong>ClearCustomHeaders()</strong><br>
 Clear all custom headers
 </li>
-<li><strong>ClearReplyto()</strong><br />
+<li><strong>ClearReplyto()</strong><br>
 Clear reply to address
 </li>
-<li><strong>IsError()</strong><br />
+<li><strong>IsError()</strong><br>
 Check for an error condition
 </li>
-<li><strong>bool IsHTML($bool)</strong><br />
-Set the html flag<br />
+<li><strong>bool IsHTML($bool)</strong><br>
+Set the html flag<br>
 <em>Note</em> possibly this should be a get and set method
 </li>
-<li><strong>bool IsMail()</strong><br />
+<li><strong>bool IsMail()</strong><br>
 Check wether we are using mail
 </li>
-<li><strong>bool IsQmail()</strong><br />
+<li><strong>bool IsQmail()</strong><br>
 Check wether we are using qmail
 </li>
-<li><strong>IsSendmail()</strong><br />
+<li><strong>IsSendmail()</strong><br>
 Check wether we are using sendmail
 </li>
-<li><strong>IsSMTP()</strong><br />
+<li><strong>IsSMTP()</strong><br>
 Check wether we are using smtp
 </li>
-<li><strong>Send()</strong><br />
+<li><strong>Send()</strong><br>
 Send the currently prepared email
 </li>
-<li><strong>SetLanguage($lang_type, $lang_path = &quot;&quot;)</strong><br />
+<li><strong>SetLanguage($lang_type, $lang_path = &quot;&quot;)</strong><br>
 Set the current language and <em>(optional)</em> language path
 </li>
-<li><strong>SmtpClose()</strong><br />
+<li><strong>SmtpClose()</strong><br>
 Close the smtp connection
 </li>
 </ul>

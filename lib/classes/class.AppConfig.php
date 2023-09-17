@@ -1,7 +1,7 @@
 <?php
 /*
 Class for handling system-configuration data
-Copyright (C) 2008-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -27,7 +27,6 @@ use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\DeprecationNotice; // not autoloadable!
 use RuntimeException;
-use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use const CMSSAN_FILE;
 use const CMSSAN_PATH;
@@ -41,7 +40,7 @@ use function get_server_permissions;
 use function stack_trace;
 use function startswith;
 
-//TODO circularity: deines e.g. CMS_DEPREC, and DeprecationNotice, not defined when this is 1st used
+//TODO circularity: defines e.g. CMS_DEPREC, and DeprecationNotice, not defined when this is 1st used
 
 /**
  * A singleton class for interacting with CMSMS configuration data.
@@ -152,8 +151,7 @@ final class AppConfig implements ArrayAccess
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    private function __clone() {}// : void {}
+    private function __clone(): void {}
 
     /**
      * Retrieve the singleton instance of this class.
@@ -164,7 +162,7 @@ final class AppConfig implements ArrayAccess
      *
      * @return self
      */
-    public static function get_instance() : self
+    public static function get_instance(): self
     {
         if( !self::$_instance ) {
             self::$_instance = new self();
@@ -178,7 +176,7 @@ final class AppConfig implements ArrayAccess
      * interface method
      * @ignore
      */
-    public function offsetExists($key) : bool
+    public function offsetExists($key): bool
     {
         return isset(self::PROPS[$key]) || isset($this->_data[$key]); //TODO do we want to allow 'foreign' parameters in there?
     }
@@ -188,7 +186,7 @@ final class AppConfig implements ArrayAccess
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function offsetGet($key)// : mixed
+    public function offsetGet($key)//: mixed
     {
         // hardcoded config vars
         // usually old values valid in past versions.
@@ -259,7 +257,7 @@ final class AppConfig implements ArrayAccess
             return 'mysqli';
 
         case 'db_prefix':
-            return CMS_DB_PREFIX;
+            return 'cms_';
 
         case 'query_var':
             return 'page';
@@ -509,7 +507,7 @@ final class AppConfig implements ArrayAccess
      * instead supply install-time settings directly : Config::get_instance($config)
      * @ignore
      */
-    public function offsetSet($key,$value) : void
+    public function offsetSet($key,$value): void
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('Direct setting of a config property is not supported'));
     }
@@ -519,7 +517,7 @@ final class AppConfig implements ArrayAccess
      * instead supply install-time settings directly : Config::get_instance($config)
      * @ignore
      */
-    public function offsetUnset($key) : void
+    public function offsetUnset($key): void
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('Direct removal of a config property is not supported'));
     }
@@ -529,7 +527,7 @@ final class AppConfig implements ArrayAccess
      * @see also cms_url_to_path()
      * @ignore
      */
-    private function url2path(string $url) : string
+    private function url2path(string $url): string
     {
         $url = trim($url, " \t\r\n'\"");
         if( strpos($url, '\\') !== false || realpath($url) ) {
@@ -554,7 +552,7 @@ final class AppConfig implements ArrayAccess
      * @see also cms_path_to_url()
      * @ignore
      */
-    private function path2url(string $path) : string
+    private function path2url(string $path): string
     {
         $path = trim($path, " \t\r\n'\"");
         if( !realpath($path) ) { // TODO is URL, not path
@@ -571,7 +569,7 @@ final class AppConfig implements ArrayAccess
      * or from a previously-specified whitelist|callable (if any)
      * @ignore
      */
-    private function calculate_request_hostname() : string
+    private function calculate_request_hostname(): string
     {
         //NOTE: never trust $_SERVER['HTTP_*'] variables which contain IP address
         if( $_SERVER['HTTP_HOST'] === $_SERVER['SERVER_NAME'] ) return $_SERVER['SERVER_NAME'];
@@ -622,7 +620,7 @@ final class AppConfig implements ArrayAccess
      * Return the maximum file upload size (in bytes)
      * @ignore
      */
-    private function get_upload_size() : int
+    private function get_upload_size(): int
     {
         $maxFileSize = ini_get('upload_max_filesize');
         if( !is_numeric($maxFileSize) ) {
@@ -658,7 +656,7 @@ final class AppConfig implements ArrayAccess
      * @param mixed $value int | bool | string | null
      * @return string
      */
-    private function _printable_value(string $key, $value) : string
+    private function _printable_value(string $key, $value): string
     {
         if( isset(self::PROPS[$key]) ) { $type = self::PROPS[$key]; }
         else { $type = self::TYPE_STRING; }
@@ -683,7 +681,7 @@ final class AppConfig implements ArrayAccess
      * @param array $config Optional config parameters. Default [].
      *  Ignored unless installer is running.
      */
-    private function load(array $config = [])
+    private function load(array $config = []): void
     {
         if( defined('CONFIG_FILE_LOCATION') && is_file(CONFIG_FILE_LOCATION) ) {
             $config = [];
@@ -768,10 +766,13 @@ final class AppConfig implements ArrayAccess
      * @internal
      * @param array $newconfig config parameters to be processed
      */
-    public function merge(array $newconfig)
+    public function merge(array $newconfig): void
     {
         if( AppState::test(AppState::INSTALL) ) {
-            $this->load($newconfig + ($this->_data ?? []));
+            if( empty($this->_data) ) {
+                $this->load();
+            }
+            $this->load($newconfig + $this->_data);
         }
     }
 
@@ -789,7 +790,7 @@ final class AppConfig implements ArrayAccess
      *  the grandparent of this file's folder, will be used.
      * @throws RuntimeException if the folder to contain the file does not exist
      */
-    public function save(bool $verbose = true, string $filename = '')
+    public function save(bool $verbose = true, string $filename = ''): void
     {
         if( !$filename ) {
             if( defined('CONFIG_FILE_LOCATION') ) {
@@ -809,6 +810,9 @@ final class AppConfig implements ArrayAccess
         if( is_file($filename) ) {
             $str = gmdate('-Ymd-His', @filemtime($filename)).'.bak';
             $path = dirname($filename).DIRECTORY_SEPARATOR.basename($filename, '.php').$str;
+            if( is_file($path) ) {
+                unlink($path);
+            }
             if( @copy($filename, $path) ) {
                 @chmod($path, 0440);
             }
@@ -857,7 +861,7 @@ EOS;
      * @deprecated since 3.0 use 'root_url'
      * @return string
      */
-    public function smart_root_url() : string
+    public function smart_root_url(): string
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('property','root_url'));
         return $this->offsetGet('root_url');
@@ -869,7 +873,7 @@ EOS;
      * @deprecated since 3.0 use 'uploads_url'
      * @return string
      */
-    public function smart_uploads_url() : string
+    public function smart_uploads_url(): string
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('property','uploads_url'));
         return $this->offsetGet('uploads_url');
@@ -881,7 +885,7 @@ EOS;
      * @deprecated since 3.0 use 'image_uploads_url'
      * @return string
      */
-    public function smart_image_uploads_url() : string
+    public function smart_image_uploads_url(): string
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('property','image_uploads_url'));
         return $this->offsetGet('image_uploads_url');

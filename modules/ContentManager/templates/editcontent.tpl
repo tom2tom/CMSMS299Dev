@@ -52,7 +52,7 @@
     {tab_start name='_preview_'}
       <div class="pagewarn">{_ld($_module,'warn_preview')}</div>
       <iframe name="_previewframe_" class="preview" id="previewframe"></iframe>
-      <div id="previewerror" style="display:none;">
+      <div id="previewerror" style="display:none">
         <fieldset>
           <legend>{_ld($_module,'report')}</legend>
           <ul id="preview_errors" class="pageerror"></ul>

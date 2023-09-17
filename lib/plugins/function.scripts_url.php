@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to retrieve an URL representing to base/top folder containing jquery scripts & styles.
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundatio@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundatio@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

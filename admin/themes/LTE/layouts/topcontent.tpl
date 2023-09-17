@@ -1,63 +1,43 @@
 <ul class="list-inline d-flex flex-wrap">
-  {foreach $nodes as $node}
-    {if $node.show_in_menu && $node.url && $node.title}
-
-      {$module = "../modules/{$node.name}/images/icon"}
-
-      {if file_exists($module|cat:'.png')}
-        {$image_src = "{$module}.png"}
-      {elseif file_exists($module|cat:'.gif')}
-        {$image_src = "{$module}.gif"}
-      {elseif file_exists($module|cat:'.png')}
-        {$image_src = "{$module}.png"}
-      {elseif file_exists($module|cat:'.gif')}
-        {$image_src = "{$module}.gif"}
-      {else}
-        {*$image_src = "{$theme_url}/images/icons/topfiles/modules.png"*}
-        {$image_src = ''}
-      {/if}
-
+  {foreach $nodes as $item}
+    {if $item.show_in_menu && $item.url && $item.title}
       <li class="list-inline-item mb-2">
-        <div class="card h-100" style="width:21rem">
+        <div class="card h-100 top-box" style="width:21rem">
           <div class="card-header">
-            <h3 class="card-title">
-              {if $section_name == 'extensions' && $image_src}
-                <img src="{$image_src}" alt="{$node.title}"{if $node.description} title="{$node.description|strip_tags}"{/if} style="width: 1.05rem;">
-              {else}
-                <i class="fas fa-03-{$node.name}"></i>
-              {/if}
-              <span class="ml-2"><a href="{$node.url}"{if isset($node.target)} target="{$node.target}"{/if}>{$node.title}</a></span></h3>
+            <h3 class="card-title">{strip}
+              {if !empty($item.iconclass)}<i class="{$item.iconclass}"></i>
+              {elseif !empty($item.img)}{$item.img}{/if}
+              <span class="ml-2"><a href="{$item.url}"{if isset($item.target)} target="{$item.target}"{/if}>{$item.title}</a></span>{*TODO if rtl*}{/strip}
+            </h3>
           </div>
           <div class="card-body">
-            {if $node.description}<p class="card-text mt-2">{$node.description}</p>{/if}
-
-            {if !empty($node.children)}
+            {if !empty($item.description)}<p class="card-text mt-1">{$item.description}</p>{/if}{strip}
+            {if !empty($item.children)}
               <div class="container">
                 <div class="row">
                   <div class="col">
-                    <h4 class="card-subtitle mt-2 mb-2 text-muted">{_la('subitems')}</h4>
-                    <ul class="list-unstyled"> {* still testing with looks (JM)*}
-                      {foreach $node.children as $one}
-                        {if $one.show_in_menu == 1}
+                    <h4 class="card-subtitle mt-0 mb-2 text-muted">{_la('subitems')}</h4>
+                    <ul class="list-unstyled">{strip}{* still testing with looks (JM)*}
+                      {foreach $item.children as $one}
+                        {if $one.show_in_menu}
                           <li>
-                            <i class="fas fa-03-{$one.name} mr-1"></i>
+                           {if !empty($one.iconclass)}<i class="{$one.iconclass} mr-1"></i>{*TODO if rtl*}
+                           {elseif !empty($one.img)}{$one.img} {/if}
                             <a href="{$one.url}"
                               {if isset($one.target)} target="{$one.target}"{/if}
-                              {if substr($one.url,0,6) == 'logout' and isset($is_sitedown)} onclick="return confirm('{"maintenance_warning"|lang|escape:"javascript"}');"{/if}
+                              {if substr($one.url,0,6) == 'logout' && isset($is_sitedown)} onclick="return confirm('{lang("maintenance_warning")|escape:"javascript"}');"{/if}
                             >{$one.title}</a>
                           </li>
                         {/if}
-                      {/foreach}
+                      {/foreach}{/strip}
                     </ul>
                   </div>
                 </div>
               </div>
-            {/if}
+            {/if}{/strip}
           </div>
         </div>
-
       </li>
     {/if}
-
   {/foreach}
 </ul>

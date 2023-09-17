@@ -1,7 +1,7 @@
 <?php
 /*
 Module-related methods available for every request
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -31,7 +31,7 @@ If not, see <https://www.gnu.org/licenses/>.
  * @return array of absolute filepaths, no trailing separators, or maybe empty.
  *  Main/normal-location first, then 'core'-location, then 'non-core'-location.
  */
-function cms_module_places(string $modname = '', bool $all = false) : array
+function cms_module_places(string $modname = '', bool $all = false): array
 {
     $dirlist = [];
     $path = cms_join_path(CMS_ROOT_PATH, 'modules');
@@ -73,7 +73,7 @@ function cms_module_places(string $modname = '', bool $all = false) : array
  * @param bool $folder Optional flag whether to return filepath of folder containing the module Default false
  * @return string filepath of module class, or its parent folder (maybe empty)
  */
-function cms_module_path(string $modname, bool $folder = false) : string
+function cms_module_path(string $modname, bool $folder = false): string
 {
     $p = DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.$modname.DIRECTORY_SEPARATOR.$modname.'.module.php';
     // default place

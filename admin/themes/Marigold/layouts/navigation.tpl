@@ -17,13 +17,14 @@
  {else}{$cn=''}
  {/if}
  {if isset($is_sitedown) && substr($item.url,0,6) == 'logout'}{$cn=trim({$cn|cat:' outwarn'})}{/if}
- {$t=$item.title|strip_tags}
-  <a href="{$item.url}"{if isset($item.target)} target="_blank"{/if}{if $cn} class="{$cn}"{/if} title="{if !empty($item.description)}{$item.description|strip_tags}{else}{$t}{/if}"
+ {$t=$item.title|adjust:'strip_tags'}
+  <a href="{$item.url}"{if isset($item.target)} target="_blank"{/if} title="{if !empty($item.description)}{$item.description|adjust:'strip_tags'}{else}{$t}{/if}"
   >
+ {if !empty($item.iconclass)}<i class="{$item.iconclass}"></i> {elseif !empty($item.img)}{$item.img} {/if}
  {if $depth > 0 && empty($item.children)}{$t}{/if}
   </a>
   {if !empty($item.children)}
- <span title="{['togglemenu', {$t}]|lang}">{$t}</span>
+ <span title="{lang('togglemenu', $t)}">{$t}</span>
   {menu_branch nav=$item.children depth=$depth+1}
  {/if}
   </li>

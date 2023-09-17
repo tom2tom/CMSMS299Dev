@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to display and modify website preferences/settings
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -63,7 +63,7 @@ if (!$access) {
  * @param int $perms The permissions to process
  * @return array strings for owner,group,other
  */
-function siteprefs_interpret_permissions(int $perms) : array
+function siteprefs_interpret_permissions(int $perms): array
 {
     $owner = [];
     $group = [];
@@ -106,7 +106,7 @@ function siteprefs_interpret_permissions(int $perms) : array
  * @param array $permsarr 3-members
  * @return string
  */
-function siteprefs_display_permissions(array $permsarr) : string
+function siteprefs_display_permissions(array $permsarr): string
 {
     $tmparr = [_la('owner'),_la('group'),_la('other')];
     if (count($permsarr) != 3) {
@@ -676,7 +676,7 @@ if ($messages) {
 /*
 $baseurl = CMS_ASSETS_URL.'/js';
 $js = <<<EOS
- <script type="text/javascript" src="{$baseurl}/jquery-inputCloak.min.js"></script>
+ <script src="{$baseurl}/jquery-inputCloak.min.js"></script>
 EOS;
 add_page_headtext($js);
 */
@@ -689,8 +689,7 @@ $badfile = addcslashes(_la('errorwrongfile'), "'\n\r");
 $confirm = addcslashes(_la('siteprefs_confirm'), "'\n\r");
 
 $out = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 /*
 function on_mailer() {
  switch ($('#mailer').val()) {
@@ -814,7 +813,6 @@ $(function() {
   return false;
  });
 });
-//]]>
 </script>
 
 EOS;
@@ -905,15 +903,15 @@ if ($modnames) {
         $one = new stdClass();
         $one->label = $mod->Lang(strtolower($editor).'_publicname');
         $one->value = $val; // as module::editor
-        list($modname, $edname) = explode('::', $val, 2);
-        list($realm, $key) = $mod->GetMainHelpKey($edname);
+        [$modname, $edname] = explode('::', $val, 2);
+        [$realm, $key] = $mod->GetMainHelpKey($edname);
         if ($key) {
           if (!$realm) { $realm = $modname; }
           $one->mainkey = $realm.'__'.$key;
         } else {
           $one->mainkey = '';
         }
-        list($realm, $key) = $mod->GetThemeHelpKey($edname);
+        [$realm, $key] = $mod->GetThemeHelpKey($edname);
         if ($key) {
           if (!$realm) { $realm = $modname; }
             $one->themekey = $realm.'__'.$key;
@@ -964,15 +962,15 @@ if ($modnames) {
         $one = new stdClass();
         $one->label = $mod->Lang(strtolower($editor).'_publicname');
         $one->value = $val; // as module::editor
-        list($modname, $edname) = explode('::', $val, 2);
-        list($realm, $key) = $mod->GetMainHelpKey($edname);
+        [$modname, $edname] = explode('::', $val, 2);
+        [$realm, $key] = $mod->GetMainHelpKey($edname);
         if ($key) {
         if (!$realm) { $realm = $modname; }
           $one->mainkey = $realm.'__'.$key;
         } else {
           $one->mainkey = '';
         }
-        list($realm, $key) = $mod->GetThemeHelpKey($edname);
+        [$realm, $key] = $mod->GetThemeHelpKey($edname);
         if ($key) {
           if (!$realm) { $realm = $modname; }
           $one->themekey = $realm.'__'.$key;
@@ -1051,7 +1049,7 @@ $smarty->assign([
   'smarty_cachelife' => $smarty_cachelife,
   'smarty_cacheusertags' => $smarty_cacheusertags,
   'smarty_compilecheck' => $smarty_compilecheck,
-  'syntax_theme' => specialize($syntaxtheme),
+  'syntaxtheme' => specialize($syntaxtheme),
   'testresults' => _la('untested'),
   'thumbnail_height' => $thumbnail_height,
   'thumbnail_width' => $thumbnail_width,

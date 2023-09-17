@@ -1,6 +1,6 @@
 <?php
 #Spanish translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -35,12 +35,12 @@ $nls['englishlang']['es_ES'] = 'Spanish';
 
 #Possible aliases for language
 $nls['alias']['es'] = 'es_ES';
-$nls['alias']['espa&ntilde;ol'] = 'es_ES' ;
-$nls['alias']['eng'] = 'es_ES' ;
-$nls['alias']['es_AR'] = 'es_ES' ;
-$nls['alias']['es_PE'] = 'es_ES' ;
-$nls['alias']['es_MX'] = 'es_ES' ;
-$nls['alias']['es_US.ISO8859-1'] = 'es_ES' ;
+$nls['alias']['espa&ntilde;ol'] = 'es_ES';
+$nls['alias']['eng'] = 'es_ES';
+$nls['alias']['es_AR'] = 'es_ES';
+$nls['alias']['es_PE'] = 'es_ES';
+$nls['alias']['es_MX'] = 'es_ES';
+$nls['alias']['es_US.ISO8859-1'] = 'es_ES';
 
 #Possible locale for language
 $nls['locale']['es_ES'] = 'es_ES.utf8,es_ES.utf-8,es_ES.UTF-8,es_ES,es_ES@euro,spanish,Spanish_Spain.1252';
@@ -49,11 +49,10 @@ $nls['locale']['es_ES'] = 'es_ES.utf8,es_ES.utf-8,es_ES.UTF-8,es_ES,es_ES@euro,s
 $nls['encoding']['es_ES'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['es_ES'] = array(__DIR__.'/es_ES/admin.inc.php');
+$nls['file']['es_ES'] = [__DIR__.'/es_ES/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['es_ES'] = 'es';
-?>

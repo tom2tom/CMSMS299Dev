@@ -1,7 +1,7 @@
 <?php
 /*
 Class definition and methods for the Separator content type
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -37,37 +37,37 @@ use function get_userid;
  */
 class Separator extends ContentBase
 {
-	public function FriendlyName() : string
+	public function FriendlyName(): string
 	{
 		return $this->mod->Lang('contenttype_separator');
 	}
 
-	public function URL() : string
+	public function URL(): string
 	{
 		return '#';
 	}
 
-	public function HasSearchableContent() : bool
+	public function HasSearchableContent(): bool
 	{
 		return false;
 	}
 
-	public function HasUsableLink() : bool
+	public function HasUsableLink(): bool
 	{
 		return false;
 	}
 
-	public function IsViewable() : bool
+	public function IsViewable(): bool
 	{
 		return false;
 	}
 
-	public function RequiresAlias() : bool
+	public function RequiresAlias(): bool
 	{
 		return false;
 	}
 
-	public function WantsChildren() : bool
+	public function WantsChildren(): bool
 	{
 		return false;
 	}
@@ -89,7 +89,7 @@ class Separator extends ContentBase
 		]);
 	}
 
-	public function GetTabNames() : array
+	public function GetTabNames(): array
 	{
 		$res = [$this->mod->Lang('main')];
 		if (check_permission(get_userid(), 'Manage All Content')) {
@@ -98,17 +98,7 @@ class Separator extends ContentBase
 		return $res;
 	}
 
-	public function EditAsArray($adding = false, $tab = 0, $showadmin = false)
-	{
-		switch ($tab) {
-		case '0':
-			return $this->display_attributes($adding);
-		case '1':
-			return $this->display_attributes($adding, 1);
-		}
-	}
-
-	public function TemplateResource() : string
+	public function TemplateResource(): string
 	{
 		return ''; //TODO
 	}

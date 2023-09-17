@@ -14,11 +14,10 @@ final class request implements ArrayAccess
 
     private function __construct() {}
 
-    #[\ReturnTypeWillChange]
-    private function __clone() {}// : void {}
+    private function __clone(): void {}
 
     #[\ReturnTypeWillChange]
-    public function __call(string $fn, array $args)// : mixed
+    public function __call(string $fn, array $args)//: mixed
     {
         $key = strtoupper($fn);
         if (isset($_SERVER[$key])) {
@@ -27,7 +26,7 @@ final class request implements ArrayAccess
         throw new Exception('Call to unknown method '.$fn.' in request object');
     }
 
-    public static function get_instance() : self
+    public static function get_instance(): self
     {
         if (!self::$_instance) {
             self::$_instance = new self();
@@ -35,12 +34,12 @@ final class request implements ArrayAccess
         return self::$_instance;
     }
 
-    public function raw_server(string $key) : string
+    public function raw_server(string $key): string
     {
         return $_SERVER[$key] ?? '';
     }
 
-    public function method() : string
+    public function method(): string
     {
         if ($this->raw_server('REQUEST_METHOD') == 'POST') {
             return self::METHOD_POST;
@@ -50,17 +49,17 @@ final class request implements ArrayAccess
         throw new Exception('Unhandled request method '.$_SERVER['REQUEST_METHOD']);
     }
 
-    public function is_post() : bool
+    public function is_post(): bool
     {
         return $this->method() == self::METHOD_POST;
     }
 
-    public function is_get() : bool
+    public function is_get(): bool
     {
         return $this->method() == self::METHOD_GET;
     }
 
-    public function is_https() : bool
+    public function is_https(): bool
     {
         return isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off';
     }
@@ -112,23 +111,23 @@ final class request implements ArrayAccess
 
     //ArrayAccess methods
 
-    public function offsetExists($key) : bool
+    public function offsetExists(/*mixed */$key): bool
     {
         return isset($_REQUEST[$key]);
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetGet($key)// : mixed
+    public function offsetGet(/*mixed */$key)//: mixed
     {
         return $_REQUEST[$key] ?? null;
     }
 
-    public function offsetSet($key, $value) : void
+    public function offsetSet(/*mixed */$key, $value): void
     {
         throw new Exception('Attempt to directly set a request variable');
     }
 
-    public function offsetUnset($key) : void
+    public function offsetUnset(/*mixed */$key): void
     {
         throw new Exception('Attempt to unset a request variable');
     }

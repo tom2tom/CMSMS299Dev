@@ -1,7 +1,7 @@
 <?php
 /*
 Class to provide menu items in the CMSMS admin navigation
-Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -56,7 +56,7 @@ final class AdminMenuItem
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         if( !in_array($key,self::ITEMKEYS) ) throw new LogicException('Property \''.$key.'\' is not valid in '.__CLASS__.' objects');
         switch( $key ) {
@@ -80,7 +80,7 @@ final class AdminMenuItem
     /**
      * @ignore
      */
-    public function __set(string $key,$val) : void
+    public function __set(string $key,$val): void
     {
         if( !in_array($key,self::ITEMKEYS) ) throw new LogicException('Property \''.$key.'\' is not valid in '.__CLASS__.' objects');
         $this->_data[$key] = $val;
@@ -89,7 +89,7 @@ final class AdminMenuItem
     /**
      * @ignore
      */
-    public function __isset(string $key) : bool
+    public function __isset(string $key): bool
     {
         if( !in_array($key,self::ITEMKEYS) ) throw new LogicException('Property \''.$key.'\' is not valid in '.__CLASS__.' objects');
         return isset($this->_data[$key]);
@@ -98,7 +98,7 @@ final class AdminMenuItem
     /**
      * @ignore
      */
-    public function __unset(string $key) : void
+    public function __unset(string $key): void
     {
         if( !in_array($key,self::ITEMKEYS) ) throw new LogicException('Property \''.$key.'\' is not valid in '.__CLASS__.' objects');
         throw new LogicException('Cannot unset properties of a '.__CLASS__.' object');
@@ -109,7 +109,7 @@ final class AdminMenuItem
      * @since 3.0
      * @return associative array
      */
-    public function get_all() : array
+    public function get_all(): array
     {
         // back-compatibility workaround
         if (empty($this->_data['name']) && !empty($this->_data['action'])) {
@@ -125,7 +125,7 @@ final class AdminMenuItem
      * @param string $from
      * @return string
      */
-    public function get_name(string $from) : string
+    public function get_name(string $from): string
     {
         if ($from == 'defaultadmin') { return 'default'; }
         $s = strtr($from, ['-' => '']);

@@ -1,7 +1,7 @@
 <?php
 /*
 Ajax processor to retrieve site pages data, used by jquery.cmsms_hierselector.js
-Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -45,7 +45,7 @@ catch (Throwable $t) {
 
 // $_REQUEST[] members cleaned individually as needed
 $op = trim($_REQUEST['op'] ?? 'pageinfo'); // no sanitizeVal() etc cuz only explicit vals accepted
-$allow_all = isset($_REQUEST['allow_all']) && cms_to_bool($_REQUEST['allow_all']);
+$allow_all = !isset($_REQUEST['allow_all']) || cms_to_bool($_REQUEST['allow_all']); //back compatibility
 
 try {
     if ($userid < 1) {
@@ -104,9 +104,9 @@ try {
         $current = (isset($_REQUEST['current'])) ? (int)$_REQUEST['current'] : 0;
 //UNUSED $for_child = isset($_REQUEST['for_child']) && cms_to_bool($_REQUEST['for_child']);
         $allow_current = isset($_REQUEST['allowcurrent']) && cms_to_bool($_REQUEST['allowcurrent']);
-        $children_to_data = function($node) use ($display,$userid,$contentops,$allow_all,$can_edit_any,$allow_current,$current) {
+        $children_to_data = function($node) use ($display,$userid,$contentops,$allow_all,$can_edit_any,$allow_current,$current): array {
             $children = $node->load_children(false,$allow_all);
-            if (empty($children)) return;
+            if (empty($children)) return [];
 
             $child_info = [];
             foreach ($children as $child) {
@@ -117,8 +117,17 @@ try {
                 if (!$allow_current && $current == $content->Id()) continue;
                 $rec = $content->ToData();
                 $rec['can_edit'] = $can_edit_any || $contentops->CheckPageAuthorship($userid,$rec['content_id']);
-                if ($display == 'title') { $rec['display'] = strip_tags($rec['content_name']); }
-                else { $rec['display'] = strip_tags($rec['menu_text']); }
+                if ($display == 'title') {
+                    if ($rec['content_name']) {
+                        $rec['display'] = strip_tags($rec['content_name']);
+                    } else {
+                        $rec['display'] = '<No title recorded>'; // TODO translate
+                    }
+                } elseif ($rec['menu_text']) {
+                    $rec['display'] = strip_tags($rec['menu_text']);
+                } else {
+                    $rec['display'] = '<No menu-label recorded>'; // TODO translate
+                }
                 $rec['has_children'] = $child->has_children();
                 $child_info[] = $rec;
             }

@@ -1,7 +1,7 @@
 <?php
 /*
 Class which supports searching in stylesheets.
-Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 See license details at the top of file AdminSearch.module.php
 */
@@ -42,7 +42,7 @@ final class Css_slave extends Base_slave
         return $_mod;
     }
 
-//  public function use_slave(int $userid = 0) : bool {}
+//  public function use_slave(int $userid = 0): bool {}
 
     protected function check_permission(int $userid = 0)
     {

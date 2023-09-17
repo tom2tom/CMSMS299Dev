@@ -17,9 +17,9 @@
   <input type="hidden" name="{$actionid}advanced" value="0">
   <label class="pagetext" for="searchterm">{_ld($_module,'searchterm')}:</label>
   <div class="pageinput">
-    <input id="searchterm" type="text" name="{$actionid}term" size="50" value="{$term}" title="{_ld($_module,'title_searchterm')}" placeholder="{_ld($_module,'entersearchterm')}">&nbsp;
-    <input type="checkbox" id="advanced" name="{$actionid}advanced" value="1"{if $advanced} checked{/if} title="{_ld($_module,'title_advancedsearch')}">&nbsp;<label for="advanced">{_ld($_module,'prompt_advancedsearch')}</label>
-    <span id="advhelp" style="display:none;"><br>{_ld($_module,'advancedsearch_help')}</span>
+    <input type="text" id="searchterm" name="{$actionid}term" size="50" value="{$term}" title="{_ld($_module,'title_searchterm')}" placeholder="{_ld($_module,'entersearchterm')}">&nbsp;
+    <input type="checkbox" id="advanced" name="{$actionid}advanced" title="{_ld($_module,'title_advancedsearch')}" value="1"{if $advanced} checked{/if}>&nbsp;<label for="advanced">{_ld($_module,'prompt_advancedsearch')}</label>
+    <span id="advhelp" style="display:none"><br>{_ld($_module,'advancedsearch_help')}</span>
   </div>
 </div>
 <div class="pageinput pregap">
@@ -47,7 +47,7 @@
     </thead>
     <tbody>
       {foreach $search_data as $entry}
-      <tr class="{cycle values='row1,row2'}"{if $entry->age=='new'} style="font-weight:bold;"{/if}>
+      <tr class="{cycle values='row1,row2'}"{if $entry->age=='new'} style="font-weight:bold"{/if}>
         <td>{get_module_status_icon status=$entry->age}</td>
         <td>{if $entry->description}<span title="{$entry->description|cms_escape}">{/if}{$entry->name}{if $entry->description}</span>{/if}</td>
         <td>{$entry->version}</td>

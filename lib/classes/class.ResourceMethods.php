@@ -1,7 +1,7 @@
 <?php
 /*
 Class of not-often-used methods included on-demand by 'light' modules.
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -56,7 +56,7 @@ class ResourceMethods
 	}
 
 	#[\ReturnTypeWillChange]
-	public function __call(string $name, array $args)
+	public function __call(string $name, array $args)//: mixed
 	{
 		if (method_exists($this->mod, $name)) {
 			return call_user_func([$this->mod, $name], ...$args);
@@ -101,7 +101,7 @@ class ResourceMethods
 	// default versions of methods required/accessed by the module-manager module
 	// NOTE no event-processing, permission-changes(checks are ok), redirections, messaging like ShowErrors() etc
 
-	public function CheckContext() : bool
+	public function CheckContext(): bool
 	{
 		$str = $_SERVER['PHP_SELF'] ?? '';
 		if (!$str) {
@@ -110,7 +110,7 @@ class ResourceMethods
 		return basename($str, '.php') === 'moduleinterface';
 	}
 
-	public function CheckPermission(...$perms) : bool
+	public function CheckPermission(...$perms): bool
 	{
 		$userid = get_userid(false);
 		return ($userid) ? check_permission($userid, ...$perms) : false;
@@ -118,7 +118,7 @@ class ResourceMethods
 
 	// TODO arguments $targetcontentonly, $prettyurl are ignored ATM
 	public function create_url($id, string $action, $returnid = '', array $params = [],
-		bool $inline = false, bool $targetcontentonly = false, string $prettyurl = '', bool $relative = false, int $format = 0) : string
+		bool $inline = false, bool $targetcontentonly = false, string $prettyurl = '', bool $relative = false, int $format = 0): string
 	{
 		if (!$id) { $id = chr(mt_rand(97, 122)) . Crypto::random_string(3, true); }
 		$parms = [
@@ -157,7 +157,7 @@ class ResourceMethods
 		return $this->create_url($id, $action, $returnid, $params, false, false, $prettyurl, $relative, 2);
 	}
 
-	public function DoAction(string $action, $id, array $params) : string
+	public function DoAction(string $action, $id, array $params): string
 	{
 		$params['id'] = $id;
 		$params['action'] = $action;
@@ -165,7 +165,7 @@ class ResourceMethods
 		return $this->Run($params);
 	}
 
-	public function DoActionBase(string $action, $id, array $params, $returnid, $smartob) : string
+	public function DoActionBase(string $action, $id, array $params, $returnid, $smartob): string
 	{
 		$params['id'] = $id;
 		$params['action'] = $action;
@@ -201,23 +201,23 @@ class ResourceMethods
 		return [];
 	}
 
-	public function GetModulePath() : string
+	public function GetModulePath(): string
 	{
 		return $this->modpath;
 	}
 
-	public function GetModuleURLPath() : string
+	public function GetModuleURLPath(): string
 	{
 		return cms_path_to_url($this->modpath);
 	}
 
 	// deprecated use Lone::get('LoadedMetadata')->get('capable_modules',$force, ...)
-	public function GetModulesWithCapability(string $capability, array $params = []) : array
+	public function GetModulesWithCapability(string $capability, array $params = []): array
 	{
 		return Lone::get('LoadedMetadata')->get('capable_modules', false, $capability, $params);
 	}
 
-	public function GetName() : string
+	public function GetName(): string
 	{
 		$name = get_class($this->mod);
 		$p = strrpos($name, '\\');
@@ -306,7 +306,7 @@ class ResourceMethods
 
 	public function IsAdminOnly() { return true; }
 
-	public function Lang(...$args) : string
+	public function Lang(...$args): string
 	{
 		return LangOperations::domain_string($this->GetName(), ...$args);
 	}

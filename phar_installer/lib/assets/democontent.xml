@@ -5535,7 +5535,7 @@ a {
     {metadata nocache}{* Don&apos;t remove this! Metadata is entered in Site Admin/Global settings. *}
     &lt;title&gt;{sitename} - {title nocache}&lt;/title&gt;
     {if isset($canonical)}&lt;link rel=&quot;canonical&quot; href=&quot;{$canonical}&quot;&gt;{elseif isset($content_obj)}&lt;link rel=&quot;canonical&quot; href=&quot;{$content_obj-&gt;GetURL()}&quot;&gt;{/if} {* see the News Detail template for how canonical url can be assigned from module *}
-    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@500&amp;family=Noto+Sans:ital,wght@0,400;0,700;1,400&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap&quot;&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@500&amp;family=Noto+Sans:ital,wght@0,400;0,700;1,400&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap&quot;&gt;
     {cms_stylesheet min=false}{* This is how the stylesheet(s) assigned to pages using this template are brought in. Omit min param for production  *}
     &lt;link rel=&quot;icon&quot; type=&quot;image/x-icon&quot; href=&quot;{$_site_themes_url}/Steppo/media/favicon_cms.ico&quot;&gt;
 {$fp=cms_join_path($_site_themes_path,&apos;Steppo&apos;,&apos;js&apos;,&apos;functions.min.js&apos;)}{cms_queue_script file=$fp}
@@ -5598,7 +5598,7 @@ a {
     {metadata nocache}{* Don&apos;t remove this! Metadata is entered in Site Admin/Global settings. *}
     &lt;title&gt;{sitename} - {title nocache}&lt;/title&gt;
     {if isset($canonical)}&lt;link rel=&quot;canonical&quot; href=&quot;{$canonical}&quot;&gt;{elseif isset($content_obj)}&lt;link rel=&quot;canonical&quot; href=&quot;{$content_obj-&gt;GetURL()}&quot;&gt;{/if} {* see the News Detail template for how canonical url can be assigned from module *}
-    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@500&amp;family=Noto+Sans:ital,wght@0,400;0,700;1,400&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap&quot;&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@500&amp;family=Noto+Sans:ital,wght@0,400;0,700;1,400&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap&quot;&gt;
     {cms_stylesheet min=false}{* This is how the stylesheet(s) assigned to pages using this template are brought in. Omit min param for production *}
     &lt;link rel=&quot;icon&quot; type=&quot;image/x-icon&quot; href=&quot;{$_site_themes_url}/Steppo/media/favicon_cms.ico&quot;&gt;
 {$fp=cms_join_path($_site_themes_path,&apos;Steppo&apos;,&apos;js&apos;,&apos;functions.min.js&apos;)}{cms_queue_script file=$fp}{* TODO js for alternate nav *}
@@ -5694,7 +5694,7 @@ a {
     &lt;meta name=&quot;msapplication-TileImage&quot; content=&quot;{$_site_themes_url}/Steppo/media/cmsms-152x152.png&quot;&gt;
     &lt;meta name=&quot;msapplication-TileColor&quot; content=&quot;#595a5c&quot;&gt;{* medium-dark grey *}
     {if isset($canonical)}&lt;link rel=&quot;canonical&quot; href=&quot;{$canonical}&quot;&gt;{elseif isset($content_obj)}&lt;link rel=&quot;canonical&quot; href=&quot;{$content_obj-&gt;GetURL()}&quot;&gt;{/if} {* see the News Detail template for how canonical url can be assigned from module *}
-    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@500&amp;family=Noto+Sans:ital,wght@0,400;0,700;1,400&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap&quot;&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@500&amp;family=Noto+Sans:ital,wght@0,400;0,700;1,400&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap&quot;&gt;
     {cms_stylesheet min=false}{* This is how the stylesheet(s) assigned to pages using this template are brought in. Omit min param for production *}
     &lt;link rel=&quot;apple-touch-icon-precomposed&quot; sizes=&quot;152x152&quot; href=&quot;{$_site_themes_url}/Steppo/media/cmsms-152x152.png&quot;&gt;
     &lt;link rel=&quot;apple-touch-icon-precomposed&quot; sizes=&quot;120x120&quot; href=&quot;{$_site_themes_url}/Steppo/media/cmsms-120x120.png&quot;&gt;
@@ -5767,7 +5767,7 @@ a {
     &lt;meta name=&quot;msapplication-TileImage&quot; content=&quot;{$_site_themes_url}/Steppo/media/cmsms-152x152.png&quot;&gt;
     &lt;meta name=&quot;msapplication-TileColor&quot; content=&quot;#595a5c&quot;&gt;{* medium-dark grey *}
     {if isset($canonical)}&lt;link rel=&quot;canonical&quot; href=&quot;{$canonical}&quot;&gt;{elseif isset($content_obj)}&lt;link rel=&quot;canonical&quot; href=&quot;{$content_obj-&gt;GetURL()}&quot;&gt;{/if} {* see the News Detail template for how canonical url can be assigned from module *}
-    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@500&amp;family=Noto+Sans:ital,wght@0,400;0,700;1,400&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap&quot;&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@500&amp;family=Noto+Sans:ital,wght@0,400;0,700;1,400&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap&quot;&gt;
     {cms_stylesheet min=false}{* This is how the stylesheet(s) assigned to pages using this template are brought in. Omit min param for production *}
     &lt;link rel=&quot;apple-touch-icon-precomposed&quot; sizes=&quot;152x152&quot; href=&quot;{$_site_themes_url}/Steppo/media/cmsms-152x152.png&quot;&gt;
     &lt;link rel=&quot;apple-touch-icon-precomposed&quot; sizes=&quot;120x120&quot; href=&quot;{$_site_themes_url}/Steppo/media/cmsms-120x120.png&quot;&gt;

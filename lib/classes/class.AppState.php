@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton class for accessing system state
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -119,8 +119,7 @@ final class AppState
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    private function __clone() {}// : void {}
+    private function __clone(): void {}
 
     /**
      * Accumulate all known states from global variables.
@@ -148,7 +147,7 @@ final class AppState
      * @deprecated since 3.0
      * @ignore
      */
-    private static function _set_state_var(int $flag, bool $value = true)
+    private static function _set_state_var(int $flag, bool $value = true): void
     {
         global $CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE, $CMS_LOGIN_PAGE, $CMS_STYLESHEET;
 
@@ -188,7 +187,7 @@ final class AppState
      * @return bool
      * @throws UnexpectedValueException or RuntimeException
      */
-    private static function _validate_state_var(int $flag, $value) : bool
+    private static function _validate_state_var(int $flag, $value): bool
     {
         if( !in_array($flag, self::STATELIST) ) {
             throw new UnexpectedValueException($flag.' is not a recognised CMSMS state');
@@ -230,7 +229,7 @@ final class AppState
     public static function get(bool $flat = false)
     {
         self::_capture_states();
-        return ($flat) ? array_sum(self::$_states) : array_keys(self::$_states);
+        return ($flat) ? array_sum(self::$_states): array_keys(self::$_states);
     }
 
     /**
@@ -240,7 +239,7 @@ final class AppState
      * @param mixed $state int | deprecated string State identifier, a class constant
      * @return bool
      */
-    public static function test($state) : bool
+    public static function test($state): bool
     {
         if( is_string($state) ) {
             $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 3.0
@@ -258,7 +257,7 @@ final class AppState
      * @param int $states State bit-flag(s), OR'd AppState constant(s)
      * @return bool
      */
-    public static function test_any(int $states) : bool
+    public static function test_any(int $states): bool
     {
         self::_capture_states();
         $tmp = array_sum(self::$_states);
@@ -271,7 +270,7 @@ final class AppState
      * @param int $states State bit-flag(s), OR'd AppState constant(s)
      * @return bool
      */
-    public static function test_all(int $states) : bool
+    public static function test_all(int $states): bool
     {
         self::_capture_states();
         $tmp = array_sum(self::$_states);
@@ -303,7 +302,7 @@ final class AppState
      * @param mixed $state int | deprecated string The state, a class constant
      * @return bool indicating success
      */
-    public static function remove($state) : bool
+    public static function remove($state): bool
     {
         if( is_string($state) ) {
             $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 3.0
@@ -327,7 +326,7 @@ final class AppState
      * @return int prior state(s) as OR'd AppState constant(s)
      * @throws UnexpectedValueException if the state-change is invalid.
      */
-    public static function exchange($state) : int
+    public static function exchange($state): int
     {
         if( is_string($state) ) {
             $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 3.0
@@ -336,7 +335,7 @@ final class AppState
             throw new UnexpectedValueException($state.' includes un-recognised CMSMS state(s)');
         }
         $current = array_sum(self::$_states);
-        list($current, $state) = [$state, $current]; // atomic swap
+        [$current, $state] = [$state, $current]; // atomic swap
         self::set_states($state);
         return $current;
     }

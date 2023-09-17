@@ -249,6 +249,7 @@ try {
             $stype = FileType::getName($itype);
             $data['filetype'] = $stype;
             $data['is_image'] = $this->_typehelper->is_image($fullname);
+            $data['is_thumb'] = false;
             $data['is_svg'] = $data['ext'] === 'svg';
             if( $data['is_image'] && !$data['is_svg'] ) {
                 $small = false;
@@ -281,7 +282,7 @@ try {
         }
     }
     // done the loop, now sort
-    usort($files, function($file1, $file2) use ($profile) {
+    usort($files, function(/*mixed */$file1, /*mixed */$file2) use ($profile): int {
         if( $file1['isdir'] && !$file2['isdir'] ) { return -1; }
         if( !$file1['isdir'] && $file2['isdir'] ) { return 1; }
         if( $profile->sort ) {
@@ -401,8 +402,7 @@ EOS;
 * /
 //breakpoint: 2000 DEBUG normally forceResponsive: false
         $footinc = <<<'EOS'
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
  var ifrm = $(document).find('iframe');
  ifrm.on('load', function() {
@@ -437,7 +437,6 @@ EOS;
 //    if( !$contentonly ) {
         $footinc .= <<<'EOS'
 });
-//]]>
 </script>
 
 EOS;
@@ -470,7 +469,7 @@ EOS;
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
     }
     else {
-        list($headinc, $footinc) = Utils::get_browsedata($this, [
+        [$headinc, $footinc] = Utils::get_browsedata($this, [
             'cwd' => $cwd,
             'upurl' => $upurl,
 //            'exts' => $extensions,

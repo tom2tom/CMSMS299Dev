@@ -1,6 +1,6 @@
 <?php
 #Welsh translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -33,7 +33,7 @@ $nls['englishlang']['en_CY'] = 'Welsh';
 #Possible aliases for language
 $nls['alias']['cy'] = 'en_CY';
 $nls['alias']['welsh'] = 'en_CY';
-$nls['alias']['en_CY.ISO8859-1'] = 'en_CY' ;
+$nls['alias']['en_CY.ISO8859-1'] = 'en_CY';
 
 #Possible locale for language
 $nls['locale']['en_CY'] = 'en_CY.utf8,en_CY.utf-8,en_CY.UTF-8,en_CY,en_CY@pound,welsh,Welsh_Wales.1252';
@@ -42,10 +42,9 @@ $nls['locale']['en_CY'] = 'en_CY.utf8,en_CY.utf-8,en_CY.UTF-8,en_CY,en_CY@pound,
 $nls['encoding']['en_CY'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['en_CY'] = array(__DIR__.'/en_CY/admin.inc.php');
+$nls['file']['en_CY'] = [__DIR__.'/en_CY/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 $nls['htmlarea']['en_CY'] = 'cy';
-?>

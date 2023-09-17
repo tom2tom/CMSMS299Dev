@@ -1,7 +1,7 @@
 <?php
 /*
 Class definition and methods for Section Header content type
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -36,32 +36,32 @@ use function get_userid;
  */
 class SectionHeader extends ContentBase
 {
-	public function FriendlyName() : string
+	public function FriendlyName(): string
 	{
 		return $this->mod->Lang('contenttype_sectionheader');
 	}
 
-	public function URL() : string
+	public function URL(): string
 	{
 		return '#';
 	}
 
-	public function HasSearchableContent() : bool
+	public function HasSearchableContent(): bool
 	{
 		return false;
 	}
 
-	public function HasUsableLink() : bool
+	public function HasUsableLink(): bool
 	{
 		return false;
 	}
 
-	public function IsViewable() : bool
+	public function IsViewable(): bool
 	{
 		return false;
 	}
 
-	public function RequiresAlias() : bool
+	public function RequiresAlias(): bool
 	{
 		return true;
 	}
@@ -81,7 +81,7 @@ class SectionHeader extends ContentBase
 		$this->SetURL(''); // url will be lost when going back to a content page.
 	}
 
-	public function GetTabNames() : array
+	public function GetTabNames(): array
 	{
 		$res = [$this->mod->Lang('main')];
 		if (check_permission(get_userid(), 'Manage All Content')) {
@@ -90,32 +90,21 @@ class SectionHeader extends ContentBase
 		return $res;
 	}
 
-	public function EditAsArray(bool $adding = false, $tab = 0, bool $showadmin = false)
-	{
-		switch ($tab) {
-		case '0':
-			return $this->display_attributes($adding);
-		case '1':
-			return $this->display_attributes($adding, 1);
-		}
-	}
-
-	public function TemplateResource() : string
+	public function TemplateResource(): string
 	{
 		return ''; //TODO
 	}
 
 	public function ValidateData()
 	{
-		$res = parent::ValidateData();
-		if (is_array($res) && $this->mId < 1) {
+		$errors = parent::ValidateData();
+		if ($errors  && $this->mId < 1) {
 			// some error occurred..
-			// reset the menu text
-			// and the alias
+			// reset the menu text and alias
 			$this->mName = '';
 			$this->mMenuText = '';
 		}
 		$this->mTemplateId = -1;
-		return $res;
+		return $errors;
 	}
 }

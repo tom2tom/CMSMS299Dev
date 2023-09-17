@@ -2,7 +2,7 @@
 /*
 FileManager module class for manipulating images
 Copyright (C) 2006-2018 Morten Poulsen <morten@poulsen.org>
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

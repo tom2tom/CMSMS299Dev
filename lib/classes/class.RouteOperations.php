@@ -1,7 +1,7 @@
 <?php
 /*
 Functions for managing CMSMS routes
-Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -39,12 +39,12 @@ Runtime work uses the merged contents of the data field. Other fields are for ta
   delmatch custom row-identifier for tailoring static-route deletions, or NULL
 */
 /* supports route_binarySearch() ??
-if( !function_exists('__internal_cmp_routes') ) {
+if( !function_exists('_internal_cmp_routes') ) {
 	/* *
 	 * @internal UNUSED
 	 * @ignore
 	 * /
-	function __internal_cmp_routes($a,$b)
+	function _internal_cmp_routes($a,$b)
 	{
 		return strcmp($a['term'],$b['term']);
 	}
@@ -59,7 +59,7 @@ if( !function_exists('__internal_cmp_routes') ) {
  */
 final class RouteOperations
 {
-    // static properties here >> Lone property|ies ?
+	// static properties here >> Lone property|ies ?
 	/**
 	 * @var bool Whether the 'static' routes array has been populated
 	 * @ignore
@@ -106,8 +106,7 @@ final class RouteOperations
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * Initialize non-static routes global-cache
@@ -308,7 +307,7 @@ final class RouteOperations
 	 *  static routes should be checked. Default FALSE.
 	 * @return bool
 	 */
-	public static function route_exists(Route $route,bool $static_only = FALSE) : bool
+	public static function route_exists(Route $route,bool $static_only = FALSE): bool
 	{
 		self::load_static_routes();
 		$sig = $route->get_signature();
@@ -390,7 +389,7 @@ final class RouteOperations
 	 * @param Route $route The dynamic route object to add
 	 * @return TRUE always
 	 */
-	public static function add(Route $route) : bool
+	public static function add(Route $route): bool
 	{
 		if( self::route_exists($route) ) return TRUE; //TODO v. slow check!
 		if( !is_array(self::$_dynamic_routes) ) self::$_dynamic_routes = [];
@@ -417,7 +416,7 @@ final class RouteOperations
 	 * @param Route $route The route to register
 	 * @return bool
 	 */
-	public static function register(Route $route) : bool
+	public static function register(Route $route): bool
 	{
 		assert(!CMS_DEPREC,new DeprecationNotice('method','add_dynamic'));
 		return self::add_dynamic($route);
@@ -496,7 +495,7 @@ EOS;
 	 *  both $dest1 and $page were non-NULL)
 	 * @return bool indicating success
 	 */
-	public static function del_static($pattern,$dest1 = '',$page = '',$delmatch = '') : bool
+	public static function del_static($pattern,$dest1 = '',$page = '',$delmatch = ''): bool
 	{
 		$wheres = [];
 		$parms = [];
@@ -629,7 +628,7 @@ EOS;
 	 * to the properties of such an object
 	 * @return string
 	 */
-	private static function get_signature($a) : string
+	private static function get_signature($a): string
 	{
 		if( $a instanceof Route ) {
 			return $a->get_signature();
@@ -641,7 +640,7 @@ EOS;
 	/**
 	 * @ignore
 	 */
-	private static function is_exact(string $pattern) : bool
+	private static function is_exact(string $pattern): bool
 	{
 		$sl = strcspn($pattern,'^*?+.-<[({$');
 		if( $sl < strlen($pattern) ) {

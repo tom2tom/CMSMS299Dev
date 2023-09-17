@@ -1,8 +1,9 @@
-<div class="pageoptions" style="text-align: right; float: right; margin-right: 3%;">
+<div class="pageoptions" style="text-align:right;float:right;margin-right:3%">
   <a href="{$back_url}" class="link_button icon back">{_ld($_module,'back')}</a>
 </div>
 
 <p class="pageheader">{_ld($_module,'title_missingdeps2')}:</p>
+{if !empty($info.missing_deps)}
 <table class="pagetable">
   <tr>
     <td>{_ld($_module,'nametext')}:</td>
@@ -30,3 +31,6 @@
   {/foreach}
   </tbody>
 </table>
+{else}
+{* TODO <p class="QQQ">langified none</p> *}
+{/if}

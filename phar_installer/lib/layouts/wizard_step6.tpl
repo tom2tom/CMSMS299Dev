@@ -2,7 +2,7 @@
 {extends file='wizard_step.tpl'}
 
 {block name='logic'}
-  {$subtitle = 'title_step6'|tr}
+  {$subtitle = tr('title_step6')}
   {$current_step = '6'}
 {/block}
 
@@ -25,10 +25,10 @@
 {block name='contents'}
 <div class="installer-form">
  {wizard_form_start}
-  <p>{'info_adminaccount'|tr}</p>
+  <p>{tr('info_adminaccount')}</p>
   {if isset($doerr)}
   <input type="hidden" name="warndone" value="1">
-  <div class="message red" style="margin-top:0.5em;">
+  <div class="message red" style="margin-top:0.5em">
    {if $tellname}{err_info arg=$tellname}{if $tellpass}<br>{/if}{/if}
    {if $tellpass}{err_info arg=$tellpass}{/if}
   </div>
@@ -36,7 +36,7 @@
   <fieldset>
     <div class="row btm-margin">
       <div class="cell col-4">
-        <label for="name">{'username'|tr}</label>
+        <label for="name">{tr('username')}</label>
       </div>
       <div class="cell col-8 must">
         <input type="text" class="form-field full-width max20 mustchild" id="name" name="username" value="{$account.username}" required>
@@ -47,7 +47,7 @@
     </div>
     <div class="row btm-margin">
       <div class="cell col-4">
-        <label for="pass">{'password'|tr}</label>
+        <label for="pass">{tr('password')}</label>
       </div>
       <div class="cell col-8 must">
         <input type="password" class="form-field full-width max40 mustchild" id="pass" name="password" value="{$account.password}" required autocomplete="off">
@@ -58,7 +58,7 @@
     </div>
     <div class="row btm-margin">
       <div class="cell col-4">
-        <label for="again">{'repeatpw'|tr}</label>
+        <label for="again">{tr('repeatpw')}</label>
       </div>
       <div class="cell col-8 must">
         <input type="password" class="form-field full-width max40 mustchild" id="again" name="repeatpw" value="{$account.password}" required autocomplete="off">
@@ -69,7 +69,7 @@
     </div>
     <div class="row btm-margin">
       <div class="cell col-4">
-        <label for="email">{'emailaddr'|tr}</label>
+        <label for="email">{tr('emailaddr')}</label>
       </div>
       <div class="cell col-8{* must*}">
 {*      {if $verbose} *}
@@ -82,12 +82,21 @@
       {/if} *}
       </div>
     </div>
-  {if empty($error)}
+    <div class="row btm-margin">
+      <div class="cell col-4">
+        <label for="sendmail">{tr('emailaccountinfo')}</label>
+      </div>
+      <div class="cell col-2">
+        <input type="checkbox" id="sendmail" name="emailsend" value="1"{if $account.emailsend} checked{/if}>
+      </div>
+    </div>
+    <div class="message yellow">{tr('warn_email')}</div>
+  </fieldset>
   <div id="bottom_nav">
-    <button type="submit" class="action-button positive" name="next">{if empty($lang_rtl)}<i class="icon-next-right"></i> {'next'|tr}{else}{'next'|tr} <i class="icon-next-left"></i>{/if}</button>
+    <button type="submit" class="action-button positive" name="next">{if empty($lang_rtl)}<i class="icon-next-right"></i> {tr('next')}{else}{tr('next')} <i class="icon-next-left"></i>{/if}</button>
   </div>
-{*  {else}<a href="{$retry_url}" class="action-button negative" title="{'retry'|tr}">{if !empty($lang_rtl)}<i class="icon-refresh"></i> {'retry'|tr}{else}{'retry'|tr} <i class="icon-refresh"></i>{/if}</a>*}
-  {/if}
+{*  {else}<a href="{$retry_url}" class="action-button negative" title="{tr('retry')}">{if !empty($lang_rtl)}<i class="icon-refresh"></i> {tr('retry')}{else}{tr('retry')} <i class="icon-refresh"></i>{/if}</a>
+  {/if*}
  </form>
 </div>
 {/block}

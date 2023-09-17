@@ -720,7 +720,7 @@ input[type="text"] {
 	-moz-border-radius: 0.25rem;
 	border-radius: 0.25rem;
 	border-color: #414658;
-	padding: 0.6em 0.6em 0.4em 0.6em;
+	padding: 0.4em 0.5em;
 }
 
 input[type="text"]#in_title {
@@ -737,7 +737,7 @@ input[type="password"] {
 	-moz-border-radius: 0.25rem;
 	border-radius: 0.25rem;
 	border-color: #414658;
-	padding: 0.6em 0.6em 0.4em 0.6em;
+	padding: 0.4em 0.5em;
 }
 
 input[type="button"] {
@@ -808,7 +808,7 @@ select {
 	-webkit-border-radius: 0.25rem 0 0 0.25rem;
 	-moz-border-radius: 0.25rem 0 0 0.25rem;
 	border-radius: 0.25rem 0 0 0.25rem;
-	padding: 0.5em;
+	padding: 0.4rem 0.5em;
 }
 
 select:hover {

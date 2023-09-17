@@ -1,7 +1,7 @@
 <?php
 /*
 Class of utilities for interacting with locks
-Copyright (C) 2014-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -110,7 +110,7 @@ final class LockOperations
      * @return int The expiry timestamp of the lock
      * @throws DataException or NoLockException
      */
-    public static function touch(int $lock_id, string $type, int $oid) : int
+    public static function touch(int $lock_id, string $type, int $oid): int
     {
         $userid = get_userid(false);
         $lock = self::load_by_id($lock_id,$type,$oid,$userid);
@@ -143,7 +143,7 @@ final class LockOperations
      * @param int $oid Locked-object identifier
      * @return int lock id > 0 (truthy) if lock exists, or 0 (falsy) if not so
      */
-    public static function is_locked(string $type, int $oid) : int
+    public static function is_locked(string $type, int $oid): int
     {
         $db = Lone::get('Db');
         $query = 'SELECT id FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE type = ? AND oid = ?';
@@ -167,7 +167,7 @@ final class LockOperations
      *  If false, return lock objects. Default false.
      * @return array, maybe empty
      */
-    public static function get_locks(string $type = '', bool $by_state = false) : array
+    public static function get_locks(string $type = '', bool $by_state = false): array
     {
         $locks = [];
         $db = Lone::get('Db');
@@ -208,7 +208,7 @@ final class LockOperations
      * @return bool
      * @throws NoLockException
      */
-    public static function is_stealable(string $type, int $oid) : bool
+    public static function is_stealable(string $type, int $oid): bool
     {
         $db = Lone::get('Db');
         $query = 'SELECT uid,expires FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE type = ? AND oid = ?';
@@ -232,7 +232,7 @@ final class LockOperations
      * @return int id of processed lock
      * @throws LogicException or SQLException
      */
-    public static function save($a) : int
+    public static function save($a): int
     {
         if( $a instanceof Lock ) {
             $props = [
@@ -285,7 +285,7 @@ VALUES (?,?,?,?)';
      * @return bool indicating success
      * @throws LogicException or SQLException
      */
-    public static function delete_real($a) : bool
+    public static function delete_real($a): bool
     {
         if( $a instanceof Lock ) {
             $props = [

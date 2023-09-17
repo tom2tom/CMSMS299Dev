@@ -30,13 +30,13 @@
    <span id="ntpage" class="pagechange">{_ld('layout','pager_next')}</span>
    {/if}
    <span id="ltpage" class="pagechange">{_ld('layout','pager_last')}</span>
-   {_ld('layout','pageof','<span id="cpage">1</span>',"<span id='tpage' style='margin-right:0.5em;'>{$totpg}</span>")}
+   {_ld('layout','pageof','<span id="cpage">1</span>',"<span id='tpage' style='margin-right:0.5em'>{$totpg}</span>")}
    </span>
    {$rowchanger}{_ld('layout','pager_rowspp')}{*TODO sometimes show 'pager_rows'*}
   </div>{*boxchild*}
 {/if}
 </div>{*rowbox*}
-{if $itemcount > 0}
+{if !empty($items)}
 {form_start}
 <table class="pagetable{if $itemcount > 1} table_sort{/if}" id="articlelist">
   <thead>
@@ -76,9 +76,6 @@
     </tr>
     {/foreach}</tbody>
 </table>
-{else}
-<div class="pageinfo">{if $curcategory == ''}{_ld($_module,'noarticles')}{else}{_ld($_module,'noarticlesinfilter')}{/if}</div>
-{/if}
 
 <div class="pageoptions rowbox{if isset($addlink) && $itemcount > 10} expand">
   <div class="boxchild">
@@ -87,11 +84,11 @@
   {else}" style="justify-content:flex-end">{/if}
   {if $itemcount > 0}
   <div class="boxchild" id="bulkactions">
-    {cms_help 0=$_module key='help_bulk' title=_ld($_module,'prompt_bulk')}
+    {cms_help realm=$_module key='help_bulk' title=_ld($_module,'prompt_bulk')}
     <label class="boxchild" for="bulk_action">{_ld($_module,'with_selected')}:</label>&nbsp;
     <select id="bulk_action" name="{$actionid}bulk_action">
       {html_options options=$bulkactions}    </select>
-    <div id="category_box" style="display:inline-block;">
+    <div id="category_box" style="display:inline-block">
       <select id="bulk_category" name="{$actionid}bulk_category">
         {html_options options=$bulkcategories selected=$curcategory}      </select>
     </div>
@@ -100,19 +97,21 @@
 {/if}{*$itemcount > 0*}
 </div>{*rowbox*}
 </form>
-
+{else}
+<div class="pageinfo">{if $curcategory == ''}{_ld($_module,'noarticles')}{else}{_ld($_module,'noarticlesinfilter')}{/if}</div>
+{/if}
 {if $xcats && isset($formstart_itemsfilter)}
-<div id="itemsfilter" title="{$filtertext}" style="display:none;">
+<div id="itemsfilter" title="{$filtertext}" style="display:none">
   {$formstart_itemsfilter}
   <div class="pageoverflow">
     <label class="pagetext" for="selcat">{$label_filtercategory}:</label>
-    {cms_help 0=$_module key='help_articles_filtercategory' title=$label_filtercategory}
+    {cms_help realm=$_module key='help_articles_filtercategory' title=$label_filtercategory}
     <div class="pageinput postgap">
       <select id="selcat" name="{$actionid}filter_category">
         {html_options options=$categorylist selected=$curcategory}      </select>
     </div>
     <label class="pagetext" for="childcats">{$label_filterinclude}:</label>
-    {cms_help 0=$_module key='help_articles_filterchildcats' title=$label_filterinclude}
+    {cms_help realm=$_module key='help_articles_filterchildcats' title=$label_filterinclude}
     <div class="pageinput">
       <input id="childcats" type="checkbox" name="{$actionid}filter_descendants" value="1"{if $filter_descendants} checked{/if}>
     </div>
@@ -133,7 +132,7 @@
 {/if}
 
 {if $xcats && $itemcount > 0}
-<div id="catselector" title="{$selectortext}" style="display:none;">
+<div id="catselector" title="{$selectortext}" style="display:none">
   {$formstart_catselector}
   <input type="hidden" id="movedarticle" name="{$actionid}articleid">
   <div class="pageoverflow">

@@ -1,7 +1,7 @@
 <?php
 /*
 abstract class that defines admin alerts for CMSMS.
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -120,19 +120,19 @@ abstract class Alert
      * @return string;
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         switch( $key ) {
         case 'name':
-            return trim($this->_name);
+            return trim($this->_name??'');
         case 'module':
-            return trim($this->_module);
+            return trim($this->_module??'');
         case 'priority':
-            return trim($this->_priority);
+            return trim($this->_priority??'');
         case 'created':
-            return (int) $this->_created;
+            return (int)$this->_created;
         case 'loaded':
-            return (bool) $this->_loaded;
+            return (bool)$this->_loaded;
         default:
             throw new InvalidArgumentException("$key is not a gettable member of ".get_class($this));
         }
@@ -149,7 +149,7 @@ abstract class Alert
      * @param string $val
      * @throws InvalidArgumentException or LogicException
      */
-    public function __set(string $key,$val) : void
+    public function __set(string $key,$val): void
     {
         if( $this->_loaded ) throw new LogicException('Alerts cannot be altered once saved');
         switch( $key ) {
@@ -239,7 +239,7 @@ abstract class Alert
     protected static function decode_object($serialized)
     {
         $tmp = unserialize($serialized);
-        if( !is_array($tmp) || !isset($tmp['data']) ) return;
+        if( !is_array($tmp) || !isset($tmp['data']) ) return null;
 
         $obj = null;
         if( !empty($tmp['module']) && strtolower($tmp['module']) != 'core' ) {
@@ -278,7 +278,7 @@ abstract class Alert
         if( !startswith( $name, 'adminalert_') ) $name = self::get_fixed_prefname( $name );
         $tmp = AppParams::get( $name );
         if( !$tmp && $throw ) throw new RuntimeException('Could not find an alert with the name '.$name);
-        if( !$tmp ) return;
+        if( !$tmp ) return null;
 
         $obj = self::decode_object($tmp);
         if( !is_object($obj) ) throw new RuntimeException('Problem loading alert named '.$name);

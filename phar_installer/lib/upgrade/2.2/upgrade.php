@@ -4,13 +4,15 @@
 use CMSMS\TemplateType;
 use function cms_installer\get_app;
 use function cms_installer\get_server_permissions;
+use function cms_installer\status_msg;
+use function cms_installer\verbose_msg;
 
 status_msg('Performing structure changes for CMSMS 2.2');
 
 $app = get_app();
 $destdir = $app->get_destdir();
 
-$create_private_dir = function($relative_dir) use ($destdir) {
+$create_private_dir = function(string $relative_dir) use ($destdir): void {
     $relative_dir = trim($relative_dir);
     if (!$relative_dir) {
         return;
@@ -24,7 +26,7 @@ $create_private_dir = function($relative_dir) use ($destdir) {
     @touch($dir.DIRECTORY_SEPARATOR.'index.html');
 };
 
-$move_directory_files = function($srcdir, $destdir) {
+$move_directory_files = function(string $srcdir, string $destdir): void {
     $srcdir = trim($srcdir);
     $destdir = trim($destdir);
     if (!is_dir($srcdir)) {

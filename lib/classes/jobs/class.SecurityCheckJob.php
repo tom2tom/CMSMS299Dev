@@ -1,7 +1,7 @@
 <?php
 /*
 Class SecurityCheckJob: for periodic checks for and warnings about several system-settings.
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

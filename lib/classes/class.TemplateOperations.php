@@ -81,7 +81,7 @@ class TemplateOperations
 	 * @param Template $tpl (or perhaps a deprecated CmsLayoutTemplate)
 	 * @throws DataException or UnexpectedValueException or RuntimeException or LogicException
 	 */
-	public static function validate_template($tpl) : void
+	public static function validate_template($tpl): void
 	{
 		$name = $tpl->get_name();
 		if (!$name) {
@@ -122,7 +122,7 @@ class TemplateOperations
 	 *
 	 * @param Template $tpl The template object (or perhaps a deprecated CmsLayoutTemplate).
 	 */
-	public static function save_template($tpl) : void
+	public static function save_template($tpl): void
 	{
 		self::validate_template($tpl);
 
@@ -152,7 +152,7 @@ class TemplateOperations
 	 *
 	 * @param Template $tpl (or perhaps a deprecated CmsLayoutTemplate)
 	 */
-	public static function delete_template($tpl) : void
+	public static function delete_template($tpl): void
 	{
 		if (!($tid = $tpl->get_id())) {
 			return;
@@ -181,7 +181,7 @@ class TemplateOperations
 	 * @return mixed Template object | null
 	 * @throws DataException
 	 */
-	public static function get_template($a)// : mixed
+	public static function get_template($a)//: mixed
 	{
 		$tid = self::resolve_template($a);
 
@@ -205,7 +205,7 @@ class TemplateOperations
 	 * @param mixed $a The id or name of the template from which to source the replacement properties
 	 * @throws DataException
 	 */
-	public static function replicate_template($tpl, $a) : void
+	public static function replicate_template($tpl, $a): void
 	{
 		$src = self::get_template($a);
 		$data = $src->get_properties();
@@ -219,7 +219,7 @@ class TemplateOperations
 	 * @param bool $deep Optional flag whether to load attached data. Default true. UNUSED
 	 * @return array Template object(s) or empty
 	 */
-	public static function get_bulk_templates(array $ids, bool $deep = true) : array
+	public static function get_bulk_templates(array $ids, bool $deep = true): array
 	{
 		if (!$ids) {
 			return [];
@@ -255,7 +255,7 @@ class TemplateOperations
 	 * @return array Template object(s) or empty
 	 * @throws LogicException
 	 */
-	public static function get_owned_templates($a) : array
+	public static function get_owned_templates($a): array
 	{
 		$id = self::resolve_user($a);
 		if ($id <= 0) {
@@ -279,7 +279,7 @@ class TemplateOperations
 	 *  and template name. Otherwise, id and Template object. Or empty
 	 * @throws DataException
 	 */
-	public static function get_originated_templates(string $orig, bool $by_name = false) : array
+	public static function get_originated_templates(string $orig, bool $by_name = false): array
 	{
 		if (!$orig) {
 			$orig = Template::CORE;
@@ -305,7 +305,7 @@ class TemplateOperations
 	 * @return array Template object(s) | empty
 	 * @throws LogicException
 	 */
-	public static function get_editable_templates($a) : array
+	public static function get_editable_templates($a): array
 	{
 		$id = self::resolve_user($a);
 		if ($id <= 0) {
@@ -345,7 +345,7 @@ class TemplateOperations
 	 * @return array If $by_name is true then each value will have template id
 	 * and template name. Otherwise, id and a Template object
 	 */
-	public static function get_all_templates(bool $by_name = false) : array
+	public static function get_all_templates(bool $by_name = false): array
 	{
 		$db = Lone::get('Db');
 		if ($by_name) {
@@ -365,7 +365,7 @@ class TemplateOperations
 	 * @return array Template object(s) | empty
 	 * @throws DataException
 	 */
-	public static function get_all_templates_by_type($type) : array
+	public static function get_all_templates_by_type($type): array
 	{
 		$db = Lone::get('Db');
 		$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_id=?';
@@ -464,7 +464,7 @@ class TemplateOperations
 	 * $param bool $friendly Optional flag whether to report in UI-friendly format. Default false.
 	 * @return array name-strings, maybe empty
 	 */
-	public static function get_all_originators(bool $friendly = false) : array
+	public static function get_all_originators(bool $friendly = false): array
 	{
 		$db = Lone::get('Db');
 		$sql = 'SELECT DISTINCT originator FROM '.CMS_DB_PREFIX.self::TABLENAME;
@@ -519,7 +519,7 @@ class TemplateOperations
 	 * @return mixed string | null
 	 * @throws LogicException
 	 */
-	public static function get_unique_template_name(string $prototype, string $prefix = '') : string
+	public static function get_unique_template_name(string $prototype, string $prefix = ''): string
 	{
 		if (!$prototype) {
 			throw new LogicException('Prototype name cannot be empty');
@@ -647,7 +647,7 @@ class TemplateOperations
 	 * @return string
 	 * @throws LogicException
 	 */
-	public static function get_unique_name(string $prototype, string $prefix = '') : string
+	public static function get_unique_name(string $prototype, string $prefix = ''): string
 	{
 		if (!$prototype) {
 			throw new LogicException('Prototype name cannot be empty');
@@ -673,11 +673,11 @@ class TemplateOperations
 	 * @param mixed $ids int | int[] template identifier(s), < 0 means a group
 	 * @return int No of templates cloned
 	 */
-	public static function operation_copy($ids) : int
+	public static function operation_copy($ids): int
 	{
 		$n = 0;
 		$db = Lone::get('Db');
-		list($tpls, $grps) = self::items_split($ids);
+		[$tpls, $grps] = self::items_split($ids);
 		if ($tpls) {
 			$sql = 'SELECT `name`,content,description,contentfile FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,', count($tpls) - 1).'?)';
 			$from = $db->getArray($sql, $tpls);
@@ -739,11 +739,11 @@ class TemplateOperations
 	 * @param mixed $ids int | int[] template identifier(s), < 0 means a group
 	 * @return int No of items e.g. pages modified | groups deleted
 	 */
-	public static function operation_delete($ids) : int
+	public static function operation_delete($ids): int
 	{
 		$db = Lone::get('Db');
 		$c = 0;
-		list($tpls, $grps) = self::items_split($ids);
+		[$tpls, $grps] = self::items_split($ids);
 		if ($grps) {
 			$sql = 'DELETE FROM '.CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,', count($grps) - 1).'?)';
 			$db->execute($sql, $grps);
@@ -751,7 +751,7 @@ class TemplateOperations
 			$c = $db->execute($sql, $grps);
 		}
 		if ($tpls) {
-			list($pages, $skips) = self::affected_pages($tpls);
+			[$pages, $skips] = self::affected_pages($tpls);
 			if ($pages) {
 				$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id=NULL WHERE content_id IN ('.str_repeat('?,', count($pages) - 1).'?)';
 				$n = (int)$db->execute($sql, array_column($pages, 'content_id'));
@@ -786,10 +786,10 @@ class TemplateOperations
 	 * @param mixed $ids int | int[] template identifier(s), < 0 means a group
 	 * @return int No of pages modified
 	 */
-	public static function operation_deleteall($ids) : int
+	public static function operation_deleteall($ids): int
 	{
 		$db = Lone::get('Db');
-		list($tpls, $grps) = self::items_split($ids);
+		[$tpls, $grps] = self::items_split($ids);
 		if ($grps) {
 			$sql = 'SELECT DISTINCT tpl_id FROM '.CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,', count($grps) - 1).'?)';
 			$members = $db->getCol($sql, $grps);
@@ -800,7 +800,7 @@ class TemplateOperations
 			$db->execute($sql, $grps);
 		}
 		if ($tpls) {
-			list($pages, $skips) = self::affected_pages($tpls);
+			[$pages, $skips] = self::affected_pages($tpls);
 			if ($pages) {
 				$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id=NULL WHERE content_id IN ('.str_repeat('?,', count($pages) - 1).'?)';
 				$n = (int)$db->execute($sql, array_column($pages, 'content_id'));
@@ -827,7 +827,7 @@ class TemplateOperations
 	 * @param int $to template identifier
 	 * @return int No of pages modified
 	 */
-	public static function operation_replace(int $from, int $to) : int
+	public static function operation_replace(int $from, int $to): int
 	{
 		if ($from < 1 || $to < 1) {
 			return 0;
@@ -852,7 +852,7 @@ class TemplateOperations
 	 * @param int $to template identifier
 	 * @return int No of pages modified
 	 */
-	public static function operation_applyall(int $to) : int
+	public static function operation_applyall(int $to): int
 	{
 		if ($to < 1) {
 			return 0;
@@ -877,10 +877,10 @@ class TemplateOperations
 	 * @param mixed $ids int | int[] template identifier(s)
 	 * @return int No. of files processed
 	 */
-	public static function operation_export($ids) : int
+	public static function operation_export($ids): int
 	{
 		$n = 0;
-		list($tpls, $grps) = self::items_split($ids);
+		[$tpls, $grps] = self::items_split($ids);
 		if ($tpls) {
 			$db = Lone::get('Db');
 			$sql = 'SELECT id,`name`,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=0 AND id IN ('.str_repeat('?,', count($tpls) - 1).'?)';
@@ -912,10 +912,10 @@ class TemplateOperations
 	 * @param mixed $ids int | int[] template identifier(s)
 	 * @return int No. of files processed
 	 */
-	public static function operation_import($ids) : int
+	public static function operation_import($ids): int
 	{
 		$n = 0;
-		list($tpls, $grps) = self::items_split($ids);
+		[$tpls, $grps] = self::items_split($ids);
 		if ($tpls) {
 			$db = Lone::get('Db');
 			$sql = 'SELECT id,`name`,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=1 AND id IN ('.str_repeat('?,', count($tpls) - 1).'?)';
@@ -1044,7 +1044,7 @@ class TemplateOperations
 	 * @param mixed $groups  optional id | id[] | null Default null
 	 * @return Template
 	 */
-	protected static function create_template(array $props, $editors = null, $groups = null) : Template
+	protected static function create_template(array $props, $editors = null, $groups = null): Template
 	{
 		if ($editors === null) {
 			$db = Lone::get('Db');
@@ -1205,7 +1205,7 @@ WHERE id=?';
 	 * @param Template $tpl (or perhaps a deprecated CmsLayoutTemplate)
 	 * @return Template template object representing the inserted template
 	 */
-	protected static function insert_template($tpl) : Template
+	protected static function insert_template($tpl): Template
 	{
 		$db = Lone::get('Db');
 		$sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (
@@ -1291,7 +1291,7 @@ fail if nothing inserted
 		return $tpl;
 	}
 
-	protected static function filter_editors(int $id, array $all) : array
+	protected static function filter_editors(int $id, array $all): array
 	{
 		$out = [];
 		foreach ($all as $row) {
@@ -1302,7 +1302,7 @@ fail if nothing inserted
 		return $out;
 	}
 
-	protected static function filter_groups(int $id, array $all) : array
+	protected static function filter_groups(int $id, array $all): array
 	{
 		$out = [];
 		foreach ($all as $row) {

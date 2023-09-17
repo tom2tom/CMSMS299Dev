@@ -16,11 +16,11 @@ Notably it may be used where PHP's phar extension is not available.
 Requirements
 -------------------
 1.  The installation assistant requires a PHP environment with a minimum version of PHP 7.1.
-2.  For new installations of CMS Made Simple you should create a new mysql database and database user.
+2.  For new installations of CMS Made Simple you should create a new MySQL or compatible database and database user.
     - The database user must have ALL PRIVILEGES to all tables within the new database.
-    - Your database user account must have a password.
-3.  CMS Made Simple itself requires at least PHP 7.1 with numerous libraries enabled
-    (the install assistant will check for these) including json, tokenizer, xml, and gd.
+    - The database user account must have a password.
+3.  CMS Made Simple itself requires at least PHP 7.2 with numerous libraries enabled
+    (the install assistant will check for these) including xml and gd.
 
 -------------------
 Instructions
@@ -39,7 +39,7 @@ Instructions
 4.  In your web browser, navigate to the installer directory created in step 3.
     For example:  http://www.mywebsite.site/cmsms/installer
 
-You should now be presented with a welcome screen.  If instead you see a white screen it probably means that your
+You should now be presented with a welcome screen.  If instead you see a white screen it probably means that the site
 server is running outdated software versions (e.g. PHP, plugins such as ion-cube or zend-guard). It is a good hint that
 if the installer will not run you may have further problems with CMS Made Simple on that server.
 
@@ -57,29 +57,29 @@ Step 1:
   -------
 
 Step 2:
-  The second step does checks for existing software in your installation directory.  If an existing installation of
+  The second step does checks for existing software in the site installation directory.  If an existing installation of
   CMS Made Simple is detected you will be presented with options to proceed through the "upgrade" or "freshen" paths
   (depending upon the version detected). If no version of CMS Made Simple is installed you will be guided through the
   "installation" process.
 
 Step 3:
-  Step 3 performs various tests on your PHP environment to try to ensure that it is compatible with
+  Step 3 performs various tests on the host's PHP environment to try to ensure that it is compatible with
   CMS Made Simple. If important tests fail, you will be notified of them and not allowed to continue. However, if
-  some non-critical tests fail you will be allowed to continue. We recommend that you adjust your PHP environment
+  some non-critical tests fail you will be allowed to continue. We recommend that you adjust the PHP environment
   (you may need to contact your host for assistance) until all tests pass.
 
 Step 4:
   This step is used only during installation and freshen sessions. It asks you to provide basic configuration information
   for the CMS Made Simple environment. This includes database information and credentials, and a server time zone.
 
-  As mentioned in the requirements above, CMSMS requires a mysql database to store data, and user credentials to access
-  that mysql database. The user account provided must have ALL PRIVILEGES to the database. You can normally create
+  As mentioned in the requirements above, CMSMS requires a MySQL or compatible database to store data, and user credentials
+  to access that database. The user account provided must have ALL PRIVILEGES to the database. You can normally create
   databases, and create user accounts for database from within your web host's control panel.
 
   Additionally, you are asked to specify the time zone of the server (not your local time zone). You may need to ask your
   host for information about this.
 
-  Upon submit, the installation assistant will validate your database credentials, and check the database to ensure
+  Upon submit, the installation assistant will validate the given database credentials, and check the database to ensure
   you are not accidentally overwriting an existing installation of CMSMS.
 
 Step 5:
@@ -128,7 +128,7 @@ Afterwards
 
 After confirming that the site is working as expected, confirm that the created installer folder (with all its contents)
 has been deleted from the server. If not so, delete it manually, using the site's file manager (in cPanel or the like).
-Likewise for any intaller.ini file, in the site-root folder, that was used to facilitate the installer session.
+Likewise for any installer.ini file, in the site-root folder, that was used to facilitate the installer session.
 
 ---------------------
 Additional Features

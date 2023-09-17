@@ -1,7 +1,7 @@
 <?php
 /*
 The main Content class
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -60,32 +60,32 @@ class Content extends ContentBase
 	 */
 	protected $_contentBlocks = null; // force recreation @ next use
 
-	public function FriendlyName() : string
+	public function FriendlyName(): string
 	{
 		return $this->mod->Lang('contenttype_content');
 	}
 
-	public function HasPreview() : bool
+	public function HasPreview(): bool
 	{
 		return $this->mId > 0;
 	}
 
-	public function HasTemplate() : bool
+	public function HasTemplate(): bool
 	{
 		return true;
 	}
 
-	public function IsCopyable() : bool
+	public function IsCopyable(): bool
 	{
 		return true;
 	}
 
-	public function IsDefaultPossible() : bool
+	public function IsDefaultPossible(): bool
 	{
 		return true;
 	}
 
-	public function IsSearchable() : bool
+	public function IsSearchable(): bool
 	{
 		if (!parent::IsSearchable()) {
 			return false;
@@ -93,7 +93,7 @@ class Content extends ContentBase
 		return $this->GetPropertyValue('searchable') != false;
 	}
 
-	public function WantsChildren() : bool
+	public function WantsChildren(): bool
 	{
 		$tmp = $this->GetPropertyValue('wantschildren');
 		// an empty/null value is considered true
@@ -224,7 +224,7 @@ class Content extends ContentBase
 	 * @return array Array of assoc arrays, each having members
 	 *  'name' (string), 'tab' (string), 'priority' (int), maybe:'required' (bool), maybe:'basic' (bool), maybe:'extra' (array)
 	 */
-	public function GetEditableProperties() : array
+	public function GetEditableProperties(): array
 	{
 		$props = parent::GetEditableProperties();
 
@@ -265,9 +265,6 @@ class Content extends ContentBase
 	public function ValidateData()
 	{
 		$errors = parent::ValidateData();
-		if ($errors === false) {
-			$errors = [];
-		}
 
 		if ($this->mTemplateId <= 0) {
 			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('template'));
@@ -314,7 +311,7 @@ class Content extends ContentBase
 	 * @since 2.0
 	 * @returns string
 	 */
-	public function TemplateResource() : string
+	public function TemplateResource(): string
 	{
 /*
 		$tmp = $this->GetPropertyValue('template_rsrc');
@@ -572,7 +569,7 @@ class Content extends ContentBase
 	 * @access private
 	 * @internal
 	 */
-	private function get_content_blocks() : array
+	private function get_content_blocks(): array
 	{
 		if (is_array($this->_contentBlocks)) {
 			return $this->_contentBlocks;
@@ -592,7 +589,7 @@ class Content extends ContentBase
 		return $this->_contentBlocks;
 	}
 
-	private function _get_param(/*mixed */$in, /*mixed */$key, /*mixed */$dflt = null)// : mixed
+	private function _get_param(/*mixed */$in, /*mixed */$key, /*mixed */$dflt = null)//: mixed
 	{
 		if (!is_array($in)) {
 			return $dflt;
@@ -674,7 +671,7 @@ class Content extends ContentBase
 	 * @ignore
 	 * @param array $blockInfo
 	 */
-	private function _display_static_text_block(array $blockInfo) : array
+	private function _display_static_text_block(array $blockInfo): array
 	{
 		$input = '<div class="static_text" data-name="'.$blockInfo['name'].'"}>';
 		$input .= $blockInfo['static_content'];
@@ -741,7 +738,7 @@ class Content extends ContentBase
 		} else {
 			// TODO $id 'm1_'.$inputname if this is an admin request ?
 			$dropdown = create_file_dropdown($id.$inputname, $dir, $value, 'jpg,jpeg,png,gif', '', true, '', $prefix, 1, $sort); //TODO other extensions e.g. webp see FileTypeHelper class
-			if ($dropdown === false) {
+			if (!$dropdown) {
 				$dropdown = $this->mod->Lang('error_retrieving_file_list');
 			}
 			return $dropdown;

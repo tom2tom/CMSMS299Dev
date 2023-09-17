@@ -1,7 +1,7 @@
 <?php
 /*
 Script to display/edit the content of a folder control-set
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -289,7 +289,7 @@ try {
      *  default 0
      * @return string
      */
-    function rdir_tree(string $path, bool $hide = true, int $max = 0, int $depth = 0) : string
+    function rdir_tree(string $path, bool $hide = true, int $max = 0, int $depth = 0): string
     {
         if (!is_readable($path)) {
             return '';
@@ -373,8 +373,7 @@ EOS;
     $close = _la('close');
     $sep = DIRECTORY_SEPARATOR;
     $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
  cms_equalWidth($('.boxchild label'));
  $('#selectbtn').on('click', function(e) {
@@ -427,7 +426,6 @@ $(function() {
   return false;
  });
 });
-//]]>
 </script>
 EOS;
     add_page_foottext($js);

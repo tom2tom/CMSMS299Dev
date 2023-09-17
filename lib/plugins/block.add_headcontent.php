@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to accumulate supplied content for later insertion into the page header
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -34,7 +34,7 @@ Put this in a template<br>
 <code>
 {add_headcontent}
 e.g.
-<script type="text/javascript"> .. </script>
+<script> .. </script>
 <link .. >
 etc
 {/add_headcontent}

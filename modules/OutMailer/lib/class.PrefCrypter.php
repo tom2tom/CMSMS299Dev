@@ -1,7 +1,7 @@
 <?php
 /*
 Class for processing crypted preferences related to the OutMailer module
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple module OutMailer.
 
@@ -38,7 +38,7 @@ class PrefCrypter
      *
      * @return string 20+ bytes
      */
-    final protected static function get_muid() : string
+    final protected static function get_muid(): string
     {
         return 'Z6gMrWV7psrRGqUgUhkA'.self::MODNAME;
     }
@@ -49,7 +49,7 @@ class PrefCrypter
      * @ignore
      * @return string
      */
-    final protected static function get_seed() : string
+    final protected static function get_seed(): string
     {
         $s = self::get_muid().self::SKEY;
         $sk = hash('fnv1a64', $s);
@@ -64,7 +64,7 @@ class PrefCrypter
      * @param mixed $value
      * @return string
      */
-    final protected static function flatten($value) : string
+    final protected static function flatten($value): string
     {
         $s = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         if (json_last_error() != JSON_ERROR_NONE) {

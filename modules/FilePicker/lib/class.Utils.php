@@ -1,7 +1,7 @@
 <?php
 /*
 Filepicker module: utility-methods class
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -61,7 +61,7 @@ class Utils
      * @param bool $isdir Optional flag indicating this is a directory. Default false.
      * @return string
      */
-    public static function get_file_icon(string $extension, bool $isdir = false) : string
+    public static function get_file_icon(string $extension, bool $isdir = false): string
     {
         // static properties here >> Lone property|ies ?
         static $mod = null;
@@ -217,7 +217,7 @@ class Utils
      * @param bool $isdir
      * @return string
      */
-    public static function format_permissions(FilePicker $mod, int $mode, bool $isdir) : string
+    public static function format_permissions(FilePicker $mod, int $mode, bool $isdir): string
     {
         static $pr = null;
         static $pw, $px, $pxf;
@@ -243,7 +243,7 @@ class Utils
     /* *
      * @ignore
      */
-/*   private function file_details(string $filepath, array &$info) : string
+/*   private function file_details(string $filepath, array &$info): string
     {
         if (!empty($info['image'])) {
             $imginfo = @getimagesize($filepath);
@@ -259,7 +259,7 @@ class Utils
     }
 */
 
-    protected static function processpath($dirpath) : string
+    protected static function processpath($dirpath): string
     {
         $config = Lone::get('Config');
         $devmode = $config['develop_mode'];
@@ -292,7 +292,7 @@ class Utils
      *  filesystem-path of folder to be reported. Default '' (hence use relevant root)
      * @return array (maybe empty)
      */
-    public static function get_file_list(FilePicker $mod, /*mixed*/$profile = null, string $dirpath = '') : array
+    public static function get_file_list(FilePicker $mod, /*mixed*/$profile = null, string $dirpath = ''): array
     {
         $dirpath = self::processpath($dirpath);
         if (!$dirpath) return [];
@@ -461,7 +461,7 @@ class Utils
      * The extensions we're interested in are all ASCII, but if otherwise
      * here, too bad about the lowercase !
      */
-    public static function get_extension(string $path, bool $lower = true) : string
+    public static function get_extension(string $path, bool $lower = true): string
     {
         $p = strrpos($path, '.');
         if (!$p) {
@@ -480,7 +480,7 @@ class Utils
      * @param string $path Filesystem path, or at least the basename, of a file
      * @return string
      */
-    public static function lower_extension(string $path) : string
+    public static function lower_extension(string $path): string
     {
         $ext = self::get_extension($path);
         if ($ext !== '') {
@@ -499,7 +499,7 @@ class Utils
      * @param string $path absolute or root-relative filesystem-path of file or folder
      * @return string, the valid absolute filepath, or empty if there's a problem
      */
-    public static function clean_path(string $rootpath, string $path) : string
+    public static function clean_path(string $rootpath, string $path): string
     {
         if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $path)) {
             // $path is relative
@@ -535,7 +535,7 @@ class Utils
      * [0] = page-header content (html) OR array of css, js filepaths to be loaded
      * [1] = page-bottom content (js) OR immediately-executable js
      */
-    public static function get_browsedata(FilePicker $mod, array $params, bool $framed = true) : array
+    public static function get_browsedata(FilePicker $mod, array $params, bool $framed = true): array
     {
         $cmd_url = $mod->create_action_url('', 'ajax_cmd', ['forjs'=>1, CMS_JOB_KEY=>1]);
         $list_url = $params['listurl'] ?? $mod->get_browser_url();
@@ -640,8 +640,7 @@ EOS;
             }
 //basictable DEBUG breakpoint: 2000 NORMAL forceResponsive: false
             $footinc = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
   var c = $('#fp-body');
   if (c.length > 0) {
@@ -667,7 +666,6 @@ $(function() {
    }
   });
 });
-//]]>
 </script>
 
 EOS;
@@ -696,8 +694,7 @@ EOS;
             // runtime props to be set later, in context: cwd, container
 //basictable DEBUG breakpoint: 2000 NORMAL forceResponsive: false
             $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 function getbrowser(options) {
   var tgt = $('.cmsfp_elem');
   var params = $.extend({
@@ -721,7 +718,6 @@ function getbrowser(options) {
   });
   return new CMSCustomFileBrowser(params);
 }
-//]]>
 </script>
 
 EOS;

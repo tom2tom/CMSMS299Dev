@@ -3,5 +3,5 @@
 <ul class="social">
  <li class="facebook"><a title="Facebook" href="https://www.facebook.com/cmsmadesimple"><span>Facebook</span></a></li>
  <li class="linkedin"><a title="LinkedIn" href="http://www.linkedin.com/groups?gid=1139537"><span>LinkedIn</span></a></li>
- <li class="twitter"><a title="Twitter" href="https://twitter.com/#!/cmsms"><span>Twitter</span></a></li>
+ <li class="x"><a title="X" href="https://x.com/#!/cmsms"><span>X</span></a></li>
 </ul>

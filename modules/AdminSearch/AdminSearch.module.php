@@ -1,7 +1,7 @@
 <?php
 /*
 AdminSearch - A CMSMS addon module to perform database searches.
-Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -32,7 +32,7 @@ final class AdminSearch extends CMSModule
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetHelp() { return $this->Lang('help'); }
     public function GetName() { return 'AdminSearch'; }
-    public function GetVersion() { return '1.2'; }
+    public function GetVersion() { return '1.3'; }
     public function HasAdmin() { return true; }
     public function IsAdminOnly() { return true; }
 //  public function LazyLoadAdmin() { return true; }

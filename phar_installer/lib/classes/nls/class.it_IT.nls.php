@@ -12,6 +12,6 @@ final class it_IT_nls extends nls
         $this->_isocode = 'it';
         $this->_locale = 'it_IT';
         $this->_encoding = 'UTF-8';
-        $this->_aliases = 'it_IT.utf8,it_IT.utf-8,it_IT.UTF-8,it_IT,it_IT@euro,italian,Italian_Italy.1252,ISO8859_1';
+        $this->_aliases = 'it_IT.utf8,it_IT.utf-8,it_IT.UTF-8,it_IT@euro,italian,Italian_Italy.1252,ISO8859_1';
     }
 }

@@ -1,7 +1,7 @@
 <?php
 /*
 Cookie operations class
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -54,7 +54,7 @@ class AutoCookieOperations extends SignedCookieOperations
      * @param int $expires The timestamp of expiry.  If 0 it indicates a session cookie.
      * @return bool
      */
-    public function set(string $key, $value, int $expires = 0) : bool
+    public function set(string $key, $value, int $expires = 0): bool
     {
         $is_empty = empty($value);
         if( is_object($value) ) {

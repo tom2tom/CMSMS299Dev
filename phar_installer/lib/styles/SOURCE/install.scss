@@ -172,9 +172,9 @@ $font_2: Arial;
 $font_3: sans-serif;
 
 //urls
-$url_0: url(../font/installer.woff2?29272928);
-$url_1: url(../font/installer.woff?29272928);
-$url_2: url(../font/installer.ttf?29272928);
+$url_0: url(../font/installer.woff2?38863656);
+$url_1: url(../font/installer.woff?38863656);
+$url_2: url(../font/installer.ttf?38863656);
 
 @if $leftwards {
 	$start-side: left !global;
@@ -655,7 +655,7 @@ td {
 .icon-cmsms::before { content: '\e60a'; color: $cmsms_orange; }
 .icon-facebook::before { content: '\e60b'; color: $facebook_blue; }
 .icon-linkedin::before { content: '\e60c'; color: $linkedin_blue; }
-.icon-twitter::before { content: '\e60d'; color: $twitter_blue; }
+.icon-x::before { content: '\e60d'; color: $default_text }
 .icon-circle::before { content: '\e60e'; color: #fff; }
 .icon-blank::before { content: '\e60f'; color: #fff; }
 .icon-pay::before { content: '\e610'; }

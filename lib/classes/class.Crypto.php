@@ -1,7 +1,7 @@
 <?php
 /*
 Security-related methods.
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -36,7 +36,7 @@ class Crypto
 	/**
 	 * @ignore
 	 */
-	protected static function check_crypter(string $crypter) : string
+	protected static function check_crypter(string $crypter): string
 	{
 		switch ($crypter) {
 		case 'sodium':
@@ -69,7 +69,7 @@ class Crypto
 	/**
 	 * @ignore
 	 */
-	protected static function sodium_extend(string $passwd) : array
+	protected static function sodium_extend(string $passwd): array
 	{
 		if (PHP_VERSION_ID >= 70200 && function_exists('sodium_crypto_secretbox')) {
 			$lr = strlen($passwd); //TODO handle php.ini setting mbstring.func_overload & 2 i.e. overloaded
@@ -105,7 +105,7 @@ class Crypto
 	 * @param string $crypter optional crypt-mode 'sodium' | 'openssl' | 'best' | anything else e.g. 'internal'
 	 * @return string
 	 */
-	public static function encrypt_string(string $raw, string $passwd = '', string $crypter = 'best') : string
+	public static function encrypt_string(string $raw, string $passwd = '', string $crypter = 'best'): string
 	{
 		$use = self::pwolish($passwd);
 		try {
@@ -115,7 +115,7 @@ class Crypto
 		}
 		switch ($crypter) {
 		case 'sodium':
-			list($nonce, $key) = self::sodium_extend($use);
+			[$nonce, $key] = self::sodium_extend($use);
 			// idenfifier: prefix 2y\22
 			return "2y\x022".sodium_crypto_secretbox($raw, $nonce, $key);
 		case 'openssl':
@@ -148,7 +148,7 @@ class Crypto
 	 * @param string $passwd optional
 	 * @return mixed string | false
 	 */
-	public static function decrypt_string(string $raw, string $passwd = '')// : mixed
+	public static function decrypt_string(string $raw, string $passwd = '')//: mixed
 	{
 		if ($raw === '') return '';
 		if (strlen($raw) < 5 || $raw[3] != '2' || strncmp($raw, '2y', 2) != 0) {
@@ -176,7 +176,7 @@ class Crypto
 		$use = self::pwolish($passwd);
 		switch ($crypter) {
 		case 'sodium':
-			list($nonce, $key) = self::sodium_extend($use);
+			[$nonce, $key] = self::sodium_extend($use);
 			$val = sodium_crypto_secretbox_open($raw, $nonce, $key);
 			if ($val === false) {
 				sleep(2); // inhibit brute-forcing
@@ -216,7 +216,7 @@ class Crypto
 	 * @param bool $seeded optional flag whether to seed the hash. Default false (unless $raw is empty)
 	 * @return string (12|13 alphanum bytes)
 	 */
-	public static function hash_string(string $raw, bool $seeded = false) : string
+	public static function hash_string(string $raw, bool $seeded = false): string
 	{
 		if ($raw === '' || $seeded) {
 			$seed = '1234';
@@ -239,7 +239,7 @@ class Crypto
 	 * @param bool $alpha Optional flag whether to limit the contents to alphanum ASCII chars. Default false.
 	 * @return string
 	 */
-	public static function random_string(int $length, bool $ascii = false, bool $alpha = false) : string
+	public static function random_string(int $length, bool $ascii = false, bool $alpha = false): string
 	{
 		$str = str_repeat(' ', $length);
 		for ($i = 0; $i < $length; ++$i) {
@@ -279,7 +279,7 @@ class Crypto
 	 * @param string $raw the string to be processed, may be empty
 	 * @return string
 	 */
-	public static function scramble_string(string $raw) : string
+	public static function scramble_string(string $raw): string
 	{
 		$str = $raw;
 		$length = strlen($raw);
@@ -305,7 +305,7 @@ class Crypto
 	 * @param string $raw the string to be processed, may be empty
 	 * @return string
 	 */
-	public static function unscramble_string(string $raw) : string
+	public static function unscramble_string(string $raw): string
 	{
 		$str = $raw;
 		$length = strlen($raw);
@@ -325,7 +325,7 @@ class Crypto
 	 * @param string $raw
 	 * @return string 32 bytes
 	 */
-	private static function pwolish(string $raw) : string
+	private static function pwolish(string $raw): string
 	{
 		$use = self::pwextend($raw);
 		//TODO consider other default e.g.
@@ -344,7 +344,7 @@ class Crypto
 	 * @param string $raw
 	 * @return string 0 or 32 bytes
 	 */
-	private static function pwextend(string $raw) : string
+	private static function pwextend(string $raw): string
 	{
 		$raw = trim($raw);
 		switch ($lr = strlen($raw)) {

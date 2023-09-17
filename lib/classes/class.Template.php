@@ -141,8 +141,7 @@ class Template
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	public function __clone()
+	public function __clone(): void
 	{
 		unset($this->props['id']);
 		$this->props['type_dflt'] = false;
@@ -152,7 +151,7 @@ class Template
 	/**
 	* @ignore
 	*/
-	public function __set(string $key,$value) : void
+	public function __set(string $key,$value): void
 	{
 		switch( $key ) {
 			case 'id':
@@ -227,7 +226,7 @@ class Template
 	* @ignore
 	*/
 	#[\ReturnTypeWillChange]
-	public function __get(string $key)
+	public function __get(string $key)//: mixed
 	{
 		switch( $key ) {
 			case 'id':
@@ -270,7 +269,7 @@ class Template
 	 *
 	 * @return array
 	 */
-	public function get_properties() : array
+	public function get_properties(): array
 	{
 		$props = $this->props;
 		$props['editors'] = $this->editors ?? [];
@@ -313,7 +312,7 @@ class Template
 	 * @return int, 0 if this template has not yet
 	 *  been saved to the database
 	 */
-	public function get_id() : int
+	public function get_id(): int
 	{
 		return $this->props['id'] ?? 0;
 	}
@@ -343,7 +342,7 @@ class Template
 	 *
 	 * @return string, '' if the originator has not yet been nominated.
 	 */
-	public function get_originator() : string
+	public function get_originator(): string
 	{
 		return $this->props['originator'] ?? '';
 	}
@@ -413,7 +412,7 @@ class Template
 	 *
 	 * @return string  Default ''
 	 */
-	public function get_description() : string
+	public function get_description(): string
 	{
 		return $this->props['description'] ?? '';
 	}
@@ -486,7 +485,7 @@ class Template
 	 * @return bool
 	 * @see TemplateType
 	 */
-	public function get_type_default() : bool
+	public function get_type_default(): bool
 	{
 		return $this->props['type_dflt'] ?? false;
 	}
@@ -589,7 +588,7 @@ class Template
 	 *
 	 * @return array of integers, maybe empty
 	 */
-	public function get_groups() : array
+	public function get_groups(): array
 	{
 		return $this->groups ?? [];
 	}
@@ -712,7 +711,7 @@ class Template
 	 *
 	 * @return int Default 0
 	 */
-	public function get_owner() : int
+	public function get_owner(): int
 	{
 		return $this->props['owner_id'] ?? 0;
 	}
@@ -783,7 +782,7 @@ class Template
 	 * @return int
 	 * @throws LogicException
 	 */
-	private static function _resolve_user($a) : int
+	private static function _resolve_user($a): int
 	{
 		if( is_numeric($a) && $a > 0 ) return $a;
 		if( is_string($a) && $a !== '' ) {
@@ -846,7 +845,7 @@ class Template
 	 * @since 2.1
 	 * @return bool
 	 */
-	public function get_listable() : bool
+	public function get_listable(): bool
 	{
 		return $this->props['listable'] ?? true;
 	}
@@ -901,7 +900,7 @@ class Template
 	/**
 	 * @ignore
 	 */
-	private static function get_locks() : array
+	private static function get_locks(): array
 	{
 		if( !self::$lock_cache_loaded ) {
 			self::$lock_cache = [];
@@ -934,7 +933,7 @@ class Template
 	 *
 	 * @return bool
 	 */
-	public function locked() : bool
+	public function locked(): bool
 	{
 		$lock = $this->get_lock();
 		return is_object($lock);
@@ -946,7 +945,7 @@ class Template
 	 *
 	 * @return bool
 	 */
-	public function lock_expired() : bool
+	public function lock_expired(): bool
 	{
 		$lock = $this->get_lock();
 		if( !is_object($lock) ) return false;
@@ -959,7 +958,7 @@ class Template
 	 *
 	 * @return string
 	 */
-	public function get_usage_string() : string
+	public function get_usage_string(): string
 	{
 		if( empty($this->props['name']) ) return '';
 		$type = $this->get_type();
@@ -976,7 +975,7 @@ class Template
 	 *
 	 * @return string
 	 */
-	public function get_content() : string
+	public function get_content(): string
 	{
 		if( !empty($this->props['contentfile']) ) {
 			//NOTE CMSMS\internal\layout_template_resource replicates this, and must be manually conformed to any change
@@ -990,7 +989,7 @@ class Template
 			}
 			return $this->filecontent;
 		}
-		return $this->props['content'];
+		return $this->props['content'] ?? '';
 	}
 
 	/**

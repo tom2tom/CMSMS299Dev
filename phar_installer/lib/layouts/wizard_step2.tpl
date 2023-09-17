@@ -2,40 +2,53 @@
 
 {extends file='wizard_step.tpl'}
 {block name='logic'}
-  {$title = 'title_step2'|tr}
+  {$title = tr('title_step2')}
   {$current_step = '2'}
 {/block}
 
 {block name='javascript' append}
-<script type="text/javascript">
-{literal}$(function() {
-  $('#upgrade_info .link').css('cursor','pointer').on('click',function() {
-   var e = '#' + $(this).data('content');
-   $(e).dialog({
-     minWidth: 500,
-     modal: true
-   });
-  });
-});{/literal}
+<script>
+$(function() {
+  var el = document.getElementById('freshen');
+  if (el) {
+   el.onclick = function() {
+    return confirm('{addslashes("{tr('confirm_freshen')}")}');
+   };
+  } else {
+   el = document.getElementById('upgrade');
+   if (el) {
+    el.onclick = function() {
+     return confirm('{addslashes("{tr('confirm_upgrade')}")}');
+    };
+    $('#upgrade_info .link').css('cursor','pointer').on('click',function() {
+     var e = '#' + $(this).data('content');
+     $(e).dialog({
+       minWidth: 500,
+       modal: true
+     });
+    });
+   }
+  }
+});
 </script>
 {/block}
 
 {block name='contents'}
 <div class="message blue icon">
   <i class="icon-folder message-icon"></i>
-  <div class="content"><span class="heavy">{'prompt_dir'|tr}:</span><br>{$dir}</div>
+  <div class="content"><span class="heavy">{tr('prompt_dir')}:</span><br>{$dir}</div>
 </div>
 
 <div class="installer-form">
  {wizard_form_start}
-  {$label='install'|tr}
+  {$label=tr('install')}
   {if $nofiles}
-  <div class="message blue">{'step2_nofiles'|tr}</div>
+  <div class="message blue">{tr('step2_nofiles')}</div>
   {/if}
   {if !isset($cmsms_info)}
-  <div class="message blue">{'step2_nocmsms'|tr}</div>
+  <div class="message blue">{tr('step2_nocmsms')}</div>
   {if !$install_empty_dir}
-  <div class="message yellow">{'step2_install_dirnotempty2'|tr}
+  <div class="message yellow">{tr('step2_install_dirnotempty2')}
     {if !empty($existing_files)}
     <ul>
       {foreach $existing_files as $one}
@@ -48,44 +61,44 @@
   {else} {* it's an upgrade or freshen *}
    {if isset($cmsms_info.error_status)}
    {if $cmsms_info.error_status == 'too_old'}
-     <div class="message red">{'step2_cmsmsfoundnoupgrade'|tr}</div>
+     <div class="message red">{tr('step2_cmsmsfoundnoupgrade')}</div>
    {elseif $cmsms_info.error_status == 'same_ver'}
-     <div class="message yellow">{'step2_errorsamever'|tr}</div>
-     <div class="message blue">{'step2_info_freshen'|tr:$cmsms_info.config.db_prefix}</div>
+     <div class="message yellow">{tr('step2_errorsamever')}</div>
+     <div class="message blue">{tr('step2_info_freshen',$cmsms_info.config.db_prefix)}</div>
    {elseif $cmsms_info.error_status == 'too_new'}
-     <div class="message red">{'step2_errortoonew'|tr}</div>
+     <div class="message red">{tr('step2_errortoonew')}</div>
    {else}
-     <div class="message red">{'step2_errorother'|tr}</div>
+     <div class="message red">{tr('step2_errorother')}</div>
    {/if}
    {else}
-     <div class="message yellow">{'step2_cmsmsfound'|tr}</div>
+     <div class="message yellow">{tr('step2_cmsmsfound')}</div>
    {/if}
 
    <ul class="existing-info no-list no-padding">
     <li class="row">
-      <div class="cell col-4">{'step2_pwd'|tr}:</div>
+      <div class="cell col-4">{tr('step2_pwd')}:</div>
       <div class="cell col-6"><span class="label">{$pwd}</span></div>
     </li>
     <li class="row">
-      <div class="cell col-4">{'step2_version'|tr}:</div>
+      <div class="cell col-4">{tr('step2_version')}:</div>
       <div class="cell col-6"><span class="label">{$cmsms_info.version} <span class="emphatic">({$cmsms_info.version_name})</span></span></div>
     </li>
     <li class="row">
-      <div class="cell col-4">{'step2_schemaver'|tr}:</div>
+      <div class="cell col-4">{tr('step2_schemaver')}:</div>
       <div class="cell col-6"><span class="label">{$cmsms_info.schema_version}</span></div>
     </li>
     <li class="row">
-      <div class="cell col-4">{'step2_installdate'|tr}:</div>
+      <div class="cell col-4">{tr('step2_installdate')}:</div>
       <div class="cell col-6"><span class="label">{$cmsms_info.mdate}</span></div>
     </li>
    </ul>
 
   {if isset($cmsms_info.noupgrade)}
-  <div class="message yellow">{'step2_minupgradever'|tr:$config.min_upgrade_version}</div>
+  <div class="message yellow">{tr('step2_minupgradever',$config.min_upgrade_version)}</div>
   {else}
-   {$label='upgrade'|tr} {if isset($upgrade_info)}
+   {$label=tr('upgrade')} {if isset($upgrade_info)}
      <div class="message blue icon">
-      <div class="content"><span class="heavy">{'step2_hdr_upgradeinfo'|tr}</span><br>{'step2_info_upgradeinfo'|tr}</div>
+      <div class="content"><span class="heavy">{tr('step2_hdr_upgradeinfo')}</span><br>{tr('step2_info_upgradeinfo')}</div>
      </div>
      <ul id="upgrade_info" class="no-list">
      {foreach $upgrade_info as $ver => $data}
@@ -93,12 +106,12 @@
        <div class="cell col-1">{$ver}</div>
        <div class="cell col-2">
         {if $data.changelog}
-        <div class="label blue link" data-content="c{$data@iteration}"><i class="icon-info"></i> {'changelog_uc'|tr}</div>
+        <div class="label blue link" data-content="c{$data@iteration}"><i class="icon-info"></i> {tr('changelog_uc')}</div>
         {/if}
        </div>
        {if $data.readme}
        <div class="cell col-4">
-        <div class="label green link" data-content="r{$data@iteration}"><i class="icon-info"></i> {'readme_uc'|tr}</div>
+        <div class="label green link" data-content="r{$data@iteration}"><i class="icon-info"></i> {tr('readme_uc')}</div>
        </div>
        {/if}
       </li>
@@ -110,11 +123,11 @@
 
   <div id="bottom_nav">
     {if !isset($cmsms_info)}{*installing, no error*}
-     <button type="submit" class="action-button positive" id="install" name="install">{if empty($lang_rtl)}<i class="icon-next-right"></i> {'install'|tr}{else}{'install'|tr} <i class="icon-next-left"></i>{/if}</button>
+     <button type="submit" class="action-button positive" id="install" name="install">{if empty($lang_rtl)}<i class="icon-next-right"></i> {tr('install')}{else}{tr('install')} <i class="icon-next-left"></i>{/if}</button>
      {elseif !isset($cmsms_info.error_status)}
-     <button type="submit" class="action-button positive" id="upgrade" name="upgrade">{if empty($lang_rtl)}<i class="icon-next-right"></i> {'upgrade'|tr}{else}{'upgrade'|tr} <i class="icon-next-left"></i>{/if}</button>
+     <button type="submit" class="action-button positive" id="upgrade" name="upgrade">{if empty($lang_rtl)}<i class="icon-next-right"></i> {tr('upgrade')}{else}{tr('upgrade')} <i class="icon-next-left"></i>{/if}</button>
     {elseif $cmsms_info.error_status == 'same_ver'}
-     <button type="submit" class="action-button positive" id="freshen" name="freshen">{if empty($lang_rtl)}<i class="icon-next-right"></i> {'freshen'|tr}{else}{'freshen'|tr} <i class="icon-next-left"></i>{/if}</button>
+     <button type="submit" class="action-button positive" id="freshen" name="freshen">{if empty($lang_rtl)}<i class="icon-next-right"></i> {tr('freshen')}{else}{tr('freshen')} <i class="icon-next-left"></i>{/if}</button>
     {/if}
   </div>
  </form>
@@ -123,12 +136,12 @@
 <div class="hidden">
   {if isset($upgrade_info)} {foreach $upgrade_info as $ver => $data}
    {if $data.readme}
-  <div id="r{$data@iteration}" title="{'readme_uc'|tr}: {$ver}">
+  <div id="r{$data@iteration}" title="{tr('readme_uc')}: {$ver}">
     <div class="bigtext">{$data.readme}</div>
   </div>
    {/if}
    {if $data.changelog}
-  <div id="c{$data@iteration}" title="{'changelog_uc'|tr}: {$ver}">
+  <div id="c{$data@iteration}" title="{tr('changelog_uc')}: {$ver}">
     <div class="bigtext">{$data.changelog}</div>
   </div>
    {/if}

@@ -1,7 +1,7 @@
 <?php
 /*
 Admin operation: admin theme export/import/delete
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -34,7 +34,7 @@ require ".{$dsep}admininit.php";
 
 check_login();
 
-function import_theme(string $xmlfile) : bool
+function import_theme(string $xmlfile): bool
 {
 	libxml_use_internal_errors(true);
 	$xml = simplexml_load_file($xmlfile, 'SimpleXMLElement', LIBXML_NOCDATA);
@@ -156,7 +156,7 @@ function import_theme(string $xmlfile) : bool
 	return true;
 }
 
-function export_theme(string $themename) : bool
+function export_theme(string $themename): bool
 {
 	$all = AdminTheme::GetAvailableThemes(true);
 	if (!isset($all[$themename])) {
@@ -261,7 +261,7 @@ function export_theme(string $themename) : bool
 	return true;
 }
 
-function delete_theme(string $themename) : bool
+function delete_theme(string $themename): bool
 {
 	$all = AdminTheme::GetAvailableThemes(true);
 	if (isset($all[$themename]) && count($all) > 1) {

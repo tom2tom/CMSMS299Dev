@@ -1,7 +1,7 @@
 <?php
 /*
 Utility-methods class for HTMLEditor module
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of the HTMLEditor module for CMS Made Simple
 <http://dev.cmsmadesimple.org/projects/HTMLEditor>
@@ -190,7 +190,7 @@ class Utils
 //'mime' => $mime,
 //'typename' => $typename
             ];
-            list($incpaths, $customjs) = $fpm->get_browsedata($parms, false);
+            [$incpaths, $customjs] = $fpm->get_browsedata($parms, false);
             foreach ($incpaths as $fp) {
                 if (endswith($fp, 'css')) {
                     $url = cms_path_to_url($fp);
@@ -198,7 +198,7 @@ class Utils
                 } else {
 //DEBUG             $jsm->queue_file($fp);
                     $url = cms_path_to_url($fp);
-                    $jsinc .= '<script type="text/javascript" src="' .$url . '"></script>'."\n";
+                    $jsinc .= '<script src="' .$url . '"></script>'."\n";
                 }
             }
             $cssinc = rtrim($cssinc);
@@ -226,26 +226,24 @@ class Utils
                 }
             }
             $shareurl = CMS_ASSETS_URL.'/js';
-//<script type="text/javascript" src="$srcurl/$mainfile"$cspext></script>
-//<script type="text/javascript" src="$base_url/lib/UNUSED-summernote-0.8.20/dist/summernote-lite.js"></script>
+//<script src="$srcurl/$mainfile"$cspext></script>
+//<script src="$base_url/lib/UNUSED-summernote-0.8.20/dist/summernote-lite.js"></script>
 // TODO module.css might be .min and/or need rtl >> $csm = new CMSMS\StylesMerger();$csm->queue_matchedfile(); ...
 //<link rel="stylesheet" href="$pickurl4">
-//<script type="text/javascript" src="$pickurl"></script>
-//<script type="text/javascript" src="$pickurl1"></script>
-//<script type="text/javascript" src="$pickurl3"></script>
+//<script src="$pickurl"></script>
+//<script src="$pickurl1"></script>
+//<script src="$pickurl3"></script>
 /* if es6 support is needed: after last css link ...
-<script type="text/javascript" id="shimsource">
-//<![CDATA[
+<script id="shimsource">
 if (typeof Symbol === 'undefined') {
  var xjS = document.createElement('script');
- xjS.type = 'text/javascript';
+// xjS.type = 'text/javascript'; needed?
  xjS.async = false;
  xjS.rel = 'preload';
  xjS.src = '$shareurl/core-js.min.js';
  var el = document.getElementById('shimsource');
  el.parentNode.insertBefore(xjS, el.nextSibling);
 }
-//]]>
 </script>
 */
             $output = <<<EOS
@@ -253,32 +251,32 @@ $cssinc
 <link rel="stylesheet" href="$themeurl">$xcss
 <link rel="stylesheet" href="$base_url/styles/module.css">
 $jsinc
-<script type="text/javascript" src="$pickurl2"></script>
-<script type="text/javascript" src="$srcurl/$mainfile"$cspext></script>
-<script type="text/javascript" src="$srcurl/lang/summernote-en-US.min.js"></script>
+<script src="$pickurl2"></script>
+<script src="$srcurl/$mainfile"$cspext></script>
+<script src="$srcurl/lang/summernote-en-US.min.js"></script>
 $customjs
 
 EOS;
 /*
 if (typeof Symbol === 'undefined') {
  var xjS = document.createElement('script');
- xjS.type = 'text/javascript';
+// xjS.type = 'text/javascript'; needed?
  xjS.src = '$shareurl/es6-shim.min.js';
  var el = document.getElementById('shimsource'); // TODO better way to get current node
  el.parentNode.insertBefore(xjS, el.nextSibling); // insert after
  if (typeof String.prototype.trim === 'undefined') {
   var xjS5 = document.createElement('script');
-  xjS5.type = 'text/javascript';
+//  xjS5.type = 'text/javascript'; needed?
   xjS5.src = '$shareurl/es5-shim.min.js';
   el.parentNode.insertBefore(xjS5, xjS);
  }
 }
 */
-//<script type="text/javascript" src="$base_url/lib/js/purify.min.js"></script>
+//<script src="$base_url/lib/js/purify.min.js"></script>
 
             $languageid = self::GetLanguageId($frontend);
             if ($languageid && !startswith($languageid, 'summernote-en-US')) {
-                $output .= "\n<script type=\"text/javascript\" src=\"$srcurl/lang/$languageid\"></script>";
+                $output .= "\n<script src=\"$srcurl/lang/$languageid\"></script>";
             }
 
             $plugs = self::GetPlugins($languageid);
@@ -310,7 +308,7 @@ if (typeof Symbol === 'undefined') {
         $url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 
         $output .= <<<EOS
-<script type="text/javascript" src="$url"></script>
+<script src="$url"></script>
 EOS;
         if ($frontend) {
             return $output;
@@ -329,7 +327,7 @@ EOS;
      * [0] = array of js filepaths
      * [1] = array of css filepaths
      */
-    private static function GetPlugins(string $languageid) : array
+    private static function GetPlugins(string $languageid): array
     {
         if ($languageid && !startswith($languageid, 'summernote-en-US')) {
             $languageid = str_replace('summernote-', '', $languageid);
@@ -386,7 +384,7 @@ EOS;
      * @param array $files 0, 1 or 2 filepaths, one of which might include '.min'
      * @return string preferred filepath or empty
      */
-    private static function GetPreferred(array $files) : string
+    private static function GetPreferred(array $files): string
     {
         if ($files) {
             if (isset($files[1]) && strpos($files[1], '.min') !== false) {
@@ -405,7 +403,7 @@ EOS;
      * @param CMSModule $mod HTMLEditor module object
      * @return string
      */
-    private static function GenerateVars(bool $frontend, Profile $profile, CMSModule $mod) : string
+    private static function GenerateVars(bool $frontend, Profile $profile, CMSModule $mod): string
     {
 //      $base_url = $mod->GetModuleURLPath();
         $root_url = CMS_ROOT_URL;
@@ -423,7 +421,7 @@ EOS;
         if ($fpm) {
             $files_populate_url = $fpm->get_browser_url(); // to initiate FilePicker::action.filepicker
 //          $parms = []; //TODO
-//          list($paths, $js) = $fpm->get_browsedata($parms, false);
+//          [$paths, $js] = $fpm->get_browsedata($parms, false);
         } else {
             $files_populate_url = '';
         }
@@ -549,7 +547,7 @@ EOS;
      */
     private static function GenerateInit(
         bool $frontend, Profile $profile, string $base_url,
-        string $selector, string $css_name, bool $local, bool $edit) : string
+        string $selector, string $css_name, bool $local, bool $edit): string
     {
 //      $parent_url = $base_url . '/lib/summernote';
 /* $profile members
@@ -573,9 +571,9 @@ EOS;
         $table = ($profile['allowtables']) ? "\n   ['table', ['table']]," : '';
 
         if ($frontend) {
-            $insacts = "'link', 'mailto', 'siteimage', 'specialchars'";
+            $insacts = "'link', 'mailto', 'siteimage', 'specialchars', 'nugget'";
         } else {
-            $insacts = "'link', 'sitelink', 'mailto', 'siteimage', 'specialchars'";
+            $insacts = "'link', 'sitelink', 'mailto', 'siteimage', 'specialchars', 'nugget'"; // TODO , ['nugget']
         }
         $s1 = addcslashes(_ld('HTMLEditor', 'inserts_btn_title'), "'\n\r");
 
@@ -774,17 +772,24 @@ EOS;
 //styleselect |
 //bold italic underline |
 // alignleft aligncenter alignright alignjustify indent outdent | bullist numlist | anchor link unlink mailto cmsms_linker{$image1}',
-//['custom', ['hello', 'specialchars']], // DEBUG a custom button in a new toolbar area
+//['custom', ['hello', 'specialchars', 'nugget']], // DEBUG a custom button in a new toolbar area
 /*
   ['custom', ['blocks']]
   blocks:{
-   icon: '<i class="note-icon"><svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><path d="M0 96h40V56H0zM56 96h40V56H56zM0 40h40V0H0zM56 40h40V0H56z" fill="currentColor"/></svg></i>',
+   icon: '<i class="note-icon"><svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><path d="M0 96h40V56H0zM56 96h40V56H56zM0 40h40V0H0zM56 40h40V0H56z" fill="currentColor" /></svg></i>',
    templates: '/var/www/html/cmsms-23DEV/modules/HTMLEditor/lib/summernote/plugin/pageTemplates/block-templates/' // TODO actual path, and not for frontend
   },
 */
 //   ['insert', ['link', 'sitelink', 'mailto'$image1]],
 //   ['para', ['paragraph', 'ul', 'ol']],$table
 //   ['columns'],
+/*   nugget: {
+    list: [
+     '[[Condo.name]]',
+     '[[Condo.title]]'
+    ]
+   },
+*/
             $js .= <<<EOS
    ['style', ['style']],
    ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
@@ -874,7 +879,7 @@ function setpagecontent(v, selector) {
      * @since 1.0
      * @return string like 'summernote-WHATEVER[.min].js' or empty if no match
      */
-    private static function GetLanguageId() : string
+    private static function GetLanguageId(): string
     {
         $mylang = NlsOperations::get_current_language();
         if (!$mylang) return ''; //Lang setting "No default selected"
@@ -930,7 +935,7 @@ function setpagecontent(v, selector) {
      * @param string $url
      * @return string
      */
-    public static function GetThumbnailFile(string $file, string $path, string $url) : string
+    public static function GetThumbnailFile(string $file, string $path, string $url): string
     {
         $imagepath = str_replace(['\\','/'],[DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR], $path.DIRECTORY_SEPARATOR.'thumb_'.$file);
         if (is_file($imagepath)) {
@@ -949,7 +954,7 @@ function setpagecontent(v, selector) {
      * @since 1.0
      * @return string
      */
-    private static function Slashes(string $url) : string
+    private static function Slashes(string $url): string
     {
         return str_replace('\\','/',$url);
     }

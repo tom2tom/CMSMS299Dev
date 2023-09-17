@@ -1,7 +1,7 @@
 <?php
 /*
 Class to process extended module information
-Copyright (C) 2017-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2017-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -65,7 +65,7 @@ class ExtendedModuleInfo extends ModuleInfo
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetGet($key)// : mixed
+    public function offsetGet(/*mixed */$key)//: mixed
     {
         if( !in_array($key,self::EMPROPS) ) { return parent::OffsetGet($key); }
         if( isset($this->emdata[$key]) ) { return $this->emdata[$key]; }
@@ -87,7 +87,7 @@ class ExtendedModuleInfo extends ModuleInfo
         return null;
     }
 
-    public function offsetSet($key,$value) : void
+    public function offsetSet(/*mixed */$key,$value): void
     {
         if( !in_array($key,self::EMPROPS) ) {
             parent::OffsetSet($key,$value);
@@ -101,7 +101,7 @@ class ExtendedModuleInfo extends ModuleInfo
         }
     }
 
-    public function offsetExists($key) : bool
+    public function offsetExists(/*mixed */$key): bool
     {
         if( !in_array($key,self::EMPROPS) ) {
             return parent::OffsetExists($key);
@@ -110,7 +110,8 @@ class ExtendedModuleInfo extends ModuleInfo
             ['missingdeps']);
     }
 
-    public function offsetUnset($key) : void
+    public function offsetUnset(/*mixed */$key): void
     {
+        //nothing here
     }
 }

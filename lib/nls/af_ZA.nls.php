@@ -1,6 +1,6 @@
 <?php
 #Afrikaans translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -36,20 +36,18 @@ $nls['englishlang']['af_ZA'] = 'Africaans';
 $nls['alias']['af'] = 'af_ZA';
 $nls['alias']['afr'] = 'af_ZA';
 $nls['alias']['afrikaans'] = 'af_ZA';
-$nls['alias']['af_ZA.ISO8859-1'] = 'af_ZA' ;
+$nls['alias']['af_ZA.ISO8859-1'] = 'af_ZA';
 
 #Possible locale for language
-$nls['locale']['af_ZA'] = 'af_ZA.utf8,af_ZA.utf-8,af_ZA.UTF-8,af_ZA,afrikaans,Afrikaans_South Africa.1252';
+$nls['locale']['af_ZA'] = 'af_ZA.utf8,af_ZA.utf-8,af_ZA.UTF-8,afrikaans,Afrikaans_South Africa.1252';
 
 #Encoding of the language
 $nls['encoding']['af_ZA'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['af_ZA'] = array(__DIR__.'/af_ZA/admin.inc.php');
+$nls['file']['af_ZA'] = [__DIR__.'/af_ZA/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 $nls['htmlarea']['af_ZA'] = 'en';
-
-?>

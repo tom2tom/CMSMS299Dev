@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
  <head>
-  <title>{['loginto',{sitename}]|lang}</title>
+  <title>{lang('loginto',{sitename})}</title>
   <base href="{$admin_url}/">
   <meta charset="{$encoding}">
   <meta name="generator" content="CMS Made Simple">
@@ -20,27 +20,27 @@
   {$header_includes|default:''}
  </head>{$lost=isset($smarty.get.forgotpw)}{if 0}{$c=''}{elseif !$lost}{$c=' class="login"'}{else}{$c=' class="forgotpw"'}{/if}
  <body id="login"{$c}>
-  <div class="container pt-5" style="height:100%;">
-   <div class="row align-center" style="height:100%;">
+  <div class="container pt-5" style="height:100%">
+   <div class="row align-center" style="height:100%">
     <div class="mx-auto">
      <div class="login-box p-2 p-sm-3"{if isset($error)} id="error"{/if}>
       <noscript>
          message error mt-2 pt-2">
-         {'login_info_needjs'|lang}
+         {lang('login_info_needjs')}
         </div>
       </noscript>
       <div id="info-wrapper" class="cell col-12 open">
        <aside class="message information p-4">
-{*       <p>{['login_info_params',"<strong>{$smarty.server.HTTP_HOST}</strong>"]|lang}</p>*}
-         <p>{'login_info_params'|lang}</p>
-         <p>{'info_cookies'|lang}</p>
+{*       <p>{lang('login_info_params',"<strong>{$smarty.server.HTTP_HOST}</strong>")}</p>*}
+         <p>{lang('login_info_params')}</p>
+         <p>{lang('info_cookies')}</p>
        </aside>
       </div>
       <div class="row go-gutter between">
         {if $lost}
         <span></span>
         {else}
-        <a id="toggle-info" class="cell" href="javascript:void()" title="{'open'|lang}/{'close'|lang}"><span tabindex="0" role="note" aria-title="{'login_info_title'|lang}" class="fas fa-info-circle"></span><span class="sr-only">{'login_info_title'|lang}</span></a>
+        <a id="toggle-info" class="cell" href="javascript:void()" title="{lang('open')}/{lang('close')}"><span tabindex="0" role="note" aria-title="{lang('login_info_title')}" class="fas fa-info-circle"></span><span class="sr-only">{lang('login_info_title')}</span></a>
         {/if}
         {if empty($sitelogo)}
         <span></span>
@@ -49,24 +49,24 @@
         {/if}
       </div>
       <header class="cell col-12 text-center">
-      <h1>{if $lost}{['forgotpwtitle',{sitename}]|lang}
-      {elseif isset($renewpw)}{['renewpwtitle',{sitename}]|lang}
-      {else}{['login_sitetitle',{sitename}]|lang}{/if}</h1>
+      <h1>{if $lost}{lang('forgotpwtitle',{sitename})}
+      {elseif isset($renewpw)}{lang('renewpwtitle',{sitename})}
+      {else}{lang('login_sitetitle',{sitename})}{/if}</h1>
      </header>
       <div class="cell col-12 mx-auto text-center">
       {if isset($form)}{$form}{else}{include file='form.tpl'}{block name=form}{/block}{/if}
       </div>
       {if $lost}
        <div tabindex="0" role="alertdialog" class="cell col-12 message information mt-2 pt-2">
-        {'forgotpwprompt'|lang}
+        {lang('forgotpwprompt')}
        </div>
       {elseif isset($renewpw)}
        <div tabindex="0" role="alertdialog" class="cell col-12 message warning mt-2 pt-2">
-        {'renewpwprompt'|lang}
+        {lang('renewpwprompt')}
        </div>
 {*      {elseif !empty($changepwhash)}
        <div tabindex="0" role="alertdialog" class="cell col-12 message information mt-2 pt-2">
-        {'passwordchange'|lang}
+        {lang('passwordchange')}
        </div>*}
       {/if}
       {if !empty($error)}
@@ -86,9 +86,9 @@
       {/if}
       <div class="cell col-12 mt-3 px-0">
        <div class="row alt-actions">
-        <a class="cell col-12 small" href="{root_url}" title="{['goto',{sitename}]|lang}"><span class="fas fa-chevron-circle-left" aria-hidden="true"></span> {'viewsite'|lang}</a>
+        <a class="cell col-12 small" href="{root_url}" title="{lang('goto',{sitename})}"><span class="fas fa-chevron-circle-left" aria-hidden="true"></span> {lang('viewsite')}</a>
         {if !($lost || isset($renewpw))}
-        <a href="login.php?forgotpw=1" title="{'recover_start'|lang}" class="cell col-12 small"><span class="fas fa-question-circle" aria-hidden="true"></span> {'lostpw'|lang}</a>
+        <a href="login.php?forgotpw=1" title="{lang('recover_start')}" class="cell col-12 small"><span class="fas fa-question-circle" aria-hidden="true"></span> {lang('lostpw')}</a>
         {/if}
        </div>
       </div>

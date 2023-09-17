@@ -1,4 +1,4 @@
-<label for="mysel">select descriptor</label><br />
+<label for="mysel">select descriptor</label><br>
 <select id="mysel"  name="discoverme">
   <option value="choice1">Lorem</option>
   <option value="choice2">Ipsum</option>

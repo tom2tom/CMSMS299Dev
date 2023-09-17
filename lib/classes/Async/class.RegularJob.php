@@ -1,7 +1,7 @@
 <?php
 /*
 Class RegularJob: for processing old style pseudocron tasks as asynchronous jobs.
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -61,7 +61,7 @@ class RegularJob extends CronJob
      * @return mixed
      */
 /*    #[\ReturnTypeWillChange]
-    public function __get(string $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         return parent::__get($key);
     }
@@ -74,7 +74,7 @@ class RegularJob extends CronJob
      * @param mixed $val
      * @throws UnexpectedValueException
      */
-    public function __set(string $key, $val) : void
+    public function __set(string $key, $val): void
     {
         switch ($key) {
         case 'task':

@@ -17,7 +17,7 @@ final class nlstools
      */
     private static $_nls;
 
-    public function get_list() : array
+    public function get_list(): array
     {
         $this->load_nls();
         return array_keys(self::$_nls);
@@ -44,7 +44,7 @@ final class nlstools
      * @deprecated since 1.4 use new nlstools() instead
      * @return self
      */
-/*    public static function get_instance() : self
+/*    public static function get_instance(): self
     {
 //      if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
         return new self();

@@ -1,7 +1,7 @@
 <?php
 /*
 Abstract class defining a CMSMS asynchronous job.
-Copyright (C) 2017-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2017-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -77,7 +77,7 @@ abstract class Job
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         switch ($key) {
         case 'id':
@@ -89,7 +89,7 @@ abstract class Job
 
         case 'name':
         case 'module':
-            return trim((string)$this->_data[$key]);
+            return trim($this->_data[$key]??'');
 
         case 'manager_module':
             return ''; // not used now cmsms()->GetJobManager();
@@ -102,7 +102,7 @@ abstract class Job
     /**
      * @ignore
      */
-    public function __set(string $key, $val) : void
+    public function __set(string $key, $val): void
     {
         switch ($key) {
         case 'id':
@@ -212,7 +212,7 @@ abstract class Job
      * @since 3.0
      * @return string
      */
-    protected function shortname() : string
+    protected function shortname(): string
     {
         $val = static::class;
         $p = strrpos($val, '\\');

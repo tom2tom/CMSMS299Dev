@@ -753,8 +753,8 @@ aside .no-slide,
     position: absolute;
     width: 1.5em;
     height: 1.5em;
-    top: .75em;
-    right: 1em;
+    top: 0.125em;
+    right: 0.925em;
     cursor: pointer
 }
 .jqt-close::before {
@@ -1220,7 +1220,7 @@ aside .no-slide,
 
 #ab_sidebar nav {
     position: relative;
-    top: 2.75em; /*open-close height =~ top-li height*/
+    top: 2.5em; /*open-close height =~ top-li height*/
     height: calc(100% - 2.5em - 16px);/* CHANGED TODO allowance for footer height + h-scrollbar */
     overflow: auto;/*CHANGED?*/
 }
@@ -1243,8 +1243,9 @@ aside .no-slide,
 
 #ab_pagemenu li {
     border-bottom: 1px solid #cbcbf6;
-    line-height: 1.8;
+    line-height: 1;
     font-size: 1em;
+    padding: 0.5em 0
 }
 
 #ab_pagemenu li ul,
@@ -1263,10 +1264,13 @@ aside .no-slide,
 .nav-mark {
     float: right;
     position: relative;
-    top: 0.125em;
+/*  top: 0.125em;*/
     right: 0.5em;
     margin-left: 0.5em;
     font-size: 1.2em;
+}
+#ab_pagemenu li li .nav-mark {
+    top: -0.25em
 }
 .nav-mark::after {
     content: '\f107';
@@ -1293,20 +1297,30 @@ aside .no-slide,
     -webkit-transform: rotate(180deg);
     transform: rotate(180deg);
 */
-
+/*
 #ab_pagemenu li a::before {
-    content: ' ';
+    content: '';
     font-family: 'Font Awesome 5 Free';
     font-weight: 600;
-    font-size: 1.4em;
+/*   font-size: 1.4em;* /
     padding: 0.4em;
-    color: #454545; /* lighter than text (#262626) cuz is bold */
+    color: #454545; /* lighter than text (#262626) cuz is bold * /
 }
 
 #ab_pagemenu li a.no-nav::before {
     font-family: inherit;
     content: '';
     margin: 0
+}
+*/
+#ab_pagemenu > li a > i {
+    width: 2.8em;
+}
+#ab_pagemenu > li a > i::before {
+    font-size: 1.25em;  /* sized by js? */
+/*  margin-right: 0.25em;*/
+    padding: 0.5em;
+    color: #454545; /* lighter than text (#262626) cuz is bold */
 }
 
 #ab_pagemenu li a {
@@ -1360,6 +1374,7 @@ aside .no-slide,
 /* second level */
 #ab_pagemenu ul {
 /*    padding: .5em 0;*/
+    margin-top: 0.5em;
     background: #f3f3fc;
 }
 #ab_pagemenu ul ul {
@@ -1409,15 +1424,20 @@ aside .no-slide,
 }
 
 /* FontAwesome 5 icons */
+/*
 nav h3 a::before {
     font-family:'Font Awesome 5 Free';
-    font-size: 1.2em;  /* sized by js */
+    font-size: 1.2em;  /* sized by js * /
     font-weight: 600;
     margin-right: 0.2em;
 }
+*/
+nav h3 > a > i::before {
+    font-size: 1.2em;  /* sized by js? */
+    margin-right: 0.25em;
+}
 
-nav h3.dashboard-icon a::before { content: ' ' } /* default empty */
-
+/*nav h3.dashboard-icon a::before { content: ' ' } /* default empty */
 /*
 nav h3.AdminLog-default a::before, #ab_pagemenu li a.AdminLog-default::before { content: '\f518' }
 nav h3.CmsJobManager-default a::before, #ab_pagemenu li a.CmsJobManager-default::before { content: '\f013' }
@@ -1425,6 +1445,7 @@ nav h3.DesignManager-styles a::before, #ab_pagemenu li a.DesignManager-styles::b
 nav h3.DesignManager-tpls a::before, #ab_pagemenu li a.DesignManager-tpls::before { content: '\f575' }
 nav h3.DesignManager-set a::before, #ab_pagemenu li a.DesignManager-set::before { content: '\f61f' }
 */
+/*
 nav h3.AdminSearch-default a::before, #ab_pagemenu li a.AdminSearch-default::before { content: '\f1c0' }
 nav h3.ContentManager-default a::before, #ab_pagemenu li a.ContentManager-default::before { content: '\f5fd' }
 nav h3.ContentManager-set a::before, #ab_pagemenu li a.ContentManager-set::before { content: '\f61f' }
@@ -1471,7 +1492,7 @@ nav h3.systemmaintenance a::before, #ab_pagemenu li a.systemmaintenance::before 
 nav h3.tags a::before, #ab_pagemenu li a.tags::before { content: '\f02c' }
 nav h3.usersgroups a::before, #ab_pagemenu li a.usersgroups::before { content: '\f500' }
 nav h3.usertags a::before, #ab_pagemenu li a.usertags::before { content: '\f507' }
-
+*/
 /* Footer */
 
 #ab_footer {
@@ -2092,9 +2113,9 @@ a.pageback:hover {
 
 /* main content */
 
-.pagecontainer { /*CHANGED ADDED*/
+.pagecontainer { /*CHANGED*/
     overflow: auto;
-    height: calc(100vh - 12.5em - 16px);/*TODO derive fudge from (variable) header + fixed page-top + footer heights PLUS js on.('resize", adjust...*/
+    height: calc(100vh - 5.5em - 12px);/*TODO derive fudge from (variable) header + fixed page-top + footer heights PLUS js on.('resize", adjust...*/
 }
 
 .pagecontainer > * {/* REPLACED former #page_container class*/
@@ -2319,15 +2340,9 @@ input.pagecheckbox {
 }
 
 .dashboard-box img {
-    max-height: 48px;
-    padding: 20px;
-    -webkit-box-shadow: inset 0 1px 15px 1px #cecef3;
-    -moz-box-shadow: inset 0 1px 15px 1px #cecef3;
-    box-shadow: inset 0 1px 15px 1px #cecef3;
-    margin-right: 10px;
-    float: left;
-    border: 1px solid #cecef3;
-    background: #fff
+    max-height: 1.25em;
+    width: 1.25em;
+    margin-right: 6px;
 }
 
 .dashboard-box:hover img {
@@ -2382,7 +2397,7 @@ input.pagecheckbox {
     text-decoration: underline
 }
 
-h3.dashboard-icon::before {}
+/*h3.dashboard-icon::before {}*/
 
 /* Reorder pages */
 

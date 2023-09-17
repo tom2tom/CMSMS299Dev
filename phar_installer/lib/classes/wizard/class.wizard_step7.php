@@ -26,15 +26,10 @@ class wizard_step7 extends wizard_step
     protected function display()
     {
         $wiz = $this->get_wizard();
-        // here, we do either the upgrade or the install stuff
         parent::display();
         $action = $wiz->get_data('action');
         $smarty = smarty();
-        if ($action == 'freshen') {
-            $smarty->assign('next_url', $wiz->step_url(9));
-        } else {
-            $smarty->assign('next_url', $wiz->next_url());
-        }
+        $smarty->assign('next_url', $wiz->next_url());
         $smarty->display('wizard_step7.tpl');
         flush();
 
@@ -44,19 +39,25 @@ class wizard_step7 extends wizard_step
                     $this->do_files();
                     break;
                 case 'upgrade':
-                    $tmp = $wiz->get_data('version_info'); // validation
-                    if (!$tmp) {
-                        throw new Exception(lang('error_internal', 730));
+                    $tmp = $wiz->get_data('version_info'); // populated only for freshens & upgrades
+                    if ($tmp && is_array($tmp)) {
+                        $choices = $wiz->get_data('sessionchoices');
+                        $this->clear_langs($choices['removelanguages']); //TODO NOT en_US
+                        $this->do_prefiles();
+                        $this->do_manifests();
+                        $this->do_files($choices['extlanguages']);
+                        break;
+                    } else {
+                        throw new Exception(lang('error_internal', 700));
                     }
-                    $this->preprocess_files();
-                    $this->do_manifests(); // delete unwanted items
-                    $this->do_files(true); // add/reinstate items
-                    break;
+                    // no break here
                 case 'freshen':
-                    $this->do_files(true);
+                    $choices = $wiz->get_data('sessionchoices');
+                    $this->clear_langs($choices['removelanguages']); //TODO NOT en_US
+                    $this->do_files($choices['extlanguages']);
                     break;
                 default:
-                    throw new Exception(lang('error_internal', 731));
+                    throw new Exception(lang('error_internal', 701));
             }
             // create/touch index.html files in directories
             $this->do_index_html();
@@ -69,11 +70,11 @@ class wizard_step7 extends wizard_step
     }
 
     /**
-     * Return sorted array of 'idenfifiers' of installed translation files, each like 'en_US'
+     * Return sorted array of 'identifiers' of installed translation files, each like 'en_US'
      * @return array
      * @throws Exception if there is no such file
      */
-    private function detect_languages() : array
+    private function detect_languages(): array
     {
         $this->message(lang('install_detectlanguages'));
         $destdir = get_app()->get_destdir();
@@ -86,7 +87,7 @@ class wizard_step7 extends wizard_step
         $pattern = joinpath($destdir, 'lib', 'nls', '*nls.php');
         $files = glob($pattern); // filesystem path
         if (!$files) {
-            throw new Exception(lang('error_internal', 700));
+            throw new Exception(lang('error_internal', 710));
         }
         foreach ($files as &$one) {
             $one = basename($one, '.nls.php');
@@ -97,18 +98,61 @@ class wizard_step7 extends wizard_step
     }
 
     /**
+     * Remove unwanted translation and related files
+     * @param array $langs Description
+     */
+    private function clear_langs(array $langs): void
+    {
+        if ($langs) {
+            $val = implode(', ',$langs);
+            $this->message(lang('remove_langs',$val));
+            //these cleanups might have been done during files processing
+            $app = get_app();
+            $top_dir =  $app->get_destdir();
+            $app_config = $app->get_config();
+            if (!empty($app_config['admin_path']) && $app_config['admin_path'] != 'admin') {
+                $aname = $app_config['admin_path'];
+            } else {
+                $aname = 'admin';
+            }
+            if (!empty($app_config['assets_path']) && $app_config['assets_path'] != 'assets') {
+                $bname = $app_config['assets_path'];
+            } else {
+                $bname = 'assets';
+            }
+            $bases = (count($langs) == 1) ? reset($langs) : '{'.implode(',',$langs).'}';
+            $flags = (count($langs) == 1) ? GLOB_NOSORT|GLOB_NOESCAPE : GLOB_NOSORT|GLOB_NOESCAPE|GLOB_BRACE;
+            $frompaths = [
+                joinpath($top_dir, $aname, 'lang', 'ext', $bases.'.php'), // i.e. admin dir may not be renamed
+                joinpath($top_dir, 'lib', 'lang','*', 'ext', $bases.'.php'),
+                joinpath($top_dir, 'lib', 'nls', $bases.'.nls.php'),
+                joinpath($top_dir, 'modules', '*', 'lang', 'ext', $bases.'.php'),
+                joinpath($top_dir, $bname, 'modules', '*', 'lang', 'ext', $bases.'.php'),
+            ];
+            foreach ($frompaths as $patn) {
+                $files = glob($patn,$flags);
+                if ($files) {
+                    foreach ($files as $fp) {
+                        unlink($fp);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Create an empty index.html file in each folder in the sources
      * tree where there is no index.php already.
      * Note: the /tmp sub-tree is not present in the sources, and must
      * be handled elsewhere.
      */
-    private function do_index_html()
+    private function do_index_html(): void
     {
         $this->message(lang('install_dummyindexhtml'));
 
         $destdir = get_app()->get_destdir();
         if (!$destdir) {
-            throw new Exception(lang('error_internal', 701));
+            throw new Exception(lang('error_internal', 711));
         }
 /*
         $archive = get_app()->get_archive();
@@ -172,27 +216,23 @@ class wizard_step7 extends wizard_step
         }
     }
 
-    private function do_files(bool $checklangs = false)
+    private function do_files($langlist = []): void
     {
         $app = get_app();
         $destdir = $app->get_destdir();
         if (!$destdir) {
-            throw new Exception(lang('error_internal', 702));
+            throw new Exception(lang('error_internal', 712));
         }
         $filehandler = new install_filehandler();
         $filehandler->set_destdir($destdir); // might throw
 
-        $languages = ['en_US'];
-        if ($checklangs) { // upgrade or refresh
-            try {
-                $languages = array_merge($languages, $this->detect_languages());
-            } catch (Throwable $t) {
-                // nothing here
-            }
-        }
+        $languages = ['en_US']; //the default must be processed
         $choices = $this->get_wizard()->get_data('sessionchoices');
-        if ($choices && isset($choices['languages'])) {
-            $languages = array_merge($languages, $choices['languages']);
+        if (is_array($choices) && is_array($choices['extlanguages']) && count($choices['extlanguages'])) {
+            $languages = array_merge($languages, $choices['extlanguages']);
+        }
+        if (is_array($langlist) && count($langlist)) {
+            $languages = array_merge($languages,$langlist);
         }
         $languages = array_unique($languages);
         $filehandler->set_languages($languages);
@@ -258,7 +298,7 @@ class wizard_step7 extends wizard_step
 
         $this->message(lang('install_extractfiles'));
 
-        list($iter, $topdir) = $app->setup_sources_scan();
+        [$iter, $topdir] = $app->setup_sources_scan();
         $len = strlen($topdir); //suffix retains leading separator
         $havemodules = [];
 
@@ -302,16 +342,16 @@ class wizard_step7 extends wizard_step
      * @ignore
      * @throws Exception
      */
-    private function preprocess_files()
+    private function do_prefiles(): void
     {
         // __DIR__ might be phar://abspath/to/pharfile/relpath/to/thisfolder
         $upgrade_dir = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'upgrade';
         if (!is_dir($upgrade_dir)) {
-            throw new Exception(lang('error_internal', 710));
+            throw new Exception(lang('error_internal', 730));
         }
         $destdir = get_app()->get_destdir();
         if (!$destdir) {
-            throw new Exception(lang('error_internal', 711));
+            throw new Exception(lang('error_internal', 731));
         }
 
         $version_info = $this->get_wizard()->get_data('version_info');
@@ -328,23 +368,22 @@ class wizard_step7 extends wizard_step
                 if (!is_file($pre_files)) {
                     continue;
                 }
-
-                $destdir = $destdir; // make sure it's in scope
+                // vars in scope for inclusions: $destdir $upgrade_dir $version_info $smarty
                 include $pre_files;
             }
         }
     }
 
-    private function do_manifests()
+    private function do_manifests(): void
     {
         // get list of all available versions that this upgrader knows about
         $upgrade_dir = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'upgrade';
         if (!is_dir($upgrade_dir)) {
-            throw new Exception(lang('error_internal', 720));
+            throw new Exception(lang('error_internal', 740));
         }
         $destdir = get_app()->get_destdir();
         if (!$destdir) {
-            throw new Exception(lang('error_internal', 721));
+            throw new Exception(lang('error_internal', 741));
         }
 
         $version_info = $this->get_wizard()->get_data('version_info');
@@ -359,7 +398,7 @@ class wizard_step7 extends wizard_step
                 $manifest = new manifest_reader($upgrade_dir.DIRECTORY_SEPARATOR.$one_version);
                 // check the 'to' version info
                 if ($one_version != $manifest->to_version()) {
-                    throw new Exception(lang('error_internal', 722));
+                    throw new Exception(lang('error_internal', 742));
                 }
                 // delete all 'deleted' files
                 // tho' any which is supposed to be retained will later

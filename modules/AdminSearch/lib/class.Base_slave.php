@@ -1,7 +1,7 @@
 <?php
 /*
 Base class for searching for matches
-Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 See license details at the top of file AdminSearch.module.php
 */
@@ -9,6 +9,7 @@ namespace AdminSearch;
 
 use BadMethodCallException;
 use OutOfBoundsException;
+use function cms_htmlentities;
 use function cms_to_bool;
 use function CMSMS\specialize;
 
@@ -19,7 +20,7 @@ abstract class Base_slave
      * @var string
      * Possibly-re-encoded search-target string, populated once-per-request
      */
-    private static $needle = null;
+    private static $needle = null; // aka unset
 
     /**
      * @ignore
@@ -68,6 +69,7 @@ abstract class Base_slave
             case 'verbatim_search':
             case 'search_fuzzy':
             case 'save_search':
+            case 'include_inactive_items':
               $value = cms_to_bool($value);
               break;
             default:
@@ -85,7 +87,7 @@ abstract class Base_slave
      *
      * @return boolean
      */
-    public function has_badchars() : bool
+    public function has_badchars(): bool
     {
         return $this->_warnchars;
     }
@@ -100,7 +102,7 @@ abstract class Base_slave
      *  or 0 to retrieve such value on demand. Default 0.
      * @return boolean
      */
-    public function use_slave(int $userid = 0) : bool
+    public function use_slave(int $userid = 0): bool
     {
         return true;
     }
@@ -146,11 +148,11 @@ abstract class Base_slave
     public function get_section_description() {}
 
     /**
-     * @return mixed cached search-text | null
+     * @return string cached search-text | empty string
      */
     protected function get_text()
     {
-        return $this->_params['search_text'] ?? null;
+        return $this->_params['search_text'] ?? '';
     }
 
     /**
@@ -158,7 +160,7 @@ abstract class Base_slave
      * @since 1.2
      *
      * @param mixed $params string | string(s)[]
-     * @return mixed wanted param value (string|bool) | array of them | null if not found
+     * @return mixed wanted param value (string|bool) | array of them | empty array if not found
      */
     protected function get_params($params)
     {
@@ -169,12 +171,11 @@ abstract class Base_slave
                     $ret[$key] = $this->_params[$key];
                 }
             }
-            if ($ret) {
-                return $ret;
-            }
+            return $ret;
         } elseif (isset($this->_params[$params])) {
-            return $this->_params[$params];
+            return $this->_params[$params]; //TODO check whether array
         }
+        return [];
     }
 
     /**
@@ -182,7 +183,7 @@ abstract class Base_slave
      *
      * @return boolean
      */
-    protected function search_descriptions()
+    protected function search_descriptions()//: bool
     {
         if (isset($this->_params['search_descriptions'])) {
             return cms_to_bool($this->_params['search_descriptions']);
@@ -195,7 +196,7 @@ abstract class Base_slave
      *
      * @return boolean
      */
-    protected function search_casesensitive()
+    protected function search_casesensitive()//: bool
     {
         if (isset($this->_params['search_casesensitive'])) {
             return cms_to_bool($this->_params['search_casesensitive']);
@@ -209,7 +210,7 @@ abstract class Base_slave
      *
      * @return boolean
      */
-    protected function search_fuzzy()
+    protected function search_fuzzy()//: bool
     {
         if (isset($this->_params['search_fuzzy'])) {
             return cms_to_bool($this->_params['search_fuzzy']);
@@ -223,12 +224,26 @@ abstract class Base_slave
      *
      * @return boolean
      */
-    protected function search_verbatim()
+    protected function search_verbatim()//: bool
     {
         if (isset($this->_params['verbatim_search'])) {
             return cms_to_bool($this->_params['verbatim_search']);
         }
         return false;
+    }
+
+    /**
+     * Report whether the current search includes inactive items (only pages, probably)
+     * @since 1.3
+     *
+     * @return boolean Default true (back compatible)
+     */
+    protected function include_inactive_items()//: bool
+    {
+        if (isset($this->_params['include_inactive_items'])) {
+            return cms_to_bool($this->_params['include_inactive_items']);
+        }
+        return true;
     }
 
     /**
@@ -241,7 +256,7 @@ abstract class Base_slave
      * @param bool $forphp optional flag whether to format for PHP (false for SQL) Default true
      * @return string regular expression
      */
-    protected function get_regex_pattern(string $needle, bool $forphp = true) : string
+    protected function get_regex_pattern(string $needle, bool $forphp = true): string
     {
         $reserved = '/\\^-]'; // intra-class reserves
         $reserved2 = '/\\.,+-*?^$[](){}'; // extra-class reserves
@@ -286,7 +301,7 @@ abstract class Base_slave
      * @param string $haystack text to be scanned for match(es)
      * @return string html presenting match-results, or maybe empty
      */
-    protected function get_matches_info(string $haystack) : string
+    protected function get_matches_info(string $haystack): string
     {
         $rawneedle = $this->_params['search_text'] ?? ''; // not sanitized etc
         if (!($rawneedle || is_numeric($rawneedle))) {
@@ -352,7 +367,7 @@ abstract class Base_slave
      * @param int $len
      * @return string
      */
-    protected function summarize(string $text, int $len = 255) : string
+    protected function summarize(string $text, int $len = 255): string
     {
         $text = strip_tags($text);
         return substr($text, 0, $len);

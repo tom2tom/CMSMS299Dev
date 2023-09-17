@@ -1,7 +1,7 @@
 <?php
 /*
 Class definition and methods for Page Link content type
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -55,14 +55,14 @@ class PageLink extends ContentBase
 		}
 	}
 
-	public function HasSearchableContent() : bool { return false; }
+	public function HasSearchableContent(): bool { return false; }
 
 	/**
 	 * Return an actionable URL for opening this page.
 	 * @param bool $rewrite Default true.
 	 * @return string
 	 */
-	public function GetURL(bool $rewrite = true) : string
+	public function GetURL(bool $rewrite = true): string
 	{
 		$page = $this->GetPropertyValue('page');
 		$content = PageLoader::LoadContent($page);

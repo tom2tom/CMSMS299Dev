@@ -100,7 +100,7 @@ function image_info(string $file = '', string $out = '')
 }
 
 
-function GetFileInfo(string $filename, string $ext, bool $dir=false) : string
+function GetFileInfo(string $filename, string $ext, bool $dir=false): string
 {
   $result='';
   if ($dir) {

@@ -1,7 +1,7 @@
 <?php
 /*
 An abstract class for building database queries and managing their results.
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -95,7 +95,7 @@ abstract class DbQueryBase
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	public function __get(string $key)
+	public function __get(string $key)//: mixed
 	{
 		$this->execute();
 		switch( $key ) {

@@ -1,7 +1,7 @@
 <?php
 /*
 Class to perform advanced queries on layout templates
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -104,7 +104,7 @@ class TemplateQuery extends DbQueryBase
 
 		foreach ($this->_args as $key => $val) {
 			if (is_numeric($key) && $val[1] == ':') {
-				list($key, $second) = explode(':', $val, 2);
+				[$key, $second] = explode(':', $val, 2);
 			} else {
 				$key = trim($key, ' :');
 				$second = $val;
@@ -236,7 +236,7 @@ AS tmp1';
 			}
 		}
 
-		$xprefixes = function ($where) {
+		$xprefixes = function(array $where): void {
 /*			foreach ($where['design'] as &$one) {
 				$one = 'TPL.'.$one;
 			}

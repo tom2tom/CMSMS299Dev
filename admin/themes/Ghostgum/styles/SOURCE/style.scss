@@ -1066,7 +1066,7 @@ input[type="text"] {
     margin-#{$start-side}: 4px;
     @include border-radius(0.25rem);
     border-color: $accent1;
-    padding: sidedValues(0.6em, 0.6em, 0.4em, 0.6em);
+    padding: 0.4em 0.5em;
     &#in_title {
         min-width: 30%;
     }
@@ -1082,7 +1082,7 @@ input[type="password"] {
     margin-#{$start-side}: 4px;
     @include border-radius(0.25rem);
     border-color: $accent1;
-    padding: sidedValues(0.6em, 0.6em, 0.4em, 0.6em);
+    padding: 0.4em 0.5em;
 }
 input[type="button"] {
     border: 1px solid $accent1;
@@ -1142,7 +1142,7 @@ select {
     margin-#{$start-side}: 4px;
     border-color: $accent1;
     @include border-radius(sidedValues(.25rem, 0, 0, .25rem));
-    padding: 0.5em;
+    padding: 0.4rem 0.5rem;
     &:hover {
         @include box-shadow(0, 0, $accent-focus, 5px);
         @include transition(all, 200, ease-in-out);

@@ -1,7 +1,7 @@
 <?php
 /*
 Navigator module data structure to support PHP optimisation
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -51,4 +51,10 @@ class NodeStatic
     public $image;
     public $target;
     public $thumbnail;
+    //TODO others from CMSMS 2.2 NavigatorNode
+//    public $children_exist;
+//    public $current;
+//    public $depth;
+//    public $has_children;
+//    public $parent;
 }

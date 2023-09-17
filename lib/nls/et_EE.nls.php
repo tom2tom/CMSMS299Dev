@@ -1,6 +1,6 @@
 <?php
 #Finnish translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 #The basic idea and values was taken from then Horde Framework (http://horde.org)
 #The original filename was horde/config/nls.php.
 #The modifications to fit it for Gallery were made by Jens Tkotz
-#(http://gallery.meanalto.com) 
+#(http://gallery.meanalto.com)
 
 #Ideas from Gallery's implementation made to CMS by Ted Kulp
 
@@ -32,11 +32,11 @@ $nls['englishlang']['et_EE'] = 'Estonian';
 
 #Possible aliases for language
 $nls['alias']['et'] = 'et_EE';
-$nls['alias']['estonian'] = 'et_EE' ;
-$nls['alias']['eti'] = 'et_EE' ;
-$nls['alias']['et_EE.ISO8859-1'] = 'et_EE' ;
-$nls['alias']['et_EE.ISO8859-15'] = 'et_EE' ;
-$nls['alias']['et_EE.UTF-8'] = 'et_EE' ;
+$nls['alias']['estonian'] = 'et_EE';
+$nls['alias']['eti'] = 'et_EE';
+$nls['alias']['et_EE.ISO8859-1'] = 'et_EE';
+$nls['alias']['et_EE.ISO8859-15'] = 'et_EE';
+$nls['alias']['et_EE.UTF-8'] = 'et_EE';
 
 #Possible locale for language
 $nls['locale']['et_EE'] = 'et_EE.utf-8,et_EE.UTF-8,et_EE,et_EE.iso885915,et_EE.utf8,estonian,Estonian_Estonia.1257';
@@ -45,12 +45,10 @@ $nls['locale']['et_EE'] = 'et_EE.utf-8,et_EE.UTF-8,et_EE,et_EE.iso885915,et_EE.u
 $nls['encoding']['et_EE'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['et_EE'] = array(__DIR__.'/et_EE/admin.inc.php');
+$nls['file']['et_EE'] = [__DIR__.'/et_EE/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['et_EE'] = 'en';
-
-?>

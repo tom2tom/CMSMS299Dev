@@ -15,6 +15,7 @@ const SVNROOT = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
 
 $_cli = php_sapi_name() == 'cli';
 $_scriptname = basename(__FILE__);
+$resep = strpos(__FILE__, '\\') !== false;
 // default config params
 $do_md5 = false;
 $mode = 'f';
@@ -28,7 +29,7 @@ $_debug = false;
 //$_compress = true;
 $_compress = false;
 $_interactive = false; //$_cli && (DIRECTORY_SEPARATOR !== '/');  //always false on windows
-$_tmpdir = sys_get_temp_dir().DIRECTORY_SEPARATOR.$_scriptname.'.'.getmypid();
+$_tmpdir = sys_get_temp_dir().DIRECTORY_SEPARATOR.basename(__FILE__,'php').getmypid();
 $_tmpfile = $_tmpdir.DIRECTORY_SEPARATOR.'tmp.out';
 $_configname = str_replace('.php', '.ini', $_scriptname);
 $_configfile = get_config_file();
@@ -39,33 +40,33 @@ $_outfile = OUTBASE;
 $_notdeleted = [];
 // modules to be kept for uninstallation, before any related files go away
 $uninstallmodules = [];
-
+// note careful not to exclude class.cms_config.php or Smarty files like smarty_internal_method*config.php
 $src_excludes = [
-'/\.git.*/',
-'/\.md$/i',
-'/\.svn/',
-'/svn\-.*/',
-'/index\.html?$/',
-'/config\.php$/',
-'/siteuuid\.dat$/',
-'/master\.dat$/',
-'/master\.ini$/',
-'/\.htccess$/',
-'/web\.config$/i',
-'/phar_installer/',
-'/installer/',
-'/scripts/',
-'/tests/',
-'/UNUSED/',
-'/HIDE/',
-'/DEVELOP/',
-'/uploads/',
+'~\.git.*~',
+'~\.md$~i',
+'~\.svn~',
+'~svn\-.*~',
+'~index\.html?$~',
+'~[\\/]config\.php$~',
+'~siteuuid\.dat$~',
+'~master\.dat$~',
+'~master\.ini$~',
+'~\.htccess$~',
+'~web\.config$~i',
+'~phar_installer~',
+'~installer~',
+'~scripts~',
+'~tests~',
+'~UNUSED~',
+'~HIDE~',
+'~DEVELOP~',
+'~uploads~',
 '/~$/',
-'/\.bak$/',
-'/#.*/',
-'/\.#.*/',
+'~\.bak$~',
+'~#.*~',
+'~\.#.*~',
 ];
-//TODO root-dir  '/\.htaccess$/',
+//TODO keep files like .htaccess unless installer recreates them
 
 // TODO completely ignore some places c.f. build_release script:
 $folder_excludes = [
@@ -110,7 +111,7 @@ if ($_cli) {
     'to',
     ]);
     // parse config-file argument
-    $val = $opts['c'] ?? $opts['config'] ?? '';
+    $val = (isset($opts['c'])) ? $opts['c'] : ((isset($opts['config'])) ? $opts['config'] : '');
     if ($val) {
         $_configfile = $val;
     }
@@ -397,8 +398,14 @@ try {
 if (!$res) {
     fatal('Retrieving files from ' .$uri_from. ' failed');
 }
-if (!is_file(joinpath($_fromdir, 'lib', 'version.php')) || !is_dir(joinpath($_fromdir, 'lib', 'classes', 'Database'))) {
-    fatal('The files retrieved from ' .$uri_from. 'do not appear to be for a CMSMS installation');
+if (0) { //TODO from-version < 2.1 ?
+    if (!is_file(joinpath($_fromdir, 'version.php')) || !is_dir(joinpath($_fromdir, 'lib', 'adodb_lite'))) {
+        fatal('The files retrieved from ' .$uri_from. ' do not appear to be for a CMSMS installation');
+    }
+} else {
+    if (!is_file(joinpath($_fromdir, 'lib', 'version.php')) || !is_dir(joinpath($_fromdir, 'lib', 'classes', 'Database'))) {
+        fatal('The files retrieved from ' .$uri_from. ' do not appear to be for a CMSMS installation');
+    }
 }
 
 try {
@@ -410,8 +417,14 @@ try {
 if (!$res) {
     fatal('Retrieving files from ' .$uri_to. ' failed');
 }
-if (!is_file(joinpath($_todir, 'lib', 'version.php')) || !is_dir(joinpath($_todir, 'lib', 'classes', 'Database'))) {
-    fatal('The files retrieved from ' .$uri_to. 'do not appear to be for a CMSMS installation');
+if (0) { //TODO to-version < 2.1 ?
+    if (!is_file(joinpath($_todir, 'version.php')) || !is_dir(joinpath($_todir, 'lib', 'adodb_lite'))) {
+        fatal('The files retrieved from ' .$uri_to. ' do not appear to be for a CMSMS installation');
+    }
+} else {
+    if (!is_file(joinpath($_todir, 'lib', 'version.php')) || !is_dir(joinpath($_todir, 'lib', 'classes', 'Database'))) {
+        fatal('The files retrieved from ' .$uri_to. ' do not appear to be for a CMSMS installation');
+    }
 }
 
 try {
@@ -444,8 +457,14 @@ if ($mode == 'd' || $mode == 'f') {
         if (is_dir($file)) {
             continue;
         }
+        if ($resep) { $fn = strtr($fn, '\\', '/'); }
         if ($mode == 'd') {
-            $str = "DELETED :: $fn";
+            if ($do_md5) {
+                $md5 = md5_file($file);
+                $str = "DELETED :: $md5 :: $fn";
+            } else {
+                $str = "DELETED :: $fn";
+            }
         } else {
             $md5 = md5_file($file);
             $str = "DELETED :: $md5 :: $fn";
@@ -461,6 +480,7 @@ if ($mode == 'c' || $mode == 'f') {
         if (is_dir($file)) {
             continue;
         }
+        if ($resep) { $fn = strtr($fn, '\\', '/'); }
         if ($mode == 'c') {
             $str = "CHANGED :: $fn";
         } else {
@@ -478,6 +498,7 @@ if ($mode == 'n' || $mode == 'f') {
         if (is_dir($file)) {
             continue;
         }
+        if ($resep) { $fn = strtr($fn, '\\', '/'); }
         if ($mode == 'n') {
             $str = "ADDED :: $fn";
         } else {
@@ -494,7 +515,7 @@ if ($_compress) {
         case 'zip':
           $_cfile = $_tmpfile.'.zip';
           $zip = new ZipArchive();
-          if ($zip->open($$_cfile, ZipArchive::CREATE) !== true) {
+          if ($zip->open($_cfile, ZipArchive::CREATE) !== true) {
               fatal("Cannot open <$_cfile> for zip compression");
           }
           $zip->addFromString($_tmpfile, file_get_contents($_tmpfile));
@@ -533,7 +554,7 @@ if (defined('STDOUT') && $_outfile == STDOUT) {
     if ($_to_ver) {
         $dir = __DIR__;
         $base = basename($dir);
-        //CMSMS2.2 uses foldername phar-installer, CMSMS2.99+ uses phar_installer
+        //vanilla CMSMS2.2 uses foldername phar-installer, CMSMS2.99+ uses phar_installer
         //and topmost reachable dirname is not '.' if there is any slash in the path
         while ($dir != '.' && $dir != '/' && $base != 'phar_installer') {
             $dir = dirname($dir);
@@ -549,7 +570,7 @@ if (defined('STDOUT') && $_outfile == STDOUT) {
                     touch($file.DIRECTORY_SEPARATOR.'changelog.txt');
                 }
                 $file .= DIRECTORY_SEPARATOR.$_outfile;
-            } elseif (mkdir($file, 0777, true)) { // generic perms, pending actuals for istallation
+            } elseif (mkdir($file, 0777, true)) { // generic perms, pending actuals for installation
                 touch($file.DIRECTORY_SEPARATOR.'changelog.txt');
                 $file .= DIRECTORY_SEPARATOR.$_outfile;
             } else {
@@ -665,7 +686,7 @@ options
 EOT;
 }
 
-function output(string $str)
+function output($str)
 {
     global $_tmpfile;
     static $_mode = 'a';
@@ -678,7 +699,7 @@ function output(string $str)
     fclose($fh);
 }
 
-function info(string $str)
+function info($str)
 {
     if (defined('STDOUT')) {
         fwrite(STDOUT, "INFO: $str\n");
@@ -687,7 +708,7 @@ function info(string $str)
     }
 }
 
-function debug(string $str)
+function debug($str)
 {
     global $_debug;
     if ($_debug) {
@@ -699,7 +720,7 @@ function debug(string $str)
     }
 }
 
-function fatal(string $str)
+function fatal($str)
 {
     if (defined('STDERR')) {
         fwrite(STDERR, "FATAL: $str\n");
@@ -710,12 +731,12 @@ function fatal(string $str)
     exit(1);
 }
 
-function startswith(string $haystack, string $needle) : bool
+function startswith($haystack, $needle)
 {
     return (strncmp($haystack, $needle, strlen($needle)) == 0);
 }
 
-function endswith(string $haystack, string $needle) : bool
+function endswith($haystack, $needle)
 {
     $o = strlen($needle);
     if ($o > 0 && $o <= strlen($haystack)) {
@@ -733,7 +754,7 @@ function joinpath(...$segs)
     return str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $path);
 }
 
-function rrmdir(string $dir)
+function rrmdir($dir)
 {
     if (is_dir($dir)) {
         $objects = scandir($dir);
@@ -759,14 +780,14 @@ function sighandler($signum)
     exit(1);
 }
 
-function cleanup($signum = null)
+function cleanup()
 {
     global $_tmpdir;
     debug('Clean up');
     rrmdir($_tmpdir);
 }
 
-function ask_string(string $prompt, $dflt = null, bool $allow_empty = false)
+function ask_string($prompt, $dflt = null, $allow_empty = false)
 {
     while (1) {
         if ($dflt) {
@@ -781,7 +802,7 @@ function ask_string(string $prompt, $dflt = null, bool $allow_empty = false)
         }
 
         if ($allow_empty) {
-            return;
+            return '';
         }
         if ($dflt) {
             return $dflt;
@@ -790,7 +811,7 @@ function ask_string(string $prompt, $dflt = null, bool $allow_empty = false)
     }
 }
 
-function ask_options(string $prompt, array $options, $dflt)
+function ask_options($prompt, array $options, $dflt)
 {
     while (1) {
         if ($dflt) {
@@ -811,7 +832,7 @@ function ask_options(string $prompt, array $options, $dflt)
     }
 }
 
-function write_config_file(array $config_data, string $filename)
+function write_config_file(array $config_data, $filename)
 {
     @copy($filename, $filename.'.bak');
     $fh = fopen($filename, 'w');
@@ -837,7 +858,7 @@ function write_config_file(array $config_data, string $filename)
     chmod($filename, 0666); // generic perms pending installation
 }
 
-function get_config_file() : string
+function get_config_file()
 {
     global $_configname;
     // detect user's home directory
@@ -858,7 +879,7 @@ function get_config_file() : string
     return '';
 }
 
-function rcopy(string $srcdir, string $tmpdir)
+function rcopy($srcdir, $tmpdir)
 {
     global $src_excludes;
 
@@ -898,15 +919,15 @@ function rcopy(string $srcdir, string $tmpdir)
     }
 }
 
-function get_version(string $basedir) : array
+function get_version($basedir)
 {
     global  $CMS_VERSION, $CMS_VERSION_NAME, $CMS_SCHEMA_VERSION;
 
     $file = joinpath($basedir, 'lib', 'version.php');
     if (is_file($file)) {
-        $A = $CMS_VERSION ?? '';
-        $B = $CMS_VERSION_NAME ?? '';
-        $C = $CMS_SCHEMA_VERSION ?? '';
+        $A = (isset($CMS_VERSION)) ? $CMS_VERSION : '';
+        $B = (isset($CMS_VERSION_NAME)) ? $CMS_VERSION_NAME : '';
+        $C = (isset($CMS_SCHEMA_VERSION)) ? $CMS_SCHEMA_VERSION : '';
         if ($A) {
             //prevent warning from re-definition of 3 consts in included 'to' version-file
             $lvl = error_reporting();
@@ -926,7 +947,7 @@ function get_version(string $basedir) : array
     return ['', ''];
 }
 
-function get_sources(string $sourceuri, string $tmpdir) : bool
+function get_sources($sourceuri, $tmpdir)
 {
     if (strncmp($sourceuri, 'file://', 7) == 0) {
         $dir = substr($sourceuri, 7);
@@ -982,7 +1003,7 @@ function get_sources(string $sourceuri, string $tmpdir) : bool
     return false;
 }
 
-function get_svn_branch() : string
+function get_svn_branch()
 {
     $cmd = "svn info | grep '^URL:' | egrep -o '(tags|branches)/[^/]+|trunk'";
     $out = exec($cmd);
@@ -996,13 +1017,15 @@ class compare_dirs
 {
     private $_a;
     private $_b;
+    private $_list_a;
+    private $_list_b;
     private $_do_md5;
-    private $_has_run = null;
+    private $_has_run = false;
     private $_base_dir;
     private $_ignored = [];
     private $_donotdelete = [];
 
-    public function __construct(string $dir_a, string $dir_b, bool $do_md5 = false)
+    public function __construct($dir_a, $dir_b, $do_md5 = false)
     {
         if (!is_dir($dir_a)) {
             throw new Exception('Invalid directory '.$dir_a);
@@ -1069,7 +1092,7 @@ class compare_dirs
         $this->_list_b = $this->_read_dir($this->_b);
     }
 
-    public function get_new_files() : array
+    public function get_new_files()
     {
         $this->run();
 
@@ -1079,7 +1102,7 @@ class compare_dirs
         return array_diff($tmp_b, $tmp_a);
     }
 
-    public function get_deleted_files() : array
+    public function get_deleted_files()
     {
         $this->run();
 
@@ -1109,7 +1132,7 @@ class compare_dirs
         return $out;
     }
 
-    public function get_changed_files() : array
+    public function get_changed_files()
     {
         $this->run();
 
@@ -1119,15 +1142,25 @@ class compare_dirs
                 continue; // deleted/moved in b.
             }
             $rec_b = $this->_list_b[$path];
-            if ($rec_a['size'] != $rec_b['size'] || $rec_a['mtime'] != $rec_b['mtime'] ||
-            (isset($rec_a['md5']) && isset($rec_b['md5']) && $rec_a['md5'] != $rec_b['md5'])) {
+            $changed = $rec_a['size'] != $rec_b['size'];
+            if (!$changed) {
+                if (isset($rec_a['md5']) && isset($rec_b['md5'])) {
+                    if ($rec_a['md5'] != $rec_b['md5']) {
+                        $changed = true;
+                    }
+                } elseif (isset($rec_a['md5']) || isset($rec_b['md5'])) {
+                    $changed = true;
+                }
+                //else TODO some other default comparison
+            }
+            if ($changed) {
                 $out[] = $path;
             }
         }
         return $out;
     }
 
-    private function _set_base(string $dir)
+    private function _set_base($dir)
     {
         $this->_base_dir = $dir;
     }
@@ -1137,7 +1170,7 @@ class compare_dirs
         return $this->_base_dir;
     }
 
-    private function _is_ignored(string $filename) : bool
+    private function _is_ignored($filename)
     {
         foreach ($this->_ignored as $pattern) {
             if ($pattern == $filename || fnmatch($pattern, $filename, FNM_CASEFOLD)) {
@@ -1147,7 +1180,7 @@ class compare_dirs
         return false;
     }
 
-    private function _read_dir($dir = null)
+    private function _read_dir($dir = '')
     {
         global $uninstallmodules;
 
@@ -1188,7 +1221,7 @@ class compare_dirs
                 $rec = [];
                 $rec['size'] = @filesize($fn);
                 $rec['mtime'] = @filemtime($fn);
-                if ($this->_do_md5) {
+                if ($this->_do_md5 && !is_dir($fn)) {
                     $rec['md5'] = md5_file($fn);
                 }
                 $out[$base] = $rec;
@@ -1203,7 +1236,7 @@ class compare_dirs
             $rec = [];
             $rec['size'] = @filesize($fn);
             $rec['mtime'] = @filemtime($fn);
-            if ($this->_do_md5) {
+            if ($this->_do_md5 && !is_dir($fn)) {
                 $rec['md5'] = md5_file($fn);
             }
             $out[$base] = $rec;

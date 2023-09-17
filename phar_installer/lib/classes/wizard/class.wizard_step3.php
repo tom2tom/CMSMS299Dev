@@ -26,12 +26,12 @@ class wizard_step3 extends wizard_step
      * @param array $tests
      * @return array
      */
-    protected function perform_tests(bool $verbose, array &$informational, array &$tests) : array
+    protected function perform_tests(bool $verbose, array &$informational, array &$tests): array
     {
         $app = get_app();
         $wiz = $this->get_wizard();
         $action = $wiz->get_data('action');
-        $version_info = $wiz->get_data('version_info');
+        $version_info = $wiz->get_data('version_info'); // non-empty array only for refreshes & upgrades
         $informational = [];
         $tests = [];
 
@@ -46,7 +46,11 @@ class wizard_step3 extends wizard_step
         $v = PHP_VERSION;
         $obj = new version_range_test('php_version', $v);
         $obj->minimum = '7.2';  // PHP 7.2 EOL late 2020, 7.3 EOL late 2021
-        $obj->recommended = '7.3';
+        // set this to the current minimum security-supported micro-version
+        // via www.php.net/supported-versions.php and www.php.net/releases/index.php
+        $app_config = $app->get_config();
+        $prefphp = (!empty($app_config['livephpmin'])) ? $app_config['livephpmin'] : '8.0.0';
+        $obj->recommended = $prefphp;
         $obj->fail_msg = lang('fail_php_version', $v, $obj->minimum);
         if (version_compare($obj->minimum, $obj->recommended) < 0) {
             $obj->warn_msg = lang('fail_php_version2', $v, $obj->recommended);
@@ -63,20 +67,21 @@ class wizard_step3 extends wizard_step
         $obj->fail_key = 'fail_database_support';
         $tests[] = $obj;
 
-        // required test ... multibyte extension
-        $obj = new boolean_test('multibyte_support', extension_loaded('mbstring') && function_exists('mb_get_info'));
+        // required test ... multibyte extension or builtin
+        $obj = new boolean_test('multibyte_support', extension_loaded('mbstring') || function_exists('mb_get_info'));
         $obj->required = 1;
         $obj->fail_key = 'fail_multibyte_support';
         $tests[] = $obj;
 
-        // required test ... intl extension (Collator class required, others recommended)
-        $obj = new boolean_test('intl_extension', extension_loaded('intl'));
-        $obj->fail_key = 'fail_intl_extension';
+        // required test ... intl extension or builtin (Collator class required, others e.g. IntlDateFormatter recommended)
+        $obj = new boolean_test('intl_support', extension_loaded('intl'));
+        $obj->required = 1;
+        $obj->fail_key = 'fail_intl_support';
         $tests[] = $obj;
 /*
         // recommended test ... IntlDateFormatter class (intl extension)
         $obj = new boolean_test('intl_extension', extension_loaded('intl') && class_exists('IntlDateFormatter'));
-        $obj->fail_key = 'fail_intl_extension';
+        $obj->fail_key = 'fail_intl_support';
         $tests[] = $obj;
 */
         // required test ... xml extension
@@ -190,10 +195,10 @@ class wizard_step3 extends wizard_step
         $tests[] = $obj;
 
         // required test ... sessions must use cookies
-        $t0 = new boolean_test('session_use_cookies', ini_get('session.use_cookies'));
-        $t0->required = 1;
-        $t0->fail_key = 'fail_session_use_cookies';
-        $tests[] = $t0;
+        $obj = new boolean_test('session_use_cookies', ini_get('session.use_cookies'));
+        $obj->required = 1;
+        $obj->fail_key = 'fail_session_use_cookies';
+        $tests[] = $obj;
 
         if (ini_get('session.save_handler') == 'files') {
             $open_basedir = ini_get('open_basedir');
@@ -319,11 +324,42 @@ class wizard_step3 extends wizard_step
         $tests[] = $obj;
 
         // test ini set
-        $val = (ini_get('log_errors_max_len')) ? ini_get('log_errors_max_len').'0' : '99';
-        ini_set('log_errors_max_len', $val);
-        $obj = new boolean_test('ini_set', ini_get('log_errors_max_len') == $val);
-        $obj->fail_key = 'fail_ini_set';
-        $tests[] = $obj;
+        $v = ini_get('log_errors_max_len');
+        if ($v) {
+            $v2 = (string)max(512, (int)$v - 10);
+        } elseif ($v !== false) {
+            $v2 = '512';
+        } else {
+            $v2 = false;
+        }
+        if ($v2 !== false) {
+            ini_set('log_errors_max_len', $v2);
+            $r = (ini_get('log_errors_max_len') == $v2);
+            ini_set('log_errors_max_len', $v);
+            $obj = new boolean_test('ini_set', $r);
+            $obj->fail_key = 'fail_ini_set';
+            $tests[] = $obj;
+        } else {
+            $v = ini_get('max_execution_time');
+            if ($v) {
+                $v2 = (string)max(93,(int)$v + 2);
+            } elseif ($v !== false) {
+                $v2 = '93';
+            } else {
+                $v2 = false;
+            }
+            if ($v2 !== false) {
+                ini_set('max_execution_time', $v2);
+                $r = (ini_get('max_execution_time') == $v2);
+                ini_set('max_execution_time', $v);
+                $obj = new boolean_test('ini_set', $r);
+                $obj->fail_key = 'fail_ini_set';
+                $tests[] = $obj;
+            } else {
+                $obj = new informational_test('ini_set', 'Undetermined');
+                $tests[] = $obj;
+            }
+        }
 
         // required test... check if most files are writable.
         $dirs = ['lib', 'admin', 'uploads', 'doc', 'tmp', 'assets'];
@@ -357,64 +393,56 @@ class wizard_step3 extends wizard_step
             }
         }
 
-        if ($version_info) { // upgrade or freshen
-            if ($action == 'upgrade') {
-                // during an upgrade, the existing config file will be
-                // backed up and replaced, which needs write-permission
-                $obj = new boolean_test('config_writable', is_writable($version_info['config_file']));
-                $obj->required = 1;
-                $obj->fail_key = 'fail_config_writable';
-                $tests[] = $obj;
-                // version file will be updated
-                $version_file = $app->get_destdir().DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'version.php';
-                $obj = new boolean_test('version_writable', is_writable($version_file));
-                $obj->required = 1;
-                $obj->fail_key = 'fail_version_writable';
-                $tests[] = $obj;
-
-                if (version_compare($version_info['version'], '2.2') < 0) {
-                    // assets folder must exist
-                    if (!empty($version_info['config']['assets_path'])) {
-                        $aname = $version_info['config']['assets_path'];
-                        //TODO if > 1 segment in name
-                        $dir = $app->get_destdir().DIRECTORY_SEPARATOR.$aname;
-                        //TODO if absolute
-                        $dir = $app->get_destdir().$aname;
-                    } else {
-                        $dir = $app->get_destdir().DIRECTORY_SEPARATOR.'assets';
-                    }
-                    if (is_dir($dir)) {
-                        $obj = new boolean_test('assets_dir_exists', false);
-                        $obj->fail_key = 'fail_assets_dir';
-                        $obj->warn_key = 'fail_assets_dir';
-                        $tests[] = $obj;
-                    }
-                }
-            } else { // freshen
-                // the sources include a new-but-same version.php, the current one must be replaceable
+        if ($version_info) { // upgrade or freshen session
+            // during an upgrade or freshen, the existing config file will or
+            // might be backed up and replaced, which needs write-permission
+            $obj = new boolean_test('config_writable', is_writable($version_info['config_file']));
+            $obj->required = 1;
+            $obj->fail_key = 'fail_config_writable';
+            $tests[] = $obj;
+            if ($action == 'upgrade' || $action == 'freshen') { //TODO why is version overwitten during freshen? just one of the files?
                 $version_file = $app->get_destdir().DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'version.php';
                 $obj = new boolean_test('version_writable', is_writable($version_file));
                 $obj->required = 1;
                 $obj->fail_key = 'fail_version_writable';
                 $tests[] = $obj;
             }
+
+            if (version_compare($version_info['version'], '2.2') < 0) {
+                // assets folder must exist
+                if (!empty($version_info['config']['assets_path'])) {
+                    $aname = $version_info['config']['assets_path'];
+                    //TODO if > 1 segment in name
+                    $dir = $app->get_destdir().DIRECTORY_SEPARATOR.$aname;
+                    //TODO if absolute
+//                    $dir = $app->get_destdir().$aname;
+                } else {
+                    $dir = $app->get_destdir().DIRECTORY_SEPARATOR.'assets';
+                }
+                if (is_dir($dir)) {
+                    $obj = new boolean_test('assets_dir_exists', false);
+                    $obj->fail_key = 'fail_assets_dir';
+                    $obj->warn_key = 'fail_assets_dir';
+                    $tests[] = $obj;
+                }
+            }
         } else { // install
             // $dir is a filesystem path descendant from the site-root-path
-            $is_dir_empty = function(string $dir) : bool {
+            $is_dir_empty = function(string $dir): bool {
                 $dir = trim($dir);
                 if (!$dir) {
-                    return false;
-                }  // fail on invalid dir
+                    return false;  // fail on invalid dir
+                }
                 if (!is_dir($dir)) {
-                    return true;
-                } // pass on dir not existing yet
+                    return true; // pass on dir not existing yet
+                }
                 $files = glob($dir.DIRECTORY_SEPARATOR.'*'); // filesystem path
                 if (!$files) {
-                    return true;
-                } // no files yet
+                    return true; // no files yet
+                }
                 if (count($files) > 1) {
-                    return false;
-                } // more than one file
+                    return false; // more than one file
+                }
                 // trivial check for index.htm[l]
                 $bn = strtolower(basename($files[0]));
                 return fnmatch('index.htm?', $bn);
@@ -479,12 +507,7 @@ class wizard_step3 extends wizard_step
 
     protected function process()
     {
-        $action = $this->get_wizard()->get_data('action');
-        if ($action == 'freshen') {
-            $url = $this->get_wizard()->step_url(5);
-        } else {
-            $url = $this->get_wizard()->next_url();
-        }
+        $url = $this->get_wizard()->next_url();
         redirect($url);
     }
 
@@ -495,7 +518,7 @@ class wizard_step3 extends wizard_step
         $verbose = $config['verbose'] ?? 0;
         $informational = [];
         $tests = [];
-        list($tests_failed, $can_continue) = $this->perform_tests($verbose, $informational, $tests);
+        [$tests_failed, $can_continue] = $this->perform_tests($verbose, $informational, $tests);
 
         $smarty = smarty();
         $smarty->assign('tests', $tests)

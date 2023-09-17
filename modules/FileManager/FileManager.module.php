@@ -2,7 +2,7 @@
 /*
 FileManager: a module for CMS Made Simple to allow website file placement, viewing etc
 Copyright (C) 2006-2018 Morten Poulsen <morten@poulsen.org>
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -237,7 +237,7 @@ final class FileManager extends CMSModule
         add_page_headtext($out, false);
 
         $out = '';
-        $fmt = '<script type="text/javascript" src="%s/lib/js/%s"></script>';
+        $fmt = '<script src="%s/lib/js/%s"></script>';
         //needed if global jq-ui not loaded 'jquery-file-upload/jquery.ui.widget.min.js',
         $jsfiles = [
         'jquery-file-upload/jquery.iframe-transport.js',

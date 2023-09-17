@@ -1,7 +1,7 @@
 <?php
 /*
 DesignManager module action: import design
-Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -101,23 +101,24 @@ try {
         }
 
         // suggest a new name for the 'theme'.
-
-        $tpl->assign('tmpfile',$tmpfile)
-         ->assign('cms_version',CMS_VERSION);
         $design_info = $reader->get_design_info();
-        $tpl->assign('design_info',$design_info)
+        $newname = Design::suggest_name($design_info['name']);
+        if( !$newname ) {
+            throw new Exception('Unable to generate a name for imported design'); // TODO translated
+        }
+        $tpl->assign('tmpfile',$tmpfile)
+         ->assign('cms_version',CMS_VERSION)
+         ->assign('design_info',$design_info)
+         ->assign('new_name',$newname)
          ->assign('templates',$reader->get_template_list())
          ->assign('stylesheets',$reader->get_stylesheet_list());
-        $newname = Design::suggest_name($design_info['name']);
-        $tpl->assign('new_name',$newname);
     }
     catch( Throwable $t ) {
       $this->ShowErrors($t->GetMessage());
     }
 
     $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
   $('.template_view').on('click', function() {
     var row = $(this).closest('tr');
@@ -140,7 +141,6 @@ $(function() {
     return false;
   });
 });
-//]]>
 </script>
 EOS;
     add_page_foottext($js);

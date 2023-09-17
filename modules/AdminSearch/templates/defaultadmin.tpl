@@ -20,6 +20,10 @@
   <input type="checkbox" class="filter_toggle" id="search_descriptions" value="1"{if !empty($saved_search.search_descriptions)} checked{/if}>&nbsp;
   <label class="check" for="search_descriptions">{_ld($_module,'lbl_search_desc')}</label><br>
   <br>
+  {if 1}{*TODO content pages search available*}
+  {$t=_ld($_module,'desc_inactive_search')}<input type="checkbox" id="search_inactive" title="{$t}" value="1"{if !empty($saved_search.search_inactive)} checked{/if}>&nbsp;
+  <label class="check" for="search_inactive" title="{$t}">{_ld($_module,'lbl_inactive_search')}</label><br>
+  {/if}
   <input type="checkbox" id="search_casesensitive" value="1"{if !empty($saved_search.search_casesensitive)} checked{/if}>&nbsp;
   <label class="check" for="search_casesensitive">{_ld($_module,'lbl_cased_search')}</label><br>
   {$t=_ld($_module,'desc_verbatim_search')}<input type="checkbox" id="verbatim_search" title="{$t}" value="1"{if !empty($saved_search.verbatim_search)} checked{/if}>&nbsp;

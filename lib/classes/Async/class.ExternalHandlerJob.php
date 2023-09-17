@@ -1,7 +1,7 @@
 <?php
 /*
 Class: ExternalHandlerJob for jobs having an 'external' handler (plugins etc)
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -67,11 +67,11 @@ class ExternalHandlerJob extends Job
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         switch ($key) {
         case 'function':
-            return trim($this->_data[$key]);
+            return trim($this->_data[$key]??'');
 
         case 'is_udt':
             return (bool) $this->_data[$key];
@@ -84,7 +84,7 @@ class ExternalHandlerJob extends Job
     /**
      * @ignore
      */
-    public function __set(string $key, $val) : void
+    public function __set(string $key, $val): void
     {
         switch ($key) {
         case 'function':

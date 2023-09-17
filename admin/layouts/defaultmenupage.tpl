@@ -16,7 +16,7 @@
       {if !empty($one.children)}
        {* TODO recurse *}
       {else}
-       <a {if isset($sitedown) && strpos($one.url,'logout')!==false}id="logoutitem" {/if}
+       <a{if isset($sitedown) && strpos($one.url,'logout')!==false} id="logoutitem"{/if}
         class="topmenu_item" href="{$one.url}"
         {if isset($one.target)} target="{$one.target}"{/if}
         >{$one.title}</a><br>

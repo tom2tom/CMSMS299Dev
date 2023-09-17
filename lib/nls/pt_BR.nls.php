@@ -12,8 +12,8 @@ $nls['language']['pt_BR'] = 'Português do Brasil';
 $nls['englishlang']['pt_BR'] = 'Brazilian Portuguese';
 
 #Possible aliases for language
-$nls['alias']['pt-BR'] = 'pt_BR' ;
-$nls['alias']['pt_BR'] = 'pt_BR' ;
+$nls['alias']['pt-BR'] = 'pt_BR';
+$nls['alias']['pt_BR'] = 'pt_BR';
 
 #Possible locale for language
 $nls['locale']['pt_BR'] = 'pt_BR.utf8,pt_BR.UTF-8,pt_BR.utf-8,pt_BR,portuguese-brazil,Portuguese_Brazil.1252';
@@ -22,11 +22,10 @@ $nls['locale']['pt_BR'] = 'pt_BR.utf8,pt_BR.UTF-8,pt_BR.utf-8,pt_BR,portuguese-b
 $nls['encoding']['pt_BR'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['pt_BR'] = array(__DIR__.'/pt_BR/admin.inc.php');
+$nls['file']['pt_BR'] = [__DIR__.'/pt_BR/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['pt_BR'] = 'pt_br';
-?>

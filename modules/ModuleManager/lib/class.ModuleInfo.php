@@ -1,7 +1,7 @@
 <?php
 /*
 Class to process extra-extended module information
-Copyright (C) 2017-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2017-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -130,7 +130,7 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
      * @ignore
      * @return bool
      */
-    private function _check_dependencies() : bool
+    private function _check_dependencies(): bool
     {
         $missing = $this->_get_missing_dependencies();
         return !$missing;
@@ -188,7 +188,7 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
      * @param varargs array or series of property names, or nothing
      * @returns associative array
      */
-    public function select_module_properties(...$wanted) : array
+    public function select_module_properties(...$wanted): array
     {
         if( $wanted ) {
             if( count($wanted) == 1 && is_array($wanted[0]) ) {
@@ -230,7 +230,7 @@ class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleI
     // ArrayInterface methods
 
     #[\ReturnTypeWillChange]
-    public function offsetGet($key)// : mixed
+    public function offsetGet(/*mixed */$key)//: mixed
     {
         if( !in_array($key,self::MMPROPS) ) return parent::OffsetGet($key);
         if( isset($this->mmdata[$key]) ) return $this->mmdata[$key];
@@ -323,7 +323,7 @@ if ($this['name'] == 'News') { // example: in-forge, unbundled, recent
         return null;
     }
 
-    public function offsetSet($key,$value) : void
+    public function offsetSet(/*mixed */$key,$value): void
     {
         if( !in_array($key,self::MMPROPS) ) parent::OffsetSet($key,$value);
         // only this may be set directly
@@ -332,7 +332,7 @@ if ($this['name'] == 'News') { // example: in-forge, unbundled, recent
         }
     }
 
-    public function offsetExists($key) : bool
+    public function offsetExists(/*mixed */$key): bool
     {
         if( !in_array($key,self::MMPROPS) ) {
             return parent::OffsetExists($key);
@@ -351,7 +351,7 @@ if ($this['name'] == 'News') { // example: in-forge, unbundled, recent
              'stagnant']);
     }
 
-    public function offsetUnset($key) : void
+    public function offsetUnset(/*mixed */$key): void
     {
     }
 }

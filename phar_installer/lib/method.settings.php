@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -32,6 +32,8 @@ use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\rrmdir;
 use function cms_installer\startswith;
+use function cms_installer\status_msg;
+use function cms_installer\verbose_msg;
 
 // vars set in includer: $admin_user, $choices[], $wiz, $app, $destdir etc
 
@@ -93,6 +95,7 @@ function create_deprec_links(string $basedir)
     foreach ([
     ['styles', 'css'],
     ['media', 'images'],
+    ['layouts', 'templates'],
     ] as $names) {
         $tp = $basedir.DIRECTORY_SEPARATOR.$names[1];
         if (is_file($tp)) {

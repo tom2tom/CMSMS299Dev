@@ -9,7 +9,7 @@
  </thead>
  <tbody class="rsortable">
 {if !empty($design_stylesheets)}{foreach $design_stylesheets as $id => $row}
-  <tr><td><span class="rowid" style="display:none;">{$id}</span>{$row.name}</td><td{if $row.desc} title="{$row.desc}"{/if}>{$row.desc|summarize:6}</td><td>{$row.when|cms_date_format:'timed'}</td></tr>
+  <tr><td><span class="rowid" style="display:none">{$id}</span>{$row.name}</td><td{if $row.desc} title="{$row.desc}"{/if}>{$row.desc|summarize:6}</td><td>{$row.when|cms_date_format:'timed'}</td></tr>
 {/foreach}{/if}
   <tr class="placeholder"><td>&nbsp;</td><td></td><td></td</tr>
  </tbody>
@@ -25,7 +25,7 @@
  </thead>
  <tbody class="rsortable">
 {if !empty($undesign_stylesheets)}{foreach $undesign_stylesheets as $id => $row}
-  <tr><td><span class="rowid" style="display:none;">{$id}</span>{$row.name}</td><td{if $row.desc} title="{$row.desc}"{/if}>{$row.desc|summarize:6}</td><td>{$row.when|cms_date_format:'timed'}</td></tr>
+  <tr><td><span class="rowid" style="display:none">{$id}</span>{$row.name}</td><td{if $row.desc} title="{$row.desc}"{/if}>{$row.desc|summarize:6}</td><td>{$row.when|cms_date_format:'timed'}</td></tr>
 {/foreach}{/if}
   <tr class="placeholder"><td>&nbsp;</td><td></td<td></td</tr>
  </tbody>

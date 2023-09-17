@@ -56,16 +56,16 @@
         var body =
           '<div class="form-group oneline">\n' +
           ' <label class="control-label note-form-label" for="mailto_addr">' + cms_data.emailaddr + '</label>\n' +
-          ' <input type="text" id="mailto_addr" class="form-control note-form-control note-input" size="38" />\n' +
+          ' <input type="text" id="mailto_addr" class="form-control note-form-control note-input" size="38">\n' +
           '</div>\n' +
           '<div class="form-group oneline">\n' +
           ' <label class="control-label note-form-label" for="mailto_text">' + cms_data.texttodisplay + '</label>\n' +
-          ' <input type="text" id="mailto_text" class="form-control note-form-control note-input" size="38" />\n' +
+          ' <input type="text" id="mailto_text" class="form-control note-form-control note-input" size="38">\n' +
           '</div>\n';
  /* N/A    +
           '<div class="form-group oneline">\n' +
           ' <label class="control-label note-form-label" for="mailto_obscure">' + 'Obscured' + '</label>\n' +
-          ' <input type="checkbox" id="mailto_obscure" class="form-control note-form-control note-input" value="1" />\n' +
+          ' <input type="checkbox" id="mailto_obscure" class="form-control note-form-control note-input" value="1">\n' +
           '</div>\n';
 */
         $dialog = ui.dialog({
@@ -105,7 +105,7 @@
             ui.hideDialog($dialog);
           })
           .done(function(params) {
-            var $inserter = $('<a>').attr('href', 'mailto::' + params.email).html(params.text);
+            var $inserter = $('<a></a>').attr('href', 'mailto::' + params.email).html(params.text);
             context.invoke('restoreRange');
             context.invoke('editor.insertNode', $inserter[0]);
           })

@@ -92,7 +92,7 @@ if ( typeof Object.create !== 'function' ) {
 
         setup: function () {
 
-            this._toastEl = this._toastEl || $('<div/>', {
+            this._toastEl = this._toastEl || $('<div></div>', {
                 'class' : 'jqtoast',
                  role : 'alert',
                 'aria-live' : 'polite'
@@ -248,7 +248,7 @@ if ( typeof Object.create !== 'function' ) {
 
              if ( _container.length === 0 ) {
 
-                _container = $('<div/>',{
+                _container = $('<div></div>',{
                     id : 'jqt-wrap'
                 });
 

@@ -1,7 +1,7 @@
 <?php
 /*
 A class to manage template-types.
-Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -468,7 +468,7 @@ class TemplateType
 	/**
 	 * @ignore
 	 */
-	private static function get_locks() : array
+	private static function get_locks(): array
 	{
 		if( !self::$lock_cache_loaded ) {
 			self::$lock_cache = [];
@@ -877,7 +877,7 @@ WHERE id=?';
 	 * @param array $row
 	 * @return TemplateType
 	 */
-	private static function _load_from_data($row) : self
+	private static function _load_from_data($row): self
 	{
 		$pattern = '/^([as]:\d+:|[Nn](ull)?;)/';
 		$l = strlen(self::SERIAL);

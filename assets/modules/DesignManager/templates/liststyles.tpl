@@ -22,7 +22,7 @@
   <a href="{$url}">{$t}</a>
 </div>
 {/if}
-{if $list_groups}
+{if !empty($list_groups)}
 <table class="pagetable" id="grouplist">
   <thead>
     <tr>

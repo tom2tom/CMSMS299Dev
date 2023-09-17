@@ -1,5 +1,8 @@
 <?php
 
+//TODO change relevant text-fields to DEFAULT "" and corresponding NULL table-values to ''
+use function cms_installer\error_msg;
+
 if (!isset($handle)) {
     require __DIR__.DIRECTORY_SEPARATOR.'config.php';
 
@@ -214,11 +217,12 @@ $mod_defns[$tblprefix.'admin_bookmarks'] = [$tabopts, $flds];
 // default cachable value (1) is contrary to CMSMS pre-3.0
 // NOTE tabindex empty-string values must be NULL'd to allow converting varchar to int
 // migrate/defer to non-core props: tpltype_id I UNSIGNED, csstype_id I UNSIGNED,
+// collapsed gone from recent versions
+//DROP collapsed,
 $flds = '
 MODIFY accesskey C(8),
 MODIFY active I1 UNSIGNED DEFAULT 1,
 MODIFY cachable I1 UNSIGNED DEFAULT 1,
-DROP collapsed,
 MODIFY content_alias C(255),
 MODIFY content_id I UNSIGNED,
 MODIFY content_name C(255) CHARACTER SET utf8mb4,
@@ -245,9 +249,12 @@ MODIFY type C(25) NOTNULL,
 ';
 // these renamed/new indices are named in FORCE INDEX hints
 // RENAME KEY is available MySQL 5.7+ or compatible
+// TODO index names here are for 2.2.19, might be different in older versions
+//DROP KEY '.$tblprefix.'index_content_by_content_alias_active,
+//DROP KEY '.$tblprefix.'index_content_by_hierarchy,
 $tabopts = '
-DROP KEY '.$tblprefix.'index_content_by_content_alias_active,
-DROP KEY '.$tblprefix.'index_content_by_hierarchy,
+DROP KEY '.$tblprefix.'idx_content_by_alias_active,
+DROP KEY '.$tblprefix.'idx_content_by_hier,
 ADD KEY i_contental_active (content_alias,active),
 ADD KEY i_contentid_hierarchy (content_id,hierarchy),
 ADD KEY i_hierarchy (hierarchy),
@@ -509,8 +516,10 @@ MODIFY module_name C(50) NOTNULL,
 DROP status,
 MODIFY version C(16),
 ';
+// TODO index names here are for 2.2.19, might be different in older versions
+//DROP KEY '.$tblprefix.'index_modules_by_module_name,
 $tabopts = '
-DROP KEY '.$tblprefix.'index_modules_by_module_name,
+DROP KEY '.$tblprefix.'idx_modules_by_name,
 CHARACTER SET ascii,
 COLLATE ascii_bin,
 ';
@@ -616,9 +625,11 @@ DROP type,
 MODIFY user_id I UNSIGNED NOTNULL,
 MODIFY value X(65535) CHARACTER SET utf8mb4,
 ';
+// TODO index names here are for 2.2.19, might be different in older versions
+//DROP KEY '.$tblprefix.'index_userprefs_by_user_id,
 $tabopts = '
 DROP PRIMARY KEY,
-DROP KEY '.$tblprefix.'index_userprefs_by_user_id,
+DROP KEY '.$tblprefix.'idx_userprefs_by_user_id,
 ADD KEY i_userid (user_id),
 ADD UNIQUE KEY i_userid_preferen (user_id,preference),
 CHARACTER SET ascii,
@@ -693,7 +704,7 @@ foreach ([
     $drop_defns[] = $tblprefix.$suffx;
 }
 
-$realnames = function($defn) {
+$realnames = function(string $defn): string {
     $matches = [];
     $exp = preg_replace_callback('~(B|X)(\(\d+\))?~', function($matches) {
         if ($matches[2]) {
@@ -822,7 +833,7 @@ foreach ([
 // revert to prior timezone
 $handle->query("SET time_zone = '".$offsave[1]."'");
 
-$namequote = function(string $str) : string {
+$namequote = function(string $str): string {
     $str = strtr(trim($str, ' \'"'), '"', "'");
     return '"'.$str.'"';
 };
@@ -1082,7 +1093,7 @@ if ($rst) {
 
 // drop redundant tables
 foreach ($drop_defns as $tbl) {
-    $res = $handle->query('DROP TABLE '.$tbl);
+    $res = $handle->query('DROP TABLE IF EXISTS '.$tbl);
     if (!$res) {
         if ($incl) {
             echo 'DROP TABLE ERROR '.$handle->error.'<br>';

@@ -51,7 +51,7 @@ class ScriptsMerger
      *
      * @return int 1..3 The current default priority
      */
-    public function get_script_priority() : int
+    public function get_script_priority(): int
     {
         return $this->_item_priority;
     }
@@ -137,7 +137,7 @@ class ScriptsMerger
      * @param mixed  $custompaths Optional string | string[] custom places to search before defaults
      * @return bool indicating success
      */
-    public function queue_matchedfile(string $filename, int $priority = 0, $custompaths = '') : bool
+    public function queue_matchedfile(string $filename, int $priority = 0, $custompaths = ''): bool
     {
 //TODO  $filename = $this->url_to_path($filename); // migrate URL-formatted filename to filepath
         $cache_filename = cms_get_script($filename, false, $custompaths);
@@ -226,7 +226,7 @@ class ScriptsMerger
      *  script jquery.cmsms_defer.js. Default false
      * @return string html like <script ... </script> | ''
      */
-    public function page_content(string $output_path = '', bool $force = false, bool $defer = false) : string
+    public function page_content(string $output_path = '', bool $force = false, bool $defer = false): string
     {
         $base_path = ($output_path) ? rtrim($output_path, ' \/') : TMP_CACHE_LOCATION;
         $cache_filename = $this->render_scripts($base_path, $force, $defer);
@@ -234,7 +234,7 @@ class ScriptsMerger
             $output_file = $base_path.DIRECTORY_SEPARATOR.$cache_filename;
             $url = cms_path_to_url($output_file);
             $sri = base64_encode(hash_file('sha256', $output_file, true));
-            return "<script type=\"text/javascript\" src=\"$url\" integrity=\"sha256-$sri\" crossorigin=\"anonymous\" referrerpolicy=\"same-origin\"></script>\n";
+            return "<script src=\"$url\" integrity=\"sha256-$sri\" crossorigin=\"anonymous\" referrerpolicy=\"same-origin\"></script>\n";
         }
         return '';
     }
@@ -245,7 +245,7 @@ class ScriptsMerger
      * @param string
      * @return string
      */
-    protected function url_to_path(string $path) : string
+    protected function url_to_path(string $path): string
     {
         $path = trim($path, " \t\r\n'\"");
         if (1) { // TODO is path, not URL

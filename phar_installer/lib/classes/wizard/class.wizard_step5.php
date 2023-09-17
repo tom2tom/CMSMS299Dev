@@ -36,27 +36,25 @@ class wizard_step5 extends wizard_step
             $this->_params += ['sitename' => '', 'supporturl' => ''];
         }
         // get saved data
-        $tmp = $wiz->get_data('config');
-        if ($tmp) {
-            $this->_params = array_merge($this->_params, $tmp);
+        $cfgdata = $wiz->get_data('config');
+        if ($cfgdata) {
+            $this->_params = array_merge($this->_params, $cfgdata);
         }
         $lang = translator()->get_selected_language();
         if ($lang != 'en_US') {
-            $this->_params['languages'] = [$lang];
+            $this->_params['languages'] = [$lang]; //TODO what does recording a non-default installer translation acieve?
         }
 
-        $tmp = $wiz->get_data('sessionchoices');
-        if ($tmp) {
-            $this->_params = array_merge($this->_params, $tmp);
+        $choices = $wiz->get_data('sessionchoices');
+        if ($choices) {
+            $this->_params = array_merge($this->_params, $choices);
         }
         return parent::run();
     }
 
     protected function process()
     {
-        $app = get_app();
-        $config = $app->get_config();
-
+        //install-action params
         if (isset($_POST['samplecontent'])) {
             $this->_params['samplecontent'] = filter_input(INPUT_POST, 'samplecontent', FILTER_VALIDATE_BOOLEAN);
         }
@@ -81,15 +79,6 @@ class wizard_step5 extends wizard_step
             }
         }
 
-        if (isset($_POST['languages'])) {
-            $tmp = [];
-            foreach ($_POST['languages'] as $lang) {
-                // see http://www.unicode.org/reports/tr35/#Identifiers
-                $tmp[] = sanitizeVal($lang, ICMSSAN_NONPRINT);
-            }
-            $this->_params['languages'] = $tmp;
-        }
-
         if (isset($_POST['wantedextras'])) {
             //record the selected members of $app_config['extramodules']
             $tmp = [];
@@ -99,14 +88,31 @@ class wizard_step5 extends wizard_step
             $this->_params['wantedextras'] = $tmp;
         }
 
+        //any-action param
         $wiz = $this->get_wizard();
+        $choices = $wiz->get_data('sessionchoices'); // might be null
+        if (isset($_POST['languages'])) {
+            $tmp = [];
+            foreach ($_POST['languages'] as $lang) {
+                // see https://www.unicode.org/reports/tr35/#Identifiers
+                $tmp[] = sanitizeVal($lang, ICMSSAN_NONPRINT);
+            }
+            $this->_params['extlanguages'] = $tmp;
+            if (!empty($choices['extlanguages'])) {
+                $this->_params['removelanguages'] = array_diff($choices['extlanguages'], $tmp);
+            } else {
+                $this->_params['removelanguages'] = [];
+            }
+        } else {
+            $this->_params['extlanguages'] = [];
+            $this->_params['removelanguages'] = $choices['extlanguages'] ?? [];
+        }
+
         try {
             $this->validate($this->_params);
             $wiz->merge_data('sessionchoices', $this->_params);
 
-            if ($config['nofiles']) {
-                $url = $wiz->step_url(8);
-            } elseif ($wiz->get_data('action') == 'install') {
+            if ($wiz->get_data('action') == 'install') {
                 $url = $wiz->next_url();
             } else {  // upgrade or freshen
                 $url = $wiz->step_url(7);
@@ -125,15 +131,15 @@ class wizard_step5 extends wizard_step
     protected function display()
     {
         parent::display();
-        $action = $this->get_wizard()->get_data('action');
-
+        $wiz = $this->get_wizard();
+        $action = $wiz->get_data('action');
         $smarty = smarty();
         $smarty->assign('action', $action);
 
         $app = get_app();
         $config = $app->get_config();
         $raw = $config['verbose'] ?? 0;
-//        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
+//      $v = ($raw === null) ? $wiz->get_data('verbose',0) : (int)$raw;
         $smarty->assign('verbose', (int)$raw);
 
         if ($action == 'install') {
@@ -148,7 +154,7 @@ class wizard_step5 extends wizard_step
             $smarty->assign('yesno', ['0' => lang('no'), '1' => lang('yes')]);
         } elseif ($action == 'upgrade') {
             // if pertinent upgrade
-            $version_info = $this->get_wizard()->get_data('version_info');
+            $version_info = $wiz->get_data('version_info');
             if (version_compare($version_info['version'], '3.0') < 0) {
                 $raw = $app->get_dest_version();
                 if (version_compare($raw, '3.0') >= 0) { //should always be true, here
@@ -159,38 +165,37 @@ class wizard_step5 extends wizard_step
             }
         }
 
+        //get all non-en_US translations
         $languages = $app->get_language_list();
         unset($languages['en_US']);
-        if ($languages && $action == 'upgrade') {
-            // exclude installed languages
-            $v = (!empty($config['admin_path'])) ? $config['admin_path'] : 'admin';
-            $fp = joinpath($app->get_destdir(), $v, 'lang', 'ext', '');
-            $raw = glob($fp.'*.php', GLOB_NOSORT); // filesystem path
-            if ($raw) {
-                foreach ($languages as $key => $v) {
-                    $tmp = $fp.$key.'.php';
-                    if (in_array($tmp, $raw)) {
-                        unset($languages[$key]);
-                    }
-                }
-            }
-        }
         $smarty->assign('language_list', $languages);
-        $raw = $config['selectlangs'] ?? null;
-        if ($raw) {
-            if (is_array($raw)) {
-                array_walk($raw, function(&$v) {
+
+        //get the wanted or installed non-en_US translations
+        $langsused = $config['selectlangs'] ?? [];
+        if ($langsused) {
+            // use build-ini data
+            if (is_array($langsused)) {
+                array_walk($langsused, function(&$v) {
                     $v = trim($v);
                 });
-                $v = $raw;
             } else {
-                $v = [trim($raw)];
+                $langsused = [trim($langsused)];
             }
         } else {
-            $v = [];
+            //poll installed admin translations
+            $v = (!empty($config['admin_path'])) ? $config['admin_path'] : 'admin';
+            $patn = joinpath($app->get_destdir(), $v, 'lang', 'ext', '*.php');
+            $files = glob($patn, GLOB_NOSORT|GLOB_NOESCAPE);
+            foreach ($files as $fp) {
+                $langsused[] = basename($fp,'.php');
+            }
         }
-        $smarty->assign('languages', $v);
-
+        $langsused = array_unique($langsused);
+        if (($p = array_search('en_US', $langsused)) !== false) { // just in case
+            unset($langsused[$p]);
+        }
+        $wiz->merge_data('sessionchoices', ['extlanguages'=> $langsused]); //current, not necessarily the wanted one(s)
+        $smarty->assign('languages', $langsused);
         if ($action != 'freshen') {
             $raw = $app->get_noncore_modules();
             if ($raw && $action == 'upgrade') {

@@ -1,7 +1,7 @@
 <?php
 /*
 Non-system-dependent utility-methods available during every request
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -42,10 +42,10 @@ use function CMSMS\remove_page_content;
  * @param string $b Later microtime value
  * @return float The difference, in seconds.
  */
-function microtime_diff(string $a, string $b) : float
+function microtime_diff(string $a, string $b): float
 {
-    list($a_dec, $a_sec) = explode(' ', $a);
-    list($b_dec, $b_sec) = explode(' ', $b);
+    [$a_dec, $a_sec] = explode(' ', $a);
+    [$b_dec, $b_sec] = explode(' ', $b);
     return $b_sec - $a_sec + $b_dec - $a_dec;
 }
 
@@ -62,7 +62,7 @@ function microtime_diff(string $a, string $b) : float
  * @since 0.14
  * @return string
  */
-function cms_join_path(...$args) : string
+function cms_join_path(...$args): string
 {
     if (is_array($args[0])) {
         $args = $args[0];
@@ -183,9 +183,9 @@ function get_matching_files(string $dir, string $extensions = '', bool $excluded
  * @param  string  $mode     Optional "FULL"|"DIRS"|"FILES". Default "FULL"
  * @return array
  */
-function get_recursive_file_list(string $path, array $excludes = [], int $maxdepth = -1, string $mode = 'FULL') : array
+function get_recursive_file_list(string $path, array $excludes = [], int $maxdepth = -1, string $mode = 'FULL'): array
 {
-    $fn = function(string $name, array $excludes) : bool {
+    $fn = function(string $name, array $excludes): bool {
         foreach ($excludes as $excl) {
             if (@preg_match('/'.$excl.'/i', $name)) {
                 return true;
@@ -229,7 +229,7 @@ function get_recursive_file_list(string $path, array $excludes = [], int $maxdep
  *  topmost (first-nominated) folder (or just clear it). Default true.
  * @return bool indicating complete success
  */
-function recursive_delete(string $path, bool $withtop = true) : bool
+function recursive_delete(string $path, bool $withtop = true): bool
 {
     if (is_dir($path)) {
         $res = true;
@@ -266,7 +266,7 @@ function recursive_delete(string $path, bool $withtop = true) : bool
  * [3] dir read+write (+ access)
  * @throws Exception if no permissions can be determined
  */
-function get_server_permissions() : array
+function get_server_permissions(): array
 {
     static $modes = null;
     if ($modes === null) {
@@ -311,7 +311,7 @@ function get_server_permissions() : array
  * @param int   $filemode since 3.0 Optional permissions for non-dirs. Default 0, hence read+write from get_server_permissions()
  * @return bool indicating complete success
  */
-function recursive_chmod(string $path, int $dirmode = 0, int $filemode = 0) : bool
+function recursive_chmod(string $path, int $dirmode = 0, int $filemode = 0): bool
 {
     $res = true;
     if ($dirmode == 0) {
@@ -351,7 +351,7 @@ function recursive_chmod(string $path, int $dirmode = 0, int $filemode = 0) : bo
  * @param bool   $exact since 3.0 optional flag whether to do case-sensitive check. Default true.
  * @return bool
  */
-function startswith(string $str, string $sub, $exact = true) : bool
+function startswith(string $str, string $sub, $exact = true): bool
 {
     //PHP8+ if ($exact) return str_starts_with($str, $sub);
     $o = strlen($sub);
@@ -370,7 +370,7 @@ function startswith(string $str, string $sub, $exact = true) : bool
  * @param bool   $exact since 3.0 optional flag whether to do case-sensitive check. Default true.
  * @return bool
  */
-function endswith(string $str, string $sub, $exact = true) : bool
+function endswith(string $str, string $sub, $exact = true): bool
 {
     //PHP8+ if ($exact) return str_ends_with($str, $sub);
     $o = strlen($sub);
@@ -394,7 +394,7 @@ function endswith(string $str, string $sub, $exact = true) : bool
  * @param bool  $withslash Optional flag whether slashes should be retained in the output. Default false
  * @return string
  */
-function munge_string_to_url($str, bool $tolower = false, bool $withslash = false) : string
+function munge_string_to_url($str, bool $tolower = false, bool $withslash = false): string
 {
     if (!($str || is_numeric($str))) {
         return '';
@@ -425,7 +425,7 @@ function munge_string_to_url($str, bool $tolower = false, bool $withslash = fals
  * @param string $str The php ini key
  * @return bool
  */
-function ini_get_boolean(string $str) : bool
+function ini_get_boolean(string $str): bool
 {
     return cms_to_bool(ini_get($str));
 }
@@ -447,11 +447,10 @@ function ini_get_boolean(string $str) : bool
  * @return bool
  * Rolf: only used in lib/content.functions.php
  */
-function cms_ipmatches(string $ip, $checklist) : bool
+function cms_ipmatches(string $ip, $checklist): bool
 {
-    $_testip = function($range, $ip) {
-        $result = 1;
-
+    $_testip = function($range, $ip): bool {
+        $result = true;
         $regs = [];
         if (preg_match('/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\/([0-9]+)/', $range, $regs)) {
             // perform a mask match
@@ -473,17 +472,17 @@ function cms_ipmatches(string $ip, $checklist) : bool
             $ipocts = explode('.', $ip);
 
             if (count($maskocts) != count($ipocts) && count($maskocts) != 4) {
-                return 0;
+                return false;
             }
 
             // perform a range match
             for ($i = 0; $i < 4; ++$i) {
                 if (preg_match('/\[([0-9]+)\-([0-9]+)\]/', $maskocts[$i], $regs)) {
                     if (($ipocts[$i] > $regs[2]) || ($ipocts[$i] < $regs[1])) {
-                        $result = 0;
+                        $result = false;
                     }
                 } elseif ($maskocts[$i] <> $ipocts[$i]) {
-                    $result = 0;
+                    $result = false;
                 }
             }
         }
@@ -518,7 +517,7 @@ function is_email($email, bool $checkDNS = false)
         return false;
     }
     if ($checkDNS && function_exists('checkdnsrr')) {
-        list($user, $domain) = explode('@', $email, 2);
+        [$user, $domain] = explode('@', $email, 2);
         if (!(checkdnsrr($domain, 'A') || checkdnsrr($domain, 'MX'))) {
             return false; // Domain doesn't actually exist
         }
@@ -528,11 +527,12 @@ function is_email($email, bool $checkDNS = false)
 
 /**
  * Convert the supplied value to a corresponding bool.
- * Accepts number != 0, 'y','yes','true','on' as true (case insensitive) all other values represent false.
+ * Reports boolean true, number != 0, 'y','yes','true','on' (case insensitive) as true,
+ * all other values represent false.
  *
- * @param mixed $val string|bool|null Input to test.
+ * @param mixed $val Value to test. Normally a scalar.
  */
-function cms_to_bool($val) : bool
+function cms_to_bool($val): bool
 {
     if (is_bool($val)) {
         return $val;
@@ -540,12 +540,15 @@ function cms_to_bool($val) : bool
     if (is_numeric($val)) {
         return $val + 0 != 0;
     }
+    if (!$val) {
+        return false;
+    }
 
-    switch (strtolower($val)) {
-        case 'y':
-        case 'yes':
+    switch (strtolower((string)$val)) {
         case 'true':
         case 'on':
+        case 'y':
+        case 'yes':
             return true;
         default:
             return false;
@@ -594,7 +597,7 @@ function get_session_value(string $session_key, $default = '')
  * @param string $s The string to check
  * @return bool
  */
-function is_base64(string $s) : bool
+function is_base64(string $s): bool
 {
     return (bool) preg_match('~^[a-zA-Z0-9+/\r\n]+={0,2}$~', $s);
 }
@@ -791,7 +794,7 @@ function get_page_content(bool $top)
  *
  * @return string
  */
-function get_page_headtext() : string
+function get_page_headtext(): string
 {
     return get_page_content(true);
 }
@@ -805,9 +808,29 @@ function get_page_headtext() : string
  *
  * @return string
  */
-function get_page_foottext() : string
+function get_page_foottext(): string
 {
     return get_page_content(false);
+}
+
+/**
+ * Scrub inappropriate chars from the supplied string.
+ * This is a replacement for PHP's deprecated filter_var(FILTER_SANITIZE_STRING)
+ * but unlike the original, does not remove unclosed tags other than PHP tags
+ * unlike sanitizeVal(CMSSAN_PHPSTRING), it does not mimic FILTER_FLAG_STRIP_LOW
+ * @internal
+ * @since 3.0
+ *
+ * @param string $str String to be cleaned, may be empty
+ * @return string
+ */
+function filter_stringvar(string $str): string
+{
+    if ($str) {
+       $str = preg_replace(['/<[^>]*>/', '/<\s*\?\s*php.*$/i', '/<\s*\?\s*=.*$/'], ['', '', ''], $str);
+       return strtr($str, ["\0"=>'', '"'=>'&#34;', "'"=>'&#39;']);
+    }
+    return $str;
 }
 
 /**
@@ -862,57 +885,59 @@ function get_page_foottext() : string
  * @param string $ex Optional extra non-alphanum char(s) for $scope CMSSAN_PUNCTX
  * @return string
  */
-function sanitizeVal(string $str, int $scope = CMSSAN_PURE, string $ex = '') : string
+function sanitizeVal(string $str, int $scope = CMSSAN_PURE, string $ex = ''): string
 {
     if ($scope & ~CMSSAN_NONPRINT) {
         $str = trim($str);
     }
-    if ($str !== '') {
-        // eliminate multi-backslashes other than valid backslash-pairs
-        $l = strlen($str);
-        $p = 0;
-        while (($p = strpos($str, '\\', $p)) !== false) {
-            if ($p + 3 < $l && $str[$p + 1] == '\\' && $str[$p + 2] == '\\') {
-                switch ($str[$p + 3]) {
-                    case '\\': // skip past '\\\\'
-                        $p += 4;
-                        break;
-                    case "'": // omit '\\\' followed by ASCII char normally special-char'd
-                    case '"':
-                    case '<':
-                    case '>':
-                    case '&':
-                         $str = substr($str, 0, $p) . substr($str, $p + 3);
-                        $l -= 3;
+    if (!$str) {
+        return $str;
+    }
+    // eliminate multi-backslashes other than valid backslash-pairs
+    $l = strlen($str);
+    $p = 0;
+    while (($p = strpos($str, '\\', $p)) !== false) {
+        if ($p + 3 < $l && $str[$p + 1] == '\\' && $str[$p + 2] == '\\') {
+            switch ($str[$p + 3]) {
+                case '\\': // skip past '\\\\'
+                    $p += 4;
                     break;
-                    default: // omit '\\' followed by '\'
-                        $str = substr($str, 0, $p) . substr($str, $p + 2);
-                        $l -= 2;
-                        break;
-                }
-            } elseif ($p + 1 < $l) {
-                switch ($str[$p + 1]) {
-                    case "'": // omit '\' followed by char normally special-char'd
-                    case '"':
-                    case '<':
-                    case '>':
-                    case '&':
-                        $str = substr($str, 0, $p) . substr($str, $p + 1);
-                        --$l;
-                        break;
-                    default:
-                        ++$p;
-                        break;
-                }
-            } elseif ($p + 1 == $l) {
-                $str = substr($str, 0, $p);
-                --$l;
+                case "'": // omit '\\\' followed by ASCII char normally special-char'd
+                case '"':
+                case '<':
+                case '>':
+                case '&':
+                     $str = substr($str, 0, $p) . substr($str, $p + 3);
+                    $l -= 3;
                 break;
-            } else {
-                ++$p;
+                default: // omit '\\' followed by '\'
+                    $str = substr($str, 0, $p) . substr($str, $p + 2);
+                    $l -= 2;
+                    break;
             }
+        } elseif ($p + 1 < $l) {
+            switch ($str[$p + 1]) {
+                case "'": // omit '\' followed by char normally special-char'd
+                case '"':
+                case '<':
+                case '>':
+                case '&':
+                    $str = substr($str, 0, $p) . substr($str, $p + 1);
+                    --$l;
+                    break;
+                default:
+                    ++$p;
+                    break;
+            }
+        } elseif ($p + 1 == $l) {
+            $str = substr($str, 0, $p);
+            --$l;
+            break;
+        } else {
+            ++$p;
         }
     }
+
     switch ($scope) {
         case CMSSAN_ACCOUNT:
             if (is_email($str)) {
@@ -950,7 +975,8 @@ function sanitizeVal(string $str, int $scope = CMSSAN_PURE, string $ex = '') : s
             $patn = '/[^\w \-.\x80-\xff]/';
             break;
         case CMSSAN_PHPSTRING:
-            $str = strtr(strip_tags($str), ['"'=>'&#34;', "'"=>'&#39;']);
+            $str = preg_replace(['/<[^>]*>/', '/<\s*\?\s*php.*$/i', '/<\s*\?\s*=.*$/'], ['', '', ''], $str);
+            $str = strtr($str, ['"'=>'&#34;', "'"=>'&#39;']);
             $patn = '/[\x00-\x08,\x0b,\x0c,\x0e-\x1f]/';
             break;
         default: // incl. CMSSAN_PURE
@@ -972,7 +998,7 @@ function sanitizeVal(string $str, int $scope = CMSSAN_PURE, string $ex = '') : s
  *   must be handled independently
  * @return string
  */
-function urlencode(string $str, string $keeps = '\w.~!$&\'()*\-+,/:;=%') : string
+function urlencode(string $str, string $keeps = '\w.~!$&\'()*\-+,/:;=%'): string
 {
     $patn = '/[^' . addcslashes($keeps, '/') . ']/';
     return preg_replace_callback_array([
@@ -998,7 +1024,7 @@ function urlencode(string $str, string $keeps = '\w.~!$&\'()*\-+,/:;=%') : strin
  * @param string $val input value
  * @return string
  */
-function execSpecialize(string $val) : string
+function execSpecialize(string $val): string
 {
     $tmp = de_entitize($val);
     if ($tmp === $val) {
@@ -1036,7 +1062,7 @@ function execSpecialize(string $val) : string
         ], $val);
 
     if ($revert) {
-        list($flags, $charset) = get_entparms(0, '', false); // get flag(s) to prevent circling back to this func
+        [$flags, $charset] = get_entparms(0, '', false); // get flag(s) to prevent circling back to this func
         return entitize($val, $flags, $charset);
     }
     return $val;
@@ -1049,7 +1075,7 @@ function execSpecialize(string $val) : string
  * @since 3.0
  * @return string 32 random hexits
  */
-function create_guid() : string
+function create_guid(): string
 {
     return bin2hex(random_bytes(16));
 }
@@ -1061,7 +1087,7 @@ function create_guid() : string
  *
  * @return bool
  */
-function is_secure_request() : bool
+function is_secure_request(): bool
 {
     if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
         return (strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https');
@@ -1077,7 +1103,7 @@ function is_secure_request() : bool
  * @since 3.0
  * @return sorted array
 */
-function utf8_sort(array $arr, bool $preserve = false, bool $cased = true) : array
+function utf8_sort(array $arr, bool $preserve = false, bool $cased = true): array
 {
     //TODO ensure non-UTF8 char(s) are migrated
     //TODO an encoding relevant to site e.g. func($config), func(ini_get()), func(LOCALE),

@@ -232,7 +232,7 @@
         // js variable-types: Boolean Null Undefined Number BigInt String Symbol Object
         switch (typeof data) {
           case 'string':
-            return $('<i>').html(data).html();
+            return $('<i></i>').html(data).html();
           case 'number':
           case 'bigint':
             var s = data.toString();
@@ -380,7 +380,7 @@ p.then(function(value) {
         if (el.tagName === 'DIV') { // OR $(el).hasClass('note-editable')
           var rng = $.summernote.range.createFromSelection(),
             grab = rng.nativeRange().cloneContents();
-          seltext = $('<p>').append($(grab)).html();
+          seltext = $('<p></p>').append($(grab)).html();
         } else if (el.tagName === 'TEXTAREA') { // OR $(el).hasClass('note-codable')
           var o1 = el.selectionStart,
             o2 = el.selectionEnd;
@@ -451,7 +451,7 @@ p.then(function(value) {
         if (el.tagName === 'DIV') { // OR $(el).hasClass('note-editable')
           var rng = $.summernote.range.createFromSelection(),
             grab = rng.nativeRange().cloneContents();
-          seltext = $('<p>').append($(grab)).html(); // retained structure, with some sanitizing
+          seltext = $('<p></p>').append($(grab)).html(); // retained structure, with some sanitizing
         } else if (el.tagName === 'TEXTAREA') { // OR $(el).hasClass('note-codable')
           var o1 = el.selectionStart,
             o2 = el.selectionEnd;

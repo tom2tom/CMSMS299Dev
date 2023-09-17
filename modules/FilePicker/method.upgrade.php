@@ -2,7 +2,7 @@
 /*
 FilePicker - A CMSMS module to provide various support services.
 Copyright (C) 2016 Fernando Morgado <jomorg@cmsmadesimple.org>
-Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Fernando Morgado and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>

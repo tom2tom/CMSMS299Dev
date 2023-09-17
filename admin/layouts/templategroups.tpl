@@ -7,7 +7,7 @@
  <a href="{$url}" title="{_ld('layout','create_group')}">{admin_icon icon='newobject.gif'}</a>
  <a href="{$url}">{_ld('layout','create_group')}</a>
 </div>
-{if isset($list_groups)}
+{if !empty($list_groups)}
 <table id="grouplist" class="pagetable">
  <thead>
   <tr>
@@ -27,10 +27,10 @@
     <td>
       {$ul=!$group->locked()}
       {$t=_ld('layout','prompt_locked')}
-      <span class="locked" data-grp-id="{$gid}" title="{$t}"{if $ul} style="display:none;"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
+      <span class="locked" data-grp-id="{$gid}" title="{$t}"{if $ul} style="display:none"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
       {$t=_ld('layout','prompt_steal_lock')}
-      <a class="steal_lock" href="{$url}&steal=1" data-grp-id="{$gid}" title="{$t}" accesskey="e"{if $ul} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
-      <span class="action" context-menu="Templategroup{$gid}"{if !$ul} style="display:none;"{/if}>{$micon}</span>
+      <a class="steal_lock" href="{$url}&steal=1" data-grp-id="{$gid}" title="{$t}" accesskey="e"{if $ul} style="display:none"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
+      <span class="action" context-menu="Templategroup{$gid}"{if !$ul} style="display:none"{/if}>{$micon}</span>
     </td>{/strip}
   </tr>
     {/foreach}

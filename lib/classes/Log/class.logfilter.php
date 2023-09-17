@@ -1,7 +1,7 @@
 <?php
 /*
 Class for ...
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -34,13 +34,13 @@ class logfilter
     ];
 
     #[\ReturnTypeWillChange]
-    public function __get($key)// : mixed
+    public function __get(string $key)//: mixed
     {
         switch( $key) {
         case 'subject':
         case 'username':
         case 'message':
-            return trim($this->_data[$key]);
+            return trim($this->_data[$key]??'');
 
         case 'severity':
         case 'limit':
@@ -52,7 +52,7 @@ class logfilter
         }
     }
 
-    public function __set($key, $val) : void
+    public function __set(string $key, $val): void
     {
         switch( $key) {
         case 'subject':

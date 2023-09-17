@@ -1,7 +1,7 @@
 <?php
 /*
 Script to edit a template
-Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -264,7 +264,7 @@ try {
 				$handlers = ob_list_handlers();
 				for ($n = count($handlers), $cnt = 0; $cnt < $n; ++$cnt) { ob_end_clean(); }
 
-				header('Content-type: application/json; charset=utf-8');
+				header('Content-Type: application/json; charset=utf-8');
 
 				if ($data) {
 					$json = json_encode(['status' => $status, 'message' => $message, 'data' => $data]);
@@ -426,8 +426,7 @@ try {
 
 	$js = $pageincs['foot'] ?? '';
 	$js .= <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
   var do_locking = $do_locking;
   if(do_locking) {
@@ -494,7 +493,6 @@ $(function() {
     return false;
   });
 });
-//]]>
 </script>
 EOS;
 	add_page_foottext($js); //not $jsm->queue_script() (fluctuating embedded variables)

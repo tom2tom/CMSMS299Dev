@@ -1,7 +1,7 @@
 <?php
 /*
 A class to work with cache data in filesystem files.
-Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -139,7 +139,7 @@ class CacheFile extends CacheDriver
 		return $out;
 	}
 
-	public function get(string $key, string $space = '')// : mixed string | null
+	public function get(string $key, string $space = '')//: mixed ? string | null
 	{
 		if (!$space) { $space = $this->_space; }
 		$this->_auto_clean_files();
@@ -181,7 +181,7 @@ class CacheFile extends CacheDriver
 		return false;
 	}
 
-	public function clear(string $space = '') : int
+	public function clear(string $space = ''): int
 	{
 		if (!$space) { $space = $this->_space; }
 		elseif ($space == '*' || $space == '__ALL__') { $space = ''; }
@@ -192,7 +192,7 @@ class CacheFile extends CacheDriver
 	 * @ignore
 	 * TODO need distinguishable "group" files
 	 */
-	private function _get_filename(string $key, string $space) : string
+	private function _get_filename(string $key, string $space): string
 	{
 		$fn = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->get_cachekey($key, static::class, $space) . $space . '.cache';
 		return $fn;
@@ -201,7 +201,7 @@ class CacheFile extends CacheDriver
 	/**
 	 * @ignore
 	 */
-	private function _flock($res, string $flag) : bool
+	private function _flock($res, string $flag): bool
 	{
 		if (!$this->_locking) return true;
 		if (!$res) return false;
@@ -235,9 +235,9 @@ class CacheFile extends CacheDriver
 
 	/**
 	 * @ignore
-     * @return mixed string | null
+	 * @return mixed string | null
 	 */
-	private function _read_cache_file(string $fn)// : mixed
+	private function _read_cache_file(string $fn)//: mixed
 	{
 		$this->_cleanup($fn);
 		$value = null;
@@ -257,13 +257,13 @@ class CacheFile extends CacheDriver
 				}
 			}
 		}
-    	return $value;
+		return $value;
 	}
 
 	/**
 	 * @ignore
 	 */
-	private function _cleanup(string $fn)
+	private function _cleanup(string $fn): void
 	{
 		if (empty($this->_lifetime)) return;
 		clearstatcache();
@@ -273,7 +273,7 @@ class CacheFile extends CacheDriver
 	/**
 	 * @ignore
 	 */
-	private function _write_cache_file(string $fn, $value) : bool
+	private function _write_cache_file(string $fn, $value): bool
 	{
 		$fp = @fopen($fn, 'wb');
 		if ($fp) {
@@ -297,7 +297,7 @@ class CacheFile extends CacheDriver
 	/**
 	 * @ignore
 	 */
-	private function _auto_clean_files() : int
+	private function _auto_clean_files(): int
 	{
 		if ($this->_auto_cleaning) {
 			// static properties here >> Lone property|ies ?
@@ -316,7 +316,7 @@ class CacheFile extends CacheDriver
 	 * @ignore
 	 * @return int No of items deleted (i.e. 0 might indicate success)
 	 */
-	private function _clean_dir(string $dir, string $space, bool $aged = true) : int
+	private function _clean_dir(string $dir, string $space, bool $aged = true): int
 	{
 		$prefix = ($space) ?
 			$this->get_cacheprefix(static::class, $space):

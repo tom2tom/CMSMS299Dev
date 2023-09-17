@@ -1,5 +1,6 @@
 <?php
-namespace cms_installer\wizard {
+namespace cms_installer\wizard;
+
 use cms_installer\request;
 use cms_installer\session;
 use DirectoryIterator;
@@ -8,10 +9,11 @@ use RegexIterator;
 
 final class wizard
 {
-    const STATUS_OK = 'OK';
-    const STATUS_ERROR = 'ERROR';
-    const STATUS_BACK = 'BACK';
-    const STATUS_NEXT = 'NEXT';
+    public const STATUS_OK = 'OK';
+    public const STATUS_ERROR = 'ERROR';
+    public const STATUS_BACK = 'BACK';
+    public const STATUS_NEXT = 'NEXT';
+    private const SECURE_PARAM_NAME = 'i_s_';
 
     // __DIR__ might be phar://abspath/to/pharfile/relpath/to/thisfolder
     public static $_classdir = __DIR__;
@@ -19,22 +21,22 @@ final class wizard
 
     private static $_instance = null;
     private static $_initialized = false; //blocker for re-init's
-    private static $_stepvar = 's';
     private static $_steps;
     private static $_stepobj;
+    private $_stepkey;
 
     /**
      * @ignore
      */
     private function __construct()
     {
+        $this->_stepkey = 'd'.substr(md5(realpath(getcwd()).session_id()), 0, 11);
     }
 
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    private function __clone() {}// : void {}
+    private function __clone(): void {}
 
     /**
      * Get the singleton instance of this class
@@ -46,7 +48,7 @@ final class wizard
      * @return self
      * @throws Exception if supplied $classdir is invalid
      */
-    public static function get_instance($classdir = '', $namespace = '') : self
+    public static function get_instance($classdir = '', $namespace = ''): self
     {
         if (!self::$_instance) {
             self::$_instance = new self();
@@ -78,34 +80,35 @@ final class wizard
 
     public function get_step_var()
     {
-        return self::$_stepvar;
+        $sess = session::get_instance();
+        return $sess[$this->_stepkey] ?? ['', 0];
     }
 
-    public function set_step_var($str)
+    public function set_step_var($str, $stepnum)
     {
-        if ($str) {
-            self::$_stepvar = $str;
-        }
+        $sess = session::get_instance();
+        $sess[$this->_stepkey] = [$str, (int)$stepnum];
     }
 
-    public function cur_step() : int
+    public function cur_step(): int
     {
-        //TODO security check per $this->get_data(self::$_stepvar)
-        if (self::$_stepvar && isset($_GET[self::$_stepvar])) {
-            $val = (int)$_GET[self::$_stepvar];
-        } else {
-            $val = 1;
+        $sess = session::get_instance();
+        if (isset($sess[$this->_stepkey])) {
+            $val = $sess[$this->_stepkey][0];
+            if (isset($_GET[self::SECURE_PARAM_NAME]) && $_GET[self::SECURE_PARAM_NAME] == $val) {
+                return (int)$sess[$this->_stepkey][1];
+            }
         }
-        return $val;
+        return 1;
     }
 
-    public function finished() : bool
+    public function finished(): bool
     {
         $this->_init();
         return $this->cur_step() > $this->num_steps();
     }
 
-    public function num_steps() : int
+    public function num_steps(): int
     {
         $this->_init();
         return count(self::$_steps);
@@ -178,7 +181,7 @@ final class wizard
      * @param mixed $idx numeric 1 .. no. of steps
      * @return string
      */
-    public function step_url($idx) : string
+    public function step_url($idx): string
     {
         $this->_init();
 
@@ -190,17 +193,25 @@ final class wizard
         $request = request::get_instance();
         $url = $request->raw_server('REQUEST_URI');
         $urlmain = explode('?', $url);
-        $url = $urlmain[0].'?'.self::$_stepvar.'='.$idx;
-        $url .= '&'.chr(random_int(97, 122)).bin2hex(random_bytes(3)).'='.chr($idx + 70); //sorta nonce
-        $this->set_data(self::$_stepvar, $url); //for security check when we get there
-        return $url;
+
+        $code = base_convert(bin2hex(random_bytes(6)), 16, 36);
+        $this->set_step_var($code, $idx);
+
+        $parts = [];
+        $parts[self::SECURE_PARAM_NAME] = $code;
+        //TODO any relevant $parts from parse_str($urlmain[1])
+        $tmp = [];
+        foreach ($parts as $k => $v) {
+            $tmp[] = $k.'='.$v;
+        }
+        return rtrim($urlmain[0],' /').'?'.implode('&', $tmp);
     }
 
     /**
      * Get the url of the next step in numeric order
      * @return string
      */
-    public function next_url() : string
+    public function next_url(): string
     {
         $this->_init();
 
@@ -211,32 +222,48 @@ final class wizard
         $request = request::get_instance();
         $url = $request->raw_server('REQUEST_URI'); // TODO if N/A in $_SERVER
         $urlmain = explode('?', $url);
-        $url = $urlmain[0].'?'.self::$_stepvar.'='.$idx;
-        $url .= '&'.chr(random_int(97, 122)).bin2hex(random_bytes(3)).chr($idx + 70); //sorta nonce
-        $this->set_data(self::$_stepvar, $url); //for security check
-        return $url;
+
+        $code = base_convert(bin2hex(random_bytes(6)), 16, 36);
+        $this->set_step_var($code, $idx);
+
+        $parts = [];
+        $parts[self::SECURE_PARAM_NAME] = $code;
+        //TODO any relevant $parts from parse_str($urlmain[1])
+        $tmp = [];
+        foreach ($parts as $k => $v) {
+            $tmp[] = $k.'='.$v;
+        }
+        return rtrim($urlmain[0],' /').'?'.implode('&', $tmp);
     }
 
     /**
      * Get the url of the previous step in numeric order
      * @return string
      */
-    public function prev_url() : string
+    public function prev_url(): string
     {
         $this->_init();
 
         $idx = $this->cur_step() - 1;
-        if ($idx <= 0) {
+        if ($idx < 1) {
             return '';
         }
 
         $request = request::get_instance();
         $url = $request->raw_server('REQUEST_URI');
         $urlmain = explode('?', $url);
-        $url = $urlmain[0].'?'.self::$_stepvar.'='.$idx;
-        $url .= '&'.chr(random_int(97, 122)).bin2hex(random_bytes(3)).chr($idx + 70); //sorta nonce
-        $this->set_data(self::$_stepvar, $url); //for security check
-        return $url;
+
+        $code = base_convert(bin2hex(random_bytes(6)), 16, 36);
+        $this->set_step_var($code, $idx);
+
+        $parts = [];
+        $parts[self::SECURE_PARAM_NAME] = $code;
+        //TODO any relevant $parts from parse_str($urlmain[1])
+        $tmp = [];
+        foreach ($parts as $k => $v) {
+            $tmp[] = $k.'='.$v;
+        }
+        return rtrim($urlmain[0],' /').'?'.implode('&', $tmp);
     }
 
     /**
@@ -285,33 +312,3 @@ final class wizard
         self::$_initialized = true;
     }
 } // class
-} // wizard namespace
-namespace {
-use cms_installer\wizard\wizard;
-
-// functions to generate GUI-installer messages (formerly in misc.functions.php)
-
-function verbose_msg(string $str)
-{
-    $obj = wizard::get_instance()->get_step();
-    if (method_exists($obj, 'verbose')) {
-        $obj->verbose($str);
-    }
-}
-
-function status_msg(string $str)
-{
-    $obj = wizard::get_instance()->get_step();
-    if (method_exists($obj, 'message')) {
-        $obj->message($str);
-    }
-}
-
-function error_msg(string $str)
-{
-    $obj = wizard::get_instance()->get_step();
-    if (method_exists($obj, 'error')) {
-        $obj->error($str);
-    }
-}
-} //global namespace

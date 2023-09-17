@@ -43,7 +43,7 @@ final class PHPmailTransport implements Transport
         $this->options = $options;
     }
 /*
-    public function __set(string $key, $value) : void
+    public function __set(string $key, $value): void
     {
         $this->options[$key] = $value;
     }

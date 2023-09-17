@@ -1,7 +1,7 @@
 <?php
 /*
 Styles retriever used by some admin-themes
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -34,7 +34,7 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'cla
 AppState::set(AppState::STYLESHEET | AppState::ADMIN_PAGE);
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-$cms_readfile = function($filename)
+$cms_readfile = function(string $filename): bool
 {
   $result = file_get_contents($filename);
   if( $result ) {

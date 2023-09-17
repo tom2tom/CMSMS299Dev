@@ -23,10 +23,9 @@ final class session implements ArrayAccess
         }
     }
 
-    #[\ReturnTypeWillChange]
-    private function __clone() {}// : void {}
+    private function __clone(): void {}
 
-    public static function get_instance() : self
+    public static function get_instance(): self
     {
         if (!self::$_instance) {
             self::$_instance = new self();
@@ -54,27 +53,27 @@ final class session implements ArrayAccess
 
     //ArrayAccess methods
 
-    public function offsetExists($key) : bool
+    public function offsetExists(/*mixed */$key): bool
     {
         $this->_expand();
         return isset($this->_data[$key]);
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetGet($key)// : mixed
+    public function offsetGet(/*mixed */$key)//: mixed
     {
         $this->_expand();
         return $this->_data[$key] ?? null;
     }
 
-    public function offsetSet($key, $value) : void
+    public function offsetSet(/*mixed */$key, $value): void
     {
         $this->_expand();
         $this->_data[$key] = $value;
         $this->_save();
     }
 
-    public function offsetUnset($key) : void
+    public function offsetUnset(/*mixed */$key): void
     {
         $this->_expand();
         if (isset($this->_data[$key])) {
@@ -145,7 +144,7 @@ final class session implements ArrayAccess
         switch ($this->_crypter) {
             case 'sodium':
                 $pw = session_id();
-                list($nonce, $key) = $this->_sodium_extend($pw, $seed);
+                [$nonce, $key] = $this->_sodium_extend($pw, $seed);
                 $str = sodium_crypto_secretbox($raw, $nonce, $key);
                 break;
             case 'openssl':
@@ -193,7 +192,7 @@ final class session implements ArrayAccess
             switch ($this->_crypter) {
                 case 'sodium':
                     $pw = session_id();
-                    list($nonce, $key) = $this->_sodium_extend($pw, $seed);
+                    [$nonce, $key] = $this->_sodium_extend($pw, $seed);
                     $str = sodium_crypto_secretbox_open($raw, $nonce, $key);
                     break;
                 case 'openssl':

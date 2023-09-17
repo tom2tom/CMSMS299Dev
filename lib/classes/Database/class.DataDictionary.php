@@ -1,7 +1,7 @@
 <?php
 /*
 Methods for creating, modifying a database or its components
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -166,7 +166,7 @@ class DataDictionary
         if ($table) {
             $sql = 'SHOW FULL COLUMNS FROM '.$this->NameQuote($table);
             $list = $this->connection->getArray($sql);
-            if ($list !== false) {
+            if ($list) {
                 $out = [];
                 foreach ($list as &$row) {
                     $key = $row['Field'];
@@ -268,6 +268,9 @@ class DataDictionary
         if (!is_string($name)) {
             return '';
         }
+        if (!$name) {
+            return $name;
+        }
 
         // if name is already quoted, just trim
         if (preg_match('/^\s*`.+`\s*$/', $name)) {
@@ -324,7 +327,7 @@ class DataDictionary
             if (count($fieldnames) == 1) {
                 return $prefix.strtr($fieldnames[0], ['_'=>'', '-'=>'', ' '=>'']);
             }
-            $maxlen = (int)strlen($fieldnames[0].$fieldnames[1]) / 2;
+            $maxlen = (int)((strlen($fieldnames[0].$fieldnames[1]) / 2) + 0.00001);
             $fieldnames = array_map(function($name) use ($maxlen, $truncs)
             {
                 $s = strtr($name, ['_'=>'', '-'=>'', ' '=>'']);
@@ -420,7 +423,7 @@ class DataDictionary
     public function AddColumnSQL($tabname, $defn)
     {
         $out = [];
-        list($lines, $pkeys, $ukeys, $xkeys) = $this->GenFields($defn);
+        [$lines, $pkeys, $ukeys, $xkeys] = $this->GenFields($defn);
         if ($lines) {
             $v = self::ALTERTABLE.$this->TableName($tabname).self::ADDCOLUMN.reset($lines);
             if ($pkeys) {
@@ -460,7 +463,7 @@ class DataDictionary
     public function AlterColumnSQL($tabname, $defn) //, $tableflds = '', $tableoptions = '')
     {
         $out = [];
-        list($lines, $pkeys, $ukeys, $xkeys) = $this->GenFields($defn);
+        [$lines, $pkeys, $ukeys, $xkeys] = $this->GenFields($defn);
         if ($lines) {
             $v = self::ALTERTABLE.$this->TableName($tabname).self::ALTERCOLUMN.reset($lines);
             if ($pkeys) {
@@ -509,9 +512,9 @@ class DataDictionary
             $defn = $newname.' '.$defn;
         }
         if ($defn) {
-            list($lines, $pkeys, $ukeys, $xkeys) = $this->GenFields($defn); // index(es) ignored, can't change em via rename
+            [$lines, $pkeys, $ukeys, $xkeys] = $this->GenFields($defn); // index(es) ignored, can't change em via rename
             $first = reset($lines);
-            list($name, $column_def) = preg_split('/\s+/', $first, 2);
+            [$name, $column_def] = preg_split('/\s+/', $first, 2);
             if (!$newname) {
                 $newname = $name;
             }
@@ -774,7 +777,7 @@ class DataDictionary
 
         // table exists and some|all fields may be altered, proceed to do so
         $out = [];
-        list($lines, $pkeys, $ukeys, $xkeys) = $this->GenFields($defn);
+        [$lines, $pkeys, $ukeys, $xkeys] = $this->GenFields($defn);
         $alter = self::ALTERTABLE.$this->TableName($tablename);
 
         foreach ($lines as $id => $v) {
@@ -896,7 +899,7 @@ class DataDictionary
      */
     public function CreateTableSQL($tabname, $defn, $tableoptions = '')
     {
-        list($lines, $pkeys, $ukeys, $xkeys) = $this->GenFields($defn, true);
+        [$lines, $pkeys, $ukeys, $xkeys] = $this->GenFields($defn, true);
         if ($lines) {
             $tabname = $this->TableName($tabname);
             $dbtype = $this->dbType();
@@ -1447,7 +1450,7 @@ class DataDictionary
             }
 
             if ($fforeign) {
-                list($table, $field) = explode(',', trim($fforeign), 2);
+                [$table, $field] = explode(',', trim($fforeign), 2);
                 if ($table && $field) {
                     $s .= ", FOREIGN KEY($fname) REFERENCES $table($field)";
                 }

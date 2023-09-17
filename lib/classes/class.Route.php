@@ -1,7 +1,7 @@
 <?php
 /*
 Class to manage information for a route.
-Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -107,7 +107,7 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	public function __set(string $key,$value) : void
+	public function __set(string $key,$value): void
 	{
 		if( in_array($key,self::KEYS) ) $this->_data[$key] = $value;
 	}
@@ -115,7 +115,7 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	public function __isset(string $key) : bool
+	public function __isset(string $key): bool
 	{
 		return in_array($key,self::KEYS) && isset($this->_data[$key]);
 	}
@@ -124,7 +124,7 @@ class Route implements ArrayAccess
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	public function __get(string $key)// : mixed
+	public function __get(string $key)//: mixed
 	{
 		return $this->_data[$key] ?? null;
 	}
@@ -133,7 +133,7 @@ class Route implements ArrayAccess
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	public function offsetGet($key)// : mixed
+	public function offsetGet(/*mixed */$key)//: mixed
 	{
 		if( in_array($key,self::KEYS) && isset($this->_data[$key]) ) return $this->_data[$key];
 		return null;
@@ -142,7 +142,7 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	public function offsetSet($key,$value) : void
+	public function offsetSet(/*mixed */$key,$value): void
 	{
 		if( in_array($key,self::KEYS) ) $this->_data[$key] = $value;
 	}
@@ -150,7 +150,7 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	public function offsetExists($key) : bool
+	public function offsetExists(/*mixed */$key): bool
 	{
 		return in_array($key,self::KEYS) && isset($this->_data[$key]);
 	}
@@ -158,7 +158,7 @@ class Route implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	public function offsetUnset($key) : void
+	public function offsetUnset(/*mixed */$key): void
 	{
 		if( in_array($key,self::KEYS) && isset($this->_data[$key]) ) unset($this->_data[$key]);
 	}
@@ -186,7 +186,7 @@ class Route implements ArrayAccess
 	/**
 	 * Return the signature of this object, a hash derived from its properties
 	 */
-	public function get_signature() : string
+	public function get_signature(): string
 	{
 		$props = array_intersect_key($this->_data, [
 			'defaults' => 1,

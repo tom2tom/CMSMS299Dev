@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton wrapper-class for engaging with a system/global cache
-Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -76,8 +76,7 @@ final class SystemCache
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * Get the singleton general-purpose cache object.
@@ -86,7 +85,7 @@ final class SystemCache
 	 * @return self | not at all
 	 * @throws Exception if driver-connection fails
 	 */
-	public static function get_instance() : self
+	public static function get_instance(): self
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'SystemCache\')'));
 		return Lone::get('SystemCache');
@@ -291,7 +290,7 @@ final class SystemCache
 	 *  If not specified, the default keys-space will be used.
 	 * @return bool
 	 */
-	public function has($key, string $space = '') : bool
+	public function has($key, string $space = ''): bool
 	{
 		if( self::$driver instanceof CacheDriver ) {
 			return self::$driver->has($key, $space);
@@ -303,7 +302,7 @@ final class SystemCache
 	 * Report whether a value-key is present in the cache
 	 * @deprecated since 3.0 Instead use interface-compatible SystemCache::has()
 	 */
-	public function exists($key, string $space = '') : bool
+	public function exists($key, string $space = ''): bool
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SystemCache::has()'));
 		return $this->has($key, $space);
@@ -318,7 +317,7 @@ final class SystemCache
 	 *  If not specified, the default keys-space will be used.
 	 * @return bool
 	 */
-	public function delete($key, string $space = '') : bool
+	public function delete($key, string $space = ''): bool
 	{
 		if( self::$driver instanceof CacheDriver ) {
 			return self::$driver->delete($key, $space);
@@ -330,7 +329,7 @@ final class SystemCache
 	 * Remove a value from the cache
 	 * @deprecated since 3.0 Instead use interface-compatible Systemcache::delete()
 	 */
-	public function erase($key, string $space = '') : bool
+	public function erase($key, string $space = ''): bool
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Systemcache::delete()'));
 		return $this->delete($key, $space);
@@ -349,7 +348,7 @@ final class SystemCache
 	 *  If not specified, the default keys-space will be used.
 	 * @return bool
 	 */
-	public function set($key, $value, string $space = '') : bool
+	public function set($key, $value, string $space = ''): bool
 	{
 		if( self::$driver instanceof CacheDriver ) {
 			if ($value === null ) { $value = 0; }
@@ -370,7 +369,7 @@ final class SystemCache
 	 * @param string $space Optional keys-space name, default ''.
 	 *  If not specified, the default keys-space will be used.
 	 */
-	public function set_timed($key, $value, int $ttl, string $space = '') : bool
+	public function set_timed($key, $value, int $ttl, string $space = ''): bool
 	{
 		if( self::$driver instanceof CacheDriver ) {
 			if ($value === null ) { $value = 0; }
@@ -389,7 +388,7 @@ final class SystemCache
 	 *  If not specified, the default keys-space will be used.
 	 * @return bool
 	 */
-/*	public function set_all(array $values, string $space = '') : bool
+/*	public function set_all(array $values, string $space = ''): bool
 	{
 	TODO
 	}
@@ -402,7 +401,7 @@ final class SystemCache
 	 * @param string $space keys-space name
 	 * @return bool
 	 */
-	public function set_space(string $space) : bool
+	public function set_space(string $space): bool
 	{
 		if( self::$driver instanceof CacheDriver ) {
 			return self::$driver->set_space($space);
@@ -414,7 +413,7 @@ final class SystemCache
 	 * Set the default keys-space (a.k.a. group) for all class-methods
 	 * @deprecated since 3.0 Instead use set_space();
 	 */
-	public function set_group(string $space) : bool
+	public function set_group(string $space): bool
 	{
 		return $this->set_space($space);
 	}
@@ -425,7 +424,7 @@ final class SystemCache
 	 *
 	 * @return string, possibly 'UNKNOWN'
 	 */
-	public function get_space() : string
+	public function get_space(): string
 	{
 		if( self::$driver instanceof CacheDriver ) {
 			return self::$driver->get_space();
@@ -442,7 +441,7 @@ final class SystemCache
 	 * @param string $salt If empty, the value of __CLASS__ will be used
 	 * @return string 16-hexits
 	 */
-	public function generate_space(string $salt = '') : string
+	public function generate_space(string $salt = ''): string
 	{
 		if ($salt === '') { $salt = __CLASS__; }
 		return hash('adler32', $salt.__FILE__).hash('adler32', $salt);

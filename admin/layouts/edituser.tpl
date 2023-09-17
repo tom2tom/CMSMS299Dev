@@ -13,21 +13,21 @@
   <!-- user profile -->
   <div class="pageoverflow">
     {$t=_la('username')}<label class="pagetext" for="username">{$t}:</label>
-    {cms_help 0='help' key='user_name' title=$t}
+    {cms_help realm='help' key='user_name' title=$t}
     <div class="pageinput">
       <input type="text" id="username" name="user" maxlength="25" value="{$user}">
     </div>
   </div>
   <div class="pageoverflow">
     {$t=_la('password')}<label class="pagetext" for="password">{$t}:</label>
-    {cms_help 0='help' key='user_edit_password' title=$t}
+    {cms_help realm='help' key='user_edit_password' title=$t}
     <div class="pageinput">
       <input type="text" id="password" name="password" autocomplete="off" maxlength="72">
     </div>
   </div>
   <div class="pageoverflow">
     {$t=_la('passwordagain')}<label class="pagetext" for="passagain">{$t}:</label>
-    {cms_help 0='help' key='user_edit_passwordagain' title=$t}
+    {cms_help realm='help' key='user_edit_passwordagain' title=$t}
     <div class="pageinput">
       <input type="text" id="passagain" name="passwordagain" autocomplete="off" maxlength="72">
     </div>
@@ -35,7 +35,7 @@
   {if !($access_user || $user_id == 1)}
   <div class="pageoverflow">
     {$t=_la('onetimepassword')}<label class="pagetext" for="repass">{$t}:</label>
-    {cms_help 0='help' key='user_repass' title=$t}
+    {cms_help realm='help' key='user_repass' title=$t}
     <input type="hidden" name="pwreset" value="0">
     <div class="pageinput">
       <input type="checkbox" id="repass" class="pagecheckbox" name="pwreset" value="1"{if $pwreset} checked{/if}>
@@ -44,21 +44,21 @@
   {/if}
   <div class="pageoverflow">
     {$t=_la('firstname')}<label class="pagetext" for="firstname">{$t}:</label>
-    {cms_help 0='help' key='user_firstname' title=$t}
+    {cms_help realm='help' key='user_firstname' title=$t}
     <div class="pageinput">
       <input type="text" id="firstname" name="firstname" maxlength="50" value="{$firstname}">
     </div>
   </div>
   <div class="pageoverflow">
     {$t=_la('lastname')}<label class="pagetext" for="lastname">{$t}:</label>
-    {cms_help 0='help' key='user_lastname' title=$t}
+    {cms_help realm='help' key='user_lastname' title=$t}
     <div class="pageinput">
       <input type="text" id="lastname" name="lastname" maxlength="50" value="{$lastname}">
     </div>
   </div>
   <div class="pageoverflow">
     {$t=_la('email')}<label class="pagetext" for="email">{$t}:</label>
-    {cms_help 0='help' key='user_email' title=$t}
+    {cms_help realm='help' key='user_email' title=$t}
     <div class="pageinput">
       <input type="text" id="email" name="email" size="40" maxlength="255" value="{$email}">
     </div>
@@ -73,7 +73,7 @@
   {else}
   <div class="pageoverflow">
     {$t=_la('active')}<label class="pagetext" for="active">{$t}:</label>
-    {cms_help 0='help' key='user_active' title=$t}
+    {cms_help realm='help' key='user_active' title=$t}
     <input type="hidden" name="active" value="0">
     <div class="pageinput">
       <input type="checkbox" id="active" class="pagecheckbox" name="active" value="1"{if $active} checked{/if}>
@@ -82,7 +82,7 @@
 {*
   <div class="pageoverflow">
     {$t=_la('adminaccess')}<label class="pagetext" for="adminaccess">{$t}:</label>
-    {cms_help 0='help' key='user_login' title=$t}
+    {cms_help realm='help' key='user_login' title=$t}
     <input type="hidden" name="adminaccess" value="0">
     <div class="pageinput">
       <input type="checkbox" id="adminaccess" class="pagecheckbox" name="adminaccess" value="1"{if $adminaccess} checked{/if}>
@@ -91,7 +91,7 @@
 *}
   {/if}{*!$access_user*}
 
-  {if isset($groups)}
+  {if !empty($groups)}
   {tab_start name='groups'}
   <!-- group options -->
   <input type="hidden" name="groups" value="1">
@@ -137,17 +137,19 @@
   {tab_start name='settings'}
   <!-- user settings -->
   <input type="hidden" name="settings" value="1">
+{if !empty($users)}
   <div class="pageoverflow">
     {$t=_la('copyusersettings')}<label class="pagetext" for="copyusersettings">{$t}:</label>
-    {cms_help 0='help' key='user_copysettings' title=$t}
+    {cms_help realm='help' key='user_copysettings' title=$t}
     <div class="pageinput">
     <select id="copyusersettings" name="copyusersettings">
       {html_options options=$users selected=$copyusersettings}    </select>
     </div>
   </div>
+{/if}
   <div class="pageoverflow">
     {$t=_la('clearusersettings')}<label class="pagetext" for="clearsettings">{$t}:</label>
-    {cms_help 0='help' key='user_clearsettings' title=$t}
+    {cms_help realm='help' key='user_clearsettings' title=$t}
     <input type="hidden" name="clearusersettings" value="0">
     <div class="pageinput">
       <input type="checkbox" id="clearsettings" class="pagecheckbox" name="clearusersettings" value="1">

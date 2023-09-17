@@ -1,7 +1,7 @@
 <?php
 /*
 Edit/add template method for CMSMS modules.
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -73,7 +73,7 @@ $originator = $module->GetName();
 
 if( isset($params['submit']) || isset($params['apply']) ) {
     //save stuff
-    $update_template = function(Template $tpl, array $params, bool $adding) use ($userid, $originator)
+    $update_template = function(Template $tpl, array $params, bool $adding) use ($userid, $originator): void
     {
         if( $adding ) {
             $tpl->set_originator($originator);
@@ -308,8 +308,7 @@ $cancel = lang('cancel');
 //TODO duplicate sets of buttons exist
 $js = $pageincs['foot'] ?? '';
 $js .= <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
   $('#form_edittemplate').dirtyForm('option', 'dirty', false);
   $(document).on('cmsms_textchange', function() {
@@ -317,7 +316,6 @@ $(function() {
     $('#form_edittemplate').dirtyForm('option', 'dirty', true);
   });
 });
-//]]>
 </script>
 EOS;
 add_page_foottext($js); //not $jsm->queue_script() (embedded variables)

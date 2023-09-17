@@ -1,7 +1,7 @@
 <?php
 /*
 Navigator: a module for CMS Made Simple to allow building hierarchical navigations.
-Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -128,7 +128,7 @@ final class Navigator extends CMSModule
      * @param string $name template name
      * @return bool true to provide nodes, false to provide node-ids
      */
-    public function TemplateNodes(array $params, string $name) : bool
+    public function TemplateNodes(array $params, string $name): bool
     {
         if( isset($params['idnodes']) && ($params['idnodes'] === '' || cms_to_bool($params['idnodes'])) ) return FALSE;
         if( endswith($name,'.tpl') ) return FALSE;

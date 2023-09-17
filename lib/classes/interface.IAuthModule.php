@@ -1,7 +1,7 @@
 <?php
 /*
 An interface to define the minimum API for admin-console authentication modules.
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -34,7 +34,7 @@ interface IAuthModule
      *
      * @return array with members representing login-form content and related parameters
      */
-    public function fetch_login_panel() : array;
+    public function fetch_login_panel(): array;
 
     /**
      * Perform the entire login process without theme involvement

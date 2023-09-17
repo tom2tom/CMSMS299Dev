@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
  <head>
-  <title>{['loginto',{sitename}]|lang}</title>
+  <title>{lang('loginto',{sitename})}</title>
   <base href="{$admin_url}/">
   <meta charset="{$encoding}">
   <meta name="generator" content="CMS Made Simple">
@@ -22,35 +22,35 @@
      <div id="login-container">
        <div id="login-box" class="cf{if isset($error)} error{/if}">
          <noscript>
-           <div class="message error">{'login_info_needjs'|lang}</div>
+           <div class="message error">{lang('login_info_needjs')}</div>
          </noscript>
          {if !empty($sitelogo)}
            <img id="sitelogo" src="{$sitelogo}" title="{sitename}" alt="{sitename}">
          {/if}
          <header>{$lost=isset($smarty.get.forgotpw)}
-           <h1>{if $lost}{['forgotpwtitle',{sitename}]|lang}
-           {elseif isset($renewpw)}{['renewpwtitle',{sitename}]|lang}
-           {else}{['login_sitetitle',{sitename}]|lang}{/if}</h1>
+           <h1>{if $lost}{lang('forgotpwtitle',{sitename})}
+           {elseif isset($renewpw)}{lang('renewpwtitle',{sitename})}
+           {else}{lang('login_sitetitle',{sitename}])}{/if}</h1>
          </header>
          <div>
            {if isset($form)}{$form}{else}{include file='form.tpl'}{block name=form}{/block}{/if}
          </div>
-         {if $lost}<div class="message information">{'forgotpwprompt'|lang}</div>
-         {elseif isset($renewpw)}<div class="message warning">{'renewpwprompt'|lang}</div>
+         {if $lost}<div class="message information">{lang('forgotpwprompt')}</div>
+         {elseif isset($renewpw)}<div class="message warning">{lang('renewpwprompt')}</div>
          {/if}
          {if !empty($error)}<div class="message error">{$error}</div>{/if}
          {if !empty($warning)}<div class="message warning">{$warning}</div>{/if}
          {if !empty($message)}<div class="message information">{$message}</div>{/if}
          {if !$lost}
-         <a id="toggle-info" href="javascript:void()" title="{'open'|lang}/{'close'|lang}"><i class="fa fa-info" aria-hidden="true"></i> {'login_info_title'|lang}</a>
+         <a id="toggle-info" href="javascript:void()" title="{lang('open')}/{lang('close')}"><i class="fa fa-info" aria-hidden="true"></i> {lang('login_info_title')}</a>
          <br>
          {/if}
-         <a id="goto" href="{root_url}" title="{['goto',{sitename}]|lang}"><i class="cfi-mainsite" aria-hidden="true"></i> {'viewsite'|lang}</a>
+         <a id="goto" href="{root_url}" title="{lang('goto',{sitename})}"><i class="cfi-mainsite" aria-hidden="true"></i> {lang('viewsite')}</a>
          {if !$lost}
          <div id="info-wrapper" class="information">
-{*         <p>{['login_info_params',"<strong>{$smarty.server.HTTP_HOST}</strong>"]|lang}</p>*}
-           <p>{'login_info_params'|lang}</p>
-           <p>{'info_cookies'|lang}</p>
+{*         <p>{lang('login_info_params',"<strong>{$smarty.server.HTTP_HOST}</strong>")}</p>*}
+           <p>{lang('login_info_params')}</p>
+           <p>{lang('info_cookies')}</p>
          </div>
          {/if}
        </div>

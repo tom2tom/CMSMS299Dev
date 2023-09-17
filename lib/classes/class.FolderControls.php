@@ -175,8 +175,7 @@ class FolderControls
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    public function __clone()
+    public function __clone(): void
     {
         $this->data['id'] = 0;
         $this->data['create_date'] = date('Y-m-d H:i:s', time());
@@ -188,7 +187,7 @@ class FolderControls
      * @param string $key Property name
      * @param mixed $val Property value
      */
-    public function __set(string $key, $val) : void
+    public function __set(string $key, $val): void
     {
         // TODO all 3.0 props
         switch( $key ) {
@@ -327,7 +326,7 @@ class FolderControls
      * @return mixed
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)
+    public function __get(string $key)//: mixed
     {
         // TODO all 3.0 props
         switch( $key ) {
@@ -345,7 +344,7 @@ class FolderControls
         case 'name':
         case 'match_prefix':
         case 'exclude_prefix':
-            return trim($this->data[$key]);
+            return trim($this->data[$key]??'');
         case 'typename':
             if( empty($this->data[$key]) ) {
                $this->data[$key] = FileType::getName($this->data['type']);
@@ -356,7 +355,7 @@ class FolderControls
             return (!empty($this->data[$key])) ? $this->data[$key] : 'Unspecified';
         case 'file_extensions':
         case 'file_mimes':
-            return trim($this->data[$key], ' ,');
+            return trim($this->data[$key]??'', ' ,');
         case 'reltop':
         case 'relative_top':
             return trim($this->data['reltop']);

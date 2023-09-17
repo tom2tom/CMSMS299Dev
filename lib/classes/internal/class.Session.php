@@ -1,7 +1,7 @@
 <?php
 /*
 Class to allow custom handling of session-destruction
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -49,7 +49,7 @@ class Session extends PHPSession
      * @param string $sessionId
      * @return bool indicating success
      */
-    public function destroy(string $sessionId) : bool
+    public function destroy(string $sessionId): bool
     {
         $shutters = $_SESSION[$this->key] ?? [];
         foreach ($shutters as $handler) {

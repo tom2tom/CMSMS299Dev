@@ -255,7 +255,7 @@ License MIT
       return false;
     }
 
-    return !$("<input type=\"file\" />").prop("disabled");
+    return !$("<input type=\"file\"/>").prop("disabled");
   };
 
   DmUploader.prototype.getInput = function()
@@ -332,7 +332,7 @@ License MIT
 
     if (this.settings.dnd) {
       // Test for DnD capability per Modernizr
-      var test = $("<div/>")[0];
+      var test = $("<div></div>")[0];
       if ('draggable' in test || ('ondragstart' in test && 'ondrop' in test)) {
         this.initDnD();
       } else {

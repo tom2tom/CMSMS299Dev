@@ -1,6 +1,6 @@
 <?php
 #Dutch translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -33,7 +33,7 @@ $nls['englishlang']['nl_NL'] = 'Dutch';
 #Possible aliases for language
 $nls['alias']['nl'] = 'nl_NL';
 $nls['alias']['dutch'] = 'nl_NL';
-$nls['alias']['nl_NL.ISO8859-1'] = 'nl_NL' ;
+$nls['alias']['nl_NL.ISO8859-1'] = 'nl_NL';
 
 #Possible locale for language
 $nls['locale']['nl_NL'] = 'nl_NL.utf8,nl_NL.UTF-8,nl_NL.utf.8,nl_NL,nl_NL@euro,dutch,Dutch_Netherlands.1252';
@@ -42,13 +42,9 @@ $nls['locale']['nl_NL'] = 'nl_NL.utf8,nl_NL.UTF-8,nl_NL.utf.8,nl_NL,nl_NL@euro,d
 $nls['encoding']['nl_NL'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['nl_NL'] = array(__DIR__.'/nl_NL/admin.inc.php');
+$nls['file']['nl_NL'] = [__DIR__.'/nl_NL/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 $nls['htmlarea']['nl_NL'] = 'nl';
-
-
-
-?>

@@ -2,7 +2,7 @@
 /*
 FileManager module action: display list of files
 Copyright (C) 2006-2018 Morten Poulsen <morten@poulsen.org>
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -246,8 +246,7 @@ EOS;
     $refresh_url = $this->create_action_url($id, 'admin_fileview', ['ajax' => 1, 'path' => $path, 'forjs' => 1, CMS_JOB_KEY => 1]);
     $viewfile_url = $this->create_action_url($id, 'admin_fileview', ['ajax' => 1, 'forjs' => 1]);
     $out = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 function enable_button(idlist) {
   $(idlist).prop('disabled', false).removeClass('ui-state-disabled ui-button-disabled');
 }
@@ -333,7 +332,6 @@ $(function() {
     $(this).parent().find(':checkbox').prop('checked', !t).trigger('change');
   });
 });
-//]]>
 </script>
 EOS;
     add_page_foottext($out);

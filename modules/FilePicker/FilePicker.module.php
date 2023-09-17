@@ -2,7 +2,7 @@
 /*
 FilePicker - a CMSMS module which provides file-related services for the website
 Copyright (C) 2016 Fernando Morgado <jomorg@cmsmadesimple.org>
-Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -122,7 +122,7 @@ final class FilePicker extends CMSModule implements IFilePicker
      *
      * @return string
      */
-    protected function HeaderJsContent() : string
+    protected function HeaderJsContent(): string
     {
         $url1 = str_replace('&amp;', '&', $this->get_browser_url());
         $config = Lone::get('Config');
@@ -133,8 +133,7 @@ final class FilePicker extends CMSModule implements IFilePicker
         $choose2 = $this->Lang('select_file');
         $jsurl = cms_get_script('jquery.cmsms_filepicker.js');
         return <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
  if (!cms_data) { cms_data = {}; }
  $.extend(cms_data, {
   lang_choose = '$choose',
@@ -144,9 +143,8 @@ final class FilePicker extends CMSModule implements IFilePicker
   uploads_url = '$url2',
   max_upload_size = $max
  };
-//]]>
 </script>
-<script type="text/javascript" src="$jsurl"></script>
+<script src="$jsurl"></script>
 
 EOS;
     }
@@ -157,7 +155,7 @@ EOS;
      * @param string $dirpath Optional filesystem path, absolute or relative
      * @return array, possibly empty
      */
-    public function GetFileList(string $dirpath = '') : array
+    public function GetFileList(string $dirpath = ''): array
     {
         return Utils::get_file_list($this, null, $dirpath);
     }
@@ -190,7 +188,7 @@ EOS;
      * Generate the URL which initiates this module's filepicker action
      * @return string (formatted for js use)
      */
-    public function get_browser_url() : string
+    public function get_browser_url(): string
     {
         return $this->create_action_url('', 'filepicker', ['forjs'=>1, CMS_JOB_KEY=>1]);
     }
@@ -208,9 +206,9 @@ EOS;
      *  block parameters, of which only 'profile', if any, is used here
      * @param bool $adding UNUSED whether the content editor is in create mode, otherwise edit mode
      * @param mixed $content_obj UNUSED The (possibly-unsaved) content object being edited.
-     * @return string
+     * @return mixed (here, a string)
      */
-    public function GetContentBlockFieldInput(/*string */$blockName, /*mixed */$value, /*array */$params, /*bool */$adding, $content_obj)// : string
+    public function GetContentBlockFieldInput(/*string */$blockName, /*mixed */$value, /*array */$params, /*bool*/$adding, /*object*/$content_obj)//: mixed
     {
         if( !$blockName) return '';
 //      $uid = get_userid(false);
@@ -235,7 +233,7 @@ EOS;
      * @param bool $required Optional flag, whether some choice must be entered. Default false
      * @return string
      */
-    public function get_html(string $name, /*mixed */$value, FolderControls $profile, bool $required = false) : string
+    public function get_html(string $name, /*mixed */$value, FolderControls $profile, bool $required = false): string
     {
         static $first_time = true;
 
@@ -297,7 +295,7 @@ EOS;
             //$combiner = get_scripts_manager();
             //$combiner->queue_matchedfile('jquery.cmsms_filepicker', 2);
             $jsurl = cms_get_script('jquery.cmsms_filepicker.js');
-            $js = '<script type="text/javascript" src="'.$jsurl.'"></script>'.PHP_EOL;
+            $js = '<script src="'.$jsurl.'"></script>'.PHP_EOL;
         }
         else {
             $js = '';
@@ -312,8 +310,7 @@ EOS;
 // TODO action.filepicker recognises type as a FileType-class value (int) or a corresponding name e.g. 'IMAGE'
 // TODO if picker is used to populate a popup, document-ready N/A
         $js .= <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
  $('input[data-cmsfp-instance="$inst"]').filepicker({
   btn_label: '$title',
@@ -324,7 +321,6 @@ $(function() {
   url: '$url'
  });
 });
-//]]>
 </script>
 
 EOS;
@@ -358,7 +354,7 @@ EOS;
      * [0] = page-header content (html) OR array of css or js filepaths to be loaded
      * [1] = page-bottom content (js) OR immediately-executable js
      */
-    public function get_browsedata(array $params, bool $framed = true) : array
+    public function get_browsedata(array $params, bool $framed = true): array
     {
         return Utils::get_browsedata($this, $params, $framed);
     }
@@ -397,7 +393,7 @@ EOS;
             if( is_numeric($type) ) {
                 $itype = (int)$type;
                 $stype = FileType::getName($itype);
-                if( $stype === null ) { return false; } // unknown type
+                if( !$stype ) { return false; } // unknown type
             }
             else {
                 $itype = FileType::getValue($type);

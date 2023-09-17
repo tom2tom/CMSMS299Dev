@@ -1,7 +1,7 @@
 <?php
 /*
 Alert class that uses pre-defined values
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp, Rovert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -85,7 +85,7 @@ class SimpleAlert extends Alert
      * @throws InvalidArgumentException
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         switch( $key ) {
         case 'perms':
@@ -107,7 +107,7 @@ class SimpleAlert extends Alert
      * @param string $key
      * @param mixed $val
      */
-    public function __set(string $key,$val) : void
+    public function __set(string $key,$val): void
     {
         switch( $key ) {
         case 'icon':

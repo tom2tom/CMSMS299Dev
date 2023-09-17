@@ -834,7 +834,7 @@ class http_request
             $this->addRequestHeader('Accept: */*');
             $this->addRequestHeader('User-Agent: ' . $this->userAgent);
             if (!$this->requestHeaderExists('Content-Type')) {
-                $this->addRequestHeader('Content-Type: text/html; charset=UTF-8');
+                $this->addRequestHeader('Content-Type: text/html; charset=utf-8');
             }
 
             // Specify the custom cookies

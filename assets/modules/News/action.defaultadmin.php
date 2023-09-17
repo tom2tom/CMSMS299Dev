@@ -1,7 +1,7 @@
 <?php
 /*
 Defaultadmin action for CMSMS News module.
-Copyright (C) 2005-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -111,9 +111,8 @@ add_page_headtext($out);
 
 $out = cms_get_script('jquery.SSsort.js');
 $js = <<<EOS
-<script type="text/javascript" src="$out"></script>
-<script type="text/javascript">
-//<![CDATA[
+<script src="$out"></script>
+<script>
 function pagefirst(tbl) {
  $.fn.SSsort.movePage(tbl,false,true);
 }
@@ -135,7 +134,6 @@ var SSsopts = {
  oddsortClass: 'row1s',
  evensortClass: 'row2s'
 };
-//]]>
 </script>
 EOS;
 add_page_foottext($js);

@@ -1,6 +1,6 @@
 <?php
 #Slovenian translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -34,11 +34,11 @@ $nls['englishlang']['sl_SI'] = 'Slovenian';
 
 #Possible aliases for language
 $nls['alias']['sl'] = 'sl_SI';
-$nls['alias']['slovenian'] = 'sl_SI' ;
-$nls['alias']['slo'] = 'sl_SI' ;
-$nls['alias']['sl_SI'] = 'sl_SI' ;
-$nls['alias']['sl_SI.WINDOWS-1250'] = 'sl_SI' ;
-$nls['alias']['sl_SI.ISO8859-2'] = 'sl_SI' ;
+$nls['alias']['slovenian'] = 'sl_SI';
+$nls['alias']['slo'] = 'sl_SI';
+$nls['alias']['sl_SI'] = 'sl_SI';
+$nls['alias']['sl_SI.WINDOWS-1250'] = 'sl_SI';
+$nls['alias']['sl_SI.ISO8859-2'] = 'sl_SI';
 
 #Possible locale for language
 $nls['locale']['sl_SI'] = 'sl_SI.utf8,sl_SI.UTF-8,sl_SI.utf-8,sl_SI,slovenian,Slovenian_Slovenia.1250';
@@ -47,11 +47,10 @@ $nls['locale']['sl_SI'] = 'sl_SI.utf8,sl_SI.UTF-8,sl_SI.utf-8,sl_SI,slovenian,Sl
 $nls['encoding']['sl_SI'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['sl_SI'] = array(__DIR__.'/sl_SI/admin.inc.php');
+$nls['file']['sl_SI'] = [__DIR__.'/sl_SI/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['sl_SI'] = 'sl';
-?>

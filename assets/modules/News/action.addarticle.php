@@ -1,7 +1,7 @@
 <?php
 /*
 CMSMS News module add-item action.
-Copyright (C) 2005-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -361,7 +361,7 @@ WHERE news_id=?';
 }
 
 $block = $this->GetPreference('timeblock', News::HOURBLOCK);
-$withtime = ($block == News::DAYBLOCK) ? 0:1;
+$withtime = ($block == News::DAYBLOCK) ? 0 : 1;
 
 specialize_array($categorylist);
 $parms = $params + ['articleid'=>$articleid, 'author_id'=>$author_id];

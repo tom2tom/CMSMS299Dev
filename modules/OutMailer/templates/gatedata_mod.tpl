@@ -2,9 +2,9 @@
 {if !empty($hidden)}{$hidden}{/if}
 <fieldset class="settings">
 <legend>{$gatetitle}</legend>
-<div class="pageoverflow" style="margin-top:0;">
+<div class="pageoverflow" style="margin-top:0">
 {foreach $data as $one}
- <p class="pagetext"{if $one@first} style="margin-top:0;"{/if}>{$one->title}</p>
+ <p class="pagetext"{if $one@first} style="margin-top:0"{/if}>{$one->title}</p>
 {if $one->apiname}<div class="pageinput">
   <input type="text" name="{$actionid}{$one->space}value" size="{if !empty($one->size)}{$one->size}{else}15{/if}" value="{$one->value}">
   <input type="hidden" name="{$actionid}{$one->space}encrypt" value="{$one->encrypt}">

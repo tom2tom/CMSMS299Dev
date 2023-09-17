@@ -1,5 +1,8 @@
 <?php
 
+use function cms_installer\status_msg;
+use function cms_installer\verbose_msg;
+
 $gCms = cmsms();
 $dbdict = $db->NewDataDictionary();
 /*

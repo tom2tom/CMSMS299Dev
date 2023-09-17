@@ -72,61 +72,11 @@ class OneElevenTheme extends AdminTheme
 	// 3.0+ will access these via parent-class
 	protected $_errors = [];
 	protected $_messages = [];
-	// admin menu item names with corresponding topfiles icons
-	// refer to names in method.adminmenu.php
-/* no top icon for:
-		'addbookmark' => '',
-		'addgroup' => '',
-		'adduser' => '',
-		'editbookmark' => '',
-		'editeventhandler' => '',
-		'editgroup' => '',
-		'edituser' => '',
-		'editusertag' => '',
-		'home' => '',
-		'logout' => '',
-		'A' => 'blobs.png',
-		'B' => 'cmsprinting.png',
-		'C' => 'images.png',
-		'E' => 'pagedefaults.png',
-*/
-	private $_topaliases = [
-		'accesscontrols' => 'controls.png',
-		'checksum' => 'checksum.png',
-		'content' => 'content.png',
-		'ecommerce' => 'ecommerce.png',
-		'eventhandlers' => 'eventhandlers.png',
-		'extensions' => 'extensions.png',
-		'files' => 'files.png',
-		'groupmembers' => 'groupmembers.png',
-		'groupperms' => 'groupperms.png',
-		'jobs' => 'jobs.png',
-		'layout' => 'layout.png',
-		'listgroups' => 'groups.png',
-		'liststyles' => 'stylesheet.png',
-		'listtemplates' => 'template.png',
-		'listusers' => 'users.png',
-		'log' => 'adminlog.png',
-		'main' => 'main.png',
-		'myaccount' => 'myaccount.png',
-		'mybookmarks' => 'bookmarks.png',
-		'myprefs' => 'myaccount.png',
-		'mysettings' => 'preferences.png',
-		'services' => 'services.png',
-		'siteadmin' => 'siteadmin.png',
-		'siteprefs' => 'siteprefs.png',
-		'systeminfo' => 'systeminfo.png',
-		'systemmaintenance' => 'systemmaintenance.png',
-		'tags' => 'tags.png',
-		'usersgroups' => 'groupmembers.png',
-		'usertags' => 'usertags.png',
-		'viewsite' => 'viewsite.png'
-	];
 
 	/**
 	 * Determine whether this is running on CMSMS 3.0+
 	 */
-	protected function currentversion() : bool
+	protected function currentversion(): bool
 	{
 		static $cvflag = null;
 		if ($cvflag === null) {
@@ -144,21 +94,21 @@ class OneElevenTheme extends AdminTheme
 	 * [0] = array of data for js vars, members like varname=>varvalue
 	 * [1] = array of string(s) for includables
 	 */
-	public function AdminHeaderSetup() : array
+	public function AdminHeaderSetup(): array
 	{
 		list($vars, $add_list) = parent::AdminHeaderSetup();
 
 		$incs = cms_installed_jquery(true, true, true, false);
 /*		$url = cms_path_to_url($incs['jquicss']);
 		$out = <<<EOS
-<link rel="stylesheet" type="text/css" href="{$url}" />
+<link rel="stylesheet" href="{$url}">
 
 EOS;
 */
 		$out = '';
 		//back-compatible jQUI styling
 		$after = <<<'EOS'
-<link rel="stylesheet" type="text/css" href="themes/OneEleven/styles/default-cmsms/jquery-ui-1.12.1.custom.min.css" />
+<link rel="stylesheet" href="themes/OneEleven/styles/default-cmsms/jquery-ui-1.12.1.custom.min.css">
 
 EOS;
 		// main css files might include relative URLs, so cannot be merged
@@ -175,7 +125,7 @@ EOS;
 			$extra = substr($fp, $n);
 			$sufx = strtr($extra, '\\', '/');
 			$after .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$rel_url}/{$sufx}" />
+<link rel="stylesheet" href="{$rel_url}/{$sufx}">
 
 EOS;
 		}
@@ -372,7 +322,7 @@ EOS;
 			$incs = cms_installed_jquery();
 			$url = cms_path_to_url($incs['jquicss']);
 			$out = <<<EOS
-<link rel="stylesheet" type="text/css" href="$url" />
+<link rel="stylesheet" href="$url">
 
 EOS;
 			$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
@@ -382,12 +332,12 @@ EOS;
 				$extra = substr($fp, $n);
 				$sufx = strtr($extra, '\\', '/');
 				$out .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$rel_url}/{$sufx}" />
+<link rel="stylesheet" href="{$rel_url}/{$sufx}">
 
 EOS;
 			}
-//			get_csp_token(); //setup CSP header (result not used)
-			$tpl = '<script type="text/javascript" src="%s"></script>'.PHP_EOL;
+//			$nonce = get_csp_token(); //setup CSP header (result not used)
+			$tpl = '<script src="%s"></script>'.PHP_EOL;
 			$url = cms_path_to_url($incs['jqcore']);
 			$out .= sprintf($tpl,$url);
 			$url = cms_path_to_url($incs['jqui']);
@@ -419,12 +369,12 @@ EOS;
 
 			list($jqcss, $jqui, $jqcore) = $this->find_installed_jq();
 			$out = <<<EOS
-<link rel="stylesheet" type="text/css" href="$jqcss" />
-<link rel="stylesheet" type="text/css" href="themes/OneEleven/css/style{$dir}.css" />
-<link rel="stylesheet" type="text/css" href="loginstyle.php" />
-<script type="text/javascript" src="$jqcore"></script>
-<script type="text/javascript" src="$jqui"></script>
-<script type="text/javascript" src="themes/OneEleven/includes/login.min.js"></script>
+<link rel="stylesheet" href="$jqcss">
+<link rel="stylesheet" href="themes/OneEleven/css/style{$dir}.css">
+<link rel="stylesheet" href="loginstyle.php">
+<script src="$jqcore"></script>
+<script src="$jqui"></script>
+<script src="themes/OneEleven/includes/login.min.js"></script>
 
 EOS;
 		} // pre 3.0
@@ -439,9 +389,12 @@ EOS;
 	 *  usually empty to use the whole menu
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function fetch_menu_page(string $section_name) : ?string
+	public function fetch_menu_page(string $section_name): ?string
 	{
 		$flag = $this->currentversion();
+
+		// Get page-icons map in $_topaliases array
+		include_once __DIR__.DIRECTORY_SEPARATOR.'function.pageicons.php';
 
 		$smarty = cmsms()->GetSmarty(); // OR if $flag Lone::get('Smarty')
 		if ($section_name) {
@@ -460,7 +413,7 @@ EOS;
 		}
 		foreach ($nodes as &$one) {
 			$modname = $one['module'] ?? '';
-			if ($modname) {
+			if ($modname) { // TODO support all relevant formats e.g. svg
 				$ext = 'png';
 				$path = cms_module_path($modname, true).DIRECTORY_SEPARATOR.'images'.DIRECTORY_SEPARATOR.'icon.png';
 				if (!file_exists($path)) {
@@ -474,8 +427,8 @@ EOS;
 				}
 			} else {
 				$nm = $one['name'];
-				if (isset($this->_topaliases[$nm])) {
-					$one['img'] = "themes/{$this->themeName}/images/icons/topfiles/{$this->_topaliases[$nm]}";
+				if (isset($_topaliases[$nm])) {
+					$one['img'] = "themes/{$this->themeName}/images/icons/topfiles/{$_topaliases[$nm]}";
 				}
 			}
 		}
@@ -500,7 +453,7 @@ EOS;
 	 * @param string $content page content to be processed
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function fetch_page(string $content) : ?string
+	public function fetch_page(string $content): ?string
 	{
 		$flag = $this->currentversion();
 
@@ -579,11 +532,11 @@ EOS;
 
 		// icon
 		if ($modname && ($icon_url = $this->get_value('module_icon_url'))) {
-			$tag = '<img src="'.$icon_url.'" alt="'.$modname.'" class="module-icon" />';
+			$tag = '<img src="'.$icon_url.'" alt="'.$modname.'" class="module-icon">';
 		} elseif ($modname && $title) {
 			$tag = $this->get_module_icon($modname, ['alt'=>$modname, 'class'=>'module-icon']);
 		} elseif (($icon_url = $this->get_value('page_icon_url'))) {
-			$tag = '<img src="'.$icon_url.'" alt="'.basename($icon_url).'" class="TODO" />';
+			$tag = '<img src="'.$icon_url.'" alt="'.basename($icon_url).'" class="TODO">';
 		} else {
 			$name = $this->get_active('name');
 			$tag = ($name) ? $this->DisplayImage("icons/topfiles/$name.png", $name) : '';
@@ -658,13 +611,13 @@ EOS;
 			$dir = ($lang_dir == 'ltr') ? '' : '-rtl';
 			list($jqcss, $jqui, $jqcore) = $this->find_installed_jq();
 			$smarty->assign('header_includes', <<< EOS
-<link rel="stylesheet" type="text/css" href="$jqcss" />
-<link rel="stylesheet" type="text/css" href="style.php?{$secureparam}" />
-<link rel="stylesheet" type="text/css" href="themes/OneEleven/css/style{$dir}.css" />
-<script type="text/javascript" src="$jqcore"></script>
-<script type="text/javascript" src="$jqui"></script>
+<link rel="stylesheet" href="$jqcss">
+<link rel="stylesheet" href="style.php?{$secureparam}">
+<link rel="stylesheet" href="themes/OneEleven/css/style{$dir}.css">
+<script src="$jqcore"></script>
+<script src="$jqui"></script>
 //TODO jquery ancillaries
-<script type="text/javascript" src="themes/OneEleven/includes/standard.min.js"></script>
+<script src="themes/OneEleven/includes/standard.min.js"></script>
 <!--[if lt IE 9]>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
 <![endif]-->
@@ -688,7 +641,7 @@ EOS
 
 	// for pre-3.0 compatibility
 
-	public function ShowErrors($errors, $get_var = '')// : string
+	public function ShowErrors(/*mixed */$errors, string $get_var = ''): string
 	{
 /*		if ($this->currentversion()) {
 			$this->RecordNotice('error', $errors, '', false, $get_var);
@@ -715,7 +668,7 @@ EOS
 //		} //pre 3.0
 	}
 
-	public function ShowMessage($message, $get_var = '')// : string
+	public function ShowMessage(/*mixed */$message, string $get_var = ''): string
 	{
 /*		if ($this->currentversion()) {
 			$this->RecordNotice('success', $message, '', false, $get_var);
@@ -756,7 +709,7 @@ EOS
 		return $this->fetch_page($content);
 	}
 
-	public function get_my_alerts() : array
+	public function get_my_alerts(): array
 	{
 		return Alert::load_my_alerts();
 	}

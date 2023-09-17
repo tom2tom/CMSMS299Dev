@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to retrieve the URL of an uploaded thumbnail file specified among the supplied params
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

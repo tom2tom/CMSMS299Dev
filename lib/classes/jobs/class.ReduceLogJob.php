@@ -1,7 +1,7 @@
 <?php
 /*
 Class: job to consolidate equivalent admin-log-table entries
-Copyright (C) 2017-2021 CMS Made Simple Foundation <foundationcmsmadesimple.org>
+Copyright (C) 2017-2023 CMS Made Simple Foundation <foundationcmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -74,7 +74,7 @@ class ReduceLogJob extends CronJob
         return 2; // TODO
     }
 
-    protected function is_same(array $a, array $b) : bool
+    protected function is_same(array $a, array $b): bool
     {
         if (!is_array($a) || !is_array($b)) return false;
 
@@ -97,7 +97,7 @@ class ReduceLogJob extends CronJob
         $this->_queue[] = $row;
     }
 
-    protected function have_queued() : bool
+    protected function have_queued(): bool
     {
        return (count($this->_queue) > 1);
     }

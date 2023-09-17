@@ -12,7 +12,7 @@
 </div>{*rowbox*}
 {/if}
 
-{if !empty($catcount)}
+{if !empty($cats)}
 <table class="pagetable">
  <thead>
   <tr>

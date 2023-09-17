@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to display recorded data about async jobs
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -60,8 +60,7 @@ if (0) {
         'onlyhref' => true,
     ]);
     $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
  $('body').append(
 '<a id="simple1" href="$u1" class="link_button icon do">Simple Derived Class Test</a>' +
@@ -73,7 +72,6 @@ $(function() {
   return false;
  });
 });
-//]]>
 </script>
 EOS;
     add_page_headtext($js);

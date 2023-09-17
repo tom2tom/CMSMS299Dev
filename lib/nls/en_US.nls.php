@@ -1,6 +1,6 @@
 <?php
 #US English translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -36,22 +36,21 @@ $nls['englishlang']['en_US'] = 'English';
 
 #Possible aliases for language
 $nls['alias']['en'] = 'en_US';
-$nls['alias']['english'] = 'en_US' ;
-$nls['alias']['eng'] = 'en_US' ;
+$nls['alias']['english'] = 'en_US';
+$nls['alias']['eng'] = 'en_US';
 $nls['alias']['en-US'] = 'en_US';
-$nls['alias']['en_CA'] = 'en_US' ;
-$nls['alias']['en_GB'] = 'en_US' ;
-$nls['alias']['en_US.ISO8859-1'] = 'en_US' ;
+//$nls['alias']['en_CA'] = 'en_US'; other english dialects implicitly default to en_US
+//$nls['alias']['en_GB'] = 'en_US';
+$nls['alias']['en_US.ISO8859-1'] = 'en_US';
 
 #Encoding of the language
 $nls['encoding']['en_US'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['en_US'] = array(__DIR__.'/en_US/admin.inc.php');
+$nls['file']['en_US'] = [__DIR__.'/en_US/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['en_US'] = 'en';
-?>

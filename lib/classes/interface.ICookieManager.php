@@ -1,7 +1,7 @@
 <?php
 /*
 An interface for CMSMS cookie operations classes
-Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -45,7 +45,7 @@ interface ICookieManager
      * @param int $expires The default expiry timestamp.  if 0 is specified, then a session cookie is created.
      * @return bool true on success
      */
-    public function set(string $key, $value, int $expires = 0) : bool;
+    public function set(string $key, $value, int $expires = 0): bool;
 
     /**
      * Report whether a cookie exists
@@ -53,7 +53,7 @@ interface ICookieManager
      * @param string $key The name of the cookie
      * @return bool
      */
-    public function exists(string $key) : bool;
+    public function exists(string $key): bool;
 
     /**
      * Erase a cookie

@@ -1,7 +1,7 @@
 {block name=footer}
 {strip}
 <div class="row no-gutter end align-center">
-  <span id="aboutinfo" style="display:none"><a href="javascript:themejs.aboutToggle();">CMSMS {_la('version')} {cms_version} &ldquo;{cms_versionname}&rdquo;</a></span>
+  <span id="aboutinfo" style="display:none"><a href="javascript:themejs.aboutToggle()">CMSMS {_la('version')} {cms_version} &ldquo;{cms_versionname}&rdquo;</a></span>
   <ul class="links">
     <li>
       {$t=_la('about')}

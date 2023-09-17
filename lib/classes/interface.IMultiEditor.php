@@ -2,7 +2,7 @@
 /*
 An interface to define methods in multi-editor modules, supporting
 rich-text (html) editing or syntax-highlight editing more generally.
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -48,7 +48,7 @@ interface IMultiEditor
 	 * @return array, key-sorted, each member like 'editorname'=>'modulename::editorname',
 	 * where each (sub-)string is as recorded in the filesystem
 	 */
-	public function ListEditors() : array;
+	public function ListEditors(): array;
 
 	/**
 	 * Get data for constructing a help message for the editor generally
@@ -58,7 +58,7 @@ interface IMultiEditor
 	 *
 	 * @return array: 2-members, [0] = help-realm or null, [1] = lang key for the realm
 	 */
-	public function GetMainHelpKey(string $editor = '') : array;
+	public function GetMainHelpKey(string $editor = ''): array;
 
 	/**
 	 * Get help message for the editor generally e.g. a brief summary/description
@@ -68,7 +68,7 @@ interface IMultiEditor
 	 *
 	 * @return string [x]html suitable for a popup information-dialog
 	 */
-	public function GetMainHelp(string $editor = '') : string;
+	public function GetMainHelp(string $editor = ''): string;
 
 	/**
 	 * Get data for constructing a help message for the editor generally
@@ -78,7 +78,7 @@ interface IMultiEditor
 	 *
 	 * @return array: 2-members, [0] = help-realm or null [1] = lang key for the realm
 	 */
-	public function GetThemeHelpKey(string $editor = '') : array;
+	public function GetThemeHelpKey(string $editor = ''): array;
 
 	/**
 	 * Get help message for the editor themes, probably including a link to a site for
@@ -88,7 +88,7 @@ interface IMultiEditor
 	 *
 	 * @return string [x]html suitable for a popup information-dialog
 	 */
-	public function GetThemeHelp(string $editor = '') : string;
+	public function GetThemeHelp(string $editor = ''): string;
 
 	/**
 	 * Get page content (css, js etc) needed for setup and operation of a text-editor
@@ -111,7 +111,7 @@ interface IMultiEditor
 	 *  geteditorcontent() to get text from the editor-object
 	 *  setpagecontent(t) to put text t into the original form element (probably for submission to the server)
 	 */
-	public function GetEditorSetup(string $editor, array $params) : array;
+	public function GetEditorSetup(string $editor, array $params): array;
 
 	// DO NOT DELETE OR CHANGE OR MOVE THIS LINE - INDICATES END OF API HELPTEXT
 } // interface

@@ -8,6 +8,7 @@ $lang = [
 'desc_content_search' => 'Search for matching text in content pages',
 'desc_filter_all' => 'Toggle all filters',
 'desc_fuzzy_search' => 'Match all characters in the search text, regardless of anything between them',
+'desc_inactive_search' => 'Search for matching text in all site pages, whether or not marked as active',
 'desc_modtemplate_search' => 'Search for matching text in module templates',
 'desc_save_search' => 'Record current selections for use in the next session',
 'desc_template_search' => 'Search for matching text in templates',
@@ -48,6 +49,7 @@ EOS
 'lbl_css_search' => 'Stylesheets',
 'lbl_fuzzy_search' => 'Fuzzy Matching',
 //'lbl_gcb_search' => 'Global Content Blocks', //deprecated - among other-templates?
+'lbl_inactive_search' => 'Include Inactive Pages',
 'lbl_modtemplate_search' => 'Module Templates',
 'lbl_save_search' => 'Save Parameters',
 'lbl_search_desc' => 'Descriptions <em>(where applicable)</em>',

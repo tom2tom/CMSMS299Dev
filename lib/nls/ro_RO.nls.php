@@ -1,6 +1,6 @@
 <?php
 #Romanian translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -35,11 +35,11 @@ $nls['englishlang']['ro_RO'] = 'Romanian';
 
 #Possible aliases for language
 $nls['alias']['ro'] = 'ro_RO';
-$nls['alias']['Română'] = 'ro_RO' ;
-$nls['alias']['rom'] = 'ro_RO' ;
-$nls['alias']['romanian'] = 'ro_RO' ;
-$nls['alias']['ro_RO.ISO8859-2'] = 'ro_RO' ;
-$nls['alias']['ro_RO.ISO8859-16'] = 'ro_RO' ;
+$nls['alias']['Română'] = 'ro_RO';
+$nls['alias']['rom'] = 'ro_RO';
+$nls['alias']['romanian'] = 'ro_RO';
+$nls['alias']['ro_RO.ISO8859-2'] = 'ro_RO';
+$nls['alias']['ro_RO.ISO8859-16'] = 'ro_RO';
 
 #Possible locale for language
 $nls['locale']['ro_RO'] = 'ro_RO.utf8,ro_RO.UTF-8,ro_RO.utf-8,ro_RO,romanian,Romanian_Romania.1250';
@@ -48,11 +48,10 @@ $nls['locale']['ro_RO'] = 'ro_RO.utf8,ro_RO.UTF-8,ro_RO.utf-8,ro_RO,romanian,Rom
 $nls['encoding']['ro_RO'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['ro_RO'] = array(__DIR__.'/ro_RO/admin.inc.php');
+$nls['file']['ro_RO'] = [__DIR__.'/ro_RO/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['ro_RO'] = 'ro';
-?>

@@ -1,6 +1,6 @@
 {*
-<pre>{$messages|print_r:1}</pre>
-<pre>{$errors|print_r:1}</pre>
+<pre>{$messages|adjust:'print_r':1}</pre>
+<pre>{$errors|adjust:'print_r':1}</pre>
 *}
 <script>
 $(function()

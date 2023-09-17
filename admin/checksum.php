@@ -1,7 +1,7 @@
 <?php
 /*
 Admin operation: generate and display checksum
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -102,7 +102,7 @@ function check_checksum_data(&$report)
             ++$errorlines;
             continue;
         }
-        list($md5sum, $file) = explode('--::--', $line, 2);
+        [$md5sum, $file] = explode('--::--', $line, 2);
 
         if (!$md5sum || !$file) {
             ++$errorlines;

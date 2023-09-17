@@ -8,8 +8,8 @@
   <button type="submit" name="{$iname}" id="{$id}" title="{$title|default:''}" class="filebtn adminsubmit{$addclass}">{$text}</button>
 {/function}
 
-<div id="popup" style="display: none;">
-  <div id="popup_contents" style="min-width: 500px; max-height: 600px;"></div>
+<div id="popup" style="display:none">
+  <div id="popup_contents" style="min-width:30rem;max-height:36rem"></div>
 </div>
 <!-- TODO custom icons for buttons newdir view rename delete move copy unpack thumbnail size rotate -->
 <div>
@@ -30,7 +30,8 @@
 
   <div id="filesarea">
 {/if} {* !isset($ajax) *}
-    <table class="pagetable scrollable" style="width:100%;">
+{if !empty($files)}
+    <table class="pagetable scrollable" style="width:100%">
       <thead>
         <tr>
           <th class="pageicon"></th>
@@ -39,7 +40,7 @@
           <th class="pageicon">{$fileinfotext}</th>
           <th class="pageicon" title="{_ld($_module,'title_col_fileowner')}">{$fileownertext}</th>
           <th class="pageicon" title="{_ld($_module,'title_col_fileperms')}">{$filepermstext}</th>
-          <th class="pageicon" title="{_ld($_module,'title_col_filesize')}" style="text-align:right;">{$filesizetext}</th>
+          <th class="pageicon" title="{_ld($_module,'title_col_filesize')}" style="text-align:right">{$filesizetext}</th>
           <th class="pageicon"></th>
           <th class="pageicon" title="{_ld($_module,'title_col_filedate')}">{$filedatetext}</th>
           <th class="pageicon">
@@ -50,17 +51,17 @@
       <tbody>
         {foreach $files as $file} {$thedate=str_replace(' ','&nbsp;',$file->filedate|cms_date_format:'timed')}{$thedate=str_replace('-','&minus;',$thedate)}
         <tr class="{cycle values='row1,row2'}">
-          <td style="vertical-align:middle;">{if isset($file->thumbnail) && $file->thumbnail}{$file->thumbnail}{else}{$file->iconlink}{/if}</td>
-          <td class="clickable" style="vertical-align:middle;">{$file->txtlink}</td>
-          <td class="clickable" style="vertical-align:middle;">{$file->mime}</td>
-          <td class="clickable" style="vertical-align:middle;padding-right:8px;white-space:pre;">{$file->fileinfo}</td>
-          <td class="clickable" style="vertical-align:middle;padding-right:8px;white-space:pre;">{if isset($file->fileowner)}{$file->fileowner}{else}&nbsp;{/if}</td>
-          <td class="clickable" style="vertical-align:middle;padding-right:8px;">{$file->filepermissions}</td>
-          <td class="clickable" style="vertical-align:middle;padding-right:8px;white-space:pre;text-align:right;">{$file->filesize}</td>
-          <td class="clickable" style="vertical-align:middle;padding-right:8px;">{if isset($file->filesizeunit)}{$file->filesizeunit}{else}&nbsp;{/if}</td>
-          <td class="clickable" style="vertical-align:middle;padding-right:8px;white-space:pre;">{$thedate}</td>
+          <td style="vertical-align:middle">{if isset($file->thumbnail) && $file->thumbnail}{$file->thumbnail}{else}{$file->iconlink}{/if}</td>
+          <td class="clickable" style="vertical-align:middle">{$file->txtlink}</td>
+          <td class="clickable" style="vertical-align:middle">{$file->mime}</td>
+          <td class="clickable" style="vertical-align:middle;padding-right:8px;white-space:pre">{$file->fileinfo}</td>
+          <td class="clickable" style="vertical-align:middle;padding-right:8px;white-space:pre">{if isset($file->fileowner)}{$file->fileowner}{else}&nbsp;{/if}</td>
+          <td class="clickable" style="vertical-align:middle;padding-right:8px">{$file->filepermissions}</td>
+          <td class="clickable" style="vertical-align:middle;padding-right:8px;white-space:pre;text-align:right">{$file->filesize}</td>
+          <td class="clickable" style="vertical-align:middle;padding-right:8px">{if isset($file->filesizeunit)}{$file->filesizeunit}{else}&nbsp;{/if}</td>
+          <td class="clickable" style="vertical-align:middle;padding-right:8px;white-space:pre">{$thedate}</td>
           <td>{if !isset($file->noCheckbox)}
-            <label for="x_{$file->urlname}" style="display: none;">{_ld($_module,'toggle')}</label>
+            <label for="x_{$file->urlname}" style="display:none">{_ld($_module,'toggle')}</label>
             <input type="checkbox" name="{$actionid}sel[]" id="x_{$file->urlname}" value="{$file->urlname}" title="{_ld($_module,'toggle')}" class="fileselect {implode(' ',$file->type)}"{if isset($file->checked)} checked{/if}>
           {/if}</td>
         </tr>
@@ -73,6 +74,7 @@
         </tr>
       </tfoot>
     </table>
+{/if}
 {if !isset($ajax)}
   </div>
   {*{$actiondropdown}{$targetdir}{$okinput}*}

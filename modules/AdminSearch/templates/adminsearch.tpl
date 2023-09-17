@@ -2,7 +2,7 @@
 <ul>
 {foreach $sections as $entry}
   <li class="section" id="sec_{$entry->id}">{$entry->lbl}&nbsp;(<span class="section_count">{$entry->count}</span>)
-  <div class="section_children" style="display:none;">
+  <div class="section_children" style="display:none">
    {if !empty($entry->desc)}<p>{$entry->desc}</p>{/if}
    <ul id="{$entry->id}">
    {foreach $entry->matches as $hit}<li>

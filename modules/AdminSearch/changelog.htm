@@ -1,30 +1,60 @@
 </ul>
- <li>1.0 - Initial release</li>
+ <li>1.0 (for CMSMS 2.0) - September 2015<br>
+ Initial release
+ </li>
+ <li>1.0.1 (for CMSMS 2.1.3) - April 2016<br>
+ Minor fix to permissions checks
+ </li>
+ <li>1.0.2 (for CMSMS 2.1) - August 2016<br>
+ Use &apos;Manage Stylesheets&apos; permission when searching stylesheets
+ </li>
+ <li>1.0.3 (for CMSMS 2.2) - June 2017
+  <ul>
+   <li>Fix problem with use of &apos;Use Admin Search&apos; permission</li>
+   <li>Search in templates and stylesheets stored as files</li>
+   <li>Use HasSearchableContent method when searching content pages</li>
+  </ul>
+ </li>
+ <li>1.0.4 (for CMSMS 2.2.2) - July 2017
+  <ul>
+   <li>Search the metadata field of content pages.</li>
+   <li>Fixes for single quotes in search results.</li>
+  </ul>
+ </li>
+ <li>1.0.5 (for CMSMS 2.2.14) - March 2020<br>
+ Remove click-thru warning
+ </li>
+ <li>1.0.6 (for CMSMS 2.2.16) - January 2022
+  <ul>
+   <li>Fixed BR #12443 Admin Search fails on some searches with default mysql mode only_full_group_by (mysql 5.7.5+)</li>
+   <li>Added option to search case (in)sensitive. (external modules may ignore this)</li>
+   <li>Added option to show/hide snippets with the results</li>
+   <li>Added number of occurrences per item (external modules may not show this)</li>
+   <li>If snippets are enabled all occurrences are shown, and for all searched attributes</li>
+   <li>If snippets are enabled they are grouped by the 'location' of the match (external modules may not show this)</li>
+   <li>Search more attributes of content objects</li>
+   <li>Search more types of content object</li>
+  </ul>
+ </li>
+ <li>1.0.7 (for CMSMS 2.2.19) - August 2023<br>
+ Added option to exclude inactive content-pages
+ </li>
  <li>1.1 - August 2018
-   <ul>
-    <li>Relocate to admin menu section 'siteadmin'</li>
-    <li>Apply namespace to module classes</li>
+  <ul>
+   <li>Relocate to admin menu section 'siteadmin'</li>
+   <li>Apply namespace to module classes</li>
   </ul>
  </li>
- <li>1.0.6 (for CMSMS 2.2.x) - May 2021
-   <ul>
-    <li>fixed BR #12443 Admin Search fails on some searches with default mysql mode only_full_group_by (mysql 5.7.5+)</li>
-    <li>added option to search case (in)sensitive. (external modules may ignore this)</li>
-    <li>added option to show/hide snippets with the results</li>
-    <li>added number of occurrences per item (external modules may not show this)</li>
-    <li>if snippets are enabled all occurrences are shown, and for all searched attributes</li>
-    <li>if snippets are enabled they are grouped by the 'location' of the match (external modules may not show this)</li>
-    <li>search more attributes of content objects</li>
-    <li>search more types of content object</li>
+ <li>1.2 - June 2022
+  <ul>
+   <li>Removed snippets-display choice - they're always used</li>
+   <li>Additional Tools-class methods to abstract functions needed by all slaves e.g. <code>get_matches_info()</code></li>
+   <li>Additional search-scope in content pages</li>
+   <li>Support searching in UDT's</li>
+   <li>UI refinements</li>
   </ul>
  </li>
- <li>1.2 - June 2021
-   <ul>
-    <li>Removed 1.0.6 support for snippets-display choice - they're always used</li>
-    <li>Additional Tools-class methods to abstract functions needed by all slaves e.g. <code>get_matches_info()</code></li>
-    <li>Additional search-scope in content pages</li>
-    <li>Support searching in UDT's</li>
-    <li>UI refinements</li>
-  </ul>
+ <li>1.3 - August 2023<br>
+ Added option to exclude inactive content-pages
  </li>
 </ul>

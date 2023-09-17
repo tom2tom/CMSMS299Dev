@@ -3,6 +3,7 @@
 {else}
 <div class="pageinfo">{if !empty($updatestxt)}{$updatestxt}{else}{_ld($_module,'info_searchtab')}{/if}</div>
 
+{if !empty($updates)}
 {function get_module_status_icon}
 {strip}
 {if $status == 'stale'}
@@ -33,11 +34,11 @@
   </thead>
   <tbody>
 {foreach $updates as $entry}
-  <tr class="{cycle values='row1,row2'}"{if $entry->age=='new'} style="font-weight:bold;"{/if}>
+  <tr class="{cycle values='row1,row2'}"{if $entry->age=='new'} style="font-weight:bold"{/if}>
     <td>{get_module_status_icon status=$entry->age}</td>
     <td>
      {if $entry->description}<span title="{$entry->description|cms_escape}">{/if}{$entry->name}{if $entry->description}</span>{/if}
-     {if $entry->error}<br><span style="color:red;">{$entry->error}</span>{/if}
+     {if $entry->error}<br><span style="color:red">{$entry->error}</span>{/if}
     </td>
     <td>{$entry->version|default:''}</td>
     <td>{$entry->date|cms_date_format}</td>
@@ -52,4 +53,5 @@
 {/foreach}
   </tbody>
 </table>
+{/if}
 {/if}

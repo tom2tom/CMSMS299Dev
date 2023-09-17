@@ -1,7 +1,7 @@
 <?php
 /*
 An enum for working with FolderControls.
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -34,6 +34,5 @@ final class FolderOperationTypes extends BasicEnum
     const SHOWTHUMBS = 21;
 
     private function __construct() {}
-    #[\ReturnTypeWillChange]
-    private function __clone() {}// : void {}
+    private function __clone(): void {}
 }

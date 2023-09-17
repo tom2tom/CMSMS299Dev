@@ -1,7 +1,7 @@
 <?php
 /*
 Class for managing a templates group/category.
-Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -184,7 +184,7 @@ class TemplatesGroup
 	 *
 	 * @return string, maybe empty
 	 */
-	public function get_members_summary() : string
+	public function get_members_summary(): string
 	{
 		return implode(',',$this->members);
 	}
@@ -224,7 +224,7 @@ class TemplatesGroup
 	 * @param mixed $a scalar or array, integer id(s) or string name(s), or null
 	 * @return array
 	 */
-	protected function interpret_members($a) : array
+	protected function interpret_members($a): array
 	{
 		if( $a ) {
 			if( is_array($a) ) {
@@ -318,7 +318,7 @@ class TemplatesGroup
 	/**
 	* @ignore
 	*/
-	private static function get_locks() : array
+	private static function get_locks(): array
 	{
 		if( !self::$lock_cache_loaded ) {
 			self::$lock_cache = [];
@@ -352,7 +352,7 @@ class TemplatesGroup
 	 *
 	 * @return bool
 	 */
-	public function locked() : bool
+	public function locked(): bool
 	{
 		$lock = $this->get_lock();
 		return is_object($lock);
@@ -364,7 +364,7 @@ class TemplatesGroup
 	 *
 	 * @return bool
 	 */
-	public function lock_expired() : bool
+	public function lock_expired(): bool
 	{
 		$lock = $this->get_lock();
 		if( is_object($lock) ) return $lock->expired();

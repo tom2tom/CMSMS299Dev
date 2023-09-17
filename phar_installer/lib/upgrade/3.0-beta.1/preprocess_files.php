@@ -4,11 +4,8 @@ use function cms_installer\get_app;
 use function cms_installer\get_server_permissions;
 use function cms_installer\rrmdir;
 
+// vars in scope from includer: $destdir $upgrade_dir $version_info $smarty
 $app = get_app();
-$destdir = $app->get_destdir();
-if (!$destdir || !is_dir($destdir)) {
-    throw new Exception('Destination directory does not exist');
-}
 $config = $app->get_config();
 $s = (!empty($config['admin_path'])) ? $config['admin_path'] : 'admin';
 $admindir = $destdir . DIRECTORY_SEPARATOR . $s;
@@ -36,6 +33,7 @@ foreach ([
  ['assets', 'styles'], // replaces deprecated 'css'
  ['assets', 'themes'], // for future use
 // ['assets', 'vendor'], //TODO needed?
+ ['lib', 'assets'], // deprecated container for links
  ['lib', 'font'],
  ['lib', 'js'],
  ['lib', 'layouts'],
@@ -100,20 +98,20 @@ function reposition (string $r, string $s)
         }
     }
     rrmdir($r);
-    symlink($s, $r);
+    symlink($s, $r); // deprecated replacement
 }
 
-$from = $destdir . DIRECTORY_SEPARATOR . $assetsdir . DIRECTORY_SEPARATOR;
+$from = $assetsdir . DIRECTORY_SEPARATOR;
 $r = $from . 'images';
-$s = $destdir . DIRECTORY_SEPARATOR . $assetsdir . DIRECTORY_SEPARATOR . 'media';
+$s = $from . 'media';
 reposition($r, $s);
 
 $r = $from . 'css';
-$s = $destdir . DIRECTORY_SEPARATOR . $assetsdir . DIRECTORY_SEPARATOR . 'styles';
+$s = $from . 'styles';
 reposition($r, $s);
 
 $r = $from . 'templates';
-$s = $destdir . DIRECTORY_SEPARATOR . $assetsdir . DIRECTORY_SEPARATOR . 'layouts';
+$s = $from . 'layouts';
 reposition($r, $s);
 
 $r = $destdir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'templates';
@@ -191,6 +189,10 @@ if (is_file($to)) {
 } else {
     @rename($s, $to);
 }
+if ($to != $config['config_file']) {
+    $app->set_config_val('config_file', $to);
+}
+
 //unlink($admindir . DIRECTORY_SEPARATOR . 'moduleinteface.php'); // manifest should handle this
 @unlink($admindir . DIRECTORY_SEPARATOR . 'debug.log');
 @unlink($admindir . DIRECTORY_SEPARATOR . 'error_log');

@@ -1,7 +1,7 @@
 <?php
 /*
 Cookie operations class
-Copyright (C) 2015-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2015-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -65,7 +65,7 @@ final class Cookies implements ICookieManager
      * @ignore
      * @return string
      */
-    private static function _domain() : string
+    private static function _domain(): string
     {
         if (!is_array(self::$_parts)) {
             self::$_parts = parse_url(CMS_ROOT_URL);
@@ -81,7 +81,7 @@ final class Cookies implements ICookieManager
      * @param int $expire
      * @return bool indicating success
      */
-    private static function _setcookie(string $key, string $value, int $expire) : bool
+    private static function _setcookie(string $key, string $value, int $expire): bool
     {
         $secure = is_secure_request();
         return setcookie($key, $value, $expire,
@@ -97,7 +97,7 @@ final class Cookies implements ICookieManager
      *  By default, cookies that expire when the browser closes will be created.
      * @return bool indicating success
      */
-    public static function set(string $key, string $value, int $expire = 0) : bool
+    public static function set(string $key, string $value, int $expire = 0): bool
     {
         return self::_setcookie($key, $value, $expire);
     }
@@ -120,7 +120,7 @@ final class Cookies implements ICookieManager
      * @param string $key The cookie name.
      * @return bool
      */
-    public static function exists(string $key) : bool
+    public static function exists(string $key): bool
     {
         return isset($_COOKIE[$key]);
     }

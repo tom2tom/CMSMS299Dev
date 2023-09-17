@@ -1,6 +1,6 @@
 <?php
 #Simplified Chinese translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -34,8 +34,8 @@ $nls['language']['zh_CN'] = '&#31616;&#20307;&#20013;&#25991;';
 $nls['englishlang']['zh_CN'] = 'Simplified Chinese';
 
 #Possible aliases for language
-$nls['alias']['zh_CN.EUC'] = 'zh_CN' ;
-$nls['alias']['chinese_gb2312'] = 'zh_CN' ;
+$nls['alias']['zh_CN.EUC'] = 'zh_CN';
+$nls['alias']['chinese_gb2312'] = 'zh_CN';
 
 #Possible locale for language
 $nls['locale']['zh_CN'] = 'zh_CN.utf8,zh_CN.UTF-8,zh_CN,zh_CN.eucCN,zh_CN.gbk,zh_CN.gb18030,zh_CN.gbk,chinese,chinese-simplified,Chinese_China.936';
@@ -44,7 +44,6 @@ $nls['locale']['zh_CN'] = 'zh_CN.utf8,zh_CN.UTF-8,zh_CN,zh_CN.eucCN,zh_CN.gbk,zh
 $nls['encoding']['zh_CN'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['zh_CN'] = array(__DIR__.'/zh_CN/admin.inc.php');
+$nls['file']['zh_CN'] = [__DIR__.'/zh_CN/admin.inc.php'];
 
 $nls['htmlarea']['zh_CN'] = 'en';
-?>

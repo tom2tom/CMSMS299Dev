@@ -1,5 +1,7 @@
 <?php
 
+use function cms_installer\status_msg;
+
 // Fix backend users' homepage url
 // replace all previous secure params with [SECURITYTAG]
 // remove the admin dir name from the url (url should be relative to admin dir)

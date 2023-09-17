@@ -1,6 +1,6 @@
 <?php
 #Italian translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -35,11 +35,11 @@ $nls['englishlang']['it_IT'] = 'Italian';
 
 #Possible aliases for language
 $nls['alias']['it'] = 'it_IT';
-$nls['alias']['italiano'] = 'it_IT' ;
-$nls['alias']['ita'] = 'it_IT' ;
-$nls['alias']['italian'] = 'it_IT' ;
-$nls['alias']['it_IT.ISO8859-1'] = 'it_IT' ;
-$nls['alias']['it_IT.ISO8859-15'] = 'it_IT' ;
+$nls['alias']['italiano'] = 'it_IT';
+$nls['alias']['ita'] = 'it_IT';
+$nls['alias']['italian'] = 'it_IT';
+$nls['alias']['it_IT.ISO8859-1'] = 'it_IT';
+$nls['alias']['it_IT.ISO8859-15'] = 'it_IT';
 
 #Possible locale for language
 $nls['locale']['it_IT'] = 'it_IT.utf8,it_IT.utf-8,it_IT.UTF-8,it_IT,it_IT@euro,italian,Italian_Italy.1252';
@@ -48,11 +48,10 @@ $nls['locale']['it_IT'] = 'it_IT.utf8,it_IT.utf-8,it_IT.UTF-8,it_IT,it_IT@euro,i
 $nls['encoding']['it_IT'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['it_IT'] = array(__DIR__.'/it_IT/admin.inc.php');
+$nls['file']['it_IT'] = [__DIR__.'/it_IT/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['it_IT'] = 'it';
-?>

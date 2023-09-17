@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManager module action: bulk_setstyles
-Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -82,7 +82,7 @@ if (isset($params['submit'])) {
     $this->Redirect($id, 'defaultadmin', $returnid);
 }
 
-list($sheetrows, $grouped, $js) = Utils::get_sheets_data();
+[$sheetrows, $grouped, $js] = Utils::get_sheets_data();
 if (!$sheetrows) {
     $this->ShowErrorPage('No stylesheet specified');
     return;

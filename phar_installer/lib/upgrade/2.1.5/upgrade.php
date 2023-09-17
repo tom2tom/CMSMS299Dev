@@ -2,6 +2,8 @@
 
 // access to CMSMS 3.0+ API is needed
 use CMSMS\Group;
+use function cms_installer\status_msg;
+use function cms_installer\verbose_msg;
 
 status_msg('Adding missing permissions');
 

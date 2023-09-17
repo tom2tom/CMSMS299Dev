@@ -1,7 +1,7 @@
 <?php
 /*
 This file is part of CMS Made Simple module: OutMailer
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Refer to licence and other details at the top of file OutMailer.module.php
 More info at http://dev.cmsmadesimple.org/projects/outmailer
 */
@@ -22,7 +22,7 @@ class Utils
      * @param mixed $mod optional OutMailer module instance
      * @return array maybe empty
      */
-    public static function get_platforms_full(?Outmailer $mod = null) : array
+    public static function get_platforms_full(?Outmailer $mod = null): array
     {
         $db = Lone::get('Db');
         $aliases = $db->getCol('SELECT alias FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE enabled>0');
@@ -83,7 +83,7 @@ class Utils
      * @param string $classname
      * @return bool
      */
-    public static function setgate_full($mod, string $classname) : bool
+    public static function setgate_full($mod, string $classname): bool
     {
         $spaced = 'OutMailer\platforms\\'.$classname;
         if (!class_exists($spaced)) {
@@ -219,7 +219,7 @@ EOS;
      * @return array each key = signature-field value, each value = array with keys
      *   'apiname' and 'value' (for which the actual value is decrypted if relevant)
      */
-    public static function getprops($mod, int $gid) : array
+    public static function getprops($mod, int $gid): array
     {
         $pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY);
         $db = Lone::get('Db');
@@ -244,7 +244,7 @@ EOS;
      * @param $mod OutMailer module instance
      * @return string, delivery-reports URL, accesses the 'devreport' action of this module
      */
-    public static function get_reporturl($mod) : string
+    public static function get_reporturl($mod): string
     {
         //construct frontend-url (so no admin login is needed)
 //      $url1 = $mod->CreateLink('_', 'devreport', 1, '', [], '', true);
@@ -266,7 +266,7 @@ EOS;
      *  OutMailer\base_email_platform::STAT_* constants
      * @return string
      */
-    public static function get_msg($mod, ...$parms) : string
+    public static function get_msg($mod, ...$parms): string
     {
         $ip = getenv('REMOTE_ADDR');
         if ($parms) {

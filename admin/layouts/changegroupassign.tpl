@@ -1,13 +1,13 @@
 <div class="pageinfo">
   {_la('info_changeusergroup')}
-  {cms_help 0='help' key='help_group_permissions' title=_la('grouppermissions')}
+  {cms_help realm='help' key='help_group_permissions' title=_la('grouppermissions')}
 </div>
 {*
 <div id="admin_group_warning" style="display:none">
   {$admin_group_warning}
 </div>
 *}
-{if $group_list}
+{if !empty($group_list)}
 <div class="pageoverflow">
   <form action="{$selfurl}" enctype="multipart/form-data" method="post">
     {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
@@ -21,7 +21,7 @@
     <button type="submit" name="filter" class="adminsubmit icon do">{_la('apply')}</button>
   </form>
 </div>
-{if $displaygroups && $users}{$group_count=count($displaygroups)}
+{if !empty($displaygroups) && !empty($users)}{$group_count=count($displaygroups)}
 <br>
 <form id="groupname" action="{$selfurl}" enctype="multipart/form-data" method="post">
 {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">

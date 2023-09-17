@@ -1,7 +1,7 @@
 <?php
 /*
 AdminSearch module action: defaultadmin
-Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -54,8 +54,7 @@ $ajax_url = $this->create_action_url($id,'admin_search',['forjs'=>1, CMS_JOB_KEY
   $('#status_area').show();
 }*/
 $out = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 function process_results(c) {
  c.find('.section_children').hide();
  c.find('a').each(function() {
@@ -129,7 +128,6 @@ $(function() {
    }
  });
 });
-//]]>
 </script>
 
 EOS;
@@ -147,6 +145,7 @@ if( empty($init) ) {
     $init = [
      'search_text' => '',
      'slaves' => [],
+     'inactive_search' => true, //back compatible
      'search_descriptions' => false,
      'search_casesensitive' => false,
      'verbatim_search' => false,

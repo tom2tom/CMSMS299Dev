@@ -1,7 +1,7 @@
 <?php
 /*
 News module class: Article
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -54,7 +54,7 @@ class Article
     private $_inparams = [];
     private $_inid = 'm1_';
 
-    private function _getdata(string $key)// : mixed
+    private function _getdata(string $key)//: mixed
     {
         return $this->_rawdata[$key] ?? null;
     }
@@ -149,7 +149,7 @@ class Article
     }
 */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         switch( $key ) {
         case 'id':
@@ -231,7 +231,7 @@ class Article
         return null;
     }
 
-    public function __isset(string $key) : bool
+    public function __isset(string $key): bool
     {
         switch( $key )
         {
@@ -278,7 +278,7 @@ class Article
         return FALSE;
     }
 
-    public function __set(string $key,$value) : void
+    public function __set(string $key,$value): void
     {
         switch( $key ) {
         case 'id':

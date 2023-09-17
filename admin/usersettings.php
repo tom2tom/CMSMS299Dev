@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to display and modify the user's admin settings/preferences
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -232,15 +232,15 @@ if ($modnames) {
                 $one = new stdClass();
                 $one->label = $mod->Lang(strtolower($editor).'_publicname');
                 $one->value = $val; // as module::editor
-                list($modname, $edname) = explode('::', $val, 2);
-                list($realm, $key) = $mod->GetMainHelpKey($edname);
+                [$modname, $edname] = explode('::', $val, 2);
+                [$realm, $key] = $mod->GetMainHelpKey($edname);
                 if ($key) {
                     if (!$realm) { $realm = $modname; }
                     $one->mainkey = $realm.'__'.$key;
                 } else {
                     $one->mainkey = '';
                 }
-                list($realm, $key) = $mod->GetThemeHelpKey($edname);
+                [$realm, $key] = $mod->GetThemeHelpKey($edname);
                 if ($key) {
                     if (!$realm) { $realm = $modname; }
                         $one->themekey = $realm.'__'.$key;
@@ -288,15 +288,15 @@ if ($modnames) {
                 $one = new stdClass();
                 $one->label = $mod->Lang(strtolower($editor).'_publicname');
                 $one->value = $val; // as module::editor
-                list($modname, $edname) = explode('::', $val, 2);
-                list($realm, $key) = $mod->GetMainHelpKey($edname);
+                [$modname, $edname] = explode('::', $val, 2);
+                [$realm, $key] = $mod->GetMainHelpKey($edname);
                 if ($key) {
                     if (!$realm) { $realm = $modname; }
                     $one->mainkey = $realm.'__'.$key;
                 } else {
                     $one->mainkey = '';
                 }
-                list($realm, $key) = $mod->GetThemeHelpKey($edname);
+                [$realm, $key] = $mod->GetThemeHelpKey($edname);
                 if ($key) {
                     if (!$realm) { $realm = $modname; }
                     $one->themekey = $realm.'__'.$key;
@@ -405,8 +405,7 @@ $smarty->assign([
 //$nonce = get_csp_token();
 $editortitle = _la('syntax_editor_theme');
 $out = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
  $('#theme_help .cms_helpicon').on('click', function() {
     var key = $('input[name="editortype"]:checked').attr('data-themehelp-key');
@@ -423,7 +422,6 @@ $(function() {
     }
  });
 });
-//]]>
 </script>
 
 EOS;

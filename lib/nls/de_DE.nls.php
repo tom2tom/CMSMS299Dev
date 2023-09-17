@@ -1,6 +1,6 @@
 <?php
 #Deutsch translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 #The basic idea and values was taken from then Horde Framework (http://horde.org)
 #The original filename was horde/config/nls.php.
 #The modifications to fit it for Gallery were made by Jens Tkotz
-#(http://gallery.meanalto.com) 
+#(http://gallery.meanalto.com)
 
 #Ideas from Gallery's implementation made to CMS by Ted Kulp
 
@@ -35,9 +35,9 @@ $nls['englishlang']['de_DE'] = 'German';
 
 #Possible aliases for language
 $nls['alias']['de'] = 'de_DE';
-$nls['alias']['deutsch'] = 'de_DE' ;
-$nls['alias']['deu'] = 'de_DE' ;
-$nls['alias']['de_DE.ISO8859-1'] = 'de_DE' ;
+$nls['alias']['deutsch'] = 'de_DE';
+$nls['alias']['deu'] = 'de_DE';
+$nls['alias']['de_DE.ISO8859-1'] = 'de_DE';
 
 #Possible locale for language
 $nls['locale']['de_DE'] = 'de_DE.utf8,de_DE.utf-8,de_DE.UTF-8,de_DE,de_DE@euro,deu,german,German_Germany.1252';
@@ -46,11 +46,10 @@ $nls['locale']['de_DE'] = 'de_DE.utf8,de_DE.utf-8,de_DE.UTF-8,de_DE,de_DE@euro,d
 $nls['encoding']['de_DE'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['de_DE'] = array(__DIR__.'/de_DE/admin.inc.php');
+$nls['file']['de_DE'] = [__DIR__.'/de_DE/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['de_DE'] = 'de';
-?>

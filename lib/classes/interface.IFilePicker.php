@@ -1,7 +1,7 @@
 <?php
 /*
 Interface for file-picking modules
-Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -39,7 +39,7 @@ interface IFilePicker
      * @param int $uid Optional admin user id
      * @return CMSMS\FilePickerProfile
      */
-    public function get_profile_or_default($profile_name, string $dir = '', int $uid = 0) : FilePickerProfile;
+    public function get_profile_or_default($profile_name, string $dir = '', int $uid = 0): FilePickerProfile;
 
     /**
      * Get the default profile for the specified parameters.
@@ -48,14 +48,14 @@ interface IFilePicker
      * @param int $uid Optional admin user id
      * @return CMSMS\FilePickerProfile
      */
-    public function get_default_profile(string $dir = '', int $uid = 0) : FilePickerProfile;
+    public function get_default_profile(string $dir = '', int $uid = 0): FilePickerProfile;
 
     /**
      * Get the URL to be accessed to populate the filepicker display
      *
      * @return string
      */
-    public function get_browser_url() : string;
+    public function get_browser_url(): string;
 
     /**
      * Get data for setting up a file-browse process
@@ -66,7 +66,7 @@ interface IFilePicker
      *  embedded in an iframe, or a specified DOM element. Default true.
      * @return array
      */
-    public function get_browsedata(array $params, bool $framed = true) : array;
+    public function get_browsedata(array $params, bool $framed = true): array;
 
     /**
      * Generate HTML & related js, css for an input field that can be used to specify a selected file.
@@ -77,7 +77,7 @@ interface IFilePicker
      * @param bool   $required Optional flag, whether a choice must be provided in the generated element. Default false
      * @return string
      */
-    public function get_html(string $name, /*mixed */$value, FolderControls $profile, bool $required = false) : string;
+    public function get_html(string $name, /*mixed */$value, FolderControls $profile, bool $required = false): string;
 } // interface
 
 \class_alias('CMSMS\IFilePicker', 'CMSMS\FilePicker');

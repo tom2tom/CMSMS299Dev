@@ -13,7 +13,7 @@
    <span id="ntpage2" class="pagechange">{_ld('layout','pager_next')}</span>
 {/if}
    <span id="ltpage2" class="pagechange">{_ld('layout','pager_last')}</span>
-   {_ld('layout','pageof','<span id="cpage2">1</span>',"<span id='tpage2' style='margin-right:0.5em;'>{$totpg2}</span>")}
+   {_ld('layout','pageof','<span id="cpage2">1</span>',"<span id='tpage2' style='margin-right:0.5em'>{$totpg2}</span>")}
    </span>
    {$rowchanger2}{_ld('layout','pager_rowspp')}{*TODO sometimes show 'pager_rows'*}
   </div>{*boxchild*}

@@ -35,11 +35,11 @@ class wizard_step2 extends wizard_step
         parent::display();
         $app = get_app();
 
-        $rpwd = $app->get_destdir();
-        $info = $this->get_cmsms_info($rpwd); //null when installing
+        $destdir = $app->get_destdir();
+        $info = $this->get_cmsms_info($destdir); //empty array when installing
         $wizard = $this->get_wizard();
         $smarty = smarty();
-        $smarty->assign('pwd', $rpwd);
+        $smarty->assign('pwd', $destdir);
         $app_config = $app->get_config();
         $smarty->assign('nofiles', $app_config['nofiles']);
 
@@ -65,15 +65,15 @@ class wizard_step2 extends wizard_step
         } else {
             // looks like a new install
             // double-check for the phar stuff
-            if (is_file($rpwd.DIRECTORY_SEPARATOR.'index.php') && is_dir($rpwd.DIRECTORY_SEPARATOR.'lib') && is_file($rpwd.DIRECTORY_SEPARATOR.'lib/classes/class.installer_base.php')) {
+            if (is_file($destdir.DIRECTORY_SEPARATOR.'index.php') && is_dir($destdir.DIRECTORY_SEPARATOR.'lib') && is_file($destdir.DIRECTORY_SEPARATOR.'lib/classes/class.installer_base.php')) {
                 // should never happen except if you're working on this project.
                 throw new Exception(lang('error_invalid_directory'));
             }
 
             $wizard->clear_data('version_info'); //actually does nothing (no config info available yet when installing)
 
-            $empty_dir = $this->is_dir_empty($rpwd, $app->get_phar());
-            $existing_files = $this->list_files($rpwd);
+            $empty_dir = $this->is_dir_empty($destdir, $app->get_phar());
+            $existing_files = $this->list_files($destdir);
             $smarty->assign('install_empty_dir', $empty_dir)
              ->assign('existing_files', $existing_files)
              ->assign('retry_url', $_SERVER['REQUEST_URI']); // TODO only if problem occurred
@@ -85,19 +85,19 @@ class wizard_step2 extends wizard_step
 
     /**
      * Collect data from config.php file, if any, plus some related params
-     * @param string $dir filepath of site root directory
+     * @param string $destdir filepath of site root directory
      * @return array maybe empty
      * @throws Exception
      */
-    private function get_cmsms_info(string $dir)
+    private function get_cmsms_info(string $destdir)
     {
-        if (!$dir) {
+        if (!$destdir) {
             return [];
         }
 
-        $fn = $dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'config.php';
+        $fn = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'config.php';
         if (!is_file($fn)) {
-            $fn = $dir.DIRECTORY_SEPARATOR.'config.php';
+            $fn = $destdir.DIRECTORY_SEPARATOR.'config.php';
             if (!is_file($fn)) {
                 return [];
             }
@@ -109,11 +109,11 @@ class wizard_step2 extends wizard_step
         include_once $fn;
 
         $aname = (!empty($config['admin_path'])) ? $config['admin_path'] : 'admin';
-//      if( !is_file($dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'moduleinterface.php') ) return [];
-        if (!is_file($dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php')) {
+//      if( !is_file($destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'moduleinterface.php') ) return [];
+        if (!is_file($destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php')) {
             return [];
         }
-        $fv = $dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'version.php';
+        $fv = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'version.php';
         if (!is_file($fv)) {
             return [];
         }
@@ -180,7 +180,7 @@ class wizard_step2 extends wizard_step
      * @param string $phar_path like 'phar://path/to/this.phar', or '' if not in a phar
      * @return bool indicating acceptability
      */
-    private function is_dir_empty(string $dir, string $phar_path) : bool
+    private function is_dir_empty(string $dir, string $phar_path): bool
     {
         if (!$dir) {
             return false;

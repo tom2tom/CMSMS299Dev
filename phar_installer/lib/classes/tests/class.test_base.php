@@ -7,14 +7,14 @@ use function cms_installer\lang;
 use function cms_installer\to_bool;
 
 // This method is useless, extension_loaded() is caseless
-function test_extension_loaded(string $name) : bool
+function test_extension_loaded(string $name): bool
 {
     $a = extension_loaded($name);
     //  if( !$a ) $a = extension_loaded(strtoupper($name));
     return $a;
 }
 
-function test_apache_module($name) : bool
+function test_apache_module($name): bool
 {
     if (!$name) {
         return false;
@@ -26,17 +26,17 @@ function test_apache_module($name) : bool
     return in_array($name, $modules);
 }
 
-function test_is_false($val) : bool
+function test_is_false($val): bool
 {
     return (to_bool($val) == false);
 }
 
-function test_is_true($val) : bool
+function test_is_true($val): bool
 {
     return (to_bool($val) == true);
 }
 
-function test_remote_file(string $url, int $timeout = 3, string $searchString = '') : bool
+function test_remote_file(string $url, int $timeout = 3, string $searchString = ''): bool
 {
     $timeout = max(1, min(360, $timeout));
     $req = new http_request();
@@ -94,7 +94,7 @@ abstract class test_base
     }
 
     #[\ReturnTypeWillChange]
-    public function __get(string $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         if (!in_array($key, self::KEYS)) {
             throw new Exception(lang('error_invalidkey', $key, __CLASS__));
@@ -105,7 +105,7 @@ abstract class test_base
         return null;
     }
 
-    public function __isset(string $key) : bool
+    public function __isset(string $key): bool
     {
         if (!in_array($key, self::KEYS)) {
             throw new Exception(lang('error_invalidkey', $key, __CLASS__));
@@ -113,7 +113,7 @@ abstract class test_base
         return isset($this->_data[$key]);
     }
 
-    public function __set(string $key, $value) : void
+    public function __set(string $key, $value): void
     {
         if (!in_array($key, self::KEYS)) {
             throw new Exception(lang('error_invalidkey', $key, __CLASS__));
@@ -125,12 +125,12 @@ abstract class test_base
         }
     }
 
-    public function __unset(string $key) : void
+    public function __unset(string $key): void
     {
         unset($this->_data[$key]);
     }
 
-    abstract public function execute() : string;
+    abstract public function execute(): string;
 
     public function run()
     {

@@ -1,7 +1,7 @@
 <?php
 /*
 A class providing functionality for generating page-elements.
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -114,7 +114,7 @@ class FormUtils
     }
 
     /**
-     * Get xhtml for a form element.
+     * Get html for a form element.
      * This is an interface between the deprecated CMSModule methods for
      * form-element creation, and their replacements in this class.
      *
@@ -127,7 +127,7 @@ class FormUtils
      *
      * @return string
      */
-    public static function create($mod, string $method, array $parms) : string
+    public static function create($mod, string $method, array $parms): string
     {
         //interpret & translate $method
         if (strncasecmp($method, 'create', 6) == 0) {
@@ -441,7 +441,7 @@ class FormUtils
      * @param array $excludes $parms key(s) to be skipped
      * @return string
      */
-    protected static function join_attrs(array &$parms, array $excludes) : string
+    protected static function join_attrs(array &$parms, array $excludes): string
     {
         $excludes += [-99 => 'htmlid', -98 => 'getid'];
         $out = '';
@@ -484,7 +484,7 @@ class FormUtils
      * @return string The generated <option> element(s).
      * @see FormUtils::create_options()
      */
-    public static function create_option(/*array */$data, /*mixed */$selected = '') : string
+    public static function create_option(/*array */$data, /*mixed */$selected = ''): string
     {
         if (!is_array($data) || !$data) {
             return '';
@@ -534,7 +534,7 @@ class FormUtils
      * @return string
      * @see FormUtils::create_options()
      */
-    public static function create_options($options, $selected = '') : string
+    public static function create_options($options, $selected = ''): string
     {
         if (!is_array($options) || !$options) {
             return '';
@@ -552,7 +552,7 @@ class FormUtils
     }
 
     /**
-     * Get xhtml for a dropdown selector
+     * Get html for a dropdown selector
      * @see also FormUtils::create_select()
      *
      * @param string $name The name attribute for the select name
@@ -562,14 +562,14 @@ class FormUtils
      * @deprecated Use create_select() with appropriate parameters instead
      * @return string The HTML content for the <select> element.
      */
-    public static function create_dropdown(string $name, array $list_options, $selected, array $params = []) : string
+    public static function create_dropdown(string $name, array $list_options, $selected, array $params = []): string
     {
         $parms = ['type'=>'drop', 'name'=>$name, 'options'=>$list_options, 'selectedvalue'=>$selected] + $params;
         return self::create_select($parms);
     }
 
     /**
-     * Get xhtml for a selector (checkbox, radiogroup, list, dropdown)
+     * Get html for a selector (checkbox, radiogroup, list, dropdown)
      *
      * @since 3.0
      *
@@ -582,7 +582,7 @@ class FormUtils
      *
      * @return string
      */
-    public static function create_select(array $parms) : string
+    public static function create_select(array $parms): string
     {
         //must have these $parms, each with a usable value
         $err = self::must_attrs($parms, ['type'=>'c', 'name'=>'c']);
@@ -706,7 +706,7 @@ class FormUtils
     }
 
     /**
-     * Get xhtml for a single-element input (text, textarea, button, submit etc)
+     * Get html for a single-element input (text, textarea, button, submit etc)
      *
      * @since 3.0
      *
@@ -718,7 +718,7 @@ class FormUtils
      *
      * @return string
      */
-    public static function create_input(array $parms) : string
+    public static function create_input(array $parms): string
     {
         if ($parms['type'] != 'textarea') {
             //must have these $parms, each with a usable value
@@ -813,7 +813,7 @@ class FormUtils
     }
 
     /**
-     * Get xhtml for a text area input
+     * Get html for a text area input
      * The area may be used with a richtext editor or syntax highlight editor.
      * If so, the related js, css etc are not generated here.
      *
@@ -846,7 +846,7 @@ class FormUtils
      *
      * @return string
      */
-    public static function create_textarea(array $parms) : string
+    public static function create_textarea(array $parms): string
     {
         $err = self::must_attrs($parms, ['name'=>'c']);
         if (!$err) {
@@ -946,7 +946,7 @@ class FormUtils
     }
 
     /**
-     * Get xhtml for a label for another element
+     * Get html for a label for another element
      *
      * @since 3.0
      *
@@ -956,7 +956,7 @@ class FormUtils
      *
      * @return string
      */
-    public static function create_label(array $parms) : string
+    public static function create_label(array $parms): string
     {
         //must have these $parms, each with a usable value
         $err = self::must_attrs($parms, ['name'=>'c', 'labeltext'=>'c']);
@@ -977,7 +977,7 @@ class FormUtils
     }
 
     /**
-     * Get xhtml for the start of a module form
+     * Get html for the start of a module form
      *
      * @since 3.0
      *
@@ -990,7 +990,7 @@ class FormUtils
      *
      * @return string
      */
-    public static function create_form_start($mod, array $parms) : string
+    public static function create_form_start($mod, array $parms): string
     {
         static $_formcount = 1;
         //must have these $parms, each with a usable value
@@ -1025,7 +1025,7 @@ class FormUtils
 
         $method = (!empty($method)) ? sanitizeVal($method) : 'post';
 
-        if (!empty($returnid) || (isset($returnid) && $returnid === 0)) {
+        if (isset($returnid) && ($returnid || $returnid === 0)) {
             $returnid = (int)$returnid; //OR filter_var() ?
             $content_obj = cmsms()->get_content_object();
             $goto = ($content_obj) ? $content_obj->GetURL() : 'index.php';
@@ -1114,7 +1114,7 @@ class FormUtils
     }
 
     /**
-     * Get xhtml for the end of a module form
+     * Get html for the end of a module form
      *
      * @since 3.0
      *
@@ -1123,19 +1123,19 @@ class FormUtils
      *
      * @return string
      */
-    public static function create_form_end() : string
+    public static function create_form_end(): string
     {
         return '</form>'.PHP_EOL;
     }
 
     /**
-     * Get xhtml for the start of a fieldset, with optional legend
+     * Get html for the start of a fieldset, with optional legend
      *
      * @since 3.0
      *
      * @return string
      */
-    public function create_fieldset_start(array $parms) : string
+    public function create_fieldset_start(array $parms): string
     {
         // no 'name', no compulsory
         extract($parms);
@@ -1148,7 +1148,7 @@ class FormUtils
         $out = '<fieldset';
         $out .= self::join_attrs($parms, []);
         $out .= '>'.PHP_EOL;
-        if (!empty($legend) || (isset($legend) && is_numeric($legend))) {
+        if (isset($legend) && ($legend || is_numeric($legend))) {
             $out .= '<legend';
             //$out .= self::join_attrs($TODO);
             $contents = specialize($legend);
@@ -1158,7 +1158,7 @@ class FormUtils
     }
 
     /**
-     * Get xhtml for the end of a fieldset
+     * Get html for the end of a fieldset
      *
      * @since 3.0
      *
@@ -1167,13 +1167,13 @@ class FormUtils
      *
      * @return string
      */
-    public static function create_fieldset_end() : string
+    public static function create_fieldset_end(): string
     {
         return '</fieldset>'.PHP_EOL;
     }
 
     /**
-     * Get xhtml for an anchor element which when activated will run a
+     * Get html for an anchor element which when activated will run a
      * module action.
      * Or get only the URL for such link.
      *
@@ -1187,7 +1187,7 @@ class FormUtils
      *
      * @return string
      */
-    public static function create_action_link($mod, array $parms) : string
+    public static function create_action_link($mod, array $parms): string
     {
         if (isset($parms['id']) && !isset($parms['getid'])) {
             $parms['getid'] = $parms['id'];
@@ -1247,15 +1247,13 @@ class FormUtils
             if (!empty($warn_message)) {
                 $msg = addcslashes($warn_message, "'\n\r");
                 $out .= <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
  $('#{$id}').on('click', function() {
   cms_confirm_linkclick(this, '$msg');
   return false;
  });
 });
-//]]>
 </script>
 EOS;
             }
@@ -1264,7 +1262,7 @@ EOS;
     }
 
     /**
-     * Get xhtml for an anchor element referring to a site page,
+     * Get html for an anchor element referring to a site page,
      * essentially a go-back facilitator after a module-action.
      * Or get only the URL for such link.
      *
@@ -1282,7 +1280,7 @@ EOS;
      *  TODO support activatable image
      * @return string
      */
-    public static function create_return_link($mod, array $parms) : string
+    public static function create_return_link($mod, array $parms): string
     {
         //TODO any must-have's here ?
         $err = self::clean_attrs($parms);
@@ -1325,7 +1323,7 @@ EOS;
     }
 
     /**
-     * Get xhtml for an anchor which when activated will show a site page
+     * Get html for an anchor which when activated will show a site page
      *
      * @param array  $parms Attribute(s)/property(ies) to be included in
      *  the element, each member like 'name'=>'value', may include:
@@ -1336,7 +1334,7 @@ EOS;
      *
      * @return string
      */
-    public static function create_content_link(array $parms) : string
+    public static function create_content_link(array $parms): string
     {
         //must have these $parms, each with a usable value
         $err = self::must_attrs($parms, ['pageid'=>'i']);
@@ -1378,7 +1376,7 @@ EOS;
     }
 
     /**
-     * Get xhtml for a tooltip, which may be specified to be a span or a link
+     * Get html for a tooltip, which may be specified to be a span or a link
      *
      * @param array  $parms Attribute(s)/property(ies) to be included in
      *  the element, each member like 'name'=>'value'. Must include
@@ -1391,7 +1389,7 @@ EOS;
      *
      * @return string
      */
-    public static function create_tooltip(array $parms) : string
+    public static function create_tooltip(array $parms): string
     {
         //aliases
         foreach ([
@@ -1442,7 +1440,7 @@ EOS;
     }
 
     /**
-     * Get xhtml for a nest of ul(s) and li's suitable for a popup/context menu
+     * Get html for a nest of ul(s) and li's suitable for a popup/context menu
      *
      * @since 3.0
      * @param array $items Each member is an assoc. array, with member 'content' and optional 'children' sub-array
@@ -1452,7 +1450,7 @@ EOS;
      *
      * @return string
      */
-    public static function create_menu(array $items, array $parms = [], $level = 0) : string
+    public static function create_menu(array $items, array $parms = [], $level = 0): string
     {
         static $mainclass = null;
 

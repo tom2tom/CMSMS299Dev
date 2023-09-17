@@ -191,7 +191,7 @@ final class Message implements MessageContract
         $this->headers = array(
             'mime-version' => '1.0',
             'message-id' => '<' . $this->id . '@>', //TODO format <uuid@domain>
-            'content-type' => 'text/plain; charset=UTF-8',
+            'content-type' => 'text/plain; charset=utf-8',
             'content-transfer-encoding' => 'quoted-printable',
             'x-mailer' => 'ddrv/mailer-' . Mailer::MAILER_VERSION . ' (https://github.com/ddrv/php-mailer)',
         );
@@ -200,8 +200,7 @@ final class Message implements MessageContract
         $this->setText('' . $text);
     }
 
-    #[\ReturnTypeWillChange]
-    public function __clone()// : void
+    public function __clone(): void
     {
         $this->boundary = '-+' . $this->randomString(12, false);
         $this->id = $this->randomString(32, false);
@@ -700,7 +699,7 @@ final class Message implements MessageContract
     }
 
     //PHP 8.1+ Serializable interface compatibility
-    public function __serialize() : array
+    public function __serialize(): array
     {
         return [
             'id' => $this->id,
@@ -717,7 +716,7 @@ final class Message implements MessageContract
         ];
     }
 
-    public function __unserialize(array $data) : void
+    public function __unserialize(array $data): void
     {
         $empty = [
             'id' => array(),
@@ -749,8 +748,7 @@ final class Message implements MessageContract
     /**
      * @inheritDoc
      */
-    #[\ReturnTypeWillChange]
-    public function unserialize(/*string*/$serialized)// : void
+    public function unserialize(string $serialized): void
     {
         $this->__unserialize(\unserialize($serialized));
     }

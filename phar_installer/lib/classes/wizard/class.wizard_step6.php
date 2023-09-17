@@ -30,7 +30,7 @@ class wizard_step6 extends wizard_step
           'password' => '',
           'repeatpw' => '',
           'emailaddr' => '',
-//         'emailaccountinfo' => 1,
+          'emailsend' => false,
          ];
         $tmp = $this->get_wizard()->get_data('adminaccount');
         if ($tmp) {
@@ -53,10 +53,11 @@ class wizard_step6 extends wizard_step
         if (isset($_POST['repeatpw'])) {
             $this->_adminacct['repeatpw'] = de_specialize($_POST['repeatpw']);
         }
-/*
-        if( isset($_POST['emailaccountinfo']) ) { $this->_adminacct['emailaccountinfo'] = (int)$_POST['emailaccountinfo']; }
-        else { $this->_adminacct['emailaccountinfo'] = 1; }
-*/
+        if( !empty($_POST['emailsend']) ) {
+            $this->_adminacct['emailsend'] = (int)$_POST['emailsend'];
+        } else {
+            $this->_adminacct['emailsend'] = 0;
+        }
         try {
             $this->validate($this->_adminacct);
             $this->get_wizard()->set_data('adminaccount', $this->_adminacct);

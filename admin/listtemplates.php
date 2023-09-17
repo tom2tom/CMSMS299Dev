@@ -1,7 +1,7 @@
 <?php
 /*
 List templates and groups and types.
-Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -81,9 +81,9 @@ if( !check_permission($userid,'Modify Templates') ) {
 require_once __DIR__.DIRECTORY_SEPARATOR.'method.templatequery.php';
 
 try {
-	$tplpaged = 'false';
-	$elid1 = 'null';
-	$elid2 = 'null';
+    $tplpaged = 'false';
+    $elid1 = 'null';
+    $elid2 = 'null';
 
     if( $templates ) {
 
@@ -214,17 +214,19 @@ try {
         }
 
         if( $n > 10 ) {
+            $sellength = 10; //OR some $_REQUEST[]
             $typepaged = 'true';
             if( $n > 20 ) {
                 $elid3 = '"pspage2"';
                 $elid4 = '"ntpage2"';
             }
-            if( !isset($pagelengths) ) {
-                $pagelengths = [10=>10];
-                if( $n > 20 ) $pagelengths[20] = 20;
-                if( $n > 40 ) $pagelengths[40] = 40;
-                $pagelengths[0] = _la('all');
-                $smarty->assign('pagelengths', $pagelengths);
+            if( !isset($pagelengths2) ) {
+                $pagelengths2 = [10=>10];
+                if( $n > 20 ) $pagelengths2[20] = 20;
+                if( $n > 40 ) $pagelengths2[40] = 40;
+                $pagelengths2[0] = _la('all');
+                $smarty->assign('pagelengths2', $pagelengths2)
+                 ->assign('currentlength2', $sellength);
             }
         }
         $smarty->assign([
@@ -457,18 +459,18 @@ $(function() {
     previd: $elid3,
     nextid: $elid4,
     lastid: 'ltpage2',
-    selid: 'typepagerows',
+    selid: 'pagerows2',
     currentid: 'cpage2',
     countid: 'tpage2'//,
 //  onPaged: function(table,pageid){}
    });
    $(typetable).SSsort(xopts);
-   $('#typepagerows').on('change',function() {
+   $('#pagerows2').on('change',function() {
     var l = parseInt(this.value);
     if(l === 0) {
-     $('#tbl2pagelink').hide();//TODO hide label-part 'per page'
+     $('#tblpagelink2').hide();//TODO hide label-part 'per page'
     } else {
-     $('#tbl2pagelink').show();//TODO show label-part 'per page'
+     $('#tblpagelink2').show();//TODO show label-part 'per page'
     }
    });
   } else {
@@ -703,7 +705,7 @@ $extras2 = [
     'op' => 'replace',
     'tpl' => '', //populated by js
 ];
-//$selfurl = basename(__FILE__);
+$selfurl = basename(__FILE__);
 $seetab = isset($_REQUEST['_activetab']) ? sanitizeVal($_REQUEST['_activetab'], CMSSAN_NAME) : null;
 
 $smarty->assign([
@@ -711,7 +713,7 @@ $smarty->assign([
    'manage_templates' => $pmod,
    'has_add_right' => $pmod || check_permission($userid, 'Add Templates'),
    'bulkurl' => 'templateoperations.php',
-// 'selfurl' => $selfurl,
+   'selfurl' => $selfurl,
    'urlext' => $urlext,
    'activetab' => $seetab,
    'extraparms2' => $extras,

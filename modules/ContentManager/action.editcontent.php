@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManager module action: edit an existing or cloned page
-Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -427,8 +427,7 @@ if ($js) {
 }
 
 $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
   var do_locking = $do_locking;
   // initialize the dirtyform stuff
@@ -553,7 +552,7 @@ EOS;
       var self = this;
       ev.preventDefault();
       $('#Edit_Content').lockManager('unlock', 1).done(function() {
-        var el = $('<input type="hidden">').attr('name', $(self).attr('name')).val($(self).val());
+        var el = $('<input/>,{type:'hidden',name:$(self).attr('name'),val:$(self).val()});
         $(self).closest('form').append(el).submit();
       });
     }
@@ -574,7 +573,7 @@ EOS;
       var self = this;
       ev.preventDefault();
       $('#Edit_Content').lockManager('unlock', 1).done(function() {
-        var el = $('<input type="hidden">').attr('name', $(self).attr('name')).val($(self).val());
+        var el = $('<input/>,{type:'hidden,name:$(self).attr('name'),val:($(self).val()});
         $(self).closest('form').append(el).submit();
       });
     }
@@ -675,7 +674,6 @@ EOS;
 */
 	$js .= <<<'EOS'
 });
-//]]>
 </script>
 
 EOS;

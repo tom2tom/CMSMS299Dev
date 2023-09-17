@@ -7,21 +7,21 @@
 </div>
   <div class="pageoverflow">
     {$t=_la('name')}* <label class="pagetext" for="name">{$t}:</label>
-    {cms_help 0='tags' key='help_tagname' title=$t}
+    {cms_help realm='tags' key='help_tagname' title=$t}
     <div class="pageinput">
       <input type="text" id="name" name="tagname" value="{if $name!='-1'}{$name}{/if}" size="50" maxlength="50">
     </div>
   </div>
   <div class="pageoverflow">
     {$t=_la('description')}<label class="pagetext" for="description">{$t}:</label>
-    {cms_help 0='tags' key='help_tagdesc' title=$t}
+    {cms_help realm='tags' key='help_tagdesc' title=$t}
     <div class="pageinput">
       <textarea id="description" name="description" rows="3" cols="80">{$description}</textarea>
     </div>
   </div>
   <div class="pageoverflow">
     {$t=_la('parameters')}<label class="pagetext" for="parameters">{$t}:</label>
-    {cms_help 0='tags' key='help_tagparams' title=$t}
+    {cms_help realm='tags' key='help_tagparams' title=$t}
     <div class="pageinput">
       <textarea id="parameters" name="parameters" rows="3" cols="80">{$parameters}</textarea>
     </div>
@@ -29,7 +29,7 @@
   {if $license !== null}{* processing a dB-stored plugin *}
   <div class="pageoverflow">
     {$t=_ld('tags','license')}<label class="pagetext" for="license">{$t}:</label>
-    {cms_help 0='tags' key='help_taglicense' title=$t}
+    {cms_help realm='tags' key='help_taglicense' title=$t}
     <div class="pageinput">
       <textarea id="license" name="license" rows="5" cols="80">{$license}</textarea>
     </div>
@@ -37,7 +37,7 @@
   {/if}
   <div class="pageoverflow">
     {$t=_la('code')}* <label class="pagetext" for="code">{$t}:</label>
-    {cms_help 0='tags' key='help_tagcode' title=$t}
+    {cms_help realm='tags' key='help_tagcode' title=$t}
     <div class="pageinput">
       <textarea id="code" name="code" rows="10" cols="80">{$code}</textarea>
     </div>

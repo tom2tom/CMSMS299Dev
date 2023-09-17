@@ -3,7 +3,7 @@
 <footer id="oe_footer" class="cf">
 	<div class="footer-left"></div>
 	<div class="footer-right cf">
-		<span id="aboutinfo" style="display:none"><a href="javascript:OE.aboutToggle();">CMSMS {lang('version')} {cms_version} &ldquo;{cms_versionname}&rdquo;</a></span>
+		<span id="aboutinfo" style="display:none"><a href="javascript:OE.aboutToggle()">CMSMS {lang('version')} {cms_version} &ldquo;{cms_versionname}&rdquo;</a></span>
 		<ul class="links">
 			<li>
 				<a href="javascript:OE.aboutToggle();">{lang('about')}</a>

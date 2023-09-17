@@ -1,7 +1,7 @@
 <?php
 /*
 Class to populate and validate the constents of a record to be added to the admin log.
-Copyright (C) 2022-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -76,22 +76,22 @@ class logrecord
     }
 
     #[\ReturnTypeWillChange]
-    public function __get( $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         switch( $key) {
         case 'timestamp':
         case 'severity':
-            return (int)$this->_data[$key];
+            return (int)$this->_data[$key]??0;
 
         case 'user_id':
         case 'item_id':
-            return (string)$this->_data[$key];
+            return $this->_data[$key]??'';
 
         case 'ip_addr':
         case 'username':
         case 'subject':
         case 'message':
-            return trim($this->_data[$key]);
+            return trim($this->_data[$key]??'');
 
         default:
             throw new LogicException("$key is not a gettable member of ".__CLASS__);

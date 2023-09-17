@@ -11,6 +11,7 @@
 <br>
 <p class="pageshowrows">{$pagination}</p>
 {/if}
+{if !empty($marklist )}
 <table class="pagetable">
   <thead>
     <tr>
@@ -54,4 +55,5 @@
   <a href="{$addurl}{$urlext}">{$iconadd}</a>
   <a href="{$addurl}{$urlext}" class="pageoptions">{_la('addbookmark')}</a>
 </div>
+{/if}
 {/if}

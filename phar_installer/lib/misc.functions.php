@@ -1,10 +1,11 @@
 <?php
-namespace cms_installer;
+namespace cms_installer {
 
 use cms_installer\cms_smarty;
 use cms_installer\installer_base;
 use cms_installer\langtools;
 use cms_installer\nlstools;
+use cms_installer\wizard\wizard;
 use Exception;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
@@ -77,7 +78,7 @@ function redirect(string $to)
 
     if (headers_sent()) {
         // use javascript instead
-        echo '<script type="text/javascript"><!-- location.replace("'.$to.'"); // --></script><noscript><meta http-equiv="Refresh" content="0;URL='.$to.'"></noscript>';
+        echo '<script>location.replace("'.$to.'");></script><noscript><meta http-equiv="Refresh" content="0;URL='.$to.'"></noscript>';
         exit;
     } else {
         header("Location: $to");
@@ -117,12 +118,12 @@ function translator()
     return langtools::get_instance();
 }
 
-function startswith(string $haystack, string $needle) : bool
+function startswith(string $haystack, string $needle): bool
 {
     return (strncmp($haystack, $needle, strlen($needle)) == 0);
 }
 
-function endswith(string $haystack, string $needle) : bool
+function endswith(string $haystack, string $needle): bool
 {
     $o = strlen($needle);
     if ($o > 0 && $o <= strlen($haystack)) {
@@ -131,7 +132,7 @@ function endswith(string $haystack, string $needle) : bool
     return false;
 }
 
-function joinpath(string ...$args) : string
+function joinpath(string ...$args): string
 {
     if (is_array($args[0])) {
         $args = $args[0];
@@ -141,6 +142,9 @@ function joinpath(string ...$args) : string
         [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $path);
 }
 
+/**
+ * see also misc.functions :: tr() which is the same, in global namespace
+ */
 function lang(...$args)
 {
     try {
@@ -176,7 +180,7 @@ function to_bool($in, bool $strict = false)
  * @param string $str
  * @return bool
  */
-function is_email(string $str) : bool
+function is_email(string $str): bool
 {
     $str = trim('' . $str);
     return (bool)preg_match('/\S+.*@[\w.\-\x80-\xff]+$/', $str);
@@ -233,7 +237,7 @@ function is_email(string $str) : bool
  * @param string $ex Optional extra non-alphanum char(s) for $scope ICMSSAN_PUNCTX
  * @return string
  */
-function sanitizeVal(string $str, int $scope = ICMSSAN_PURE, string $ex = '') : string
+function sanitizeVal(string $str, int $scope = ICMSSAN_PURE, string $ex = ''): string
 {
     if ($scope & ~ICMSSAN_NONPRINT) {
         $str = trim($str);
@@ -345,7 +349,7 @@ function specialize($val)
          '/on/i' => function($matches) { return $matches[0][0].'&#'.ord($matches[0][1]).';'; },
          '/embed/i' => function($matches) { return substr($matches[0], 0, 4).'&#'.ord($matches[0][4]).';'; },
         ], $val);
-        return \htmlspecialchars($val, ENT_QUOTES | ENT_SUBSTITUTE | ENT_XHTML, 'UTF-8', false);
+        return \htmlspecialchars($val, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8', false);
     }
     specialize_array($val);
     return $val;
@@ -372,7 +376,7 @@ function de_specialize($val)
             $val = preg_replace_callback('/&#(\d+);/', function($matches) {
                 return chr($matches[1]);
             }, $val);
-            return \htmlspecialchars_decode($val, ENT_QUOTES | ENT_XHTML);
+            return \htmlspecialchars_decode($val, ENT_QUOTES | ENT_HTML5);
         }
         //N/A    de_specialize_array($val);
     }
@@ -386,7 +390,7 @@ function de_specialize($val)
  * @return string
  * @throws Exception
  */
-function get_sys_tmpdir() : string
+function get_sys_tmpdir(): string
 {
     if (function_exists('sys_get_temp_dir')) {
         $tmp = rtrim(sys_get_temp_dir(), ' \/');
@@ -411,9 +415,10 @@ function get_sys_tmpdir() : string
     }
 
     if (ini_get('safe_mode') != '1') {
-        // last ditch effort to find a place to write to.
-        $tmp = @tempnam('', 'xxx');
-        if ($tmp && is_file($tmp)) {
+        // last ditch effort to find a place to write to
+        $n = mt_rand(1000,9999);
+        $tmp = @tempnam('',"x{$n}x"); // no warning, thanks
+        if ($tmp && is_file($tmp)) { //new dummy file in system-default place
             @unlink($tmp);
             return realpath(dirname($tmp));
         }
@@ -434,7 +439,7 @@ function get_sys_tmpdir() : string
  * [3] dir read+write (+ access)
  * @throws Exception
  */
-function get_server_permissions() : array
+function get_server_permissions(): array
 {
     static $modes = null;
 
@@ -476,7 +481,7 @@ function get_server_permissions() : array
  *    php.ini files
  * @return bool
  */
-function is_directory_writable(string $path, bool $ignore_specialfiles = true) : bool
+function is_directory_writable(string $path, bool $ignore_specialfiles = true): bool
 {
     global $_writable_error;
 
@@ -616,7 +621,7 @@ function rcopy(string $frompath, string $topath, bool $dummy = false)
  *
  * @return array, maybe empty
  */
-function get_writable_error() : array
+function get_writable_error(): array
 {
     global $_writable_error;
 
@@ -648,7 +653,7 @@ function get_writable_error() : array
  * @return array
  * @throws Exception
  */
-function get_upgrade_versions() : array
+function get_upgrade_versions(): array
 {
     $app_config = get_app()->get_config();
     $min_upgrade_version = $app_config['min_upgrade_version'];
@@ -699,7 +704,7 @@ function get_upgrade_versions() : array
  * @return string
  * @throws Exception
  */
-function get_upgrade_changelog(string $version) : string
+function get_upgrade_changelog(string $version): string
 {
     $dir = __DIR__.DIRECTORY_SEPARATOR.'upgrade/'.$version;
     if (!is_dir($dir)) {
@@ -723,7 +728,7 @@ function get_upgrade_changelog(string $version) : string
  * @return string
  * @throws Exception
  */
-function get_upgrade_readme(string $version) : string
+function get_upgrade_readme(string $version): string
 {
     $dir = __DIR__.DIRECTORY_SEPARATOR.'upgrade/'.$version;
     if (!is_dir($dir)) {
@@ -781,3 +786,45 @@ function decrypt_creds(string $creds, string $pw = '')
     return $arr;
 }
 */
+
+// functions to generate GUI-installer messages
+
+function error_msg(string $str): void
+{
+    $obj = wizard::get_instance()->get_step();
+    if (method_exists($obj, 'error')) {
+        $obj->error($str);
+    }
+}
+
+function status_msg(string $str): void
+{
+    $obj = wizard::get_instance()->get_step();
+    if (method_exists($obj, 'message')) {
+        $obj->message($str);
+    }
+}
+
+function verbose_msg(string $str): void
+{
+    $obj = wizard::get_instance()->get_step();
+    if (method_exists($obj, 'verbose')) {
+        $obj->verbose($str);
+    }
+}
+
+} // cms_installer namespace
+
+namespace {
+
+use cms_installer\langtools;
+
+/**
+ * see also misc.functions :: lang() which is the same, in cms_installer namespace
+ */
+function tr(string ...$args)
+{
+    return langtools::get_instance()->translate(...$args);
+}
+
+} //global namespace

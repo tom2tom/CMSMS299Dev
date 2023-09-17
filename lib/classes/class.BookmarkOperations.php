@@ -1,7 +1,7 @@
 <?php
 /*
 Class of bookmark-related functions
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -45,7 +45,7 @@ final class BookmarkOperations
 	 * @return mixed
 	 */
 	#[\ReturnTypeWillChange]
-	public static function __callStatic(string $name, array $args)// : mixed
+	public static function __callStatic(string $name, array $args)//: mixed
 	{
 		return (new CMSMS\BookmarkOperations())->$name(...$args); //TODO may bomb with same method-names
 	}
@@ -58,7 +58,7 @@ final class BookmarkOperations
 	 * @return string The fixed url
 	 * @internal
 	 */
-	private function _prep_for_saving(string $url) : string
+	private function _prep_for_saving(string $url): string
 	{
 		$urlext = get_secure_param();
 		if( startswith($url,CMS_ROOT_URL) ) $url = str_replace(CMS_ROOT_URL,'[ROOT_URL]',$url);
@@ -74,7 +74,7 @@ final class BookmarkOperations
 	 * @return string The fixed url
 	 * @internal
 	 */
-	private function _prep_for_display(string $url) : string
+	private function _prep_for_display(string $url): string
 	{
 		$urlext = get_secure_param();
 		$map = ['[SECURITYTAG]'=>$urlext,'[ROOT_URL]'=>CMS_ROOT_URL];
@@ -92,7 +92,7 @@ final class BookmarkOperations
 	 * @param int $user_id The desired user id.
 	 * @return array An array of Bookmark objects, or maybe empty
 	 */
-	public function LoadBookmarks(int $user_id) : array
+	public function LoadBookmarks(int $user_id): array
 	{
 		$result = [];
 		$db = Lone::get('Db');
@@ -120,7 +120,7 @@ final class BookmarkOperations
 	 * @param int $id bookmark enumerator
 	 * @return mixed Bookmark | null
 	 */
-	public function LoadBookmarkByID(int $id) : ?Bookmark
+	public function LoadBookmarkByID(int $id): ?Bookmark
 	{
 		$result = null; // no object
 		$db = Lone::get('Db');
@@ -147,7 +147,7 @@ final class BookmarkOperations
 	 * @param Bookmark $bookmark Bookmark object to save
 	 * @return int The new bookmark_id, or -1 on failure
 	 */
-	public function InsertBookmark(Bookmark $bookmark) : int
+	public function InsertBookmark(Bookmark $bookmark): int
 	{
 		$db = Lone::get('Db');
 		$bookmark->url = $this->_prep_for_saving($bookmark->url);
@@ -162,7 +162,7 @@ final class BookmarkOperations
 	 * @param Bookmark $bookmark object to save
 	 * @return bool (unreliable)
 	 */
-	public function UpdateBookmark(Bookmark $bookmark) : bool
+	public function UpdateBookmark(Bookmark $bookmark): bool
 	{
 		$db = Lone::get('Db');
 		$bookmark->url = $this->_prep_for_saving($bookmark->url);
@@ -179,7 +179,7 @@ final class BookmarkOperations
 	 * @param int $id Id of the bookmark to delete
 	 * @return bool
 	 */
-	public function DeleteBookmarkByID(int $id) : bool
+	public function DeleteBookmarkByID(int $id): bool
 	{
 		$db = Lone::get('Db');
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE bookmark_id = ?';

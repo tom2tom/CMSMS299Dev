@@ -1,5 +1,7 @@
 <?php
 
+use function cms_installer\status_msg;
+
 $sql = 'SELECT permission_id FROM '.CMS_DB_PREFIX.'permissions WHERE permission_name = ?';
 $tmp = (int) $db->getOne($sql, ['Manage Groups']);
 if ($tmp < 1) {

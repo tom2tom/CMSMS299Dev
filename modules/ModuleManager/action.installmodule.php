@@ -124,9 +124,9 @@ try {
 
     // recursive function to resolve dependencies given a module name and a module version
     $mod = $this;
-    $resolve_deps = function($module_name,$module_version,$uselatest,$depth = 0) use (&$resolve_deps,&$mod) {
+    $resolve_deps = function($module_name,$module_version,$uselatest,$depth = 0) use (&$resolve_deps,&$mod): array {
 
-        $array_to_hash = function($in,$key) {
+        $array_to_hash = function(array $in,/*mixed */$key): array {
             $out = [];
             $idx = 0;
             foreach( $in as $rec ) {
@@ -139,22 +139,22 @@ try {
             return $out;
         };
 
-        $extract_member = function($in,$key) {
+        $extract_member = function(array $in,/*mixed */$key): array {
             $out = [];
             foreach( $in as $rec ) {
                 if( isset($rec[$key]) ) $out[] = $rec[$key];
             }
             if( $out ) {
                 $out = array_unique($out);
-                return $out;
             }
+            return $out;
         };
 
-        list($res,$deps) = ModuleRepClient::get_module_dependencies($module_name,$module_version);
+        [$res,$deps] = ModuleRepClient::get_module_dependencies($module_name,$module_version); // might throw
         if( $deps ) {
             $deps = $array_to_hash($deps,'name');
             $dep_module_names = $extract_member($deps,'name');
-            $update_latest_deps = function($indeps,$latest) use (&$mod) {
+            $update_latest_deps = function(array $indeps,array $latest) use (&$mod): array {
                 $out = [];
                 foreach( $indeps as $name => $onedep ) {
                     if( isset($latest[$name]) ) {

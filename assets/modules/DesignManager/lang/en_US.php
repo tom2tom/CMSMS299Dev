@@ -121,7 +121,7 @@ $lang['name'] = 'Name'; //or lang()
 $lang['new_design'] = 'New Design';
 $lang['newname'] =  'New Name';
 $lang['next'] = 'Next';
-$lang['no_design'] = 'No design is registered';
+$lang['no_design'] = 'No design is recorded';
 
 //O
 $lang['others'] = 'Others';

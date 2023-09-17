@@ -1,6 +1,6 @@
 <?php
 #Swedish translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -33,11 +33,11 @@ $nls['englishlang']['sv_SE'] = 'Swedish';
 
 #Possible aliases for language
 $nls['alias']['sv'] = 'sv_SE';
-$nls['alias']['svenska'] = 'sv_SE' ;
-$nls['alias']['sve'] = 'sv_SE' ;
-$nls['alias']['sv_SE'] = 'sv_SE' ;
-$nls['alias']['sv_SE.ISO8859-1'] = 'sv_SE' ;
-$nls['alias']['sv_SE.ISO8859-15'] = 'sv_SE' ;
+$nls['alias']['svenska'] = 'sv_SE';
+$nls['alias']['sve'] = 'sv_SE';
+$nls['alias']['sv_SE'] = 'sv_SE';
+$nls['alias']['sv_SE.ISO8859-1'] = 'sv_SE';
+$nls['alias']['sv_SE.ISO8859-15'] = 'sv_SE';
 
 #Possible locale for language
 $nls['locale']['sv_SE'] = 'sv_SE.utf8,sv_SE.UTF-8,sv_SE.utf-8,sv_SE,sv_SE.iso885915,swedish,Swedish_Sweden.1252';
@@ -46,11 +46,10 @@ $nls['locale']['sv_SE'] = 'sv_SE.utf8,sv_SE.UTF-8,sv_SE.utf-8,sv_SE,sv_SE.iso885
 $nls['encoding']['sv_SE'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['sv_SE'] = array(__DIR__.'/sv_SE/admin.inc.php');
+$nls['file']['sv_SE'] = [__DIR__.'/sv_SE/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['sv_SE'] = 'en';
-?>

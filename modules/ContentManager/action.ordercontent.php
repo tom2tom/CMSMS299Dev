@@ -1,7 +1,7 @@
 <?php
 /*
 CMSMS ContentManager module action: process page-reordering
-Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -62,7 +62,7 @@ if (isset($params['orderlist']) && $params['orderlist']) { // != ''
 				$data = array_merge($data, ordercontent_create_flatlist($node, $cur_parent)); // recurse
 			}
 		}
-        unset($node);
+		unset($node);
 		return $data;
 	}
 
@@ -121,9 +121,8 @@ EOS;
 }
 
 $js = <<<EOS
-<script type="text/javascript" src="{$base_url}/js/jquery.mjs.nestedSortable.min.js"></script>
-<script type="text/javascript">
-//<![CDATA[
+<script src="{$base_url}/js/jquery.mjs.nestedSortable.min.js"></script>
+<script>
 function parseTree(ul) {
   var tags = [];
   ul.children('li').each(function() {
@@ -246,7 +245,6 @@ $(function() {{$xjs}
     }
   });
 });
-//]]>
 </script>
 EOS;
 add_page_foottext($js);

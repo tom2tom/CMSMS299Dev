@@ -16,7 +16,7 @@
 </fieldset>
 <br>
 <h4>{_la('eventhandlers')}</h3>
-{if $handlers}
+{if !empty($handlers)}
   <table class="pagetable">
   <thead>
     <tr>

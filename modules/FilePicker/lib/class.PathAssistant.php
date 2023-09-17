@@ -1,7 +1,7 @@
 <?php
 /*
 Class which ...
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -60,11 +60,11 @@ class PathAssistant
         }
     }
 
-    protected function to_relative_sub($path_a, $path_b)
+    protected function to_relative_sub(?string $path_a, ?string $path_b)
     {
-        $path_a = realpath($path_a);
-        $path_b = realpath($path_b);
+        if ($path_a) $path_a = realpath($path_a);
         if (!(is_dir($path_a) || is_file($path_a))) throw new LogicException("Invalid path_a-value '$path_a' provided to ".__METHOD__);
+        if ($path_b) $path_b = realpath($path_b);
         if (!is_dir($path_b)) throw new LogicException("Invalid path_b-value '$path_b' provided to ".__METHOD__);
 
         if (!$this->is_relative_to($path_a, $path_b)) throw new LogicException("'$path_a' is not a descendant of '$path_b' in ".__METHOD__);
@@ -78,30 +78,30 @@ class PathAssistant
         return $this->_topurl;
     }
 
-    public function is_relative_to($path_a, $path_b)
+    public function is_relative_to(?string $path_a, ?string $path_b)
     {
-        $path_a = realpath($path_a);
-        $path_b = realpath($path_b);
+        if ($path_a) $path_a = realpath($path_a);
+        if ($path_b) $path_b = realpath($path_b);
         if (!$path_a || !$path_b) return false;
         return startswith($path_a, $path_b);
     }
 
-    public function is_relative($path)
+    public function is_relative(?string $path)
     {
         return $this->is_relative_to($path, $this->_topdir);
     }
 
-    public function to_relative($path)
+    public function to_relative(?string $path)
     {
         return $this->to_relative_sub($path, $this->_topdir);
     }
 
-    public function to_absolute($relative)
+    public function to_absolute(string $relative)
     {
         return cms_join_path($this->_topdir, $relative);
     }
 
-    public function relative_path_to_url($relative)
+    public function relative_path_to_url(string $relative)
     {
         $prefix = rtrim($this->get_top_url(), ' /');
         $relative = trim($relative, ' \/');
@@ -111,7 +111,7 @@ class PathAssistant
         return $prefix;
     }
 
-    public function is_valid_relative_path($path)
+    public function is_valid_relative_path(string $path)
     {
         $absolute = $this->to_absolute(trim($path));
         return $this->is_relative($absolute);
@@ -124,7 +124,7 @@ class PathAssistant
      * @param bool $lower Optional flag, whether to lowercase the result. Default TRUE.
      * @return string, lowercase if $lower is true or not set
      */
-    public function get_extension($path, $lower = TRUE)
+    public function get_extension(string $path, bool $lower = TRUE)
     {
         $p = strrpos($path, '.');
         if( !$p ) { return ''; } // none or at start
@@ -144,7 +144,7 @@ class PathAssistant
      * @param string $path Filesystem path, or at least the basename, of a file
      * @return string
      */
-    public function lower_extension($path)
+    public function lower_extension(string $path)
     {
         $ext = $this->get_extension($path);
         if ($ext !== '') {

@@ -1,7 +1,7 @@
 <?php
 /*
 Smarty template sub-class
-Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -99,7 +99,7 @@ class page_template_parser extends Smarty_Internal_Template
      * @param mixed $template
      * @return string (empty)
      */
-    public static function _dflt_plugin(array $params, $template) : string
+    public static function _dflt_plugin(array $params, $template): string
     {
         return '';
     }
@@ -114,7 +114,7 @@ class page_template_parser extends Smarty_Internal_Template
      * @param boolean $cachable
      * @return boolean
      */
-    public function defaultPluginHandler(string $name, string $type, $template, &$callback, &$script, &$cachable) : bool
+    public function defaultPluginHandler(string $name, string $type, $template, &$callback, &$script, &$cachable): bool
     {
         if ($type == 'compiler') {
             $callback = [__CLASS__,'_dflt_plugin'];
@@ -161,7 +161,7 @@ class page_template_parser extends Smarty_Internal_Template
      * Get recorded content blocks
      * @return strings array
      */
-    public static function get_content_blocks() : array
+    public static function get_content_blocks(): array
     {
         return self::$_contentBlocks;
     }
@@ -174,7 +174,7 @@ class page_template_parser extends Smarty_Internal_Template
      * @param Smarty_Internal_SmartyTemplateCompiler $template UNUSED
      * @return string
      */
-/*    public static function compile_fecontentblock(array $params, $template) : string
+/*    public static function compile_fecontentblock(array $params, $template): string
     {
         $tmp = [];
         foreach ($params as $k => $v) {

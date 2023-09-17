@@ -53,7 +53,7 @@
       <strong>{_ld($_module,'locked_by')}:</strong> {$row.lockuser}<br>
       <strong>{_ld($_module,'locked_since')}:</strong> {$row.lock.created|cms_date_format:'timed'}<br>
       {if $row.lock.expires < $smarty.now}
-       <span style="color:red;"><strong>{_ld($_module,'lock_expired')}:</strong> {$row.lock.expires|relative_time}</span>
+       <span style="color:red"><strong>{_ld($_module,'lock_expired')}:</strong> {$row.lock.expires|relative_time}</span>
       {else}
        <strong>{_ld($_module,'lock_expires')}:</strong> {$row.lock.expires|relative_time}
       {/if}
@@ -124,10 +124,10 @@
        <span style="display:none">{$row.lastmodified}</span>{$row.lastmodified|date_format:'Y-m-d H:i'}
     {elseif $column == 'actions'}{*TODO td style="text-align:center"*}
     {$hide=empty($row.lock) || $row.lock == 1}{$t=_ld($_module,'locked_hard')}
-      <span class="locked" data-id="{$row.id}" title="{$t}"{if $hide} style="display:none;"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
+      <span class="locked" data-id="{$row.id}" title="{$t}"{if $hide} style="display:none"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
     {$hide=empty($row.lock) || $row.lock == -1}{$t=_ld($_module,'locked_steal')}{$url=sprintf($stealurl,$row.id)}
-      <a href="{$url}" class="steal_lock" data-id="{$row.id}" title="{$t}" accesskey="e"{if $hide} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
-      <span context-menu="Page{$row.id}" style="cursor:pointer;">{admin_icon icon='menu.gif' alt='menu' title=_ld($_module,'title_menu') class='systemicon'}</span>
+      <a href="{$url}" class="steal_lock" data-id="{$row.id}" title="{$t}" accesskey="e"{if $hide} style="display:none"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
+      <span context-menu="Page{$row.id}" style="cursor:pointer">{admin_icon icon='menu.gif' alt='menu' title=_ld($_module,'title_menu') class='systemicon'}</span>
     {elseif $column == 'multiselect'}{*TODO td style="text-align:center"*}
       {if $row.multiselect}
       <label class="invisible" for="cb{$row.id}">{_ld($_module,'prompt_multiselect_toggle')}</label>
@@ -139,7 +139,7 @@
  {/function}
 {/if}{* $content_list *}
 
-<div class="rowbox flow" style="align-items:center;">
+<div class="rowbox flow" style="align-items:center">
   <div class="pageoptions boxchild">
     {if $can_add_content}
     <a href="{cms_action_url action=editcontent}" accesskey="n" title="{_ld($_module,'prompt_addcontent')}" class="pageoptions">{$t=_ld($_module,'addcontent')}{admin_icon icon='newobject.gif' alt=$t}&nbsp;{$t}</a>
@@ -155,7 +155,7 @@
     {/if}
     {/if}
     <a id="filterdisplay" accesskey="f" title="{_ld($_module,'prompt_filter')}">{$t=_ld($_module,'filter')}{admin_icon icon='icons/extra/filter' alt=$t}&nbsp;{$t}</a>
-    {if !empty($have_filter)}<span style="color: red;"><em>({_ld($_module,'filter_applied')})</em></span>{/if}
+    {if !empty($have_filter)}<span style="color:red"><em>({_ld($_module,'filter_applied')})</em></span>{/if}
   </div>{*boxchild*}
   <div class="boxchild">
     {if $lang_dir == 'rtl'}
@@ -185,7 +185,7 @@
  {if isset($error)}
  <div id="error_cont" class="pageerror">{$error}</div>
  {/if}
- {if isset($content_list)}
+ {if !empty($content_list)}
   <table id="contenttable" class="pagetable">
     <thead>
       <tr>{strip}
@@ -240,10 +240,10 @@
   <div class="boxchild">
     <a href="{cms_action_url action=editcontent}" accesskey="n" title="{_ld($_module,'prompt_addcontent')}" class="pageoptions">{$t=_ld($_module,'addcontent')}{admin_icon icon='newobject.gif' class='systemicon' alt=$t}&nbsp;{$t}</a>
   </div>
-  {else}" style="justify-content:flex-end;">{/if}
+  {else}" style="justify-content:flex-end">{/if}
   {if $multiselect && isset($bulk_options)}
   <div class="boxchild">
-    {cms_help 0=$_module key='help_bulk' title=_ld($_module,'prompt_bulk')}
+    {cms_help realm=$_module key='help_bulk' title=_ld($_module,'prompt_bulk')}
     <label for="bulkaction">{_ld($_module,'prompt_withselected')}:</label>&nbsp;
     <select name="{$actionid}bulk_action" id="bulkaction">
       {html_options options=$bulk_options}    </select>

@@ -1,7 +1,7 @@
 <?php
 /*
 Class: job to clear admin-log-table records older than a specified interval
-Copyright (C) 2017-2021 CMS Made Simple Foundation <foundationcmsmadesimple.org>
+Copyright (C) 2017-2023 CMS Made Simple Foundation <foundationcmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

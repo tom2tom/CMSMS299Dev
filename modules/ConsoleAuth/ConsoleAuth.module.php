@@ -1,7 +1,7 @@
 <?php
 /*
 CMSMS light-module: ConsoleAuth - supports module-managed and theme-managed login/out
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -35,7 +35,8 @@ class ConsoleAuth implements IResource, IAuthModule
 {
     private $methods;
 
-    public function __call(string $name, array $args)
+    #[\ReturnTypeWillChange]
+    public function __call(string $name, array $args)//: mixed
     {
         if (!isset($this->methods)) {
             $this->methods = new ResourceMethods($this, __DIR__);
@@ -76,7 +77,7 @@ class ConsoleAuth implements IResource, IAuthModule
      * @return array with member 'form' comprising login-form content,
      *  plus related parameters
      */
-    public function fetch_login_panel() : array
+    public function fetch_login_panel(): array
     {
         $id = '';
         require_once __DIR__ . DIRECTORY_SEPARATOR . 'method.fetchpanel.php';

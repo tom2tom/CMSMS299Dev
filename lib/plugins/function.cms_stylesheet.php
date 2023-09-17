@@ -35,7 +35,7 @@ use function CMSMS\log_error;
  * @param bool $min
  * @param Smarty_Internal_Template $template
  */
-function writeCache(string $filename, $list, bool $trimbackground, bool $min, Smarty_Internal_Template $template) : void
+function writeCache(string $filename, $list, bool $trimbackground, bool $min, Smarty_Internal_Template $template): void
 {
 	if( is_string($list) && !is_array($list) ) $list = [$list];
 
@@ -115,7 +115,7 @@ function writeCache(string $filename, $list, bool $trimbackground, bool $min, Sm
  * @param string $media_query Default '' (if present, used in preference to $media_type)
  * @param string $media_type Default ''
  */
-function toString(string $filename, string $root_url, string &$out, array $params, string $media_query = '', string $media_type = '') : void
+function toString(string $filename, string $root_url, string &$out, array $params, string $media_query = '', string $media_type = ''): void
 {
 	// TODO CSP support
 	if( !endswith($root_url, '/') ) $root_url .= '/';

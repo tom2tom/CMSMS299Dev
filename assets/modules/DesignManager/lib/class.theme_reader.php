@@ -56,16 +56,17 @@ class theme_reader extends reader_base
     //$this->_xml->SetParserProperty(XMLReader::VALIDATE,TRUE);
   }
 
-  private function _scan()
+  private function _scan(): void
   {
     if( $this->_scanned ) return;
 
     $in = [];
 
-    $get_in = function() use ($in) {
+    $get_in = function() use ($in): string {
       if( $in ) {
         return end($in);
       }
+      return '';
     };
 
     $cur_key = '';
@@ -444,10 +445,10 @@ class theme_reader extends reader_base
     unset($css_rec);
 
     // part4 .. process templates
-    $fn1 = function($matches) use (&$tpl_info) {
+    $fn1 = function(array $matches) use (&$tpl_info): string {
       $out = preg_replace_callback("/template\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
         function($matches) use (&$tpl_info)
-	    {
+        {
            if( isset($tpl_info[$matches[1]]) ) {
             $rec = $tpl_info[$matches[1]];
             $out = str_replace($matches[1],$rec['name'],$matches[0]);
@@ -459,8 +460,7 @@ class theme_reader extends reader_base
       return $out;
     };
 
-    $fn2 = function($matches) use (&$type,$ref_map)
-    {
+    $fn2 = function(array $matches) use (&$type,$ref_map): string {
       $url = $matches[2];
       //TODO generally support the websocket protocol 'wss' : 'ws'
       if( !startswith($url,'http') || startswith($url,CMS_ROOT_URL) || startswith($url,'{root_url}') ) {

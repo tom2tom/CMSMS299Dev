@@ -1,7 +1,7 @@
 <?php
 /*
 FolderControls utility-methods class
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -77,7 +77,7 @@ class FolderControlOperations
      * Support (until further notice) old camel-case method-names
      */
     #[\ReturnTypeWillChange]
-    public static function __callStatic(string $oldname, array $args)// : mixed
+    public static function __callStatic(string $oldname, array $args)//: mixed
     {
          $newname = preg_replace_callback('/[ABDINP]/', function($m) { return '_'.strtolower($m); }, $oldname);
          try {
@@ -277,7 +277,7 @@ class FolderControlOperations
      * @ignore
      * @return string
      */
-    protected static function processpath($dirpath) : string
+    protected static function processpath($dirpath): string
     {
         $config = Lone::get('Config');
         $devmode = $config['develop_mode'];
@@ -308,7 +308,7 @@ class FolderControlOperations
      * @param mixed $userid Optional current user id UNUSED TODO
      * @return FolderControls
      */
-    public static function get_default_profile() : FolderControls
+    public static function get_default_profile(): FolderControls
     {
         $cset = self::load_default();
         if( !$cset ) {
@@ -326,7 +326,7 @@ class FolderControlOperations
      * @param int $userid optional user identifier
      * @return FolderControls
      */
-    public static function get_profile_for($dirpath = '', $userid = 0) : FolderControls
+    public static function get_profile_for($dirpath = '', $userid = 0): FolderControls
     {
         $dirpath = self::processpath($dirpath);
         if( $userid < 1 ) {
@@ -349,7 +349,7 @@ class FolderControlOperations
      * @param int $userid Optional user identifier, Default current user
      * @return FolderControls object
      */
-    public static function get_profile($cset_name, string $dirpath = '', int $userid = 0) : FolderControls
+    public static function get_profile($cset_name, string $dirpath = '', int $userid = 0): FolderControls
     {
         $cset_name = trim((string)$cset_name);
         if( $cset_name ) {
@@ -475,7 +475,7 @@ class FolderControlOperations
      *  or name (other string)
      * @return boolean
      */
-    public static function is_file_type_acceptable(FolderControls $cset, $type) : bool
+    public static function is_file_type_acceptable(FolderControls $cset, $type): bool
     {
         if( is_numeric($type) ) {
             $itype = (int)$type;
@@ -538,7 +538,7 @@ class FolderControlOperations
      * @return string identifier for retrieving the data
      * @throws UnexpectedValueException
      */
-    public static function store_cached($a) : string
+    public static function store_cached($a): string
     {
         if( is_int($a) ) {
             $id = $a;
@@ -602,7 +602,7 @@ class FolderControlOperations
      *   Default -1 hence return the module-defaults
      * @return mixed FolderControls object | null if none relevant | false upon error
      */
-    public static function get_for_folder(string $dirpath, int $userid = 0, int $default = -1)// : mixed
+    public static function get_for_folder(string $dirpath, int $userid = 0, int $default = -1)//: mixed
     {
         if (startswith($dirpath, CMS_ROOT_PATH)) {
             $dirpath = substr($dirpath, strlen(CMS_ROOT_PATH));
@@ -683,7 +683,7 @@ class FolderControlOperations
      *   absence of an explicitly relevant profile. Default -1 hence return the module-defaults
      * @return bool indicating acceptability
      */
-    public static function test_for_folder(string $rootpath, string $filepath, int $op, int $userid = 0, int $default = -1) : bool
+    public static function test_for_folder(string $rootpath, string $filepath, int $op, int $userid = 0, int $default = -1): bool
     {
         $filepath = self::absolute_path($rootpath, $filepath);
         $name = basename($filepath);
@@ -718,7 +718,7 @@ class FolderControlOperations
      * @param int  $userid Current user identifier
      * @return bool
      */
-    public static function test_for_profile(FolderControls $cset, string $filepath, int $op, int $userid = 0) : bool
+    public static function test_for_profile(FolderControls $cset, string $filepath, int $op, int $userid = 0): bool
     {
         if ($cset) {
             // cuz $cset exists, no need for another valid-path check
@@ -801,7 +801,7 @@ class FolderControlOperations
      * @param string $filepath Absolute or $rootpath-relative filesystem path
      * @return string
      */
-    protected static function absolute_path(string $rootpath, string $filepath) : string
+    protected static function absolute_path(string $rootpath, string $filepath): string
     {
         if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $filepath)) {
             //path is not absolute
@@ -855,7 +855,7 @@ class FolderControlOperations
      *
      * @return bool
      */
-    public static function modify_safe() : bool
+    public static function modify_safe(): bool
     {
         $userid = get_userid();
         if (check_permission($userid, 'Modify Files')) {
@@ -871,7 +871,7 @@ class FolderControlOperations
      * @param int $userid Optional user-identifier (for one other than current)
      * @return bool
      */
-    public static function modify_all(int $userid = 0) : bool
+    public static function modify_all(int $userid = 0): bool
     {
         if ($userid == 0) {
             $userid = get_userid();
@@ -891,7 +891,7 @@ class FolderControlOperations
      *
      * @return string
      */
-    public static function top_profiled_path() : string
+    public static function top_profiled_path(): string
     {
         $config = Lone::get('Config');
         $devmode = $config['develop_mode'];

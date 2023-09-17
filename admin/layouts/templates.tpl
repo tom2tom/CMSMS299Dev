@@ -2,11 +2,11 @@
 {function tpl_info}
 {strip}{if $template->locked()}
   {$lock=$template->get_lock()}
-  {if $template->lock_expired()}<span style='font-weight:bold;color:red;'>{_ld('layout','msg_steal_lock')}</span><br>{/if}
+  {if $template->lock_expired()}<span style="font-weight:bold;color:red">{_ld('layout','msg_steal_lock')}</span><br>{/if}
   <strong>{_ld('layout','prompt_lockedby')}:</strong> {cms_admin_user uid=$lock.uid}<br>
   <strong>{_ld('layout','prompt_lockedsince')}:</strong> {$lock.create_date|cms_date_format:'timed'}<br>
   {if $lock.expires < $smarty.now}
-    <strong>{_ld('layout','prompt_lockexpired')}:</strong> <span style='color:red;'>{$lock.expires|relative_time}</span>
+    <strong>{_ld('layout','prompt_lockexpired')}:</strong> <span style="color:red">{$lock.expires|relative_time}</span>
   {else}
     <strong>{_ld('layout','prompt_lockexpires')}:</strong> {$lock.expires|relative_time}
   {/if}
@@ -18,7 +18,7 @@
   <strong>{_ld('layout','prompt_modified')}:</strong> {$t2|cms_date_format:'timed'}
   {/if}
   {$tmp=$template->get_description()}{if $tmp}<br>
-<strong>{_ld('layout','prompt_description')}:</strong> {$tmp|strip_tags|cms_escape|summarize}{/if}
+<strong>{_ld('layout','prompt_description')}:</strong> {$tmp|adjust:'strip_tags'|cms_escape|summarize}{/if}
 {/if}{/strip}
 {/function}
 
@@ -30,6 +30,7 @@
 {/if}{/strip}
 {/function}
 
+{if !empty($templates)}
 <form action="{$bulkurl}" enctype="multipart/form-data" method="post">
   {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
@@ -90,10 +91,10 @@
     <td>
     {$ul=!$template->locked()}
     {$t=_ld('layout','prompt_locked')}
-     <span class="locked" data-tpl-id="{$tid}" title="{$t}"{if $ul} style="display:none;"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
+     <span class="locked" data-tpl-id="{$tid}" title="{$t}"{if $ul} style="display:none"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
     {$t=_ld('layout','prompt_steal_lock')}
-     <a href="{$url}&steal=1" class="steal_lock" data-tpl-id="{$tid}" title="{$t}" accesskey="e"{if $ul} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
-    <span class="action" context-menu="Template{$tid}"{if !$ul} style="display:none;"{/if}>{$iconmenu}</span>
+     <a href="{$url}&steal=1" class="steal_lock" data-tpl-id="{$tid}" title="{$t}" accesskey="e"{if $ul} style="display:none"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
+    <span class="action" context-menu="Template{$tid}"{if !$ul} style="display:none"{/if}>{$iconmenu}</span>
     </td>
     {* checkbox column *}
     <td>
@@ -108,7 +109,7 @@
  {if $manage_templates}
   <div class="pageoptions rowbox" style="justify-content:flex-end">
     <div class="boxchild">
-      {cms_help 0='layout' key='help_bulk_templates' title=_ld('layout','prompt_bulk')}
+      {cms_help realm='layout' key='help_bulk_templates' title=_ld('layout','prompt_bulk')}
       <label for="bulkaction">{_ld('layout','prompt_with_selected')}:</label>&nbsp;
       <select name="bulk_action" id="bulkaction" class="action" title="{_ld('layout','title_tpl_bulkaction')}">
       <option value="delete">{_ld('layout','prompt_delete')}</option>
@@ -121,6 +122,7 @@
   </div>
  {/if}
 </form>
+{/if}
 {if $manage_templates}
 <div id="tplmenus">
   {foreach $tplmenus as $menu}{$menu}

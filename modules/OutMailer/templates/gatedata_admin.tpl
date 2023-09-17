@@ -4,10 +4,11 @@
 <fieldset class="gate">
 <legend>{$gatetitle}</legend>
 {/if}
-<div style="margin-top:0;">
+<div style="margin-top:0">
 {$help}
 </div>
-<div class="pageoverflow" style="margin-top:1em;width:auto;display:inline-block;">
+<div class="pageoverflow" style="margin-top:1em;width:auto;display:inline-block">
+{if !empty($data)}
 <table class="pagetable gatedata">
 <thead><tr>
 <th>{$title_title}</th>
@@ -32,12 +33,14 @@
 {/foreach}
 </tbody>
 </table>
-<div class="pageoptions" style="margin-top:1em;">
+{/if}
+<div class="pageoptions" style="margin-top:1em">
 {$additem}
-{if $dcount}<div style="float:right;">
+{if $dcount}<div style="float:right">
  <button type="submit" name="{$actionid}{$space}~delete" class="adminsubmit icon delete" title="{_ld($_module,'delete_tip')}">{_ld($_module,'delete')}</button>
 </div>
 <div style="float:clear"></div>{/if}
+</div>
 </div>
 {if !empty($gatetitle)}
 </fieldset>

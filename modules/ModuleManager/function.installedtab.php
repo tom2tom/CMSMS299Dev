@@ -1,7 +1,7 @@
 <?php
 /*
 CMSModuleManager module function: populate installed-modules tab
-Copyright (C) 2008-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -20,6 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AdminTabs;
 use CMSMS\Utils;
 use ModuleManager\ModuleInfo;
 
@@ -30,6 +31,8 @@ catch( Throwable $t ) {
      $this->ShowErrors($t->GetMessage());
      return;
 }
+
+AdminTabs::reset(); // prevent glitch due to any tabbed module-info
 
 $in = [
 'active',
@@ -101,8 +104,7 @@ $submit = $this->Lang('submit');
 $cancel = $this->Lang('cancel');
 
 $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
   $('a.mod_upgrade').on('click', function(ev) {
     ev.preventDefault();
@@ -144,7 +146,6 @@ $(function() {
     });
   });
 });
-//]]>
 </script>
 EOS;
 add_page_foottext($js);

@@ -2,7 +2,7 @@
 {* <h4>{_ld($_module,'TODO title')}</h4> *}
 {$formstart}
   {$t=_ld($_module,'TODO elemtitle')}<label class="pagetext" for="cctext">{$t}:</label>
-  {cms_help 0=$_module key='info_enabled' title=$t}
+  {cms_help realm=$_module key='info_enabled' title=$t}
   <div class="pageinput">
     <textarea id="cctext" name="{$actionid}cctext" rows="4" cols="40">{$cctext}</textarea>
   </div>

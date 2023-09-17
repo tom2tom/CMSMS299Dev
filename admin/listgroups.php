@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to display all user-groups
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -163,8 +163,7 @@ $s1 = addcslashes(_la('confirm_togglegroupactive'), "'\n\r");
 $s2 = addcslashes(_la('confirm_delete_group'), "'\n\r");
 
 $out .= <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 var listtable;
 $(function() {
  listtable = document.getElementById('groupslist');
@@ -214,7 +213,6 @@ $(function() {
   return false;
  });
 });
-//]]>
 </script>
 EOS;
 add_page_foottext($out);
@@ -229,6 +227,7 @@ $smarty->assign([
     'selfurl' => $selfurl,
     'extraparms' => $extras,
     'urlext' => $urlext,
+    'editurl' => 'editgroup.php',
     'grouplist' => $grouplist,
     'tblpages' => $tblpages,
     'pagelengths' => $pagelengths,

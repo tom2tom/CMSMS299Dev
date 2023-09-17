@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton class for dealing with one-instance-per-request classes and properties.
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -68,8 +68,7 @@ final class Lone //extends SplObjectStorage worth doing this subclass? (iteratio
 	public $properties = [];
 
 	private function __construct() {}
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/* *
 	 * Retrieve a class singleton-object, after construction if necessary.
@@ -86,7 +85,7 @@ final class Lone //extends SplObjectStorage worth doing this subclass? (iteratio
 	 */
 /*
 	#[\ReturnTypeWillChange]
-	public static function __callStatic(string $name, array $args)
+	public static function __callStatic(string $name, array $args): mixed
 	{
 		if (!self::$instance) {
 			self::$instance = new self();
@@ -138,7 +137,7 @@ final class Lone //extends SplObjectStorage worth doing this subclass? (iteratio
 	 * @param string $name Property name, with suitable namespace-differentiation
 	 * @param mixed $value The data to be cached
 	 */
-	public function __set(string $name, $value) : void
+	public function __set(string $name, $value): void
 	{
 		if (!self::$instance) {
 			self::$instance = new self();
@@ -154,7 +153,7 @@ final class Lone //extends SplObjectStorage worth doing this subclass? (iteratio
 	 * @return mixed Cached property value | null if not found
 	 */
 	#[\ReturnTypeWillChange]
-	public function __get(string $name)
+	public function __get(string $name)//: mixed
 	{
 		if (!self::$instance || !isset(self::$instance->properties[$name])) {
 			return null;

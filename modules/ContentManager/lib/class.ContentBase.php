@@ -1,7 +1,7 @@
 <?php
 /*
 Base content-editing class
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -361,8 +361,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	public function __clone()// : void
+	public function __clone(): void
 	{
 		$this->mId = -1;
 		$this->mItemOrder = -1;
@@ -375,12 +374,12 @@ abstract class ContentBase implements IContentEditor, Serializable
   	/**
 	 * @ignore
 	 */
-	public function __toString() : string
+	public function __toString(): string
 	{
 		return json_encode($this->__serialize(), JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE); // PHP 7.2+
 	}
 
-	public function __serialize() : array
+	public function __serialize(): array
 	{
 		$this->LoadProperties();
 		$tmp = $this->mod;
@@ -390,7 +389,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 		return $props;
 	}
 
-	public function __unserialize(array $data) : void
+	public function __unserialize(array $data): void
 	{
 		foreach ($data as $key => $val) {
 			$this->$key = $val;
@@ -400,16 +399,14 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 	// ======= SERIALIZABLE INTERFACE METHODS =======
 
-	#[\ReturnTypeWillChange]
-	public function serialize()// : ?string
+	public function serialize(): ?string
 	{
 		$str = $this->__toString();
 		//TODO can cachers cope with embedded null's? NB 'internal' cryption is slow!
 		return Crypto::encrypt_string($str, __CLASS__, 'best');
 	}
 
-	#[\ReturnTypeWillChange]
-	public function unserialize(/*string*/$serialized)// : void
+	public function unserialize(string $serialized): void
 	{
 		$str = Crypto::decrypt_string($serialized, __CLASS__, 'best');
 		if (!$str) {
@@ -431,7 +428,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @since 2.0
 	 * @return array
 	 */
-	public function ToData() : array
+	public function ToData(): array
 	{
 		$l = $this->HasUsableLink();
 		$w = $this->WantsChildren();
@@ -526,7 +523,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * Note: not the same data as provided by ContentBase::GetPropertiesArray()
 	 * @return array
 	 */
-	public function Properties() : array
+	public function Properties(): array
 	{
 		return $this->_props ?? [];
 	}
@@ -691,12 +688,11 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @param string $propname The property name
 	 * @param bool $adding Whether we are in add or edit mode
-	 * @return array 3- or 4-members
+	 * @return array 3- or 4-members or empty
 	 * [0] = heart-of-label 'for="someid">text' | text
 	 * [1] = popup-help | ''
 	 * [2] = input element | text
 	 * [3] = optional extra displayable content
-	 * or empty
 	 */
 	public function ShowElement($propname, $adding)
 	{
@@ -814,7 +810,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 		case 'styles':
 			$styles = explode(',', $this->mStyles);
-			list($sheets, $grouped, $js) = Utils::get_sheets_data($styles);
+			[$sheets, $grouped, $js] = Utils::get_sheets_data($styles);
 			if ($sheets) {
 				if ($js) {
 					add_page_foottext($js);
@@ -989,6 +985,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 		default:
 			throw new RuntimeException('Attempt to display invalid property '.$propname);
 		}
+        return [];
 	}
 
 	/**
@@ -1012,7 +1009,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @return array each member like id => name
 	 * Note: group id's are expressed as negative integers in the keys.
 	 */
-	public static function GetAdditionalEditorOptions() : array
+	public static function GetAdditionalEditorOptions(): array
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'ContentOperations->ListAdditionalEditors()'));
 		return Lone::get('ContentOperations')->ListAdditionalEditors();
@@ -1023,7 +1020,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return int
 	 */
-	public function TabIndex() : int
+	public function TabIndex(): int
 	{
 		return $this->mTabIndex ?? 0;
 	}
@@ -1046,7 +1043,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return array Associative array of tab keys and labels
 	 */
-	public function GetTabNames() : array
+	public function GetTabNames(): array
 	{
 		$props = $this->GetSortedEditableProperties();
 		$arr = [];
@@ -1200,7 +1197,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @since 2.0
 	 * @return array of assoc. arrays
 	 */
-	public function GetPropertiesArray() : array
+	public function GetPropertiesArray(): array
 	{
 		return $this->_SortProperties($this->_properties);
 	}
@@ -1212,7 +1209,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @deprecated since 2.0 Instead use ContentBase::GetPropertiesArray()
 	 * @return array of stdClass objects
 	 */
-/*	public function GetProperties() : array
+/*	public function GetProperties(): array
 	{
 		$ret = $this->_SortProperties($this->_properties);
 		if( $ret ) {
@@ -1234,7 +1231,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *  'name' (string), 'tab' (string), 'priority' (int), maybe 'required' (bool), maybe 'basic' (bool)
 	 *  Other(s) may be added by a subclass
 	 */
-	public function GetEditableProperties() : array
+	public function GetEditableProperties(): array
 	{
 		$all = $this->IsEditable(true, false);
 		if (!$all) {
@@ -1263,7 +1260,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return array
 	 */
-	public function GetSortedEditableProperties() : array
+	public function GetSortedEditableProperties(): array
 	{
 		if (isset($this->_editable_properties)) {
 			return $this->_editable_properties;
@@ -1281,7 +1278,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @param string $name
 	 * @return bool
 	 */
-	public function HasProperty(string $name) : bool
+	public function HasProperty(string $name): bool
 	{
 		if (!$name) {
 			return false;
@@ -1415,7 +1412,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @param string $name The property name
 	 * @param mixed $dflt Optional default value. Default null.
 	 */
-	public function RemoveProperty(string $name, /*mixed */$dflt = null)// : void
+	public function RemoveProperty(string $name, /*mixed */$dflt = null): void
 	{
 		if (!$this->_properties) {
 			return;
@@ -1558,7 +1555,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 		if (!$this->HandlesAlias()) {
 			if ($this->mAlias != $this->mOldAlias || ($this->mAlias === '' && $this->RequiresAlias())) {
 				$error = Lone::get('ContentOperations')->CheckAliasError($this->mAlias, $this->mId);
-				if ($error !== false) {
+				if ($error) {
 					$errors[] = $error;
 				}
 			}
@@ -1623,7 +1620,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	/**
 	 * Return this object's numetric ID
 	 */
-	public function Id() : int
+	public function Id(): int
 	{
 		return $this->mId;
 	}
@@ -1645,7 +1642,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return string
 	 */
-	public function Name() : string
+	public function Name(): string
 	{
 		return ''.$this->mName;
 	}
@@ -1669,14 +1666,14 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return string
 	 */
-	abstract public function FriendlyName() : string;
+	abstract public function FriendlyName(): string;
 
 	/**
 	 * Report this object's alias property
 	 *
 	 * @return string
 	 */
-	public function Alias() : string
+	public function Alias(): string
 	{
 		return ''.$this->mAlias;
 	}
@@ -1758,7 +1755,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return bool Default false
 	 */
-	public function HandlesAlias() : bool
+	public function HandlesAlias(): bool
 	{
 		return false;
 	}
@@ -1770,7 +1767,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return bool Default true
 	 */
-	public function RequiresAlias() : bool
+	public function RequiresAlias(): bool
 	{
 		return true;
 	}
@@ -1780,7 +1777,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return string
 	 */
-	public function Type() : string
+	public function Type(): string
 	{
 		$c = get_class($this);
 		$p = strrpos($c, '\\');
@@ -1792,7 +1789,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return int
 	 */
-	public function Owner() : int
+	public function Owner(): int
 	{
 		return $this->mOwner;
 	}
@@ -1875,7 +1872,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return int UNIX UTC timestamp. Default 1.
 	 */
-	public function GetCreationDate() : int
+	public function GetCreationDate(): int
 	{
 		$value = $this->mCreationDate ?? '';
 		return ($value) ? cms_to_stamp($value) : 1;
@@ -1897,7 +1894,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return int UNIX UTC timestamp. Default 1.
 	 */
-	public function GetModifiedDate() : int
+	public function GetModifiedDate(): int
 	{
 		$value = $this->mModifiedDate ?? '';
 		return ($value) ? cms_to_stamp($value) : $this->GetCreationDate();
@@ -1933,7 +1930,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return int
 	 */
-	public function ParentId() : int
+	public function ParentId(): int
 	{
 		return $this->mParentId;
 	}
@@ -1957,7 +1954,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return int.
 	 */
-	public function TemplateId() : int
+	public function TemplateId(): int
 	{
 		return $this->mTemplateId;
 	}
@@ -1993,7 +1990,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return bool Default false
 	 */
-	public function HasTemplate() : bool
+	public function HasTemplate(): bool
 	{
 		return false;
 	}
@@ -2005,7 +2002,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return string
 	 */
-	public function TemplateResource() : string
+	public function TemplateResource(): string
 	{
 		throw new Exception('this method must be overridden for displayable objects');
 	}
@@ -2015,7 +2012,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return int
 	 */
-	public function ItemOrder() : int
+	public function ItemOrder(): int
 	{
 		return $this->mItemOrder;
 	}
@@ -2083,7 +2080,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return string
 	 */
-	public function Hierarchy() : string
+	public function Hierarchy(): string
 	{
 		return Lone::get('ContentOperations')->CreateFriendlyHierarchyPosition($this->mHierarchy); //should match this->mIdHierarchy
 	}
@@ -2120,7 +2117,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return string
 	 */
-	public function HierarchyPath() : string
+	public function HierarchyPath(): string
 	{
 		return ''.$this->mHierarchyPath;
 	}
@@ -2130,7 +2127,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return bool
 	 */
-	public function Active() : bool
+	public function Active(): bool
 	{
 		return $this->mActive;
 	}
@@ -2151,7 +2148,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return bool
 	 */
-	public function ShowInMenu() : bool
+	public function ShowInMenu(): bool
 	{
 		return $this->mShowInMenu;
 	}
@@ -2173,7 +2170,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return bool
 	 */
-	public function DefaultContent() : bool
+	public function DefaultContent(): bool
 	{
 		if ($this->IsDefaultPossible()) {
 			return $this->mDefaultContent;
@@ -2203,7 +2200,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return bool Default is false
 	 */
-	public function IsDefaultPossible() : bool
+	public function IsDefaultPossible(): bool
 	{
 		return false;
 	}
@@ -2215,7 +2212,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return bool
 	 */
-	public function Cachable() : bool
+	public function Cachable(): bool
 	{
 		return $this->mCachable;
 	}
@@ -2238,7 +2235,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return bool
 	 */
-	public function Secure() : bool
+	public function Secure(): bool
 	{
 		return $this->mSecure;
 	}
@@ -2266,7 +2263,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return string, maybe empty
 	 */
-	public function URL() : string
+	public function URL(): string
 	{
 		return ''.$this->mURL;
 	}
@@ -2292,7 +2289,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return string
 	 */
-	public function GetURL() : string
+	public function GetURL(): string
 	{
 		if ($this->DefaultContent()) {
 			// use root url for default content
@@ -2305,13 +2302,14 @@ abstract class ContentBase implements IContentEditor, Serializable
 
 	/**
 	 * Report the objects-tree-depth of this content.
+	 * The notional tree-root node has depth 0, its children have depth 1. Etc
 	 *
-	 * @return int (0-based), -1 for an object not-yet placed in the tree
+	 * @return int (0-based i.e. >= 1), -1 for an object not-yet placed in the tree
 	 */
-	public function GetLevel() : int
+	public function GetLevel(): int
 	{
 		if ($this->mHierarchy) {
-			return substr_count($this->mHierarchy, '.');
+			return substr_count($this->mHierarchy, '.') + 1;
 		}
 		return -1;
 	}
@@ -2321,7 +2319,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return int
 	 */
-	public function LastModifiedBy() : int
+	public function LastModifiedBy(): int
 	{
 		return $this->mLastModifiedBy;
 	}
@@ -2345,7 +2343,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return bool Default false
 	 */
-	public function HasPreview() : bool
+	public function HasPreview(): bool
 	{
 		return false;
 	}
@@ -2357,7 +2355,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return bool Default true
 	 */
-	public function IsViewable() : bool
+	public function IsViewable(): bool
 	{
 		return true;
 	}
@@ -2369,7 +2367,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @param $extra optional flag whether to check for membership of additional-editors. Default true
 	 * @return bool
 	 */
-	public function IsEditable(bool $main = true, bool $extra = true) : bool
+	public function IsEditable(bool $main = true, bool $extra = true): bool
 	{
 		$userops = Lone::get('UserOperations');
 		$userid = get_userid();
@@ -2405,7 +2403,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return bool Default true
 	 */
-	public function IsPermitted() : bool
+	public function IsPermitted(): bool
 	{
 		return true;
 	}
@@ -2416,7 +2414,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return bool Default true
 	 */
-	public function HasUsableLink() : bool
+	public function HasUsableLink(): bool
 	{
 		return true;
 	}
@@ -2427,7 +2425,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return bool Default false
 	 */
-	public function IsCopyable() : bool
+	public function IsCopyable(): bool
 	{
 		return false;
 	}
@@ -2439,7 +2437,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return bool Default false
 	 */
-	public function IsSystemPage() : bool
+	public function IsSystemPage(): bool
 	{
 		return false;
 	}
@@ -2454,7 +2452,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return bool
 	 */
-	public function IsSearchable() : bool
+	public function IsSearchable(): bool
 	{
 		if (!$this->isPermitted() || !$this->IsViewable() || !$this->HasTemplate() || $this->IsSystemPage()) {
 			return false;
@@ -2473,7 +2471,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return bool Default true
 	 */
-	public function HasSearchableContent() : bool
+	public function HasSearchableContent(): bool
 	{
 		return true;
 	}
@@ -2484,7 +2482,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return string
 	 */
-	public function MenuText() : string
+	public function MenuText(): string
 	{
 		return ''.$this->mMenuText;
 	}
@@ -2505,7 +2503,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return string having comma-separated stylesheet &/| stylesheetgroup id(s)
 	 */
-	public function Styles() : string
+	public function Styles(): string
 	{
 		return ''.$this->mStyles;
 	}
@@ -2526,7 +2524,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 *
 	 * @return int
 	 */
-	public function ChildCount() : int
+	public function ChildCount(): int
 	{
 		$ptops = cmsms()->GetHierarchyManager(); // OR Lone::get('PageTreeOperations');
 		$node = $ptops->get_node_by_id($this->mId);
@@ -2541,7 +2539,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @param bool $activeonly Optional flag whether to test only for active children. Default false.
 	 * @return bool
 	 */
-	public function HasChildren(bool $activeonly = false) : bool
+	public function HasChildren(bool $activeonly = false): bool
 	{
 		if ($this->mId <= 0) {
 			return false;
@@ -2577,7 +2575,7 @@ abstract class ContentBase implements IContentEditor, Serializable
 	 * @abstract
 	 * @return bool Default true
 	 */
-	public function WantsChildren() : bool
+	public function WantsChildren(): bool
 	{
 		return true;
 	}
@@ -2851,7 +2849,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param array $props
 	 * @return array
 	 */
-	private function _SortProperties(array $props) : array
+	private function _SortProperties(array $props): array
 	{
 		if (count($props) > 1) {
 			usort($props, function($a, $b) {
@@ -2875,7 +2873,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param bool $force since 2.0 Optional flag whether to overwrite existing properties. Default true
 	 * @return bool indicating successful read (tho' result might be empty anyway)
 	 */
-	public function LoadProperties(bool $force = true) : bool
+	public function LoadProperties(bool $force = true): bool
 	{
 		if ($this->mId <= 0) {
 			return false;
@@ -2885,7 +2883,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		$db = Lone::get('Db');
 		$query = 'SELECT prop_name,content FROM '.CMS_DB_PREFIX.'content_props WHERE content_id = ?';
 		$dbr = $db->getAssoc($query, [(int)$this->mId]);
-		if ($dbr !== false) {
+		if ($dbr) {
 			if ($force) {
 				$this->_props = $dbr;
 			} else {
@@ -2905,7 +2903,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @param bool $force
 	 * @return bool
 	 */
-	protected function _load_properties(bool $force = true) : bool
+	protected function _load_properties(bool $force = true): bool
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'LoadProperties'));
 		return $this->LoadProperties($force);
@@ -2916,7 +2914,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * @ignore
 	 * @return bool indicating something to save and successful completion
 	 */
-	private function _save_properties() : bool
+	private function _save_properties(): bool
 	{
 		if ($this->mId <= 0) {
 			return false;
@@ -2943,7 +2941,7 @@ VALUES (?,?,?,?,$longnow)";
 			} else {
 				// insert
 				$dbr = $db->execute($iquery, [$this->mId, 'string', $key, $value]);
-				if ($dbr === false) {
+				if (!$dbr) {
 					return false;
 				}
 			}
@@ -2960,7 +2958,7 @@ VALUES (?,?,?,?,$longnow)";
 	 * @param string $member
 	 * @return bool
 	 */
-	private function _handleRemovedBaseProperty(string $name, string $member) : bool
+	private function _handleRemovedBaseProperty(string $name, string $member): bool
 	{
 		if (!$this->_properties) {
 			return false;

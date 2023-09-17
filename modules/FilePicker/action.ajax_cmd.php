@@ -2,7 +2,7 @@
 /*
 FilePicker module action: ajax_cmd
 Copyright (C) 2016 Fernando Morgado <jomorg@cmsmadesimple.org>
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Fernando Morgado and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -137,7 +137,7 @@ catch (Throwable $t) {
     header($proto . ' 500 Internal Server Error');
     sendhostheaders();
     header('Status: 500 Internal Server Error');
-    header('Content-type: text/plain');
+    header('Content-Type: text/plain');
     echo $t->getMessage() . "\n";
 }
 exit;

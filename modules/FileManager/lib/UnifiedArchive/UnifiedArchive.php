@@ -772,8 +772,7 @@ class UnifiedArchive implements ArrayAccess, Iterator, Countable
      * @param mixed $offset
      * @return bool
      */
-    #[\ReturnTypeWillChange]
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return $this->hasFile($offset);
     }
@@ -784,7 +783,7 @@ class UnifiedArchive implements ArrayAccess, Iterator, Countable
      * @throws NonExistentArchiveFileException
      */
     #[\ReturnTypeWillChange]
-    public function offsetGet($offset)
+    public function offsetGet($offset)//: mixed
     {
         return $this->getFileData($offset);
     }
@@ -792,26 +791,24 @@ class UnifiedArchive implements ArrayAccess, Iterator, Countable
     /**
      * @param mixed $offset
      * @param mixed $value
-     * @return bool|void
+     * @return void
      * @throws ArchiveModificationException
      * @throws UnsupportedOperationException
      */
-    #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
-        return $this->addFileFromString($offset, $value);
+        $this->addFileFromString($offset, $value);
     }
 
     /**
      * @param mixed $offset
-     * @return bool|int|void
+     * @return void
      * @throws ArchiveModificationException
      * @throws UnsupportedOperationException
      */
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
-        return $this->delete($offset);
+        $this->delete($offset);
     }
 
     #[\ReturnTypeWillChange]

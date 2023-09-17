@@ -1,7 +1,7 @@
 <?php
 /*
 Class to aid creating a tabbed interface in the CMSMS admin console
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -88,8 +88,7 @@ final class AdminTabs
      */
     private function __construct() {}
 
-    #[\ReturnTypeWillChange]
-    private function __clone() {}// : void {}
+    private function __clone(): void {}
 
     /**
      * Revert class properties ready for a fresh sequence
@@ -129,7 +128,7 @@ final class AdminTabs
         if ($autoflow) {
             self::$_start_headers_sent = 1;
         }
-        return "\n".'<div id="page_tabs">';
+        return "\n<div id=\"page_tabs\"><!-- StartTabHeaders -->\n";
     }
 
     /**
@@ -181,7 +180,7 @@ final class AdminTabs
         if ($autoflow) {
             self::$_end_headers_sent = 1;
         }
-        return '</div> <!-- EndTabHeaders -->';
+        return "\n</div><!-- EndTabHeaders -->\n";
     }
 
     /**
@@ -199,7 +198,7 @@ final class AdminTabs
             }
             self::$_start_content_sent = 1;
         }
-        $out .= "\n".'<div class="clearb"></div><div id="page_content">';
+        $out .= "\n<div class=\"clearb\"></div>\n<div id=\"page_content\"><!-- StartTabContent-->\n";
         return $out;
     }
 
@@ -218,8 +217,9 @@ final class AdminTabs
                 self::$_in_tab = 1;
                 $out .= self::end_tab();
             }
+            self::reset(); // in case there will be more tabs in this request
         }
-        $out .= "\n".'</div> <!-- EndTabContent -->';
+        $out .= "\n</div><!-- EndTabContent -->\n";
         return $out;
     }
 
@@ -258,7 +258,7 @@ final class AdminTabs
             self::$_in_tab = 0;
             self::$_ended_tab = 1;
         }
-        return "\n".'</div> <!-- EndTab -->';
+        return "\n</div><!-- EndTab -->\n";
     }
 } // class
 //if (!\class_exists('cms_admin_tabs', false)) \class_alias(AdminTabs::class, 'cms_admin_tabs', false);

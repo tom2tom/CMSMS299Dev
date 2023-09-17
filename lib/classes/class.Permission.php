@@ -1,7 +1,7 @@
 <?php
 /*
 Class and utilities for working with permissions.
-Copyright (C) 2014-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -101,7 +101,7 @@ final class Permission
 	 * @return mixed recorded value | null
 	 */
 	#[\ReturnTypeWillChange]
-	public function __get(string $key)// : mixed
+	public function __get(string $key)//: mixed
 	{
 		if( !in_array($key,self::PROPS) ) {
 			//try for a deprecated alias
@@ -118,7 +118,7 @@ final class Permission
 	 * @ignore
 	 * @throws LogicException or UnexpectedValueException
 	 */
-	public function __set(string $key,$value) : void
+	public function __set(string $key,$value): void
 	{
 		if( $key == 'id' ) {
 			throw new LogicException($key.' cannot be set this way in '.__CLASS__.' objects');

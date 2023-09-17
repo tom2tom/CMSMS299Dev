@@ -1,7 +1,7 @@
 <?php
 /*
 Methods and aliases for accessing intra-request system properties and classes
-Copyright (C) 2010-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -94,14 +94,13 @@ final class App
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    private function __clone() {}// : void {}
+    private function __clone(): void {}
 
     /**
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         switch($key) {
         case 'config':
@@ -117,7 +116,7 @@ final class App
     /**
      * @ignore
      */
-    public function __set(string $key, $value) : void
+    public function __set(string $key, $value): void
     {
         Lone::set('app.'.$key, $value);
     }
@@ -130,7 +129,7 @@ final class App
      * @throws RuntimeException if $name is not recognized
      */
     #[\ReturnTypeWillChange]
-    public function __call(string $name, array $args)// : mixed
+    public function __call(string $name, array $args)//: mixed
     {
         return Lone::get($name, ...$args);
     }
@@ -146,7 +145,7 @@ final class App
      *
      * @return self
      */
-    public static function get_instance() : self
+    public static function get_instance(): self
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\Lone::get(\'App\')'));
         return Lone::get('App');
@@ -159,7 +158,7 @@ final class App
      *
      * @return int maybe 0
      */
-    public function get_installed_schema_version() : int
+    public function get_installed_schema_version(): int
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\get_installed_schema_version'));
         return get_installed_schema_version();
@@ -172,7 +171,7 @@ final class App
      *
      * @return array
      */
-    public function get_errors() : array
+    public function get_errors(): array
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\get_debug_messages'));
         return get_debug_messages();
@@ -199,7 +198,7 @@ final class App
      * @since 2.0
      * @return string
      */
-    public function get_content_type() : string
+    public function get_content_type(): string
     {
         $val = (string)Lone::fastget('app.content_type');
         return ($val) ? $val : 'text/html';
@@ -261,7 +260,7 @@ final class App
      *
      * @return ModuleOperations handle to the ModuleOperations object
      */
-    public function GetModuleOperations() : ModuleOperations
+    public function GetModuleOperations(): ModuleOperations
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'ModuleOperations\')'));
         return Lone::get('ModuleOperations');
@@ -321,7 +320,7 @@ final class App
      *
      * @return Connection object
      */
-    public function GetDb() : Connection
+    public function GetDb(): Connection
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'Db\')'));
         return Lone::get('Db');
@@ -333,7 +332,7 @@ final class App
      *
      * @return string
      */
-    public function GetDbPrefix() : string
+    public function GetDbPrefix(): string
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('constant', 'CMS_DB_PREFIX'));
         return CMS_DB_PREFIX;
@@ -348,7 +347,7 @@ final class App
      *
      * @return AppConfig The configuration object
      */
-    public function GetConfig() : AppConfig
+    public function GetConfig(): AppConfig
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'Config\')'));
         return Lone::get('Config');
@@ -361,7 +360,7 @@ final class App
      *
      * @return UserOperations handle to the UserOperations object
      */
-    public function GetUserOperations() : UserOperations
+    public function GetUserOperations(): UserOperations
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'UserOperations\')'));
         return Lone::get('');
@@ -374,7 +373,7 @@ final class App
      *
      * @return ContentOperations handle to the ContentOperations object
      */
-    public function GetContentOperations() : ContentOperations
+    public function GetContentOperations(): ContentOperations
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'ContentOperations\')'));
         return Lone::get('ContentOperations');
@@ -387,7 +386,7 @@ final class App
      *
      * @return BookmarkOperations
      */
-    public function GetBookmarkOperations() : BookmarkOperations
+    public function GetBookmarkOperations(): BookmarkOperations
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('class', 'CMSMS\BookmarkOperations'));
         return new BookmarkOperations();
@@ -400,7 +399,7 @@ final class App
      *
      * @return GroupOperations handle to the GroupOperations instance
      */
-    public function GetGroupOperations() : GroupOperations
+    public function GetGroupOperations(): GroupOperations
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'GroupOperations\')'));
         return Lone::get('GroupOperations');
@@ -413,7 +412,7 @@ final class App
      *
      * @return the UserTagOperations singleton
      */
-    public function GetUserTagOperations() : UserTagOperations
+    public function GetUserTagOperations(): UserTagOperations
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'UserTagOperations\')'));
         return Lone::get('UserTagOperations');
@@ -427,7 +426,7 @@ final class App
      *
      * @return mixed CMSMS\internal\Smarty object | null
      */
-    public function GetSmarty() : Smarty
+    public function GetSmarty(): Smarty
     {
         if( !AppState::test(AppState::INSTALL) ) {
             // we don't load the main Smarty class during installation
@@ -441,7 +440,7 @@ final class App
      *
      * @return PageTreeOperations singelton
      */
-    public function GetHierarchyManager() : PageTreeOperations
+    public function GetHierarchyManager(): PageTreeOperations
     {
         return Lone::get('PageTreeOperations');
     }
@@ -478,7 +477,7 @@ final class App
      * @deprecated since 3.0 instead use CMSMS\AppState::get()
      * @return array  State constants (int's)
      */
-    public function get_states() : array
+    public function get_states(): array
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AppState::get'));
         return AppState::get();
@@ -493,7 +492,7 @@ final class App
      * @return bool
      * @throws UnexpectedValueException if invalid identifier is provided
      */
-    public function test_state($state) : bool
+    public function test_state($state): bool
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AppState::test'));
         return AppState::test($state);
@@ -527,7 +526,7 @@ final class App
      * @return bool indicating success
      * @throws UnexpectedValueException if an invalid state is provided.
      */
-    public function remove_state($state) : bool
+    public function remove_state($state): bool
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AppState::remove'));
         AppState::remove($state);
@@ -540,7 +539,7 @@ final class App
      *
      * @return bool false always
      */
-    public function is_cli() : bool
+    public function is_cli(): bool
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice(__METHOD__.' always returns false', ''));
         return false;
@@ -553,7 +552,7 @@ final class App
      *
      * @return bool
      */
-    public function is_frontend_request() : bool
+    public function is_frontend_request(): bool
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\is_frontend_request'));
         return is_frontend_request();
@@ -566,7 +565,7 @@ final class App
      *
      * @return bool
      */
-    public function is_https_request() : bool
+    public function is_https_request(): bool
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\is_secure_request'));
         return is_secure_request();

@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton class of utility-methods for operating on and with modules
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -32,6 +32,7 @@ use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\ArrayTree;
 use CMSMS\CapabilityType;
+use CMSMS\Database\Connection;
 use CMSMS\DeprecationNotice;
 use CMSMS\Events;
 use CMSMS\IAuthModule;
@@ -45,6 +46,7 @@ use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 use CMSMS\UserParams;
 use LogicException;
+use ModuleManager\Operations;
 use RuntimeException;
 use UnexpectedValueException;
 use const CMS_DB_PREFIX;
@@ -193,15 +195,14 @@ final class ModuleOperations
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * Get the singleton instance of this class.
 	 * @deprecated since 3.0 use CMSMS\Lone::get('ModuleOperations')
 	 * @return ModuleOperations
 	 */
-	public static function get_instance() : self
+	public static function get_instance(): self
 	{
 		assert(empty(CMS_DEPREC),new DeprecationNotice('method','CMSMS\Lone::get(\'ModuleOperations\')'));
 		return Lone::get('ModuleOperations');
@@ -256,7 +257,7 @@ final class ModuleOperations
 	/**
 	 * @ignore
 	 */
-	private function get_module_classmap() : array
+	private function get_module_classmap(): array
 	{
 		if( !isset($this->classmap) ) {
 			$this->classmap = [];
@@ -318,28 +319,30 @@ final class ModuleOperations
 
 	/**
 	 * @param string $modname
-	 * @return mixed string | null if corresponding class-file not found
+	 * @return string empty if corresponding class-file not found
 	 */
-	public function get_module_filename(string $modname)
+	public function get_module_filename(string $modname): string
 	{
 		$modname = trim($modname);
 		if( $modname ) {
 			$fn = cms_module_path($modname);
 			if( $fn ) return $fn;
 		}
+		return '';
 	}
 
 	/**
 	 * @param string $modname
-	 * @return mixed string | null
+	 * @return string maybe empty
 	 */
-	public function get_module_path(string $modname)
+	public function get_module_path(string $modname): string
 	{
 		$modname = trim($modname);
 		if( $modname ) {
 			$dir = cms_module_path($modname, true);
 			if( $dir ) return $dir;
 		}
+		return '';
 	}
 
 	/* *
@@ -382,13 +385,47 @@ final class ModuleOperations
 	}
 */
 	/**
+	 * Create an XML data package for a module
+	 *
+	 * @param CMSModule $mod The module object to be processed
+	 * @param string $message Reference to a string which will be filled
+	 *  with the message created by this method
+	 * @param int $filecount Reference to an integer which will be filled
+	 *  with the count of files in the created package
+	 * @return string XML comprising the module and its files
+	 */
+	public function CreateXMLPackage(CMSModule $mod,string &$message,int &$filecount): string
+	{
+		$xmlfile = (new Operations())->create_xml_package($mod, $message, $filecount);
+		$tmp = file_get_contents($xmlfile);
+		unlink($xmlfile);
+		return $tmp;
+	}
+
+	/**
+	 * Unpackage a module from an XML string
+TODO reconcile API's
+	 *
+	 * @internal
+	 * @param string $xml The xml data for the package
+	 * @param bool $overwrite Whether to overwrite files if they exist Default false
+	 * @param bool $brief If true, less checking is done and no errors are returned Default false
+	 * @return array Information about the unpacked module
+	 */
+	public function ExpandXMLPackage(string $xml,bool $overwrite = false,bool $brief = false): array
+	{
+		$ret = (new Operations())->expand_xml_package($xmlfile, $overwrite, $brief);
+		return $ret;
+	}
+
+	/**
 	 * @ignore
 	 * @param CMSModule | IResource $mod module object
 	 * @return 2-member array
 	 *  [0] = bool indicating success
 	 *  [1] = mixed int != 0 or 1 (failure indicator) or message (failed or success)
 	 */
-	private function _install_module($mod) : array
+	private function _install_module($mod): array
 	{
 		$modname = $mod->GetName();
 		debug_buffer('install_module '.$modname);
@@ -464,7 +501,7 @@ VALUES (?,?,?,?)');
 	 *  [0] = bool indicating whether the install was successful
 	 *  [1] = string error message if [0] == false
 	 */
-	public function InstallModule(string $modname) : array
+	public function InstallModule(string $modname): array
 	{
 		// try to get an instance of the class
 		$mod = $this->get_module_instance($modname,'',true); // forced
@@ -581,7 +618,7 @@ abandoned				if( !$mod->HasCapability(CapabilityType::CORE_MODULE) ) {
 	 *
 	 * @return array
 	 */
-	public function FindAllModules() : array
+	public function FindAllModules(): array
 	{
 		$result = [];
 		foreach( cms_module_places() as $dir ) {
@@ -609,7 +646,7 @@ abandoned				if( !$mod->HasCapability(CapabilityType::CORE_MODULE) ) {
 	 *  [0] = bool indicating success
 	 *  [1] = '' or error message
 	 */
-	private function _upgrade_module($mod,string $to_version = '') : array
+	private function _upgrade_module($mod,string $to_version = ''): array
 	{
 		// upgrade only if the database schema is up-to-date. TODO might be circular?
 		if( !schema_is_current() ) {
@@ -722,7 +759,7 @@ EOS;
 	 *  [0] : bool indicating whether the upgrade was successful
 	 *  [1] : string error message if [0] == false
 	 */
-	public function UpgradeModule(string $modname,string $to_version = '') : array
+	public function UpgradeModule(string $modname,string $to_version = ''): array
 	{
 		$mod = $this->get_module_instance($modname,'',true); // forced
 		if( is_object($mod) ) {
@@ -756,7 +793,7 @@ EOS;
 	 *  [0] : bool whether or not the uninstall was successful
 	 *  [1] : string error message if [0] == false
 	 */
-	public function UninstallModule(string $modname) : array
+	public function UninstallModule(string $modname): array
 	{
 		$mod = $this->get_module_instance($modname,'',true); // forced
 		if( !$mod ) {
@@ -854,7 +891,7 @@ EOS;
 	 * @param string $modname
 	 * @return bool
 	 */
-	public function IsModuleActive(string $modname) : bool
+	public function IsModuleActive(string $modname): bool
 	{
 		if( !$modname ) return false;
 		$info = $this->_get_installed_module_info();
@@ -870,7 +907,7 @@ EOS;
 	 * @param bool $activate flag indicating whether to activate or deactivate the module
 	 * @return bool indicating success
 	 */
-	public function ActivateModule(string $modname,bool $activate = true) : bool
+	public function ActivateModule(string $modname,bool $activate = true): bool
 	{
 		if( !$modname ) return false;
 		$info = $this->_get_installed_module_info();
@@ -919,7 +956,7 @@ EOS;
 	 * @param Connection $db
 	 * @param string $modname
 	 */
-	private function ReHomeUsers($db,string $modname)
+	private function ReHomeUsers(Connection $db,string $modname)
 	{
 		$query = 'SELECT user_id,`value` FROM '.CMS_DB_PREFIX.'userprefs WHERE preference=\'homepage\' AND `value` LIKE ?';
 		$data = $db->getArray($query, ['%mact='.$modname.'%']);
@@ -973,7 +1010,7 @@ EOS;
 	/**
 	 * @internal
 	 */
-	public function is_module_loaded(string $modname) : bool
+	public function is_module_loaded(string $modname): bool
 	{
 		$modname = trim($modname);
 		return isset($this->modules[$modname]);
@@ -1011,7 +1048,7 @@ EOS;
 	 *  props are from db via LoadedData 'modules', plus calculated 'dependents'
 	 * @ignore
 	 */
-	private function _get_installed_module_info(bool $force = false) : array
+	private function _get_installed_module_info(bool $force = false): array
 	{
 		if( $force || !isset($this->moduleinfo) ) {
 			$this->moduleinfo = [];
@@ -1072,7 +1109,7 @@ EOS;
 	 * @param bool $include_inactive true: report all modules, false: report active modules only. Default false.
 	 * @return array
 	 */
-	public function GetInstalledModules(bool $include_inactive = false) : array
+	public function GetInstalledModules(bool $include_inactive = false): array
 	{
 		// TODO this gets called a lot during page construction, might be worth a local-cache
 		$info = $this->_get_installed_module_info();
@@ -1095,7 +1132,7 @@ EOS;
 	 *
 	 * @return array maybe empty
 	 */
-	public function GetLoadableModuleNames() : array
+	public function GetLoadableModuleNames(): array
 	{
 		return array_diff($this->GetInstalledModules(),array_keys($this->modules));
 	}
@@ -1132,7 +1169,7 @@ EOS;
 	 * @param bool $flat since 3.0 whether to get un-ordered dependencies
 	 * @return array of prerequisite-module names and versions, maybe empty
 	 */
-	public function get_module_dependencies(string $modname, bool $flat = true) : array
+	public function get_module_dependencies(string $modname, bool $flat = true): array
 	{
         if( !$modname ) { return []; }
 		$all_deps = $this->_get_module_dependencies($flat);
@@ -1164,7 +1201,7 @@ EOS;
 	 * @return boolean indicating success, incl. false if aborted because
 	 *  loading of $modname began during a prior call here (i.e. indirect circularity)
 	 */
-	private function _get_module(string $modname,bool $force = false) : bool
+	private function _get_module(string $modname,bool $force = false): bool
 	{
 		$force |= $this->installing; // CHECKME
 		$info = $this->_get_installed_module_info();
@@ -1379,7 +1416,7 @@ EOS;
 	 * @param string $modname The module name
 	 * @return bool
 	 */
-	public function IsSystemModule(string $modname) : bool
+	public function IsSystemModule(string $modname): bool
 	{
 		assert(empty(CMS_DEPREC),new DeprecationNotice('method','IsBundledModule'));
 		return $this->IsBundledModule($modname);
@@ -1405,7 +1442,7 @@ EOS;
 	 * @param string $modname The module name
 	 * @return bool
 	 */
-	public function IsBundledModule(string $modname) : bool
+	public function IsBundledModule(string $modname): bool
 	{
 		if( empty($this->corenames) ) {
 			$this->corenames = AppParams::get(self::CORENAMES_PREF);
@@ -1452,7 +1489,7 @@ EOS;
      *  recorded preference.
 	 * @return mixed CMSModule | IResource | null
 	 */
-	public function GetSyntaxHighlighter($modname = '')// : mixed
+	public function GetSyntaxHighlighter($modname = '')//: mixed
 	{
 		if( !$modname ) {
 			if( AppState::test(AppState::ADMIN_PAGE) ) {
@@ -1482,7 +1519,7 @@ EOS;
 	 * @param mixed $modname string | null
 	 * @return mixed CMSModule | IResource | null
 	 */
-	public function GetSyntaxModule($modname = '')// : mixed
+	public function GetSyntaxModule($modname = '')//: mixed
 	{
 		return $this->GetSyntaxHighlighter($modname);
 	}
@@ -1500,7 +1537,7 @@ EOS;
 	 *  detection process and specifying a WYSIWYG module.
 	 * @return mixed CMSModule | IResource | null
 	 */
-	public function GetWYSIWYGModule($modname = '')// : mixed
+	public function GetWYSIWYGModule($modname = '')//: mixed
 	{
 		if( !$modname ) {
 			if( is_frontend_request() ) {
@@ -1566,7 +1603,7 @@ EOS;
 	 * @param string $id parameter identifier/prefix
 	 * @return array, maybe empty
 	 */
-	public function GetModuleParameters(string $id) : array
+	public function GetModuleParameters(string $id): array
 	{
 		assert(empty(CMS_DEPREC),new DeprecationNotice('method','CMSMS\RequestParameters::get_identified_params()'));
 		return RequestParameters::get_identified_params($id);

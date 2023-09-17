@@ -1,7 +1,7 @@
 <?php
 /*
 Class Connection: interaction with a MySQL or compatible database
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -240,7 +240,7 @@ final class Connection
                     $arr['db_password'],
                     $arr['db_name'],
                 ];
-                if (!empty($arr['db_port']) || is_numeric($arr['db_port'])) {
+                if (isset($arr['db_port']) && ($arr['db_port'] || is_numeric($arr['db_port']))) {
                     $parms[] = (int)$arr['db_port'];
                 }
             } else {
@@ -250,7 +250,7 @@ final class Connection
                     $config['db_password'],
                     $config['db_name'],
                 ];
-                if (!empty($config['db_port']) || is_numeric($config['db_port'])) {
+                if (isset($config['db_port']) && ($config['db_port'] || is_numeric($config['db_port']))) {
                     $parms[] = (int)$config['db_port'];
                 }
             }
@@ -338,7 +338,7 @@ final class Connection
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         switch ($key) {
          case 'database':
@@ -366,7 +366,7 @@ final class Connection
     /**
      * @ignore
      */
-    public function __isset(string $key) : bool
+    public function __isset(string $key): bool
     {
         switch ($key) {
          case 'database':
@@ -389,7 +389,7 @@ final class Connection
     /**
      * @ignore
      */
-    public function __set(string $key, $value) : void
+    public function __set(string $key, $value): void
     {
         switch ($key) {
          case '_in_smart_transaction':
@@ -548,7 +548,7 @@ final class Connection
      * @param string $str the string to process
      * @return string
      */
-    function escStr(string $str) : string
+    function escStr(string $str): string
     {
         if ($str == '') {
             return $str;
@@ -736,7 +736,7 @@ final class Connection
      * $param mixed $vals maybe-empty array | anything else
      * @return maybe-empty array
      */
-    public function check_params($vals) : array
+    public function check_params($vals): array
     {
         if (is_array($vals)) {
             if (count($vals) == 1 && is_array($vals[0])) {
@@ -1279,7 +1279,7 @@ final class Connection
      * @param string $colname   Optional name of column to be locked
      * @return bool indicating success
      */
-/*  public function rowLock(string $tablelist, string $where = '', string $colname = '') : bool
+/*  public function rowLock(string $tablelist, string $where = '', string $colname = ''): bool
     {
         //TODO MySQL row locks work only with InnoDB engine, others lock whole table
     }
@@ -1405,19 +1405,23 @@ final class Connection
      */
     public function unixTimeStamp($str)
     {
-        return strtotime($str);
+        if ($str) {
+            return strtotime($str);
+        }
+        return 0;
     }
 
     /**
      * An alias for the unixTimestamp method.
      * @deprecated since 3.0 instead use Connection::unixTimeStamp()
      *
+     * @param string $str
      * @return int
      */
-    public function Time()
+    public function Time($str)
     {
         assert(!CMS_DEPREC, new DeprecationNotice('method','unixTimeStamp'));
-        return $this->unixTimeStamp();
+        return $this->unixTimeStamp($str);
     }
 
     /**

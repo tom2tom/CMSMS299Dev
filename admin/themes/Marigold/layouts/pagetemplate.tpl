@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
+<html{if $lang_code} lang="{$lang_code|truncate:5:''}"{/if} dir="{$lang_dir|default:'ltr'}">
  <head>
 {$thetitle=$pagetitle}
 {if $thetitle && $subtitle}{$thetitle="{$thetitle} - {$subtitle}"}{/if}
@@ -9,8 +9,8 @@
   <meta charset="UTF-8">
   <meta name="generator" content="CMS Made Simple">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no">
   <meta name="referrer" content="origin">
+  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no">
   <meta name="HandheldFriendly" content="true">
   <meta name="msapplication-TileColor" content="#f89938">
   <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png">
@@ -25,7 +25,7 @@
   {$font_includes}
   {$header_includes|default:''}
  </head>
- <body id="{md5($pagetitle)}" class="mg_{$pagealias}">
+ <body id="{$pagetitle|adjust:'md5'}"{if $pagealias} class="mg_{$pagealias}"{/if}>
   <!-- start container -->
   <div id="mg_container" class="sidebar-on">
    <!-- start header -->
@@ -33,8 +33,8 @@
     <!-- start header-top -->
     <div class="header-top cf">
      <div id="admin-title">
-      {if empty($sitelogo)}{sitename} - {'adminpaneltitle'|lang}
-      {else}<img src="{$sitelogo}" alt="{sitename}"> {'adminpaneltitle'|lang}
+      {if empty($sitelogo)}{sitename} - {lang('adminpaneltitle')}
+      {else}<img src="{$sitelogo}" alt="{sitename}"> {lang('adminpaneltitle')}
       {/if}
      </div>
      <div id="cms-logo">
@@ -49,9 +49,9 @@
 {*   <!-- welcome -->
      <div class="welcome">
      {if isset($myaccount)}
-      <span><a class="welcome-user" href="useraccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa fa-user-circle-o"></i></a> {'welcome_user'|lang}: <a href="useraccount.php?{$secureparam}">{$username}</a></span>
+      <span><a class="welcome-user" href="useraccount.php?{$secureparam}" title="{lang('myaccount')}"><i class="fa fa-user-circle-o"></i></a> {lang('welcome_user')}: <a href="useraccount.php?{$secureparam}">{$username}</a></span>
      {else}
-      <span><a class="welcome-user"><i class="fa fa-user-circle-o"></i></a> {'welcome_user'|lang}: {$username}</span>
+      <span><a class="welcome-user"><i class="fa fa-user-circle-o"></i></a> {lang('welcome_user')}: {$username}</span>
      {/if}
      </div>
 *}
@@ -69,7 +69,7 @@
     <!-- start sidebar -->
     <div id="mg_sidebar">
       <aside>
-        <span title="{'open'|lang}/{'close'|lang}" id="toggle-button" class="close"></span>
+        <span title="{lang('open')}/{lang('close')}" id="toggle-button" class="close"></span>
         {include file='navigation.tpl' nav=$theme->get_navigation_tree()}{block name=navigation}{/block}
       </aside>
     </div>
@@ -83,7 +83,7 @@
         {if !empty($pageicon) || !empty($pagetitle)}
         <h1>{if !empty($pageicon)}<span class="headericon">{$pageicon}</span> {/if}{$pagetitle|default:''}</h1>
         {/if}
-        {if isset($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{'module_help'|lang}</a></span>{/if}
+        {if isset($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{lang('module_help')}</a></span>{/if}
        </header>
      {if $pagetitle && $subtitle}<header class="subheader"><h3 class="subtitle">{$subtitle}</h3></header>{/if}
       <section class="cf">

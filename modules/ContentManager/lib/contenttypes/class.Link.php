@@ -1,7 +1,7 @@
 <?php
 /*
 CMS Made Simple link content type
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -38,22 +38,22 @@ use function get_userid;
  */
 class Link extends ContentBase
 {
-	public function FriendlyName() : string
+	public function FriendlyName(): string
 	{
 		return $this->mod->Lang('contenttype_link');
 	}
 
-	public function HasSearchableContent() : bool
+	public function HasSearchableContent(): bool
 	{
 		return false;
 	}
 
-	public function IsCopyable() : bool
+	public function IsCopyable(): bool
 	{
 		return true;
 	}
 
-	public function IsViewable() : bool
+	public function IsViewable(): bool
 	{
 		return false;
 	}
@@ -85,7 +85,7 @@ class Link extends ContentBase
 		}
 	}
 
-	public function TemplateResource() : string
+	public function TemplateResource(): string
 	{
 		return ''; //TODO
 	}
@@ -93,18 +93,14 @@ class Link extends ContentBase
 	public function ValidateData()
 	{
 		$errors = parent::ValidateData();
-		if ($errors === false) {
-			$errors = [];
-		}
 
 		if ($this->GetPropertyValue('url') == '') {
 			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('url'));
-			$result = false;
 		}
-		return $errors ?: false;
+		return $errors;
 	}
 
-	public function GetTabNames() : array
+	public function GetTabNames(): array
 	{
 		$res = [$this->mod->Lang('main')];
 		if (check_permission(get_userid(), 'Manage All Content')) {
@@ -142,19 +138,7 @@ class Link extends ContentBase
 		}
 	}
 
-	public function EditAsArray($adding = false, $tab = 0, $showadmin = false)
-	{
-		switch ($tab) {
-		case '0':
-			return $this->display_attributes($adding);
-			break;
-		case '1':
-			return $this->display_attributes($adding, 1);
-			break;
-		}
-	}
-
-	public function URL() : string
+	public function URL(): string
 	{
 		return $this->GetPropertyValue('url');
 	}

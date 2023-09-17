@@ -4,6 +4,7 @@
   <div class="pageoptions">
   <a href="{$addurl}{$urlext}" title="{_la('info_adduser')}">{admin_icon icon='newobject.gif' class='systemicon'}&nbsp;{_la('adduser')}</a>
   </div>
+  {if !empty($userlist)}
   {if $tblpages > 1}
   <div class="browsenav postgap">
    <span id="tblpagelink">
@@ -24,7 +25,7 @@
   <thead>
   <tr>
     <th class="{literal}{sss:text}{/literal}">{_la('username')}</th>
-    <th class="{literal}{sss:intfor}{/literal}" style="text-align: center;">{_la('active')}</th>
+    <th class="{literal}{sss:intfor}{/literal}" style="text-align:center">{_la('active')}</th>
     {if $become}<th class="pageicon nosort"></th>{/if}{* become user *}
     <th class="pageicon nosort"></th>{* menu *}
     <th class="pageicon nosort"><input type="checkbox" id="sel_all" value="1" title="{_la('selectall')}"></th>
@@ -82,13 +83,13 @@
     <a href="{$addurl}{$urlext}" title="{_la('info_adduser')}">{$iconadd}</a>
     <a href="{$addurl}{$urlext}">{_la('adduser')}</a>
   </div>
-  {else}" style="justify-content:flex-end;">{/if}
+  {else}" style="justify-content:flex-end">{/if}
   <div class="boxchild">
   <label for="bulkaction">{_la('selecteditems')}:</label>&nbsp;
   <select name="bulk_action" id="bulkaction">
     {html_options options=$bulkactions}  </select>
   &nbsp;
-  <div id="userlist" style="display: none;">
+  <div id="userlist" style="display:none">
     <label for="userlist_sub">{_la('copyfromuser')}:</label>&nbsp;
     <select name="userlist" id="userlist_sub">
       {html_options options=$userlist}    </select>
@@ -96,6 +97,7 @@
   <button type="submit" id="bulksubmit" name="bulk" class="adminsubmit icon do">{_la('submit')}</button>
   </div>
   </div>{*rowbox*}
+{/if}
 </form>
 {if !empty($usermenus)}
 <div id="usermenus">

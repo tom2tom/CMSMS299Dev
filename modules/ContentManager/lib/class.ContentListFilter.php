@@ -1,7 +1,7 @@
 <?php
 /*
 Class defining a content filter
-Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -46,8 +46,8 @@ final class ContentListFilter
 	 * @return mixed
 	 * @throws InvalidArgumentException upon unrecognized $key
 	 */
-    #[\ReturnTypeWillChange]
-	public function __get(string $key)// : mixed
+	#[\ReturnTypeWillChange]
+	public function __get(string $key)//: mixed
 	{
 		switch ($key) {
 		case 'type':
@@ -66,7 +66,7 @@ final class ContentListFilter
 	 * @param mixed $val normally a string
 	 * @throws InvalidArgumentException upon unrecognized $key or $val
 	 */
-	public function __set(string $key, $val) : void
+	public function __set(string $key, $val): void
 	{
 		switch ($key) {
 		case 'type':

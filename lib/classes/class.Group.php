@@ -1,7 +1,7 @@
 <?php
 /*
 Admin-group class for CMSMS
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -48,7 +48,7 @@ use function lang;
 	 */
 	private const PROPS = ['id','name','description','active'];
 
-    // static properties here >> Lone property|ies ?
+	// static properties here >> Lone property|ies ?
 	/**
 	 * GroupOperations object populated on demand
 	 * @ignore
@@ -67,8 +67,8 @@ use function lang;
 	/**
 	 * @ignore
 	 */
-    #[\ReturnTypeWillChange]
-	public function __get(string $key)
+	#[\ReturnTypeWillChange]
+	public function __get(string $key)//: mixed
 	{
 		if( in_array($key,self::PROPS) ) return $this->$key;
 		throw new LogicException($key.' is not a property of '.__CLASS__);
@@ -77,7 +77,7 @@ use function lang;
 	/**
 	 * @ignore
 	 */
-	public function __set(string $key,$val) : void
+	public function __set(string $key,$val): void
 	{
 		if( !in_array($key,self::PROPS) ) {
 			throw new LogicException($key.' is not a property of '.__CLASS__);
@@ -122,14 +122,14 @@ use function lang;
 	public function validate()
 	{
 		if( !$this->name ) {
-            throw new LogicException('No name specified for this group');
-        }
+			throw new LogicException('No name specified for this group');
+		}
 		$db = Lone::get('Db');
 		$sql = 'SELECT group_id FROM `'.CMS_DB_PREFIX.'groups` WHERE group_name = ? AND group_id != ?';
 		$dbr = $db->getOne($sql,[$this->name,$this->id]);
 		if( $dbr ) {
-            throw new LogicException(lang('errorgroupexists',$this->name));
-        }
+			throw new LogicException(lang('errorgroupexists',$this->name));
+		}
 	}
 
 	/**

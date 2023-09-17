@@ -5,7 +5,7 @@ class version_range_test extends test_base
 {
     public $success_key;
 
-    public function __set(string $key, $value) : void
+    public function __set(string $key, $value): void
     {
         switch ($key) {
           case 'success_key':
@@ -16,7 +16,7 @@ class version_range_test extends test_base
         }
     }
 
-    public function execute() : string
+    public function execute(): string
     {
         if ($this->minimum) {
             if (version_compare($this->value, $this->minimum) < 0) {

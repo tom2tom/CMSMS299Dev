@@ -15,13 +15,13 @@ The PHAR based installation assistant is a binary file and must be transferred i
 -------------------
 Requirements
 -------------------
-1.  The installation assistant requires a PHP environment with a minimum version of PHP 7.1.
+1.  The installation assistant requires a PHP environment with a minimum version of PHP 7.2.
 2.  The website's PHP environment must include the PHAR extension.
-3.  For new installations of CMS Made Simple you should create a new mysql database and database user.
+3.  For new installations of CMS Made Simple you should create a new MySQL or compatible database and database user.
     - The database user must have ALL PRIVILEGES to all tables within the new database.
-    - Your database user account must have a password.
-4.  CMS Made Simple itself requires at least PHP 7.1 with numerous libraries enabled
-    (the install assistant will check for these) including json, tokenizer, xml, and gd.
+    - The database user account must have a password.
+4.  CMS Made Simple (or more specifically the associated Smarty library) requires at least PHP 7.2, with numerous libraries enabled
+    (the install assistant will check for these) including xml and gd.
 
 -------------------
 Instructions
@@ -58,8 +58,8 @@ Step 4:
   This step is used only during installation and freshen sessions. It asks you to provide basic configuration information
   for the CMS Made Simple environment. This includes database information and credentials, and a server time zone.
 
-  As mentioned in the requirements above, CMSMS requires a mysql database to store data, and user credentials to access
-  that mysql database. The user account provided must have ALL PRIVILEGES to the database. You can normally create
+  As mentioned in the requirements above, CMSMS requires a MySQL or compatible database to store data, and user credentials
+  to access that database. The user account provided must have ALL PRIVILEGES to the database. You can normally create
   databases, and create user accounts for database from within your web host's control panel.
 
   Additionally, you are asked to specify the time zone of the server (not your local time zone). You may need to ask your
@@ -114,7 +114,7 @@ Afterwards
 
 After confirming that the site is working as expected, confirm that the installer .php file and related folder (with all its contents)
 have been deleted from the server. If not so, delete them manually, using the site's file manager (in cPanel or the like).
-Likewise for any intaller.ini file, in the site-root folder, that was used to facilitate the installer session.
+Likewise for any installer.ini file, in the site-root folder, that was used to facilitate the installer session.
 
 ---------------------
 Additional Features

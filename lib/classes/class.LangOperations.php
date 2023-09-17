@@ -1,7 +1,7 @@
 <?php
 /*
 Translation functions
-Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -79,8 +79,7 @@ final class LangOperations
 	 * @ignore
 	 */
 	private function __construct() {}
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * NOTE this is a non-trivial contributor to request-duration, hence optimized for speed
@@ -89,7 +88,7 @@ final class LangOperations
 	 * @param mixed $domain string|null domain name
 	 * @param string $locale locale identifier
 	 */
-	private static function _load_realm($domain, $locale)
+	private static function _load_realm(?string $domain, string $locale): void
 	{
 		if( !$domain ) $domain = self::$_curent_realm;
 		if( isset(self::$_langdata[$locale][$domain]) ) return;
@@ -220,7 +219,7 @@ final class LangOperations
 	 * @since 3.0 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return bool
 	 */
-	public static function lang_key_exists(...$args) : bool
+	public static function lang_key_exists(...$args): bool
 	{
 		if( count($args) == 1 && is_array($args[0]) ) $args = $args[0]; //just in case
 		if( count($args) < 2 ) return FALSE;
@@ -257,7 +256,7 @@ final class LangOperations
 	 * @since 3.0 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return string, possibly empty
 	 */
-	public static function domain_string(...$args) : string
+	public static function domain_string(...$args): string
 	{
 		if( count($args) == 1 && is_array($args[0]) ) $args = $args[0];
 		if( count($args) < 2 ) return '';
@@ -308,7 +307,7 @@ final class LangOperations
 	 * @deprecated since 3.0 instead use LangOperations::domain_string()
 	 * @param varargs $args
 	 */
-	public static function lang_from_realm(...$args) : string
+	public static function lang_from_realm(...$args): string
 	{
 		return self::domain_string(...$args);
 	}
@@ -326,7 +325,7 @@ final class LangOperations
 	 *  further argument(s) (optional string|number, generally, or array of same)
 	 * @return string, possibly empty
 	 */
-	public static function admin_string(...$args) : string
+	public static function admin_string(...$args): string
 	{
 		if( count($args) == 1 && is_array($args[0]) ) { $args = $args[0]; }
 		return self::domain_string(self::CMSMS_ADMIN_REALM, ...$args);
@@ -345,7 +344,7 @@ final class LangOperations
 	 *  further argument(s) (optional string|number, generally, or array of same)
 	 * @return string, possibly empty
 	 */
-	public static function default_string(...$args) : string
+	public static function default_string(...$args): string
 	{
 		if( count($args) == 1 && is_array($args[0]) ) {
 			$args = $args[0];
@@ -358,7 +357,7 @@ final class LangOperations
 	 * @deprecated since 3.0 instead use LangOperations::default_string()
 	 * @param varargs $args
 	 */
-	public static function lang(...$args) : string
+	public static function lang(...$args): string
 	{
 		return self::default_string(...$args);
 	}
@@ -393,7 +392,7 @@ final class LangOperations
 	 * @since 3.0 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return bool
 	 */
-	public static function key_exists($key, string $domain = '') : bool
+	public static function key_exists($key, string $domain = ''): bool
 	{
 		if( $domain === '') $domain = self::$_default_domain;
 		$locale = NlsOperations::get_current_language();
@@ -409,7 +408,7 @@ final class LangOperations
 	 * @since 3.0 the domain may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return string the previous/replaced domain-name
 	 */
-	public static function set_realm(string $domain = self::CMSMS_ADMIN_REALM) : string
+	public static function set_realm(string $domain = self::CMSMS_ADMIN_REALM): string
 	{
 		$old = self::$_default_domain;
 		if( $domain === '' ) $domain = self::CMSMS_ADMIN_REALM;

@@ -7,7 +7,7 @@
     {metadata nocache}{* Don't remove this! Metadata is entered in Site Admin/Global settings. *}
     <title>{sitename} - {title nocache}</title>
     {if isset($canonical)}<link rel="canonical" href="{$canonical}">{elseif isset($content_obj)}<link rel="canonical" href="{$content_obj->GetURL()}">{/if} {* see the News Detail template for how canonical url can be assigned from module *}
-    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@500&family=Noto+Sans:ital,wght@0,400;0,700;1,400&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@500&family=Noto+Sans:ital,wght@0,400;0,700;1,400&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap">
     {cms_stylesheet min=false}{* This is how the stylesheet(s) assigned to pages using this template are brought in. Omit min param for production. *}
     <link rel="icon" type="image/x-icon" href="{$_site_themes_url}/Steppo/media/favicon_cms.ico">
 {$fp=cms_join_path($_site_themes_path,'Steppo','js','functions.min.js')}{cms_queue_script file=$fp}

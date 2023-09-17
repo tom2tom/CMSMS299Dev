@@ -1,7 +1,7 @@
 <?php
 /*
 Class for CMS Made Simple ErrorPage content type
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -54,32 +54,32 @@ class ErrorPage extends ContentBase
 		$this->mType = strtolower(get_class($this)); //TODO BAD namespace
 	}
 
-	public function FriendlyName() : string
+	public function FriendlyName(): string
 	{
 		return $this->mod->Lang('contenttype_errorpage');
 	}
 
-	public function IsDefaultPossible() : bool
+	public function IsDefaultPossible(): bool
 	{
 		return false;
 	}
 
-	public function IsSystemPage() : bool
+	public function IsSystemPage(): bool
 	{
 		return true;
 	}
 
-	public function HandlesAlias() : bool
+	public function HandlesAlias(): bool
 	{
 		return true;
 	}
 
-	public function HasUsableLink() : bool
+	public function HasUsableLink(): bool
 	{
 		return false;
 	}
 
-	public function WantsChildren() : bool
+	public function WantsChildren(): bool
 	{
 		return false;
 	}
@@ -176,7 +176,7 @@ class ErrorPage extends ContentBase
 		}
 	}
 
-	public function TemplateResource() : string
+	public function TemplateResource(): string
 	{
 		return ''; //TODO
 	}
@@ -187,9 +187,6 @@ class ErrorPage extends ContentBase
 		// force not searchable.
 
 		$errors = parent::ValidateData();
-		if ($errors == false) {
-			$errors = [];
-		}
 
 		//Do our own alias check
 		if ($this->mAlias == '') {
@@ -200,7 +197,7 @@ class ErrorPage extends ContentBase
 			//TODO use module-methods
 			$contentops = Lone::get('ContentOperations');
 			$error = $contentops->CheckAliasError($this->mAlias, $this->mId);
-			if ($error !== false) {
+			if ($error) {
 				if ($error == $this->mod->Lang('aliasalreadyused')) {
 					$errors[] = $this->mod->Lang('errorpagealreadyinuse');
 				} else {
@@ -208,6 +205,6 @@ class ErrorPage extends ContentBase
 				}
 			}
 		}
-		return $errors ?: false;
+		return $errors;
 	}
 }

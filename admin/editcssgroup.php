@@ -1,7 +1,7 @@
 <?php
 /*
 Edit an existing or new stylesheets-group
-Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -134,8 +134,7 @@ $s2 = addcslashes(_ld('layout', 'msg_lostlock'), "'\n\r");
 $cancel = _la('cancel');
 
 $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
   var do_locking = $do_locking;
   if(do_locking) {
@@ -217,7 +216,6 @@ $(function() {
    }
   });
 });
-//]]>
 </script>
 
 EOS;

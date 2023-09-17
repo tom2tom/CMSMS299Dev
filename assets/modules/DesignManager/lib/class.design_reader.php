@@ -67,16 +67,17 @@ class design_reader extends reader_base
         // it validates.
     }
 
-    private function _scan()
+    private function _scan(): void
     {
         if( $this->_scanned ) return;
 
         $in = [];
 
-        $get_in = function() use ($in) {
+        $get_in = function() use ($in): string {
             if( $in ) {
                 return end($in);
             }
+            return '';
         };
 
         $cur_key = '';
@@ -478,12 +479,12 @@ class design_reader extends reader_base
         // expand templates
         $me = 'DesignManager'; //TODO
         $tpl_recs = $this->get_template_list();
-        foreach( $tpl_recs as &$tpl ) {
+        foreach( $tpl_recs as &$rec ) {
             $template = new Template();
             $template->set_originator($me);
-            $template->set_name($tpl['newname']);
-            if( isset($tpl['desc']) && $tpl['desc'] != '' ) $template->set_description($tpl['desc']);
-            $content = $tpl['data'];
+            $template->set_name($rec['newname']);
+            if( !empty($rec['desc']) ) $template->set_description($rec['desc']);
+            $content = $rec['data'];
 
             // substitute URL keys for the values.
             foreach( $this->_file_map as $key => &$rec ) {
@@ -507,9 +508,9 @@ class design_reader extends reader_base
             unset($rec);
 
             // substitute other template-keys in this content
-            foreach( $tpl_recs as $tpl2 ) {
-               if( $tpl2['key'] == $tpl['key'] ) continue;
-               $content = str_replace($tpl2['key'],$tpl2['newname'],$content);
+            foreach( $tpl_recs as $rec2 ) {
+               if( $rec2['key'] == $rec['key'] ) continue;
+               $content = str_replace($rec2['key'],$rec2['newname'],$content);
             }
 
             $template->set_content($content);
@@ -518,7 +519,7 @@ class design_reader extends reader_base
             // - try to find the template type
             // - if not, set the type to 'generic'.
             try {
-                $typename = $tpl['type_originator'].'::'.$tpl['type_name'];
+                $typename = $rec['type_originator'].'::'.$rec['type_name'];
                 $type_obj = TemplateType::load($typename);
                 $template->set_type($type_obj);
             }
@@ -529,10 +530,10 @@ class design_reader extends reader_base
             }
 
             $template->save();
-            $tpl['newname'] = $template->get_name(); // useless ?
+            $rec['newname'] = $template->get_name();
             $design->add_template($template);
         }
-        unset($tpl);
+        unset($rec);
 
         $design->save();
     } // import

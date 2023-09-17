@@ -4,6 +4,8 @@
 //use CMSMS\StylesheetOperations;
 //use CMSMS\TemplateOperations;
 use function cms_installer\lang;
+use function cms_installer\status_msg;
+use function cms_installer\verbose_msg;
 
 $name = $db->database;
 if ($name) {

@@ -14,6 +14,9 @@ use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\rrmdir;
 use function cms_installer\startswith;
+use function cms_installer\error_msg;
+use function cms_installer\status_msg;
+use function cms_installer\verbose_msg;
 use function cms_module_path;
 
 $done = lang('done');
@@ -328,7 +331,7 @@ $from3 = explode('|',
 $to3 = explode('|',
  '%|(|)|+|-'
 );
-$dentit = function($s) use ($from,$to,$from1,$from2,$from3,$to3) {
+$dentit = function(string $s) use ($from,$to,$from1,$from2,$from3,$to3): string {
     $s = str_replace($from, $to, $s);
     $s = str_replace($from3, $to3, $s);
     $s = preg_replace($from1, $to, $s);

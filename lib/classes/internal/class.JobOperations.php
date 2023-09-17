@@ -86,7 +86,7 @@ final class JobOperations
      * Get the interval between job-runs
      * @return int seconds
      */
-    public function get_async_freq() : int
+    public function get_async_freq(): int
     {
         return AppParams::get('jobinterval', 180); //seconds
     }
@@ -96,7 +96,7 @@ final class JobOperations
      * @param Job $job
      * @return bool
      */
-    public function job_recurs(Job $job) : bool
+    public function job_recurs(Job $job): bool
     {
         if ($job instanceof CronJob) {
             return $job->frequency != RecurType::RECUR_NONE;
@@ -110,7 +110,7 @@ final class JobOperations
      * @param Job $job
      * @return int
      */
-    public function calculate_next_start_time(Job $job) : int
+    public function calculate_next_start_time(Job $job): int
     {
         if (!$this->job_recurs($job)) {
             return 0;
@@ -247,7 +247,7 @@ final class JobOperations
      * @param bool $force optional flag whether to clear the store before polling. Default false
      * @return int count of job(s) processed
      */
-    public function refresh_jobs(bool $force = false) : int
+    public function refresh_jobs(bool $force = false): int
     {
         $res = 0;
 
@@ -357,7 +357,7 @@ final class JobOperations
      * @param Job $job
      * @return int id of updated|inserted Job | 0 upon error
      */
-    public function load_job(Job $job) : int
+    public function load_job(Job $job): int
     {
         $db = Lone::get('Db');
         if ($job->id == 0) {
@@ -569,7 +569,7 @@ final class JobOperations
      * Retrieve (up to 50) jobs from the current-jobs table
      * @return array up to 50 members, mebbe empty
      */
-    public function get_all_jobs() : array
+    public function get_all_jobs(): array
     {
         $now = time();
         $sql = 'SELECT * FROM '.self::TABLE_NAME." WHERE created < $now ORDER BY created";
@@ -675,7 +675,7 @@ final class JobOperations
      *
      * @return bool
      */
-    public function have_jobs() : bool
+    public function have_jobs(): bool
     {
         return $this->get_jobs(true);
     }
@@ -768,7 +768,7 @@ final class JobOperations
     /**
      * Report whether a lock is current
      */
-    public function is_locked() : bool
+    public function is_locked(): bool
     {
         $this->_lock = (int)AppParams::get(self::LOCKPREF);
         return ($this->_lock > 0);
@@ -862,7 +862,7 @@ final class JobOperations
 //            if ($log) {
 //                error_log('JobOperations: open stream '.$remote."\n", 3, $log);
 //            }
-            $req = "GET $path HTTP/1.1\r\nHost: {$host}\r\nContent-type: text/plain\r\nContent-length: 0\r\nConnection: Close\r\n\r\n";
+            $req = "GET $path HTTP/1.1\r\nHost: {$host}\r\nContent-Type: text/plain\r\nContent-length: 0\r\nConnection: Close\r\n\r\n";
             fputs($res, $req);
 //            if ($log) {
 //                error_log('stream-socket sent: '.$req."\n", 3, $log);
@@ -884,7 +884,7 @@ final class JobOperations
         }
     }
 
-    private function get_url_params(string $url) : array
+    private function get_url_params(string $url): array
     {
         $urlparts = parse_url($url);
         if (!$urlparts || empty($urlparts['host'])) {

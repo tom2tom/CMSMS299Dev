@@ -1,7 +1,7 @@
 <?php
 /*
 A class to work with data cached using the PHP YAC extension.
-Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -171,7 +171,7 @@ class CacheYac extends CacheDriver
 		return $this->instance->delete($key);
 	}
 
-	public function clear(string $space = '') : int
+	public function clear(string $space = ''): int
 	{
 		if (!$space) { $space = $this->_space; }
 		elseif ($space == '*' || $space == '__ALL__') { $space = ''; }
@@ -181,7 +181,7 @@ class CacheYac extends CacheDriver
 	/**
 	 * @ignore
 	 */
-	private function _write_cache(string $key, $value, int $ttl = -1) : bool
+	private function _write_cache(string $key, $value, int $ttl = -1): bool
 	{
 		if ($ttl == -1) {
 			$ttl = ($this->_auto_cleaning) ? 0 : $this->_lifetime;
@@ -197,7 +197,7 @@ class CacheYac extends CacheDriver
 	 * @ignore
 	 * @return int No of items removed (i.e. 0 might indicate success)
 	 */
-	private function _clean(string $space) : int
+	private function _clean(string $space): int
 	{
 		$prefix = ($space) ?
 			$this->get_cacheprefix(static::class, $space):

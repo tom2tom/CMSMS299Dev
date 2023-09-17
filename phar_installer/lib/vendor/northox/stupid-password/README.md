@@ -15,7 +15,7 @@ Here's the requirements:
 
 Additionally:
 
-* Online attacks should be mitigated by implementing anti-bruteforce techniques; 
+* Online attacks should be mitigated by implementing anti-bruteforce techniques;
   * e.g. [nicht anti-bruteforce](https://github.com/northox/nicht/blob/master/lib/nicht/Nicht.class.php#L633)
 * Offline attacks should be mitigated by using strong hashing algorithm such as PBKDF2.
   * e.g. [nicht](https://github.com/northox/nicht/blob/master/src/admin.php#L58) [PBKDF2](https://github.com/northox/nicht/blob/master/lib/nicht/MysqliNichtAuthPbkdf2.class.php#L65)
@@ -29,7 +29,7 @@ If you consider loosing up the requirements, be advised that removing the numeri
 
 ## 1337 speak conversion table
 
-    @ => a, o  
+    @ => a, o
     4 => a
     8 => b
     3 => e
@@ -79,7 +79,7 @@ $stupidPass = new StupidPass(40, $environmental, './StupidPass.default.dict', $h
 if($stupidPass->validate($PasswordToTest) === false) {
   print('Your password is weak:<br \>');
   foreach($stupidPass->getErrors() as $error) {
-    print($error . '<br />');
+    print($error . '<br>');
   }
 }
 ```

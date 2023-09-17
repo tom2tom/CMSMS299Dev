@@ -1,7 +1,7 @@
 <?php
 /*
 Class ContentEditContentAssistant: for building content-edit-content assistant objects
-Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -29,15 +29,13 @@ class ContentEditContentAssistant extends EditContentAssistant
 	public function getExtraCode()
 	{
 		return <<<'EOS'
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
   $('#design_id').on('change',function() {
     var v = $(this).val();
     //WHAT IS MISSING FROM HERE ??
   });
 });
-//]]>
 </script>
 EOS;
 	}

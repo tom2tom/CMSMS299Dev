@@ -1,7 +1,7 @@
 <?php
 /*
 News module upgrade process
-Copyright (C) 2005-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -43,7 +43,7 @@ $me = $this->GetName();
 
 if( version_compare($oldversion,'2.50') < 0 ) {
 
-    $_fix_name = function($str) {
+    $_fix_name = function(string $str): string {
         if( AdminUtils::is_valid_itemname($str) ) return $str;
         $orig = $str;
         $str = trim($str);
@@ -61,7 +61,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
     };
 
     // create template types.
-    $upgrade_template = function($type,$prefix,$tplname,$currentdflt,$prefix2) use (&$mod,&$_fix_name,$uid) {
+    $upgrade_template = function($type,$prefix,$tplname,$currentdflt,$prefix2) use (&$mod,&$_fix_name,$uid): void {
         if( !startswith($tplname,$prefix) ) return;
         $contents = $mod->GetTemplate($tplname);
         if( !$contents ) return;

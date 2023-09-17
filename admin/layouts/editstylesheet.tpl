@@ -1,5 +1,5 @@
 {capture assign='disable'}
-  {if $css.lock && ($css.lock.uid != $userid)}disabled{/if}
+{if $css.lock && ($css.lock.uid != $userid)} disabled{/if}
 {/capture}
 {*
 {if $css.id > 0}
@@ -26,7 +26,7 @@
   </div>
   <div class="pageoverflow">
     {$t=_ld('layout','prompt_name')}<label class="pagetext" for="css_name">*{$t}:</label>
-    {cms_help 0='layout' key='help_stylesheet_name' title=$t}
+    {cms_help realm='layout' key='help_stylesheet_name' title=$t}
     <div class="pageinput">
       <input id="css_name" type="text" name="name" size="40" maxlength="64" value="{$css.name}" placeholder="{_ld('layout','enter_name')}">
     </div>
@@ -36,14 +36,14 @@
  <div class="boxchild">
   <div class="pageoverflow">
     {$t=_ld('layout','prompt_created')}<label class="pagetext" for="css_created">{$t}:</label>
-    {cms_help 0='layout' key='help_stylesheet_created' title=$t}
+    {cms_help realm='layout' key='help_stylesheet_created' title=$t}
     <p class="pageinput">
       {$css.created|cms_date_format:'timed'}
     </p>
   </div>
   <div class="pageoverflow">
     {$t=_ld('layout','prompt_modified')}<label class="pagetext" for="css_modified">{$t}:</label>
-    {cms_help 0='layout' key='help_stylesheet_modified' title=$t}
+    {cms_help realm='layout' key='help_stylesheet_modified' title=$t}
     <p class="pageinput">
       {$css.modified|cms_date_format:'timed'}
     </p>
@@ -57,7 +57,7 @@
 {tab_header name='description' label=_ld('layout','prompt_description')}
 {tab_header name='media_query' label=_ld('layout','prompt_media_query')}
 {tab_header name='media_type' label=_ld('layout','prompt_media_type')}
-{* no design-association
+{* no design-association for stylesheets ? c.f. templates
 {if $has_designs_right}
  {tab_header name='designs' label=_ld('layout','prompt_designs')}
 {/if}
@@ -72,24 +72,24 @@
 {tab_start name='sheet'}
 <div class="pageoverflow">
   {$t=_ld('layout','prompt_stylesheet')}<label class="pagetext" for="edit_area">{$t}:</label>
-  {cms_help 0='layout' key='help_stylesheet_content' title=$t}
+  {cms_help realm='layout' key='help_stylesheet_content' title=$t}
   <div class="pageinput">
-    <textarea id="edit_area" name="content" data-cms-lang="css" rows="10" cols="40" style="width:40em;min-height:2em;max-height:20em;"{if !$can_manage} readonly="readonly"{/if}>{$css.content}</textarea>
+    <textarea id="edit_area" name="content" data-cms-lang="css" rows="10" cols="40" style="width:40em;min-height:2em;max-height:20em"{if !$can_manage} readonly="readonly"{/if}>{$css.content}</textarea>
   </div>
 </div>
 {tab_start name='description'}
 <div class="pageoverflow">
   {$t=_ld('layout','prompt_description')}<label class="pagetext" for="txt_description">{$t}:</label>
-  {cms_help 0='layout' key='help_css_description' title=$t}
+  {cms_help realm='layout' key='help_css_description' title=$t}
   <div class="pageinput">
-    <textarea id="txt_description" name="description" rows="3" cols="40" style="width:40em;min-height:2em;">{$css.description}</textarea>
+    <textarea id="txt_description" name="description" rows="3" cols="40" style="width:40em;min-height:2em">{$css.description}</textarea>
   </div>
 </div>
 {tab_start name='media_query'}
 <div class="pageinfo">{_ld('layout','info_editcss_mediaquery_tab')}</div>
 <div class="pageoverflow">
   {$t=_ld('layout','prompt_media_query')}<label class="pagetext" for="mediaquery">{$t}:</label>
-  {cms_help 0='layout' key='help_css_mediaquery' title=$t}
+  {cms_help realm='layout' key='help_css_mediaquery' title=$t}
   <div class="pageinput">
     <textarea id="mediaquery" name="media_query" rows="10" cols="80">{$css.media_query}</textarea>
   </div>
@@ -113,15 +113,19 @@
 {*
 {if $has_designs_right}
   {tab_start name='designs'}
+{if !empty($design_list)}
   <div class="pageoverflow">
     {$t=_ld('layout','prompt_designs')}<label class="pagetext" for="designlist">{$t}:</label>
-    {cms_help 0='layout' key='help_css_designs' title=$t}
+    {cms_help realm='layout' key='help_css_designs' title=$t}
     <div class="pageinput">
       <select id="designlist" name="design_list[]" multiple="multiple" size="5">
       {html_options options=$design_list selected=$css.designs} DISABLED
       </select>
     </div>
   </div>
+{else}
+  <p class="pageinfo">{_la('no_design')}</p>
+{/if}
 {/if}
 *}
 {*

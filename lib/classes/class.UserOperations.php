@@ -99,8 +99,7 @@ final class UserOperations
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	private function __clone() {}// : void {}
+	private function __clone(): void {}
 
 	/**
 	 * Get the singleton instance of this class
@@ -108,7 +107,7 @@ final class UserOperations
 	 *
 	 * @return UserOperations object
 	 */
-	public static function get_instance() : self
+	public static function get_instance(): self
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Lone::get(\'UserOperations\')'));
 		return Lone::get('UserOperations');
@@ -122,7 +121,7 @@ final class UserOperations
 	 * @param int $offset Optional recordset offset. Default 0.
 	 * @return array of User objects, or maybe empty
 	 */
-	public function LoadUsers(int $limit = 10000, int $offset = 0) : array
+	public function LoadUsers(int $limit = 10000, int $offset = 0): array
 	{
 //		if (!is_array($this->_users) || $limit != $this->_limit || $offset != $this->_offset) {
 		$db = Lone::get('Db');
@@ -168,7 +167,7 @@ final class UserOperations
 	 * @param int $gid Group enumerator for the wanted users
 	 * @return array of User objects, or maybe empty
 	 */
-	public function LoadUsersInGroup(int $gid) : array
+	public function LoadUsersInGroup(int $gid): array
 	{
 		$db = Lone::get('Db');
 		$pref = CMS_DB_PREFIX;
@@ -177,7 +176,7 @@ final class UserOperations
 SELECT U.user_id,U.account,U.username,U.password,U.first_name,U.last_name,U.email,U.active
 FROM {$pref}users U
 JOIN {$pref}user_groups UG ON U.user_id=UG.user_id
-JOIN {$pref}groups G ON UG.group_id=G.group_id
+JOIN `{$pref}groups` G ON UG.group_id=G.group_id
 WHERE G.group_id=?
 EOS;
 		$rst = $db->execute($query, [$gid]);
@@ -217,7 +216,7 @@ EOS;
 	 * @param bool $adminaccessonly Deprecated since 3.0 UNUSED Optional flag whether to load the user only if [s]he may log in Default false
 	 * @return mixed User object | null | false
 	 */
-	public function LoadUserByUsername(string $username, string $password = '', bool $activeonly = true, bool $adminaccessonly = false)// : mixed
+	public function LoadUserByUsername(string $username, string $password = '', bool $activeonly = true, bool $adminaccessonly = false)//: mixed
 	{
 		$db = Lone::get('Db');
 		$query = 'SELECT user_id,password FROM '.CMS_DB_PREFIX.'users WHERE ';
@@ -266,7 +265,7 @@ EOS;
 	 * @param int $uid User id to load
 	 * @return mixed populated User object | null
 	 */
-	public function LoadUserByID(int $uid) : ?User
+	public function LoadUserByID(int $uid): ?User
 	{
 		if ($uid < 1) {
 			return null;
@@ -307,7 +306,7 @@ EOS;
 	 * @param int $limit Optional timestamp latest time when the token is valid. Default time()
 	 * @return mixed populated User object | null
 	 */
-	public function LoadUserByToken(string $token, int $limit = 0) : ?User
+	public function LoadUserByToken(string $token, int $limit = 0): ?User
 	{
 		if ($limit == 0) { $limit = time(); }
 		$db = Lone::get('Db');
@@ -336,7 +335,7 @@ EOS;
 	 * @param mixed $limit Optional timestamp latest time when the token is valid.
 	 *  Default time() + 24 hrs Or null
 	 */
-	public function RecordToken(int $uid, $token, $limit = 0) : void
+	public function RecordToken(int $uid, $token, $limit = 0): void
 	{
 		if ($token) {
 			if ($limit == 0) { $limit = time() + 86400; }
@@ -356,7 +355,7 @@ EOS;
 	 * @return array 2 members like [id, login], or
 	 *  empty if the user is not recognized or not active
 	 */
-	public function GetUserByIdentifier($a) : array
+	public function GetUserByIdentifier($a): array
 	{
 		if (is_numeric($a)) {
 			$a = (int)$a;
@@ -407,7 +406,7 @@ EOS;
 	 * @param bool $friendly Optional flag, whether to prefer a 'public' name over login. Default false.
 	 * @return array ordered by id each member like id => login, or possibly empty
 	 */
-	public function GetUsers($active = false, $friendly = false) : array
+	public function GetUsers($active = false, $friendly = false): array
 	{
 		$db = Lone::get('Db');
 		if ($friendly) {
@@ -458,7 +457,7 @@ EOS;
 	 * @param mixed $userobj User object to save
 	 * @return int The new user id upon success | -1 on failure
 	 */
-	public function InsertUser(User $userobj) : int
+	public function InsertUser(User $userobj): int
 	{
 		$pref = CMS_DB_PREFIX;
 		//just in case account is not unique-indexed by the db
@@ -499,7 +498,7 @@ EOS;
 	 * @param mixed $userobj User object including the data to save
 	 * @return bool indicating success
 	 */
-	public function UpdateUser($userobj) : bool
+	public function UpdateUser($userobj): bool
 	{
 		$db = Lone::get('Db');
 		// check for username conflict
@@ -537,7 +536,7 @@ EOS;
 	 * @param int $uid Id of the user to delete
 	 * @return bool indicating success
 	 */
-	public function DeleteUserByID(int $uid) : bool
+	public function DeleteUserByID(int $uid): bool
 	{
 		if ($uid <= 1) {
 			return false;
@@ -579,7 +578,7 @@ EOS;
 	 * @param int $uid Id of the user to count
 	 * @return int Number of owned pages | 0 upon a problem
 	 */
-	public function CountPageOwnershipByID(int $uid) : int
+	public function CountPageOwnershipByID(int $uid): int
 	{
 		$db = Lone::get('Db');
 		$query = 'SELECT COUNT(*) FROM '.CMS_DB_PREFIX.'content WHERE owner_id = ?';
@@ -595,7 +594,7 @@ EOS;
 	 * @param int $offset Since 3.0 Optional recordset offset. Default 0.
 	 * @return array, each member like userid => user public name etc
 	 */
-	public function GetList(int $limit = 10000, int $offset = 0) : array
+	public function GetList(int $limit = 10000, int $offset = 0): array
 	{
 		$result = [];
 		$allusers = $this->LoadUsers($limit, $offset); // want id,username,firstname,lastname,
@@ -626,7 +625,7 @@ EOS;
 	 * @param string $name The HTML element name
 	 * @return string maybe empty
 	 */
-	public function GenerateDropdown(int $currentuserid = 0, string $name = 'ownerid') : string
+	public function GenerateDropdown(int $currentuserid = 0, string $name = 'ownerid'): string
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'GetList'));
 		$result = '';
@@ -652,7 +651,7 @@ EOS;
 	 * @param int $gid Group ID to test
 	 * @return bool indicating whether the test passes
 	 */
-	public function UserInGroup(int $uid, int $gid) : bool
+	public function UserInGroup(int $uid, int $gid): bool
 	{
 		$groups = $this->GetMemberGroups($uid);
 		return in_array($gid, $groups);
@@ -665,7 +664,7 @@ EOS;
 	 * @param int $uid
 	 * @return bool
 	 */
-	public function IsSuperuser(int $uid) : bool
+	public function IsSuperuser(int $uid): bool
 	{
 		if ($uid == 1) {
 			return true;
@@ -685,7 +684,7 @@ EOS;
 	 * @param int $uid
 	 * @return array
 	 */
-	public function GetMemberGroups(int $uid) : array
+	public function GetMemberGroups(int $uid): array
 	{
 		if (!is_array($this->_user_groups) || !isset($this->_user_groups[$uid])) {
 			$db = Lone::get('Db');
@@ -705,7 +704,7 @@ EOS;
 	 * @param int $uid
 	 * @param int $gid
 	 */
-	public function AddMemberGroup(int $uid, int $gid) : void
+	public function AddMemberGroup(int $uid, int $gid): void
 	{
 		if ($uid < 1 || $gid < 1) {
 			return;
@@ -732,7 +731,7 @@ EOS;
 	 *  optionally with following bool to indicate type (AND|OR) of check wanted
 	 * @return bool
 	 */
-	public function CheckPermission(int $uid, $permname) : bool
+	public function CheckPermission(int $uid, $permname): bool
 	{
 		if ($uid <= 0) {
 			return false;
@@ -776,7 +775,7 @@ EOS;
 	 * @param mixed $userobj User object | null to process current user
 	 * return bool indicating expiry
 	 */
-	public function PasswordExpired(?User $userobj = null) : bool
+	public function PasswordExpired(?User $userobj = null): bool
 	{
 //		$val = AppParams::get('password_life', 0);
 //		if ($val > 0) {
@@ -811,7 +810,7 @@ EOS;
 	 *  (as opposed to addition) is in progress. Default false
 	 * @return bool indicating validity (incl. true if no p/w-change)
 	 */
-	public function PasswordCheck($a, string $candidate, bool $update = false) : bool
+	public function PasswordCheck($a, string $candidate, bool $update = false): bool
 	{
 		if (is_numeric($a)) {
 			$userobj = $this->LoadUserByID((int)$a);
@@ -844,7 +843,7 @@ EOS;
 	 * @param string $password
 	 * @return string
 	 */
-	public function PreparePassword(string $password) : string
+	public function PreparePassword(string $password): string
 	{
 /*		// for 'new' passwords, factor in a not-in-db string, per NIST recommendation
 		$config = Lone::get('Config');
@@ -865,7 +864,7 @@ EOS;
 	 * @param string $username
 	 * @return string, 40 bytes
 	 */
-	public function PrepareUserhash(string $username) : string
+	public function PrepareUserhash(string $username): string
 	{
 		$val = hash('sha3-224', $username); // 56-bytes
 		$blocks = str_split($val, 7); // segment it to avoid 32-bit integer overflow in base10
@@ -895,10 +894,10 @@ EOS;
 	 *  (as opposed to addition) is in progress. Default false
 	 * @return bool indicating validity (incl. true if no change)
 	 */
-	public function UsernameCheck(User $userobj, string $candidate, bool $update = false) : bool
+	public function UsernameCheck(User $userobj, string $candidate, bool $update = false): bool
 	{
 //		$mod = Lone::get('ModuleOperations')->GetAdminLoginModule();
-//		list($valid, $msg) = $mod->check_username($userobj, $candidate, $update);
+//		[$valid, $msg] = $mod->check_username($userobj, $candidate, $update);
 //		$aout = HookOperations::do_hook_accumulate('Core::UsernameTest', $userobj, $candidate);
 //		if ($this->ReserveUsername($candidate)) { // TODO support no-change during update process
 //			return false;
@@ -926,7 +925,7 @@ EOS;
 	 * @param bool $update Flag indicating a user-update is in progress
 	 * @return bool
 	 */
-	private function UsernameAvailable(User $userobj, string $candidate, bool $update) : bool
+	private function UsernameAvailable(User $userobj, string $candidate, bool $update): bool
 	{
 		$db = Lone::get('Db');
 		$acct = $this->PrepareUserhash(trim($candidate));
@@ -947,7 +946,7 @@ EOS;
 	 *  (as opposed to addition) is under way Default false
 	 * @return string html error message or empty if no problem detected
 	 */
-	public function CredentialsCheck(User $userobj, $username, $password, bool $update = false) : string
+	public function CredentialsCheck(User $userobj, $username, $password, bool $update = false): string
 	{
 		$msg = ''; //feedback err msg holder (html)
 		Events::SendEvent('Core', 'CheckUserData', [
@@ -974,7 +973,7 @@ EOS;
 	 * @param int $updateby id of user who wants the name, or 0 to ignore
 	 * @return bool indicating $username is not already taken
 	 * /
-	public function ReserveUsername(string $username, int $updateby = 0) : bool
+	public function ReserveUsername(string $username, int $updateby = 0): bool
 	{
 		$db = Lone::get('Db');
 		$tval = trim($username);
@@ -1008,7 +1007,7 @@ EOS;
 	 * @param int	 $uid Optional user id, used if $username not provided
 	 * @return mixed User object | null if the user is not recognized
 	 */
-	public function GetRecoveryData(string $username = '', int $uid = -1) : ?User
+	public function GetRecoveryData(string $username = '', int $uid = -1): ?User
 	{
 		$db = Lone::get('Db');
 		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE ';
@@ -1037,7 +1036,7 @@ EOS;
 	 * @param int $uid
 	 * @param string $password
 	 */
-	private function trigger($db, $uid, $password) : void
+	private function trigger($db, $uid, $password): void
 	{
 		$hash = $this->PreparePassword($password);
 		$query = 'UPDATE '.CMS_DB_PREFIX.'users SET password = ? WHERE user_id = ?';
@@ -1051,7 +1050,7 @@ EOS;
 	 * @param object $userobj user data
 	 * @return bool result from the attempt to send the message
 	 */
-	public function SendRecoveryEmail(User $userobj) : bool
+	public function SendRecoveryEmail(User $userobj): bool
 	{
 		$to = trim($userobj->firstname.' '.$userobj->lastname.' <'.$userobj->email.'>');
 		if ($to[0] == '<') {
@@ -1078,7 +1077,7 @@ EOS;
 	 * @param object $mod current module-object
 	 * @return bool result from the attempt to send the message
 	 */
-	public function SendReplacementEmail(User $userobj) : bool
+	public function SendReplacementEmail(User $userobj): bool
 	{
 		$to = trim($userobj->firstname.' '.$userobj->lastname.' <'.$userobj->email.'>');
 		if ($to[0] == '<') {
@@ -1104,7 +1103,7 @@ EOS;
 	 *
 	 * @return string 40 hexa bytes or empty
 	 */
-	public function DefaultKey() : string
+	public function DefaultKey(): string
 	{
 		$result = '';
 		$fp = cms_join_path(CMS_ASSETS_PATH, 'configs', 'master.dat');
@@ -1123,7 +1122,7 @@ EOS;
 	 * @param string $pw optional specific password
 	 * @return string maybe empty
 	 */
-	public function Distort(string $value, string $salt, string $pw = '') : string
+	public function Distort(string $value, string $salt, string $pw = ''): string
 	{
 		if ($value || is_numeric($value)) {
 			if (!$pw) {
@@ -1148,7 +1147,7 @@ EOS;
 	 * @param string $pw optional
 	 * @return string maybe empty
 	 */
-	public function Restore(string $value, string $salt, string $pw = '') : string
+	public function Restore(string $value, string $salt, string $pw = ''): string
 	{
 		if ($value) {
 			if (!$pw) {
@@ -1172,7 +1171,7 @@ EOS;
 	 * @param mixed $value string | string[]
 	 * @return mixed string | string[] some or may be empty
 	 */
-	public function PlainValue(/*mixed */$value)// : mixed
+	public function PlainValue(/*mixed */$value)//: mixed
 	{
 		if (is_array($value)) {
 			$salt = $this->DefaultKey();

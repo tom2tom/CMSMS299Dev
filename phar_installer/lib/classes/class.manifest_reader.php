@@ -201,7 +201,7 @@ class manifest_reader
                         $fh = bzopen($tmpname, 'r');
                         if (!$fh) {
                             echo "DEBUG: bzopen on ".$this->_filename.'<br>';
-                            throw new Exception(lang('error_internal', 'mr105'));
+                            throw new Exception(lang('error_internal', 'mr106'));
                         }
                         $content = '';
                         while (!feof($fh)) {
@@ -225,7 +225,7 @@ class manifest_reader
                         $fh = ZipArchive::open($tmpname, ZipArchive::RDONLY);
                         if (!$fh) {
                             echo "DEBUG: ZipArchive::open on ".$this->_filename.'<br>';
-                            throw new Exception(lang('error_internal', 'mr105'));
+                            throw new Exception(lang('error_internal', 'mr107'));
                         }
                         $content = $fh->getFromName('MANIFEST.DAT');
                         $fh->close();

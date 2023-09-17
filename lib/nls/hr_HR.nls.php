@@ -1,6 +1,6 @@
 <?php
 #Croatian translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -34,11 +34,11 @@ $nls['englishlang']['hr_HR'] = 'Croatian';
 
 #Possible aliases for language
 $nls['alias']['hr'] = 'hr_HR';
-$nls['alias']['croatian'] = 'hr_HR' ;
-$nls['alias']['hrvatski'] = 'hr_HR' ;
-$nls['alias']['hr_HR'] = 'hr_HR' ;
-$nls['alias']['hr_HR.WINDOWS-1250'] = 'hr_HR' ;
-$nls['alias']['hr_HR.ISO8859-2'] = 'hr_HR' ;
+$nls['alias']['croatian'] = 'hr_HR';
+$nls['alias']['hrvatski'] = 'hr_HR';
+$nls['alias']['hr_HR'] = 'hr_HR';
+$nls['alias']['hr_HR.WINDOWS-1250'] = 'hr_HR';
+$nls['alias']['hr_HR.ISO8859-2'] = 'hr_HR';
 
 #Possible locale for language
 $nls['locale']['hr_HR'] = 'hr_HR.utf8,hr_HR.utf-8,hr_HR.UTF-8,hr_HR,croatian,Croatian_Croatia.1250';
@@ -47,11 +47,10 @@ $nls['locale']['hr_HR'] = 'hr_HR.utf8,hr_HR.utf-8,hr_HR.UTF-8,hr_HR,croatian,Cro
 $nls['encoding']['hr_HR'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['hr_HR'] = array(__DIR__.'/hr_HR/admin.inc.php');
+$nls['file']['hr_HR'] = [__DIR__.'/hr_HR/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['hr_HR'] = 'hr';
-?>

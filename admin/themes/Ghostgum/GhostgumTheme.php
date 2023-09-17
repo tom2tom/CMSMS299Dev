@@ -1,7 +1,7 @@
 <?php
 /*
 Ghostgum - an admin theme for CMS Made Simple
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Tom Phane and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -67,9 +67,9 @@ class GhostgumTheme extends AdminTheme
 	 * [0] = array of data for js vars, members like varname=>varvalue
 	 * [1] = array of string(s) for includables
 	 */
-	public function AdminHeaderSetup() : array
+	public function AdminHeaderSetup(): array
 	{
-		list($vars, $add_list) = parent::AdminHeaderSetup();
+		[$vars, $add_list] = parent::AdminHeaderSetup();
 
 		$incs = cms_installed_jquery(true, true, true, true);
 
@@ -176,8 +176,8 @@ EOS;
  <link rel="stylesheet" href="themes/Ghostgum/styles/{$fn}.min.css">
 
 EOS;
-//		get_csp_token(); //setup CSP header (result not used)
-		$tpl = ' <script type="text/javascript" src="%s"></script>'.PHP_EOL;
+//		$nonce = get_csp_token(); //setup CSP header (result not used)
+		$tpl = ' <script src="%s"></script>'.PHP_EOL;
 		// scripts: jquery, jquery-ui
 		$incs = cms_installed_jquery(true, false, true, false);
 		$url = cms_path_to_url($incs['jqcore']);
@@ -197,7 +197,7 @@ EOS;
 	 *  usually null to use the whole menu
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function fetch_menu_page(string $section_name) : ?string
+	public function fetch_menu_page(string $section_name): ?string
 	{
 		$smarty = Lone::get('Smarty');
 		if ($section_name) {
@@ -223,7 +223,7 @@ EOS;
 	 * @param string $content page content to be processed
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function fetch_page(string $content) : ?string
+	public function fetch_page(string $content): ?string
 	{
 		$smarty = Lone::get('Smarty');
 		$userid = get_userid(false);
@@ -361,7 +361,7 @@ EOS;
 		return $smarty->fetch('pagetemplate.tpl');
 	}
 
-	public function DisplayImage(string $image, string $alt = '', $width = 0, $height = 0, string $class = '', array $attrs = []) : string
+	public function DisplayImage(string $image, string $alt = '', $width = 0, $height = 0, string $class = '', array $attrs = []): string
 	{
 		//[.../]icons/system/* are processed here, custom handling is needed for in-sprite svg's
 		if (strpos($image, 'system') === false) {

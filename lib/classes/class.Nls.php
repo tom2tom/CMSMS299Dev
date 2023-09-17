@@ -1,7 +1,7 @@
 <?php
 /*
 Class to provide data and methods for encapsulating a language
-Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -119,7 +119,7 @@ class Nls
 	public function isocode()
 	{
 		if( !empty($this->_isocode) ) return $this->_isocode;
-		return substr($this->_fullname, 0, 2);
+		return substr($this->fullname(), 0, 2);
 	}
 
 	/**
@@ -170,7 +170,7 @@ class Nls
 	{
 		if( !empty($this->_aliases) ) {
 			if( is_array($this->_aliases) ) return $this->_aliases;
-			return explode(',',$this->_aliases);
+			return explode(',' , $this->_aliases);
 		}
 		return [];
 	}
@@ -204,7 +204,7 @@ class Nls
 	public function htmlarea()
 	{
 		if( !empty($this->_htmlarea) ) return $this->_htmlarea;
-		return substr($this->_fullname, 0, 2);
+		return substr($this->fullname(), 0, 2);
 	}
 
 	/**
@@ -228,7 +228,7 @@ class Nls
 		}
 
 		// get the display value
-		if( isset($data['language'][$obj->_key]) ) $obj->_display = $data['language'][$obj->_key];
+		$obj->_display = $data['language'][$obj->_key] ?? '';
 
 		// get the isocode?
 		if( isset($data['isocode'][$obj->_key]) ) {
@@ -236,22 +236,23 @@ class Nls
 		}
 		else {
 			$t = explode('_',$obj->_key);
-			if( $t ) $obj->_isocode = $t[0];
+			if( $t ) { $obj->_isocode = $t[0]; }
+			else { $obj->_isocode = ''; }
 		}
 
 		// get the locale
-		if( isset($data['locale'][$obj->_key]) ) $obj->_locale = $data['locale'][$obj->_key];
+		$obj->_locale = $data['locale'][$obj->_key] ?? '';
 
 		// get the encoding
-		if( isset($data['encoding'][$obj->_key]) ) $obj->_encoding = strtoupper($data['encoding'][$obj->_key]);
+		$obj->_encoding = ( isset($data['encoding'][$obj->_key]) ) ? strtoupper($data['encoding'][$obj->_key]) : '';
 
-		if( isset($data['htmlarea'][$obj->_key]) ) $obj->_htmlarea = $data['htmlarea'][$obj->_key];
+		$obj->_htmlarea = $data['htmlarea'][$obj->_key] ?? '';
 
 		// get the direction
-		if( isset($data['direction'][$obj->_key]) ) $obj->_direction = strtolower($data['direction'][$obj->_key]);
+		$obj->_direction = ( isset($data['direction'][$obj->_key]) ) ? strtolower($data['direction'][$obj->_key]) : '';
 
 		// get aliases
-		if( isset($data['alias']) ) $obj->_aliases= array_keys($data['alias']);
+		$obj->_aliases = ( isset($data['alias']) ) ? array_keys($data['alias']) : [];
 
 		if( $obj->_key == '' ) {
 			debug_display($data);

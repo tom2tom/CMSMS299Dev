@@ -1,7 +1,7 @@
 <?php
 /*
 News module for CMSMS
-Copyright (C) 2005-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This module is free software; you can redistribute it and/or modify
@@ -299,7 +299,7 @@ class News extends CMSModule
 */
     //TODO some of these might be better placed in the Utils class
 
-    public function GetDateFormat() : string
+    public function GetDateFormat(): string
     {
         return $this->GetPreference('date_format', '%e %B %Y %l:%M %p'); //TODO replace deprecated strftime() formats
     }
@@ -311,7 +311,7 @@ class News extends CMSModule
      * @param mixed $datetime string | null
      * @return string, maybe empty
      */
-    public function FormatforDisplay($datetime) : string
+    public function FormatforDisplay($datetime): string
     {
         if( $datetime ) {
             $fmt = $this->GetDateFormat();

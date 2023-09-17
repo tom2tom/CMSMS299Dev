@@ -1,6 +1,6 @@
 <?php
 #Serbian translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -34,11 +34,11 @@ $nls['englishlang']['sr_YU'] = 'Serbian';
 
 #Possible aliases for language
 $nls['alias']['sr'] = 'sr_YU';
-$nls['alias']['serbian'] = 'sr_YU' ;
-$nls['alias']['srpski'] = 'sr_YU' ;
-$nls['alias']['sr_YU'] = 'sr_YU' ;
-$nls['alias']['sr_YU.WINDOWS-1250'] = 'sr_YU' ;
-$nls['alias']['sr_YU.ISO8859-2'] = 'sr_YU' ;
+$nls['alias']['serbian'] = 'sr_YU';
+$nls['alias']['srpski'] = 'sr_YU';
+$nls['alias']['sr_YU'] = 'sr_YU';
+$nls['alias']['sr_YU.WINDOWS-1250'] = 'sr_YU';
+$nls['alias']['sr_YU.ISO8859-2'] = 'sr_YU';
 
 #Possible locale for language
 $nls['locale']['sr_YU'] = 'sr_YU.utf-8,sr_YU.UTF-8,sr_RS.sr_RS.utf-8,sr_YU,sr_RS,serbian';
@@ -47,11 +47,10 @@ $nls['locale']['sr_YU'] = 'sr_YU.utf-8,sr_YU.UTF-8,sr_RS.sr_RS.utf-8,sr_YU,sr_RS
 $nls['encoding']['sr_YU'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['sr_YU'] = array(__DIR__.'/sr_YU/admin.inc.php');
+$nls['file']['sr_YU'] = [__DIR__.'/sr_YU/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['sr_YU'] = 'sr';
-?>

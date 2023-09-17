@@ -1,7 +1,7 @@
 <?php
 /*
 Class: content searcher for News module
-Copyright (C) 2016-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -42,7 +42,7 @@ final class AdminSearch_slave extends Base_slave
         return $mod->Lang('desc_adminsearch');
     }
 
-//  public function use_slave(int $userid = 0) : bool {}
+//  public function use_slave(int $userid = 0): bool {}
 
     protected function check_permission(int $userid = 0)
     {

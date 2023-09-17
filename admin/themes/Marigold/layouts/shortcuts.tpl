@@ -14,69 +14,69 @@
       {/if}
     {/if}
     <li class="help">
-      <a href="javascript:MG.aboutToggle();" title="{'about'|lang}"><i class="fa fa-info"></i></a>
+      <a href="javascript:MG.aboutToggle();" title="{lang('about')}"><i class="fa fa-info"></i></a>
     </li>
     <li class="help">
-      <a href="https://forum.cmsmadesimple.org" rel="external" title="{'forums'|lang}"><i class="fa fa-comments-o"></i></a>
+      <a href="https://forum.cmsmadesimple.org" rel="external" title="{lang('forums')}"><i class="fa fa-comments-o"></i></a>
     </li>
     <li class="help">
     {if isset($module_help_url)}
-      <a href="{$module_help_url}" title="{'module_help'|lang}"><i class="fa fa-question-circle"></i></a>
+      <a href="{$module_help_url}" title="{lang('module_help')}"><i class="fa fa-question-circle"></i></a>
     {else}
-      <a href="https://docs.cmsmadesimple.org/" rel="external" title="{'documentation'|lang}"><i class="fa fa-question"></i></a>
+      <a href="https://docs.cmsmadesimple.org/" rel="external" title="{lang('documentation')}"><i class="fa fa-question"></i></a>
     {/if}
     </li>
     <li class="help">
     {if isset($site_help_url)}
-      <a href="{$site_help_url}" title="{'site_support'|lang}"><i class="fa fa-life-ring"></i></a>
+      <a href="{$site_help_url}" title="{lang('site_support')}"><i class="fa fa-life-ring"></i></a>
     {else}
-      <a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{'site_support'|lang}"><i class="fa fa-life-ring"></i></a>
+      <a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{lang('site_support')}"><i class="fa fa-life-ring"></i></a>
     {/if}
     </li>
     {if isset($marks)}
     <li class="favorites open">
-      <a href="listbookmarks.php?{$secureparam}" title="{'bookmarks'|lang}"><i class="fa fa-bookmark"></i></a>
+      <a href="listbookmarks.php?{$secureparam}" title="{lang('bookmarks')}"><i class="fa fa-bookmark"></i></a>
     </li>
     {else}
     <li style="width:1.5rem"></li>
     {/if}
     {if isset($myaccount)}
     <li class="settings">
-      <a href="usersettings.php?{$secureparam}" title="{'title_mysettings'|lang}"><i class="fa fa-sliders fa-rotate-90"></i></a>
+      <a href="usersettings.php?{$secureparam}" title="{lang('title_mysettings')}"><i class="fa fa-sliders fa-rotate-90"></i></a>
     </li>
     {/if}
     <li class="view-site">
-      <a href="{root_url}/index.php" rel="external" target="_blank" title="{'viewsite'|lang}"><i class="cfi-mainsite"></i></a>
+      <a href="{root_url}/index.php" rel="external" target="_blank" title="{lang('viewsite')}"><i class="cfi-mainsite"></i></a>
     </li>
     <li class="logout">
 {*TODO replace onclick handler*}
-      <a href="logout.php?{$secureparam}" title="{'logout'|lang}"{if isset($is_sitedown)} onclick="return confirm('{"maintenance_warning"|lang|escape:"javascript"}');"{/if}><i class="cfi-logout"></i></a>
+      <a href="logout.php?{$secureparam}" title="{lang('logout')}"{if isset($is_sitedown)} onclick="return confirm('{lang("maintenance_warning")|escape:"javascript"}');"{/if}><i class="cfi-logout"></i></a>
     </li>
   </ul>
 </div>
-<a id="aboutinfo" style="display:none;" href="javascript:MG.aboutToggle();">CMSMS {'version'|lang} {cms_version} &ldquo;{cms_versionname}&rdquo;</a>
+<a id="aboutinfo" style="display:none" href="javascript:MG.aboutToggle()">CMSMS {lang('version')} {cms_version} &ldquo;{cms_versionname}&rdquo;</a>
 {if isset($marks)}
-<div class="dialog invisible" role="dialog" title="{'bookmarks'|lang}">
+<div class="dialog invisible" role="dialog" title="{lang('bookmarks')}">
   {if is_array($marks) && count($marks)}
-    <h3>{'user_created'|lang}</h3>
+    <h3>{lang('user_created')}</h3>
     <ul>
     {foreach $marks as $mark}
      <li><a{if $mark->bookmark_id > 0} class="bookmark"{/if} href="{$mark->url}" title="{$mark->title}">{$mark->title}</a></li>
     {/foreach}
     </ul>
   {/if}
-  <h3>{'help'|lang}</h3>
+  <h3>{lang('help')}</h3>
   <ul>
-    <li><a rel="external" class="external" href="https://docs.cmsmadesimple.org" title="{'documentation'|lang}">{'documentation'|lang}</a></li>
-    <li><a rel="external" class="external" href="https://forum.cmsmadesimple.org" title="{'forums'|lang}">{'forums'|lang}</a></li>
-    <li><a rel="external" class="external" href="http://cmsmadesimple.org/main/support/IRC">{'irc'|lang}</a></li>
+    <li><a rel="external" class="external" href="https://docs.cmsmadesimple.org" title="{lang('documentation')}">{lang('documentation')}</a></li>
+    <li><a rel="external" class="external" href="https://forum.cmsmadesimple.org" title="{lang('forums')}">{lang('forums')}</a></li>
+    <li><a rel="external" class="external" href="http://cmsmadesimple.org/main/support/IRC">{lang('irc')}</a></li> QQQ IRC
   </ul>
 </div>
 {/if}
 
 {if !empty($my_alerts)}
 <!-- alerts go here -->
-<div id="alert-dialog" role="dialog" title="{_la('alerts')}" style="display: none;">
+<div id="alert-dialog" role="dialog" title="{_la('alerts')}" style="display:none">
   <ul>
   {foreach $my_alerts as $one}
   <li class="alert-box" data-alert-name="{$one->get_prefname()}">
@@ -94,7 +94,7 @@
   </li>
   {/foreach}
   </ul>
-  <div id="alert-noalerts" class="information" style="display: none;">{_la('info_noalerts')}</div>
+  <div id="alert-noalerts" class="information" style="display:none">{_la('info_noalerts')}</div>
 </div>
 {/if}
 <!-- alerts-end -->

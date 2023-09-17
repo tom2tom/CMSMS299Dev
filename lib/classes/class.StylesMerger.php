@@ -49,7 +49,7 @@ class StylesMerger
      *
      * @return int 1..5 The current default priority
      */
-    public function get_style_priority() : int
+    public function get_style_priority(): int
     {
         return $this->_item_priority;
     }
@@ -163,7 +163,7 @@ class StylesMerger
      * @param mixed  $custompaths Optional string | string[] custom places to search before defaults
      * @return bool indicating success
      */
-    public function queue_matchedfile(string $filename, int $priority = 0, bool $min = false, $custompaths = '') : bool
+    public function queue_matchedfile(string $filename, int $priority = 0, bool $min = false, $custompaths = ''): bool
     {
         $cache_filename = cms_get_css($filename, false, $custompaths);
         if ($cache_filename) {
@@ -178,7 +178,7 @@ class StylesMerger
      * @param string $content
      * @return string
      */
-    protected function minimize(string $content) : string
+    protected function minimize(string $content): string
     {
         // not perfect, but very close ...
         $str = preg_replace(
@@ -277,7 +277,7 @@ class StylesMerger
      *  of the merged file. Default false
      * @return string html like <link ... > | ''
      */
-    public function page_content(string $output_path = '', bool $force = false) : string
+    public function page_content(string $output_path = '', bool $force = false): string
     {
         $base_path = ($output_path) ? rtrim($output_path, ' \/') : TMP_CACHE_LOCATION;
         $cache_filename = $this->render_styles($base_path, $force);
@@ -297,7 +297,7 @@ class StylesMerger
      * @param string $sourcepath absolute filepath, from where $content was retrieved
      * @return string
      */
-    protected function clean_urls(string $content, string $sourcepath) : string
+    protected function clean_urls(string $content, string $sourcepath): string
     {
         $base = $sourcepath;
         $converted = false;
@@ -335,7 +335,7 @@ class StylesMerger
      * @param string $in filepath or URL
      * @return string
      */
-    protected function url_to_path(string $in) : string
+    protected function url_to_path(string $in): string
     {
         $in = trim($in, " \t\r\n'\"");
         if (strpos($in, '\\') !== false || realpath($in)) {
@@ -358,7 +358,7 @@ class StylesMerger
      * @param string $in
      * @return string
      */
-    protected function path_to_url(string $in) : string
+    protected function path_to_url(string $in): string
     {
         if (($p = strpos($in, CMS_ROOT_PATH)) === 0) {
             $s = substr($in, strlen(CMS_ROOT_PATH));

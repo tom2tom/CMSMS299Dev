@@ -13,6 +13,9 @@ use CMSMS\TemplateType;
 use LogicException;
 use UnexpectedValueException;
 use function cms_installer\endswith;
+use function cms_installer\error_msg;
+use function cms_installer\status_msg;
+use function cms_installer\verbose_msg;
 
 set_time_limit(3600);
 status_msg('Fixing errors with deprecated plugins in versions prior to CMSMS 2.0');
@@ -39,6 +42,9 @@ $return = $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->AlterColumnSQL(CMS_DB_PREFIX.'content_props', 'content X2');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'i_modifieddate', CMS_DB_PREFIX.'content', 'modified_date');
+$return = $dbdict->ExecuteSQLArray($sqlarray);
+//possible prior bad upgrade
+$sqlarray = $dbdict->RenameTableSQL(CMS_DB_PREFIX.'event_handler_seq', CMS_DB_PREFIX.'event_handlers_seq');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 
 verbose_msg('add index to the module plugins table');
@@ -259,7 +265,7 @@ if (!is_object($page_template_type) || !is_object($gcb_template_type)) {
     throw new LogicException('This is bad');
 }
 
-$_fix_name = function($str) {
+$_fix_name = function(string $str): string {
     if (AdminUtils::is_valid_itemname($str)) {
         return $str;
     }
@@ -286,7 +292,7 @@ $_fix_name = function($str) {
     return $str;
 };
 
-$_fix_css_name = function($str) {
+$_fix_css_name = function(string $str): string {
     // stylesheet names cannot end with .css and must be unique
     if (!endswith($str, '.css') && AdminUtils::is_valid_itemname($str)) {
         return $str;
@@ -314,7 +320,7 @@ $_fix_css_name = function($str) {
     return $str;
 };
 
-$fix_template_name = function($in) use (&$db,&$_fix_name) {
+$fix_template_name = function(string $in) use ($_fix_name): string {
     // template names have to be unique and cannot end with .tpl
     if (endswith($in, '.tpl')) {
         $in = substr($in, 0, -4);

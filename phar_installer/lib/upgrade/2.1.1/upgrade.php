@@ -1,5 +1,7 @@
 <?php
 
+use function cms_installer\status_msg;
+
 status_msg('Upgrading schema for CMSMS 2.1.1');
 
 //$gCms = cmsms();

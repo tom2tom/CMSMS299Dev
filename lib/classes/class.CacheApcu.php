@@ -1,7 +1,7 @@
 <?php
 /*
 A class to work with data cached using the PHP APCu extension.
-Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -148,7 +148,7 @@ class CacheApcu extends CacheDriver
 		return apcu_delete($key);
 	}
 
-	public function clear(string $space = '') : int
+	public function clear(string $space = ''): int
 	{
 		if (!$space) { $space = $this->_space; }
 		elseif ($space == '*' || $space == '__ALL__') { $space = ''; }
@@ -158,7 +158,7 @@ class CacheApcu extends CacheDriver
 	/**
 	 * @ignore
 	 */
-	private function _write_cache(string $key, $value) : bool
+	private function _write_cache(string $key, $value): bool
 	{
 		$ttl = ($this->_auto_cleaning) ? 0 : $this->_lifetime;
 		return apcu_store($key, $value, $ttl);
@@ -168,7 +168,7 @@ class CacheApcu extends CacheDriver
 	 * @ignore
 	 * @return int No of items removed (i.e. 0 might indicate success)
 	 */
-	private function _clean(string $space, bool $aged = true) : int
+	private function _clean(string $space, bool $aged = true): int
 	{
 		$prefix = ($space) ?
 			$this->get_cacheprefix(static::class, $space):

@@ -1,7 +1,7 @@
 <?php
 /*
 Admin log management class
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -55,14 +55,13 @@ final class LogOperations implements ILogManager
     /**
      * @ignore
      */
-    #[\ReturnTypeWillChange]
-    private function __clone() {}// : void {}
+    private function __clone(): void {}
 
     /**
      * Get the singleton instance of this class.
      * @return LogOperations
      */
-    public static function get_instance() : self
+    public static function get_instance(): self
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\Lone::get(\'LogOperations\')'));
         return Lone::get('LogOperations');

@@ -1,7 +1,7 @@
 <?php
 /*
 This file is part of CMS Made Simple module: OutMailer
-Copyright (C) 2005-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Refer to licence and other details at the top of file OutMailer.module.php
 More info at http://dev.cmsmadesimple.org/projects/outmailer
 */
@@ -147,7 +147,7 @@ abstract class base_email_platform
      *
      * @return string [x]html for echo into admin display, or maybe empty
      */
-    public function get_setup_form() : string
+    public function get_setup_form(): string
     {
         $mod = $this->mod;
         $pmod = $mod->CheckPermission('Modify Email Gateways');

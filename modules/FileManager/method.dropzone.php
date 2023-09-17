@@ -2,7 +2,7 @@
 /*
 FileManager module action: dropzone
 Copyright (C) 2006-2008 Morten Poulsen <morten@poulsen.org>
-Copyright (C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -62,8 +62,7 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 } elseif ($template == 'dropzone.tpl') {
     $chdir_url = $this->create_action_url($id, 'changedir', ['forjs' => 1, CMS_JOB_KEY => 1]);
     $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
   $('.drop .dialog').on('dialogopen', function(event, ui) {
     $.get('$chdir_url', function(data) {
@@ -104,7 +103,6 @@ $(function() {
     }
   });
 });
-//]]>
 </script>
 EOS;
     add_page_foottext($js);

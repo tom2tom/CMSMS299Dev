@@ -1,6 +1,6 @@
 <?php
 #Traditional Chinese translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -34,8 +34,8 @@ $nls['language']['zh_TW'] = '&#32321;&#39636;&#20013;&#25991;';
 $nls['englishlang']['zh_TW'] = 'Traditional Chinese';
 
 #Possible aliases for language
-$nls['alias']['chinese'] = 'zh_TW' ;
-$nls['alias']['zh_TW.Big5'] = 'zh_TW' ;
+$nls['alias']['chinese'] = 'zh_TW';
+$nls['alias']['zh_TW.Big5'] = 'zh_TW';
 
 #Possible locale for language
 $nls['locale']['zh_TW'] = 'zh_TW,zh_TW.euctw,zh_TW.utf8,zh_TW.big5,zh_TW.Big5,zh_TW.utf8,zh_TW.UTF-8,chinese-traditional,Chinese_Taiwan.950';
@@ -44,7 +44,6 @@ $nls['locale']['zh_TW'] = 'zh_TW,zh_TW.euctw,zh_TW.utf8,zh_TW.big5,zh_TW.Big5,zh
 $nls['encoding']['zh_TW'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['zh_TW'] = array(__DIR__.'/zh_TW/admin.inc.php');
+$nls['file']['zh_TW'] = [__DIR__.'/zh_TW/admin.inc.php'];
 
 $nls['htmlarea']['zh_TW'] = 'en';
-?>

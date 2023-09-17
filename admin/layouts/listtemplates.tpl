@@ -13,11 +13,11 @@
     {if $has_add_right}
     <a id="addtemplate" href="edittemplate.php{$urlext}" accesskey="a" title="{_ld('layout','create_template')}">{admin_icon icon='newobject.gif' alt=_ld('layout','create_template')}&nbsp;{_ld('layout','create_template')}</a>&nbsp;&nbsp;
     {/if}
-   <a id="clearlocks" style="display:none;" accesskey="l" title="{_ld('layout','title_clearlocks')}" href="clearlocks.php{$urlext}&type=template">{admin_icon icon='run.gif' alt=''}&nbsp;{_ld('layout','prompt_clearlocks')}</a>
+   <a id="clearlocks" style="display:none" accesskey="l" title="{_ld('layout','title_clearlocks')}" href="clearlocks.php{$urlext}&type=template">{admin_icon icon='run.gif' alt=''}&nbsp;{_ld('layout','prompt_clearlocks')}</a>
     {if !empty($templates)}
     &nbsp;&nbsp;<a class="edit_filter" accesskey="f" title="{_ld('layout','title_edittplfilter')}">{admin_icon icon='icons/extra/filter.gif' alt=_ld('layout','title_edittplfilter')}&nbsp;{_ld('layout','filter')}</a>
     {if !empty($tpl_filter.0)}
-    &nbsp;&nbsp;<span style="color:green;" title="{_ld('layout','title_filterapplied')}">{_ld('layout','filterapplied')}</span>
+    &nbsp;&nbsp;<span style="color:green" title="{_ld('layout','title_filterapplied')}">{_ld('layout','filterapplied')}</span>
     {/if}
     {if $navpages > 1}
     &nbsp;&nbsp;
@@ -57,38 +57,39 @@
  {if $list_all_types}
  {if $typepages > 1}
 <div class="browsenav postgap">
- <span id="tbl2pagelink">
- <a href="javascript:pagefirst(typetable)">{_ld('layout','pager_first')}</a>&nbsp;|&nbsp;
- {if $typepages > 2}
- <a href="javascript:pageback(typetable)">{_ld('layout','pager_previous')}</a>&nbsp;&lt;&gt;&nbsp;
- <a href="javascript:pageforw(typetable)">{_ld('layout','pager_next')}</a>&nbsp;|&nbsp;
- {/if}
- <a href="javascript:pagelast(typetable)">{_ld('layout','pager_last')}</a>&nbsp;
+ <span id="tblpagelink2">
+ <span id="ftpage2" class="pagechange">{_ld('layout','pager_first')}</span>&nbsp;|&nbsp;
+{if $typepages > 2}
+ <span id="pspage2" class="pagechange">{_ld('layout','pager_previous')}</span>&nbsp;&lt;&gt;&nbsp;
+ <span id="ntpage2" class="pagechange">{_ld('layout','pager_next')}</span>&nbsp;|&nbsp;
+{/if}
+ <span id="ltpage2" class="pagechange">{_ld('layout','pager_last')}</span>&nbsp;
  ({_ld('layout','pageof','<span id="cpage2">1</span>',"<span id='tpage2'>{$typepages}</span>")})&nbsp;&nbsp;
  </span>
- <select id="typepagerows" name="typepagerows">
-  {html_options options=$pagelengths selected=$currentlength}
+ <select id="pagerows2" name="pagerows2">
+  {html_options options=$pagelengths2 selected=$currentlength2}
  </select>&nbsp;&nbsp;{_ld('layout','pager_rowspp')}{*TODO sometimes show 'pager_rows'*}
 </div>
  {/if}{* typepages *}
  {/if}
  {include file='templatetypes.tpl'}
+
  {tab_start name='groups'}
  {include file='templategroups.tpl'}
  {tab_end}
 {/if}
 
-<div id="filterdialog" title="{_ld('layout','tpl_filter')}" style="display:none;">
+<div id="filterdialog" title="{_ld('layout','tpl_filter')}" style="display:none">
  <form id="filterdialog_form" action="{$selfurl}" enctype="multipart/form-data" method="post">
   {foreach $extraparms2 as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
   {/foreach}
   <select class="boxchild" id="filter_tpl" name="filter[]" title="{_ld('layout','title_filter')}">
-   {html_options options=$filter_tpl_options selected=$tpl_filter.0}  </select>
+   {html_options options=$filter_tpl_options selected=$tpl_filter.0|default:''}  </select>
  </form>
 </div>
 
 {if $manage_templates}{* TODO && single(s) exist *}
-<div id="replacedialog" title="{_ld('layout','prompt_replace_typed',_ld('layout','prompt_template'))}" style="display:none;min-width:15em;">
+<div id="replacedialog" title="{_ld('layout','prompt_replace_typed',_ld('layout','prompt_template'))}" style="display:none;min-width:15em">
   <form id="replacedialog_form" action="templateoperations.php" enctype="multipart/form-data" method="post">
   {foreach $extraparms3 as $key => $val}<input type="hidden" name="{$key}" value="{$val}">
 {/foreach}
@@ -97,7 +98,7 @@
    </p>
    <div class="pregap">
     {$t=_ld('layout','prompt_replacement')}<label class="pagetext" for="replacement">{$t}</label>
-    {cms_help 0='layout' key='help_replace_template' title=$t}
+    {cms_help realm='layout' key='help_replace_template' title=$t}
     <div class="pageinput">
      <select id="replacement" name="newtpl">
       {html_options options=$tpl_choices selected=-1}     </select>

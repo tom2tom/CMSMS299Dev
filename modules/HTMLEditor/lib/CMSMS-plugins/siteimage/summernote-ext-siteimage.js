@@ -51,7 +51,7 @@
 /* TinyMCE-specific plugin element
         '   <div class="form-group oneline">\n' +
         '    <label class="control-label note-form-label" for="siteimage_constrain">' + cms_data.constrain + '</label>\n' +
-        '    <input type="checkbox" id="siteimage_constrain" class="form-control note-form-control note-input" value="1" />' +
+        '    <input type="checkbox" id="siteimage_constrain" class="form-control note-form-control note-input" value="1">' +
         '   </div>\n' +
 */
         var body =
@@ -68,40 +68,40 @@
         '  <div id="tab_cmigen">\n' +
         '   <div class="form-group oneline button">\n' +
         '    <label class="control-label note-form-label" for="siteimage_source">' + cms_data.source + '</label>\n' +
-        '    <input type="text" id="siteimage_source" class="form-control note-form-control note-input" size="38" />\n' +
+        '    <input type="text" id="siteimage_source" class="form-control note-form-control note-input" size="38">\n' +
         '    <span id="siteimage_browse" class="form-control note-form-control action-button" title="' + cms_data.browse + '">\n' +
         '     <i class="note-iconc-search"></i>\n' +
         '    </span>\n' +
         '   </div>\n' +
         '   <div class="form-group oneline">\n' +
         '    <label class="control-label note-form-label" for="siteimage_text">' + cms_data.description + '</label>\n' +
-        '    <input type="text" id="siteimage_text" class="form-control note-form-control note-input" size="38" />\n' +
+        '    <input type="text" id="siteimage_text" class="form-control note-form-control note-input" size="38">\n' +
         '   </div>\n' +
         '   <div class="form-group oneline">\n' +
         '    <label class="control-label note-form-label" for="siteimage_title">' + cms_data.title + '</label>\n' +
-        '    <input type="text" id="siteimage_title" class="form-control note-form-control note-input" size="38" />\n' +
+        '    <input type="text" id="siteimage_title" class="form-control note-form-control note-input" size="38">\n' +
         '   </div>\n' +
         '   <div class="form-group oneline">\n' +
         '    <label class="control-label note-form-label" for="siteimage_wd">' + cms_data.dimensions + '</label>\n' +
-        '    <input type="text" id="siteimage_wd" class="form-control note-form-control note-input" title="' + cms_data.width + '" size="4" />' +
+        '    <input type="text" id="siteimage_wd" class="form-control note-form-control note-input" title="' + cms_data.width + '" size="4">' +
         ' x ' +
-        '    <input type="text" id="siteimage_ht" class="form-control note-form-control note-input" title="' + cms_data.height + '" size="4" />\n' +
+        '    <input type="text" id="siteimage_ht" class="form-control note-form-control note-input" title="' + cms_data.height + '" size="4">\n' +
         '   </div>\n' +
         '  </div>\n' +
         '  <div id="tab_cmiadv">\n' +
         '   <div class="form-group oneline">\n' +
         '    <label class="control-label note-form-label" for="siteimage_style">' + cms_data.style + '</label>\n' +
-        '    <input type="text" id="siteimage_style" class="form-control note-form-control note-input" size="38" />\n' +
+        '    <input type="text" id="siteimage_style" class="form-control note-form-control note-input" size="38">\n' +
         '   </div>\n' +
         '   <div class="form-group oneline">\n' +
         '    <label class="control-label note-form-label" for="siteimage_vert">' + cms_data.vertspace + '</label>\n' +
-        '    <input type="text" id="siteimage_vert" class="form-control note-form-control note-input" size="4" />\n' +
+        '    <input type="text" id="siteimage_vert" class="form-control note-form-control note-input" size="4">\n' +
         '    <label class="control-label note-form-label" for="siteimage_horz">' + cms_data.horzspace + '</label>\n' +
-        '    <input type="text" id="siteimage_horz" class="form-control note-form-control note-input" size="4" />\n' +
+        '    <input type="text" id="siteimage_horz" class="form-control note-form-control note-input" size="4">\n' +
         '   </div>\n' +
         '   <div class="form-group oneline">\n' +
         '    <label class="control-label note-form-label" for="siteimage_bwid">' + cms_data.bdrwidth + '</label>\n' +
-        '    <input type="text" id="siteimage_bwid" class="form-control note-form-control note-input" size="4" />\n' +
+        '    <input type="text" id="siteimage_bwid" class="form-control note-form-control note-input" size="4">\n' +
         '    <label class="control-label note-form-label" for="siteimage_bstyle">' + cms_data.bdrstyle + '</label>\n' +
         '    <select id="siteimage_bstyle">\n' +
         '     <option value="" selected>' + cms_data.default + '</option>\n' +
@@ -178,7 +178,7 @@
             if (params.node) {
               $(params.node).attr(opts);
             } else {
-              var $inserter = $('<img>', opts);
+              var $inserter = $('<img/>', opts);
               context.invoke('restoreRange');
               context.invoke('editor.insertNode', $inserter[0]);
             }
@@ -383,7 +383,7 @@
       function selector(e) {
         e.preventDefault();
         return $.Deferred(function(deferred) {
-          var $picked = $('<input type="text">').addClass('cmsfp_elem').css('display','none').appendTo($(document.body));
+          var $picked = $('<input type="text"/>').addClass('cmsfp_elem').css('display','none').appendTo($(document.body));
           var $selector = ui.dialog({
             title: cms_data.image_select_title,
             body: '',

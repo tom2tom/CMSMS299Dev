@@ -1,7 +1,7 @@
 <?php
 /*
 DesignManager module installation process
-Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -49,11 +49,11 @@ modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
 $res = $dict->ExecuteSQLArray($sqlarray);
-if ($res != 2) return false;
+if ($res != 2) return 'Module table installation failed'; //TODO langify
 
 $sqlarray = $dict->CreateIndexSQL('i_name', $tbl, 'name', ['UNIQUE']);
 $res = $dict->ExecuteSQLArray($sqlarray);
-if ($res != 2) return false;
+if ($res != 2) return 'Table index creation failed'; //TODO langify
 
 $tbl = CMS_DB_PREFIX.'module_designs_tpl'; // aka Design::TPLTABLE
 $flds = '
@@ -74,7 +74,7 @@ css_order I1 UNSIGNED DEFAULT 0
 ';
 $sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
 $res = $dict->ExecuteSQLArray($sqlarray);
-if ($res != 2) return false;
+if ($res != 2) return 'Module table installation failed'; //TODO langify
 
 //$this->SetPreference('lock_timeout', 60);
 //$this->SetPreference('lock_refresh', 120);

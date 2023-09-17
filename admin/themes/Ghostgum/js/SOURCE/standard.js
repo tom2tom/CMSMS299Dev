@@ -145,7 +145,7 @@ var themejs = {};
       callback = arg2 || callback;
     }
     //check all existing script tags in the page for the url
-    $('script[type="text/javascript"]').each(function () {
+    $('script').each(function () {
       var load = (url !== $(this).attr('src'));
       return load;
     });
@@ -855,7 +855,7 @@ var themejs = {};
    */
   this.popup_prompt = function (msg, suggest, title) {
     return $.fn.alertable.prompt(msg, {
-      prompt: '<input type="text" class="alertable-input" value="' + suggest + '" />',
+      prompt: '<input type="text" class="alertable-input" value="' + suggest + '">',
       okButton: '<button type="button" class="adminsubmit icon check">' + cms_lang('ok') + '</button>',
       cancelButton: '<button type="button" class="adminsubmit icon cancel">' + cms_lang('cancel') + '</button>'
     });

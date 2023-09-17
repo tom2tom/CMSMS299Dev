@@ -1,7 +1,7 @@
 <?php
 /*
 HTMLEditor module class: Profile
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of the HTMLEditor module for CMS Made Simple
 <http://dev.cmsmadesimple.org/projects/HTMLEditor>
@@ -59,7 +59,7 @@ class Profile implements ArrayAccess
 	}
 
 	#[\ReturnTypeWillChange]
-	public function offsetGet($key)// : mixed
+	public function offsetGet(/*mixed */$key)//: mixed
 	{
 		switch( $key ) {
 		case 'menubar':
@@ -70,13 +70,16 @@ class Profile implements ArrayAccess
 		case 'allowcssoverride':
 		case 'system':
 			if( isset($this->_data[$key]) ) return (bool)$this->_data[$key];
+			break;
 
 		case 'formats':
 			if( isset($this->_data[$key]) ) return $this->_data[$key];
+			break;
 
 		case 'name':
 		case 'dfltstylesheet':
 			if( isset($this->_data[$key]) ) return trim($this->_data[$key]);
+			break;
 
 		case 'label':
 			if( isset($this->_data[$key]) ) return $this->_data[$key];
@@ -85,9 +88,10 @@ class Profile implements ArrayAccess
 		default:
 			throw new LogicException("'$key' is not a property of ".__CLASS__.' objects');
 		}
+		return null;
 	}
 
-	public function offsetSet($key,$value) : void
+	public function offsetSet(/*mixed */$key,$value): void
 	{
 		switch( $key ) {
 		case 'menubar':
@@ -116,14 +120,14 @@ class Profile implements ArrayAccess
 		}
 	}
 
-	public function offsetExists($key) : bool
+	public function offsetExists(/*mixed */$key): bool
 	{
 		if( in_array($key, self::KEYS) ) return isset($this->_data[$key]);
 
 		throw new LogicException("'$key' is not a property of ".__CLASS__.' objects');
 	}
 
-	public function offsetUnset($key) : void
+	public function offsetUnset(/*mixed */$key): void
 	{
 		switch( $key ) {
 		case 'menubar':

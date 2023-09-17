@@ -1,6 +1,6 @@
 <?php
 #Farsi translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 #The basic idea and values was taken from then Horde Framework (http://horde.org)
 #The original filename was horde/config/nls.php.
 #The modifications to fit it for Gallery were made by Jens Tkotz
-#(http://gallery.meanalto.com) 
+#(http://gallery.meanalto.com)
 
 #Ideas from Gallery's implementation made to CMS by Ted Kulp
 
@@ -43,11 +43,10 @@ $nls['encoding']['fa_IR'] = 'UTF-8';
 $nls['direction']['fa_IR'] = 'rtl';
 
 #Location of the file(s)
-$nls['file']['fa_IR'] = array(__DIR__.'/fa_IR/admin.inc.php');
+$nls['file']['fa_IR'] = [__DIR__.'/fa_IR/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['fa_IR'] = 'fa';
-?>

@@ -1,7 +1,7 @@
 <?php
 /*
 Class definition and methods for Section Header content type
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -55,9 +55,9 @@ class SectionHeader extends ContentBase
 	}
 
 	// There is no actionable URL for displaying this content type
-	public function GetURL(bool $rewrite = true) : string { return '#'; }
-	public function HasSearchableContent() : bool { return false; }
-	public function HasUsableLink() : bool { return false; }
+	public function GetURL(bool $rewrite = true): string { return '#'; }
+	public function HasSearchableContent(): bool { return false; }
+	public function HasUsableLink(): bool { return false; }
 }
 //backward-compatibility shiv
 \class_alias(SectionHeader::class, 'SectionHeader', false);

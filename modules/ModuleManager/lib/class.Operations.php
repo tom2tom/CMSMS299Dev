@@ -39,6 +39,7 @@ use function CMSMS\log_notice;
 use function file_put_contents;
 use function get_recursive_file_list;
 use function get_server_permissions;
+use function is_base64;
 use function lang;
 use function recursive_delete;
 
@@ -173,21 +174,28 @@ class Operations
                     break;
                 case 'help':
                 case 'about':
-                case 'description':
                     $moduledetails[$lkey] = ( $current ) ?
                       htmlspecialchars_decode((string)$node, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE) : // NOT worth CMSMS\de_specialize
                       base64_decode((string)$node);
+                    break;
+                case 'description': //TODO not encoded sometimes? old DTD only?
+                    $val = (string)$node;
+                    $moduledetails[$lkey] = ( $current || !is_base64($val) ) ?
+                        htmlspecialchars_decode($val, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE) :
+                        base64_decode($val);
                     break;
                 case 'file':
                     if( $meta ) { break; }
                     if( !$filedone ) {
                         $dirlist = cms_module_places($moduledetails['name']);
-                        if( empty($dirlist) ) {
-                            $basepath = $alldirs[0];
+                        if( !$dirlist ) {
+                            $basepath = $alldirs[0].DIRECTORY_SEPARATOR.$moduledetails['name'];
+                            mkdir($basepath, $dirmode, true);
                         }
                         else {
-                            $basepath = dirname($dirlist[0]);
-                            recursive_delete($dirlist[0]);
+                            $basepath = $dirlist[0];
+                            chmod($basepath, $dirmode);
+                            recursive_delete($basepath, false);
                         }
                         $from = ['\\', '/'];
                         $to = [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR];
@@ -282,19 +290,19 @@ class Operations
         $xw->writeElement('version', $mod->GetVersion());
         $xw->writeElement('mincmsversion', $mod->MinimumCMSVersion());
         $text = $mod->GetHelpPage();
-        if( $text != '' ) {
+        if( $text ) {
             $xw->startElement('help');
             $xw-> writeCdata(htmlspecialchars($text, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE, null, false)); // NOT worth CMSMS\specialize
             $xw->endElement();
         }
         $text = $mod->GetAbout();
-        if( $text != '' ) {
+        if( $text ) {
             $xw->startElement('about');
             $xw-> writeCdata(htmlspecialchars($text, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE, null, false));
             $xw->endElement();
         }
         $text = $mod->GetAdminDescription();
-        if( $text != '' ) {
+        if( $text ) {
             $xw->startElement('description');
             $xw-> writeCdata(htmlspecialchars($text, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE, null, false));
             $xw->endElement();

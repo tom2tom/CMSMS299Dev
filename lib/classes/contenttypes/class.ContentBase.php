@@ -1,7 +1,7 @@
 <?php
 /*
 Base class for working with page content at runtime
-Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -121,8 +121,7 @@ class ContentBase implements Serializable
 	/**
 	 * @ignore
 	 */
-	#[\ReturnTypeWillChange]
-	public function __clone()// : void
+	public function __clone(): void
 	{
 		$this->_fields['content_alias'] = '';
 		$this->_fields['content_id'] = -1;
@@ -134,7 +133,7 @@ class ContentBase implements Serializable
 	 * This should only be used during construction
 	 * @ignore
 	 */
-	public function __set(string $key, $value) : void
+	public function __set(string $key, $value): void
 	{
 		$use = strtolower($key);
 		$use = self::PROPALIAS[$use] ?? $use;
@@ -160,7 +159,7 @@ class ContentBase implements Serializable
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	public function __get(string $key)
+	public function __get(string $key)//: mixed
 	{
 		$use = strtolower($key);
 		$use = self::PROPALIAS[$use] ?? $use;
@@ -190,7 +189,7 @@ class ContentBase implements Serializable
 	 * @ignore
 	 */
 	#[\ReturnTypeWillChange]
-	public function __call(string $name, array $args)
+	public function __call(string $name, array $args)//: mixed
 	{
 		$chk = strtolower($name);
 		$pre = substr($chk, 0, 3);
@@ -214,36 +213,34 @@ class ContentBase implements Serializable
 		}
 	}
 
-	public function __toString() : string
+	public function __toString(): string
 	{
 		return json_encode($this->__serialize(), JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE); // PHP7.2+
 	}
 
 	// ======= SERIALIZABLE INTERFACE METHODS =======
 
-	public function __serialize() : array
+	public function __serialize(): array
 	{
 		$this->LoadProperties();
 		return get_object_vars($this);
 	}
 
-	public function __unserialize(array $data) : void
+	public function __unserialize(array $data): void
 	{
 		foreach ($data as $key => $value) {
 			$this->$key = $value;
 		}
 	}
 
-    #[\ReturnTypeWillChange]
-	public function serialize()// : ?string
+	public function serialize(): ?string
 	{
 		//TODO can all cachers cope with embedded null's in strings ? NB internal cryption is slow!
 		return Crypto::encrypt_string($this->__toString(),__CLASS__,'best');
 //		return $this->__toString();
 	}
 
-    #[\ReturnTypeWillChange]
-	public function unserialize(/*string*/$serialized)// : void
+	public function unserialize(string $serialized): void
 	{
 		$str = Crypto::decrypt_string($serialized,__CLASS__,'best');
 		if (!$str) {
@@ -279,7 +276,7 @@ class ContentBase implements Serializable
 	 * @param bool $deep optional flag whether to also process the page's non-core properties. Default false.
 	 * @return array maybe empty
 	 */
-	public function ToData(bool $deep = false) : array
+	public function ToData(bool $deep = false): array
 	{
 		$res = $this->_fields;
 		if ($deep && $this->LoadProperties()) {
@@ -294,7 +291,7 @@ class ContentBase implements Serializable
 	 * @since 3.0 Formerly protected _load_properties()
 	 * @return bool indicating success
 	 */
-	public function LoadProperties() : bool
+	public function LoadProperties(): bool
 	{
 		if (isset($this->_fields['content_id']) && $this->_fields['content_id'] > 0) {
 			$db = Lone::get('Db');
@@ -311,7 +308,7 @@ class ContentBase implements Serializable
 	 * @deprecated since 3.0 instead use LoadProperties()
 	 * @return bool
 	 */
-	protected function _load_properties() : bool
+	protected function _load_properties(): bool
 	{
 		return $this->LoadProperties();
 	}
@@ -321,7 +318,7 @@ class ContentBase implements Serializable
 	 * @since 3.0 this method loads those properties if not already done
 	 * @return array, maybe empty
 	 */
-	public function Properties() : array
+	public function Properties(): array
 	{
 		if (!$this->_propsloaded) {
 			$this->LoadProperties();
@@ -336,7 +333,7 @@ class ContentBase implements Serializable
 	 * @param string $propname
 	 * @return bool
 	 */
-	public function HasProperty(string $propname) : bool
+	public function HasProperty(string $propname): bool
 	{
 		if (!$propname) {
 			return false;
@@ -433,7 +430,7 @@ class ContentBase implements Serializable
 	 * @abstact
 	 * @return string
 	 */
-	public function TemplateResource() : string
+	public function TemplateResource(): string
 	{
 /* TODO support typed templates for theming
 		if (!empty($this->_props['tpltype_id'])) {
@@ -459,7 +456,7 @@ class ContentBase implements Serializable
 	 * @return string
 	 */
 /* TODO support typed stylesheets for theming
- 	public function StylesheetResource() : string
+ 	public function StylesheetResource(): string
 	{
 		if (!empty($this->_props['csstype_id'])) {
 			if (X) {
@@ -481,7 +478,7 @@ class ContentBase implements Serializable
 	 *
 	 * @return string
 	 */
-	public function Hierarchy() : string
+	public function Hierarchy(): string
 	{
 		if (isset($this->_fields['hierarchy'])) {
 			return Lone::get('ContentOperations')->CreateFriendlyHierarchyPosition($this->_fields['hierarchy']);
@@ -496,7 +493,7 @@ class ContentBase implements Serializable
 	 *
 	 * @return boolean
 	 */
-	public function DefaultContent() : bool
+	public function DefaultContent(): bool
 	{
 		if ($this->IsDefaultPossible()) {
 			return $this->_fields['default_content'] ?? false;
@@ -524,7 +521,7 @@ class ContentBase implements Serializable
 	 * @abstract
 	 * @return bool Default true for content pages, false otherwise
 	 */
-	public function IsDefaultPossible() : bool
+	public function IsDefaultPossible(): bool
 	{
 		return (isset($this->_fields['type'])) ?
 			(strcasecmp($this->_fields['type'], 'content') == 0) :
@@ -538,7 +535,7 @@ class ContentBase implements Serializable
 	 * @abstract
 	 * @return boolean Default true
 	 */
-	public function IsPermitted() : bool
+	public function IsPermitted(): bool
 	{
 		return true;
 	}
@@ -550,7 +547,7 @@ class ContentBase implements Serializable
 	 * @abstract
 	 * @return bool Default true for content pages, false otherwise
 	 */
-	public function IsViewable() : bool
+	public function IsViewable(): bool
 	{
 		return (isset($this->_fields['type'])) ?
 			(strcasecmp($this->_fields['type'], 'content') == 0) :
@@ -565,7 +562,7 @@ class ContentBase implements Serializable
 	 * @abstract
 	 * @return bool Default false
 	 */
-	public function IsSystemPage() : bool
+	public function IsSystemPage(): bool
 	{
 		return false;
 	}
@@ -577,7 +574,7 @@ class ContentBase implements Serializable
 	 * @abstract
 	 * @return bool Default true
 	 */
-	public function HasUsableLink() : bool
+	public function HasUsableLink(): bool
 	{
 		return true;
 	}
@@ -589,7 +586,7 @@ class ContentBase implements Serializable
 	 * @abstract
 	 * @return bool Default false
 	 */
-/*	public function HasPreview() : bool
+/*	public function HasPreview(): bool
 	{
 		return false;
 	}
@@ -602,7 +599,7 @@ class ContentBase implements Serializable
 	 * @since 2.0
 	 * @return bool Default true for content pages, false otherwise
 	 */
-	public function HasTemplate() : bool
+	public function HasTemplate(): bool
 	{
 		return (isset($this->_fields['type'])) ?
 			(strcasecmp($this->_fields['type'], 'content') == 0) :
@@ -617,7 +614,7 @@ class ContentBase implements Serializable
 	 * @since 2.0
 	 * @return array
 	 */
-/*	public function GetTabNames() : array
+/*	public function GetTabNames(): array
 	{
 		return ['ONE'=>'BLAH','TWO'=>'222','THREE'=>'3','FOUR'=>'four',];
 	}
@@ -629,7 +626,7 @@ class ContentBase implements Serializable
 	 * @abstract
 	 * @return boolean Default true
 	 */
-	public function HasSearchableContent() : bool
+	public function HasSearchableContent(): bool
 	{
 		return true;
 	}
@@ -645,7 +642,7 @@ class ContentBase implements Serializable
 	 * @since 2.0
 	 * @return boolean
 	 */
-	public function IsSearchable() : bool
+	public function IsSearchable(): bool
 	{
 		if (!$this->IsPermitted() || !$this->IsViewable() || !$this->HasTemplate() || $this->IsSystemPage()) {
 			return false;
@@ -732,7 +729,7 @@ class ContentBase implements Serializable
 	 * @abstract
 	 * @return bool Default true
 	 */
-	public function WantsChildren() : bool
+	public function WantsChildren(): bool
 	{
 		return true;
 	}
@@ -743,7 +740,7 @@ class ContentBase implements Serializable
 	 *
 	 * @return int UNIX UTC timestamp. Default 1.
 	 */
-	public function GetCreationDate() : int
+	public function GetCreationDate(): int
 	{
 		$value = $this->_fields['create_date'] ?? '';
 		return ($value) ? cms_to_stamp($value) : 1;
@@ -755,7 +752,7 @@ class ContentBase implements Serializable
 	 *
 	 * @return int UNIX UTC timestamp. Default 1.
 	 */
-	public function GetModifiedDate() : int
+	public function GetModifiedDate(): int
 	{
 		$value = $this->_fields['modified_date'] ?? '';
 		return ($value) ? cms_to_stamp($value) : $this->GetCreationDate();
@@ -768,14 +765,14 @@ class ContentBase implements Serializable
 	 * If true, and mod_rewrite is enabled, build an URL suitable for mod_rewrite.
 	 * @return string
 	 */
-	public function GetURL(bool $rewrite = true) : string
+	public function GetURL(bool $rewrite = true): string
 	{
 		if ($rewrite) {
-            if (!empty($this->_fields['default_content'])) {
-                // use root url for default content
-                return CMS_ROOT_URL . '/';
-            }
-    		$config = Lone::get('Config');
+			if (!empty($this->_fields['default_content'])) {
+				// use root url for default content
+				return CMS_ROOT_URL . '/';
+			}
+			$config = Lone::get('Config');
 			$url_rewriting = $config['url_rewriting'];
 			if ($url_rewriting == 'mod_rewrite') {
 				if ($this->_fields['page_url']) {
@@ -805,7 +802,7 @@ class ContentBase implements Serializable
 	 * @param bool $activeonly Optional flag whether to test only for active children. Default false.
 	 * @return boolean
 	 */
-/*	public function HasChildren(bool $activeonly = false) : bool
+/*	public function HasChildren(bool $activeonly = false): bool
 	{
 		if ($this->_fields['content_id'] <= 0) {
 			return false;
@@ -837,7 +834,7 @@ class ContentBase implements Serializable
 	 *
 	 * @return int
 	 */
-/*	public function ChildCount() : int
+/*	public function ChildCount(): int
 	{
 		$ptops = Lone::get('PageTreeOperations');
 		$node = $ptops->get_node_by_id($this->_fields['content_id']);

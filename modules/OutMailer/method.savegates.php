@@ -1,7 +1,7 @@
 <?php
 /*
 OutMailer module save-platforms method
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is part of CMS Made Simple module: OutMailer.
 Refer to licence and other details at the top of file OutMailer.module.php
 More info at http://dev.cmsmadesimple.org/projects/outmailer

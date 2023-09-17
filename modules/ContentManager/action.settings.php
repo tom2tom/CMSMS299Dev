@@ -1,7 +1,7 @@
 <?php
 /*
 ContentManager module action: settings
-Copyright (C) 2013-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -94,7 +94,7 @@ if ($types) {
 	natcasesort($types);
 }
 
-list($stylerows, $grouped, $js) = Utils::get_sheets_data($prefs['styles'] ?? []);
+[$stylerows, $grouped, $js] = Utils::get_sheets_data($prefs['styles'] ?? []);
 if ($js) {
 	add_page_foottext($js);
 }

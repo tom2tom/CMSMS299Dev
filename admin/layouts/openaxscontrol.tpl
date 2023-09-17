@@ -15,10 +15,10 @@
 {/foreach}
 </div>
 <div class="colbox">
- <fieldset style="border-width:0;">
+ <fieldset style="border-width:0">
  <div class="rowbox flow">
   {$t=_la('name')}<div class="boxchild"><label for="set_name" class="required">* {$t}:</label>
-  {cms_help 0='controlsets' key='help_set_name' title=$t}</div>
+  {cms_help realm='controlsets' key='controls_set_name' title=$t}</div>
   {if $pmod}
   <input class="boxchild" type="text" size="40" maxlength="80" id="set_name" name="name" value="{$cset.name}" required>
   {else}
@@ -27,7 +27,7 @@
  </div>
  <div class="rowbox flow">
   {$t=_ld('controlsets','reltop')}<div class="boxchild"><label for="reldir">{$t}:</label>
-  {cms_help 0='controlsets' key='help_set_reltop' title=$t}</div>{* TODO support help_set_reltop2 when appropriate *}
+  {cms_help realm='controlsets' key='controls_set_reltop' title=$t}</div>{* TODO support help_set_reltop2 when appropriate *}
   {if $pmod}
   <div class="boxchild">
   <input type="text" size="80" id="reldir" name="reltop" value="{$cset.reltop}"><br>
@@ -42,7 +42,7 @@
  <fieldset>
  <div class="rowbox flow">
   {$t=_ld('controlsets','show_thumbs')}<div class="boxchild"><label for="seethumbs">{$t}:</label>
-  {cms_help 0='controlsets' key='help_show_thumbs' title=$t}</div>
+  {cms_help realm='controlsets' key='controls_show_thumbs' title=$t}</div>
   {if $pmod}
   <input class="boxchild" type="checkbox" id="seethumbs" name="show_thumbs" value="1"{if $cset.show_thumbs} checked{/if}>
   {else}
@@ -51,7 +51,7 @@
  </div>
  <div class="rowbox flow">
   {$t=_ld('controlsets','show_hidden')}<div class="boxchild"><label for="seehidden">{$t}:</label>
-  {cms_help 0='controlsets' key='help_show_hidden' title=$t}</div>
+  {cms_help realm='controlsets' key='controls_show_hidden' title=$t}</div>
   {if $pmod}
   <input class="boxchild" type="checkbox" id="seehidden" name="show_hidden" value="1"{if $cset.show_hidden} checked{/if}>
   {else}
@@ -60,7 +60,7 @@
  </div>
  <div class="rowbox flow">
   {$t=_ld('controlsets','sort_field')}<div class="boxchild"><label for="sortby">{$t}:</label>
-  {cms_help 0='controlsets' key='help_sort_field' title=$t}</div>
+  {cms_help realm='controlsets' key='controls_sort_field' title=$t}</div>
   {if $pmod}
   <div class="boxchild">
   {$sorts}
@@ -75,7 +75,7 @@
  <fieldset>
  <div class="rowbox flow">
   {$t=_ld('controlsets','can_mkfile')}<div class="boxchild"><label for="mkfile">{$t}:</label>
-  {cms_help 0='controlsets' key='help_can_mkfile' title=$t}</div>
+  {cms_help realm='controlsets' key='controls_can_mkfile' title=$t}</div>
   {if $pmod}
   <input class="boxchild" type="checkbox" id="mkfile" name="can_mkfile" value="1"{if $cset.can_mkfile} checked{/if}>
   {else}
@@ -84,7 +84,7 @@
  </div>
  <div class="rowbox flow">
   {$t=_ld('controlsets','can_mkdir')}<div class="boxchild"><label for="mkdir">{$t}:</label>
-  {cms_help 0='controlsets' key='help_can_mkdir' title=$t}</div>
+  {cms_help realm='controlsets' key='controls_can_mkdir' title=$t}</div>
   {if $pmod}
   <input class="boxchild" type="checkbox" id="mkdir" name="can_mkdir" value="1"{if $cset.can_mkdir} checked{/if}>
   {else}
@@ -93,7 +93,7 @@
  </div>
  <div class="rowbox flow">
   {$t=_ld('controlsets','can_upload')}<div class="boxchild"><label for="upload">{$t}:</label>
-  {cms_help 0='controlsets' key='help_can_upload' title=$t}</div>
+  {cms_help realm='controlsets' key='controls_can_upload' title=$t}</div>
   {if $pmod}
   <input class="boxchild" type="checkbox" id="upload" name="can_upload" value="1"{if $cset.can_upload} checked{/if}>
   {else}
@@ -102,7 +102,7 @@
  </div>
  <div class="rowbox flow">
   {$t=_ld('controlsets','can_delete')}<div class="boxchild"><label for="delete">{$t}:</label>
-  {cms_help 0='controlsets' key='help_can_delete' title=$t}</div>
+  {cms_help realm='controlsets' key='controls_can_delete' title=$t}</div>
   {if $pmod}
   <input class="boxchild" type="checkbox" id="delete" name="can_delete" value="1"{if $cset.can_delete} checked{/if}>
   {else}
@@ -114,7 +114,7 @@
  <fieldset>
  <div class="rowbox flow">
   {$t=_ld('controlsets','match_patterns')}<div class="boxchild"><label for="incpat">{$t}:</label>
-  {cms_help 0='controlsets' key='help_match_patterns' title=$t}</div>
+  {cms_help realm='controlsets' key='controls_match_patterns' title=$t}</div>
   {if $pmod}
   <input class="boxchild" type="text" size="50" id="incpat" name="match_patterns" value="{$incpatns}">
   {else}
@@ -123,7 +123,7 @@
  </div>
  <div class="rowbox flow">
   {$t=_ld('controlsets','exclude_patterns')}<div class="boxchild"><label for="excpat">{$t}:</label>
-  {cms_help 0='controlsets' key='help_exclude_patterns' title=$t}</div>
+  {cms_help realm='controlsets' key='controls_exclude_patterns' title=$t}</div>
   {if $pmod}
   <input class="boxchild" type="text" size="50" id="excpat" name="exclude_patterns" value="{$excpatns}">
   {else}
@@ -132,7 +132,7 @@
  </div>
  <div class="rowbox flow">
   {$t=_ld('controlsets','file_types')}<div class="boxchild"><label for="filetypes">{$t}:</label>
-  {cms_help 0='controlsets' key='help_file_types' title=$t}</div>
+  {cms_help realm='controlsets' key='controls_file_types' title=$t}</div>
   {if $pmod}
   <div class="boxchild">{$types}</div>
   {else}
@@ -144,7 +144,7 @@
  <fieldset>
  <div class="rowbox flow">
   {$t=_ld('controlsets','match_users')}<div class="boxchild"><label for="incusers">{$t}:</label>
-  {cms_help 0='controlsets' key='help_match_users' title=$t}</div>
+  {cms_help realm='controlsets' key='controls_match_users' title=$t}</div>
   {if $pmod}
   <div class="boxchild">{$incusers}</div>
   {else}
@@ -153,7 +153,7 @@
  </div>
  <div class="rowbox flow">
   {$t=_ld('controlsets','exclude_users')}<div class="boxchild"><label for="excusers">{$t}:</label>
-  {cms_help 0='controlsets' key='help_exclude_users' title=$t}</div>
+  {cms_help realm='controlsets' key='controls_exclude_users' title=$t}</div>
   {if $pmod}
   <div class="boxchild">{$excusers}</div>
   {else}
@@ -165,7 +165,7 @@
  <fieldset>
  <div class="rowbox flow">
   {$t=_ld('controlsets','match_groups')}<div class="boxchild"><label for="incgrps">{$t}:</label>
-  {cms_help 0='controlsets' key='help_match_groups' title=$t}</div>
+  {cms_help realm='controlsets' key='controls_match_groups' title=$t}</div>
   {if $pmod}
   <div class="boxchild">{$incgroups}</div>
   {else}
@@ -174,7 +174,7 @@
  </div>
  <div class="rowbox flow">
   {$t=_ld('controlsets','exclude_groups')}<div class="boxchild"><label for="excgrps">{$t}:</label>
-  {cms_help 0='controlsets' key='help_exclude_groups' title=$t}</div>
+  {cms_help realm='controlsets' key='controls_exclude_groups' title=$t}</div>
   {if $pmod}
   <div class="boxchild">{$excgroups}</div>
   {else}
@@ -193,7 +193,7 @@
 </div>
 </form>
 
-<div id="popup" title="{_ld('controlsets','dialog_title')}" style="display:none;">
+<div id="popup" title="{_ld('controlsets','dialog_title')}" style="display:none">
  <p class="info">{_ld('controlsets','info_selector')}</p>
  <div id="treecontainer">
   <li>{_ld('controlsets','root_name')}

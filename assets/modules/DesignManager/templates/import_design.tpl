@@ -3,7 +3,7 @@
  <div class="pageinfo">{_ld($_module,'info_import_xml_step1')}</div>
  <div class="pageoverflow">
   {$lbltext=_ld($_module,'prompt_import_xml_file')}<label class="pagetext" for="import_xml_file">{$lbltext}:</label>
-  {cms_help 0=$_module key='help_import_xml_file' title=$lbltext}
+  {cms_help realm=$_module key='help_import_xml_file' title=$lbltext}
   <div class="pageinput">
     <input type="file" name="{$actionid}import_xml_file" id="import_xml_file" size="50" required>
   </div>

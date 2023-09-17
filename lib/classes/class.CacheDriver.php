@@ -1,7 +1,7 @@
 <?php
 /*
 Base class for data-cache drivers.
-Copyright (C) 2019-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -171,7 +171,7 @@ abstract class CacheDriver
      *
      * @return string
      */
-    public function get_space() : string
+    public function get_space(): string
     {
         return $this->_space;
     }
@@ -181,7 +181,7 @@ abstract class CacheDriver
      * @param string $str a unique identifier e.g. a class name
      * @return string 10 alphanum bytes
      */
-    protected function get_cachespace(string $str) : string
+    protected function get_cachespace(string $str): string
     {
         $value = base_convert(hash('fnv1a64', $str), 16, 36);
         return substr($value, 0, 10);
@@ -193,7 +193,7 @@ abstract class CacheDriver
      * @param int $len hash-length default 10
      * @return string
      */
-    private function hash(string $str, int $len = 10) : string
+    private function hash(string $str, int $len = 10): string
     {
         $value = hash('fnv1a64', $str);
         //conversion generates 6 output-bytes for each 8 input-bytes
@@ -211,7 +211,7 @@ abstract class CacheDriver
      * @param string $space cache keys-space
      * @return string
      */
-    protected function get_cachekey(string $key, string $class, string $space) : string
+    protected function get_cachekey(string $key, string $class, string $space): string
     {
         return $this->_globlspace.$this->hash(CMS_ROOT_URL.$class.$space).$key;
     }
@@ -222,7 +222,7 @@ abstract class CacheDriver
      * @param string $space cache keys-space name
      * @return string
      */
-    protected function get_cacheprefix(string $class, string $space) : string
+    protected function get_cacheprefix(string $class, string $space): string
     {
         return $this->get_cachekey('', $class, $space);
     }

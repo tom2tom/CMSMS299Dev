@@ -1,7 +1,7 @@
 <?php
 /*
 Content-tree operations class
-Copyright (C) 2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2022-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -139,7 +139,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 *
 	 * @param int $id Optional node enumerator. Default -99 (N/A)
 	*/
-	public function remove(int $id = -99) : void
+	public function remove(int $id = -99): void
 	{
 		$this->remove_node(false, $id);
 	}
@@ -150,7 +150,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * @param mixed $value
 	 * @param int $id optional node enumerator Default -99 (N/A)
 	 */
-	public function set_tag(string $key, $value, int $id = -99) : void
+	public function set_tag(string $key, $value, int $id = -99): void
 	{
 		$oval = $this->get_tag($id, $key); // ensure the property is loaded
 		if ($oval != $value) {
@@ -166,7 +166,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * @param int $id optional node enumerator Default -99 (N/A)
 	 * @return mixed value | null
 	 */
-	public function get_tag(string $key, int $id = -99)// : mixed
+	public function get_tag(string $key, int $id = -99)//: mixed
 	{
 		if ($key == 'id') {
 			if (isset($this->props[$id])) {
@@ -183,16 +183,16 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 		if (isset($this->props[$id][$key]) || $this->props[$id][$key] === null) {
 			return $this->props[$id][$key];
 		}
-    	return null;
+		return null;
 	}
 
 	/**
 	 * Report the tree-depth of the specified node.
 	 * @param int $id Optional node enumerator. Default -1 (root)
-	 * @return int > 1 (notional root-node depth = 1)
+	 * @return int >= 0 (notional root-node depth = 0)
 	 * @throws RuntimeException if a broken tree is found
 	 */
-	public function get_level(int $id = -1) : int
+	public function get_level(int $id = -1): int
 	{
 		if ($id != -1) {
 			if (isset($this->props[$id])) {
@@ -201,7 +201,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 			}
 			throw new RuntimeException('Fatal error in '.__METHOD__.' - unrecognized node '.$id);
 		}
-		return 1;
+		return 0;
 	}
 
 	/**
@@ -213,7 +213,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * @param int $id Optional node enumerator. Default -1 (root)
 	 * @return int
 	 */
-	public function count_nodes(int $id = -1) : int
+	public function count_nodes(int $id = -1): int
 	{
 		if ($id == -1) {
 			return count($this->props) + 1;
@@ -236,7 +236,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * @param int $id Optional node enumerator. Default -1 (root)
 	 * @return int
 	 */
-	public function count_siblings(int $id = -1) : int
+	public function count_siblings(int $id = -1): int
 	{
 		if ($id == -1) {
 			return 1;
@@ -257,7 +257,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * @param bool $descending flag whether to report top-to-bottom Default true
 	 * @return array, maybe empty
 	 */
-	public function get_ancestors(int $id, $descending = true) : array
+	public function get_ancestors(int $id, $descending = true): array
 	{
 		$ret = [];
 		if (isset($this->props[$id])) {
@@ -301,7 +301,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * @param int $id Optional node enumerator. Default -1 (root)
 	 * @return bool
 	 */
-	public function has_children(int $id = -1) : bool
+	public function has_children(int $id = -1): bool
 	{
 		return (!empty($this->children[$id]));
 	}
@@ -311,7 +311,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * @param int $id node enumerator
 	 * @return int
 	 */
-	public function count_children(int $id = -1) : int
+	public function count_children(int $id = -1): int
 	{
 		return count($this->children[$id]) ?? 0;
 	}
@@ -325,7 +325,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * @return array each member like id => PageTreeNode object | empty if there are no children.
 	 * or each member like id if $as_node is false
 	 */
-	public function get_children(bool $as_node = true, int $id = -1) : array
+	public function get_children(bool $as_node = true, int $id = -1): array
 	{
 		$ret = [];
 		if (isset($this->children[$id])) {
@@ -358,7 +358,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * @return array reference each member like id => PageTreeNode object | empty if there are no children
 	 * or each member like id if $as_node is false
 	 */
-	public function load_children(bool $extended = false, bool $all = false, bool $loadcontent = true, bool $as_node = true, int $id = -1) : array
+	public function load_children(bool $extended = false, bool $all = false, bool $loadcontent = true, bool $as_node = true, int $id = -1): array
 	{
 		$children = $this->get_children($as_node, $id);
 		if ($children && $loadcontent) {
@@ -378,7 +378,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * Return all nodes.
 	 * @return array each member like id => PageTreeNode object
 	 */
-	public function get_flatList() : array
+	public function get_flatList(): array
 	{
 		debug_display('Start populate page-nodes flatlist');
 		foreach ($this->props as $id => &$arr) {
@@ -396,7 +396,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
      * @deprecated since 3.0 instead use PageTreeOperations::get_flatList()
 	 * @return array each member like id => PageTreeNode object
 	 */
-	public function getFlatList() : array
+	public function getFlatList(): array
     {
         return $this->get_flatList();
     }
@@ -595,7 +595,7 @@ FROM {$pref}content GROUP BY parent_id ORDER BY hierarchy";
 	 * @param int $id Optional node enumerator. Default -99 (N/A)
 	 * @return string
 	 */
-	public function getHierarchy(int $id = -99) : string
+	public function getHierarchy(int $id = -99): string
 	{
 		if (isset($this->props[$id])) {
 			return $this->props[$id]['hierarchy'];
@@ -649,7 +649,7 @@ FROM {$pref}content_props WHERE content_id=? ORDER BY prop_name";
 	 * @param int $id Optional node enumerator. Default -99 (N/A)
 	 * @return bool since 3.0 False always
 	 */
-	public function isContentCached(int $id = -99) : bool
+	public function isContentCached(int $id = -99): bool
 	{
 /*
 		if (isset($this->props[$id])) {

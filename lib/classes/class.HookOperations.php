@@ -1,7 +1,7 @@
 <?php
 /*
 HookOperations class
-Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -136,7 +136,7 @@ OR
      * @param int $priority The priority of the handler.
      * @return bool indicating success since 3.0
      */
-    public static function add_hook(string $name,$callable,int $priority = self::PRIORITY_NORMAL) : bool
+    public static function add_hook(string $name,$callable,int $priority = self::PRIORITY_NORMAL): bool
     {
         if( !is_callable($callable) ) return false; //TODO warn the user about failure
         $hash = self::calc_hash($callable);
@@ -190,11 +190,11 @@ OR
      *
      * @return mixed Depends on the hook handlers. Null if nothing to do.
      */
-    public static function do_hook(...$args)
+    public static function do_hook(...$args)//: mixed
     {
         $name = trim(array_shift($args));
 
-        if( $name === '' || !isset(self::$_hooks[$name]) || !self::$_hooks[$name]->handlers ) return; // nothing to do
+        if( $name === '' || !isset(self::$_hooks[$name]) || !self::$_hooks[$name]->handlers ) return null; // nothing to do
 
         // note: $args is an array, maybe empty, or maybe with array-members
         $value = $args;
@@ -233,11 +233,11 @@ OR
      *
      * @return mixed Depends on the hook handlers.
      */
-    public static function do_hook_first_result(...$args)
+    public static function do_hook_first_result(...$args)//: mixed
     {
         $name = trim(array_shift($args));
 
-        if( $name === '' || !isset(self::$_hooks[$name]) || !self::$_hooks[$name]->handlers  ) return; // nothing to do
+        if( $name === '' || !isset(self::$_hooks[$name]) || !self::$_hooks[$name]->handlers  ) return null; // nothing to do
 
         // note if present, $args is an array or empty
         self::$_in_process[] = $name;

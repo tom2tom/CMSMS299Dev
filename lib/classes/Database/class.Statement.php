@@ -1,7 +1,7 @@
 <?php
 /*
 Class Statement: represents a prepared SQL statement
-Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -91,7 +91,7 @@ final class Statement
      * @ignore
      */
     #[\ReturnTypeWillChange]
-    public function __get(string $key)// : mixed
+    public function __get(string $key)//: mixed
     {
         switch ($key) {
          case 'db':
@@ -110,7 +110,7 @@ final class Statement
      *
      * @return int
      */
-    public function affected_rows() : int
+    public function affected_rows(): int
     {
         return $this->_stmt->affected_rows;
     }
@@ -129,7 +129,7 @@ final class Statement
      *
      * @return bool indicating success
      */
-    public function prepare($sql = '') : bool
+    public function prepare($sql = ''): bool
     {
         $mysql = $this->_conn->get_inner_mysql();
         if (!$mysql || !$this->_conn->isConnected()) {
@@ -194,7 +194,7 @@ final class Statement
      * Go to the next member (if any) of an array of query-parameters
      * that are being successively executed, and run the query
      */
-    public function moveNext() : bool
+    public function moveNext(): bool
     {
         $this->now_bind = next($this->all_tobind);
         if ($this->now_bind) {
@@ -210,7 +210,7 @@ final class Statement
      * @return bool indicating we're now at the end of an array of
      * parameters that are being successively executed
      */
-    public function EOF() : bool
+    public function EOF(): bool
     {
         return !$this->now_bind;
     }
@@ -220,7 +220,7 @@ final class Statement
      *
      * @return bool indicating success
      */
-    public function bind($bindvars) : bool
+    public function bind($bindvars): bool
     {
         if (!$this->_stmt) {
             if ($this->_sql) {
@@ -332,7 +332,7 @@ final class Statement
      *  | nothing if this is a deprecated multi-bind (2-D values) operation
      * @return mixed object (ResultSet or EmptyResultSet or PrepResultSet) | int > 0 | false | null
      */
-    public function execute(...$bindvars)// : mixed
+    public function execute(...$bindvars)//: mixed
     {
         if (!$this->_stmt) {
             if ($this->_sql) {
@@ -468,7 +468,7 @@ final class Statement
      * Cleanup/release database resources
      * CHECKME automatic cleanup upon destruction?
      */
-    public function close() : void
+    public function close(): void
     {
         if ($this->_stmt) {
             if ($this->_bound) {

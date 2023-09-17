@@ -8,6 +8,7 @@ use CMSMS\AppState;
 use CMSMS\CapabilityType;
 use CMSMS\Lone;
 use Exception;
+use OutMailer\Mailer;
 use Throwable;
 use const CMS_DB_PREFIX;
 use const CMS_ROOT_PATH;
@@ -50,8 +51,8 @@ class wizard_step9 extends wizard_step
             $action = $wiz->get_data('action');
             switch ($action) {
             case 'install':
-                $this->do_install($app);
-                list($main_url, $admin_url) = $this->get_admin_url($app);
+                $this->do_install($app, $destdir);
+                [$main_url, $admin_url] = $this->get_admin_url($app);
                 $msg = ($cust) ?
                     lang('finished_custom_install_msg', $admin_url) :
                     lang('finished_install_msg', $main_url, $admin_url);
@@ -61,18 +62,18 @@ class wizard_step9 extends wizard_step
                 if (!$tmp) {
                     throw new Exception(lang('error_internal', 910));
                 }
-                $this->do_upgrade($app, $tmp);
-                list($main_url, $admin_url) = $this->get_admin_url($app);
+                $this->do_upgrade($app, $destdir, $tmp);
+                [$main_url, $admin_url] = $this->get_admin_url($app);
                 $msg = ($cust) ?
                     lang('finished_custom_upgrade_msg', $admin_url, $main_url) :
                     lang('finished_upgrade_msg', $main_url, $admin_url);
                 break;
             case 'freshen':
-                $this->do_freshen($app);
+                $this->do_freshen($app, $destdir);
                 if ($cust) {
                     $msg = lang('finished_custom_freshen_msg');
                 } else {
-                    list($main_url, $admin_url) = $this->get_admin_url($app);
+                    [$main_url, $admin_url] = $this->get_admin_url($app);
                     $msg = lang('finished_freshen_msg', $main_url, $admin_url);
                 }
                 break;
@@ -345,14 +346,12 @@ class wizard_step9 extends wizard_step
     /**
      * @ignore
      * @param installer_base $app
+     * @param string $destdir
+     * @param array $cmsmsinfo UNUSED
      * @throws Exception
      */
-    private function do_upgrade(installer_base $app)
+    private function do_upgrade(installer_base $app, string $destdir, array $cmsmsinfo)
     {
-        $destdir = $app->get_destdir();
-        if (!$destdir) {
-            throw new Exception(lang('error_internal', 900));
-        }
         $this->connect_to_cmsms($destdir);
 
         // upgrade recorded version-parameters (before module-upgrades)
@@ -478,22 +477,20 @@ class wizard_step9 extends wizard_step
         $this->system_setup(2, $destdir);
 
         // write history
-        log_notice('System Upgraded', 'New version '.CMS_VERSION);
+        log_notice('CMSMS Upgraded', 'New version '.CMS_VERSION);
     }
 
     /**
      * @ignore
+     * @param installer_base $app
+     * @param string $destdir
      * @throws Exception
      */
-    private function do_install(installer_base $app)
+    private function do_install(installer_base $app, string $destdir)
     {
-        $destdir = $app->get_destdir();
-        if (!$destdir) {
-            throw new Exception(lang('error_internal', 901));
-        }
         $choices = $this->get_wizard()->get_data('sessionchoices');
         if (!$choices) {
-            throw new Exception(lang('error_internal', 902));
+            throw new Exception(lang('error_internal', 922));
         }
         $this->connect_to_cmsms($destdir);
 
@@ -554,7 +551,7 @@ class wizard_step9 extends wizard_step
 
         // modules
         $this->message(lang('install_modules'));
-        $modops = Lone::get('ModuleOperations');
+//        $modops = Lone::get('ModuleOperations');
 //abandoned        $coremodules = $app->get_config()['coremodules'];
 //abandoned        $modops->RegisterSystemModules($coremodules);
 
@@ -624,21 +621,52 @@ class wizard_step9 extends wizard_step
 
         $this->system_setup(1, $destdir);
 
+        $adminacct = $this->get_wizard()->get_data('adminaccount');
+        if (is_array($adminacct) && !empty($adminacct['emailsend']) && !empty($adminacct['emailaddr'])) {
+            $main_url = $app->get_root_url();
+            if (endswith($main_url, '/')) { $main_url = rtrim($main_url, ' /'); }
+            $admin_url = $main_url.'/admin';
+            try {
+                $mailer = new Mailer();
+//              $mailer->SetFrom(some real? mailto:...); //help to avoid spam tagging
+                $mailer->SetFromName(lang('emailsender')); //ditto
+                $mailer->AddAddress($adminacct['emailaddr']);
+                $mailer->SetSubject(lang('email_accountinfo_subject'));
+                if ($app->in_phar()) {
+                    $body = lang('email_accountinfo_message',
+                                 $main_url,
+                                 $destdir,
+                                 $adminacct['username'],
+                                 $admin_url);
+                } else {
+                    $body = lang('email_accountinfo_message_exp',
+                                 $main_url,
+                                 $adminacct['username'],
+                                 $admin_url);
+                }
+                $body = html_entity_decode($body, ENT_QUOTES); //TODO needed?
+                $mailer->SetBody($body);
+                if ($mailer->Send()) {
+                    $this->message(lang('send_admin_email'));
+                } else {
+                    $this->error(lang('error_sendingmail').': '.$mailer->GetErrorInfo());
+                }
+            } catch (Throwable $t) {
+                $this->error(lang('error_sendingmail').': '.$t->GetMessage());
+            }
+        }
         // write history
-        log_notice('System Installed', 'Version '.CMS_VERSION);
+        log_notice('CMSMS Installed', 'Version '.CMS_VERSION);
     }
 
     /**
      * @ignore
      * @param installer_base $app
+     * @param string $destdir
      * @throws Exception
      */
-    private function do_freshen(installer_base $app)
+    private function do_freshen(installer_base $app, string $destdir)
     {
-        $destdir = $app->get_destdir();
-        if (!$destdir) {
-            throw new Exception(lang('error_internal', 903));
-        }
         $this->connect_to_cmsms($destdir);
 
         // replace modules
@@ -716,7 +744,7 @@ class wizard_step9 extends wizard_step
      * @param installer_base $app
      * @return array [0] = main site URL, [1] = admin-root URL
      */
-    private function get_admin_url(installer_base $app) : array
+    private function get_admin_url(installer_base $app): array
     {
         $main_url = $app->get_root_url();
         if (endswith($main_url, '/')) {

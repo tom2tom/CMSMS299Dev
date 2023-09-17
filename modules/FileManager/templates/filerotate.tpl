@@ -27,7 +27,7 @@
 </div>
 <div class="pageoverflow">
   <label class="pagetext" for="postrotate">{_ld($_module,'postrotate')}:</label>
-  {cms_help 0=$_module key='help_postrotate' title=_ld($_module,'postrotate')}
+  {cms_help realm=$_module key='help_postrotate' title=_ld($_module,'postrotate')}
   <div class="pageinput">
     <select id="postrotate" name="{$actionid}postrotate">
       {html_options options=$opts selected=$postrotate}    </select>

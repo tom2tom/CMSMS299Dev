@@ -1,7 +1,7 @@
 <?php
 /*
 Translation functions
-Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -122,7 +122,7 @@ function allow_admin_lang(bool $flag = true)
  * @internal
  * @deprecated
  */
-function get_language_list(bool $allow_none = true) : array
+function get_language_list(bool $allow_none = true): array
 {
     $tmp = [];
     $langs = NlsOperations::get_installed_languages();

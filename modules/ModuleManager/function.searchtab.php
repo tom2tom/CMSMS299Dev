@@ -31,7 +31,7 @@ if( isset($_SESSION['modmgr_search']) ) $search_data = unserialize($_SESSION['mo
 if( isset($_SESSION['modmgr_searchterm']) ) $term = $_SESSION['modmgr_searchterm'];
 if( isset($_SESSION['modmgr_searchadv']) ) $advanced = (bool)$_SESSION['modmgr_searchadv'];
 
-$clear_search = function() use (&$search_data) {
+$clear_search = function() use (&$search_data): void {
     unset($_SESSION['modmgr_search']);
     $search_data = [];
 };
@@ -184,14 +184,18 @@ if( isset($params['search']) ) {
         $clear_search();
         $this->ShowErrors($t->GetMessage());
     }
+} else {
+    $term = $_SESSION['mogmgr_searchterm'] ?? '';
+    $advanced = $_SESSION['modmgr_searchadv'] ?? false;
 }
 
 $tpl->assign('search_data',$search_data)
- ->assign('term',$term);
+ ->assign('term',$term)
+ ->assign('advanced',$advanced);
 
 $basic = ($advanced) ? 'false' : 'true';
 $js = <<<EOS
-<script type="text/javascript">
+<script>
 $(function() {
  if ($basic) {
   $('#advhelp').hide();

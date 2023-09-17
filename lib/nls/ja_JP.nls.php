@@ -1,6 +1,6 @@
 <?php
 #Japanese translation for CMS Made Simple
-#Copyright (C) 2004-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -33,10 +33,10 @@ $nls['englishlang']['ja_JP'] = 'Japanese';
 
 #Possible aliases for language
 $nls['alias']['ja'] = 'ja_JP';
-$nls['alias']['japanese'] = 'ja_JP' ;
-$nls['alias']['ja_JP.EUC-JP'] = 'ja_JP' ;
-$nls['alias']['ja_JP.Shift_JIS'] = 'ja_JP' ;
-$nls['alias']['ja_JP.UTF-8'] = 'ja_JP' ;
+$nls['alias']['japanese'] = 'ja_JP';
+$nls['alias']['ja_JP.EUC-JP'] = 'ja_JP';
+$nls['alias']['ja_JP.Shift_JIS'] = 'ja_JP';
+$nls['alias']['ja_JP.UTF-8'] = 'ja_JP';
 
 #Possible locale for language
 $nls['locale']['ja_JP'] = 'ja_JP.utf8,ja_JP.utf-8,ja_JP.UTF-8,ja_JP,ja_JP.SJIS,ja_JP.eucjp,japanese,Japanese_Japan.932';
@@ -45,11 +45,10 @@ $nls['locale']['ja_JP'] = 'ja_JP.utf8,ja_JP.utf-8,ja_JP.UTF-8,ja_JP,ja_JP.SJIS,j
 $nls['encoding']['ja_JP'] = 'UTF-8';
 
 #Location of the file(s)
-$nls['file']['ja_JP'] = array(__DIR__.'/ja_JP/admin.inc.php');
+$nls['file']['ja_JP'] = [__DIR__.'/ja_JP/admin.inc.php'];
 
 #Language setting for HTML area
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 
 $nls['htmlarea']['ja_JP'] = 'ja';
-?>

@@ -1,7 +1,7 @@
 <?php
 /*
 DesignManager module action: edit design
-Copyright (C) 2012-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -99,7 +99,7 @@ try {
                 'when' => $when
             ];
         }
-        uasort($all,function($a,$b) {
+        uasort($all,function(/*mixed */$a, /*mixed */$b): int {
             return strcasecmp($a['name'],$b['name']);
         });
         $in = $design->get_templates();
@@ -133,7 +133,7 @@ try {
                 'when' => $when
             ];
         }
-        uasort($all,function($a,$b) {
+        uasort($all,function(/*mixed */$a,/*mixed */$b): int {
             return strcasecmp($a['name'],$b['name']);
         });
         $in = $design->get_stylesheets();
@@ -183,8 +183,7 @@ try {
      ->assign('extraparms',$extras);
 // TODO ajax for apply-btn clicks ?
     $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
+<script>
 $(function() {
  var tbl = $('.draggable'),
   tbod = tbl.find('tbody.rsortable');
@@ -243,7 +242,6 @@ $(function() {
   $('[name="{$id}designtpl"]').val(members.join());
  });
 });
-//]]>
 </script>
 
 EOS;
