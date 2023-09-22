@@ -28,7 +28,7 @@ also support installation based on sources in a git repo
 
 INFRASTRUCTURE
 
-Coded for PHP 7.2+, compatible with 7.2.x to 8.1 (at least)
+Coded for PHP 7.2+, compatible with 7.2.x to 8.2 (at least)
 jQuery 3.7.0 (but use of 2.2.4 may be configured, to provide for effective upgrades
  from 1.x to 3.x which need two stages, via an intermediate 2.x)
 jQuery migrate 3.4.0 (but use of 1.4.1 may be configured, to work with jQ 2.2.4)
@@ -252,6 +252,7 @@ DETAILS
   - FEATURE: registered event handlers may be a callable, or a regular plugin, supplementing the existing support for modules and UDT's
   - FEATURE: event handlers may be registered intra-session, instead of using a hooklist (which 'send' events regardless of the event originator)
   - FEATURE: get-support URL (for display in admin pages) may be specified in 'developer mode'
+  - FEATURE: minimize possibility of an invalid umask when a new file is created on a multi-threaded web-server
   - FEATURE: added jQuery Poller object, a more-flexible alternative to the autoRefresh widget
   - FEATURE: added (non-core) module SyntaxMultiEditor allowing (for now) Ace|CodeMirror, to edit templates, stylesheets, UDT's,
       and related (but independent) get_editor_script(), {editorarea}, {edit_template}, and includable method.edittemplate.php
