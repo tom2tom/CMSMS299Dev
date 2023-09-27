@@ -23,6 +23,7 @@ namespace CMSMS; //3.0+
 
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
+use CMSMS\FormUtils;
 use CMSMS\LangOperations;
 use CMSMS\Lone;
 use CMSMS\ModuleOperations;
@@ -97,6 +98,11 @@ EOS;
         $jsm->reset(); // start another merger-file
         $jsm->queue_matchedfile('jquery.ui.touch-punch.js', 1);
         $jsm->queue_matchedfile('jquery.toast.js', 1);
+//* TODO arrange for bookmarks context menu
+//		if (check_permission($userid, 'Manage My Bookmarks')) { //TODO or 'Manage Bookmarks' if created
+			$jsm->queue_matchedfile('jquery.ContextMenu.js', 1);
+//		}
+//*/
         $jsm->queue_matchedfile('standard.js', 3, __DIR__.DIRECTORY_SEPARATOR.'includes');
         $out .= $jsm->page_content('', false, true);
 
@@ -373,19 +379,37 @@ EOS;
         }
 
         // bookmarks UI
-        if (UserParams::get_for_user($userid, 'bookmarks') && check_permission($userid, 'Manage My Bookmarks')) {
+        if (check_permission($userid, 'Manage My Bookmarks')) { //TODO or 'Manage Bookmarks' if created
             $marks = [];
             $marks_cntrls = [];
             $all_marks = $this->get_bookmarks();
 
             foreach ($all_marks as $one) {
-                if ($one->bookmark_id > -1) {
+                if ($one->bookmark_id > -1) { // TODO spacer items
                     $marks[] = $one;
                 } else {
                     $marks_cntrls[] = $one;
                 }
             }
-
+/* TODO arrange for bookmarks context menu
+			$links = [];
+			foreach ($marks as $one) {
+				if ($one->url) {
+					$class = ($one->bookmark_id > 0) ? ' class="bookmark"' : '';
+					$elem = '<a href="'.$one->url.'" target="_blank"'.$class.'>'.$one->title.'</a>'.PHP_EOL;
+					$links[] = ['content' => $elem];
+				} elseif ($links) {
+					//spacer
+					$elem = str_replace('"_blank"', '"_blank" style="display:inline-block;margin-bottom:1em"', array_pop($links)); //TODO css class fpr this
+					$links[] = $elem;
+				}
+			}
+			if ($links) {
+				$menu = FormUtils::create_menu($links, ['id'=>'Marks']);
+				$smarty->assign('marksmenu', $menu);
+			}
+        }
+ */
             $smarty->assign([
                 'marks' => $marks,
                 'marks_cntrls' => $marks_cntrls,
@@ -450,7 +474,15 @@ EOS;
         ]);
 
         $userops = Lone::get('UserOperations');
-        $smarty->assign('user', $userops->LoadUserByID($userid));
+        $user = $userops->LoadUserByID($userid);
+        $smarty->assign('user', $user);
+        // effective user
+        $uname = Lone::get('AuthOperations')->get_effective_username();
+        if ($uname && $uname != $user->username) {
+            $smarty->assign('username', $uname);
+        } else {
+            $smarty->assign('username', '');
+        }
         // language attribute : prefer user-selected
         $lang = UserParams::get_for_user($userid, 'default_cms_language');
         if (!$lang) {

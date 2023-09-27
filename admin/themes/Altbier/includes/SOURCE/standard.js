@@ -6,8 +6,8 @@
  */
 /*!
 CMSMS Altbier theme functions v.2
-(C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-License GPL2+
+(C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+License GPL3+
 */
 (function (global, $, window, document) {
     'use strict';
@@ -83,6 +83,8 @@ License GPL2+
                 }
                 return false;
             });
+            // handle bookmarks context-menu popup
+            $('[context-menu="Marks"]').ContextMenu();
             // focus the input with .defaultfocus class
             $('input.defaultfocus, input[autofocus]').eq(0).focus();
         },

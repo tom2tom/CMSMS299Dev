@@ -6,7 +6,7 @@
 /*!
 Admin theme: OneEleven rtl v.1.2
 (C) 2012-2023 CMS Made Simple Foundation Inc
-License: GPL2+ 
+License: GPL2+
 */
 /* NORMALIZE BROWSER
 /* normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
@@ -1398,7 +1398,8 @@ header .shortcuts li {
 header .shortcuts li:last-child, header .shortcuts li.last {
 	padding-left: 0
 }
-header .shortcuts li a {
+header .shortcuts li a,
+header .shortcuts li span {
 	display: block;
 	margin-top: 5px;
 	width: 20px;
@@ -1448,7 +1449,7 @@ header .shortcuts li.notifications span.bubble {
 	text-indent: initial;
 }
 header .shortcuts li.favorites a {
-	background-position: -9px -50px
+	background-position: -9px -49px
 }
 /*** sidebar ***/
 #oe_sidebar {
@@ -1640,7 +1641,7 @@ header .shortcuts li.favorites a {
 	border: 1px solid #147fdb;
 	margin-left: 10px
 }
-#oe_pagemenu a.main {
+#oe_pagemenu a.first {
 	background-position: -1px -522px
 }
 #oe_pagemenu a.content {
@@ -1674,9 +1675,9 @@ header .shortcuts li.favorites a {
 	background-position: -1px -1172px /*TODO*/
 }
 /* hover, active */
-#oe_pagemenu li a.main:hover,
-#oe_pagemenu li.current a.main,
-#oe_pagemenu li:hover a.main {
+#oe_pagemenu li a.first:hover,
+#oe_pagemenu li.current a.first,
+#oe_pagemenu li:hover a.first {
 	background-position: -1px -492px
 }
 #oe_pagemenu li a.content:hover,
@@ -2080,9 +2081,9 @@ div.dialog h3 {
 	font-size: 14px
 }
 div.dialog a.bookmark {
-	padding-right: 20px;
+/*	padding-right: 20px;*/
 	line-height: 20px;
-	background: url(../images/icons/system/bookmark.png) no-repeat right
+/*	background: url(../images/icons/system/bookmark.png) no-repeat right*/
 }
 div.dialog form#chdir_form {
 	display: block

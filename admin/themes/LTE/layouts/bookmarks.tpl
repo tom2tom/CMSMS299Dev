@@ -6,22 +6,23 @@
         <div class="btn-toolbar mb-3" role="toolbar">
           <a class="btn btn-default btn-sm" role="button" href="{$marks_cntrls[0]->url}" title="{$marks_cntrls[0]->title}"><i class="fa fa-plus"></i></a>
           <a class="btn btn-default btn-sm" role="button" href="{$marks_cntrls[1]->url}" title="{$marks_cntrls[1]->title}"><i class="fa fa-star"></i></a>
-          <a class="btn btn-default btn-sm text-red" role="button" href="javascript:void()" data-widget="control-sidebar" title="{lang('close')}"><i class="fa fa-times"></i></a>
+          <a class="btn btn-default btn-sm text-red" role="button" href="javascript:void(0);" data-widget="control-sidebar" title="{lang('close')}"><i class="fa fa-times"></i></a>
         </div>
       {/if}
-      <h3>{lang('user_created')}</h3>
+{*    <h3>{lang('user_created')}</h3>*}
   </div>
   <div id="shorcuts-crol-sidebar" class="pt-1 pb-1 pl-3 pr-3 mr-3 d-block h-50">
-    {if !empty($marks)}
+    {if !empty($marks)}{*TODO $marksmenu popup dialog*}
       {foreach $marks as $mark}
-        <a class="btn btn-outline-secondary btn-sm btn-block text-white" role="button" href="{$mark->url}" title="{$mark->title}">{$mark->title}</a>
+        {if $mark->url}<a class="btn btn-outline-secondary btn-sm btn-block text-white" role="button" href="{$mark->url}" target="_blank" title="{$mark->title}">{$mark->title}</a>{else}<br>{/if}
       {/foreach}
     {/if}
   </div>
-
+{* no duplication of links displayed separately
   <div class="p-3 mr-3">
     <h3>{lang('help')}</h3>
-    <a class="btn btn-outline-secondary btn-sm btn-block text-white" rel="external" targuet="_blank" role="button" href="" title="{lang('documentation')}">{lang('documentation')}</a>
+    <a class="btn btn-outline-secondary btn-sm btn-block text-white" rel="external" targuet="_blank" role="button" href="https://docs.cmsmadesimple.org" title="{lang('documentation')}">{lang('documentation')}</a>
   </div>
+*}
 </aside>
 <!-- /.control-sidebar -->

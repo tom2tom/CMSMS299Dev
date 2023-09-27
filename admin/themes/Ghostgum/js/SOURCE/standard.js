@@ -4,7 +4,7 @@
  */
 /*!
 javascript for CMSMS Ghostgum-theme v.0.9
-(C) 2018-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+(C) 2018-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 License: Affero GPL 3+
 */
 /* jslint nomen: true, devel: true */
@@ -101,6 +101,8 @@ var themejs = {};
        'visibility': 'hidden'
       });
     });
+    // handle bookmarks context-menu popup
+    $('[context-menu="Marks"]').ContextMenu();
 
     $(window).on('resize', function() {
       if (!wait) {

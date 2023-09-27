@@ -30,6 +30,7 @@ namespace CMSMS; // TODO OK if pre-3.0?
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
+use CMSMS\FormUtils;
 use CMSMS\LangOperations;
 use CMSMS\Lone;
 use CMSMS\ModuleOperations;
@@ -560,15 +561,30 @@ EOS;
 		}
 
 		// preferences UI
-		if (check_permission($userid,'Manage My Settings')) {
+		if (check_permission($userid, 'Manage My Settings')) {
 			$smarty->assign('mysettings', 1);
 			$smarty->assign('myaccount', 1); //TODO maybe a separate check
 		}
 
 		// bookmarks UI
-		if (UserParams::get_for_user($userid, 'bookmarks') && check_permission($userid, 'Manage My Bookmarks')) {
+		if (check_permission($userid, 'Manage My Bookmarks')) {//TODO or 'Manage Bookmarks' if created
 			$marks = $this->get_bookmarks();
-			$smarty->assign('marks', $marks);
+			$links = [];
+			foreach ($marks as $one) {
+				if ($one->url) {
+					$class = ($one->bookmark_id > 0) ? ' class="bookmark"' : '';
+					$elem = '<a href="'.$one->url.'" target="_blank"'.$class.'>'.$one->title.'</a>'.PHP_EOL;
+					$links[] = ['content' => $elem];
+				} elseif ($links) {
+					//spacer
+					$elem = str_replace('"_blank"', '"_blank" style="display:inline-block;margin-bottom:1em"', array_pop($links)); //TODO css class fpr this
+					$links[] = $elem;
+				}
+			}
+			if ($links) {
+				$menu = FormUtils::create_menu($links, ['id'=>'Marks']);
+				$smarty->assign('marksmenu', $menu);
+			}
 		}
 
 		$secureparam = CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY];
@@ -579,7 +595,12 @@ EOS;
 		$smarty->assign('secureparam', $secureparam);
 		$userops = Lone::get('UserOperations');
 		$user = $userops->LoadUserByID($userid);
-		$smarty->assign('username', $user->username); //TODO only if user != effective user
+		$uname = Lone::get('AuthOperations')->get_effective_username();
+		if ($uname && $uname != $user->username) {
+			$smarty->assign('username', $uname);
+		} else {
+			$smarty->assign('username', '');
+		}
 		// language attribute : prefer user-selected
 		$lang = UserParams::get_for_user($userid, 'default_cms_language');
 		if (!$lang) {

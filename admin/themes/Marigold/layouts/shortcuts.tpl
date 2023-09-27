@@ -2,6 +2,11 @@
 {strip}
 <div class="shortcuts">
   <ul class="cf">
+    {if isset($marksmenu)}
+    <li class="favorites open">
+      <span context-menu="Marks" title="{lang('bookmarks')}" style="cursor:pointer"><i class="fa fa-bookmark"></i></a>
+    </li>
+    {/if}
     {$my_alerts=$theme->get_my_alerts()}
     {if !empty($my_alerts)}
       {$num_alerts=count($my_alerts)}
@@ -33,13 +38,6 @@
       <a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{lang('site_support')}"><i class="fa fa-life-ring"></i></a>
     {/if}
     </li>
-    {if isset($marks)}
-    <li class="favorites open">
-      <a href="listbookmarks.php?{$secureparam}" title="{lang('bookmarks')}"><i class="fa fa-bookmark"></i></a>
-    </li>
-    {else}
-    <li style="width:1.5rem"></li>
-    {/if}
     {if isset($myaccount)}
     <li class="settings">
       <a href="usersettings.php?{$secureparam}" title="{lang('title_mysettings')}"><i class="fa fa-sliders fa-rotate-90"></i></a>
@@ -55,25 +53,7 @@
   </ul>
 </div>
 <a id="aboutinfo" style="display:none" href="javascript:MG.aboutToggle()">CMSMS {lang('version')} {cms_version} &ldquo;{cms_versionname}&rdquo;</a>
-{if isset($marks)}
-<div class="dialog invisible" role="dialog" title="{lang('bookmarks')}">
-  {if is_array($marks) && count($marks)}
-    <h3>{lang('user_created')}</h3>
-    <ul>
-    {foreach $marks as $mark}
-     <li><a{if $mark->bookmark_id > 0} class="bookmark"{/if} href="{$mark->url}" title="{$mark->title}">{$mark->title}</a></li>
-    {/foreach}
-    </ul>
-  {/if}
-  <h3>{lang('help')}</h3>
-  <ul>
-    <li><a rel="external" class="external" href="https://docs.cmsmadesimple.org" title="{lang('documentation')}">{lang('documentation')}</a></li>
-    <li><a rel="external" class="external" href="https://forum.cmsmadesimple.org" title="{lang('forums')}">{lang('forums')}</a></li>
-    <li><a rel="external" class="external" href="http://cmsmadesimple.org/main/support/IRC">{lang('irc')}</a></li> QQQ IRC
-  </ul>
-</div>
-{/if}
-
+{if isset($marksmenu)}{$marksmenu}{/if}
 {if !empty($my_alerts)}
 <!-- alerts go here -->
 <div id="alert-dialog" role="dialog" title="{_la('alerts')}" style="display:none">

@@ -1146,14 +1146,19 @@ aside .no-slide,
     display: inline-block;
     margin: 0 .3em;
 }
-#header .shortcuts li a {
+/* #header .shortcuts li.spaced {
+    margin-bottom: 1em;
+}*/
+#header .shortcuts li a,
+#header .shortcuts li span {
     display: block;
     padding: .5em;
     font-size: 1.2em;
     cursor: pointer;
     color: #fff;
 }
-#header .shortcuts li a:hover {
+#header .shortcuts li a:hover,
+#header .shortcuts li span:hover {
     color: #fa8004
 }
 #header .shortcuts li.notifications {
@@ -1715,16 +1720,16 @@ div.dialog h3 {
 }
 
 div.dialog a.bookmark {
-    padding-right: 20px;
     line-height: 1.2rem;
 }
+/*
 div.dialog a.bookmark::before {
-/*    background: url(../images/icons/extra/bookmark.gif) no-repeat right*/
+/*    background: url(../images/icons/extra/bookmark.gif) no-repeat right* /
     content: '\f02e';
     font-family: 'Font Awesome 5 Free';
-/*    font-weight: 600;*/
+/*    font-weight: 600;* /
 }
-
+*/
 div.dialog form#chdir_form {
     display: block
 }

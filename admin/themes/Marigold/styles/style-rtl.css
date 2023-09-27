@@ -1149,7 +1149,8 @@ header .shortcuts li.settings i {/* rotated fonticon */
 }
 
 #aboutinfo,
-header .shortcuts li a {
+header .shortcuts li a,
+#header .shortcuts li span {
     padding: 0.75em;
     color: #fa8004;
     cursor: pointer;
@@ -1163,7 +1164,8 @@ header .shortcuts li a {
 }
 
 #aboutinfo:hover,
-header .shortcuts li a:hover {
+header .shortcuts li a:hover,
+#header .shortcuts li span:hover {
     color: #147fdb
 }
 
@@ -1856,13 +1858,7 @@ svg.systemicon {
 }
 
 .dialog a.bookmark {
-    padding-right: 20px;
     line-height: 20px;
-}
-.dialog a.bookmark::before {
-    content: '\f097';
-    font-family: FontAwesome;
-    color: #d3403c;
 }
 
 .dialog form#chdir_form {

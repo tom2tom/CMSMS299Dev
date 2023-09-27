@@ -6,8 +6,8 @@
 */
 /*!
 CMSMS LTE theme functions v.2
-(C) 2020-2022 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-License GPL2+
+(C) 2020-2023 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+License GPL3+
 */
 (function(global, $, window, document) {
     'use strict';
@@ -22,8 +22,14 @@ License GPL2+
             if (!this.isLocalStorage()) {
                 this.loadScript('themes/assets/js/js-cookie.min.js');
             }
+            // toggle hide/reveal menu children
+            this.toggleSubMenu($('#lte_pagemenu'), 50); // topmost ul of the nav elements
             // substitute elements - buttons for inputs etc
 //          this.migrateUIElements();
+            // apply jQueryUI buttons
+            this.setUIButtons();
+            // handle updating the display
+            this.updateDisplay();
             // setup deprecated one-request notice handling
 //            this.showNotifications();
             // setup persistent-notice handling
@@ -35,7 +41,9 @@ License GPL2+
 //          cms_data.dialogfunc = this.popup_dialog;
             // display pending notices
             cms_notify_all();
-           // open external links with rel="external" attribute in new window
+            // handle bookmarks context-menu popup
+            $('[context-menu="Marks"]').ContextMenu();
+            // open external links with rel="external" attribute in new window
             $('a[rel="external"]').attr('target', '_blank');
             // possible logout warning
             if (cms_data.sitedown) {
@@ -72,7 +80,7 @@ License GPL2+
                 callback = arg2 || callback;
             }
             //check all existing script tags in the page for the url
-            $('script[type="text/javascript"]').each(function() {
+            $('script').each(function() {
                 var load = ( url !== $(this).attr('src') );
                 return load;
             });
@@ -216,6 +224,80 @@ License GPL2+
             obj.height(tallest);
         },
 
+        /**
+         * @description Placeholder function for functions that need to be triggered on window resize
+         * @function updateDisplay()
+         */
+        updateDisplay: function () {
+            var $menu = $('#lte_pagemenu'),
+              $alert_box = $('#admin-alerts'),
+              offset;
+            if ($alert_box.length) {
+                offset = $alert_box.outerHeight() + $alert_box.offset().top;
+            } else {
+                //var $header = $('#header');
+                //offset = $header.outerHeight() + $header.offset().top;
+                offset = 0;
+            }
+//            console.debug('menu height = ' + $menu.outerHeight() + ' offset = ' + offset);
+//            console.debug('window height = ' + $(window).height());
+            if ($menu.outerHeight() + offset < $(window).height()) {
+//                $menu.css({ 'position': 'fixed', 'top': offset });
+//                console.debug('fixed');
+            } else {
+//                $menu.css({ 'position': '', 'top': '' });
+//                console.debug('floating');
+                if ($menu.offset().top < $(window).scrollTop()) {
+                    // menu top is not visible, scroll to it
+                    $('html, body').animate({
+                        scrollTop: $("#lte_pagemenu").offset().top
+                    }, 1000);
+                }
+            }
+        },
+
+        /**
+         * @description Handles toggling of main menu child items
+         * @function toggleSubMenu(menu, duration)
+         * @param {object} menu - Menu container object
+         * @param {number} duration - A positive number for toggle speed control
+         */
+        toggleSubMenu: function (menu, duration) {
+            var _this = this,
+             $LIs = menu.find('li.sub');
+            $LIs.children('a').on('click activate', function(ev) {
+                var $li = $(this).parent();
+                if ($li.hasClass('current')) {
+                    ev.preventDefault();
+                    return false;
+                }
+                menu.find('li').removeClass('current open').find('.nav-mark').removeClass('open');
+                $li.addClass('current');
+//TODO                _this.closeSidebar($('#lte_container'), menu);
+                _this.updateDisplay();
+                return true;
+            });
+            $LIs.children('span').on('click activate', function(ev) {
+                ev.preventDefault();
+                var $li = $(this).parent(),
+                 _p = [];
+                if ($li.hasClass('open')) {
+                    _p.push($li.find('ul').slideUp(duration));
+                    _p.push($li.add($li.find('li')).removeClass('open').find('.nav-mark').removeClass('open'));
+                } else {
+                    var $s = $li.siblings();
+                    _p.push($s.find('ul').slideUp(duration/2));
+                    _p.push($s.add($s.find('li')).removeClass('open').find('.nav-mark').removeClass('open'));
+                    _p.push($li.children('ul').slideDown(duration));
+                    _p.push($li.addClass('open').children('.nav-mark').addClass('open'));
+                }
+                $.when.apply($, _p).done(function () {
+                    _this.updateDisplay();
+                });
+                return false;
+            });
+        },
+
         /* *
          * @description Handle 'dynamic' notifications
          * @function showNotifications()
@@ -279,6 +361,52 @@ License GPL2+
         //TODO
         },
 */
+        /**
+         * @description Apply jQueryUI button function to input buttons
+         * @function setUIButtons()
+         * @private
+         */
+        setUIButtons: function () {
+            // Standard named input buttons
+            $('input[type="submit"], :button[data-ui-icon]').each(function () {
+                if (!this.value.trim()) return true;
+                var button = $(this),
+                    icon = button.data('uiIcon') || 'ui-icon-circle-check',
+                    label = button.val(),
+                    $btn = $('<button></button>');
+                if (!button.hasClass('noautobtn') || !button.hasClass('no-ui-btn')) {
+                    if (button.is('[name*=apply]')) {
+                        icon = button.data('uiIcon') || 'ui-icon-disk';
+                    } else if (button.is('[name*=cancel]')) {
+                        icon = button.data('uiIcon') || 'ui-icon-circle-close';
+                    } else if (button.is('[name*=resettodefault]') || button.attr('id') === 'refresh') {
+                        icon = button.data('uiIcon') || 'ui-icon-refresh';
+                    }
+                }
+                if (button.is(':button')) {
+                    label = button.text();
+                }
+                $(this.attributes).each(function (index, attribute) {
+                    $btn.attr(attribute.name, attribute.value);
+                });
+                $btn.button({
+                    icons: {
+                        primary: icon
+                    },
+                    label: label
+                });
+                button.replaceWith($btn);
+            });
+            // Back links
+            $('.pageback').addClass('ui-state-default ui-corner-all')
+                .prepend('<span class="ui-icon ui-icon-arrowreturnthick-1-w">')
+                .hover(function () {
+                    $(this).addClass('ui-state-hover');
+                }, function() {
+                    $(this).removeClass('ui-state-hover');
+                });
+        },
+
         /**
          * @description Delete persistent notice
          * @function handleAlert(target)

@@ -3,6 +3,11 @@
 	<li>{$t=lang('about')}
 		<a href="javascript:LT.aboutToggle();" class="nav-link" title="{$t}"><i aria-title="{$t}" class="fa fa-info-circle"></i></a>
 	</li>
+ {if isset($marksmenu)}{*TODO js to pop up bookmarks menu*}
+	<li>{$t=lang('bookmarks')}
+		<a class="nav-link" title="{$t}" data-scrollbar-theme="os-theme-light" data-widget="control-sidebar" data-controlsidebar-slide="true" href="javascript:void(0);"><i aria-title="{$t}" class="fa fa-bars"></i></a>
+	</li>
+ {/if}
 
 	{include file='notifications.tpl'}
 
@@ -27,12 +32,6 @@
 		<a class="nav-link disabled">{ * <i aria-title="{$t}" class="fa fa-desktop"></i>* }|</a>
 	</li>
 *}
- {if isset($marks)}
-	<li>{$t=lang('bookmarks')}
-		<a class="nav-link" title="{$t}" data-scrollbar-theme="os-theme-light" data-widget="control-sidebar" data-controlsidebar-slide="true" href="javascript:void()"><i aria-title="{$t}" class="fa fa-bars"></i></a>
-	</li>
- {/if}
-
 	<li>{$t=lang('viewsite')}
 		 <a href="{root_url}/index.php" rel="external" target="_blank" class="nav-link" title="{$t}"><i aria-title="{$t}" class="fa fa-desktop"></i></a>
 	</li>
@@ -61,7 +60,7 @@
 			</li>
 		{/if}
 
-		{if isset($marks)}
+		{if !empty($marks)}
 			<li class="favorites open">{$t=lang('bookmarks')}
 				<a href="listbookmarks.php?{$secureparam}" title="{$t}"><i aria-title="{$t}" class="fa fa-star-o"></i></a>
 			</li>
@@ -90,24 +89,23 @@
 </div>
 *}
 {*
-{if isset($marks)}{$t=}
+{if !empty($marks)}{$t=}
 	<div class="dialog invisible" role="dialog" title="{lang('bookmarks')}">
-		{if is_array($marks) && count($marks)}
-			<h3>{lang('user_created')}</h3>
-			<ul>
-				{foreach $marks as $mark}
-					<li><a{if $mark->bookmark_id > 0} class="bookmark"{/if} href="{$mark->url}" title="{$mark->title}">{$mark->title}</a></li>
-				{/foreach}
+		{*if !empty($marks)* }
+omit this		<h3>{lang('user_created')}</h3>
+			<ul>{foreach $marks as $mark}
+				{if $mark->url}<li><a{if $mark->bookmark_id > 0} class="bookmark"{/if} href="{$mark->url}" target="_blank" title="{$mark->title}">{$mark->title}</a></li>{else}<br>{/if}
+{/foreach}
 			</ul>
 			<hr>
-		{/if}
-
+		{*/if* }
+omit this lot
 		<h3>{lang('help')}</h3>
 
 		<ul>
-			<li><a href="https://docs.cmsmadesimple.org" rel="external" class="external" title="{lang('documentation')}">{lang('documentation')}</a></li>
-			<li><a href="https://forum.cmsmadesimple.org"rel="external" class="external" title="{lang('forums')}">{lang('forums')}</a></li>
-			<!--<li><a href="https://www.cmsmadesimple.org/support/documentation/chat/" rel="external" class="external">{lang('irc')}</a></li>-->
+			<li><a href="https://docs.cmsmadesimple.org" target="_blank" rel="external" class="external" title="{lang('documentation')}">{lang('documentation')}</a></li>
+			<li><a href="https://forum.cmsmadesimple.org target="_blank" "rel="external" class="external" title="{lang('forums')}">{lang('forums')}</a></li>
+			<!--<li><a href="https://www.cmsmadesimple.org/support/documentation/chat" target="_blank" rel="external" class="external">Slack</a></li>-->
 		</ul>
 	</div>
 {/if}

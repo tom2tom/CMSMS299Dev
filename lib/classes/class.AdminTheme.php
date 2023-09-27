@@ -44,6 +44,7 @@ use RecursiveIteratorIterator;
 use Throwable;
 use const CMS_ADMIN_PATH;
 use const CMS_DEPREC;
+use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
@@ -1091,25 +1092,40 @@ abstract class AdminTheme
     /**
      * Return the list of bookmarks
      *
-     * @param bool $pure if false, the shortcuts for adding and managing bookmarks are added to the list.
-     * @return array Array of Bookmark objects
+     * @param bool $pure Optional flag. If false, shortcuts for adding and managing
+     * bookmarks are added to the list. Default false.
+     * @return array of Bookmark objects possibly including unpopulated object(s)
+     *  to be used as spacer(s)
      */
     public function get_bookmarks(bool $pure = false): array
     {
         $bookops = new BookmarkOperations();
-        $marks = array_reverse($bookops->LoadBookmarks($this->userid));
+        $marks = array_reverse($bookops->LoadBookmarks($this->userid, 8));
 
         if (!$pure) {
-            $urlext = get_secure_param();
-            $mark= new Bookmark();
-            $mark->title = lang('addbookmark');
-            $mark->url = 'makebookmark.php'.$urlext;
-            if (!empty($this->_title)) $mark->url = '&title='.rawurlencode($this->_title);
+            if ($marks) {
+                $marks[] = new Bookmark(); //empty item to be treated as spacer
+            }
+			$path = substr($_SERVER['SCRIPT_FILENAME'], strlen(CMS_ROOT_PATH));
+            $config = Lone::get('Config');
+			$source = $config['root_url'].strtr($path, '\\', '/'); // TODO c.f. $this->_url.$this->_query which has no scheme or host
+			if (!empty($_SERVER['QUERY_STRING'])) {
+                $source .= '?'.$_SERVER['QUERY_STRING'];
+            }
+            //TODO block some additions e.g. $source is for addbookmark page, or already bookmarked
+            $urlext = get_secure_param(false);
+            $source = str_replace($urlext, '[SECURITYTAG]', $source);
+            $mark = new Bookmark();
+            $mark->title = lang('addthismark');
+            $mark->url = $config['admin_url'].'/addbookmark.php?'.$urlext.'&ref='.base64_encode($source);
+            if (!empty($this->_title)) {
+                $mark->url .= '&title='.urlencode($this->_title);
+            }
             $marks[] = $mark;
 
             $mark = new Bookmark();
-            $mark->title = lang('mybookmarks');
-            $mark->url = 'listbookmarks.php'.$urlext;
+            $mark->title = lang('all_marks');
+            $mark->url = $config['admin_url'].'/listbookmarks.php?'.$urlext;
             $marks[] = $mark;
         }
         return $marks;

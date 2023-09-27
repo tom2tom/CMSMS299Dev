@@ -1,5 +1,8 @@
 {block name=shortcuts}
 {strip}
+{if isset($marksmenu)}
+<span context-menu="Marks" class="icon" style="cursor:pointer" title="{_la('bookmarks')}"><svg><use xlink:href="themes/Ebonne/images/navsprite.svg#mybookmarks"></svg></span>
+{/if}
 {$my_alerts=$theme->get_my_alerts()}{$num_alerts=count($my_alerts)}
 {if $num_alerts > 0}
   {if $num_alerts > 10}{$txt='&#2295'}{else}{$txt=$num_alerts}{/if}
@@ -23,18 +26,11 @@
   {/if}
 </span>
 *}
-{if !empty($marks)}
-<span class="icon">
-  <a href="listbookmarks.php?{$secureparam}" title="{_la('bookmarks')}"><svg><use xlink:href="themes/Ebonne/images/navsprite.svg#mybookmarks"></svg></a>
-</span>
-{/if}
 <span class="icon">
   {if isset($myaccount)}
    <a href="usersettings.php?{$secureparam}" title="{_la('title_mysettings')}"><svg><use xlink:href="themes/Ebonne/images/navsprite.svg#mysettings"></svg></a>
-{* TODO if effective UID != UID
-  {else}
+  {elseif $username}
    {_la('signed_in',{$username})}
-*}
   {/if}
 </span>
 <span class="icon">

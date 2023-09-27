@@ -47,7 +47,7 @@ final class BookmarkOperations
 	#[\ReturnTypeWillChange]
 	public static function __callStatic(string $name, array $args)//: mixed
 	{
-		return (new CMSMS\BookmarkOperations())->$name(...$args); //TODO may bomb with same method-names
+		return (new BookmarkOperations())->$name(...$args); //TODO may bomb with same method-names
 	}
 
 	/**
@@ -60,10 +60,9 @@ final class BookmarkOperations
 	 */
 	private function _prep_for_saving(string $url): string
 	{
-		$urlext = get_secure_param();
-		if( startswith($url,CMS_ROOT_URL) ) $url = str_replace(CMS_ROOT_URL,'[ROOT_URL]',$url);
-		$url = str_replace($urlext,'[SECURITYTAG]',$url);
-		return $url;
+		if (startswith($url, CMS_ROOT_URL)) { $url = str_replace(CMS_ROOT_URL, '[ROOT_URL]', $url); }
+		$urlext = get_secure_param(false);
+		return str_replace($urlext, '[SECURITYTAG]', $url);
 	}
 
 	/**
@@ -76,13 +75,11 @@ final class BookmarkOperations
 	 */
 	private function _prep_for_display(string $url): string
 	{
-		$urlext = get_secure_param();
-		$map = ['[SECURITYTAG]'=>$urlext,'[ROOT_URL]'=>CMS_ROOT_URL];
-		foreach( $map as $from => $to ) {
-			$url = str_replace($from,$to,$url);
+		$urlext = get_secure_param(false);
+		$map = ['[SECURITYTAG]'=>$urlext, '[ROOT_URL]'=>CMS_ROOT_URL];
+		foreach ($map as $from => $to) {
+			$url = str_replace($from, $to, $url);
 		}
-
-		$url = str_replace($from,$to,$url);
 		return $url;
 	}
 
@@ -90,26 +87,28 @@ final class BookmarkOperations
 	 * Get all bookmarks for the specified user
 	 *
 	 * @param int $user_id The desired user id.
+	 * @param imt $count Optional maximum no. of marks to retrieve. Default 0 hence unlimited
 	 * @return array An array of Bookmark objects, or maybe empty
 	 */
-	public function LoadBookmarks(int $user_id): array
+	public function LoadBookmarks(int $user_id, int $count = 0): array
 	{
 		$result = [];
 		$db = Lone::get('Db');
 
-        $query = 'SELECT bookmark_id, user_id, title, url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE user_id = ? ORDER BY title';
+		$query = 'SELECT bookmark_id, title, url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE user_id = ? ORDER BY title';
 		$rs = $db->execute($query, [$user_id]);
-
-		while ($rs && ($row = $rs->FetchRow())) {
-			$onemark = new Bookmark();
-			$onemark->bookmark_id = $row['bookmark_id'];
-			$onemark->user_id = $row['user_id'];
-			$onemark->url = $this->_prep_for_display($row['url']);
-			$onemark->title = $row['title'];
-			$result[] = $onemark;
+		if ($rs) {
+			$i = 0;
+			while ($count > 0 && $i < $count && ($row = $rs->FetchRow())) {
+				$onemark = new Bookmark();
+				$onemark->bookmark_id = (int)$row['bookmark_id'];
+				$onemark->user_id = $user_id;
+				$onemark->url = $this->_prep_for_display((string)$row['url']);
+				$onemark->title = (string)$row['title'];
+				$result[] = $onemark;
+			}
+			$rs->close();
 		}
-		if ($rs) $rs->close();
-
 		return $result;
 	}
 
@@ -125,19 +124,19 @@ final class BookmarkOperations
 		$result = null; // no object
 		$db = Lone::get('Db');
 
-		$query = 'SELECT bookmark_id, user_id, title, url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE bookmark_id = ?';
+		$query = 'SELECT user_id, title, url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE bookmark_id = ?';
 		$rs = $db->execute($query, [$id]);
-
-		while ($rs && ($row = $rs->FetchRow())) {
-			$onemark = new Bookmark();
-			$onemark->bookmark_id = $row['bookmark_id'];
-			$onemark->user_id = $row['user_id'];
-			$onemark->url = $this->_prep_for_display($row['url']);
-			$onemark->title = $row['title'];
-			$result = $onemark;
+		if ($rs) {
+			while (($row = $rs->FetchRow())) {
+				$onemark = new Bookmark();
+				$onemark->bookmark_id = $id;
+				$onemark->user_id = (int)$row['user_id'];
+				$onemark->url = $this->_prep_for_display((string)$row['url']);
+				$onemark->title = (string)$row['title'];
+				$result = $onemark;
+			}
+			$rs->close();
 		}
-		if ($rs) $rs->close();
-
 		return $result;
 	}
 

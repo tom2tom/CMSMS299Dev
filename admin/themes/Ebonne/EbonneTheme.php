@@ -23,6 +23,7 @@ namespace CMSMS;
 
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
+use CMSMS\FormUtils;
 use CMSMS\LangOperations;
 use CMSMS\Lone;
 use CMSMS\ModuleOperations;
@@ -118,6 +119,11 @@ EOS;
 		$jsm->reset(); // start another merger-file
 		$jsm->queue_matchedfile('jquery.ui.touch-punch.js', 1);
 		$jsm->queue_matchedfile('jquery.toast.js', 1);
+//* TODO arrange for bookmarks context menu
+//		if (check_permission($userid, 'Manage My Bookmarks')) {
+			$jsm->queue_matchedfile('jquery.ContextMenu.js', 1);
+//		}
+//*/
 		$p = __DIR__.DIRECTORY_SEPARATOR.'js';
 		$jsm->queue_matchedfile('jquery.alertable.js', 2, $p);
 		$jsm->queue_matchedfile('standard.js', 3, $p);
@@ -323,16 +329,31 @@ EOS;
 		}
 
 		// preferences UI
-		if (check_permission($userid,'Manage My Settings')) {
+		if (check_permission($userid, 'Manage My Settings')) {
 			$smarty->assign('mysettings', 1)
 			  ->assign('myaccount', 1); //TODO maybe a separate check
 		}
 
 		// bookmarks UI
-		if (UserParams::get_for_user($userid, 'bookmarks') && check_permission($userid,'Manage My Bookmarks')) {
+		if (check_permission($userid, 'Manage My Bookmarks')) { //TODO or 'Manage Bookmarks' if created
 			$marks = $this->get_bookmarks();
-			$smarty->assign('marks', $marks);
-		}
+			$links = [];
+			foreach ($marks as $one) {
+				if ($one->url) {
+					$class = ($one->bookmark_id > 0) ? ' class="bookmark"' : '';
+					$elem = '<a href="'.$one->url.'" target="_blank"'.$class.'>'.$one->title.'</a>'.PHP_EOL;
+					$links[] = ['content' => $elem];
+				} elseif ($links) {
+					//spacer
+					$elem = str_replace('"_blank"', '"_blank" style="display:inline-block;margin-bottom:1em"', array_pop($links)); //TODO css class fpr this
+					$links[] = $elem;
+				}
+			}
+			if ($links) {
+				$menu = FormUtils::create_menu($links, ['id'=>'Marks']);
+				$smarty->assign('marksmenu', $menu);
+			}
+        }
 
 		$smarty->assign('header_includes', get_page_headtext())
 		  ->assign('bottom_includes', get_page_foottext())
@@ -349,8 +370,14 @@ EOS;
 			$smarty->assign('nav', $this->get_navigation_tree());
 		}
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
+		// effective user
 		$user = Lone::get('UserOperations')->LoadUserByID($userid);
-		$smarty->assign('username', $user->username); //TODO only if user != effective user
+		$uname = Lone::get('AuthOperations')->get_effective_username();
+		if ($uname && $uname != $user->username) {
+			$smarty->assign('username', $uname);
+		} else {
+			$smarty->assign('username', '');
+		}
 		// selected language
 		$lang = UserParams::get_for_user($userid, 'default_cms_language');
 		if (!$lang) $lang = AppParams::get('frontendlang');

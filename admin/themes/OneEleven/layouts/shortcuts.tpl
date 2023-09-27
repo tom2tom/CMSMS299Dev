@@ -2,6 +2,11 @@
 {strip}
 <div class="shortcuts">
 	<ul class="cf">
+		{if isset($marksmenu)}{$t=lang('bookmarks')}
+		<li class="favorites open">
+			<span context-menu="Marks" title="{$t}" style="cursor:pointer">{$t}</span>
+		</li>
+		{/if}
 		<li class="help">
 		{if isset($module_help_url)}{$t=lang('module_help')}
 			<a href="{$module_help_url}" title="{$t}">{$t}</a>
@@ -21,11 +26,6 @@
 			<a href="useraccount.php?{$secureparam}" title="{$t}">{$t}</a>
 		</li>
 		{/if}
-		{if isset($marks)}{$t=lang('bookmarks')}
-		<li class="favorites open">
-			<a href="listbookmarks.php?{$secureparam}" title="{$t}">{$t}</a>
-		</li>
-		{/if}
 		{$my_alerts=$theme->get_my_alerts()}
 		{$num_alerts=count($my_alerts)}
 		{if $num_alerts > 0}
@@ -43,25 +43,7 @@
 		</li>
 	</ul>
 </div>
-{if isset($marks)}
-<div class="dialog invisible" role="dialog" title="{lang('bookmarks')}">
-	{if is_array($marks) && count($marks)}
-		<h3>{lang('user_created')}</h3>
-		<ul>
-		{foreach $marks as $mark}
-			<li><a{if $mark->bookmark_id > 0} class="bookmark"{/if} href="{$mark->url}" title="{$mark->title}">{$mark->title}</a></li>
-		{/foreach}
-		</ul>
-	{/if}
-	<h3>{lang('help')}</h3>
-	<ul>
-		{$t=lang('documentation')}<li><a rel="external" class="external" href="https://docs.cmsmadesimple.org" title="{$t}">{$t}</a></li>
-		{$t=lang('forums')}<li><a rel="external" class="external" href="https://forum.cmsmadesimple.org" title="{$t}">{$t}</a></li>
-		<li><a rel="external" class="external" href="http://cmsmadesimple.org/main/support/IRC">{lang('irc')}</a></li>
-	</ul>
-</div>
-{/if}
-
+{if isset($marksmenu)}{$marksmenu}{/if}
 {if !empty($my_alerts)}
 <!-- alerts go here -->
 <div id="alert-dialog" class="alert-dialog" role="dialog" title="{lang('alerts')}" style="display:none">

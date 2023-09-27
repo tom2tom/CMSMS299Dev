@@ -27,10 +27,10 @@ License GPL3+
      * @namespace OE.helper
      */
     OE.helper = {
-
         init: function() {
             var _this = this;
-
+            // handle bookmarks context-menu popup
+            $('[context-menu="Marks"]').ContextMenu();
             // open external links with rel="external" attribute in new window
             $('a[rel=external]').attr('target', '_blank');
             // focus on input with .defaultfocus class
