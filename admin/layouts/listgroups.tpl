@@ -47,7 +47,7 @@
       </td>
       {if $pmod}
       <td class="pagepos">
-       <span class="action" context-menu="Group{$one.id}">{$iconmenu}</span></td>
+       <span class="action" context-menu="Group{$one.id}">{$iconmenu}</span>
       </td>
       {/if}
 {/strip}

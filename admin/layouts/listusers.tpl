@@ -64,7 +64,7 @@
     {/if}
 
     <td class="pagepos">
-      <span class="action" context-menu="User{$user.id}">{$iconmenu}</span></td>
+      <span class="action" context-menu="User{$user.id}">{$iconmenu}</span>
     </td>
 
     <td>
