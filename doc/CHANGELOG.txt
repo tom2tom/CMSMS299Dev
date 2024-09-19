@@ -28,8 +28,8 @@ also support installation based on sources in a git repo
 
 INFRASTRUCTURE
 
-Coded for PHP 7.2+, compatible with 7.2.x to 8.2 (at least)
-jQuery 3.7.0 (but use of 2.2.4 may be configured, to provide for effective upgrades
+Coded for PHP 7.2+, compatible with 7.2.x to 8.4 (at least)
+jQuery 3.7.1 (but use of 2.2.4 may be configured, to provide for effective upgrades
  from 1.x to 3.x which need two stages, via an intermediate 2.x)
 jQuery migrate 3.4.0 (but use of 1.4.1 may be configured, to work with jQ 2.2.4)
 jQuery-UI & jQuery-UI-css 1.13.2
@@ -183,7 +183,7 @@ DETAILS
          GetScriptsManager(),GetStylesManager(),GetJobManager(),GetCookieManager(),GetSiteUUID()
   - New methods: cms_admin_sendheaders(),cms_get_css(),
          cms_get_script(),cms_installed_jquery(),cms_path_to_url(),
-         cms_to_stamp(),
+         cms_to_stamp(),cmsversion_compare()
          get_module_param(),set_module_param(),
          get_richeditor_setup(),get_syntaxeditor_setup(),
          get_server_permissions(),
@@ -213,6 +213,7 @@ DETAILS
   - New content-security methods: Crypto::encrypt_string(),decrypt_string(),hash_string(),random_string(),scramble_string()
   - New hook-replacement events: MetadataPostRender, MetadataPreRender, PageTopPostRender, PageTopPreRender,
       PageHeadPostRender, PageHeadPreRender, PageBodyPostRender, PageBodyPreRender, PostRequest
+  - FEATURE: frontend pages may be directly generated and displayed by module actions, via URL like CMS_ROOT_URL/lib/moduleinteface&mact=modname,actionname
   - CHANGE: improved scalability, peformance on large sites
   - CHANGE: parameter-seprarators in generated URL strings default to '&' instead of '&amp;' (per RFC 3986)
   - CHANGE: don't ignore module-action parameters in frontend-request URLs
@@ -423,7 +424,7 @@ AdminSearch 1.3
 
 CmsJobManager
  - Module removed - functionality migrated to core.
- - Now uses CURL initiate asynchronous requests
+ - Now uses cURL initiate asynchronous requests
 
 ContentManager - 1.2
   - REMOVED: Gets rid of secure options, flag output and bulk functionaltiy
@@ -471,31 +472,59 @@ Search  - v1.52
 
 Installation Assistant - v2.0
   - Test the default character set
-  - Require at least PHP 7.2 and recommend 8.0.30
+  - Require at least PHP 7.2 and recommend 8.1.27
   - Use Smarty and database Connection classes from the core
   - Install default site-content from an XML file
 
+Version 2.2.21F2 - Fredericton
+-------------------------------
+ - FR #12720,#12737 Extra image formats and intelligent thumbnailing
+ - Deploy folders for Smarty config files
 
-Version 2.2.19 - Inuvik
+Version 2.2.20F2 - Yellowknife
+-------------------------------
+ - FR #12700 Configurable tabs-order during content edititing
+ - BR #12701 Correct page-types selector setup
+ - BR #12727 Search module error
+Correct lockmanager init during DM new-item creation
+Also support UserGuide content I/O in tar.gz format
+
+Version 2.2.19F2 - Inuvik
 -------------------------------
 Various places
- - Compatibility fixes for PHP 8.2 (and 8.3).
+ - Compatible with PHP 7.1 to 8.4, or 5.6 to 7.4 if Smarty3 is substituted for Smarty4.
  - Replaced deprecated Smarty syntax in templates.
  - Replaced some of the deprecated jQuery syntax.
  - Corrected html errors and inconsistencies.
  - Corrected typos.
+ - Reconciled page-hierarchy-selector parameters.
 
 Core - General
  - Corrected filter applied to $_GET, $_SERVER at the start of each request.
  - Corrected page-selector widget operation.
+ - Corrected url/route processing for module actions.
+ - Corrected SQL prepared-statements failure.
+ - BR #12657 {content_module} tag property-collision.
+ - BR #12660 output filter not working.
+ - BR #12661 page-selector plugin misnamed parameter.
+ - BR #12662 file picker does not filter archives properly.
+ - BR #12666 missing admin-log data.
+ - BR #12677 UDT parse error can trigger 500 error.
+ - BR #12683 admin-log data length management.
+ - Improved pages-hierarchy management.
  - Validate entered bookmark-URLs.
- - Deprecated use of PHP function umask();
+ - Include .phar files in executables test.
+ - Deprecated use of PHP function umask().
+ - News module status changed to non-core, but still installed with demo content.
+ - Since CMSMS 2.2, config parameters 'ssl_url','ssl_uploads_url' and 'ssl_image_uploads_url', and methods which use those, have internally but not publicly been flagged as deprecated.
  - Added missing nls files, allowing installation of extra translations.
- - Smarty upgraded to version 4.3.0.
+ - Smarty upgraded to forked version 4.4.1C.
  - Enabled use of PHP function rawurlencode in Smarty templates.
  - Added Smarty modifier plugin 'adjust' to handle deprecated modifier-function-calls in templates.
- - PHPMailer upgraded to version 6.7.1.
- - TinyMCE upgraded to version 4.9.11.
+ - Added variable '_call' to all Smarty template objects to work around Smarty 4.5's deprecation of and 5's blocking of all PHP function calls.
+ - Added Smarty registered-class '_call' to work around Smarty 4.5's deprecation of and 5's blocking of unregistered static calls.
+ - PHPMailer upgraded to version 6.9.1.
+ - TinyMCE upgraded to version 5.10.9, with support for theme-selection.
  - jQuery upgraded to version 1.12.4.
  - jQuery UI upgraded to version 1.12.1 (with previous styling).
  - jQuery migrate upgraded to version 1.4.1.
@@ -504,7 +533,7 @@ Admin theme
  - Corrected content scrolling
 
 AdminSearch 1.0.7
- - Support exclusion of inactive pages from searches
+ - FR #12555 - Support exclusion of inactive pages from searches
 
 CmsJobManager 0.1.4
  - BR #12629 - Add missing changelog and retriever
@@ -515,24 +544,30 @@ CMSMailer
 ContentManager 1.1.11
  - BR #12474 - Taking the default page down by accident through the content type
  - BR #12635 - Apply button is shown for non-existing page and creates new pages
+ - BR #12701 - Page selector omits sectionheader page-type
+ - FR #12487 - (partial) Page search also checks menu text
 
-DesignManager
+DesignManager 1.1.10
  - Corrected new template creation
 
-FileManager
+FileManager 1.6.14
  - BR #12535 - File Manager Unpack archive .tar.gz
 
-FilePicker
+FilePicker 1.0.7
  - BR #12621 - FilePicker upload bug
  - BR #12628 - Add missing changelog and retriever
+ - Add missing ContentBlockField API methods
 
 MenuManager 1.50.4
  - Exported from core to a normal CMSMS module in Forge
  - BR #12619 - Wrong assignment of $prevdepth.
  - BR #12620 - Version 2 breaks MenuManager with childrenof.
 
-News
+News 2.51.13
  - Sanitise news-item strings (title, summary, content) before display
+
+UserGuide
+ - Bundled in installer, but not automatically installed
 
 Phar Installer 1.4
  - Added missing nls files, enabling installer sessions using extra translations
@@ -547,6 +582,7 @@ Version 2.2.18 - Apex
 -------------------------------
 Core - General
  - Fallback function CMSMS\strftime. PHP Intl extension still recommended. The fallback solves issues on hosts that don't install it by default and don't allow users to install it.
+
 
 Version 2.2.17 - Iqaluit
 -------------------------------
